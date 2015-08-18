@@ -1,0 +1,569 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1070 - in antargis/trunk: . data/levels/tutorial	ruby src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-April/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1070%20-%20in%20antargis/trunk%3A%20.%20data/levels/tutorial%0A%09ruby%20src&In-Reply-To=%3C200704031907.l33J7AFs004543%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000029.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1070 - in antargis/trunk: . data/levels/tutorial	ruby src</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1070%20-%20in%20antargis/trunk%3A%20.%20data/levels/tutorial%0A%09ruby%20src&In-Reply-To=%3C200704031907.l33J7AFs004543%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1070 - in antargis/trunk: . data/levels/tutorial	ruby src">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Tue Apr  3 21:07:10 CEST 2007</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000029.html">[Antargis-svn] r1071 - antargis/tags
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#28">[ date ]</a>
+              <a href="thread.html#28">[ thread ]</a>
+              <a href="subject.html#28">[ subject ]</a>
+              <a href="author.html#28">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-04-03 21:07:09 +0200 (Tue, 03 Apr 2007)
+New Revision: 1070
+
+Modified:
+   antargis/trunk/TODO
+   antargis/trunk/data/levels/tutorial/tutorial2.antlvl
+   antargis/trunk/data/levels/tutorial/tutorial2.rb
+   antargis/trunk/ruby/ant_buildjob.rb
+   antargis/trunk/ruby/ant_hero.rb
+   antargis/trunk/ruby/ant_hljob_base.rb
+   antargis/trunk/ruby/ant_hljob_states.rb
+   antargis/trunk/ruby/ant_hljobs.rb
+   antargis/trunk/ruby/map.rb
+   antargis/trunk/src/height_map.cc
+   antargis/trunk/src/map.cc
+   antargis/trunk/src/map.h
+Log:
+* next try for 0.2-release
+
+
+Modified: antargis/trunk/TODO
+===================================================================
+--- antargis/trunk/TODO	2007-03-26 19:28:15 UTC (rev 1069)
++++ antargis/trunk/TODO	2007-04-03 19:07:09 UTC (rev 1070)
+@@ -1,5 +1,6 @@
++* check if reachable before fetching !!! (in house) - or even better use heuristic for estimating distance in getNear(...)
++* saving of new hljobs
+ * Translation tut3
+-* Fighting tut2 - problems men belong to more than one buildign ???
+ * fix jobs some more
+ * what's wrong with pathfinding-test ???
+ 
+
+Modified: antargis/trunk/data/levels/tutorial/tutorial2.antlvl
+===================================================================
+--- antargis/trunk/data/levels/tutorial/tutorial2.antlvl	2007-03-26 19:28:15 UTC (rev 1069)
++++ antargis/trunk/data/levels/tutorial/tutorial2.antlvl	2007-04-03 19:07:09 UTC (rev 1070)
+@@ -3,7 +3,7 @@
+     &lt;position x=&quot;59.2397&quot; y=&quot;71.2682&quot; z=&quot;1.5455&quot;/&gt;
+     &lt;resource wood=&quot;100&quot; stone=&quot;100&quot; food=&quot;200&quot;/&gt;
+   &lt;/antTower&gt;
+-  &lt;antWorkshop aggression=&quot;1&quot; birthday=&quot;0.0&quot; energy=&quot;1&quot; food=&quot;1&quot; healSpeed=&quot;0.1&quot; id=&quot;0&quot; mode=&quot;&quot; morale=&quot;1&quot; name=&quot;0.737592943267599&quot; onGround=&quot;true&quot; men=&quot;1&quot;&gt;
++  &lt;antWorkshop aggression=&quot;1&quot; birthday=&quot;0.0&quot; energy=&quot;1&quot; food=&quot;1&quot; healSpeed=&quot;0.1&quot; id=&quot;0&quot; mode=&quot;&quot; morale=&quot;1&quot; name=&quot;0.737592943267599&quot; onGround=&quot;true&quot; men=&quot;1&quot; village=&quot;small Village&quot;&gt;
+     &lt;position x=&quot;42.8217&quot; y=&quot;21.9856&quot; z=&quot;1.96389&quot;/&gt;
+     &lt;resource/&gt;
+   &lt;/antWorkshop&gt;
+
+Modified: antargis/trunk/data/levels/tutorial/tutorial2.rb
+===================================================================
+--- antargis/trunk/data/levels/tutorial/tutorial2.rb	2007-03-26 19:28:15 UTC (rev 1069)
++++ antargis/trunk/data/levels/tutorial/tutorial2.rb	2007-04-03 19:07:09 UTC (rev 1070)
+@@ -14,15 +14,15 @@
+ 		if hero.getName!=&quot;Rowen&quot;
+ 			return
+ 		end
+-		if job.class==AntHeroFightJob
+-			if job.target.class==AntWorkshop
++		if job.is_a?(AntHeroFightJob)
++			if job.target.is_a?(AntWorkshop)
+ 				@defeat=true
+ 				start=StoryFlow.new(&quot;sheep&quot;)
+ 				start.push(&quot;Tutorial&quot;,&quot;Press the construct button. But beware that your men do rest enough.&quot;)
+ 				start.push(&quot;Tutorial&quot;,&quot;When you have enough weopons and armour you can take it all up by pressing the 'take weapon' button.&quot;)
+ 				tellStory(start)
+ 			else
+-				if hero.getPlayer==getMap.getPlayer
++				if hero.getName==&quot;Rowen&quot;
+ 					wonLevel
+ 				else
+ 					lostLevel
+
+Modified: antargis/trunk/ruby/ant_buildjob.rb
+===================================================================
+--- antargis/trunk/ruby/ant_buildjob.rb	2007-03-26 19:28:15 UTC (rev 1069)
++++ antargis/trunk/ruby/ant_buildjob.rb	2007-04-03 19:07:09 UTC (rev 1070)
+@@ -1,4 +1,6 @@
+ class AntHeroBuildJob&lt;AntHeroMoveJob
++	FARTHEST_AWAY=40
++
+ 	attr_reader :finished
+ 	def initialize(hero,targetpos,building)
+ 
+@@ -51,7 +53,7 @@
+ 						puts &quot;resource not found! #{res}&quot;
+ 						man.newRestJob(5)
+ 					else
+-						if (<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">nearest.getPos2D- at target.getPos2D</A>).length&lt;20
++						if (<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">nearest.getPos2D- at target.getPos2D</A>).length&lt;FARTHEST_AWAY
+ 							man.newMoveJob(0,nearest.getPos2D,0.5) # near but not actually there
+ 							man.setMode(&quot;harvest&quot;)
+ 						else
+
+Modified: antargis/trunk/ruby/ant_hero.rb
+===================================================================
+--- antargis/trunk/ruby/ant_hero.rb	2007-03-26 19:28:15 UTC (rev 1069)
++++ antargis/trunk/ruby/ant_hero.rb	2007-04-03 19:07:09 UTC (rev 1070)
+@@ -101,6 +101,7 @@
+ 	end
+ 	
+ 	def newHLRestJob(time)
++		@job.stopJob if @job
+ 		@job=nil
+ 		setFire(true)
+ 		super(time)
+@@ -125,40 +126,49 @@
+ 	
+ 	
+ 	def newHLMoveJob(prio,pos,dist)
++		@job.stopJob if @job
+ 		@job=AntHeroMoveJob.new(self,prio,pos,dist)
+ 		assignJob2All
+ 	end
+ 	def newHLRecruitJob(target)
++		@job.stopJob if @job
+ 		@job=AntHeroRecruitJob.new(self,target)
+ 		assignJob2All
+ 	end
+ 	def newHLConstructJob(target)
++		@job.stopJob if @job
+ 		@job=AntHeroConstructJob.new(self,target)
+ 		assignJob2All
+ 	end
+ 	def newHLTakeFoodJob(target)
++		@job.stopJob if @job
+ 		puts &quot;take food job #{self} #{target}&quot;
+ 		@job=AntHeroTakeJob.new(self,target,&quot;food&quot;)
+ 		assignJob2All
+ 	end
+ 	def newHLTakeWeaponJob(target)
++		@job.stopJob if @job
+ 		@job=AntHeroTakeJob.new(self,target,&quot;weapon&quot;)
+ 		assignJob2All
+ 	end
+ 	def newHLFightJob(target)
++		@job.stopJob if @job
+ 		@job=AntHeroFightJob.new(self,target)
+ 		assignJob2All
+ 	end
+ 	def newHLFightAnimalJob(target)
++		@job.stopJob if @job
+ 		@job=AntHeroFightAnimalJob.new(self,target)
+ 		assignJob2All
+ 	end
+ 	def newHLBuildJob(pos,type)
++		@job.stopJob if @job
+ 		@job=AntHeroBuildJob.new(self,pos,type)
+ 		assignJob2All
+ 	end
+ 	
+ 	def newHLDismissJob()
++		@job.stopJob if @job
+ 		@job=nil
+ 		agg=getAggression
+ 		men=@men.select{|m|not m.is_a?(AntHero)} # exclude hero
+
+Modified: antargis/trunk/ruby/ant_hljob_base.rb
+===================================================================
+--- antargis/trunk/ruby/ant_hljob_base.rb	2007-03-26 19:28:15 UTC (rev 1069)
++++ antargis/trunk/ruby/ant_hljob_base.rb	2007-04-03 19:07:09 UTC (rev 1070)
+@@ -1,5 +1,5 @@
+ class AntNewHLJob
+-	attr_reader :finished
++	attr_reader :finished, :stopped
+ 	# some magic here
+ 	def initialize(hero)
+ 		@hero=hero
+@@ -22,6 +22,13 @@
+ 		@hero
+ 	end
+ 
++	def stopJob
++		@stopped=true
++		if @state
++			call(@state,&quot;leave&quot;)
++		end
++	end
++
+ 	def check(man)
+ 		return if @state.nil?
+ 		call2(@state,&quot;assign&quot;,man)
+@@ -57,7 +64,7 @@
+ 
+ 	def call(state,event)
+ 		m=methodName(state,event)
+-		print &quot;CALL #{state} #{event} #{m}  #{getTime} -- &quot;
++		print &quot;CALL #{hero.getName} #{state} #{event} #{m}  #{getTime} -- &quot;
+ 		if self.class.method_defined?(m)
+ 			v=send(m)
+ 			puts v
+@@ -73,7 +80,7 @@
+ 
+ 	def call2(state,event,man)
+ 		m=methodName(state,event)
+-		print &quot;CALL2 #{state} #{event} #{m} #{man} #{getTime} -- &quot;
++		print &quot;CALL2 #{hero.getName} #{state} #{event} #{m} #{man} #{getTime} -- &quot;
+ 		if self.class.method_defined?(m)
+ 			v=send(m,man)
+ 			puts v
+
+Modified: antargis/trunk/ruby/ant_hljob_states.rb
+===================================================================
+--- antargis/trunk/ruby/ant_hljob_states.rb	2007-03-26 19:28:15 UTC (rev 1069)
++++ antargis/trunk/ruby/ant_hljob_states.rb	2007-04-03 19:07:09 UTC (rev 1070)
+@@ -215,15 +215,18 @@
+ module HLJob_GetResource
+ 	# needed: resources return array of resource-strings
+ 	def getResource_enter
+-		allMen.each{|man|
+-			resources.each{|r|
+-				a=target.resource.get(r)
+-				if a&gt;1
+-					man.resource.add(r,1)
+-					target.resource.sub(r,1)
+-				end
++		for i in 1..hero.getAggression
++			allMen.each{|man|
++				resources.each{|r|
++					a=target.resource.get(r)
++					if a&gt;1
++						man.resource.add(r,1)
++						target.resource.sub(r,1)
++					end
++				}
+ 			}
+-		}
++		end
++		allMen.each{|m|m.resourceChanged}
+ 	end
+ 	def getResource_ready
+ 		return true
+@@ -234,6 +237,7 @@
+ 	def killAnimal_enter
+ 		target.eventDie
+ 		hero.resource.takeAll(target.resource)
++		allMen.each{|m|m.resourceChanged}
+ 	end
+ end
+ 
+@@ -311,6 +315,8 @@
+ 		for i in 1..food
+ 			allMen[i-1].resource.add(&quot;food&quot;,1)
+ 		end
++
++		allMen.each{|m|m.resourceChanged}
+ 	end
+ 	
+ end
+@@ -329,12 +335,14 @@
+ 		reshuffle
+ 	end
+ 
++	# this called if (and only if) the hero has won or is fleeing (and thus aborting the fight)
+ 	def remove(fightJob)
+ 		@parties[fightJob.fightType].delete(fightJob)
+ 		@oldparties[fightJob.fightType].delete(fightJob)
+ 		reshuffle
+ 	end
+ 
++	# this called if (and only if) the hero has lost
+ 	def removeLost(fightJob)
+ 		@parties[fightJob.fightType].delete(fightJob)
+ 		reshuffle
+@@ -369,25 +377,6 @@
+ 		end
+ 	end
+ 
+-# 	def eventWon(whichType)
+-# 		trace
+-# 		
+-# 
+-# 		# FIXME: should be parted !!!
+-# 		owners=@oldparties[whichType].collect{|j|j.hero}
+-# 		i=0
+-# 		puts &quot;whichType:#{whichType}&quot;
+-# 		assert{owners.length&gt;0}
+-# 		@oldparties[otherType(whichType)].each{|p|
+-# 			newOwner=owners[i]
+-# 			p.hero.setOwner(newOwner)
+-# 			i+=1
+-# 			i%=owners.length
+-# 		}
+-# 	end
+-# 	def eventLost(type)
+-# 		eventWon(otherType(type))
+-# 	end
+ 	private
+ 
+ 	def otherType(my)
+@@ -398,11 +387,14 @@
+ 		# reinit and assign
+ 
+ 		menGroup={}
++		leave=false
+ 		@parties.each{|type,jobs|
+ 			puts &quot;parties: #{type}:#{jobs}&quot;
+ 			menGroup[type]=jobs.collect{|job|job.undefeatedMen}.flatten.uniq
+-			return if @inited and menGroup[type].length==0 # a fightjob is leaving
++			menGroup[type].each{|man|man.delJob}
++			leave=true if @inited and menGroup[type].length==0 # a fightjob is leaving
+ 		}
++		return if leave
+ 	
+ 		# check that each group has more than 0 members
+ 		assert{menGroup.select{|k,v|v.length==0}.length==0}
+@@ -456,7 +448,6 @@
+ 			puts &quot;NOT YET INITED #{self} hero:#{hero} target:#{target}&quot;
+ 			target.newHLDefendJob(hero)
+ 		end
+-		#@fightData.init
+ 		assignAllJobs
+ 	end
+ 
+@@ -556,7 +547,15 @@
+ 			man.hlJobMode[:fighting]=true
+ 		}
+ 	end
++end
+ 
+-
++module HLJob_Recruit
++	def recruit_enter
++	end
++	
++	private
++	def recruitGetMen
++		
++	end
+ end
+ 
+
+Modified: antargis/trunk/ruby/ant_hljobs.rb
+===================================================================
+--- antargis/trunk/ruby/ant_hljobs.rb	2007-03-26 19:28:15 UTC (rev 1069)
++++ antargis/trunk/ruby/ant_hljobs.rb	2007-04-03 19:07:09 UTC (rev 1070)
+@@ -41,6 +41,9 @@
+ 	def xmlName
+ 		self.class.to_s
+ 	end
++	def stopJob
++	end
++
+ 	def saveXML(n)
+ 		puts &quot;SAVEXML&quot;
+ 		puts self
+
+Modified: antargis/trunk/ruby/map.rb
+===================================================================
+--- antargis/trunk/ruby/map.rb	2007-03-26 19:28:15 UTC (rev 1069)
++++ antargis/trunk/ruby/map.rb	2007-04-03 19:07:09 UTC (rev 1070)
+@@ -44,13 +44,7 @@
+ end
+ 
+ 
+-# class MyHeuristicFunction&lt;HeuristicFunction
+-# 	def distance(a,b)
+-# 		(b-a).length*1.4
+-# 	end
+-# end
+ 
+-
+ # AntRubyMap is not only the &quot;map&quot;, but manages the moving and the actions of all the
+ # entities around. Apart from that it contains the Players. So it might be better to call it &quot;World&quot;
+ class AntRubyMap&lt;AntMap
+@@ -333,7 +327,9 @@
+ 		@heuristic=computeHeuristic(@dgraph)
+ 		#exit
+ 
+-		#@mheuristic=MyHeuristicFunction.new
++		# FIXME: readd this when heuristics are better!!!
++		#setHeuristic(@heuristic)
++
+ 		@path=Pathfinder.new(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">dgraph, at heuristic</A>)
+ 
+ 
+
+Modified: antargis/trunk/src/height_map.cc
+===================================================================
+--- antargis/trunk/src/height_map.cc	2007-03-26 19:28:15 UTC (rev 1069)
++++ antargis/trunk/src/height_map.cc	2007-04-03 19:07:09 UTC (rev 1070)
+@@ -458,14 +458,14 @@
+ 
+ AGVector2 HeightMap::truncPos(const AGVector2 &amp;p) const
+ {
+-  AGVector2 maxPos(mW+1,mH+1);
++  AGVector2 maxPos(mW+0.5,mH+0.5);
+   return AGVector2(std::max(0.0f,std::min(maxPos[0],p[0])),
+ 		   std::max(0.0f,std::min(maxPos[1],p[1])));
+ }
+ 
+ AGVector3 HeightMap::truncPos(const AGVector3 &amp;p) const
+ {
+-  AGVector2 maxPos(mW+1,mH+1);
++  AGVector2 maxPos(mW+0.5,mH+0.5);
+   return AGVector3(std::max(0.0f,std::min(maxPos[0],p[0])),
+ 		   std::max(0.0f,std::min(maxPos[1],p[1])),
+ 		   p[2]);
+
+Modified: antargis/trunk/src/map.cc
+===================================================================
+--- antargis/trunk/src/map.cc	2007-03-26 19:28:15 UTC (rev 1069)
++++ antargis/trunk/src/map.cc	2007-04-03 19:07:09 UTC (rev 1070)
+@@ -46,7 +46,8 @@
+ 
+ AntMap::AntMap(Scene *pScene,int w,int h):
+   HeightMap(pScene,w,h),
+-  mEntQuad(new QuadTree&lt;AntEntity&gt;(AGRect2(0,0,w,h)))
++  mEntQuad(new QuadTree&lt;AntEntity&gt;(AGRect2(0,0,w,h))),
++  mHeuristicFunction(0)
+ {
+   myAntargisMap=this;
+   maxID=0;
+@@ -233,6 +234,8 @@
+ 
+ std::vector&lt;AntEntityPtr&gt; AntMap::getNextList(AntEntity *me,const AGString &amp;pType,size_t atLeast)
+ {
++  //  assert(mHeuristicFunction);
++
+   // FIXME: optimize this - use quadtree
+ 
+   std::multimap&lt;float,AntEntity*&gt; ents;
+@@ -247,8 +250,14 @@
+         {
+           if((*i)-&gt;provides(pType) &amp;&amp; (*i)-&gt;resource.get(pType)&gt;=atLeast)
+             {
++	      /*
+               AGVector2 p2=(*i)-&gt;getPos2D()-p;
+-              float norm=p2.length2();
++              float norm=p2.length2();*/
++	      float norm;
++	      if(mHeuristicFunction)
++		norm=(*mHeuristicFunction)(std::make_pair((*i)-&gt;getPos2D(),p));
++	      else
++		norm=((*i)-&gt;getPos2D()-p).length2();
+               ents.insert(std::make_pair(norm,*i));
+             }
+         }
+@@ -275,6 +284,7 @@
+ 
+ AntEntity *AntMap::getNext(AntEntity *me,const AGString &amp;pType,size_t atLeast)
+ {
++  //  assert(mHeuristicFunction);
+   // FIXME: optimize this - use quadtree
+ 
+   std::multimap&lt;float,AntEntity*&gt; ents;
+@@ -290,8 +300,15 @@
+         {
+           if((*i)-&gt;provides(pType) &amp;&amp; (*i)-&gt;resource.get(pType)&gt;=atLeast)
+             {
+-              AGVector2 p2=(*i)-&gt;getPos2D()-p;
+-              float norm=p2.length2();
++	      //              AGVector2 p2=(*i)-&gt;getPos2D()-p;
++	      float norm;
++
++	      if(mHeuristicFunction)
++	        norm=(*mHeuristicFunction)(std::make_pair((*i)-&gt;getPos2D(),p));
++	      else
++		norm=((*i)-&gt;getPos2D()-p).length2();
++	      cdebug(&quot;norm:&quot;&lt;&lt;norm&lt;&lt;&quot; i:&quot;&lt;&lt;*i&lt;&lt;&quot; name:&quot;&lt;&lt;(*i)-&gt;getName());
++	      //              float norm=p2.length2();
+               ents.insert(std::make_pair(norm,*i));
+             }
+         }
+@@ -319,6 +336,13 @@
+ 
+   return e;
+ }
++
++void AntMap::setHeuristic(HeuristicFunction *pFunction)
++{
++  mHeuristicFunction=pFunction;
++}
++
++
+ AntEntity *AntMap::getByName(const AGString &amp;pName)
+ {
+   EntityList::iterator i=mEntities.begin();
+
+Modified: antargis/trunk/src/map.h
+===================================================================
+--- antargis/trunk/src/map.h	2007-03-26 19:28:15 UTC (rev 1069)
++++ antargis/trunk/src/map.h	2007-04-03 19:07:09 UTC (rev 1070)
+@@ -22,6 +22,7 @@
+ #define __MAP_H__
+ 
+ #include &quot;height_map.h&quot;
++#include &quot;heuristic.h&quot;
+ 
+ /**
+  * \defgroup GameEngine BoA Game-Engine
+@@ -67,6 +68,8 @@
+   AntEntity *getNext(AntEntity *me,const AGString &amp;pType,size_t atLeast=0);
+   std::vector&lt;AntEntityPtr&gt; getNextList(AntEntity *me,const AGString &amp;pType,size_t atLeast=0);
+ 
++  void setHeuristic(HeuristicFunction *pFunction);
++
+   virtual void processXMLNode(const Node &amp;node);
+ 
+   void saveXML(Node &amp;node) const;
+@@ -101,7 +104,9 @@
+ 
+   int maxID;
+ 
++  HeuristicFunction *mHeuristicFunction;
+ 
++
+ };
+ 
+ AntMap *getMap();
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000029.html">[Antargis-svn] r1071 - antargis/tags
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#28">[ date ]</a>
+              <a href="thread.html#28">[ thread ]</a>
+              <a href="subject.html#28">[ subject ]</a>
+              <a href="author.html#28">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

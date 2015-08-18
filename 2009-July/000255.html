@@ -1,0 +1,3693 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1299 - in antargis/trunk: . data/levels/birth	data/levels/dev data/levels/tutorial ext/3dengine ext/basic	ext/external ext/game ext/gui ext/math ext/sound ext/video	rookey/lib/rookey rookey/lib/rookey/configs	rookey/lib/rookey/cpp rookey/lib/rookey/cpp/spec	rookey/lib/rookey/spec rookey/spec/cpp ruby ruby/editor	ruby/editor/campaign ruby/editor/spec ruby/entities ruby/gui	ruby/jobs ruby/spec
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2009-July/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1299%20-%20in%20antargis/trunk%3A%20.%20data/levels/birth%0A%09data/levels/dev%20data/levels/tutorial%20ext/3dengine%20ext/basic%0A%09ext/external%20ext/game%20ext/gui%20ext/math%20ext/sound%20ext/video%0A%09rookey/lib/rookey%20rookey/lib/rookey/configs%0A%09rookey/lib/rookey/cpp%20rookey/lib/rookey/cpp/spec%0A%09rookey/lib/rookey/spec%20rookey/spec/cpp%20ruby%20ruby/editor%0A%09ruby/editor/campaign%20ruby/editor/spec%20ruby/entities%20ruby/gui%0A%09ruby/jobs%20ruby/spec&In-Reply-To=%3C200907171842.n6HIgQco009342%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1299 - in antargis/trunk: . data/levels/birth	data/levels/dev data/levels/tutorial ext/3dengine ext/basic	ext/external ext/game ext/gui ext/math ext/sound ext/video	rookey/lib/rookey rookey/lib/rookey/configs	rookey/lib/rookey/cpp rookey/lib/rookey/cpp/spec	rookey/lib/rookey/spec rookey/spec/cpp ruby ruby/editor	ruby/editor/campaign ruby/editor/spec ruby/entities ruby/gui	ruby/jobs ruby/spec</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1299%20-%20in%20antargis/trunk%3A%20.%20data/levels/birth%0A%09data/levels/dev%20data/levels/tutorial%20ext/3dengine%20ext/basic%0A%09ext/external%20ext/game%20ext/gui%20ext/math%20ext/sound%20ext/video%0A%09rookey/lib/rookey%20rookey/lib/rookey/configs%0A%09rookey/lib/rookey/cpp%20rookey/lib/rookey/cpp/spec%0A%09rookey/lib/rookey/spec%20rookey/spec/cpp%20ruby%20ruby/editor%0A%09ruby/editor/campaign%20ruby/editor/spec%20ruby/entities%20ruby/gui%0A%09ruby/jobs%20ruby/spec&In-Reply-To=%3C200907171842.n6HIgQco009342%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1299 - in antargis/trunk: . data/levels/birth	data/levels/dev data/levels/tutorial ext/3dengine ext/basic	ext/external ext/game ext/gui ext/math ext/sound ext/video	rookey/lib/rookey rookey/lib/rookey/configs	rookey/lib/rookey/cpp rookey/lib/rookey/cpp/spec	rookey/lib/rookey/spec rookey/spec/cpp ruby ruby/editor	ruby/editor/campaign ruby/editor/spec ruby/entities ruby/gui	ruby/jobs ruby/spec">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Fri Jul 17 20:42:26 CEST 2009</I>
+    <P><UL>
+        
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#255">[ date ]</a>
+              <a href="thread.html#255">[ thread ]</a>
+              <a href="subject.html#255">[ subject ]</a>
+              <a href="author.html#255">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2009-07-17 20:42:20 +0200 (Fri, 17 Jul 2009)
+New Revision: 1299
+
+Added:
+   antargis/trunk/rookey/lib/rookey/cpp/rk_config.cc
+   antargis/trunk/rookey/lib/rookey/cpp/rk_config.h
+   antargis/trunk/rookey/lib/rookey/cpp/rubytracking.swg
+   antargis/trunk/rookey/lib/rookey/cpp/rubytracking_1.swg
+   antargis/trunk/rookey/lib/rookey/cpp/spec/basiclib_interface.i
+   antargis/trunk/rookey/lib/rookey/cpp/spec/logging
+   antargis/trunk/rookey/lib/rookey/cpp/spec/rookey_configuration.rb
+   antargis/trunk/rookey/lib/rookey/cpp/spec/singleton
+   antargis/trunk/rookey/lib/rookey/spec/
+   antargis/trunk/rookey/lib/rookey/spec/dir_spec.rb.rb
+   antargis/trunk/ruby/ant_logging.rb
+Removed:
+   antargis/trunk/rookey/spec/cpp/ag_rubyobj.cc
+Modified:
+   antargis/trunk/Rakefile
+   antargis/trunk/TODO
+   antargis/trunk/data/levels/birth/birth1.rb
+   antargis/trunk/data/levels/birth/birth2.rb
+   antargis/trunk/data/levels/dev/level1.rb
+   antargis/trunk/data/levels/tutorial/tutorial0.rb
+   antargis/trunk/data/levels/tutorial/tutorial1.rb
+   antargis/trunk/data/levels/tutorial/tutorial2.rb
+   antargis/trunk/data/levels/tutorial/tutorial3.rb
+   antargis/trunk/ext/3dengine/anim_mesh.h
+   antargis/trunk/ext/3dengine/init.cc
+   antargis/trunk/ext/3dengine/scene.cc
+   antargis/trunk/ext/basic/ag_geometry.h
+   antargis/trunk/ext/basic/ag_main.cc
+   antargis/trunk/ext/basic/ag_main.h
+   antargis/trunk/ext/basic/ag_xml.cc
+   antargis/trunk/ext/basic/init.cc
+   antargis/trunk/ext/external/init.cc
+   antargis/trunk/ext/game/ant_app.cc
+   antargis/trunk/ext/game/ant_app.h
+   antargis/trunk/ext/game/entity.h
+   antargis/trunk/ext/game/init.cc
+   antargis/trunk/ext/game/jobs.cc
+   antargis/trunk/ext/game/map.cc
+   antargis/trunk/ext/game/map.h
+   antargis/trunk/ext/game/path.cc
+   antargis/trunk/ext/game/path.h
+   antargis/trunk/ext/gui/ag_edit.cc
+   antargis/trunk/ext/gui/ag_layout.h
+   antargis/trunk/ext/gui/ag_layoutcreators.cc
+   antargis/trunk/ext/gui/ag_widget.h
+   antargis/trunk/ext/math/ag_rand.cc
+   antargis/trunk/ext/math/init.cc
+   antargis/trunk/ext/sound/ag_mixer.cc
+   antargis/trunk/ext/sound/init.cc
+   antargis/trunk/ext/video/init.cc
+   antargis/trunk/rookey/lib/rookey/config_generator.rb
+   antargis/trunk/rookey/lib/rookey/configs/debug.rb
+   antargis/trunk/rookey/lib/rookey/configs/sdl.rb
+   antargis/trunk/rookey/lib/rookey/cpp/rk_logging.cc
+   antargis/trunk/rookey/lib/rookey/cpp/rk_logging.h
+   antargis/trunk/rookey/lib/rookey/cpp/rk_rubyobj.cc
+   antargis/trunk/rookey/lib/rookey/swig.rb
+   antargis/trunk/rookey/lib/rookey/swig_interface_builder.rb
+   antargis/trunk/rookey/lib/rookey/tasks.rb
+   antargis/trunk/rookey/lib/rookey/tools.rb
+   antargis/trunk/ruby/ant_ai.rb
+   antargis/trunk/ruby/ant_application.rb
+   antargis/trunk/ruby/ant_formations.rb
+   antargis/trunk/ruby/ant_hljob_base.rb
+   antargis/trunk/ruby/ant_inventory.rb
+   antargis/trunk/ruby/ant_models.rb
+   antargis/trunk/ruby/ant_player.rb
+   antargis/trunk/ruby/ant_tools.rb
+   antargis/trunk/ruby/antargislib.rb
+   antargis/trunk/ruby/campaign.rb
+   antargis/trunk/ruby/dialogs.rb
+   antargis/trunk/ruby/editor/campaign/app.rb
+   antargis/trunk/ruby/editor/campaign/drag_grid.rb
+   antargis/trunk/ruby/editor/campaign/spec_campaign_editor.rb
+   antargis/trunk/ruby/editor/dialogs.rb
+   antargis/trunk/ruby/editor/ent_list.rb
+   antargis/trunk/ruby/editor/spec/spec_editor.rb
+   antargis/trunk/ruby/editview.rb
+   antargis/trunk/ruby/entities/ant_animal.rb
+   antargis/trunk/ruby/entities/ant_boss.rb
+   antargis/trunk/ruby/entities/ant_hero.rb
+   antargis/trunk/ruby/entities/ant_man.rb
+   antargis/trunk/ruby/entities/ant_manbase.rb
+   antargis/trunk/ruby/entities/ant_sheep.rb
+   antargis/trunk/ruby/entities/ant_tower.rb
+   antargis/trunk/ruby/entities/entity.rb
+   antargis/trunk/ruby/gui/testing.rb
+   antargis/trunk/ruby/jobs/ant_hljob_base.rb
+   antargis/trunk/ruby/jobs/ant_hljob_states.rb
+   antargis/trunk/ruby/jobs/ant_new_hljobs.rb
+   antargis/trunk/ruby/mainmenu.rb
+   antargis/trunk/ruby/map.rb
+   antargis/trunk/ruby/spec/spec_call.rb
+   antargis/trunk/ruby/spec/spec_formation.rb
+   antargis/trunk/ruby/spec/spec_hljob_saving.rb
+   antargis/trunk/ruby/spec/spec_math.rb
+   antargis/trunk/ruby/spec/spec_menu.rb
+   antargis/trunk/ruby/spec/spec_run_tutorial.rb
+   antargis/trunk/ruby/spec/spec_scrollingwidget.rb
+   antargis/trunk/ruby/spec/spec_swig.rb
+   antargis/trunk/ruby/spec_helper.rb
+Log:
+many changes
+
+Modified: antargis/trunk/Rakefile
+===================================================================
+--- antargis/trunk/Rakefile	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/Rakefile	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -25,20 +25,43 @@
+   puts &quot;Done.&quot;
+ end
+ 
++$specDebugging=false
+ 
++def callWithGdb(call)
++  args=call.split(&quot; &quot;)
++  c,*as=args
++  c=&quot;gdb #{c}&quot;
++  cs=[
++    &quot;set args #{as.join(&quot; &quot;)}&quot;,
++    &quot;r&quot;,
++    &quot;bt&quot;
++  ]
++  f=IO.popen(c,&quot;w&quot;)
++  cs.each{|cm|
++    puts cm
++    f.puts cm}
++  f.close
++end
++
++
+ alias :oldSystem :system
+ def system(cmd)
+   #puts Dir.pwd
+-  if cmd=~/ruby .*/
+-    cmd=cmd.gsub(/^ruby/,&quot;./antargis&quot;)
++  pathRe=&quot;[0-9A-Za-z\.\/]*ruby&quot;
++  if cmd=~/#{pathRe} .*spec/
++    antExe=File.expand_path('../antargis',__FILE__)
++    p antExe
++    cmd=cmd.gsub(/^#{pathRe}/,antExe)
++    return callWithGdb(cmd) if $specDebugging==true
++    puts &quot;CMD:&quot;,cmd
+   end
+-  #puts cmd
+   oldSystem(cmd)
+ end
+ 
+-if $rspec 
+-  # rspec
+-  Spec::Rake::SpecTask.new(:spec=&gt;:default) do |t|
++if $rspec
++
++  def speccing(t)
++    $specDebugging=false #if t.name.keys[0]!=:spec
+     t.spec_files = FileList['ruby/**/spec_*.rb'].map{|f|File.expand_path(f)}
+     t.warning = true
+     t.rcov = true
+@@ -46,8 +69,16 @@
+     if ENV['CC_BUILD_ARTIFACTS']
+       path=File.join(ENV['CC_BUILD_ARTIFACTS'],path)
+     end
+-    t.spec_opts=[&quot;--format html:&quot;+File.expand_path(path)]
++
++    t.spec_opts&lt;&lt;&quot;--format html:&quot;+File.expand_path(path)
++    t.spec_opts&lt;&lt;&quot;-r&quot;+File.expand_path('../ruby/spec_helper.rb',__FILE__)
+   end
++
++
++  # rspec
++  Spec::Rake::SpecTask.new(:spec=&gt;:default) do |t|
++    speccing(t)
++  end
+ end
+ 
+ desc &quot;Task for cruisecontrol.rb&quot;
+
+Modified: antargis/trunk/TODO
+===================================================================
+--- antargis/trunk/TODO	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/TODO	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -1,3 +1,7 @@
++* Fix segfaults
++** reason can be /opt recompile for new osx release
++
++
+ * Spreading should be done only for men who need it!
+ 
+ * why is the story-telling dialog taking so much time ??
+
+Modified: antargis/trunk/data/levels/birth/birth1.rb
+===================================================================
+--- antargis/trunk/data/levels/birth/birth1.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/data/levels/birth/birth1.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -76,8 +76,6 @@
+ 					@smith=2
+ 				end
+ 			when &quot;keep&quot;
+-				dputs &quot;TRIGGER:&quot;,hero,getHero(&quot;Rowen&quot;),hero.getName,getHero(&quot;Rowen&quot;)<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">.getName, at flee</A>
+-				#raise &quot;keep&quot;
+ 
+ 				if hero==getHero(&quot;Rowen&quot;) and @flee==false
+ 					# let bantor flee
+
+Modified: antargis/trunk/data/levels/birth/birth2.rb
+===================================================================
+--- antargis/trunk/data/levels/birth/birth2.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/data/levels/birth/birth2.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -52,7 +52,6 @@
+ 				#raise 1
+ 				rowen.newHLMoveJob(0,getMap.getTarget(&quot;near_tower&quot;).pos,0)
+ 				rowen.addHandler(:eventHLJobFinished){
+-					puts &quot;DIST::::::#{rowen.getPos2D} #{getMap.getTarget(&quot;near_tower&quot;).pos}&quot;
+ 					if (rowen.getPos2D-getMap.getTarget(&quot;near_tower&quot;).pos).length&lt;1
+ 						sendMarcus
+ 					else
+@@ -65,9 +64,7 @@
+ 	def sendRowen
+ 	end
+ 	def sendMarcus
+-		puts &quot;SENDING MARCUS&quot;
+ 		marcus=getMap.getByName(&quot;Marcus&quot;)
+-		puts marcus
+ 		marcus.newMoveJob(0,getMap.getByName(&quot;Rowen&quot;).getPos2D,2)
+ 		$app.hidePanel
+ 		marcus.addHandler(:eventJobFinished){
+
+Modified: antargis/trunk/data/levels/dev/level1.rb
+===================================================================
+--- antargis/trunk/data/levels/dev/level1.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/data/levels/dev/level1.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -1,9 +1,9 @@
+ class Level1&lt;AntLevelScript
+ 	def eventLevelStarted
+-		puts &quot;Level inited&quot;
++		Log.debug &quot;Level inited&quot;
+ 	end
+ 	def eventTrigger(hero,t)
+-		puts &quot;TRIGGER&quot;
++    Log.debug &quot;TRIGGER&quot;
+ 		return false #ignore
+ 	end
+ 	def eventOwnerChanged(ent)
+
+Modified: antargis/trunk/data/levels/tutorial/tutorial0.rb
+===================================================================
+--- antargis/trunk/data/levels/tutorial/tutorial0.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/data/levels/tutorial/tutorial0.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -40,7 +40,6 @@
+ 					endLevel
+ 				end
+ 		end
+-		puts &quot;TRIGGER&quot;
+ 		return false #ignore
+ 	end
+ 	def eventHeroDied(ent)
+@@ -71,7 +70,7 @@
+ 		@interface.lostLevel
+ 	end
+ 	def wonLevel
+-		puts &quot;INTERFACE:&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at interface</A>,self
++		Log.debug &quot;INTERFACE:&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at interface</A>,self
+ 		@interface.wonLevel
+ 		@won=true
+ 		start=StoryFlow.new(&quot;recruit&quot;)
+
+Modified: antargis/trunk/data/levels/tutorial/tutorial1.rb
+===================================================================
+--- antargis/trunk/data/levels/tutorial/tutorial1.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/data/levels/tutorial/tutorial1.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -56,7 +56,7 @@
+ 					endLevel
+ 				end
+ 		end
+-		puts &quot;TRIGGER&quot;
++		Log.debug &quot;TRIGGER&quot;
+ 		return false #ignore
+ 	end
+ 	def wonLevel
+
+Modified: antargis/trunk/data/levels/tutorial/tutorial2.rb
+===================================================================
+--- antargis/trunk/data/levels/tutorial/tutorial2.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/data/levels/tutorial/tutorial2.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -37,7 +37,7 @@
+ 					endLevel
+ 				end
+ 		end
+-		puts &quot;TRIGGER&quot;
++		Log.debug &quot;TRIGGER&quot;
+ 		return false #ignore
+ 	end
+ 	def wonLevel
+
+Modified: antargis/trunk/data/levels/tutorial/tutorial3.rb
+===================================================================
+--- antargis/trunk/data/levels/tutorial/tutorial3.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/data/levels/tutorial/tutorial3.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -27,7 +27,6 @@
+ 				start.push(t,&quot;Congratulations! You have finally reached the continent!&quot;)
+ 				tellStory(start)
+ 		end
+-		puts &quot;TRIGGER&quot;
+ 		return false #ignore
+ 	end
+ private
+
+Modified: antargis/trunk/ext/3dengine/anim_mesh.h
+===================================================================
+--- antargis/trunk/ext/3dengine/anim_mesh.h	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ext/3dengine/anim_mesh.h	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -55,11 +55,14 @@
+   virtual void drawPick();
+   virtual void advance(float time);
+ 
+-  virtual void mark() throw();
+ 
+   void setEntity(AntEntity *e);
+ 
+   virtual size_t getTriangles() const;
++protected:
++#ifndef SWIG
++  virtual void mark() throw();
++#endif
+ 
+ private:
+ 
+
+Modified: antargis/trunk/ext/3dengine/init.cc
+===================================================================
+--- antargis/trunk/ext/3dengine/init.cc	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ext/3dengine/init.cc	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -2,6 +2,5 @@
+ 
+ AGEXPORT void AG_Init_libantargis3dengine()
+ {
+-  TRACE;
+ }
+ 
+
+Modified: antargis/trunk/ext/3dengine/scene.cc
+===================================================================
+--- antargis/trunk/ext/3dengine/scene.cc	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ext/3dengine/scene.cc	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -45,6 +45,7 @@
+ 
+ Scene::~Scene() throw()
+   {
++  //throw int();
+   }
+ 
+ size_t Scene::getDrawnMeshes() const
+
+Modified: antargis/trunk/ext/basic/ag_geometry.h
+===================================================================
+--- antargis/trunk/ext/basic/ag_geometry.h	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ext/basic/ag_geometry.h	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -109,20 +109,24 @@
+   AGVector2 operator-() const;
+   AGVector2 operator-(const AGVector2 &amp;p) const;
+   AGVector2 operator+(const AGVector2 &amp;p) const;
++  float operator*(const AGVector2 &amp;p) const;
++  AGVector2 operator*(float f) const;
++  AGVector2 operator/(float f) const;
++
++  bool operator==(const AGVector2 &amp;a) const;
++
+ #ifndef SWIG
+   AGVector2 &amp; operator+=(const AGVector2 &amp;p);
+   AGVector2 &amp; operator-=(const AGVector2 &amp;p);
+-#endif
+ 
+-  float operator*(const AGVector2 &amp;p) const;
+   AGVector2 &amp; operator*=(float f);
+   AGVector2 &amp; operator/=(float f);
+-  AGVector2 operator*(float f) const;
+-  AGVector2 operator/(float f) const;
+ 
+-  bool operator==(const AGVector2 &amp;a) const;
+   bool operator!=(const AGVector2 &amp;a) const;
++#endif
+ 
++
++
+   float length() const;
+   float length2() const;
+ 
+@@ -195,15 +199,19 @@
+   AGVector3 &amp; operator-=(const AGVector3 &amp;p);
+ 
+   float operator*(const AGVector3 &amp;p) const;
++#ifndef SWIG
+   AGVector3 &amp; operator*=(float f);
+   AGVector3 &amp; operator/=(float f);
++#endif
+   AGVector3 operator*(float f) const;
+   AGVector3 operator/(float f) const;
+   AGVector3 operator%(const AGVector3 &amp;a) const;
+ 
+   bool operator==(const AGVector3 &amp;a) const;
++#ifndef SWIG
+   bool operator!=(const AGVector3 &amp;a) const;
+-
++#endif
++  
+   float length() const;
+   float length2() const;
+ 
+@@ -266,10 +274,11 @@
+   float &amp;get(size_t x, size_t y);
+ 
+   AGMatrix3 operator*(const AGMatrix3 &amp;m) const;
++#ifndef SWIG
+   AGMatrix3 &amp; operator*=(const AGMatrix3 &amp;m);
++#endif
+ 
+   AGVector3 operator*(const AGVector3 &amp;v) const;
+-  //  AGVector2 operator*(const AGVector2 &amp;v) const;
+ 
+   AGMatrix3 operator-() const;
+ 
+@@ -318,8 +327,13 @@
+ 
+   float distance(const AGVector2 &amp;v) const;
+ 
++#ifndef SWIG
+   AGVector2 &amp; operator[](size_t i);
+-  AGVector2 operator[](size_t i) const;
++#endif
++#ifdef SWIG
++  %rename(__getitem__) operator[](size_t index) const;
++#endif
++AGVector2 operator[](size_t i) const;
+ 
+ #ifdef SWIG
+   %rename(to_s) toString() const;
+@@ -369,6 +383,9 @@
+   AGTriangle2();
+   AGTriangle2(const AGVector2 &amp;v0, const AGVector2 &amp;v1, const AGVector2 &amp;v2);
+ 
++#ifdef SWIG
++  %rename(__getitem__) operator[](int index) const;
++#endif
+   AGVector2 operator[](int index) const;
+ 
+   AGVector2 get(int index) const;
+@@ -437,6 +454,9 @@
+ 
+   AGString toString() const;
+ 
++#ifdef SWIG
++  %rename(__getitem__) operator[](int index) const;
++#endif
+   AGVector3 operator[](int index) const;
+ 
+   void flip();
+@@ -457,19 +477,26 @@
+ 
+   AGRect2 operator+(const AGVector2 &amp;v) const;
+   AGRect2 operator-(const AGVector2 &amp;v) const;
++#ifndef SWIG
+   AGRect2 &amp; operator+=(const AGVector2 &amp;v);
+   AGRect2 &amp; operator-=(const AGVector2 &amp;v);
+ 
+   AGRect2 &amp; operator+=(const AGRect2 &amp;r);
++#endif
+ 
+   bool contains(const AGVector2 &amp;v) const;
+   bool contains(const AGRect2 &amp;v) const;
+ 
+   std::list&lt;AGRect2&gt; split() const;
+ 
++#ifdef SWIG
++  %rename(__getitem__) operator[](size_t i) const;
++#endif
++
+   AGVector2 operator[](size_t i) const;
++#ifndef SWIG
+   AGVector2 &amp; operator[](size_t i);
+-
++#endif
+   AGVector2 getV0() const;
+   AGVector2 getV1() const;
+   AGVector2 getV01() const;
+@@ -572,8 +599,10 @@
+   AGVector4 &amp; operator-=(const AGVector4 &amp;p);
+ 
+   float operator*(const AGVector4 &amp;p) const;
++#ifndef SWIG
+   AGVector4 &amp; operator*=(float f);
+   AGVector4 &amp; operator/=(float f);
++#endif
+   AGVector4 operator*(float f) const;
+   AGVector4 operator/(float f) const;
+   AGVector4 operator-() const;
+@@ -596,10 +625,15 @@
+   AGVector4 normalized3() const;
+   void normalize3();
+ 
++#ifdef SWIG
++  %rename(__getitem__) operator[](int index) const;
++#endif
+ 
+   float operator[](int index) const;
++#ifndef SWIG
+   float &amp;operator[](int index);
+-
++#endif
++  
+   bool nonZero() const;
+ 
+   // vector-cross-product
+@@ -664,6 +698,9 @@
+   AGMatrix4 inverted() const;
+   AGMatrix4 transposed() const;
+ 
++#ifdef SWIG
++  %rename(__getitem__) operator[](size_t index) const;
++#endif
+   MRow operator[](size_t y);
+   //  const Row operator[](size_t y) const;
+ 
+
+Modified: antargis/trunk/ext/basic/ag_main.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_main.cc	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ext/basic/ag_main.cc	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -143,7 +143,7 @@
+         //   put it into a global variable - so that it won't get garbage collected
+         rb_eval_string(&quot;include Antargis&quot;);
+         //rb_eval_string(&quot;Antargis&quot;);
+-        registered=(rb_eval_string(&quot;if Antargis.respond_to?(:getMain) \n $agMain=getMain\n puts $agMain\n true \n else \n false \nend&quot;)==Qtrue);
++        registered=(rb_eval_string(&quot;if Antargis.respond_to?(:getMain) \n $agMain=getMain\n true \n else \n false \nend&quot;)==Qtrue);
+         cdebug(&quot;registered:&quot;&lt;&lt;registered);
+       }
+ 
+
+Modified: antargis/trunk/ext/basic/ag_main.h
+===================================================================
+--- antargis/trunk/ext/basic/ag_main.h	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ext/basic/ag_main.h	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -76,7 +76,9 @@
+   void delay(int ms);
+ 
+  protected:
++#ifndef SWIG
+   virtual void mark() throw();
++#endif
+ 
+  private:
+   AGVideoBase *mVideo;
+
+Modified: antargis/trunk/ext/basic/ag_xml.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_xml.cc	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ext/basic/ag_xml.cc	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -27,12 +27,15 @@
+ #include &quot;ag_profiler.h&quot;
+ 
+ /**
+-   Node
+-   @todo finish documentation
++   Node is used for xml-tags, but not for attributes (as in dom)
+  */
+ Node::Node()
+   {
+   }
++
++/**
++ *
++ */
+ Node::Node(const AGString &amp;name):mName(name)
+ {
+ }
+
+Modified: antargis/trunk/ext/basic/init.cc
+===================================================================
+--- antargis/trunk/ext/basic/init.cc	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ext/basic/init.cc	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -18,7 +18,6 @@
+ 
+ AGEXPORT void AG_Init_libantargisbasic()
+   {
+-    TRACE;
+     cdebug(&quot;SDL_Init...&quot;);
+     SDL_Init(SDL_INIT_VIDEO);
+     cdebug(&quot;hasMain?&quot;);
+
+Modified: antargis/trunk/ext/external/init.cc
+===================================================================
+--- antargis/trunk/ext/external/init.cc	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ext/external/init.cc	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -2,5 +2,4 @@
+ 
+ void AG_Init_libantargisexternal()
+   {
+-    printf(&quot;AG_Init_libantargisexternal()\n&quot;);
+   }
+
+Modified: antargis/trunk/ext/game/ant_app.cc
+===================================================================
+--- antargis/trunk/ext/game/ant_app.cc	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ext/game/ant_app.cc	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -2,7 +2,7 @@
+ #include &quot;ag_vdebug.h&quot;
+ #include &quot;ag_profiler.h&quot;
+ 
+-GLApp::GLApp(int w,int h):scene(w,h)
++GLApp::GLApp(int w,int h):scene(new Scene(w,h))
+ {
+   CTRACE;
+   shadow=true;
+@@ -16,6 +16,7 @@
+ GLApp::~GLApp() throw()
+   {
+     CTRACE;
++    saveDelete(scene);
+   }
+ 
+ 
+@@ -33,7 +34,7 @@
+     glDepthMask(true);
+ 
+     assertGL;
+-    scene.draw();
++    scene-&gt;draw();
+     assertGL;
+   }
+ 
+@@ -42,7 +43,7 @@
+     if(hx&gt;=0)
+       {
+         // check hovering
+-        PickResult nodes=scene.pick(hx,hy,1,1);
++        PickResult nodes=scene-&gt;pick(hx,hy,1,1);
+ 
+         if(nodes.size())
+           eventHover(nodes,hb);
+@@ -88,7 +89,7 @@
+                 STACKTRACE;
+                 AGVector2 p=e-&gt;getMousePosition();
+                 cdebug(&quot;p:&quot;&lt;&lt;p);
+-                PickResult nodes=scene.pick(p[0],p[1],1,1);
++                PickResult nodes=scene-&gt;pick(p[0],p[1],1,1);
+ 
+                 eventClick(nodes,e-&gt;getButton());
+               }
+@@ -115,13 +116,13 @@
+     if(e-&gt;isSDLEvent() &amp;&amp; omx&gt;=0)
+       {
+         AGVector2 p=e-&gt;getMousePosition();
+-        //      AGVector4 cam=scene.getCamera();
++        //      AGVector4 cam=scene-&gt;getCamera();
+         mx=p[0]-omx;
+         my=p[1]-omy;
+ 
+         setCamera(getCamera()+AGVector2(-mx*0.03,my*0.03));
+         //      camera=cam+AGVector4(-mx*0.03,my*0.03,0);
+-        //      scene.setCamera(camera);
++        //      scene-&gt;setCamera(camera);
+ 
+         omx=p[0];
+         omy=p[1];
+@@ -141,12 +142,12 @@
+ 
+ AGVector2 GLApp::getCamera() const
+ {
+-  return scene.getCamera().dim2();
++  return scene-&gt;getCamera().dim2();
+ }
+ 
+ void GLApp::setCamera(const AGVector2 &amp;p)
+   {
+-    scene.setCamera(AGVector4(p[0],p[1],getCameraHeight(p)));
++    scene-&gt;setCamera(AGVector4(p[0],p[1],getCameraHeight(p)));
+   }
+ 
+ bool GLApp::eventKeyDown(AGEvent *e)
+@@ -155,8 +156,7 @@
+       {
+         if(e-&gt;getKey()==SDLK_s)
+           {
+-            //      shadow=!shadow;
+-            scene.setShadow((scene.getShadow()+1)%3);
++            scene-&gt;setShadow((scene-&gt;getShadow()+1)%3);
+           }
+       }
+     return AGApplication::eventKeyDown(e);
+@@ -164,14 +164,14 @@
+ 
+ Scene &amp;GLApp::getScene()
+   {
+-    assert(&amp;scene);
+-    return scene;
++    assert(scene);
++    return *scene;
+   }
+ 
+ void GLApp::mark() throw()
+   {
+     //CTRACE;
+-    markObject(&amp;scene);
++    markObject(scene);
+     AGApplication::mark();
+   }
+ 
+
+Modified: antargis/trunk/ext/game/ant_app.h
+===================================================================
+--- antargis/trunk/ext/game/ant_app.h	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ext/game/ant_app.h	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -47,7 +47,7 @@
+   int hb;
+ 
+ protected:
+-  Scene scene;
++  Scene *scene;
+ 
+ public:
+   GLApp(int w,int h);
+
+Modified: antargis/trunk/ext/game/entity.h
+===================================================================
+--- antargis/trunk/ext/game/entity.h	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ext/game/entity.h	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -144,9 +144,6 @@
+     AGString getName() const;
+     void setName(const AGString &amp;pName);
+ 
+-    //    AGString getType() const;
+-    //    void setType(const AGString &amp;pType);
+-
+     void setProvide(const AGString &amp;pName,bool flag);
+     bool provides(const AGString &amp;pName) const;
+ 
+@@ -224,13 +221,13 @@
+     bool canFight() const;
+     bool isFighting() const;
+ 
+-    // appearance
+ 
+-    // FIXME: this shouldn't be virtual, because it gets called too often!
+-    //    virtual AGString getTexture() const;
++    virtual void experienceFull();
+ 
+-    // anything below shouldn't be used by ruby-functions
+ 
++    // anything below shouldn't be used by ruby-functions,
++    // thus they're not wrapped
++
+     void setMesh(SceneNode *pMesh);
+     Meshes getMesh();
+     SceneNode *getFirstMesh();
+@@ -246,9 +243,6 @@
+ 
+     void incExperience(float amount);
+ 
+-
+-    virtual void experienceFull();
+-
+     float getFood() const;
+     void incFood(float v);
+     bool isStarving() const;
+
+Modified: antargis/trunk/ext/game/init.cc
+===================================================================
+--- antargis/trunk/ext/game/init.cc	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ext/game/init.cc	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -4,8 +4,6 @@
+ 
+ AGEXPORT void AG_Init_libantargisgame()
+   {
+-    TRACE;
+-
+     registerMinimapCreator();
+   }
+ 
+
+Modified: antargis/trunk/ext/game/jobs.cc
+===================================================================
+--- antargis/trunk/ext/game/jobs.cc	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ext/game/jobs.cc	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -123,7 +123,7 @@
+         mTarget=mTargetEntity-&gt;getPos2D();
+         mTarget3=mTargetEntity-&gt;getPos3D();
+       }
+-#warning FIXME: move this ?
++
+     mTarget=e-&gt;getMap()-&gt;truncPos(mTarget);
+ 
+ #ifdef ENABLE_RUNNING  
+
+Modified: antargis/trunk/ext/game/map.cc
+===================================================================
+--- antargis/trunk/ext/game/map.cc	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ext/game/map.cc	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -396,13 +396,28 @@
+       (*i)-&gt;setPos((*i)-&gt;getPos2D());
+   }
+ 
++/*
++AntEntity *AntMap::getEntity(const MeshBase &amp;pMesh)
++  {
++    //FIXME: this is a rather poor implementation
++
++    for(EntityList::iterator i=mEntities.begin();i!=mEntities.end();i++)
++      {
++        AntEntity::Meshes meshes=(*i)-&gt;getMesh();
++        if(std::find(meshes.begin(),meshes.end(),&amp;pMesh)!=meshes.end())
++          return *i;
++      }
++    return 0;
++  }
++
++*/
++
+ AntEntity *AntMap::getEntity(const Mesh &amp;pMesh)
+   {
+     for(EntityList::iterator i=mEntities.begin();i!=mEntities.end();i++)
+       {
+         AntEntity::Meshes meshes=(*i)-&gt;getMesh();
+         if(std::find(meshes.begin(),meshes.end(),&amp;pMesh)!=meshes.end())
+-          //      if((*i)-&gt;getMesh()==&amp;pMesh)
+           return *i;
+       }
+     return 0;
+@@ -425,19 +440,12 @@
+       {
+         AntEntity::Meshes meshes=(*i)-&gt;getMesh();
+         if(std::find(meshes.begin(),meshes.end(),&amp;pMesh)!=meshes.end())
+-          //      if((*i)-&gt;getMesh()==&amp;pMesh)
+           return *i;
+       }
+     return 0;
+   }
+ 
+ 
+-
+-
+-
+-
+-//bool markingFinished=true;
+-
+ void AntMap::mark() throw()
+   {
+     //  cout&lt;&lt;&quot;AntMap::mark()&quot;&lt;&lt;std::endl;
+
+Modified: antargis/trunk/ext/game/map.h
+===================================================================
+--- antargis/trunk/ext/game/map.h	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ext/game/map.h	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -37,6 +37,7 @@
+ 
+ class AnimMesh;
+ class Mesh2D;
++class MeshBase;
+ 
+ class AGEXPORT AntMap:public HeightMap
+ {
+@@ -60,9 +61,13 @@
+   std::list&lt;AntEntity*&gt; getAllEntities();
+   std::vector&lt;AntEntity*&gt; getEntities(const AGString &amp;pName);
+ 
++
++  //AntEntity *getEntity(const MeshBase &amp;pMesh);
++  
+   AntEntity *getEntity(const Mesh &amp;pMesh);
+   AntEntity *getEntity(const AnimMesh &amp;pMesh);
+   AntEntity *getEntity(const Mesh2D &amp;pMesh);
++   
+   AntEntity *getEntity(int id) const;
+   AntEntity *getByName(const AGString &amp;pName);
+ 
+@@ -84,10 +89,13 @@
+ 
+   AGVector3 getPos(const AGVector2 &amp;pPos) const;
+ 
+-  virtual void mark() throw();
+ 
+   virtual void mapChanged();
+ 
++ protected:
++#ifndef SWIG
++  virtual void mark() throw();
++#endif
+  private:
+   typedef std::map&lt;size_t,AntEntity*&gt; EntityMap;
+ 
+@@ -95,12 +103,8 @@
+   EntityMap mEntityMap;
+   QuadTree&lt;AntEntity&gt; *mEntQuad;
+ 
+-  //  typedef std::map&lt;AGString,std::set&lt;AntEntity*&gt; &gt; EntityByType;
+-
+   EntityList mToDel;
+ 
+-  //  EntityByType mByType;
+-
+   int maxID;
+ 
+   HeuristicFunction *mHeuristicFunction;
+@@ -108,7 +112,5 @@
+ 
+ };
+ 
+-//AGEXPORT AntMap *getMap();
+ 
+-
+ #endif
+
+Modified: antargis/trunk/ext/game/path.cc
+===================================================================
+--- antargis/trunk/ext/game/path.cc	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ext/game/path.cc	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -1102,7 +1102,6 @@
+                  */
+                 oldi=*i;
+               }
+-            std::cout&lt;&lt;std::endl;
+           }
+ 
+           pathSet.erase(pathSet.begin());
+@@ -1110,7 +1109,6 @@
+           if(last==to)
+             {
+               Uint32 t1=SDL_GetTicks();
+-              std::cout&lt;&lt;&quot;TIME:&quot;&lt;&lt;t1-t0&lt;&lt;std::endl;
+               cdebug(&quot;time:&quot;&lt;&lt;t1-t0);
+               cdebug(&quot;len:&quot;&lt;&lt;path.size());
+               cdebug(&quot;tries:&quot;&lt;&lt;tries);
+
+Modified: antargis/trunk/ext/game/path.h
+===================================================================
+--- antargis/trunk/ext/game/path.h	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ext/game/path.h	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -292,12 +292,15 @@
+ 
+   Pathfinder(SimpleGraph *pGraph,HeuristicFunction *pHeuristic,PathDebugging *pDebugger=0);
+ 
+-  virtual void mark() throw();
+ 
+   std::vector&lt;AGVector2&gt; computePath(const AGVector2 &amp;from, const AGVector2 &amp;to);
+ 
+   std::vector&lt;AGVector2&gt; refinePath(const std::vector&lt;AGVector2&gt; &amp;p,MapPathWeighter *pWeighter);
+-
++ protected:
++#ifndef SWIG
++  virtual void mark() throw();
++#endif
++  
+  private:
+   SimpleGraph *mGraph;
+   HeuristicFunction *mHeuristic;
+
+Modified: antargis/trunk/ext/gui/ag_edit.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_edit.cc	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ext/gui/ag_edit.cc	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -584,7 +584,6 @@
+         bool result=processKey(k,unicode);
+         if(result)
+           {
+-            std::cout&lt;&lt;&quot;MODIFIED&quot;&lt;&lt;std::endl;
+             sigModified(m);
+           }
+ 
+
+Modified: antargis/trunk/ext/gui/ag_layout.h
+===================================================================
+--- antargis/trunk/ext/gui/ag_layout.h	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ext/gui/ag_layout.h	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -43,7 +43,10 @@
+ 
+   static void registerLayouts();
+ 
++protected:
++#ifndef SWIG
+   virtual void mark() throw();
++#endif
+  private:
+   void insertTempWidget(AGWidget *pWidget);
+    
+
+Modified: antargis/trunk/ext/gui/ag_layoutcreators.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_layoutcreators.cc	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ext/gui/ag_layoutcreators.cc	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -547,7 +547,6 @@
+ 
+ void AGLayout::registerLayouts()
+   {
+-    TRACE;
+     getLayoutFactory()-&gt;addCreator(&quot;checkBox&quot;,new AGCheckBoxLayoutCreator);
+     getLayoutFactory()-&gt;addCreator(&quot;colorButton&quot;,new AGColorButtonLayoutCreator);
+     getLayoutFactory()-&gt;addCreator(&quot;table&quot;,new AGTableLayoutCreator);
+
+Modified: antargis/trunk/ext/gui/ag_widget.h
+===================================================================
+--- antargis/trunk/ext/gui/ag_widget.h	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ext/gui/ag_widget.h	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -157,7 +157,11 @@
+   void hide();
+   void close();
+ 
++protected:
++  #ifndef SWIG
+   virtual void mark() throw();
++  #endif
++public:
+ 
+   virtual void addChild(AGWidget *w);
+   virtual void addChildBack(AGWidget *w);
+
+Modified: antargis/trunk/ext/math/ag_rand.cc
+===================================================================
+--- antargis/trunk/ext/math/ag_rand.cc	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ext/math/ag_rand.cc	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -30,8 +30,6 @@
+ 
+ AGRandomizer::AGRandomizer(const std::string &amp;pSeed)
+   {
+-    CTRACE;
+-
+     std::istringstream is;
+     is.str(pSeed);
+ 
+
+Modified: antargis/trunk/ext/math/init.cc
+===================================================================
+--- antargis/trunk/ext/math/init.cc	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ext/math/init.cc	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -5,10 +5,7 @@
+ 
+ void AGEXPORT AG_Init_libantargismath()
+   {
+-    TRACE;
+     AGRandomizer *r=new AGRandomizer(&quot;&quot;);
+-    cdebug(&quot;r:&quot;&lt;&lt;r);
+     AGMain *main=getMain();
+-    cdebug(&quot;main:&quot;&lt;&lt;main);
+     main-&gt;setRand(r);
+   }
+
+Modified: antargis/trunk/ext/sound/ag_mixer.cc
+===================================================================
+--- antargis/trunk/ext/sound/ag_mixer.cc	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ext/sound/ag_mixer.cc	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -85,7 +85,6 @@
+   {
+     if(!mMusicInited)
+       {
+-        TRACE;
+         mSoundMutex=new AGMutex;
+ 
+         size_t chunkSize=1024;
+
+Modified: antargis/trunk/ext/sound/init.cc
+===================================================================
+--- antargis/trunk/ext/sound/init.cc	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ext/sound/init.cc	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -6,7 +6,5 @@
+ 
+ AGEXPORT void AG_Init_libantargissound()
+   {
+-    TRACE;
+     initSoundEngine();
+-
+   }
+
+Modified: antargis/trunk/ext/video/init.cc
+===================================================================
+--- antargis/trunk/ext/video/init.cc	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ext/video/init.cc	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -4,7 +4,6 @@
+ 
+ void AGEXPORT AG_Init_libantargisvideo()
+   {
+-    TRACE;
+     AGVideoManager *video=new AGVideoManager;
+     getMain()-&gt;setVideo(video);
+   }
+
+Modified: antargis/trunk/rookey/lib/rookey/config_generator.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/config_generator.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/rookey/lib/rookey/config_generator.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -62,7 +62,6 @@
+           p
+ 	      }
+       }.flatten.uniq-[nil]
+-      pp result
+       result
+     end
+     def checkProgram(program)      
+@@ -71,7 +70,6 @@
+       includes+=config[&quot;NEEDED_INCLUDES&quot;].split(&quot; &quot;)
+       includes=includes.map{|i|&quot;#include &lt;#{i}&gt;&quot;}.join(&quot;\n&quot;)
+       source=&quot;#{includes}\nextern \&quot;C\&quot; void #{funcname}();int main(int argc,char*argv[]){return 0;}&quot;
+-      pp source
+       Rookey::mkdir(Compiler.rookeyTestDir)
+       testSource=File.join(Compiler.rookeyTestDir,&quot;test.c&quot;)
+       fd=File.open(testSource,&quot;w&quot;)
+
+Modified: antargis/trunk/rookey/lib/rookey/configs/debug.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/configs/debug.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/rookey/lib/rookey/configs/debug.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -3,7 +3,7 @@
+     needs :compiler
+     
+     def run(config)
+-      pp ROOKEY_CONFIG
++      #pp ROOKEY_CONFIG
+       if ROOKEY_CONFIG[:debug]==&quot;true&quot;
+ 	      config.add(&quot;CFLAGS&quot;,&quot;-O0 -g&quot;)
+ 	      config.add(&quot;LDFLAGS&quot;,&quot;-g&quot;)
+
+Modified: antargis/trunk/rookey/lib/rookey/configs/sdl.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/configs/sdl.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/rookey/lib/rookey/configs/sdl.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -7,7 +7,6 @@
+       # FIXME
+       sdlconfig=&quot;sdl-config&quot;
+       
+-      pp config
+       if config[&quot;host_os&quot;]!=&quot;win32&quot;
+ 	      cflags=`#{sdlconfig} --cflags`.chomp
+ 	      config.add(&quot;CFLAGS&quot;,cflags.split(&quot; &quot;).select{|f|not f=~/^-I/}.join(&quot; &quot;))
+@@ -22,12 +21,9 @@
+          
+         config.add(&quot;NEEDED_INCLUDES&quot;,&quot;SDL.h&quot;)
+       end      
+-      pp config
+-      
+       checkLibrary(config,&quot;SDL_image&quot;,&quot;IMG_Load&quot;)
+       checkLibrary(config,&quot;SDL_ttf&quot;,&quot;TTF_Quit&quot;)
+       checkLibrary(config,&quot;SDL_mixer&quot;,&quot;Mix_LoadMus&quot;)
+-      pp config
+     end
+   end
+ end
+\ No newline at end of file
+
+Added: antargis/trunk/rookey/lib/rookey/cpp/rk_config.cc
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_config.cc	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_config.cc	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -0,0 +1,12 @@
++#include &quot;rk_config.h&quot;
++
++std::string RKConfig::get(const std::string &amp;pKey) const {
++  std::map&lt;std::string, std::string&gt;::const_iterator i=mData.find(pKey);
++  if(i==mData.end())
++    return &quot;&quot;;
++  return i-&gt;second;
++}
++
++RKConfig::RKConfig() {
++  mData[&quot;logLevels&quot;]=&quot;out,debug,warn,err,info&quot;;
++}
+
+Added: antargis/trunk/rookey/lib/rookey/cpp/rk_config.h
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_config.h	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_config.h	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -0,0 +1,25 @@
++#ifndef RK_CONFIG_H
++#define RK_CONFIG_H
++
++#include &lt;string&gt;
++#include &quot;rk_singleton.h&quot;
++
++#include &lt;map&gt;
++
++class RKConfig:public RKSingleton&lt;RKConfig&gt;
++{
++  std::map&lt;std::string, std::string&gt; mData;
++
++public:
++  std::string get(const std::string &amp;pKey) const;
++
++protected:
++  RKConfig();
++
++private:
++
++  friend class RKSingleton&lt;RKConfig&gt;;
++};
++
++
++#endif
+
+Modified: antargis/trunk/rookey/lib/rookey/cpp/rk_logging.cc
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_logging.cc	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_logging.cc	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -1,17 +1,18 @@
+ 
+ #include &quot;rk_logging.h&quot;
+ #include &quot;rk_time.h&quot;
++#include &quot;rk_config.h&quot;
++#include &quot;rk_string.h&quot;
+ 
+ #include &lt;sstream&gt;
+ #include &lt;iostream&gt;
++#include &lt;algorithm&gt;
+ 
+-
+-std::string operator*(const std::string &amp;s,size_t i)
+-{
++std::string operator*(const std::string &amp;s, size_t i) {
+   std::ostringstream os;
+ 
+-  for(size_t k=0;k&lt;i;k++)
+-    os&lt;&lt;s;
++  for (size_t k = 0; k &lt; i; k++)
++    os &lt;&lt; s;
+ 
+   return os.str();
+ }
+@@ -41,10 +42,10 @@
+ void RKLogging::log(const std::string &amp;s, const std::string &amp;pLevel) {
+ 
+   // FIXME: do not start a new line each time !!
+-  if(allDestroyed())
++  if (allDestroyed())
+     return;
+ 
+-  if(mLastLevel!=pLevel)
++  if (mLastLevel != pLevel)
+     startLine(pLevel);
+ 
+   size_t last = 0, i;
+@@ -62,7 +63,7 @@
+     logLine(sub, pLevel);
+   else
+     logDirect(sub);
+-  mLastLevel=pLevel;
++  mLastLevel = pLevel;
+ }
+ 
+ void RKLogging::startLine(const std::string &amp;pLevel) {
+@@ -120,6 +121,7 @@
+   Channel err(Channel::T_ERR);
+   Channel trace(Channel::T_TRACE);
+   Channel info(Channel::T_INFO);
++  Channel gc(Channel::T_GC);
+ 
+   Special endl(Special::ENDL);
+ 
+@@ -131,8 +133,7 @@
+     return mType;
+   }
+ 
+-  Channel::Channel(const Type &amp;pType) : mType(pType) {
+-
++  Channel::Channel(const Type &amp;pType) : mType(pType), mEnabled(true), mChecked(false) {
+   }
+ 
+   Channel::~Channel() {
+@@ -141,8 +142,8 @@
+   }
+ 
+   void Channel::flush() {
+-    RKLogging *instance=RKLogging::getInstance();
+-    if(instance)
++    RKLogging *instance = RKLogging::getInstance();
++    if (instance)
+       instance-&gt;flush();
+ 
+   }
+@@ -152,15 +153,32 @@
+   }
+ 
+   Channel &amp;Channel::operator&lt;&lt;(const Special &amp;s) {
+-    if (s.getType() == Special::ENDL)
+-      flush();
++    check();
++    if(mEnabled) {
++      if (s.getType() == Special::ENDL)
++        flush();
++    }
+     return *this;
+   }
+ 
++  void Channel::check() {
++    if (!mChecked) {
++      mChecked = true;
++      AGString levels = RKConfig::getInstance()-&gt;get(&quot;logLevels&quot;);
++      std::vector&lt;AGString&gt; ls = levels.split(&quot;,&quot;);
++      if (std::find(ls.begin(), ls.end(), getType(getType())) == ls.end())
++        mEnabled = false;
++    }
++  }
++
+   Channel &amp;Channel::operator&lt;&lt;(const std::string &amp;s) {
+-    RKLogging *clogger=RKLogging::getInstance();
+-    if(clogger)
+-      clogger-&gt;log(s, getType(mType));
++    check();
++
++    if(mEnabled) {
++      RKLogging *clogger = RKLogging::getInstance();
++      if (clogger)
++        clogger-&gt;log(s, getType(mType));
++    }
+     return *this;
+   }
+ 
+@@ -172,6 +190,7 @@
+       case T_WARN:return &quot;warn &quot;;
+       case T_TRACE:return &quot;trace&quot;;
+       case T_INFO:return &quot;info &quot;;
++      case T_GC: return &quot;gc   &quot;;
+       default: return &quot;CRITICAL&quot;;
+     }
+   }
+
+Modified: antargis/trunk/rookey/lib/rookey/cpp/rk_logging.h
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_logging.h	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_logging.h	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -63,7 +63,7 @@
+   public:
+ 
+     enum Type {
+-      T_OUT, T_ERR, T_DEBUG, T_WARN, T_TRACE, T_INFO
++      T_OUT, T_ERR, T_DEBUG, T_WARN, T_TRACE, T_INFO, T_GC
+     };
+ 
+     Channel(const Type &amp;pType);
+@@ -87,13 +87,18 @@
+ 
+     static std::string getType(const Type &amp;pType);
+   private:
++    void check();
++
+     Type mType;
++    bool mEnabled;
++    bool mChecked;
+   };
+ 
+ 
+   extern AGEXPORT Channel out;
+   extern AGEXPORT Channel debug;
+   extern AGEXPORT Channel warn;
++  extern AGEXPORT Channel gc;
+   extern AGEXPORT Channel err;
+   extern AGEXPORT Channel trace;
+   extern AGEXPORT Channel info;
+
+Modified: antargis/trunk/rookey/lib/rookey/cpp/rk_rubyobj.cc
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_rubyobj.cc	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_rubyobj.cc	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -16,6 +16,9 @@
+ bool mRubyQuitting = false;
+ bool mRubyObjectsExistant = false;
+ 
++void deleteCppReference(AGRubyObject *cObject);
++
++
+ class RubyObjects : public std::set&lt;AGRubyObject*&gt; {
+ public:
+ 
+@@ -50,19 +53,21 @@
+ }
+ 
+ AGRubyObject::AGRubyObject() throw () {
+-  //std::cerr&lt;&lt;&quot;AGRubyObject::new:&quot;&lt;&lt;this&lt;&lt;std::endl;
+-  assert(mRubyObjects.find(this) == mRubyObjects.end());
++  logger::gc &lt;&lt; &quot;new AGRubyObject:&quot; &lt;&lt; this &lt;&lt; logger::endl;
++  if(mRubyObjects.find(this) != mRubyObjects.end())
++    logger::err&lt;&lt; &quot;RubyObject does already exist ????&quot;&lt;&lt;logger::endl;
++  // assert(mRubyObjects.find(this) == mRubyObjects.end());
+   mRubyObjects.insert(this);
+   size_t oSize = mRemovedRubyObjects.size();
+ 
+   mRemovedRubyObjects.erase(this);
+   if (oSize != mRemovedRubyObjects.size())
+-    logger::debug&lt;&lt; &quot;Collision - removed rubyobject's address is overwritten!&quot; &lt;&lt; logger::endl;
+-
+-  logger::debug &lt;&lt; &quot;current ruby#:&quot; &lt;&lt; mRubyObjects.size() &lt;&lt; &quot; removed:&quot; &lt;&lt; mRemovedRubyObjects.size() &lt;&lt; logger::endl;
++    logger::gc&lt;&lt; &quot;Collision - removed rubyobject's address is overwritten!&quot; &lt;&lt; logger::endl;
++  logger::gc &lt;&lt; &quot;current ruby#:&quot; &lt;&lt; mRubyObjects.size() &lt;&lt; &quot; removed:&quot; &lt;&lt; mRemovedRubyObjects.size() &lt;&lt; logger::endl;
+ }
+ 
+ AGRubyObject::~AGRubyObject() throw () {
++  logger::gc &lt;&lt; &quot;removed AGRubyObject:&quot; &lt;&lt; this &lt;&lt; logger::endl;
+   assert(mRubyObjects.find(this) != mRubyObjects.end());
+   assert(mRemovedRubyObjects.find(this) == mRemovedRubyObjects.end());
+   //std::cerr&lt;&lt;&quot;AGRubyObject::Removed:&quot;&lt;&lt;this&lt;&lt;std::endl;
+@@ -70,6 +75,7 @@
+     (*i)-&gt;baseClear();
+   mRubyObjects.erase(this);
+   mRemovedRubyObjects.insert(this);
++  //deleteCppReference(this);
+ }
+ 
+ 
+@@ -87,6 +93,8 @@
+   // o must be a valid ruby-object
+   assert(mRubyObjects.find(o) != mRubyObjects.end());
+ 
++  logger::gc &lt;&lt; &quot;AGRubyObject &quot; &lt;&lt; o &lt;&lt; &quot; marked by &quot;&lt;&lt;this&lt;&lt;logger::endl;
++
+   // look up, if it's registered within ruby
+   VALUE v = convertCpp2Ruby(o);
+   if (v != Qnil) {
+@@ -128,7 +136,15 @@
+   // the given object must be a AGRubyObject and it must be valid (it's in mRubyObjects)
+   AGRubyObject *o = static_cast&lt;AGRubyObject*&gt; (ptr);
+   if (mRubyObjects.find(o) == mRubyObjects.end())
+-    logger::err &lt;&lt; &quot;OLD RUBYOBJ:&quot; &lt;&lt; (mRemovedRubyObjects.find(o) != mRemovedRubyObjects.end()) &lt;&lt; &quot;:&quot; &lt;&lt; o &lt;&lt; logger::endl;
++    {
++      logger::err &lt;&lt; &quot;OLD RUBYOBJ:&quot; &lt;&lt; (mRemovedRubyObjects.find(o) != mRemovedRubyObjects.end()) &lt;&lt; &quot;:&quot; &lt;&lt; o &lt;&lt; logger::endl;
++
++      VALUE v=convertCpp2Ruby(o);
++      rb_gv_set(&quot;antargis_buggy_object&quot;,v);
++      //rb_eval_string(&quot;puts $antargis_buggy_object&quot;);
++      return;
++      rb_raise(rb_eFatal, &quot;A C++ object is still under surveilance of ruby, but is already deleted!&quot;);
++    }
+   assert(mRubyObjects.find(o) != mRubyObjects.end());
+ 
+ #ifdef GCDEBUG
+@@ -136,6 +152,9 @@
+ #endif
+ 
+   assert(o);
++
++
++  logger::gc &lt;&lt; &quot;mark called for &quot;&lt;&lt;o&lt;&lt; &quot;(&quot;&lt;&lt;typeid(*o).name()&lt;&lt;logger::endl;
+   o-&gt;mark();
+ }
+ 
+
+Added: antargis/trunk/rookey/lib/rookey/cpp/rubytracking.swg
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rubytracking.swg	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/rookey/lib/rookey/cpp/rubytracking.swg	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -0,0 +1,93 @@
++/* -----------------------------------------------------------------------------
++ * See the LICENSE file for information on copyright, usage and redistribution
++ * of SWIG, and the README file for authors - <A HREF="http://www.swig.org/release.html.">http://www.swig.org/release.html.</A>
++ *
++ * rubytracking.swg
++ *
++ * This file contains support for tracking mappings from 
++ * Ruby objects to C++ objects.  This functionality is needed
++ * to implement mark functions for Ruby's mark and sweep
++ * garbage collector.
++ * ----------------------------------------------------------------------------- */
++
++#include &lt;map&gt;
++
++#ifdef __cplusplus
++extern &quot;C&quot; {
++#endif
++
++
++
++/* Global Ruby hash table to store Trackings from C/C++
++   structs to Ruby Objects. 
++*/
++static std::map&lt;void*, VALUE&gt; swig_ruby_trackings;
++
++/* Global variable that stores a reference to the ruby
++   hash table delete function. */
++static ID swig_ruby_hash_delete;
++
++/* Setup a Ruby hash table to store Trackings */
++SWIGRUNTIME void SWIG_RubyInitializeTrackings(void) {
++  /* Create a ruby hash table to store Trackings from C++ 
++     objects to Ruby objects. */
++
++  /* Try to see if some other .so has already created a 
++     tracking hash table, which we keep hidden in an instance var
++     in the SWIG module.
++     This is done to allow multiple DSOs to share the same
++     tracking table.
++  */
++  VALUE verbose = rb_gv_get(&quot;VERBOSE&quot;);
++  rb_gv_set(&quot;VERBOSE&quot;, Qfalse);
++  rb_gv_set(&quot;VERBOSE&quot;, verbose);
++
++  /* Now store a reference to the hash table delete function
++     so that we only have to look it up once.*/
++  swig_ruby_hash_delete = rb_intern(&quot;delete&quot;);
++}
++
++/* Add a Tracking from a C/C++ struct to a Ruby object */
++SWIGRUNTIME void SWIG_RubyAddTracking(void* ptr, VALUE object) {
++  /* In a Ruby hash table we store the pointer and
++     the associated Ruby object.  The trick here is
++     that we cannot store the Ruby object directly - if
++     we do then it cannot be garbage collected.  So
++     instead we typecast it as a unsigned long and
++     convert it to a Ruby number object.*/
++
++  /* Store the mapping to the global hash table. */
++  swig_ruby_trackings[ptr]=object;
++}
++
++/* Get the Ruby object that owns the specified C/C++ struct */
++SWIGRUNTIME VALUE SWIG_RubyInstanceFor(void* ptr) {
++  std::map&lt;void*,VALUE&gt;::iterator i=swig_ruby_trackings.find(ptr);
++  if(i==swig_ruby_trackings.end())
++    return Qnil;
++  return i-&gt;second;
++}
++
++/* Remove a Tracking from a C/C++ struct to a Ruby object.  It
++   is very important to remove objects once they are destroyed
++   since the same memory address may be reused later to create
++   a new object. */
++SWIGRUNTIME void SWIG_RubyRemoveTracking(void* ptr) {
++  swig_ruby_trackings.erase(ptr);
++}
++
++/* This is a helper method that unlinks a Ruby object from its
++   underlying C++ object.  This is needed if the lifetime of the
++   Ruby object is longer than the C++ object */
++SWIGRUNTIME void SWIG_RubyUnlinkObjects(void* ptr) {
++  VALUE object = SWIG_RubyInstanceFor(ptr);
++
++  if (object != Qnil) {
++    DATA_PTR(object) = 0;
++  }
++}
++
++
++#ifdef __cplusplus
++}
++#endif
+
+Added: antargis/trunk/rookey/lib/rookey/cpp/rubytracking_1.swg
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rubytracking_1.swg	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/rookey/lib/rookey/cpp/rubytracking_1.swg	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -0,0 +1,162 @@
++/* -----------------------------------------------------------------------------
++ * See the LICENSE file for information on copyright, usage and redistribution
++ * of SWIG, and the README file for authors - <A HREF="http://www.swig.org/release.html.">http://www.swig.org/release.html.</A>
++ *
++ * rubytracking.swg
++ *
++ * This file contains support for tracking mappings from 
++ * Ruby objects to C++ objects.  This functionality is needed
++ * to implement mark functions for Ruby's mark and sweep
++ * garbage collector.
++ * ----------------------------------------------------------------------------- */
++
++
++#ifdef __cplusplus
++extern &quot;C&quot; {
++#endif
++
++#include &lt;st.h&gt;
++
++/* Ruby 1.8 actually assumes the first case. */
++#if SIZEOF_VOIDP == SIZEOF_LONG
++#  define SWIG2NUM(v) LONG2NUM((unsigned long)v)
++#  define NUM2SWIG(x) (unsigned long)NUM2LONG(x)
++#elif SIZEOF_VOIDP == SIZEOF_LONG_LONG
++#  define SWIG2NUM(v) LL2NUM((unsigned long long)v)
++#  define NUM2SWIG(x) (unsigned long long)NUM2LL(x)
++#else
++#  error sizeof(void*) is not the same as long or long long
++#endif
++
++
++/* Global Ruby hash table to store Trackings from C/C++
++   structs to Ruby Objects. 
++*/
++static st_table* swig_ruby_trackings = NULL;
++
++/* Global variable that stores a reference to the ruby
++   hash table delete function. */
++static ID swig_ruby_hash_delete;
++
++/* Setup a Ruby hash table to store Trackings */
++SWIGRUNTIME void SWIG_RubyInitializeTrackings(void) {
++  /* Create a ruby hash table to store Trackings from C++ 
++     objects to Ruby objects. */
++
++  /* Try to see if some other .so has already created a 
++     tracking hash table, which we keep hidden in an instance var
++     in the SWIG module.
++     This is done to allow multiple DSOs to share the same
++     tracking table.
++  */
++  VALUE verbose = rb_gv_get(&quot;VERBOSE&quot;);
++  rb_gv_set(&quot;VERBOSE&quot;, Qfalse);
++  rb_gv_set(&quot;VERBOSE&quot;, verbose);
++
++  /* No, it hasn't.  Create one ourselves */
++  if ( !swig_ruby_trackings )
++    {
++      swig_ruby_trackings = st_init_numtable();
++    }
++/*
++  if ( swig_ruby_trackings == Qnil )
++    {
++      swig_ruby_trackings = rb_hash_new();
++      rb_ivar_set( _mSWIG, trackings_id, swig_ruby_trackings );
++    }
++*/
++  /* Now store a reference to the hash table delete function
++     so that we only have to look it up once.*/
++  swig_ruby_hash_delete = rb_intern(&quot;delete&quot;);
++}
++
++/* Get a Ruby number to reference an object */
++SWIGRUNTIME VALUE SWIG_RubyObjectToReference(VALUE object) {
++  /* We cast the object to an unsigned long
++     and then store a reference to it using
++     a Ruby number object. */
++
++  /* Convert the Object to a Ruby number */
++  return SWIG2NUM(object);
++}
++
++/* Get a Ruby object from a previously stored reference */
++SWIGRUNTIME VALUE SWIG_RubyReferenceToObject(VALUE reference) {
++  /* The provided Ruby number object is a reference
++     to the Ruby object we want.*/
++
++  /* Convert the Ruby number to a Ruby object */
++  return NUM2SWIG(reference);
++}
++
++/* Add a Tracking from a C/C++ struct to a Ruby object */
++SWIGRUNTIME void SWIG_RubyAddTracking(void* ptr, VALUE object) {
++  /* In a Ruby hash table we store the pointer and
++     the associated Ruby object.  The trick here is
++     that we cannot store the Ruby object directly - if
++     we do then it cannot be garbage collected.  So
++     instead we typecast it as a unsigned long and
++     convert it to a Ruby number object.*/
++
++  /* Get a reference to the pointer as a Ruby number */
++  //VALUE key = SWIG_RubyPtrToReference(ptr);
++
++  /* Get a reference to the Ruby object as a Ruby number */
++  VALUE value = SWIG_RubyObjectToReference(object);
++
++  /* Store the mapping to the global hash table. */
++  st_insert(swig_ruby_trackings, (st_data_t)ptr, value);
++}
++
++/* Get the Ruby object that owns the specified C/C++ struct */
++SWIGRUNTIME VALUE SWIG_RubyInstanceFor(void* ptr) {
++  /* Get a reference to the pointer as a Ruby number */
++  //VALUE key = SWIG_RubyPtrToReference(ptr);
++
++  VALUE value;
++
++  if (!st_lookup(swig_ruby_trackings, (st_data_t)ptr, &amp;value)) {
++    return Qnil;
++  }
++
++  /* Now lookup the value stored in the global hash table */
++	
++  if (value == Qnil) {
++    /* No object exists - return nil. */
++    return Qnil;
++  }
++  else {
++    /* Convert this value to Ruby object */
++    return SWIG_RubyReferenceToObject(value);
++  }
++}
++
++/* Remove a Tracking from a C/C++ struct to a Ruby object.  It
++   is very important to remove objects once they are destroyed
++   since the same memory address may be reused later to create
++   a new object. */
++SWIGRUNTIME void SWIG_RubyRemoveTracking(void* ptr) {
++  /* Get a reference to the pointer as a Ruby number */
++  //VALUE key = SWIG_RubyPtrToReference(ptr);
++
++  /* Delete the object from the hash table by calling Ruby's
++     do this we need to call the Hash.delete method.*/
++  //rb_funcall(swig_ruby_trackings, swig_ruby_hash_delete, 1, key);
++  st_delete(swig_ruby_trackings, (st_data_t *)&amp;ptr, NULL);
++}
++
++/* This is a helper method that unlinks a Ruby object from its
++   underlying C++ object.  This is needed if the lifetime of the
++   Ruby object is longer than the C++ object */
++SWIGRUNTIME void SWIG_RubyUnlinkObjects(void* ptr) {
++  VALUE object = SWIG_RubyInstanceFor(ptr);
++
++  if (object != Qnil) {
++    DATA_PTR(object) = 0;
++  }
++}
++
++
++#ifdef __cplusplus
++}
++#endif
+
+Added: antargis/trunk/rookey/lib/rookey/cpp/spec/basiclib_interface.i
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/spec/basiclib_interface.i	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/rookey/lib/rookey/cpp/spec/basiclib_interface.i	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -0,0 +1,97 @@
++%module(directors=&quot;1&quot;) basiclib
++%feature(&quot;autodoc&quot;,&quot;1&quot;);
++
++/*
++%feature(&quot;director:except&quot;) {
++ throw Swig::DirectorMethodException($error);
++}
++*/
++
++      %include &lt;std_vector.i&gt;
++      %include &lt;std_list.i&gt;
++      
++
++
++%include &quot;stl.i&quot;
++%include &quot;std_list.i&quot;
++%{
++#include &quot;rk_string.h&quot;
++#include &quot;/Users/davidkamphausen/projects.alt/antargis/rookey/lib/./rookey/cpp/rk_rubyobj.h&quot;
++#include &quot;/Users/davidkamphausen/projects.alt/antargis/rookey/lib/rookey/cpp/rk_logging.h&quot;
++%}
++
++%wrapper %{namespace swig{
++        template &lt;&gt; struct traits_from_ptr&lt;AGRubyObject&gt; {
++          static VALUE from (AGRubyObject *val,int owner=0) {
++          
++            // insert Dynamic_cast(...)
++            swig_type_info *info=SWIGTYPE_p_AGRubyObject; //type_info&lt;AGRubyObject&gt;();
++            swig_type_info *ninfo=SWIG_TypeDynamicCast(info,(void**)&amp;val);
++            if(ninfo==0)
++              ninfo=info;
++          
++            return SWIG_NewPointerObj(val, ninfo, owner);
++          }
++        };        
++        }%}
++
++%feature(&quot;director&quot;) AGRubyObject;
++%markfunc AGRubyObject &quot;general_markfunc&quot;
++%{
++      /*
++template&lt;class T&gt;
++VALUE convertCpp2Ruby(T *cObject)
++{
++  return SWIG_RubyInstanceFor(cObject);
++}
++template&lt;AGRubyObject&gt;*/ 
++VALUE convertCpp2Ruby(AGRubyObject *cObject)
++{
++  return SWIG_RubyInstanceFor(cObject);
++}
++  
++
++%}
++
++%{
++
++%}
++%insert(&quot;init&quot;) %{
++
++%}
++
++
++%typemaps_std_string(AGString, char, SWIG_AsCharPtrAndSize, SWIG_FromCharPtrAndSize, %checkcode(STDSTRING));
++
++/*
++template &lt;&gt;
++ inline VALUE from&lt;AGString&gt;(const AGString&amp; val) {
++   return SWIG_FromCharPtrAndSize(val.c_str(),val.length());
++   //return traits_from&lt;Type&gt;::from(val);
++ }
++ */
++ // oder
++ %wrapper %{
++ namespace swig
++ {
++ template&lt;&gt; struct traits_from&lt;AGString&gt;
++ {
++	 inline static VALUE from(const AGString &amp;val)
++	 {
++     return SWIG_FromCharPtrAndSize(val.c_str(),val.length());
++	 }
++};
++}
++%}
++
++
++
++%template(StringVector) std::vector&lt;std::string&gt;;
++%template(PStringVector) std::vector&lt;std::string*&gt;;
++
++
++%feature(&quot;trackobjects&quot;);
++
++%include &quot;/Users/davidkamphausen/projects.alt/antargis/rookey/lib/./rookey/cpp/rk_rubyobj.h&quot;
++%include &quot;/Users/davidkamphausen/projects.alt/antargis/rookey/lib/rookey/cpp/rk_logging.h&quot;      
++
+
+Added: antargis/trunk/rookey/lib/rookey/cpp/spec/logging
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/trunk/rookey/lib/rookey/cpp/spec/logging
+___________________________________________________________________
+Name: svn:executable
+   + *
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/trunk/rookey/lib/rookey/cpp/spec/rookey_configuration.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/spec/rookey_configuration.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/rookey/lib/rookey/cpp/spec/rookey_configuration.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -0,0 +1,3 @@
++ROOKEY_CONFIG={
++
++}
+
+Added: antargis/trunk/rookey/lib/rookey/cpp/spec/singleton
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/trunk/rookey/lib/rookey/cpp/spec/singleton
+___________________________________________________________________
+Name: svn:executable
+   + *
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/trunk/rookey/lib/rookey/spec/dir_spec.rb.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/spec/dir_spec.rb.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/rookey/lib/rookey/spec/dir_spec.rb.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -0,0 +1,9 @@
++require File.expand_path(__FILE__,&quot;../compiler.rb&quot;)
++
++describe &quot;Compiler directories&quot; do
++  it &quot;should ignore relativ parent paths&quot; do
++    Compiler.makePlainName(&quot;../a.cc&quot;).should == &quot;..=a.cc&quot;
++    Compiler.makePlainName(&quot;xy/a.cc&quot;).should == &quot;xy=a.cc&quot;
++    Compiler.makePlainName(&quot;hupe.cc&quot;).should ==&quot; hupe.cc&quot;
++  end
++end
+\ No newline at end of file
+
+Modified: antargis/trunk/rookey/lib/rookey/swig.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/swig.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/rookey/lib/rookey/swig.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -59,7 +59,13 @@
+       options=options[0..2]+[&quot;-o &quot;+depsfile,&quot;-M&quot;]+options[3..-1]
+       call=program+&quot; &quot;+options.join(&quot; &quot;)
+       sh call
+-      
++
++      #ensure that no ::mark string is within generated file
++      if File.read(t.name)=~/::mark/
++        puts &quot;Some mark() member is not protected!!&quot;
++        exit 1
++      end
++
+       puts    
+     end
+     
+
+Modified: antargis/trunk/rookey/lib/rookey/swig_interface_builder.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/swig_interface_builder.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/rookey/lib/rookey/swig_interface_builder.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -72,6 +72,11 @@
+ {
+   return SWIG_RubyInstanceFor(cObject);
+ }
++
++void deleteCppReference(AGRubyObject *cObject)
++{
++  SWIG_RubyUnlinkObjects(cObject);
++}
+   
+ EOT
+       
+@@ -108,8 +113,26 @@
+     def generate
+ 
+ &quot;%module(directors=\&quot;1\&quot;) #{@moduleName}
++%include \&quot;typemaps.i\&quot;
+ %feature(\&quot;autodoc\&quot;,\&quot;1\&quot;);
+ 
++%{
++template&lt;class T&gt;
++T *createDup(const T &amp;t)
++{
++  return new T(t);
++}
++
++%}
++
++
++%typemap(directorin,noblock=1) SWIGTYPE const &amp; {
++  $1_ltype tmp_$1_name = createDup($1_name);
++  $input = SWIG_NewPointerObj(%as_voidptr(tmp_$1_name), $descriptor, SWIG_POINTER_OWN); //%newpointer_flags);
++  
++}
++
++
+ /*
+ %feature(\&quot;director:except\&quot;) {
+  throw Swig::DirectorMethodException($error);
+
+Modified: antargis/trunk/rookey/lib/rookey/tasks.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/tasks.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/rookey/lib/rookey/tasks.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -40,7 +40,7 @@
+ 		      source=v
+       end
+     }
+-    file=target+&quot;_interface.i&quot;
++    file=File.join(Compiler.rookeyWorkingDir,target+&quot;_interface.i&quot;)
+     templates=[source].flatten.select{|f|f=~/i$/}
+     source=source.grep(/INCLUDE_SWIG/)+getAGRubyObjectHeader
+     
+
+Modified: antargis/trunk/rookey/lib/rookey/tools.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/tools.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/rookey/lib/rookey/tools.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -1,6 +1,5 @@
+ require 'pp'
+ $:&lt;&lt;File.split(File.split(__FILE__)[0])[0]
+-pp $:
+ 
+ class Array
+   
+
+Deleted: antargis/trunk/rookey/spec/cpp/ag_rubyobj.cc
+===================================================================
+--- antargis/trunk/rookey/spec/cpp/ag_rubyobj.cc	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/rookey/spec/cpp/ag_rubyobj.cc	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -1,103 +0,0 @@
+-ag_rubyobj.o: ../cpp/ag_rubyobj.cc ../cpp/ag_rubyobj.h \
+-  /usr/include/c++/4.0.0/string \
+-  /usr/include/c++/4.0.0/i686-apple-darwin9/bits/c++config.h \
+-  /usr/include/c++/4.0.0/i686-apple-darwin9/bits/os_defines.h \
+-  /usr/include/c++/4.0.0/bits/stringfwd.h \
+-  /usr/include/c++/4.0.0/bits/char_traits.h \
+-  /usr/include/c++/4.0.0/cstring /usr/include/c++/4.0.0/cstddef \
+-  /usr/lib/gcc/i686-apple-darwin9/4.0.1/include/stddef.h \
+-  /usr/include/string.h /usr/include/_types.h /usr/include/sys/_types.h \
+-  /usr/include/sys/cdefs.h /usr/include/machine/_types.h \
+-  /usr/include/i386/_types.h /usr/include/c++/4.0.0/bits/stl_algobase.h \
+-  /usr/include/c++/4.0.0/climits \
+-  /usr/lib/gcc/i686-apple-darwin9/4.0.1/include/limits.h \
+-  /usr/lib/gcc/i686-apple-darwin9/4.0.1/include/syslimits.h \
+-  /usr/include/limits.h /usr/include/machine/limits.h \
+-  /usr/include/i386/limits.h /usr/include/i386/_limits.h \
+-  /usr/include/sys/syslimits.h /usr/include/c++/4.0.0/cstdlib \
+-  /usr/include/stdlib.h /usr/include/available.h /usr/include/sys/wait.h \
+-  /usr/include/sys/signal.h /usr/include/sys/appleapiopts.h \
+-  /usr/include/machine/signal.h /usr/include/i386/signal.h \
+-  /usr/include/i386/_structs.h /usr/include/sys/_structs.h \
+-  /usr/include/machine/_structs.h /usr/include/mach/i386/_structs.h \
+-  /usr/include/sys/resource.h /usr/include/machine/endian.h \
+-  /usr/include/i386/endian.h /usr/include/sys/_endian.h \
+-  /usr/include/libkern/_OSByteOrder.h \
+-  /usr/include/libkern/i386/_OSByteOrder.h /usr/include/alloca.h \
+-  /usr/include/machine/types.h /usr/include/i386/types.h \
+-  /usr/include/c++/4.0.0/iosfwd \
+-  /usr/include/c++/4.0.0/i686-apple-darwin9/bits/c++locale.h \
+-  /usr/include/c++/4.0.0/clocale /usr/include/locale.h \
+-  /usr/include/_locale.h /usr/include/c++/4.0.0/cstdio \
+-  /usr/include/stdio.h \
+-  /usr/include/c++/4.0.0/i686-apple-darwin9/bits/c++io.h \
+-  /usr/include/c++/4.0.0/i686-apple-darwin9/bits/gthr.h \
+-  /usr/include/c++/4.0.0/i686-apple-darwin9/bits/gthr-default.h \
+-  /usr/include/pthread.h /usr/include/pthread_impl.h /usr/include/sched.h \
+-  /usr/include/time.h /usr/include/_structs.h /usr/include/unistd.h \
+-  /usr/include/sys/unistd.h /usr/include/sys/select.h \
+-  /usr/include/sys/_select.h /usr/include/c++/4.0.0/cctype \
+-  /usr/include/ctype.h /usr/include/runetype.h \
+-  /usr/include/c++/4.0.0/bits/postypes.h /usr/include/c++/4.0.0/cwchar \
+-  /usr/include/c++/4.0.0/ctime /usr/include/wchar.h \
+-  /usr/lib/gcc/i686-apple-darwin9/4.0.1/include/stdarg.h \
+-  /usr/include/_wctype.h \
+-  /usr/lib/gcc/i686-apple-darwin9/4.0.1/include/stdint.h \
+-  /usr/include/c++/4.0.0/bits/functexcept.h \
+-  /usr/include/c++/4.0.0/exception_defines.h \
+-  /usr/include/c++/4.0.0/bits/stl_pair.h \
+-  /usr/include/c++/4.0.0/bits/cpp_type_traits.h \
+-  /usr/include/c++/4.0.0/bits/stl_iterator_base_types.h \
+-  /usr/include/c++/4.0.0/bits/stl_iterator_base_funcs.h \
+-  /usr/include/c++/4.0.0/bits/concept_check.h \
+-  /usr/include/c++/4.0.0/bits/stl_iterator.h \
+-  /usr/include/c++/4.0.0/debug/debug.h /usr/include/c++/4.0.0/cassert \
+-  /usr/include/assert.h /usr/include/c++/4.0.0/memory \
+-  /usr/include/c++/4.0.0/bits/allocator.h \
+-  /usr/include/c++/4.0.0/i686-apple-darwin9/bits/c++allocator.h \
+-  /usr/include/c++/4.0.0/ext/new_allocator.h /usr/include/c++/4.0.0/new \
+-  /usr/include/c++/4.0.0/exception \
+-  /usr/include/c++/4.0.0/bits/stl_construct.h \
+-  /usr/include/c++/4.0.0/bits/stl_uninitialized.h \
+-  /usr/include/c++/4.0.0/bits/stl_raw_storage_iter.h \
+-  /usr/include/c++/4.0.0/limits \
+-  /usr/include/c++/4.0.0/bits/stl_function.h \
+-  /usr/include/c++/4.0.0/bits/basic_string.h \
+-  /usr/include/c++/4.0.0/bits/atomicity.h \
+-  /usr/include/c++/4.0.0/i686-apple-darwin9/bits/atomic_word.h \
+-  /usr/include/c++/4.0.0/algorithm /usr/include/c++/4.0.0/bits/stl_algo.h \
+-  /usr/include/c++/4.0.0/bits/stl_heap.h \
+-  /usr/include/c++/4.0.0/bits/stl_tempbuf.h \
+-  /usr/include/c++/4.0.0/bits/basic_string.tcc /usr/include/c++/4.0.0/set \
+-  /usr/include/c++/4.0.0/bits/stl_tree.h \
+-  /usr/include/c++/4.0.0/bits/stl_set.h \
+-  /usr/include/c++/4.0.0/bits/stl_multiset.h ../cpp/ag_base.h \
+-  /usr/include/c++/4.0.0/stdexcept /usr/include/c++/4.0.0/typeinfo \
+-  /usr/include/c++/4.0.0/map /usr/include/c++/4.0.0/bits/stl_map.h \
+-  /usr/include/c++/4.0.0/bits/stl_multimap.h \
+-  /usr/include/c++/4.0.0/iostream /usr/include/c++/4.0.0/ostream \
+-  /usr/include/c++/4.0.0/ios /usr/include/c++/4.0.0/bits/localefwd.h \
+-  /usr/include/c++/4.0.0/bits/ios_base.h \
+-  /usr/include/c++/4.0.0/bits/locale_classes.h \
+-  /usr/include/c++/4.0.0/streambuf \
+-  /usr/include/c++/4.0.0/bits/streambuf.tcc \
+-  /usr/include/c++/4.0.0/bits/basic_ios.h \
+-  /usr/include/c++/4.0.0/bits/streambuf_iterator.h \
+-  /usr/include/c++/4.0.0/bits/locale_facets.h \
+-  /usr/include/c++/4.0.0/cwctype /usr/include/wctype.h \
+-  /usr/include/c++/4.0.0/i686-apple-darwin9/bits/ctype_base.h \
+-  /usr/include/c++/4.0.0/i686-apple-darwin9/bits/ctype_inline.h \
+-  /usr/include/c++/4.0.0/bits/codecvt.h \
+-  /usr/include/c++/4.0.0/i686-apple-darwin9/bits/time_members.h \
+-  /usr/include/c++/4.0.0/i686-apple-darwin9/bits/messages_members.h \
+-  /usr/include/c++/4.0.0/bits/basic_ios.tcc \
+-  /usr/include/c++/4.0.0/bits/ostream.tcc /usr/include/c++/4.0.0/locale \
+-  /usr/include/c++/4.0.0/bits/locale_facets.tcc \
+-  /usr/include/c++/4.0.0/istream /usr/include/c++/4.0.0/bits/istream.tcc \
+-  /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0/ruby.h \
+-  /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0/config.h \
+-  /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0/defines.h \
+-  /usr/lib/gcc/i686-apple-darwin9/4.0.1/include/syslimits.h \
+-  /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0/missing.h \
+-  /usr/include/sys/time.h /usr/include/sys/types.h \
+-  /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0/intern.h
+
+Modified: antargis/trunk/ruby/ant_ai.rb
+===================================================================
+--- antargis/trunk/ruby/ant_ai.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/ant_ai.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -73,7 +73,7 @@
+   def eventHeroWithoutJob(hero)
+     @rules.each{|r|
+       if r.value(hero)&gt;0
+-        puts &quot;GO&quot;
++        Log.debug &quot;AntAttackAI: GO&quot;
+         r.execute(hero)
+         return
+       end
+@@ -97,7 +97,7 @@
+   end
+ 
+   def eventHeroWithoutJob(hero)
+-    puts &quot;eventHeroWithoutJob(hero) #{hero.getName}&quot;
++    Log.debug &quot;AntFuzzyAI eventHeroWithoutJob(hero) #{hero.getName}&quot;
+     process(hero)
+   end
+ 
+
+Modified: antargis/trunk/ruby/ant_application.rb
+===================================================================
+--- antargis/trunk/ruby/ant_application.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/ant_application.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -82,6 +82,9 @@
+     super(w,h)
+ 
+     @speed=1
++    @inspect=nil
++    @infobox=nil
++    @story=nil
+ 
+     # the result of the level - won or lost or canceled
+     @result=GameResult.new
+
+Modified: antargis/trunk/ruby/ant_formations.rb
+===================================================================
+--- antargis/trunk/ruby/ant_formations.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/ant_formations.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -24,6 +24,7 @@
+     @cache={}
+     @sorted=nil
+     @inited=false
++    @men=[]
+     calcFormation
+   end
+   def calcFormation
+@@ -47,9 +48,6 @@
+       r=getPositionReal(man)
+       if r.nil?
+         if not @boss.getMen.member?(man)
+-          puts &quot;/// #{man} #{@boss}&quot;
+-          puts &quot;MAN:&quot;,man.uid,&quot; BOSS:&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at boss.uid</A>
+-          puts &quot;MEN:&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at boss.getMen.collect</A>{|m|m.uid.to_s}.join(&quot; &quot;)
+           raise &quot;Man #{man} is not member of #{@boss}'s men!&quot;
+         end
+         raise &quot;Problem in AntFormation!&quot;
+@@ -57,7 +55,6 @@
+     end
+     @cache[man]=r
+     ret= r+pos
+-    puts &quot;RET:#{ret}=#{r}+#{pos}&quot;
+     ret
+   end
+   def getSortedMen
+@@ -95,11 +92,9 @@
+ class AntFormationRest&lt;AntFormation
+   def initialize(boss)
+     super(boss)
+-    puts &quot;new formation&quot;
+   end
+ 
+   def calcFormation
+-    puts &quot;calcFormation&quot;
+     @rpos={} # real positions as map from man to AGVector2
+     vpos={}  # virtual positions as map from man to pair of [row,line (circle)]
+ 
+@@ -124,19 +119,13 @@
+       row,line=vpos[m]
+       radius=line*1.2
+       angle=row.to_f/linesizes[line]*Math::PI*2
+-      puts &quot;#{m} #{row} #{line} #{angle} #{radius} #{linesizes[line]}&quot;
+       @rpos[m]=AGVector2.new(Math::cos(angle)*radius,Math::sin(angle)*radius)
+-      #puts &quot;SET:#{m}&quot;
+     }
+     @rpos[@boss]=AGVector2.new(0,0)
+     if @men.length&gt;0
+       @inited=true
+     end
+     
+-    @rpos.keys.each{|key|
+-      puts &quot;FORMAT #{key} : #{@rpos[key]}&quot;
+-    }
+-    
+   end
+   def getPositionReal(man)
+     if (not @inited) or changedMen
+
+Modified: antargis/trunk/ruby/ant_hljob_base.rb
+===================================================================
+--- antargis/trunk/ruby/ant_hljob_base.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/ant_hljob_base.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -37,7 +37,6 @@
+       goToNextState
+       break if @state.nil? or @finished
+     end
+-    puts &quot;FINISHED: #{@finished}&quot;
+   end
+ 
+   # override this one
+@@ -67,10 +66,8 @@
+     print &quot;CALL #{hero.getName} #{state} #{event} #{m}  #{getTime} -- &quot;
+     if self.class.method_defined?(m)
+       v=send(m)
+-      puts v
+       return v
+     else
+-      puts &quot;UNKNOWN&quot;
+       true
+     end
+   end
+@@ -80,13 +77,12 @@
+ 
+   def call2(state,event,man)
+     m=methodName(state,event)
+-    print &quot;CALL2 #{hero.getName} #{state} #{event} #{m} #{man} #{getTime} -- &quot;
++    #print &quot;CALL2 #{hero.getName} #{state} #{event} #{m} #{man} #{getTime} -- &quot;
+     if self.class.method_defined?(m)
+       v=send(m,man)
+-      puts v
+       return v
+     else
+-      puts &quot;UNKNOWN&quot;
++     # puts &quot;UNKNOWN&quot;
+       true
+     end
+   end
+
+Modified: antargis/trunk/ruby/ant_inventory.rb
+===================================================================
+--- antargis/trunk/ruby/ant_inventory.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/ant_inventory.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -6,6 +6,7 @@
+   def initialize(p,rect)
+     super(p,rect)
+     @@inventory=self
++    @inspect=false
+     @resTypes=[&quot;wood&quot;,&quot;stone&quot;,&quot;men&quot;,&quot;food&quot;,&quot;tool&quot;,&quot;gold&quot;,&quot;boat&quot;,&quot;shield&quot;,&quot;sword&quot;,&quot;bow&quot;,&quot;coal&quot;,&quot;ore&quot;,&quot;steel&quot;,&quot;rod&quot;,&quot;fruit&quot;,&quot;corn&quot;,&quot;flour&quot;] #,&quot;bread&quot;]
+     setCaching(true)
+     @invinited=false
+
+Added: antargis/trunk/ruby/ant_logging.rb
+===================================================================
+--- antargis/trunk/ruby/ant_logging.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/ant_logging.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -0,0 +1,12 @@
++class Log
++  @@names=[:err,:debug,:warn,:out,:gc,:info,:trace]
++
++  def self.method_missing(name,*a)
++
++    name=:err unless @@names.member?(name)
++
++    chan=::Antargis.send(name)
++    chan&lt;&lt;caller[0]&lt;&lt;&quot; &quot;
++    chan&lt;&lt;a.map{|x|x.to_s}.join(&quot; &quot;)&lt;&lt;Antargis.endl
++  end
++end
+\ No newline at end of file
+
+Modified: antargis/trunk/ruby/ant_models.rb
+===================================================================
+--- antargis/trunk/ruby/ant_models.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/ant_models.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -231,7 +231,6 @@
+     scenenode=nil
+     if mesh
+       if mesh.is_a?(Array)
+-        pp mesh
+         ant2name=mesh[0]
+         scale=mesh[1]
+         pngname=mesh[2]
+
+Modified: antargis/trunk/ruby/ant_player.rb
+===================================================================
+--- antargis/trunk/ruby/ant_player.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/ant_player.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -90,7 +90,7 @@
+ 
+ class AntHumanPlayer&lt;AntPlayer
+   def eventJobFinished(who,what)
+-    puts who.to_s+&quot; is ready with is job:&quot;+what.to_s
++    Log.debug who.to_s+&quot; is ready with is job:&quot;+what.to_s
+   end
+   def xmlName
+     return &quot;humanPlayer&quot;
+@@ -110,7 +110,7 @@
+     return &quot;computerPlayer&quot;
+   end
+   def eventJobFinished(who,what)
+-    puts who.to_s+&quot; is ready with is job:&quot;+what.to_s
++    Log.debug who.to_s+&quot; is ready with is job:&quot;+what.to_s
+   end
+   def assignJob(hero)
+     if enoughFood(hero)
+
+Modified: antargis/trunk/ruby/ant_tools.rb
+===================================================================
+--- antargis/trunk/ruby/ant_tools.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/ant_tools.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -1,31 +1,38 @@
+ require &quot;ruby/ant_sound.rb&quot;
+ require 'ruby/tools/logging.rb'
+ 
+-def getMeshData(file,zoom,texture=&quot;&quot;,shadow=true)
+-  id=file+&quot;:&quot;+texture
+-  if not $meshes
+-    $meshes={}
++class Meshes
++  @@meshes={}
++  def self.getMeshData(file,zoom,texture=&quot;&quot;,shadow=true)
++    id=file+&quot;:&quot;+texture
++    if not @@meshes[id]
++      raise &quot;Texture-file not found!&quot; unless (fileExists(texture) or texture==&quot;&quot;)
++      @@meshes[id]=MeshData.new(file,zoom,texture,shadow)
++    end
++    return @@meshes[id]
+   end
+-  if not $meshes[id]
+-    pp file,zoom,texture,shadow
+-    raise &quot;Texture-file not found!&quot; unless (fileExists(texture) or texture==&quot;&quot;)
+-    $meshes[id]=MeshData.new(file,zoom,texture,shadow)
++
++  def self.getAnimMeshData(file)
++    if not @@meshes[file]
++      @@meshes[file]=AnimMeshData.new(file)
++      @@meshes[file].setTransform(AGMatrix4.new(Math::PI,
++          AGVector3.new(0,0,1))*AGMatrix4.new(Math::PI/2,AGVector3.new(1,0,0)))
++
++    end
++    return @@meshes[file]
+   end
+-  return $meshes[id]
++
+ end
+ 
+-def getAnimMeshData(file)
+-  if not $meshes
+-    $meshes={}
+-  end
+-  if not $meshes[file]
+-    $meshes[file]=AnimMeshData.new(file)
+-    $meshes[file].setTransform(AGMatrix4.new(Math::PI,AGVector3.new(0,0,1))*AGMatrix4.new(Math::PI/2,AGVector3.new(1,0,0)))
+ 
+-  end
+-  return $meshes[file]
++def getMeshData(*args)
++  Meshes.getMeshData(*args)
+ end
++def getAnimMeshData(*args)
++  Meshes.getAnimMeshData(*args)
++end
+ 
++
+ def displayError(error)
+   getSoundManager.playWave([&quot;data&quot;,&quot;sound&quot;,&quot;error.wav&quot;].join(&quot;/&quot;))
+   playSound(error)
+
+Modified: antargis/trunk/ruby/antargislib.rb
+===================================================================
+--- antargis/trunk/ruby/antargislib.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/antargislib.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -7,7 +7,9 @@
+ require 'rookey/lib/rookey/tools.rb'
+ require 'pp'
+ 
++require File.expand_path('../ant_logging.rb',__FILE__)
+ 
++
+ module MyAntargisLib
+   @@antargislibinited||=false
+ 
+@@ -98,9 +100,9 @@
+ 
+ begin
+   include Antargis
+-  puts &quot;Antargis-module included&quot;
++  Log.debug &quot;Antargis-module included&quot;
+ rescue
+-  puts &quot;Antargis-module not found - trying to load .so&quot;
++  #Log.warn(&quot;Antargis-module not found - trying to load .so&quot;)
+   begin
+     if File.exists?(&quot;antargis.so&quot;)
+       require 'antargis'
+@@ -128,8 +130,6 @@
+   
+   end
+ end
+-puts &quot;extension loaded&quot;
+-
+   
+ require 'ruby/gui/ag_tools.rb'
+ require 'ant_tools'
+@@ -142,6 +142,21 @@
+ addPath(File.join(@basePath,&quot;data&quot;))
+ addPath(File.join(@basePath,&quot;data&quot;,&quot;fonts&quot;))
+ 
++
++alias :oldputs :puts
++#def puts(*x)
++#  pp caller
++#  raise 1
++#end
++#def p(*x)
++#  pp caller
++#  raise 1
++#end
++#alias :oldpp :pp
++#def pp(*x)
++#  oldpp caller
++#  raise 1
++#end
+     
+ module MyAntargislib
+   @@antargislibinited||=false
+@@ -247,9 +262,9 @@
+ 
+     @@noVideo||=nil  
+     if @@noVideo.nil?
+-      puts &quot;initVideo...&quot;
++      Log.debug &quot;initVideo...&quot;
+       getVideo.initVideo(xres,yres,32,@@fullscreen,@@opengl,1024,768)
+-      puts &quot;initVideo ok&quot;
++      Log.debug &quot;initVideo ok&quot;
+     
+       getConfig.set(&quot;xRes&quot;,xres.to_s)
+       getConfig.set(&quot;yRes&quot;,yres.to_s)
+
+Modified: antargis/trunk/ruby/campaign.rb
+===================================================================
+--- antargis/trunk/ruby/campaign.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/campaign.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -174,6 +174,7 @@
+   #attr_reader :finished
+   def initialize(node)
+     @screens=[]
++    @image=@text=nil
+     node.getChildren(&quot;screen&quot;).each{|s|
+       screen={}
+       screen[:text]=&quot;&quot;
+
+Modified: antargis/trunk/ruby/dialogs.rb
+===================================================================
+--- antargis/trunk/ruby/dialogs.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/dialogs.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -103,6 +103,7 @@
+     addHandler(getChild(&quot;back&quot;),:sigClick,:eventBack)
+     addHandler(getChild(&quot;forward&quot;),:sigClick,:eventClose)
+     addSignal(&quot;sigStoryFinished&quot;)
++    @flow=nil
+   end
+   def setFlow(flow)
+     if @flow.nil?
+@@ -254,7 +255,6 @@
+   end
+   def eventOk(e)
+     filename=getChild(&quot;Filename&quot;).getText
+-    #puts &quot;FILENAME:&quot;+filename.to_s
+     if not filename =~ /.*\.antlvl/ then
+       filename=filename.to_s+&quot;.antlvl&quot;
+     end
+@@ -280,7 +280,6 @@
+   end
+   def eventOk(e)
+     filename=getChild(&quot;Filename&quot;).getText.to_s
+-    puts &quot;FILENAME:&quot;+filename.to_s
+     if not filename =~ /.*\.antcmp/ then
+       filename=filename+&quot;.antcmp&quot;
+     end
+@@ -304,10 +303,8 @@
+     super(parent,&quot;data/gui/layout/loaddialog.xml&quot;)
+     d=getDirectory(getSavePath)
+     @lb=getChild(&quot;Files&quot;)
+-    puts d
+     d.each { |x|
+       if x =~ /.*\.antlvl/ then
+-        puts &quot;FILE:&quot;+x
+         value=x.gsub(&quot;.antlvl&quot;,&quot;&quot;)
+         @lb.insertItem(x,AGStringUtf8.new(value))
+       end
+@@ -623,7 +620,6 @@
+     if false
+       # direct placement
+       house=@map[e.getCaller.getName].new
+-      puts &quot;POS:#{@pos}&quot;
+       house.setPos(@pos)
+       getApp.getMap.insertEntity(house)
+       house.setPlayer(getApp.getMap.getPlayer)
+
+Modified: antargis/trunk/ruby/editor/campaign/app.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/app.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/editor/campaign/app.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -1,4 +1,4 @@
+-require File.join(File.split(__FILE__)[0],'drag_grid.rb')
++require 'drag_grid.rb'
+ 
+ 
+ # This is the main application-class of the campaign-editor.
+
+Modified: antargis/trunk/ruby/editor/campaign/drag_grid.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/drag_grid.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/editor/campaign/drag_grid.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -443,6 +443,10 @@
+ 
+ Cell=Struct.new(:screenRect,:rect,:node)
+ class Cell
++  def initialize(*args)
++    @node=nil
++    super
++  end
+   def free
+     @node.nil?
+   end
+
+Modified: antargis/trunk/ruby/editor/campaign/spec_campaign_editor.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/spec_campaign_editor.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/editor/campaign/spec_campaign_editor.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -1,6 +1,6 @@
+-require File.join(File.split(__FILE__)[0],&quot;..&quot;,&quot;..&quot;,&quot;spec_helper.rb&quot;)
+-require File.expand_path(&quot;../../../gui/testing.rb&quot;,__FILE__)
+-require File.expand_path(&quot;../app.rb&quot;,__FILE__)
++#require File.join(File.split(__FILE__)[0],&quot;..&quot;,&quot;..&quot;,&quot;spec_helper.rb&quot;)
++#require File.expand_path(&quot;../../../gui/testing.rb&quot;,__FILE__)
++#require File.expand_path(&quot;../app.rb&quot;,__FILE__)
+ 
+ describe &quot;Campaign editor&quot; do
+   include GuiTest
+@@ -9,7 +9,7 @@
+   end
+   it &quot;should be possible to place levels on the grid&quot; do
+     drag(getSourceMiddle(&quot;levelSource&quot;),getGridPos(1,1),10)
+-    grid.getAllDescendants.select{|c|c.is_a?(DragBox)}.length.should == 1
++    (grid.getAllDescendants.select{|c|c.is_a?(DragBox)}.length).should == 1
+     level=grid.getChildren[0]
+     level.should be_a_kind_of(DragBoxLevel)
+     level.getParent.should_not be_nil
+@@ -89,8 +89,6 @@
+   
+   private
+   def drag(from,to,frames,&amp;block)
+-    p from,to
+-    #exit
+     @app.setCursor(getTextureCache.get(&quot;blue_cursor.png&quot;))
+     mouseMotion(from)
+     mouseDown(from)
+
+Modified: antargis/trunk/ruby/editor/dialogs.rb
+===================================================================
+--- antargis/trunk/ruby/editor/dialogs.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/editor/dialogs.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -187,7 +187,6 @@
+     @list.clearList
+     @players={}
+     @map.players.each{|p|
+-      puts &quot;initPlayNames:#{p}:#{p.class}:#{p.name}:#{p.name.class}&quot;
+       @list.insertItem(p.name.to_s,p.name)
+       @players[p.name]=p
+     }
+
+Modified: antargis/trunk/ruby/editor/ent_list.rb
+===================================================================
+--- antargis/trunk/ruby/editor/ent_list.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/editor/ent_list.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -42,7 +42,6 @@
+       x=i%cells
+       y=i/cells
+       n=c.to_s
+-      puts &quot;#{i} #{x} #{y} #{n}&quot;
+       w=AGRadio.new(table,AGRect2.new(0,0,40,40))
+       @wptrs[c]=w
+       w.setName(n)
+@@ -87,7 +86,6 @@
+   def create(parent,rect,node)
+     e=AntEntListWidget.new(parent,rect)
+     e.setName(node.get(&quot;name&quot;))
+-    puts node.get(&quot;name&quot;)
+     setResult e
+   end
+ end
+
+Modified: antargis/trunk/ruby/editor/spec/spec_editor.rb
+===================================================================
+--- antargis/trunk/ruby/editor/spec/spec_editor.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/editor/spec/spec_editor.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -1,9 +1,6 @@
+-#if false
+-Dir.chdir(File.split(File.split(File.split(File.split(File.expand_path(__FILE__))[0])[0])[0])[0])
+-puts Dir.pwd
++Dir.chdir(File.expand_path('../../../..',__FILE__))
+ 
+ require 'ruby/gui/testing.rb'
+-
+ require 'ruby/editor_app.rb'
+ 
+ 
+
+Modified: antargis/trunk/ruby/editview.rb
+===================================================================
+--- antargis/trunk/ruby/editview.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/editview.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -28,6 +28,8 @@
+     #$map=map
+     @map=map
+     @size=3
++    @appearance=nil
++    @newDialog=nil
+     $scene=getScene
+   
+     @layout=AGLayout.new(nil)
+@@ -67,7 +69,6 @@
+     @layout.getChild(&quot;editHeight&quot;).setChecked(true)
+     @layout.getChild(&quot;entitiesTab&quot;).entType=AntHero
+     setTab(&quot;terrain&quot;)
+-    puts &quot;EditView inizalizing ready.&quot;
+   end
+   
+   def eventNewMap
+@@ -134,17 +135,11 @@
+   end
+     
+   def eventClick(list,button)
+-    puts &quot;eventClick&quot;
+-    puts &quot;------------------&quot;
+-    puts &quot;list-size:&quot;+(list.length.to_s)
+     if list.length&gt;0
+       if @modifier
+-        puts @modifier
+         send(@modifier,list,button)
+       end
+     end
+-    puts &quot;back from eventClick&quot;
+-    #super(list)
+     return true
+   end
+   def editHeight(list,button)
+@@ -153,9 +148,6 @@
+   
+     list.each{|c|
+       if isTerrain(c.node)
+-        puts &quot;TERRAIN:&quot;
+-        puts c.node
+-        puts @terrain
+         x=c.pos.x.to_i
+         y=c.pos.y.to_i
+         middle=@map.get(x,y)
+@@ -176,9 +168,7 @@
+             end
+           end
+         end
+-        puts &quot;MAP CHANGED...&quot;
+         @map.mapChanged
+-        puts &quot;MAP CHANGED!&quot;
+       end
+     }
+   end
+@@ -186,9 +176,6 @@
+   def editGrass(list,button)
+     list.each{|c|
+       if isTerrain(c.node)
+-        puts &quot;TERRAIN:&quot;
+-        puts c.node
+-        puts @terrain
+         x=c.pos.x.to_i
+         y=c.pos.y.to_i
+         middle=@map.getGrass(x,y)
+@@ -225,13 +212,10 @@
+             if dx&gt;=0 and dx&lt;=@map.getW and dy&gt;=0 and dy&lt;=@map.getH
+               d=Math::sqrt((dx-x)**2+(dy-y)**2)
+               v=1-(d/(@size))
+-              puts v,v.class
+               v=[[0,v].max,1].min
+-              dputs dx,dx.class,dy,dy.class,tt,tt.class
+               ov=@map.getTerrain(dx,dy,tt)
+               cv=[ov+v*h,1].min
+               @map.setTerrain(dx,dy,tt,cv)
+-              printf &quot;EDIT:%d,%d,%d,%f\n&quot;,dx,dy,tt,cv
+             end
+           end
+         end
+@@ -293,7 +277,6 @@
+   def addEntity(list,button)
+     pos=nil
+     list.each{|c|
+-      puts &quot;LIST #{c} #{c.node}&quot;
+       if isTerrain(c.node)
+         pos=c.pos
+       end
+@@ -301,7 +284,6 @@
+     if not pos
+       return
+     end
+-    puts &quot;ADDENTITY&quot;
+     entity=nil
+     dorand=true
+     if @type==AntDeco
+@@ -315,7 +297,6 @@
+     else
+       entity=@type.new(@map)
+     end
+-    puts &quot;SETPOS #{pos.x} #{pos.y}&quot;
+     entity.setPos(AGVector2.new(pos.x,pos.y))
+     getMap.insertEntity(entity)
+   end
+@@ -326,8 +307,6 @@
+   def edit(meshes,button)
+     meshes.each{|res|
+       node=res.node
+-      puts &quot;NODE:&quot;
+-      puts node
+       if node.is_a?(MeshBase)
+         ent=getMap.getEntity(node)
+         if ent
+@@ -351,7 +330,6 @@
+   end
+   
+   def doRubber(list,button)
+-    puts &quot;DOING RUBBER&quot;
+     list.each{|res|
+       mesh=res.node
+       if mesh.is_a?(MeshBase)
+@@ -359,7 +337,7 @@
+         if ent
+           getMap.removeEntity(ent)
+         else
+-          puts &quot;NOT FOUND!&quot;
++          Log.debug &quot;NOT FOUND!&quot;
+         end
+         break
+       end
+
+Modified: antargis/trunk/ruby/entities/ant_animal.rb
+===================================================================
+--- antargis/trunk/ruby/entities/ant_animal.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/entities/ant_animal.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -19,14 +19,12 @@
+       fishList=getMap.getAllByType(self.class)
+       return if fishList.length&gt;50
+       # make child
+-      #puts &quot;A FISH IS BORN&quot;
+       fish=self.class.new(getMap)
+       fish.setPos(getPos2D)
+       getMap.insertEntity(fish)
+       getMap.endChange
+       newRestJob(2)
+       @lastBirth=-getRand()*10
+-      puts &quot;GIVE BIRTH&quot;
+       return true
+     end
+     false
+
+Modified: antargis/trunk/ruby/entities/ant_boss.rb
+===================================================================
+--- antargis/trunk/ruby/entities/ant_boss.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/entities/ant_boss.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -33,6 +33,7 @@
+     @men=[]
+     @hlJobMode={}
+     @job=nil
++    @player=nil
+     @createMen=0
+     @selected=@hovered=false
+     @formation=nil
+@@ -123,10 +124,9 @@
+   end
+   
+   def newHLDefendJob(target)
+-    puts &quot;DEFEND!!! #{self.getName} from #{target.getName}&quot;
+     if @job
+       if @job.is_a?(AntHeroFightJob)
+-        puts &quot;I'm alread fighting!&quot;
++        Log.debug &quot;I'm alread fighting!&quot;
+         return false # already fighting
+       end
+     end
+@@ -190,7 +190,6 @@
+   end
+   
+   def eventManDefeated(man)
+-    dputs &quot;AntBoss:eventManDefeated: #{man} #{man.getName}&quot;
+     if @job and @job.class==AntHeroFightJob
+       @job.defeated(man)
+     end
+@@ -267,7 +266,6 @@
+ 
+ 
+   def eventHLJobFinished(job)
+-    puts &quot;eventHLJobFinished(job) #{self}&quot;
+     getMap.eventHLJobFinished(self,job)
+     doEvent(:eventHLJobFinished)
+   end
+@@ -308,7 +306,6 @@
+       eventNoJob
+       return
+     end
+-    puts &quot;#{getName} has defeated #{e.getName}&quot;
+     if @job.is_a?(AntHeroFightJob)
+       @job.haveDefeated(e)
+     end
+
+Modified: antargis/trunk/ruby/entities/ant_hero.rb
+===================================================================
+--- antargis/trunk/ruby/entities/ant_hero.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/entities/ant_hero.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -31,6 +31,9 @@
+   attr_reader :meshState, :dead
+   def initialize(map)
+     super
++    @fire=nil
++    @fireSound=nil
++
+     @men.push(self)
+     setProvide(&quot;hero&quot;,true)
+     @appearance=&quot;hero&quot;
+@@ -74,18 +77,11 @@
+   
+   def startFireSound
+     if not @fireSound
+-      #dputs &quot;STARTING FIRE&quot;
+       @fireSound=AntSound.playLoopSoundGlobal(self,&quot;fire&quot;,getPos2D,0.4)
+-      #dputs @fireSound
+     end
+   end  
+   def stopFireSound
+     if @fireSound
+-      #dputs &quot;STOPPED&quot;
+-      #dputs @job
+-      if @job.class==AntHeroRestJob
+-        #raise &quot;bla&quot;
+-      end
+       AntSound.stopLoopSound(self)
+       #getSoundManager.stopChannel(@fireSound)
+       @fireSound=nil
+@@ -172,7 +168,6 @@
+       end
+     end
+     
+-    puts &quot;POSHL:#{pos} #{pos.class}&quot;
+     if pos.is_a?(AGVector2) or pos.is_a?(AGVector3)
+       assert{pos.is_a?(AGVector2) or pos.is_a?(AGVector3)}
+       target=AntBuildingSite.new(getMap)
+@@ -235,7 +230,6 @@
+   
+   
+   def setFire(flag)
+-    #puts &quot;setFire #{flag}&quot;
+     if flag
+       if getPos3D.z&gt;0 # won't start fire in water!!
+         if not @fire
+@@ -256,19 +250,15 @@
+   end
+ 
+   def eventAttacked(by)
+-    #puts &quot;eventAttacked #{by}&quot;
+     super
+   end
+   
+   def assignJob2All
+     super
+-    #puts &quot;ASSIGN JOB 2 All #{self}&quot;
+-    #puts &quot;---&quot;
+     if @job.class!=AntHeroRestJob
+       setFire(false)
+     end
+     doEvent(:newJobAssigned)
+-    #puts &quot;ASSIGN JOB ready.&quot;
+   end
+ 
+   def setMeshState(name)
+
+Modified: antargis/trunk/ruby/entities/ant_man.rb
+===================================================================
+--- antargis/trunk/ruby/entities/ant_man.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/entities/ant_man.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -40,6 +40,8 @@
+     super
+ 
+     @hlJobMode={}
++    @meshState=nil
++    @target=nil
+ 
+     setProvide(&quot;man&quot;,true)
+     @signed=false
+@@ -103,7 +105,6 @@
+         end
+         @boss=boss
+       end
+-      puts &quot;BOSS:#{@boss}&quot;
+     end
+     if @boss and not @signed then
+       @boss.signUp(self)
+@@ -243,7 +244,7 @@
+           getFirstMesh.setAnimation(&quot;walk&quot;)
+         else
+           #  raise 1
+-          puts &quot;name:#{name}&quot;
++#          puts &quot;name:#{name}&quot;
+           assert{[&quot;dagger&quot;,&quot;shield&quot;,&quot;sword&quot;,&quot;bow&quot;].member?(getWeapon)}
+           setMesh(&quot;fight_&quot;+getWeapon)
+         end
+
+Modified: antargis/trunk/ruby/entities/ant_manbase.rb
+===================================================================
+--- antargis/trunk/ruby/entities/ant_manbase.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/entities/ant_manbase.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -176,7 +176,6 @@
+         setOnWater(false)
+       end
+       if isOnOpenWater and haveBoat
+-        puts &quot;onOpenWater&quot;
+         setOnWater(true)
+         name=&quot;row&quot;
+       end
+
+Modified: antargis/trunk/ruby/entities/ant_sheep.rb
+===================================================================
+--- antargis/trunk/ruby/entities/ant_sheep.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/entities/ant_sheep.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -26,6 +26,7 @@
+     setProvide(&quot;sheep&quot;,true)
+     setSpeed 0.4
+     @foodAdd=0
++    @dead=false
+     
+     setMesh
+ 
+
+Modified: antargis/trunk/ruby/entities/ant_tower.rb
+===================================================================
+--- antargis/trunk/ruby/entities/ant_tower.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/entities/ant_tower.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -1,10 +1,10 @@
+ class AntTower&lt;AntHouse
+   def initialize(map)
++    @flag=nil
+     super
+     setProvide(&quot;tower&quot;,true)
+     setMinimapColor(AGColor.new(0x22,0x22,0x22))
+     setMinimapSize(6)
+-
+     @storeGood=[&quot;food&quot;,&quot;tool&quot;,&quot;corn&quot;,&quot;stone&quot;,&quot;wood&quot;]
+   end
+   
+
+Modified: antargis/trunk/ruby/entities/entity.rb
+===================================================================
+--- antargis/trunk/ruby/entities/entity.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/entities/entity.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -26,6 +26,7 @@
+     @xmlProps={}
+     @birthday=getMap.getTime
+     @mode=&quot;&quot;
++    @dead=false
+     @handlers={}
+     self.learnAmount=0.05
+   
+
+Modified: antargis/trunk/ruby/gui/testing.rb
+===================================================================
+--- antargis/trunk/ruby/gui/testing.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/gui/testing.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -125,7 +125,6 @@
+     d=pos-@@oldPos
+     dx=d[0].to_i
+     dy=d[1].to_i
+-    p x,y,dx,dy
+     @app.doEvent(toSDLEvent(&quot;SDL_MOUSEMOTION:0:1:#{x.to_i}:#{y.to_i}:#{dx}:#{dy}&quot;))
+   end
+   
+@@ -143,10 +142,6 @@
+   def key(pkey)
+     sym=pkey[0]
+     s1=&quot;SDL_KEYDOWN:0:1:0:#{sym}:0:#{sym}&quot;
+-    puts s1
+-    #exit
+-    puts @app
+-    pp @app.methods.sort
+     @app.doEvent(toSDLEvent(s1))
+     @app.doEvent(toSDLEvent(&quot;SDL_KEYUP:0:0:0:#{sym}:0:#{sym}&quot;))
+   end
+
+Modified: antargis/trunk/ruby/jobs/ant_hljob_base.rb
+===================================================================
+--- antargis/trunk/ruby/jobs/ant_hljob_base.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/jobs/ant_hljob_base.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -70,9 +70,9 @@
+   end
+ 
+   def delete(man)
+-    puts &quot;IGNORING AntNewHLJob::delete(#{man})&quot;
++    Log.warn &quot;IGNORING AntNewHLJob::delete(#{man})&quot;
+     if man==@hero
+-      puts &quot;STOPPING JOB - because hero died&quot;
++      Log.warn &quot;STOPPING JOB - because hero died&quot;
+       @finished=true
+       @state=nil
+     end
+
+Modified: antargis/trunk/ruby/jobs/ant_hljob_states.rb
+===================================================================
+--- antargis/trunk/ruby/jobs/ant_hljob_states.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/jobs/ant_hljob_states.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -10,7 +10,6 @@
+     ts=&quot;*s&quot;
+     ts=&quot;s&quot; if methodName=~/.*=$/
+     s=&quot;def #{methodName}(#{ts})\n#{objectName}.#{objectMethodName}(#{ts})\nend\n&quot;
+-    #puts s
+     module_eval s
+   end
+ end
+@@ -52,8 +51,6 @@
+   FORMAT_MAX_TIME=5
+ 
+   def enter
+-    puts &quot;#{self}:enter&quot;
+-    trace
+     hero.formation=AntFormationBlock.new(hero,formatDir)
+     heroPos=hero.getPos2D
+     allMen.each{|man|
+@@ -113,7 +110,6 @@
+   end
+ 
+   def ready
+-    puts &quot;#{self}:ready&quot;
+     if <A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">getTime- at formatStart</A>&gt;FORMAT_MAX_TIME
+       # FIXME:rest deserts
+       return true
+@@ -138,7 +134,6 @@
+   end
+ 
+   def enter
+-    puts &quot;#{self}:enter&quot;
+     hero.formation=AntFormationBlock.new(hero,formatDir)
+     allMen.each{|man|
+       pos=hero.getFormation(man,targetPos)
+@@ -181,14 +176,12 @@
+   def enter
+     @near=machine.near
+     @near||=0
+-    puts &quot;#{self}:enter&quot;
+     if @waypoints.nil?
+       initWaypoints
+     end
+   end
+ 
+   def stillHasWaypoints
+-    puts state
+     if @waypoints.length&gt;0
+       self.targetPos=@waypoints.shift
+ 
+@@ -247,9 +240,6 @@
+     @completeTargetPos=targetPos
+     self.targetPos=@waypoints.shift
+     self.targetPos=checkPosNear(self.targetPos)
+-     #puts &quot;--&quot;
+-     #pp <A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">self.targetPos,hero.getPos2D, at near</A>,(hero.getPos2D-self.targetPos).length
+-     #raise 1
+   end
+ 
+   def checkPosNear(to)
+@@ -329,33 +319,25 @@
+ class HLJob_FetchStart&lt;HLJob_BaseState
+   # needed a target-entity
+   def enter
+-    trace
+     fetchPoint=machine.target.getPos2D
+-    puts &quot;fetchPoint:#{fetchPoint}  heroPos:#{hero.getPos2D}&quot;
+     allMen.each{|man|
+       man.walkTo(fetchPoint)
+       man.hlJobMode[:fetching]=true
+-      puts &quot;set to fetching: #{man}&quot;
+     }
+     
+   end
+ 
+   def assign(man)
+-    trace
+     man.standStill
+     man.hlJobMode.delete(:fetching)
+   end
+ 
+   def ready
+-    trace
+     allMen.each{|man|
+-      puts &quot;fetchStart_ready check: #{man} : #{man.hlJobMode[:fetching]}&quot;
+       if man.hlJobMode[:fetching]
+         return false
+       end
+-      puts &quot;false&quot;
+     }
+-    puts &quot;return true ??&quot;
+     return true
+   end
+ end
+@@ -435,7 +417,6 @@
+   
+   def doSpreading
+     # FIXME: maybe this can be done more easily ???
+-    trace
+   
+     all={}
+     RESOURCES_TO_SPREAD.each{|r|  
+@@ -570,13 +551,11 @@
+   end
+ 
+   def reshuffle
+-    trace
+     # reinit and assign
+ 
+     menGroup={}
+     leave=false
+     @parties.each{|type,jobs|
+-      puts &quot;parties: #{type}:#{jobs}&quot;
+       menGroup[type]=jobs.collect{|job|job.undefeatedMen}.flatten.uniq
+       menGroup[type].each{|man|man.delJob}
+       if menGroup[type].length==0
+@@ -635,17 +614,13 @@
+ 
+   def enter
+     @oldHeroPosition=hero.getPos2D
+-    trace
+ 
+     targetHadFightData=target.hlJobMode[:fightData].nil?
+     
+-    puts &quot;fightData: #{target.hlJobMode[:fightData]}&quot;
+     checkForFightData
+     if targetHadFightData
+-      puts &quot;NOT YET INITED #{self} hero:#{hero} target:#{target}&quot;
+       target.newHLDefendJob(hero)
+     end
+-    trace
+     assignAllJobs
+   end
+ 
+@@ -677,7 +652,6 @@
+       man.hlJobMode[:defeated]=true
+       man.hlJobMode.delete(:fighting)
+     else
+-      puts &quot;.canFight:#{man.canFight} #{man.getEnergy} #{man.getMorale}&quot;
+       assert{man.canFight}
+ 
+       opponent=@fightData.getNewOpponent(man,self)
+@@ -736,25 +710,19 @@
+   private
+   # return true if fightData already exists
+   def checkForFightData
+-    trace
+-    puts &quot;TARGET #{target}&quot;
+     if target.hlJobMode[:fightData]
+-      trace
+       @fightData=target.hlJobMode[:fightData]
+       @fightData.add(self)
+       @fightType=@fightData.getFightType(self)
+       return true
+     else
+-      trace
+       @fightData=HLJob_FightData.new(self)
+       @fightType=:attacker
+     end
+-    puts &quot;assigned fightData!&quot;
+     hero.hlJobMode[:fightData]=@fightData # store so that it's avaiable above
+   end
+   def assignAllJobs
+     # FIXME:assign a fight-job to every member (undefeatedMen)
+-    trace
+ 
+     undefeatedMen.each{|man|
+       if man.hlJobMode[:fightTarget]
+@@ -765,7 +733,7 @@
+         man.hlJobMode[:fighting]=true
+       else
+         # this the case, when an already defeated party is attacked
+-        puts &quot;POSSIBLE ERROR: #{man} has no opponent ?&quot;
++        Log.error &quot;POSSIBLE ERROR: #{man} has no opponent ?&quot;
+       end
+     }
+   end
+@@ -801,7 +769,6 @@
+   end
+ 
+   def assign(man)
+-    puts &quot;MAN:#{man}&quot;
+     if hasAtLeastOneFollower # has more than the hero himself
+       if man.is_a?(AntHero)
+         #man.newRestJob(10)
+@@ -849,16 +816,13 @@
+ 
+   def returnToStart(man)
+     pos=hero.getFormation(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">man, at myPos</A>)
+-    puts &quot;RETURN to start: mypos:#{@myPos} diffHero:#{@myPos-hero.getPos2D} manpos:#{man.getPos2D} tposman:#{pos} diff:#{pos-man.getPos2D}&quot;
+     
+     
+     if (man.getPos2D-pos).length&lt;MAX_DIST
+       man.lookTo(@myPos)
+       man.standStillShort # FIXME: really short ?
+-      puts &quot;standStill #{man} #{pos}==#{man.getPos2D}  ---#{@myPos} &quot;
+     else
+       man.walkTo(pos)
+-      puts &quot;walkTo #{pos} #{man}&quot;
+     end
+   end
+   
+@@ -1250,13 +1214,11 @@
+   # :section: Producing
+ 
+   def goBuilding(man)
+-    puts &quot;goBuilding #{man}&quot;
+     man.walkTo(target)
+     man.hlJobMode[:task]=:build
+   end
+ 
+   def build(man)
+-    puts &quot;build #{man}&quot;
+     man.hlJobMode[:task]=:endBuild
+     man.newRestJob(3,true)
+     man.setMeshState(&quot;pick&quot;)
+@@ -1269,8 +1231,6 @@
+ 
+   def whatToDo(man)
+     res=whatToDo2(man)
+-    print &quot;whatToDo:&quot;
+-    pp res
+     res
+   end
+ 
+@@ -1304,7 +1264,7 @@
+ 
+   def enoughResourceLeft
+     alreadyBuilding=hero.getMen.select{|man|[:build,:goBuilding].member?(man.hlJobMode[:task])}.length+1
+-    puts &quot;alreadyBuilding:#{alreadyBuilding}&quot;
++    Log.warn &quot;alreadyBuilding:#{alreadyBuilding}&quot;
+     #return true if alreadyBuilding==0
+     neededResources=target.building.buildResources
+     ok=true
+@@ -1312,7 +1272,6 @@
+ 
+       ok=false if target.resource.get(k)&lt;v*alreadyBuilding
+     }
+-    puts &quot;ok: #{ok}&quot;
+     ok
+   end
+ 
+@@ -1358,15 +1317,13 @@
+   end
+ 
+   def buildIncrease
+-    puts &quot;buildIncrease&quot;
+-    #return if flattenLand
+ 
+     building=target.building
+     neededResources=building.buildResources
+   
+     neededResources.each{|k,v|
+       if target.resource.get(k)&lt;v
+-        puts &quot;NOT FOUDN: #{k}:#{v}&quot;
++        Log.error &quot;NOT FOUDN: #{k}:#{v}&quot;
+         return # oooooh
+       end
+     }
+@@ -1374,12 +1331,10 @@
+       target.resource.sub(k,v)
+     }
+ 
+-    puts &quot;inc:&quot;,target.building.buildSteps
+-    puts &quot;stepcount:&quot;,target.getStepCount
+     target.incProgress(target.building.buildSteps)
+     
+     if target.ready
+-      puts &quot;READY&quot;
++      Log.debug &quot;READY buildIncrease&quot;
+       # delete buildingsite and replace with building
+       getMap.removeEntity(target)
+       house=building.new(getMap)
+
+Modified: antargis/trunk/ruby/jobs/ant_new_hljobs.rb
+===================================================================
+--- antargis/trunk/ruby/jobs/ant_new_hljobs.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/jobs/ant_new_hljobs.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -52,6 +52,7 @@
+ 
+   def initialize(hero,time)
+     super(hero)
++    @spreadTime=0
+     @restTime=time
+     @startTime=getTime
+   end
+
+Modified: antargis/trunk/ruby/mainmenu.rb
+===================================================================
+--- antargis/trunk/ruby/mainmenu.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/mainmenu.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -60,6 +60,8 @@
+ 
+     # add handler for music finished, simply restart music
+     addHandler(getSoundManager,:sigMp3Finished,:eventMusicEnd)
++
++    @myScreen=nil
+   end
+ 
+ 
+
+Modified: antargis/trunk/ruby/map.rb
+===================================================================
+--- antargis/trunk/ruby/map.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/map.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -92,6 +92,8 @@
+ 
+     @filename=&quot;dummy&quot;  # a dummy filename - used for level scripting
+     @uidstart=0
++    @playerTypeMap=nil
++    @script=nil
+   end
+ 
+   def disableScript
+@@ -110,7 +112,7 @@
+     @uidstart=[<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">i, at uidstart</A>].max
+   end
+   def getByUID(id)
+-    puts &quot;WARNING: THIS function is slow!&quot;
++    Log.warn &quot;WARNING: THIS function is slow!&quot;
+     ents=getAllEntities
+     id=id.to_i
+     ents.each{|e|
+@@ -119,8 +121,6 @@
+         return r
+       end
+     }
+-    puts id
+-    puts id.class
+     raise &quot;UID not found #{id}&quot;
+     nil
+   end
+@@ -274,11 +274,9 @@
+   end
+   
+   def loadXML(n)
+-    puts &quot;loadXML(n)&quot;
+     @loadedEntsNum=1
+     @loadedEntities=[]
+     super(n)
+-    puts &quot;loadXML(n) -1 &quot;
+     @loadedEntities.each{|pair|
+       node,entity=pair
+       insertEntity(entity)
+@@ -330,33 +328,6 @@
+     super
+   end
+ 
+-  def saveXMLTRest(n)
+-    puts self
+-    pp n
+-    super(n)
+-    @players.each{|player|
+-      c=n.addChild(player.xmlName)
+-      player.saveXML(c)
+-    }
+-    @targets.each{|name,t|
+-      c=n.addChild(t.xmlName)
+-      t.saveXML(c)
+-    }
+-    @triggers.each{|t|
+-      c=n.addChild(t.xmlName)
+-      t.saveXML(c)
+-    }
+-    if @scriptClass
+-      n.set(&quot;scriptclass&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at scriptClass</A>)
+-    end
+-    if @scriptFile
+-      n.set(&quot;scriptfile&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at scriptFile</A>)
+-    end
+-    if @script
+-      c=n.addChild(&quot;scriptdata&quot;)
+-      @script.saveXML(c)
+-    end
+-  end
+ 
+   ######################################
+   # modify the world
+@@ -469,11 +440,11 @@
+ 
+ 
+   def createPathfinder
+-    puts &quot;createPathfinder&quot;
++    Log.debug &quot;createPathfinder&quot;
+     @path=CombinedPathFinder.new(self)
+     @path.scene=getScene
+     @path.displayPathfindingGraph(self,getScene)
+-    puts &quot;createPathfinder ready&quot;
++    Log.debug &quot;createPathfinder ready&quot;
+   end
+ 
+   # returns a map of possible xmlNames to their classes like {&quot;antMan&quot;=&gt;AntMan}
+
+Modified: antargis/trunk/ruby/spec/spec_call.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_call.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/spec/spec_call.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -53,7 +53,6 @@
+ 
+ class Test
+   def initialize
+-    puts &quot;new Test&quot;
+   end
+   def Test.test2
+     :test_2
+
+Modified: antargis/trunk/ruby/spec/spec_formation.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_formation.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/spec/spec_formation.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -49,9 +49,7 @@
+       }
+       formation=AntFormationRest.new(hero)
+       poss=hero.getMen.collect{|man|
+-        pos=formation.getPosition(man,hero.getPos2D)
+-        puts pos
+-        pos
++        formation.getPosition(man,hero.getPos2D)
+       }
+       sum=poss.inject(null){|a,b|a+b}
+       (sum/poss.length-middle).length.should &lt; 1
+
+Modified: antargis/trunk/ruby/spec/spec_hljob_saving.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_hljob_saving.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/spec/spec_hljob_saving.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -15,10 +15,8 @@
+     end
+     it &quot;should be possible to save normal resting&quot; do
+       saveText=save(SAVEGAME)
+-      puts saveText
+       load(SAVEGAME)
+       newText=save(SAVEGAME2)
+-      puts newText
+       (newText==saveText).should be_true
+       #exit
+       #advance
+@@ -58,7 +56,6 @@
+   
+   def getSaveText(file)
+     file=&quot;savegames/&quot;+file+&quot;.antlvl&quot;
+-    pp file
+     loadFile(file)
+   end
+ end
+
+Modified: antargis/trunk/ruby/spec/spec_math.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_math.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/spec/spec_math.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -56,7 +56,6 @@
+     m.set(1,2,1)
+     m.set(2,2,2)
+     result=determinantAGMatrix3(m)
+-    p result
+     result.should&gt;0
+   end
+ end
+@@ -68,7 +67,6 @@
+     str.gsub(&quot;(&quot;,&quot;&quot;).gsub(&quot;)&quot;,&quot;&quot;).split(&quot;,&quot;).each{|a|
+       x=0
+       a.split(&quot;;&quot;).each{|v|
+-        puts &quot;#{x},#{y}:#{v}&quot;
+         m.set(x,y,v.to_f)
+         x+=1
+       }
+@@ -80,10 +78,7 @@
+   def self.check(s)
+     it &quot;should work on #{s}&quot; do
+       m=makeMatrix(s)
+-      pp s
+-      pp m.toString
+       i=m.inverted
+-      pp i.toString
+       (m*i).should==singleMatrix
+     end
+   end
+
+Modified: antargis/trunk/ruby/spec/spec_menu.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_menu.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/spec/spec_menu.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -1,10 +1,9 @@
+ #if false
+ 
+-Dir.chdir(File.split(__FILE__)[0])
++#Dir.chdir(File.split(__FILE__)[0])
+ 
+-require '../spec_helper.rb'
+-require 'ruby/gui/testing.rb'
+-require 'ruby/mainmenu.rb'
++#require 'ruby/gui/testing.rb'
++#require 'ruby/mainmenu.rb'
+ 
+ describe 'Main-Menu' do
+   include GuiTest
+
+Modified: antargis/trunk/ruby/spec/spec_run_tutorial.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_run_tutorial.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/spec/spec_run_tutorial.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -171,7 +171,6 @@
+         enemy.hasHLJob.should be_false
+         trials=300
+         while hero.hasHLJob
+-          puts hero.getJob
+           advance
+           break if storyIsDisplayed
+           trials.should &gt; 0
+
+Modified: antargis/trunk/ruby/spec/spec_scrollingwidget.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_scrollingwidget.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/spec/spec_scrollingwidget.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -110,37 +110,22 @@
+       @app=makeTestAppClass(MyTestApp).new
+     end
+     it &quot;should translate&quot; do
+-      puts &quot;_____&quot;
+-      puts @app.sWidget
+       s=@app.sWidget
+-      puts 1
+       
+       p0=AGVector2.new(10,20)
+-      puts 2
+       p1=AGVector2.new(10,10)
+-      puts 3
+       old=s.getVector
+-      puts 4
+       mouseMotion(p0)
+       mouseDown(p0)
+-      puts 5
+       s.getVector.should == old
+-      puts 6
+       #@app.step while true
+       mouseMotion(p1)
+-      puts 7
+       s.getVector.should_not == old
+-      puts 8
+       mouseMotion(p0)
+-      puts 9
+       s.getVector.should == old
+-      puts 10
+       mouseUp(p0)
+-      puts 11
+       s.getVector.should == old
+-      puts 12
+       mouseMotion(p1)
+-      puts 13
+       s.getVector.should == old
+     end
+   end
+
+Modified: antargis/trunk/ruby/spec/spec_swig.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_swig.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/spec/spec_swig.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -7,7 +7,7 @@
+     getTestApp(:tutorial0)
+ #    map=AntRubyMap.new
+     tower=AntTower.new(map)
+-    puts &quot;::GETMESH&quot;
++    Log.debug &quot;testing swig-mapping&quot;
+     l=tower.getMesh
+     l.should be_an_instance_of(Array)
+     l.length.should == 3
+@@ -16,5 +16,6 @@
+       node.should_not be_an_instance_of(SceneNode)
+       node.should be_a_kind_of(SceneNode)
+     }
++    Log.debug &quot;testing swig-mapping ready&quot;
+   end
+ end
+\ No newline at end of file
+
+Modified: antargis/trunk/ruby/spec_helper.rb
+===================================================================
+--- antargis/trunk/ruby/spec_helper.rb	2009-03-04 16:46:14 UTC (rev 1298)
++++ antargis/trunk/ruby/spec_helper.rb	2009-07-17 18:42:20 UTC (rev 1299)
+@@ -1,15 +1,29 @@
+ Dir.chdir(File.split(File.split(File.expand_path(__FILE__))[0])[0])
+ 
++$antargis_buggy_object=nil
++
++
+ require 'pp'
+ require 'ruby/antargislib.rb'
+ 
+ #setDebugLevel(0)
+ 
+ #if Object.respond_to?(:define_cmethod)
++
++Thread.new {
++  while true
++    if $antargis_buggy_object
++      pp $antargis_buggy_object 
++      raise &quot;Buggy Object found !!!!&quot;
++    end
++    sleep 0.2
++  end
++}
+   
+   
+   $MY_KERNEL=self
+-  def kernel
++  pp caller
++  def my_kernel
+     $MY_KERNEL
+   end
+   class Cross
+@@ -19,6 +33,8 @@
+     def initialize(target,function,raiseException=false)
+       @target=target
+       @function=function
++      @proc=nil
++      @callName=nil
+       @expected=&quot;#{target}.#{function}(.)&quot;
+       @@raiseException[@expected]=raiseException
+     end
+@@ -60,7 +76,7 @@
+     def negative_failure_message
+       bt=&quot;&quot;
+       bt=@@backtrace[@callName].join(&quot;\n&quot;) if @@backtrace[@callName] 
+-      printStacktrace
++      #printStacktrace
+       &quot;expected #{@proc.inspect} not to call #{@expected} BT:#{bt}&quot;
+     end
+     def Cross.symCall(name)
+@@ -74,7 +90,7 @@
+   def cross(target,function=nil,raiseException=false)
+       if function.nil? and target.is_a?(Symbol)
+         function=target
+-        target=kernel
++        target=my_kernel
+       end
+   
+     Cross.new(target,function,raiseException)
+@@ -141,7 +157,7 @@
+ class Object
+   def method_missing(name,*s)
+     alt=name.to_s.gsub(/\?$/,&quot;&quot;)
+-    puts alt
++    pp &quot;it may be that #{name} is missing on #{self}&quot;
+     if respond_to?(alt) and alt!=name
+       self.send(alt,*s)
+     elsif respond_to?(alt.camelCase) and alt!=name and alt.camelCase!=alt 
+@@ -153,6 +169,12 @@
+   end
+ end
+ 
++require 'ruby/gui/testing.rb'
++require 'ruby/mainmenu.rb'
++$:&lt;&lt;'ruby/editor/campaign'
++require 'ruby/editor/campaign/app.rb'
++
++
+ #class A
+ #  def b
+ #    puts &quot;B&quot;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#255">[ date ]</a>
+              <a href="thread.html#255">[ thread ]</a>
+              <a href="subject.html#255">[ subject ]</a>
+              <a href="author.html#255">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

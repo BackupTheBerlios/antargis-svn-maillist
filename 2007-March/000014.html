@@ -1,0 +1,1364 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1056 - in antargis/trunk: . gui/src ruby
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-March/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1056%20-%20in%20antargis/trunk%3A%20.%20gui/src%20ruby&In-Reply-To=%3C200703082011.l28KBB0f006303%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000013.html">
+   <LINK REL="Next"  HREF="000015.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1056 - in antargis/trunk: . gui/src ruby</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1056%20-%20in%20antargis/trunk%3A%20.%20gui/src%20ruby&In-Reply-To=%3C200703082011.l28KBB0f006303%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1056 - in antargis/trunk: . gui/src ruby">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Thu Mar  8 21:11:11 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000013.html">[Antargis-svn] r1055 - in antargis/trunk: gui/src ruby src
+</A></li>
+        <LI>Next message: <A HREF="000015.html">[Antargis-svn] r1057 - antargis/trunk/ruby/tests
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#14">[ date ]</a>
+              <a href="thread.html#14">[ thread ]</a>
+              <a href="subject.html#14">[ subject ]</a>
+              <a href="author.html#14">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-03-08 21:11:04 +0100 (Thu, 08 Mar 2007)
+New Revision: 1056
+
+Modified:
+   antargis/trunk/TODO
+   antargis/trunk/gui/src/ag_application.cc
+   antargis/trunk/gui/src/ag_application.h
+   antargis/trunk/gui/src/ag_messageobject.cc
+   antargis/trunk/gui/src/ag_texture.cc
+   antargis/trunk/ruby/ant_arrow.rb
+   antargis/trunk/ruby/ant_bakery.rb
+   antargis/trunk/ruby/ant_boat.rb
+   antargis/trunk/ruby/ant_boss.rb
+   antargis/trunk/ruby/ant_buildingsite.rb
+   antargis/trunk/ruby/ant_config.rb
+   antargis/trunk/ruby/ant_debug.rb
+   antargis/trunk/ruby/ant_decal.rb
+   antargis/trunk/ruby/ant_deco.rb
+   antargis/trunk/ruby/ant_druid.rb
+   antargis/trunk/ruby/ant_dwelling.rb
+   antargis/trunk/ruby/ant_energy.rb
+   antargis/trunk/ruby/ant_farm.rb
+   antargis/trunk/ruby/ant_field.rb
+   antargis/trunk/ruby/ant_fir.rb
+   antargis/trunk/ruby/ant_fire.rb
+   antargis/trunk/ruby/ant_fish.rb
+   antargis/trunk/ruby/ant_fishing_hut.rb
+   antargis/trunk/ruby/ant_formations.rb
+   antargis/trunk/ruby/ant_grass.rb
+   antargis/trunk/ruby/ant_hero.rb
+   antargis/trunk/ruby/ant_hljobs.rb
+   antargis/trunk/ruby/ant_house.rb
+   antargis/trunk/ruby/ant_inventory.rb
+   antargis/trunk/ruby/ant_local.rb
+   antargis/trunk/ruby/ant_man.rb
+   antargis/trunk/ruby/ant_manbase.rb
+   antargis/trunk/ruby/ant_messagebox.rb
+   antargis/trunk/ruby/ant_mill.rb
+   antargis/trunk/ruby/ant_mine.rb
+   antargis/trunk/ruby/ant_pcplayer.rb
+   antargis/trunk/ruby/ant_player.rb
+   antargis/trunk/ruby/ant_ring.rb
+   antargis/trunk/ruby/ant_sack.rb
+   antargis/trunk/ruby/ant_sheep.rb
+   antargis/trunk/ruby/ant_sound.rb
+   antargis/trunk/ruby/ant_stone.rb
+   antargis/trunk/ruby/ant_tools.rb
+   antargis/trunk/ruby/ant_tower.rb
+   antargis/trunk/ruby/ant_townhall.rb
+   antargis/trunk/ruby/ant_tree.rb
+   antargis/trunk/ruby/ant_trigger.rb
+   antargis/trunk/ruby/ant_well.rb
+   antargis/trunk/ruby/ant_wolf.rb
+   antargis/trunk/ruby/ant_workshop.rb
+   antargis/trunk/ruby/antargis.rb
+   antargis/trunk/ruby/antargislib.rb
+   antargis/trunk/ruby/campaign.rb
+   antargis/trunk/ruby/dialogs.rb
+   antargis/trunk/ruby/editview.rb
+   antargis/trunk/ruby/ents.rb
+   antargis/trunk/ruby/intro.rb
+   antargis/trunk/ruby/mainmenu.rb
+   antargis/trunk/ruby/map.rb
+   antargis/trunk/ruby/mpmap.rb
+Log:
+* include demo recording
+* many fixes
+
+
+Modified: antargis/trunk/TODO
+===================================================================
+--- antargis/trunk/TODO	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/TODO	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -56,11 +56,7 @@
+ 
+ [Segfaults]
+ ------------------------------------------------------
+-[M] a segfault appears when profiling with ruby (./run --profile)
+-		couldn't find the problem yet. it's probably one of these problems:
+-		1) some GC-problem
+-		2) some ruby-error (?) within version 1.8.4
+-		workaround done: simply disable gc nearly all the time
++None known.
+ 
+ [AI]
+ ------------------------------------------------------
+@@ -72,7 +68,7 @@
+ ------------------------------------------------------
+ [H] fix texture-painting on GeForce - backgrounds are always black, but they should be transparent (like FPS-display)
+ [M] add texture-space-saving
+-[L] add Framebuffer objects for paint to texture.
++[L] add Framebuffer objects for paint to texture. -- still buggy ????
+ [L] fix AGMenu*. This is broken, but not used ATM.
+ [L] rewrite AGEdit - without AGEditLines
+ 		In AGEdit2 is a beginning of a rewrite. But it's a kind of crappy approach. AGEdit2 should
+@@ -86,8 +82,10 @@
+ 
+ [Graphics - 3d-engine]
+ ------------------------------------------------------
+-[H] game crashes when toggling fullscreen (in game)
+-[H] check for GLEE_texture_3D extension or gl&gt;1.3 or what support
++[H] use AGGLWidget instead of GLApp - include generic AGApp
++
++
++[H] game crashes when toggling fullscreen (in game) -- FIXED ???? CHECK ON WINDOWS
+ [H] try using GL_DYNAMIC_DRAW_ARB for dynamic vertexarrays and combine multiple meshes some how?
+ [M] add support for non-3d-texture-graphic cards
+ [M] increase picking speed =&gt; use kd-tree or bsp
+@@ -111,9 +109,6 @@
+ 
+ [H] wolves should attack people
+ 
+-[?] Rowen dies too fast of starvation when fighting
+-[?] Rowen surrenders and does not die when fighting stoner's keep in testai
+-
+ [H] continue buildingsite function =&gt; check if already claimed
+ [H] fetching in house (testai) - tries to go through water - maybe move fetching code to some common module
+ 
+@@ -143,8 +138,6 @@
+ 		So the AntApp must be finished and the surrounding campaign-code, too. After this the
+ 		loaded campaign must be started.
+ [L] add aggression-leveling of non-hero bosses
+-[L] story-telling:
+-	- browsing facility (scene=&gt;number(person)=&gt;text)
+ [L] add wolf, fish, bird
+ [L] single games - add village generator to map generator
+ [L] single games - add some menu for options
+@@ -152,6 +145,8 @@
+ 
+ [VL] very bad situation =&gt; raise heroes with a new player (rebellion)
+ [VL] add females
++[VL] story-telling:
++	- browsing facility (scene=&gt;number(person)=&gt;text)
+ 
+ [Artificial Intelligence]
+ ------------------------------------------------------
+@@ -181,7 +176,6 @@
+ [Packaging / Building]
+ ------------------------------------------------------
+ [L] installer for linux. maybe some autopackage or .debs?
+-[VH] remove she-bangs here as in 0.1.9 tag
+ 
+ 
+ DOCUMENTATION
+
+Modified: antargis/trunk/gui/src/ag_application.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_application.cc	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/gui/src/ag_application.cc	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -53,6 +53,7 @@
+       setCursor(getTextureCache()-&gt;get(&quot;blue_cursor.png&quot;));
+       setNormalCursor();
+     }
++  mDemoTime=-1;
+ }
+ 
+ AGApplication::~AGApplication()
+@@ -152,10 +153,20 @@
+ 	    doEvent(&amp;event);
+ 	    }*/
+ 
+-	t=(now-last)/1000.0;
++	if(mDemoTime&gt;0)
++	  {
++	    t=mDemoTime;
++	    mDemoTime=-1;
++	  }
++	else
++	  {
++	    t=(now-last)/1000.0;
++	  }
+ 	if(mainWidget)
+ 	  mainWidget-&gt;sigTick(t);
+ 	
++	eventPrepareFrame(t);
++
+ 	eventFrame(t);
+       }
+       {
+@@ -179,6 +190,12 @@
+   return true;
+ }
+ 
++void AGApplication::setDemoTime(float t)
++{
++  mDemoTime=t;
++}
++
++
+ SDL_Event AGApplication::getNewEvent()
+ {
+   SDL_Event mEvent;
+@@ -386,6 +403,12 @@
+ {
+ }
+ 
++bool AGApplication::eventPrepareFrame(float pTime)
++{
++  return false;
++}
++
++
+ bool AGApplication::eventFrame(float pTime)
+ {
+   return false;
+@@ -471,3 +494,8 @@
+   delete mCursor;
+   mCursor=0;
+ }
++
++bool AGApplication::hardwareCursor() const
++{
++  return mCursor==0;
++}
+
+Modified: antargis/trunk/gui/src/ag_application.h
+===================================================================
+--- antargis/trunk/gui/src/ag_application.h	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/gui/src/ag_application.h	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -83,6 +83,9 @@
+ 
+   /// called in each frame when idling
+   virtual bool eventIdle();           
++
++  virtual bool eventPrepareFrame(float pTime);
++
+   /// called between event-handling and drawing
+   virtual bool eventFrame(float pTime);
+   /// called after drawing - so before event handling
+@@ -116,10 +119,13 @@
+ 
+   void setCursor(const AGTexture &amp;pTexture);
+   void setNormalCursor();
++  bool hardwareCursor() const;
+ 
+   virtual SDL_Event getNewEvent();
+ 
+   void setKeyRepeat(bool enable);
++
++  void setDemoTime(float t);
+   
+  private:
+   void clearOldMousePosition();
+@@ -142,6 +148,8 @@
+ 
+   SDL_Event mEvent;
+ 
++  float mDemoTime;
++
+  public:
+   void mark();
+ };
+
+Modified: antargis/trunk/gui/src/ag_messageobject.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_messageobject.cc	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/gui/src/ag_messageobject.cc	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -628,6 +628,11 @@
+     {
+       event.type=SDL_QUIT;
+     }
++  else
++    {
++      event.type=SDL_NOEVENT;
++      return &event;
++    }
+   if(event.type)
+     return &event;
+ 
+
+Modified: antargis/trunk/gui/src/ag_texture.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_texture.cc	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/gui/src/ag_texture.cc	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -382,8 +382,8 @@
+ 
+ void AGTexture::blit(const AGTexture &amp;pSource,const AGRect2 &amp;pDest,const AGRect2 &amp;pSrc)
+ {
+-  if(gUsedTexMemory&gt;20000000)
+-    throw int();
++  //  if(gUsedTexMemory&gt;20000000)
++  //    throw int();
+ 
+ 
+   if(opengl())
+
+Modified: antargis/trunk/ruby/ant_arrow.rb
+===================================================================
+--- antargis/trunk/ruby/ant_arrow.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_arrow.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,4 +1,3 @@
+-#!/usr/bin/env ruby
+ #
+ # Copyright (c) 2005 by David Kamphausen. All rights reserved.
+ #
+
+Modified: antargis/trunk/ruby/ant_bakery.rb
+===================================================================
+--- antargis/trunk/ruby/ant_bakery.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_bakery.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,6 +1,3 @@
+-#!/usr/bin/env ruby
+-
+-
+ #FIXME
+ 
+ class AntBakery&lt;AntHouse
+
+Modified: antargis/trunk/ruby/ant_boat.rb
+===================================================================
+--- antargis/trunk/ruby/ant_boat.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_boat.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,5 +1,3 @@
+-#!/usr/bin/env ruby
+-
+ def getBoatMeshData
+ 	getMeshData(&quot;data/models/boat_simple.ant2&quot;,0.12,&quot;data/textures/models/boat_simple.png&quot;)
+ end
+
+Modified: antargis/trunk/ruby/ant_boss.rb
+===================================================================
+--- antargis/trunk/ruby/ant_boss.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_boss.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,4 +1,3 @@
+-#!/usr/bin/env ruby
+ #
+ # Copyright (c) 2005 by David Kamphausen. All rights reserved.
+ #
+@@ -19,8 +18,6 @@
+ # License along with this program.
+ #
+ 
+-#!/usr/bin/ruby
+-
+ require 'ents.rb'
+ require 'ant_hljobs.rb'
+ require 'ant_formations.rb'
+@@ -55,7 +52,17 @@
+ 					@job=AntHeroMoveJob.new(self,0,AGVector2.new(0,0),0)
+ 				when &quot;AntHeroRestJob&quot;
+ 					@job=AntHeroRestJob.new(self,10)
++				when &quot;AntHeroRecruitJob&quot;
++					target=n.getChildren.select{|c|c.get(&quot;name&quot;)==&quot;@target&quot;}[0]
++					if target
++						target=getMap.getByUID(target.get(&quot;value&quot;))
++					
++						@job=AntHeroRecruitJob.new(self,target)
++					else
++						raise &quot;target missing in saved AntHeroRecruitJob&quot;
++					end
+ 				else
++					# FIXME!!!
+ 					raise &quot;unknown job: #{t}&quot;
+ 			end
+ 			@job.loadXML(n)
+
+Modified: antargis/trunk/ruby/ant_buildingsite.rb
+===================================================================
+--- antargis/trunk/ruby/ant_buildingsite.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_buildingsite.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,6 +1,4 @@
+-#!/usr/bin/env ruby
+ 
+-
+ class AntBuildingSite&lt;AntRubyEntity
+ 	attr_accessor :building
+ 	def initialize
+
+Modified: antargis/trunk/ruby/ant_config.rb
+===================================================================
+--- antargis/trunk/ruby/ant_config.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_config.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,4 +1,3 @@
+-#!/usr/bin/env ruby
+ #
+ # Copyright (c) 2005 by David Kamphausen. All rights reserved.
+ #
+@@ -19,6 +18,4 @@
+ # License along with this program.
+ #
+ 
+-#!/usr/bin/ruby
+-
+ YEAR=60 # one second
+\ No newline at end of file
+
+Modified: antargis/trunk/ruby/ant_debug.rb
+===================================================================
+--- antargis/trunk/ruby/ant_debug.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_debug.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,5 +1,3 @@
+-#!/usr/bin/env ruby
+-
+ $debug||=false
+ if $debug
+ 	module Kernel
+
+Modified: antargis/trunk/ruby/ant_decal.rb
+===================================================================
+--- antargis/trunk/ruby/ant_decal.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_decal.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,4 +1,3 @@
+-#!/usr/bin/env ruby
+ #
+ # Copyright (c) 2005 by David Kamphausen. All rights reserved.
+ #
+@@ -19,8 +18,6 @@
+ # License along with this program.
+ #
+ 
+-#!/usr/bin/ruby
+-
+ class AntDecal&lt;AntRubyEntity
+ 	def initialize()
+ 		super(AGVector2.new(0,0))
+
+Modified: antargis/trunk/ruby/ant_deco.rb
+===================================================================
+--- antargis/trunk/ruby/ant_deco.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_deco.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,4 +1,3 @@
+-#!/usr/bin/env ruby
+ #
+ # Copyright (c) 2005 by David Kamphausen. All rights reserved.
+ #
+@@ -19,8 +18,6 @@
+ # License along with this program.
+ #
+ 
+-#!/usr/bin/ruby
+-
+ class AntDeco&lt;AntRubyEntity
+ 	def initialize(decoType=nil)
+ 		super(AGVector2.new(0,0))
+
+Modified: antargis/trunk/ruby/ant_druid.rb
+===================================================================
+--- antargis/trunk/ruby/ant_druid.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_druid.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,6 +1,3 @@
+-#!/usr/bin/env ruby
+-
+-
+ class AntNPC&lt;AntRubyEntity
+ 	attr_accessor :npcType
+ 	def initialize()
+
+Modified: antargis/trunk/ruby/ant_dwelling.rb
+===================================================================
+--- antargis/trunk/ruby/ant_dwelling.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_dwelling.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,5 +1,3 @@
+-#!/usr/bin/env ruby
+-
+ BIRTHING_TIME=80
+ MAX_RESIDENTS=10
+ 
+
+Modified: antargis/trunk/ruby/ant_energy.rb
+===================================================================
+--- antargis/trunk/ruby/ant_energy.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_energy.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,5 +1,3 @@
+-#!/usr/bin/env ruby
+-
+ # Inventory view
+ class AntEnergy&lt;AGWidget
+ 	attr_accessor :hborder
+
+Modified: antargis/trunk/ruby/ant_farm.rb
+===================================================================
+--- antargis/trunk/ruby/ant_farm.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_farm.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,5 +1,3 @@
+-#!/usr/bin/env ruby
+-
+ # A farm produces food, uses men and tools
+ #
+ # so
+
+Modified: antargis/trunk/ruby/ant_field.rb
+===================================================================
+--- antargis/trunk/ruby/ant_field.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_field.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,5 +1,3 @@
+-#!/usr/bin/env ruby
+-
+ class AntField&lt;AntRubyEntity
+ 	attr_accessor :farm
+ 	def initialize
+
+Modified: antargis/trunk/ruby/ant_fir.rb
+===================================================================
+--- antargis/trunk/ruby/ant_fir.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_fir.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,4 +1,3 @@
+-#!/usr/bin/env ruby
+ #
+ # Copyright (c) 2005 by David Kamphausen. All rights reserved.
+ #
+@@ -19,8 +18,6 @@
+ # License along with this program.
+ #
+ 
+-#!/usr/bin/ruby
+-
+ #require 'fir_mesh.rb'
+ 
+ # really nothing special here - just a &quot;grouper&quot;
+
+Modified: antargis/trunk/ruby/ant_fire.rb
+===================================================================
+--- antargis/trunk/ruby/ant_fire.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_fire.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,5 +1,3 @@
+-#!/usr/bin/env ruby
+-
+ class AntFire&lt;AntRubyEntity
+ 	def initialize(p=AGVector2.new(0,0))
+ 		super
+
+Modified: antargis/trunk/ruby/ant_fish.rb
+===================================================================
+--- antargis/trunk/ruby/ant_fish.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_fish.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,4 +1,3 @@
+-#!/usr/bin/env ruby
+ #
+ # Copyright (c) 2005 by David Kamphausen. All rights reserved.
+ #
+@@ -19,8 +18,6 @@
+ # License along with this program.
+ #
+ 
+-#!/usr/bin/ruby
+-
+ def getFishMeshData
+ 	getMeshData(&quot;data/models/fish.ant2&quot;,0.02,&quot;data/textures/models/fish.png&quot;)
+ end
+
+Modified: antargis/trunk/ruby/ant_fishing_hut.rb
+===================================================================
+--- antargis/trunk/ruby/ant_fishing_hut.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_fishing_hut.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,6 +1,4 @@
+-#!/usr/bin/env ruby
+ 
+-
+ class AntFishingHut&lt;AntHouse
+ 	def initialize
+ 		super
+
+Modified: antargis/trunk/ruby/ant_formations.rb
+===================================================================
+--- antargis/trunk/ruby/ant_formations.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_formations.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,4 +1,3 @@
+-#!/usr/bin/env ruby
+ #
+ # Copyright (c) 2005 by David Kamphausen. All rights reserved.
+ #
+
+Modified: antargis/trunk/ruby/ant_grass.rb
+===================================================================
+--- antargis/trunk/ruby/ant_grass.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_grass.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,4 +1,3 @@
+-#!/usr/bin/env ruby
+ 
+ def getGrassMeshData(size,many=4,texture=nil,bush=false)
+ 	size=(size*10).to_i/10.0
+
+Modified: antargis/trunk/ruby/ant_hero.rb
+===================================================================
+--- antargis/trunk/ruby/ant_hero.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_hero.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,4 +1,3 @@
+-#!/usr/bin/env ruby
+ #
+ # Copyright (c) 2005 by David Kamphausen. All rights reserved.
+ #
+@@ -19,8 +18,6 @@
+ # License along with this program.
+ #
+ 
+-#!/usr/bin/ruby
+-
+ require 'ents.rb'
+ require 'ant_hljobs.rb'
+ require 'ant_boss.rb'
+@@ -132,20 +129,20 @@
+ 		assignJob2All
+ 	end
+ 	def newHLRecruitJob(target)
+-		@job=AntHeroRecruitJob.new(self,target,getAggression)
++		@job=AntHeroRecruitJob.new(self,target)
+ 		assignJob2All
+ 	end
+ 	def newHLConstructJob(target)
+-		@job=AntHeroConstructJob.new(self,target,getAggression)
++		@job=AntHeroConstructJob.new(self,target)
+ 		assignJob2All
+ 	end
+ 	def newHLTakeFoodJob(target)
+ 		puts &quot;take food job #{self} #{target}&quot;
+-		@job=AntHeroTakeJob.new(self,target,getAggression,&quot;food&quot;)
++		@job=AntHeroTakeJob.new(self,target,&quot;food&quot;)
+ 		assignJob2All
+ 	end
+ 	def newHLTakeWeaponJob(target)
+-		@job=AntHeroTakeJob.new(self,target,getAggression,&quot;weapon&quot;)
++		@job=AntHeroTakeJob.new(self,target,&quot;weapon&quot;)
+ 		assignJob2All
+ 	end
+ 	def newHLFightJob(target)
+
+Modified: antargis/trunk/ruby/ant_hljobs.rb
+===================================================================
+--- antargis/trunk/ruby/ant_hljobs.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_hljobs.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -60,6 +60,12 @@
+ 						c.set(&quot;type&quot;,&quot;AGVector2s&quot;)
+ 						value=value.collect{|v|v.to_s}.join(&quot;:&quot;)
+ 					end
++				when Hash
++					c.set(&quot;type&quot;,&quot;HashEntities&quot;)
++					value=value.collect{|k,v|
++						k.uid.to_s+&quot;=&quot;+v.uid.to_s
++					}.join(&quot;&amp;&quot;)
++					
+ 				when Fixnum,Float,TrueClass,FalseClass
+ 					c.set(&quot;type&quot;,value.class.to_s)
+ 				when AGVector2
+@@ -68,8 +74,9 @@
+ 					# do nothing
+ 					c.set(&quot;type&quot;,&quot;String&quot;)
+ 				else
++					puts &quot;UNKNOWN TYPE:#{value} #{value.class} #{name}&quot;
++					
+ 					value=AntMarshal.dump(value)
+-					puts &quot;UNKNOWN TYPE:#{value} #{value.class} #{name}&quot;
+ 					raise 1
+ 			end
+ 			puts &quot;#{value} #{name}&quot;
+@@ -89,6 +96,16 @@
+ 				case c.get(&quot;type&quot;)
+ 					when &quot;AntEntity&quot;
+ 						value=getMap.getByUID(value.to_i)
++					when &quot;HashEntities&quot;
++						vs={}
++						value=value.split(&quot;&amp;&quot;).each{|s|
++							k,v=s.split(&quot;=&quot;).collect{|u|getMap.getByUID(u.to_i)}
++							#puts &quot;K:#{k} V:#{v}&quot;
++							vs[k]=v
++						}
++						#puts vs,vs.class
++						#raise 1
++						value=vs
+ 					when &quot;AntEntities&quot;
+ 						value=value.split(&quot;,&quot;).collect{|v|getMap.getByUID(v)}
+ 					when &quot;AGVector2&quot;
+@@ -625,11 +642,10 @@
+ 	include AntHeroSitting
+ 
+ 	attr_reader :finished
+-	def initialize(hero,target,agg)
++	def initialize(hero,target)
+ 		@target=target
+-		@aggression=agg
+ 		@targetMen=target.menCount
+-		@want=@targetMen*agg/3
++		@want=@targetMen*hero.getAggression/3
+ 		@finished=false
+ 		@restingMen=0
+ 		@wantedMen=@want.to_i
+@@ -714,11 +730,10 @@
+ 
+ class AntHeroTakeJob&lt;AntHeroMoveJob
+ 	attr_reader :finished
+-	def initialize(hero,target,agg,what=&quot;food&quot;)
++	def initialize(hero,target,what=&quot;food&quot;)
+ 		super(hero,0,target.getPos2D,4)
+ 		@what=what
+ 		@target=target
+-		@aggression=agg
+ 		@want=@men
+ 		@oldpos=nil
+ 		@takeStarted=false
+@@ -805,7 +820,7 @@
+ 
+ class AntHeroConstructJob&lt;AntHeroMoveJob
+ 	attr_reader :finished
+-	def initialize(hero,target,agg)
++	def initialize(hero,target)
+ 		super(hero,0,target.getPos2D,4)
+ 		@target=target
+ 		@usedmen=0
+
+Modified: antargis/trunk/ruby/ant_house.rb
+===================================================================
+--- antargis/trunk/ruby/ant_house.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_house.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,4 +1,3 @@
+-#!/usr/bin/env ruby
+ #
+ # Copyright (c) 2005 by David Kamphausen. All rights reserved.
+ #
+@@ -19,8 +18,6 @@
+ # License along with this program.
+ #
+ 
+-#!/usr/bin/ruby
+-
+ require 'ant_boss.rb'
+ require 'ant_tools.rb'
+ 
+
+Modified: antargis/trunk/ruby/ant_inventory.rb
+===================================================================
+--- antargis/trunk/ruby/ant_inventory.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_inventory.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,5 +1,3 @@
+-#!/usr/bin/env ruby
+-
+ # Inventory view
+ class AntInventory&lt;AGWidget
+ 	@@inventory=nil
+
+Modified: antargis/trunk/ruby/ant_local.rb
+===================================================================
+--- antargis/trunk/ruby/ant_local.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_local.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,4 +1,3 @@
+-#!/usr/bin/env ruby
+ #
+ # Copyright (c) 2005 by David Kamphausen. All rights reserved.
+ #
+@@ -19,8 +18,6 @@
+ # License along with this program.
+ #
+ 
+-#!/usr/bin/ruby
+-
+ #
+ #
+ #
+
+Modified: antargis/trunk/ruby/ant_man.rb
+===================================================================
+--- antargis/trunk/ruby/ant_man.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_man.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,4 +1,3 @@
+-#!/usr/bin/env ruby
+ #
+ # Copyright (c) 2005 by David Kamphausen. All rights reserved.
+ #
+@@ -19,8 +18,6 @@
+ # License along with this program.
+ #
+ 
+-#!/usr/bin/ruby
+-
+ require 'ant_manbase.rb'
+ require 'ant_config.rb'
+ 
+
+Modified: antargis/trunk/ruby/ant_manbase.rb
+===================================================================
+--- antargis/trunk/ruby/ant_manbase.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_manbase.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,4 +1,3 @@
+-#!/usr/bin/env ruby
+ #
+ # Copyright (c) 2005 by David Kamphausen. All rights reserved.
+ #
+@@ -19,9 +18,7 @@
+ # License along with this program.
+ #
+ 
+-#!/usr/bin/ruby
+ 
+-
+ # AntAngle is an entity for displaying angels flying up
+ # when an AntMan dies. This is currently not supported, because
+ # there is no AntAngel mesh.
+
+Modified: antargis/trunk/ruby/ant_messagebox.rb
+===================================================================
+--- antargis/trunk/ruby/ant_messagebox.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_messagebox.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,5 +1,3 @@
+-#!/usr/bin/env ruby
+-
+ class MessageBox&lt;AntDialog
+ 	include AGHandler
+ 
+
+Modified: antargis/trunk/ruby/ant_mill.rb
+===================================================================
+--- antargis/trunk/ruby/ant_mill.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_mill.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,6 +1,3 @@
+-#!/usr/bin/env ruby
+-
+-
+ class AntMill&lt;AntHouse
+ 	def initialize
+ 		super
+
+Modified: antargis/trunk/ruby/ant_mine.rb
+===================================================================
+--- antargis/trunk/ruby/ant_mine.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_mine.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,4 +1,3 @@
+-#!/usr/bin/env ruby
+ #
+ # Copyright (c) 2005 by David Kamphausen. All rights reserved.
+ #
+@@ -19,9 +18,7 @@
+ # License along with this program.
+ #
+ 
+-#!/usr/bin/ruby
+ 
+-
+ class AntMine&lt;AntRubyEntity
+ 	def initialize(typeID=nil)
+ 		super(AGVector2.new(0,0))
+
+Modified: antargis/trunk/ruby/ant_pcplayer.rb
+===================================================================
+--- antargis/trunk/ruby/ant_pcplayer.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_pcplayer.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,4 +1,3 @@
+-#!/usr/bin/env ruby
+ 
+ class PCRule
+ end
+
+Modified: antargis/trunk/ruby/ant_player.rb
+===================================================================
+--- antargis/trunk/ruby/ant_player.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_player.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,4 +1,3 @@
+-#!/usr/bin/env ruby
+ #
+ # Copyright (c) 2005 by David Kamphausen. All rights reserved.
+ #
+@@ -19,8 +18,6 @@
+ # License along with this program.
+ #
+ 
+-#!/usr/bin/ruby
+-
+ class AntPlayer
+ 	attr_accessor :name
+ 	def initialize(name)
+
+Modified: antargis/trunk/ruby/ant_ring.rb
+===================================================================
+--- antargis/trunk/ruby/ant_ring.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_ring.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,5 +1,3 @@
+-#!/usr/bin/env ruby
+-
+ module RingData
+ 	@@ringdata=nil
+ 	def RingData.getRingData(w=1)
+
+Modified: antargis/trunk/ruby/ant_sack.rb
+===================================================================
+--- antargis/trunk/ruby/ant_sack.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_sack.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,5 +1,3 @@
+-#!/usr/bin/env ruby
+-
+ class AntSack&lt;AntAnimal
+ 	def initialize(p=AGVector2.new(0,0))
+ 		super
+
+Modified: antargis/trunk/ruby/ant_sheep.rb
+===================================================================
+--- antargis/trunk/ruby/ant_sheep.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_sheep.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,4 +1,3 @@
+-#!/usr/bin/env ruby
+ #
+ # Copyright (c) 2005 by David Kamphausen. All rights reserved.
+ #
+@@ -19,8 +18,6 @@
+ # License along with this program.
+ #
+ 
+-#!/usr/bin/ruby
+-
+ # some very simple base-class for animals. contains really nothing.
+ class AntAnimal&lt;AntRubyEntity
+ 	def AntAnimal.xmlName
+
+Modified: antargis/trunk/ruby/ant_sound.rb
+===================================================================
+--- antargis/trunk/ruby/ant_sound.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_sound.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,5 +1,3 @@
+-#!/usr/bin/env ruby
+-
+ module AntSound
+ 	@@soundLastCall={}
+ 	@@soundInited=false
+
+Modified: antargis/trunk/ruby/ant_stone.rb
+===================================================================
+--- antargis/trunk/ruby/ant_stone.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_stone.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,4 +1,3 @@
+-#!/usr/bin/env ruby
+ #
+ # Copyright (c) 2005 by David Kamphausen. All rights reserved.
+ #
+@@ -19,8 +18,6 @@
+ # License along with this program.
+ #
+ 
+-#!/usr/bin/ruby
+-
+ class AntStone&lt;AntRubyEntity
+ 	def initialize()
+ 		super(AGVector2.new(0,0))
+
+Modified: antargis/trunk/ruby/ant_tools.rb
+===================================================================
+--- antargis/trunk/ruby/ant_tools.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_tools.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,5 +1,3 @@
+-#!/usr/bin/env ruby
+-
+ require &quot;ant_sound.rb&quot;
+ 
+ def getMeshData(file,zoom,texture=&quot;&quot;,shadow=true)
+
+Modified: antargis/trunk/ruby/ant_tower.rb
+===================================================================
+--- antargis/trunk/ruby/ant_tower.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_tower.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,5 +1,3 @@
+-#!/usr/bin/env ruby
+-
+ class AntTower&lt;AntHouse
+ 	def initialize
+ 		super
+
+Modified: antargis/trunk/ruby/ant_townhall.rb
+===================================================================
+--- antargis/trunk/ruby/ant_townhall.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_townhall.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,5 +1,3 @@
+-#!/usr/bin/env ruby
+-
+ # A farm produces food, uses men and tools
+ #
+ # so
+
+Modified: antargis/trunk/ruby/ant_tree.rb
+===================================================================
+--- antargis/trunk/ruby/ant_tree.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_tree.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,4 +1,3 @@
+-#!/usr/bin/env ruby
+ #
+ # Copyright (c) 2005 by David Kamphausen. All rights reserved.
+ #
+@@ -19,8 +18,6 @@
+ # License along with this program.
+ #
+ 
+-#!/usr/bin/ruby
+-
+ #require 'fir_mesh.rb'
+ #require 'ant_appletree.rb'
+ require 'ant_grass.rb'
+
+Modified: antargis/trunk/ruby/ant_trigger.rb
+===================================================================
+--- antargis/trunk/ruby/ant_trigger.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_trigger.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,5 +1,3 @@
+-#!/usr/bin/env ruby
+-
+ class Trigger
+ 	attr_reader :name, :player
+ 	def initialize(node)
+
+Modified: antargis/trunk/ruby/ant_well.rb
+===================================================================
+--- antargis/trunk/ruby/ant_well.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_well.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,4 +1,3 @@
+-#!/usr/bin/env ruby
+ 
+ 
+ class AntWell&lt;AntRubyEntity
+
+Modified: antargis/trunk/ruby/ant_wolf.rb
+===================================================================
+--- antargis/trunk/ruby/ant_wolf.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_wolf.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,4 +1,3 @@
+-#!/usr/bin/env ruby
+ #
+ # Copyright (c) 2005 by David Kamphausen. All rights reserved.
+ #
+@@ -19,8 +18,6 @@
+ # License along with this program.
+ #
+ 
+-#!/usr/bin/ruby
+-
+ # Note:
+ # This implementation is still very buggy. Apart from this there are some things missing:
+ # * animation
+
+Modified: antargis/trunk/ruby/ant_workshop.rb
+===================================================================
+--- antargis/trunk/ruby/ant_workshop.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ant_workshop.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,6 +1,3 @@
+-#!/usr/bin/env ruby
+-
+-
+ # This is a workshop. Residents will produce tools and fetch needed resources
+ # which are wood and stone. Apart from this they'll try to gather food so they won't starve
+ class AntWorkshop&lt;AntHouse
+
+Modified: antargis/trunk/ruby/antargis.rb
+===================================================================
+--- antargis/trunk/ruby/antargis.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/antargis.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -167,24 +167,7 @@
+ 	# EVENT HANDLERS
+ 	####################################
+ 
+-	# debugging-function - log all user-input
+-	def getNewEvent
+-		if false
+-			@eventDebugging||=File.open(&quot;events.txt&quot;,&quot;r&quot;)
+-			s=@eventDebugging.readline
+-			return toSDLEvent(s)
+-		end
+-		e=super
+-		s=toString(e)
+-		@eventDebugging||=File.open(&quot;events.txt&quot;,&quot;w&quot;)
+-		begin
+-			@eventDebugging.puts s
+-			#puts toSDLEvent(s)
+-		rescue
+-		end
+-	
+-		return e
+-	end
++	include AntMyEventHandler
+ 
+ 
+ 	# this handler is for the buttonpanel on the top
+
+Modified: antargis/trunk/ruby/antargislib.rb
+===================================================================
+--- antargis/trunk/ruby/antargislib.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/antargislib.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,5 +1,3 @@
+-#!/usr/bin/env ruby
+-
+ #
+ # antargislib.rb does the following:
+ # - load libantargis.so (the c++-lib for anything that's not ruby)
+@@ -24,7 +22,54 @@
+ 	end
+ end
+ 
++if $demoMode.nil?
++	$demoMode=false
++	$enableLogging=true
++end
+ 
++module AntMyEventHandler
++	def getNewEvent
++		if $demoMode
++			if hardwareCursor
++				setCursor(getTextureCache.get(&quot;blue_cursor.png&quot;))
++			end
++			@@eventDebugging||=File.open(&quot;events.txt&quot;,&quot;r&quot;)
++			@@nextLine||=@@eventDebugging.readline
++			#puts &quot;NEXTLINE:#{@@nextLine}&quot;
++			if @@nextLine=~/T:.*/
++				time=@@nextLine.scan(/..(.*)/)[0][0].to_f
++				#puts &quot;TIME:#{time}&quot;
++				@@nextLine=nil
++				setDemoTime(time)
++				return toSDLEvent(&quot;&quot;)
++			else
++				s=@@nextLine
++				@@nextLine=nil
++				return toSDLEvent(s)
++			end
++		else
++			e=super
++			s=toString(e)
++			if $enableLogging
++				@@eventDebugging||=File.open(&quot;events.txt&quot;,&quot;w&quot;)
++				@@eventDebugging.puts s
++			end
++			return e
++		end
++	end
++
++
++	def eventPrepareFrame(t)
++		if $enableLogging and not $demoMode
++			@@eventDebugging||=File.open(&quot;events.txt&quot;,&quot;w&quot;)
++			@@eventDebugging.puts &quot;T:#{t}&quot;
++		end
++		return false
++	end
++
++end
++
++
+ if File.exists?(&quot;libantargis.so&quot;)
+ 	require 'libantargis'
+ elsif File.exists?(&quot;../src/.libs/libantargis.so&quot;)
+@@ -71,6 +116,8 @@
+ 						@@fullscreen=true
+ 					when &quot;window&quot;
+ 						@@fullscreen=false
++					when &quot;demo&quot;
++						$demoMode=true
+ 					when &quot;gui-test&quot;
+ 						require 'ruby/tests/gui_tests.rb'
+ 						@@cursorEnabled=true
+@@ -171,4 +218,8 @@
+ 		puts range,range.class
+ 		super
+ 	end
++end
++
++class AntApplication&lt;AGApplication
++	include AntMyEventHandler
+ end
+\ No newline at end of file
+
+Modified: antargis/trunk/ruby/campaign.rb
+===================================================================
+--- antargis/trunk/ruby/campaign.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/campaign.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,4 +1,3 @@
+-#!/usr/bin/env ruby
+ 
+ # Campaigning
+ #################################
+@@ -79,7 +78,7 @@
+ 	end
+ end
+ 
+-class CutSceneDisplay&lt;AGApplication
++class CutSceneDisplay&lt;AntApplication
+ 	def initialize(image,text)
+ 		super()
+ 		@layout=AGLayout.new(nil)
+
+Modified: antargis/trunk/ruby/dialogs.rb
+===================================================================
+--- antargis/trunk/ruby/dialogs.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/dialogs.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,4 +1,3 @@
+-#!/usr/bin/env ruby
+ #
+ # Copyright (c) 2005 by David Kamphausen. All rights reserved.
+ #
+@@ -19,9 +18,7 @@
+ # License along with this program.
+ #
+ 
+-#!/usr/bin/ruby
+ 
+-
+ # draws a simple rect all of the defined region (typically the whole screen)
+ # this used for darkening the screen when the game is paused.
+ #
+@@ -276,11 +273,11 @@
+ 		if $campaign==nil
+ 			raise &quot;saving while not in campaign!&quot;
+ 		end
+-		getChild(&quot;window&quot;).getChild(&quot;title&quot;).setText(&quot;Save campaign&quot;)
++		getChild(&quot;window&quot;).getChild(&quot;title&quot;).setText(_(&quot;Save campaign&quot;))
+ 	end
+ 	def eventOk(e)
+-		filename=toAGEdit(getChild(&quot;Filename&quot;)).getText
+-		puts &quot;FILENAME:&quot;+filename
++		filename=toAGEdit(getChild(&quot;Filename&quot;)).getText.to_s
++		puts &quot;FILENAME:&quot;+filename.to_s
+ 		if not filename =~ /.*\.antcmp/ then
+ 			filename=filename+&quot;.antcmp&quot;
+ 		end
+@@ -583,7 +580,7 @@
+ # loadscreen.setvalue(somevalue)
+ # loadscreen.tick
+ # and so on
+-class LoadApp&lt;AGApplication
++class LoadApp&lt;AntApplication
+ 	def initialize
+ 		super
+ 		@s=LoadScreen.new(nil)
+
+Modified: antargis/trunk/ruby/editview.rb
+===================================================================
+--- antargis/trunk/ruby/editview.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/editview.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -18,8 +18,6 @@
+ # License along with this program.
+ #
+ 
+-#!/usr/bin/ruby
+-
+ require 'ents.rb'
+ require 'editor/ent_list.rb'
+ 
+
+Modified: antargis/trunk/ruby/ents.rb
+===================================================================
+--- antargis/trunk/ruby/ents.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/ents.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -18,8 +18,6 @@
+ # License along with this program.
+ #
+ 
+-#!/usr/bin/ruby
+-
+ require 'ant_local.rb'
+ 
+ # this variables are used for playing sounds, which should be done with AntRubyEntity::playSound
+
+Modified: antargis/trunk/ruby/intro.rb
+===================================================================
+--- antargis/trunk/ruby/intro.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/intro.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -17,7 +17,7 @@
+ 	end
+ end
+ 
+-class IntroApp&lt;AGApplication
++class IntroApp&lt;AntApplication
+ 	include AGHandler
+ 	def initialize
+ 		super
+
+Modified: antargis/trunk/ruby/mainmenu.rb
+===================================================================
+--- antargis/trunk/ruby/mainmenu.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/mainmenu.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -18,8 +18,6 @@
+ # License along with this program.
+ #
+ 
+-#!/usr/bin/ruby
+-
+ require 'ruby/antargislib.rb'
+ $useMenu=true
+ 
+@@ -31,7 +29,7 @@
+ # It uses the setMainWidget-function of AGApplication
+ # This way the current menu can easily be exchanged.
+ 
+-class AntMenuApp &lt;AGApplication
++class AntMenuApp &lt;AntApplication
+ 	include AGHandler
+ 	def initialize
+ 		super()
+
+Modified: antargis/trunk/ruby/map.rb
+===================================================================
+--- antargis/trunk/ruby/map.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/map.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -18,8 +18,6 @@
+ # License along with this program.
+ #
+ 
+-#!/usr/bin/ruby
+-
+ require 'ant_player.rb'
+ require 'ant_trigger.rb'
+ require 'ant_level.rb'
+
+Modified: antargis/trunk/ruby/mpmap.rb
+===================================================================
+--- antargis/trunk/ruby/mpmap.rb	2007-03-05 05:19:31 UTC (rev 1055)
++++ antargis/trunk/ruby/mpmap.rb	2007-03-08 20:11:04 UTC (rev 1056)
+@@ -1,5 +1,3 @@
+-#!/usr/bin/env ruby
+-
+ #
+ # AntMpMap adds some helper functions to AntRubyMap. These include 
+ # additional support for Mulitplayer-games (not yet completed !!)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000013.html">[Antargis-svn] r1055 - in antargis/trunk: gui/src ruby src
+</A></li>
+	<LI>Next message: <A HREF="000015.html">[Antargis-svn] r1057 - antargis/trunk/ruby/tests
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#14">[ date ]</a>
+              <a href="thread.html#14">[ thread ]</a>
+              <a href="subject.html#14">[ subject ]</a>
+              <a href="author.html#14">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

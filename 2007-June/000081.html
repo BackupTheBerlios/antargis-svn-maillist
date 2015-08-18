@@ -1,0 +1,132 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1124 - in antargis/branches/rant/build: . configs
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-June/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1124%20-%20in%20antargis/branches/rant/build%3A%20.%20configs&In-Reply-To=%3C200706302054.l5UKs7cR029590%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000080.html">
+   <LINK REL="Next"  HREF="000082.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1124 - in antargis/branches/rant/build: . configs</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1124%20-%20in%20antargis/branches/rant/build%3A%20.%20configs&In-Reply-To=%3C200706302054.l5UKs7cR029590%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1124 - in antargis/branches/rant/build: . configs">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sat Jun 30 22:54:07 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000080.html">[Antargis-svn] r1123 - in antargis/branches/rant: . build	build/configs
+</A></li>
+        <LI>Next message: <A HREF="000082.html">[Antargis-svn] r1125 - antargis/branches/rant
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#81">[ date ]</a>
+              <a href="thread.html#81">[ thread ]</a>
+              <a href="subject.html#81">[ subject ]</a>
+              <a href="author.html#81">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-06-30 22:54:07 +0200 (Sat, 30 Jun 2007)
+New Revision: 1124
+
+Modified:
+   antargis/branches/rant/build/configs/unix.rb
+   antargis/branches/rant/build/configure.rb
+Log:
+* some more documentation
+
+
+Modified: antargis/branches/rant/build/configs/unix.rb
+===================================================================
+--- antargis/branches/rant/build/configs/unix.rb	2007-06-30 20:40:27 UTC (rev 1123)
++++ antargis/branches/rant/build/configs/unix.rb	2007-06-30 20:54:07 UTC (rev 1124)
+@@ -1,3 +1,10 @@
++#
++# this is the reference implementation of a base-configuration file.
++# it's meant to configure all needed build-processes on a unix-os for BoA.
++# for other operation systems or compiler-systems please copy this file and
++# change the calls.
++# 
++
+ $config={
+ 	&quot;CXX&quot;=&gt;&quot;$(g++)&quot;,
+ 	&quot;CC&quot;=&gt;&quot;$(gcc)&quot;,
+@@ -7,11 +14,20 @@
+ 
+ 	&quot;LINK&quot;=&gt;&quot;$(CXX)&quot;,
+ 
++  # call the compiler using the standard unix-style mechanism &lt;CC&gt; -c -o &lt;outputname&gt; &lt;input0&gt; [&lt;input1&gt; ...]
+ 	&quot;COMPILE_PARAMS&quot;=&gt;&quot; -c -o $(OUTPUT) $(INPUT)&quot;,
++	# an ansi-c compiler call with parameters (using ccache if available)
+ 	&quot;CC_CALL&quot;=&gt;&quot;$(CCACHE) $(CC) $(COMPILE_PARAMS)&quot;,
++	# a c++ compiler call with parameters (using ccache if available)
+ 	&quot;CXX_CALL&quot;=&gt;&quot;$(CCACHE) $(CXX) $(COMPILE_PARAMS)&quot;,
++	# build a shared library (.so or .dll)
+ 	&quot;LINK_SHARED&quot;=&gt;&quot;$(LINK) -shared -o $(OUTPUT) $(INPUT)&quot;,
++	# generate c++-code from a swig-interface file
+ 	&quot;SWIG_CALL&quot;=&gt;&quot;$(SWIG) -v -Wall -ruby -c++ -o $(OUTPUT) $(INPUT)&quot;,
++	# generate dependencies for swig-interface files
+ 	&quot;SWIGDEPS&quot;=&gt;&quot;$(SWIG) -ruby -c++ -M $(INPUT)&quot;,
++
++	# generate a swig-interface-file from the c++-sources and some other pre-defined interface-files (.i)
++	# go to build/*.i or ext/*/*.i for more information
+ 	&quot;CREATEINTERFACE&quot;=&gt;&quot;$(RUBY) build/create_interface.rb -d=$(OUTPUT) -i=$(INPUT)&quot;
+ }
+
+Modified: antargis/branches/rant/build/configure.rb
+===================================================================
+--- antargis/branches/rant/build/configure.rb	2007-06-30 20:40:27 UTC (rev 1123)
++++ antargis/branches/rant/build/configure.rb	2007-06-30 20:54:07 UTC (rev 1124)
+@@ -1,3 +1,17 @@
++#
++# This is a library for simple build-configuration management.
++# For a brief example have a look at BoA's configure-script.
++# 
++# The configuration-process goes like this
++# 1) include this file
++# 2) define cmd-line-options with CFG.addOption
++# 3) add checks for programs, files, libraries (checkProgram, checkFile, checkLibrary)
++# 4) add custom-checks with addCheck(...)
++# 5) include basic-configuration functionality with CFG.includeConfig - have a look at build/configs/unix.rb for more information on this
++# 6) run the configuration with CFG.run - a config.rb file will be written 
++##
++
++
+ module CFG
+ 	@@options=[]
+ 	@@config={}
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000080.html">[Antargis-svn] r1123 - in antargis/branches/rant: . build	build/configs
+</A></li>
+	<LI>Next message: <A HREF="000082.html">[Antargis-svn] r1125 - antargis/branches/rant
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#81">[ date ]</a>
+              <a href="thread.html#81">[ thread ]</a>
+              <a href="subject.html#81">[ subject ]</a>
+              <a href="author.html#81">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

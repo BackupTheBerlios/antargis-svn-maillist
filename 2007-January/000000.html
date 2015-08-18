@@ -1,0 +1,801 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1042 - in antargis/trunk: data/levels/birth gui/src	ruby src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-January/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1042%20-%20in%20antargis/trunk%3A%20data/levels/birth%20gui/src%0A%09ruby%20src&In-Reply-To=%3C200701061752.l06HqhJS020398%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000001.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1042 - in antargis/trunk: data/levels/birth gui/src	ruby src</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1042%20-%20in%20antargis/trunk%3A%20data/levels/birth%20gui/src%0A%09ruby%20src&In-Reply-To=%3C200701061752.l06HqhJS020398%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1042 - in antargis/trunk: data/levels/birth gui/src	ruby src">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sat Jan  6 18:52:43 CET 2007</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000001.html">[Antargis-svn] r1043 - in antargis/trunk: . gui/src gui/src/sge
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#0">[ date ]</a>
+              <a href="thread.html#0">[ thread ]</a>
+              <a href="subject.html#0">[ subject ]</a>
+              <a href="author.html#0">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-01-06 18:52:40 +0100 (Sat, 06 Jan 2007)
+New Revision: 1042
+
+Modified:
+   antargis/trunk/data/levels/birth/birth1.antlvl
+   antargis/trunk/data/levels/birth/birth1.rb
+   antargis/trunk/gui/src/ag_surface.cc
+   antargis/trunk/gui/src/ag_surface.h
+   antargis/trunk/gui/src/ag_widget.cc
+   antargis/trunk/gui/src/ag_widget.h
+   antargis/trunk/ruby/ant_boss.rb
+   antargis/trunk/ruby/ant_hljobs.rb
+   antargis/trunk/ruby/ant_level.rb
+   antargis/trunk/ruby/ant_scripting.rb
+   antargis/trunk/ruby/ant_trigger.rb
+   antargis/trunk/ruby/map.rb
+   antargis/trunk/src/jobs.cc
+   antargis/trunk/src/nantmarker.hh
+Log:
+* birth1 level reworked
+
+
+Modified: antargis/trunk/data/levels/birth/birth1.antlvl
+===================================================================
+--- antargis/trunk/data/levels/birth/birth1.antlvl	2006-12-28 18:14:43 UTC (rev 1041)
++++ antargis/trunk/data/levels/birth/birth1.antlvl	2007-01-06 17:52:40 UTC (rev 1042)
+@@ -390,7 +390,8 @@
+ 	&lt;trigger name=&quot;druid&quot; x=&quot;85.9007&quot; y=&quot;50.092&quot;  radius=&quot;3&quot;/&gt;
+ 	&lt;target name=&quot;retreat&quot; x=&quot;41&quot; y=&quot;88&quot;/&gt;
+ 	&lt;trigger name=&quot;smith&quot; x=&quot;31.2377&quot; y=&quot;16.9882&quot; radius=&quot;10&quot;/&gt;
+-	&lt;trigger name=&quot;smith2&quot; x=&quot;31.2377&quot; y=&quot;16.9882&quot; radius=&quot;2&quot;/&gt;
+-	&lt;target name=&quot;near_smith&quot; x=&quot;32.4&quot; y=&quot;16.988&quot;/&gt;
++	&lt;trigger name=&quot;smith2&quot; x=&quot;31.2377&quot; y=&quot;16.9882&quot; radius=&quot;3&quot;/&gt;
++	&lt;target name=&quot;near_smith&quot; x=&quot;32.2&quot; y=&quot;16.988&quot;/&gt;
+   &lt;trigger name=&quot;keep&quot; x=&quot;41.9545&quot; y=&quot;90.2078&quot; radius=&quot;20&quot;/&gt;
++&lt;!--    &lt;position x=&quot;31.2377&quot; y=&quot;16.9882&quot; z=&quot;1&quot;/&gt;--&gt;
+ &lt;/antargisLevel&gt;
+
+Modified: antargis/trunk/data/levels/birth/birth1.rb
+===================================================================
+--- antargis/trunk/data/levels/birth/birth1.rb	2006-12-28 18:14:43 UTC (rev 1041)
++++ antargis/trunk/data/levels/birth/birth1.rb	2007-01-06 17:52:40 UTC (rev 1042)
+@@ -15,11 +15,11 @@
+ 	def eventTrigger(hero,t)
+ 		case t.name
+ 			when &quot;nogo&quot;
+-				if hero.getPlayer.class==AntHumanPlayer and not @druid
++				if hero.getPlayer.getName==&quot;Rowen&quot; and not @druid
+ 					s=StoryFlow.new(&quot;noFurther&quot;)
+ 					s.push(hero.getName,&quot;I will not go any further! There are strangers out there. They don't seem friendly.&quot;)
+ 					tellStory(s)
+-					hero.newHLMoveJob(0,getMap.getTarget(&quot;goback&quot;).pos,0)
++					hero.moveTo(getTarget(&quot;goback&quot;).pos)
+ 				end
+ 			when &quot;druid&quot;
+ 				if @druid	
+@@ -41,8 +41,8 @@
+ 					s.push(&quot;Rowen&quot;,&quot;But there is a party of strangers on the way.&quot;)
+ 					s.push(&quot;Druid&quot;,&quot;They will be gone soon.&quot;)
+ 					tellStory(s)
+-					getMap.getByName(&quot;Bantor&quot;).newHLMoveJob(0,getMap.getTarget(&quot;retreat&quot;).pos,0)
+-					getMap.getByName(&quot;Rowen&quot;).newHLRestJob(10)
++					getHero(&quot;Bantor&quot;).moveTo(getTarget(&quot;retreat&quot;).pos)
++					getHero(&quot;Rowen&quot;).rest(10)
+ 
+ 				end
+ 			when &quot;smith&quot;
+@@ -66,38 +66,45 @@
+ 					s.push(&quot;Smith&quot;,&quot;Don't forget to capture the keep, too!&quot;)
+ 					tellStory(s)
+ 					# assign houses to Player Rowen
+-					[&quot;Dwelling&quot;,&quot;Farm&quot;,&quot;Workshop&quot;].each{|n|getMap.getByName(n).setPlayer(getMap.getPlayer)}
+-					galvador=getMap.getByName(&quot;Galvador&quot;)
+-					galvador.setBoss(getMap.getByName(&quot;Bantor&quot;))
++					[&quot;Dwelling&quot;,&quot;Farm&quot;,&quot;Workshop&quot;].each{|n|getHero(n).setPlayer(getPlayer(&quot;Rowen&quot;))}
++					galvador=getHero(&quot;Galvador&quot;)
++					galvador.setBoss(getHero(&quot;Bantor&quot;))
++					galvador.moveTo(getHero(&quot;Bantor&quot;))
+ 					galvador.addHandler(:eventNewRestJob) {
+ 						playApprenticeStory
+ 					}
+ 					@smith=2
+ 				end
+ 			when &quot;keep&quot;
+-				if hero==getMap.getByName(&quot;Rowen&quot;) and @flee==false
++				dputs &quot;TRIGGER:&quot;,hero,getHero(&quot;Rowen&quot;),hero.getName,getHero(&quot;Rowen&quot;)<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">.getName, at flee</A>
++				#raise &quot;keep&quot;
++
++				if hero==getHero(&quot;Rowen&quot;) and @flee==false
+ 					# let bantor flee
+-					bantor=getMap.getByName(&quot;Bantor&quot;)
+-					bantor.newHLMoveJob(0,AGVector2.new(40,126),0)
+-					men=bantor.getMen-[bantor]
+-					keep=getMap.getByName(&quot;Keep&quot;)
+-					men[0..4].each{|man|
+-						man.setBoss(keep)
+-					}
++					bantor=getHero(&quot;Bantor&quot;)
++					bantor.setAggression(1)
++					bantor.dismiss
++					bantor.moveTo(AGVector2.new(40,126))
++ 					keep=getHero(&quot;Keep&quot;)
++# 					men=bantor.getMen-[bantor]
++# 					men[0..4].each{|man|
++# 						man.setBoss(keep)
++# 					}
+ 	
+ 					@flee=true
+-					rowen=getMap.getByName(&quot;Rowen&quot;)
+-					if rowen.getJob.class==AntHeroFightJob
+-						rowen.newHLFightJob(keep)
+-					end
++					rowen=getHero(&quot;Rowen&quot;)
++					#if rowen.getJob.class==AntHeroFightJob
++					rowen.attack(keep)
++					#end
+ 
+ 					# do not let rowen attack bantor anymore
+ 					rowen.addHandler(:newJobAssigned){
+-						if rowen.getJob.class==AntHeroFightJob
+-							if rowen.getJob.target==bantor
+-								rowen.newHLRestJob(1)
+-							end
+-						end
++ 						if rowen.getJob.is_a?(AntHeroFightJob)
++ 							if rowen.getJob.target==bantor
++# 								rowen.newHLRestJob(1)
++								rowen.rest(10)
++ 							end
++ 						end
+ 					}
+ 
+ 				end
+@@ -106,7 +113,7 @@
+ 					when &quot;end&quot;
+ 						wonLevel
+ 					when &quot;smith0&quot;
+-						getMap.getByName(&quot;Rowen&quot;).newHLMoveJob(0,getMap.getTarget(&quot;near_smith&quot;).pos,0)
++						getHero(&quot;Rowen&quot;).moveTo(getTarget(&quot;near_smith&quot;))
+ 						$app.hidePanel
+ 					when &quot;won&quot;
+ 						endLevel
+@@ -125,12 +132,11 @@
+ 	def playApprenticeStory
+ 		if @appStory==false
+ 			@appStory=true
+-			$app.focusHero(getMap.getByName(&quot;Bantor&quot;))
++			@interface.focusEntity(getHero(&quot;Bantor&quot;))
+ 			s=StoryFlow.new(&quot;bantor&quot;)
+ 			s.push(&quot;Bantor&quot;,&quot;Boy, why do you leave your place?&quot;)
+ 			
+-			# FIXME: replace &quot;they&quot; by sth like &quot;people of the village&quot;
+-			s.push(&quot;Apprentice&quot;,&quot;A stranger appeared and they want to follow him and drive you away.&quot;)
++			s.push(&quot;Apprentice&quot;,&quot;A stranger appeared and the people of the village want to follow him and drive you away.&quot;)
+ 			s.push(&quot;Bantor&quot;,&quot;These fools will see their failure! You will be payed and now get off to the keep.&quot;)
+ 			tellStory(s)
+ 			galvador=getMap.getByName(&quot;Galvador&quot;)
+
+Modified: antargis/trunk/gui/src/ag_surface.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_surface.cc	2006-12-28 18:14:43 UTC (rev 1041)
++++ antargis/trunk/gui/src/ag_surface.cc	2007-01-06 17:52:40 UTC (rev 1042)
+@@ -41,6 +41,9 @@
+ 
+ bool gDRM=false;
+ 
++
++AGDecryptor *AGSurface::mDecryptor=0;  
++
+ ///////////////////////////////////////////////////////////////////////
+ // Tools
+ ///////////////////////////////////////////////////////////////////////
+@@ -353,13 +356,18 @@
+   return n;
+ }
+ 
+-AGSurface AGSurface::loadDRM(const std::string &amp;pName,AGDecryptor &amp;pDec)
++AGSurface AGSurface::loadDRM(const std::string &amp;pName)
+ {
++  assert(mDecryptor);
++
+   AGSurface n;
++  if(!mDecryptor)
++    return n;
++
+   n.s=new AGInternalSurface;
+   std::string file=loadFile(pName);
+ 
+-  file=pDec.decrypt(file,pName);
++  file=mDecryptor-&gt;decrypt(file,pName);
+   gDRM=true;
+ 
+   cdebug(&quot;FIRST:&quot;&lt;&lt;int(file[0])&lt;&lt;&quot;,&quot;&lt;&lt;int(file[1])&lt;&lt;&quot;,&quot;&lt;&lt;int(file[2]));
+@@ -540,7 +548,12 @@
+ }
+ 
+ 
++void AGSurface::setDecryptor(AGDecryptor *pDecryptor)
++{
++  mDecryptor=pDecryptor;
++}
+ 
++
+ AGDecryptor *toDecryptor(AGPlugin *p)
+ {
+   return (AGDecryptor*)(p);
+
+Modified: antargis/trunk/gui/src/ag_surface.h
+===================================================================
+--- antargis/trunk/gui/src/ag_surface.h	2006-12-28 18:14:43 UTC (rev 1041)
++++ antargis/trunk/gui/src/ag_surface.h	2007-01-06 17:52:40 UTC (rev 1042)
+@@ -73,17 +73,6 @@
+       return s;
+     }
+ };
+-class AGDecryptorPlugin:public AGPlugin
+-{
+- public:
+-  virtual ~AGDecryptorPlugin()
+-    {
+-    }
+-  virtual AGDecryptor *getDecryptor()
+-    {
+-      return 0;
+-    }
+-};
+ 
+ /// Generic classes - for OpenGL and &quot;normal&quot; SDL
+ class AGSurface:public AGPaintTarget
+@@ -127,10 +116,12 @@
+   void save(const std::string &amp;pName) const;
+ 
+   static AGSurface load(const std::string &amp;pName);
+-  static AGSurface loadDRM(const std::string &amp;pName,AGDecryptor &amp;pDec);
++  static AGSurface loadDRM(const std::string &amp;pName);
+ 
+   AGInternalSurface *surface() const;
+ 
++  static void setDecryptor(AGDecryptor *pDecryptor);
++
+  private:
+ 
+   AGSurface(AGInternalSurface *i);
+@@ -142,6 +133,8 @@
+   friend class AGFontEngine;
+   friend class AGSDLScreen;
+   size_t mVersion;
++
++  static AGDecryptor *mDecryptor;  
+ };
+ 
+ void AGFreeSurface(SDL_Surface *s);
+
+Modified: antargis/trunk/gui/src/ag_widget.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_widget.cc	2006-12-28 18:14:43 UTC (rev 1041)
++++ antargis/trunk/gui/src/ag_widget.cc	2007-01-06 17:52:40 UTC (rev 1042)
+@@ -38,7 +38,7 @@
+ 
+ using namespace std;
+ 
+-AGWidget *agNoParent=0;
++//AGWidget *agNoParent=0;
+ 
+ class MWidgetSet:public std::set&lt;AGWidget*&gt;
+ {
+
+Modified: antargis/trunk/gui/src/ag_widget.h
+===================================================================
+--- antargis/trunk/gui/src/ag_widget.h	2006-12-28 18:14:43 UTC (rev 1041)
++++ antargis/trunk/gui/src/ag_widget.h	2007-01-06 17:52:40 UTC (rev 1042)
+@@ -242,6 +242,6 @@
+ 
+ AGWidget *toAGWidget(AGMessageObject *o);
+ 
+-extern AGWidget *agNoParent;
++//extern AGWidget *agNoParent;
+ 
+ #endif
+
+Modified: antargis/trunk/ruby/ant_boss.rb
+===================================================================
+--- antargis/trunk/ruby/ant_boss.rb	2006-12-28 18:14:43 UTC (rev 1041)
++++ antargis/trunk/ruby/ant_boss.rb	2007-01-06 17:52:40 UTC (rev 1042)
+@@ -130,6 +130,8 @@
+ 			man.setAggression(getAggression)
+ 			if @job.is_a?(AntHeroRestJob)
+ 				newHLRestJob(1)
++			elsif @job
++				@job.check(man)
+ 			end
+ 		end
+ 	end
+
+Modified: antargis/trunk/ruby/ant_hljobs.rb
+===================================================================
+--- antargis/trunk/ruby/ant_hljobs.rb	2006-12-28 18:14:43 UTC (rev 1041)
++++ antargis/trunk/ruby/ant_hljobs.rb	2007-01-06 17:52:40 UTC (rev 1042)
+@@ -117,7 +117,9 @@
+ 						# do nothing
+ 					else
+ 						puts &quot;unknown type for #{name} #{type}&quot;
+-						value=AntMarshal.load(c.get(&quot;value&quot;))
++						if c.get(&quot;value&quot;)!=&quot;&quot;
++							value=AntMarshal.load(c.get(&quot;value&quot;))
++						end
+ 				end
+ 				instance_variable_set(name,value)
+ 			end
+@@ -168,6 +170,7 @@
+ 		@hero.delJob
+ 		@prio=prio
+ 		@pos=AGVector2.new(pos.x,pos.y)
++		@overalltarget=@pos
+ 		@dist=dist
+ 		@formatDist=0
+ 
+@@ -245,7 +248,9 @@
+ 		if @moveFinished
+ 			return	
+ 		end
+-		puts &quot;CHECK #{@state} #{man.getMode} #{man}&quot;
++		if @hero.getName==&quot;Rowen&quot;
++			puts &quot;CHECK #{@state} #{man.getMode} #{man} #{man.getPos2D}&quot;
++		end
+ 		case @state
+ 			when &quot;format&quot;
+ 				if man.getMode==&quot;format&quot;
+@@ -255,9 +260,12 @@
+ 					startWalking
+ 				end
+ 			when &quot;moving&quot;
++				dputs &quot;WAYPOINTS:&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at waypoints.collect</A>{|w|w.to_s}.join(&quot; &quot;)
+ 				if @waypoints.length&gt;0
+ 					startFormatting
+ 				else
++					dputs &quot;FINISHED:&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at hero.getPos2D</A><A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at pos</A><A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at overalltarget</A>
++				
+ 					self.moveFinished=true
+ 				end
+ 		end
+
+Modified: antargis/trunk/ruby/ant_level.rb
+===================================================================
+--- antargis/trunk/ruby/ant_level.rb	2006-12-28 18:14:43 UTC (rev 1041)
++++ antargis/trunk/ruby/ant_level.rb	2007-01-06 17:52:40 UTC (rev 1042)
+@@ -39,9 +39,27 @@
+ 
+ 	# get interface-objects for all players. returns an array of all the players
+ 	def getPlayers
+-		@map.getPlayers.collect{|p|AntLevelPlayers.new(p)}
++		@map.players.collect{|p|AntLevelPlayer.new(p)}
+ 	end
+ 
++	def getPlayer(name)
++		return nil if not name.is_a?(String)
++		getPlayers.select{|p|p.getName==name}[0]
++	end
++
++	def getHero(name)
++		return nil if not name.is_a?(String)
++		e=@map.getByName(name)
++		if e
++			return AntLevelHero.new(e)
++		end
++	end
++
++	def getTarget(name)
++		return nil if not name.is_a?(String)
++		return getMap.getTarget(name)
++	end
++
+ 	# use this to set the level's state to &quot;won&quot;
+ 	def wonLevel
+ 		@app.setResult(GameResult.new(&quot;won&quot;))
+@@ -65,9 +83,13 @@
+ 		@story=flow
+ 	end
+ 
++	def focusEntity(entity)
++		return unless entity.is_a?(AntLevelEntity)
++		@app.focusHero(getMap.getByName(entity.getName))
++	end
+ end
+ 
+-class AntLevelPlayers
++class AntLevelPlayer
+ 	def initialize(player)
+ 		@player=player
+ 	end
+@@ -84,18 +106,34 @@
+ 
+ class AntLevelEntity
+ 	include AntScriptingEntityFullAccess
++	include AntScriptingEntityEnhancedAccess
+ 	def initialize(ent)
+ 		@ent=ent
++		@valid=true
+ 	end
+ 	def is_a?(pclass)
+-		@ent.is_a?(pclass)
++		@ent.is_a?(pclass) or super(pclass)
+ 	end
++	# FIXME: check this ???
++	def valid
++		@valid
++	end
++	def ==(e)
++		puts &quot;== #{self} #{e}&quot;
++		return -1 unless e.is_a?(AntLevelEntity)
++		@ent==getMap.getByName(e.getName)
++	end		
++	def &lt;=&gt;(e)
++		puts &quot;&lt;=&gt; #{self} #{e}&quot;
++		return -1 unless e.is_a?(AntLevelEntity)
++		@ent&lt;=&gt;getMap.getByName(e.getName)
++	end
+ end
+ 
+ class AntLevelHero&lt;AntLevelEntity
+ 	include AntScriptingHeroFullAccess
+ 	def getPlayer
+-		AntLevelPlayers.new(@ent.getPlayer)
++		AntLevelPlayer.new(@ent.getPlayer)
+ 	end
+ end
+ 
+@@ -135,6 +173,11 @@
+ 	def loadXML(node)
+ 		loadLocals(node)
+ 	end
++	
++	def method_missing(*s)
++		dputs &quot;method_missing:&quot;,s
++		@interface.send(*s)
++	end
+ 
+ # maybe exchange this
+ private
+
+Modified: antargis/trunk/ruby/ant_scripting.rb
+===================================================================
+--- antargis/trunk/ruby/ant_scripting.rb	2006-12-28 18:14:43 UTC (rev 1041)
++++ antargis/trunk/ruby/ant_scripting.rb	2007-01-06 17:52:40 UTC (rev 1042)
+@@ -29,6 +29,11 @@
+ 		return unless pClass.is_a?(Class)
+ 		@job.is_a?(pClass)
+ 	end
++	def target
++		if @job.respond_to?(:target)
++			AntLevelEntity.new(@job.target)
++		end
++	end
+ end
+ 
+ module AntScriptingEntityFullAccess
+@@ -75,7 +80,7 @@
+ 
+ 	# set the aggression level (0,1,2)
+ 	def setAggression(level)
+-		return unless [0,1,2].member?(level)
++		return unless [1,2,3].member?(level)
+ 		if valid
+ 			@ent.setAggression(level)
+ 		end
+@@ -83,6 +88,10 @@
+ 
+ 	# move my hero to place
+ 	def moveTo(place)
++		dputs &quot;MOVETO:&quot;,place,place.class
++		place=place.pos if place.is_a?(TargetPos)
++		place=place.dim2 if place.is_a?(AGVector3)
++		dputs &quot;MOVETO:&quot;,place,place.class
+ 		return unless place.is_a?(AGVector2)
+ 		if valid
+ 			@ent.newHLMoveJob(0,place,0)
+@@ -99,6 +108,10 @@
+ 			end
+ 		end
+ 	end
++
++	def dismiss
++		@ent.newHLDismissJob
++	end
+ 	
+ 	# recruit from target
+ 	def recruit(target)
+@@ -163,4 +176,29 @@
+ 			@ent.newHLRestJob(time)
+ 		end
+ 	end
++
++	def addHandler(eventName,&amp;block)
++		@ent.addHandler(eventName,&amp;block)
++	end
++
++end
++
++module AntScriptingEntityEnhancedAccess
++	# hacking
++	def setPlayer(player)
++		return nil if not player.is_a?(AntLevelPlayer)
++		p=getMap.players.select{|p|p.getName==player.getName}[0]
++		if p
++			@ent.setPlayer(p)
++		end
++	end
++
++	def setBoss(entity)
++		return unless entity.is_a?(AntLevelEntity)
++		@ent.setBoss(getMap.getByName(entity.getName))
++	end
++
++# 	def getMen
++# 		@ent.getMen.collect{|e|AntLevelEntity.new(e)}
++# 	end
+ end
+\ No newline at end of file
+
+Modified: antargis/trunk/ruby/ant_trigger.rb
+===================================================================
+--- antargis/trunk/ruby/ant_trigger.rb	2006-12-28 18:14:43 UTC (rev 1041)
++++ antargis/trunk/ruby/ant_trigger.rb	2007-01-06 17:52:40 UTC (rev 1042)
+@@ -28,7 +28,7 @@
+ 		if <A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">AntRubyMap.getSystemTime- at triggerTime</A>&gt;1 # wait at least a second for repeating trigger
+ 			p2=hero.getPos2D
+ 			p3=AGVector3.new(p2.x,p2.y,1)
+-			#dputs <A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">p3, at circle.inCircle</A>(p3)
++			#dputs name,&quot; &quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">,p3, at pos</A><A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at radius</A><A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at circle.inCircle</A>(p3), (<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">p2- at pos</A>).length
+ 			if @circle.inCircle(p3)
+ 				getMap.trigger(hero,self)
+ 				@triggerTime=AntRubyMap.getSystemTime
+
+Modified: antargis/trunk/ruby/map.rb
+===================================================================
+--- antargis/trunk/ruby/map.rb	2006-12-28 18:14:43 UTC (rev 1041)
++++ antargis/trunk/ruby/map.rb	2007-01-06 17:52:40 UTC (rev 1042)
+@@ -452,7 +452,7 @@
+ 		if @pause
+ 			return
+ 		end
+-		time*=1 # increase speed
++		time*=3 # increase speed
+ 		@curTime+=time
+ 		@@systemTime+=time
+ 		super(time)
+
+Modified: antargis/trunk/src/jobs.cc
+===================================================================
+--- antargis/trunk/src/jobs.cc	2006-12-28 18:14:43 UTC (rev 1041)
++++ antargis/trunk/src/jobs.cc	2007-01-06 17:52:40 UTC (rev 1042)
+@@ -81,7 +81,8 @@
+ * MoveJob
+ ************************************************************************/
+ 
+-MoveJob::MoveJob()
++MoveJob::MoveJob():
++  mTargetEntity(0)
+ {
+ }
+ 
+
+Modified: antargis/trunk/src/nantmarker.hh
+===================================================================
+--- antargis/trunk/src/nantmarker.hh	2006-12-28 18:14:43 UTC (rev 1041)
++++ antargis/trunk/src/nantmarker.hh	2007-01-06 17:52:40 UTC (rev 1042)
+@@ -58,7 +58,7 @@
+ 	result-&gt;mRubyObject=true;
+ }
+ %markfunc AGScroller &quot;general_markfunc&quot;
+-%exception Scene::Scene {
++%exception AnimMesh::AnimMesh {
+ 	$action
+ 	result-&gt;mRUBY=self;
+ #ifdef GCDEBUG
+@@ -67,8 +67,8 @@
+ #endif
+ 	result-&gt;mRubyObject=true;
+ }
+-%markfunc Scene &quot;general_markfunc&quot;
+-%exception AnimMesh::AnimMesh {
++%markfunc AnimMesh &quot;general_markfunc&quot;
++%exception Scene::Scene {
+ 	$action
+ 	result-&gt;mRUBY=self;
+ #ifdef GCDEBUG
+@@ -77,7 +77,7 @@
+ #endif
+ 	result-&gt;mRubyObject=true;
+ }
+-%markfunc AnimMesh &quot;general_markfunc&quot;
++%markfunc Scene &quot;general_markfunc&quot;
+ %exception WaterPiece::WaterPiece {
+ 	$action
+ 	result-&gt;mRUBY=self;
+@@ -478,16 +478,6 @@
+ 	result-&gt;mRubyObject=true;
+ }
+ %markfunc AGCheckBox &quot;general_markfunc&quot;
+-%exception AGDecryptorPlugin::AGDecryptorPlugin {
+-	$action
+-	result-&gt;mRUBY=self;
+-#ifdef GCDEBUG
+-     result-&gt;mObjName=typeid(*result).name();
+-     printf(&quot;%lx   %s\n&quot;,self,typeid(*result).name());
+-#endif
+-	result-&gt;mRubyObject=true;
+-}
+-%markfunc AGDecryptorPlugin &quot;general_markfunc&quot;
+ %exception Smoke::Smoke {
+ 	$action
+ 	result-&gt;mRUBY=self;
+@@ -1226,8 +1216,6 @@
+   else
+    {
+      if(false);
+-else if(dynamic_cast&lt;AGDecryptorPlugin*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGDecryptorPlugin,0);
+    else
+      vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGPlugin,0);
+    }
+@@ -1242,8 +1230,6 @@
+   else
+    {
+      if(false);
+-else if(dynamic_cast&lt;AGDecryptorPlugin*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGDecryptorPlugin,0);
+    else
+      $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGPlugin,0);
+    }
+@@ -2006,7 +1992,7 @@
+  }
+  else $input=Qnil;
+ }
+-%typemap(out) DecimatedGraph*{
++%typemap(out) AGGLWidget*{
+  if($1)
+  {
+   if($1-&gt;mRubyObject)
+@@ -2015,12 +2001,12 @@
+    {
+      if(false);
+    else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_DecimatedGraph,0);
++     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGGLWidget,0);
+    }
+  }
+  else vresult=Qnil;
+ }
+-%typemap(directorin) DecimatedGraph*{
++%typemap(directorin) AGGLWidget*{
+  if($1)
+  {
+   if($1-&gt;mRubyObject)
+@@ -2029,12 +2015,12 @@
+    {
+      if(false);
+    else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_DecimatedGraph,0);
++     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGGLWidget,0);
+    }
+  }
+  else $input=Qnil;
+ }
+-%typemap(out) AGGLWidget*{
++%typemap(out) DecimatedGraph*{
+  if($1)
+  {
+   if($1-&gt;mRubyObject)
+@@ -2043,12 +2029,12 @@
+    {
+      if(false);
+    else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGGLWidget,0);
++     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_DecimatedGraph,0);
+    }
+  }
+  else vresult=Qnil;
+ }
+-%typemap(directorin) AGGLWidget*{
++%typemap(directorin) DecimatedGraph*{
+  if($1)
+  {
+   if($1-&gt;mRubyObject)
+@@ -2057,7 +2043,7 @@
+    {
+      if(false);
+    else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGGLWidget,0);
++     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_DecimatedGraph,0);
+    }
+  }
+  else $input=Qnil;
+@@ -2182,34 +2168,6 @@
+  }
+  else $input=Qnil;
+ }
+-%typemap(out) AGDecryptorPlugin*{
+- if($1)
+- {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGDecryptorPlugin,0);
+-   }
+- }
+- else vresult=Qnil;
+-}
+-%typemap(directorin) AGDecryptorPlugin*{
+- if($1)
+- {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGDecryptorPlugin,0);
+-   }
+- }
+- else $input=Qnil;
+-}
+ %typemap(out) Smoke*{
+  if($1)
+  {
+@@ -2686,11 +2644,6 @@
+  Data_Get_Struct($input,AGDecryptor,b);
+  $result=*b;
+ }
+-%typemap(directorout) AGDecryptorPlugin {
+- AGDecryptorPlugin *b;
+- Data_Get_Struct($input,AGDecryptorPlugin,b);
+- $result=*b;
+-}
+ %typemap(directorout) AGDestructionHandler {
+  AGDestructionHandler *b;
+  Data_Get_Struct($input,AGDestructionHandler,b);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000001.html">[Antargis-svn] r1043 - in antargis/trunk: . gui/src gui/src/sge
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#0">[ date ]</a>
+              <a href="thread.html#0">[ thread ]</a>
+              <a href="subject.html#0">[ subject ]</a>
+              <a href="author.html#0">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

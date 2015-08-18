@@ -1,0 +1,669 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1113 - antargis/branches/rant/build
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-June/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1113%20-%20antargis/branches/rant/build&In-Reply-To=%3C200706231930.l5NJUfSP026259%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000069.html">
+   <LINK REL="Next"  HREF="000071.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1113 - antargis/branches/rant/build</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1113%20-%20antargis/branches/rant/build&In-Reply-To=%3C200706231930.l5NJUfSP026259%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1113 - antargis/branches/rant/build">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sat Jun 23 21:30:41 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000069.html">[Antargis-svn] r1112 - in antargis/branches/rant: . build
+</A></li>
+        <LI>Next message: <A HREF="000071.html">[Antargis-svn] r1114 - in antargis/branches/rant: . ext/gui ruby	ruby/entities
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#70">[ date ]</a>
+              <a href="thread.html#70">[ thread ]</a>
+              <a href="subject.html#70">[ subject ]</a>
+              <a href="author.html#70">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-06-23 21:30:41 +0200 (Sat, 23 Jun 2007)
+New Revision: 1113
+
+Removed:
+   antargis/branches/rant/build/create_interface_new.rb
+Log:
+D    build/create_interface_new.rb
+
+
+Deleted: antargis/branches/rant/build/create_interface_new.rb
+===================================================================
+--- antargis/branches/rant/build/create_interface_new.rb	2007-06-23 19:30:24 UTC (rev 1112)
++++ antargis/branches/rant/build/create_interface_new.rb	2007-06-23 19:30:41 UTC (rev 1113)
+@@ -1,592 +0,0 @@
+-#!/usr/bin/env ruby
+-#
+-# Copyright (c) 2005 by David Kamphausen. All rights reserved.
+-#
+-# create_interface.rb
+-# by David Kamphausen (<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">david.kamphausen at web.de</A>)
+-#
+-# The &quot;Antargis&quot; project, including all files needed to compile it,
+-# is free software; you can redistribute it and/or use it and/or modify it
+-# under the terms of the GNU General Public License as published
+-# by the Free Software Foundation; either version 2 of the License,
+-# or (at your option) any later version.
+-#
+-# This program is distributed in the hope that it will be useful,
+-# but WITHOUT ANY WARRANTY; without even the implied warranty of
+-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+-#
+-# You should have received a copy of the GNU General Public
+-# License along with this program.
+-#
+-
+-require 'build/interface_template.rb'
+-require 'build/base_tools.rb'
+-
+-class MyInput
+-	attr_reader :swigInput, :outputDir
+-	def initialize
+-		@outputDir=Dir.pwd # default
+-		@swigInput=&quot;&quot;
+-	
+-
+-		ARGV.each{|a|
+-			case a
+-				when /^-d=/
+-					# in- and output dir
+-					@outputDir=a[3..-1]
+-				when /^-i=/
+-					@swigInput=a[3..-1]
+-				when /^-h/, /^--help/
+-					@help=true
+-					puts &quot;Arguments:&quot;
+-					puts &quot; -h, --help     print this help&quot;
+-					puts &quot; -d=&lt;DIR&gt;       define output-directory&quot;
+-					puts &quot; -i=&lt;SWIGFILE&gt;  define SWIG-input-file (swig.h) - can be set multiple times&quot;
+-			end
+-		}
+-
+-		@swigInput=@swigInput.split(&quot;:&quot;)
+-	end
+-
+-	def valid
+-		@outputDir!=&quot;&quot; &amp;&amp; @help.nil?
+-	end
+-
+-	def interfaceName
+-		name=@outputDir+Dir.separator+&quot;interface.i&quot;
+-		puts &quot;INTERFACENAME:&quot;,name
+-		name
+-	end
+-
+-	def moduleName
+-		moduleName=makeLibName(@outputDir)
+-	end
+-	def headersName
+-		@outputDir+Dir.separator+&quot;/headers.hh&quot;
+-	end
+-	def markerName
+-		@outputDir+Dir.separator+&quot;marker.i&quot;
+-	end
+-end
+-
+-class MClass
+-  def initialize(name,superClass)
+-    @name=name
+-    @superClass=superClass
+-  end
+-end
+-
+-class SimpleParser
+-	@mclasses=[]
+-	def initialize(files)
+-	end
+-	
+-end
+-
+-def getDirs
+-  files=`find ext -type d`.gsub(&quot;\r&quot;,&quot;&quot;).split(&quot;\n&quot;)
+-end
+-
+-def getFiles(dir)
+-	Dir[dir+Dir.separator+&quot;*.h&quot;].select{|f|not f=~/swig.h/} #-[dir+Dir.separator+&quot;swig.h&quot;]
+-end
+-
+-def grepBool(filename,string)
+-	File.open(filename).each_line{|l|return true if l=~/#{string}/}
+-	false
+-end
+-
+-def getSwigInterfaceFiles(files)
+-	files.select{|f|
+-		grepBool(f,&quot;INCLUDE_SWIG&quot;)
+-	}
+-end
+-
+-def getClasses
+-end
+-
+-class ParsedClasses
+-
+-	attr_reader :deriveList
+-
+-	def initialize(files,allfiles)
+-		@rubyClasses=[]
+-		@files=files
+-		loadAllDerivations(allfiles)
+-		@myfiles=files
+-		processDerivations
+-		initLevels
+-	end
+-
+-
+-	def loadAllDerivations(allfiles)
+-		@class2File={}
+-		@deriveList={} # x=&gt;y :x is child of y
+-
+-		allfiles.each{|fn|
+-			g=File.open(fn)
+-			cn=&quot;&quot;
+-			g.each{|a|
+-				abak=a
+-				a.gsub!(&quot;AGEXPORT&quot;,&quot;&quot;)
+-				a.gsub!(&quot;EXPORT&quot;,&quot;&quot;)
+-				
+-				if a =~ /^class.*/ then
+-					cn=a.gsub(&quot;class &quot;,&quot;&quot;).gsub(/:.*/,&quot;&quot;).gsub(&quot;\n&quot;,&quot;&quot;).gsub(&quot; &quot;,&quot;&quot;)
+-					if cn=~/^[A-Z].*/
+-						if a=~ /.*public.*/ then
+-							pn=a.gsub(/.*public /,&quot;&quot;).gsub(&quot;\n&quot;,&quot;&quot;)
+-							@deriveList[cn]=pn
+-							@class2File[cn]=fn
+-						elsif not a=~/;/ then
+-							@deriveList[cn]=nil
+-							@class2File[cn]=fn
+-						end
+-					end
+-				end
+-			
+-			}
+-		}
+-		@classList=@class2File.keys
+-	end
+-
+-	def processDerivations
+-		@rubyClasses &lt;&lt; &quot;AGRubyObject&quot;
+-		@classList.sort!.uniq!
+-		
+-		# check for children of AGWidget
+-		changed=true
+-		while changed do
+-			changed=false
+-			@deriveList.each {|x,y|
+-				if @rubyClasses.member?(y) and not @rubyClasses.member?(x) then
+-					@rubyClasses &lt;&lt; x
+-					changed=true
+-				end
+-			}
+-		end
+-# 		puts &quot;-------------------------&quot;
+-# 		puts &quot;CLASSLIST:&quot;
+-# 		puts @classList
+-# 
+-# 		puts &quot;-------------------------&quot;
+-# 		puts &quot;RUBY CLASSLIST:&quot;
+-# 		puts @rubyClasses
+-# 
+-# 		puts &quot;-------------------------&quot;
+-# 		puts &quot;DERIVATIONS:&quot;
+-# 			@deriveList.each {|x,y|
+-# 				puts &quot;#{x} #{y} #{@class2File[x]} &quot;
+-# 			}
+-# 		puts &quot;-------------------------&quot;
+-# 		puts &quot;my ruby:&quot;
+-# 		puts getMyRubyClasses
+-# 		puts &quot;-------------------------&quot;
+-	end
+-
+-	def initLevels
+-		puts &quot;initLevels...&quot;
+-		@levels={}
+-		@levels[&quot;AGRubyObject&quot;]=0
+-		changed=true
+-		l=0
+-		while changed
+-			changed=false
+-			@deriveList.each{|x,y|
+-				if @levels[y]==l and @levels[x].nil?
+-					@levels[x]=l+1
+-					changed=true
+-				end
+-			}
+-			l+=1
+-		end
+-
+-		(0..l).each{|i|
+-			@levels.each{|n,level|
+-				if level==i
+-					puts &quot;#{i} #{n}&quot;
+-				end
+-			}
+-		}
+-	#if false
+-		puts &quot;-------------&quot;		
+-		# give classes with no parent next level
+-		@classList.each{|c|
+-			if @levels[c].nil?
+-				if (not @deriveList.keys.member?(c)) 
+-					@levels[c]=l
+-				end
+-			end
+-		}
+-
+-		# repeat process
+-		changed=true
+-		while changed
+-			changed=false
+-			@deriveList.each{|x,y|
+-				if @levels[y]==l and @levels[x].nil?
+-					@levels[x]=l+1
+-					changed=true
+-				end
+-			}
+-			l+=1
+-		end
+-
+-		puts &quot;-------------&quot;		
+-		# give classes with no parent next level
+-		@classList.each{|c|
+-			if @levels[c].nil?
+-				if (@deriveList[@deriveList[c]].nil?)
+-					@levels[c]=l
+-				end
+-			end
+-		}
+-
+-		# repeat process
+-		changed=true
+-		while changed
+-			changed=false
+-			@deriveList.each{|x,y|
+-				if @levels[y]==l and @levels[x].nil?
+-					@levels[x]=l+1
+-					changed=true
+-				end
+-			}
+-			l+=1
+-		end
+-
+-#end
+-		(0..l).each{|i|
+-			@levels.each{|n,level|
+-				if level==i
+-					puts &quot;#{i} #{n}&quot;
+-				end
+-			}
+-		}
+-		@classList.each{|c|
+-			if @levels[c].nil?
+-				puts &quot;-- #{c}&quot;
+-			end
+-		}
+-
+-		puts &quot;initLevels...ok&quot;
+-
+-	end
+-
+-	# in correct order
+-	def getFileList
+-		files=[]
+-		l=@levels.values.max
+-		(0..l).each{|i|
+-			@levels.each{|n,level|
+-				if level==i and @class2File[n]
+-					files &lt;&lt; @class2File[n]
+-				end
+-			}
+-		}
+-
+-		puts &quot;getFileList:&quot;
+-		puts files,files.class
+-		puts &quot;---------&quot;
+-
+-		@classList.each{|c|
+-			if @levels[c].nil? and @class2File[c]
+-				files &lt;&lt; @class2File[c]
+-			end
+-		}
+-
+-		puts &quot;getFileList:&quot;
+-		puts files,files.class
+-		puts &quot;---------&quot;
+-		files=files.select{|f|@myfiles.member?(f)}
+-		addfiles=@files-files
+-		files+=addfiles
+-
+-
+-		puts &quot;getFileList:&quot;
+-		puts files,files.class
+-		puts &quot;---------&quot;
+-		if files.length&gt;0
+-			files.uniq!
+-		end
+-		puts files,files.class
+-		puts &quot;---------&quot;
+-		files
+-	end
+-
+-
+-	def getMyRubyClasses
+-		@rubyClasses.select{|c|@myfiles.member?(@class2File[c])}
+-	end
+-	def getAllRubyClasses
+-		@rubyClasses
+-	end
+-end
+-
+-
+-def generateInterfaceFile(myInput,files,addfiles)
+-	filename=myInput.interfaceName
+-	puts &quot;filename:&quot;,filename
+-	interfaceI=File.open(filename,&quot;w&quot;)
+-	
+-	
+-	puts &quot;SWIGINPUTS:&quot;,myInput.swigInput,&quot;--------------&quot;
+-	
+-	interfaceI.puts interface_template(myInput.moduleName,files,myInput.swigInput,addfiles,myInput.outputDir)
+-	
+-	interfaceI.close
+-	
+-	filename=myInput.headersName
+-	headersH=File.open(filename,&quot;w&quot;)
+-	headersH.puts &quot;#ifndef __ANTARGIS_H__&quot;
+-	headersH.puts &quot;#define __ANTARGIS_H__&quot;
+-	headersH.puts addfiles.collect{|f|&quot;#include \&quot;#{f}\&quot;&quot;}.join(&quot;\n&quot;)
+-	headersH.puts files.collect{|f|&quot;#include \&quot;#{f}\&quot;&quot;}.join(&quot;\n&quot;)
+-	headersH.puts &quot;#ifdef SWIG&quot;
+-	headersH.puts files.collect{|f|&quot;%include \&quot;#{f}\&quot;&quot;}.join(&quot;\n&quot;)
+-	headersH.puts &quot;#endif&quot;
+-	headersH.puts &quot;#endif&quot;
+-	headersH.close
+-end
+-
+-
+-myInput=MyInput.new
+-
+-files=getSwigInterfaceFiles(getFiles(myInput.outputDir))
+-
+-parsedClasses=ParsedClasses.new(files,`find $(pwd) -name &quot;*.h&quot;|grep -v swig`.split(&quot;\n&quot;))
+-files=parsedClasses.getFileList
+-
+-#exit
+-
+-puts &quot;GETFILES:&quot;,files,files.class
+-
+-puts files.join(&quot;|&quot;)
+-
+-addfiles=[]
+-myInput.swigInput.each{|inDir|
+-	pattern=getDir(inDir)+Dir.separator+&quot;*.h&quot;
+-	puts &quot;PATTERN:&quot;,pattern
+-	addfiles+=Dir[pattern].select{|f|not f=~/swig.h/}
+-}
+-
+-generateInterfaceFile(myInput,files,addfiles)
+-
+-# old implementation
+-
+-
+-classList=[]
+-deriveList={} # x=&gt;y :x is child of y
+-rubyClasses={} # all, which are derived from AGRubyObject
+-class2File={}
+-
+-
+-# take RubyObject as base for RubyObjects :-)
+-# so simply search for classes deriveListd from this!
+-
+-files.each{|fn|
+-	g=File.open(fn)
+-	cn=&quot;&quot;
+-	g.each{|a|
+-		abak=a
+-		a.gsub!(&quot;AGEXPORT&quot;,&quot;&quot;)
+-		a.gsub!(&quot;EXPORT&quot;,&quot;&quot;)
+-		
+-		if a =~ /^class.*/ then
+-			cn=a.gsub(&quot;class &quot;,&quot;&quot;).gsub(/[:;].*/,&quot;&quot;).gsub(/\n/,&quot;&quot;).gsub(&quot; &quot;,&quot;&quot;)
+-			if cn=~/^[A-Z].*/
+-				classList+=[cn]
+-				if a=~ /.*public.*/ then
+-					pn=a.gsub(/.*public /,&quot;&quot;).gsub(/\n/,&quot;&quot;)
+-					deriveList[cn]=pn
+-					rubyClasses[cn]=false
+-					rubyClasses[pn]=false
+-					class2File[cn]=fn
+-				elsif not a=~/;/ then
+-					deriveList[cn]=nil
+-				end
+-			end
+-		end
+-	
+-	}
+-}
+-
+-rubyClasses[&quot;AGRubyObject&quot;]=true
+-
+-classList.sort!.uniq!
+-
+-# check for children of AGWidget
+-changed=true
+-while changed do
+-	changed=false
+-	deriveList.each {|x,y|
+-		if rubyClasses[y] and rubyClasses[x]==false then
+-			rubyClasses[x]=true
+-			changed=true
+-		end
+-	}
+-end
+-
+-file=File.open(myInput.markerName,&quot;w&quot;)
+-
+-# ok, first marking is included
+-parsedClasses.getMyRubyClasses.each {|x|
+-	#if y then
+-		file.puts &quot;%exception &quot;+x+&quot;::&quot;+x+&quot; {&quot;
+-		file.puts &quot;	$action&quot;
+-		file.puts &quot;	result-&gt;mRUBY=self;&quot;
+-		file.puts &quot;#ifdef GCDEBUG&quot;
+-		file.puts '     result-&gt;mObjName=typeid(*result).name();'
+-		file.puts '     printf(&quot;%lx   %s\n&quot;,self,typeid(*result).name());'
+-		file.puts &quot;#endif&quot;
+-		file.puts &quot;	result-&gt;mRubyObject=true;&quot;
+-		file.puts &quot;}&quot;
+-		file.puts &quot;%markfunc &quot;+x+&quot; \&quot;general_markfunc\&quot;&quot;
+-	#end
+-}
+-
+-# calculate class-derivations
+-derivations={}
+-rubyClasses.each{|x,y|
+-	derivations[x]=[]
+-}
+-deriveList.each{|x,y|
+-	if not derivations[y]
+-		derivations[y]=[]
+-	end
+-	derivations[y].push(x)
+-}
+-changed=true
+-while changed
+-	changed=false
+-	derivations.each{|x,y|
+-		y.each{|a|
+-			if derivations[a]
+-				old=derivations[x]
+-				derivations[x]+=derivations[a]
+-				derivations[x].sort!
+-				derivations[x].uniq!
+-				#puts x+&quot;:&quot;+old.length.to_s+&quot; &quot;+derivations[x].length.to_s
+-				if old.length&lt;derivations[x].length
+-					changed=true
+-				end
+-			end
+-		}
+-	}
+-end
+-
+-# swig typemaps
+-# so that always the lowest children in a derivation hierarchy is returned
+-myRubyClasses=parsedClasses.getMyRubyClasses
+-parsedClasses.deriveList.keys.each{|s|
+-	if myRubyClasses.member?(s)
+-		file.puts &quot;%typemap(out) #{s}*{&quot;
+-		file.puts &quot; if($1)&quot;
+-		file.puts &quot; {&quot;
+-		file.puts &quot;   $result=AG_NewPointerObj($1,SWIGTYPE_p_#{s},0);&quot;
+-		file.puts &quot; }&quot;
+-		file.puts &quot;}&quot;
+-
+-		file.puts &quot;%typemap(directorin) #{s}*{&quot;
+-		file.puts &quot; if($1)&quot;
+-		file.puts &quot; {&quot;
+-		file.puts &quot;   $input=AG_NewPointerObj($1,SWIGTYPE_p_#{s},0);&quot;
+-		file.puts &quot; }&quot;
+-		file.puts &quot;}&quot;
+-
+-	end
+-}
+-# normal typemaps
+-classList.each{|c|
+-	file.puts &quot;%typemap(directorout) #{c} {&quot;
+-	file.puts &quot; #{c} *b;&quot;
+-	file.puts &quot; Data_Get_Struct($input,#{c},b);&quot;
+-	file.puts &quot; $result=*b;&quot;
+-	file.puts &quot;}&quot;
+-}
+-
+-file.puts &quot;%typemap(directorout) Uint8 {&quot;
+-file.puts &quot; $result=NUM2INT($input);&quot;
+-file.puts &quot;}&quot;
+-
+-rubyClasses=parsedClasses.getMyRubyClasses
+-allRubyClasses=parsedClasses.getAllRubyClasses
+-
+-myClasses=[]
+-
+-deriveList.each{|b,a|
+-	if rubyClasses.member?(b) || b==&quot;AGRubyObject&quot;
+-		myClasses &lt;&lt; b
+-	end
+-}
+-
+-myClasses=myClasses.sort.uniq
+-
+-puts &quot;rubyClasses:&quot;,rubyClasses
+-puts &quot;myClasses:&quot;,myClasses
+-
+-file.puts &lt;&lt;EOT
+-%{
+-// cast-function map
+-// it contains the mapping from parent-classes=&gt;dyn-cast-functions to child-classes
+-#include &lt;string&gt;
+-#include &lt;map&gt;
+-#include &lt;list&gt;
+-#include &lt;iostream&gt;
+-
+-typedef swig_type_info*(*CastFunction)(void**);
+-extern std::map&lt;std::string,std::list&lt;CastFunction&gt; &gt; agCastFunctions;
+-%}
+-EOT
+-
+-myClasses.each{|k|
+-file.puts &lt;&lt;EOT	
+-%{
+-// try to cast from #{k} to one of its child classes (if they exist)
+-static swig_type_info* #{k}_dynamic_cast(void **ptr)
+-  {
+-	  std::list&lt;CastFunction&gt; &amp;funcs=agCastFunctions[&quot;#{k}&quot;];
+-    for(std::list&lt;CastFunction&gt;::iterator i=funcs.begin();i!=funcs.end();i++)
+-      {
+-         swig_type_info*t=(*i)(ptr);
+-	       std::cout&lt;&lt;&quot;test:&quot;&lt;&lt;t&lt;&lt;std::endl;
+-         if(t)
+-           return t;
+-      }
+-   return 0;
+- }
+-%}
+-DYNAMIC_CAST(SWIGTYPE_p_#{k}, #{k}_dynamic_cast);
+-EOT
+-}
+-
+-deriveList.each{|b,a|
+-	if rubyClasses.member?(b) and allRubyClasses.member?(a)
+-		# for each pair generate a casting function and register it into agCastFunctions
+-file.puts &lt;&lt;EOT
+-%{
+-swig_type_info* #{a}2#{b}cast(void **p)
+-{
+-        #{a}*a=(#{a}*)(*p);
+-        #{b}*b=dynamic_cast&lt;#{b}*&gt;(a);
+-				printf(&quot;TRY CAST #{a} 2 #{b} : %lx\\n&quot;,b);
+-        if(b)
+-        {
+-                *p=(void*)b;
+-                return SWIGTYPE_p_#{b};
+-        }
+-        return 0;
+-}
+-%}
+-
+-%insert(&quot;init&quot;) %{
+-        agCastFunctions[&quot;#{a}&quot;].push_back(&amp;#{a}2#{b}cast);
+-%}
+-
+-
+-EOT
+-	end
+-}
+-
+-
+-
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000069.html">[Antargis-svn] r1112 - in antargis/branches/rant: . build
+</A></li>
+	<LI>Next message: <A HREF="000071.html">[Antargis-svn] r1114 - in antargis/branches/rant: . ext/gui ruby	ruby/entities
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#70">[ date ]</a>
+              <a href="thread.html#70">[ thread ]</a>
+              <a href="subject.html#70">[ subject ]</a>
+              <a href="author.html#70">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,116 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1084 - antargis/branches/branch_2d/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-May/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1084%20-%20antargis/branches/branch_2d/src&In-Reply-To=%3C200705051057.l45AvM1V010881%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000041.html">
+   <LINK REL="Next"  HREF="000043.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1084 - antargis/branches/branch_2d/src</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1084%20-%20antargis/branches/branch_2d/src&In-Reply-To=%3C200705051057.l45AvM1V010881%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1084 - antargis/branches/branch_2d/src">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sat May  5 12:57:22 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000041.html">[Antargis-svn] r1083 - in antargis/branches/branch_2d:	data/textures/2d data/textures/2d/terrain gui/src ruby	ruby/tests src
+</A></li>
+        <LI>Next message: <A HREF="000043.html">[Antargis-svn] r1085 - in antargis/branches/branch_2d: ruby src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#42">[ date ]</a>
+              <a href="thread.html#42">[ thread ]</a>
+              <a href="subject.html#42">[ subject ]</a>
+              <a href="author.html#42">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-05-05 12:57:21 +0200 (Sat, 05 May 2007)
+New Revision: 1084
+
+Added:
+   antargis/branches/branch_2d/src/mesh_sort.h
+Log:
+* added missing file
+
+
+Added: antargis/branches/branch_2d/src/mesh_sort.h
+===================================================================
+--- antargis/branches/branch_2d/src/mesh_sort.h	2007-05-05 10:55:33 UTC (rev 1083)
++++ antargis/branches/branch_2d/src/mesh_sort.h	2007-05-05 10:57:21 UTC (rev 1084)
+@@ -0,0 +1,39 @@
++#ifndef MESH_SORT_H
++#define MESH_SORT_H
++
++/**
++   The class is for sorting purpose only. It provides the operator() function, that's needed
++   for the STL-sorting algorithms.
++   Here SceneNodes are sorted by their middle distance the camera.
++*/
++class SortDistance
++{
++  AGVector3 cam;
++public:
++  SortDistance(AGVector3 c):cam(c){}
++
++  bool operator()(const SceneNode *n1,const SceneNode *n2)
++  {
++    AGVector3 m1=const_cast&lt;SceneNode*&gt;(n1)-&gt;bbox().base+const_cast&lt;SceneNode*&gt;(n1)-&gt;bbox().dir*0.5;
++    AGVector3 m2=const_cast&lt;SceneNode*&gt;(n2)-&gt;bbox().base+const_cast&lt;SceneNode*&gt;(n2)-&gt;bbox().dir*0.5;
++
++    return (m1-cam).length2()&lt;(m2-cam).length2();
++  }
++};
++
++/**
++   This is a sorting class, too. It sorts by the given &quot;SortOrder&quot; of the scene-nodes
++*/
++class SortOrder
++{
++public:
++  SortOrder(){}
++
++  bool operator()(const SceneNode *n1,const SceneNode *n2)
++  {
++    return n1-&gt;getOrder()&lt;n2-&gt;getOrder();
++  }
++};
++
++
++#endif
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000041.html">[Antargis-svn] r1083 - in antargis/branches/branch_2d:	data/textures/2d data/textures/2d/terrain gui/src ruby	ruby/tests src
+</A></li>
+	<LI>Next message: <A HREF="000043.html">[Antargis-svn] r1085 - in antargis/branches/branch_2d: ruby src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#42">[ date ]</a>
+              <a href="thread.html#42">[ thread ]</a>
+              <a href="subject.html#42">[ subject ]</a>
+              <a href="author.html#42">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

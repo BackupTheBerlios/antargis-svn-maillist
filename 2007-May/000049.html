@@ -1,0 +1,310 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1091 - in antargis/branches/new_hl_jobs: . ruby src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-May/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1091%20-%20in%20antargis/branches/new_hl_jobs%3A%20.%20ruby%20src&In-Reply-To=%3C200705071901.l47J16dD015949%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000048.html">
+   <LINK REL="Next"  HREF="000050.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1091 - in antargis/branches/new_hl_jobs: . ruby src</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1091%20-%20in%20antargis/branches/new_hl_jobs%3A%20.%20ruby%20src&In-Reply-To=%3C200705071901.l47J16dD015949%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1091 - in antargis/branches/new_hl_jobs: . ruby src">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Mon May  7 21:01:06 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000048.html">[Antargis-svn] r1090 - in antargis/branches/branch_2d: ruby src
+</A></li>
+        <LI>Next message: <A HREF="000050.html">[Antargis-svn] r1092 - antargis/branches/new_hl_jobs/ruby/ai
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#49">[ date ]</a>
+              <a href="thread.html#49">[ thread ]</a>
+              <a href="subject.html#49">[ subject ]</a>
+              <a href="author.html#49">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-05-07 21:01:05 +0200 (Mon, 07 May 2007)
+New Revision: 1091
+
+Added:
+   antargis/branches/new_hl_jobs/ruby/ai/
+Modified:
+   antargis/branches/new_hl_jobs/TODO
+   antargis/branches/new_hl_jobs/ruby/ant_fire.rb
+   antargis/branches/new_hl_jobs/ruby/ant_hero.rb
+   antargis/branches/new_hl_jobs/ruby/ant_hljob_states.rb
+   antargis/branches/new_hl_jobs/ruby/ant_man.rb
+   antargis/branches/new_hl_jobs/ruby/ant_manbase.rb
+   antargis/branches/new_hl_jobs/ruby/ant_new_hljobs.rb
+   antargis/branches/new_hl_jobs/ruby/antargislib.rb
+   antargis/branches/new_hl_jobs/src/terrain.cc
+   antargis/branches/new_hl_jobs/src/terrain.h
+Log:
+* improve hl-jobs
+
+
+Modified: antargis/branches/new_hl_jobs/TODO
+===================================================================
+--- antargis/branches/new_hl_jobs/TODO	2007-05-06 10:04:15 UTC (rev 1090)
++++ antargis/branches/new_hl_jobs/TODO	2007-05-07 19:01:05 UTC (rev 1091)
+@@ -1,3 +1,6 @@
++* walk faster when aggression is higher, but lower mood then, too
++
++
+ * List of project-parts and progress bar
+ 
+ * check if reachable before fetching !!! (in house) - or even better use heuristic for estimating distance in getNear(...)
+
+Modified: antargis/branches/new_hl_jobs/ruby/ant_fire.rb
+===================================================================
+--- antargis/branches/new_hl_jobs/ruby/ant_fire.rb	2007-05-06 10:04:15 UTC (rev 1090)
++++ antargis/branches/new_hl_jobs/ruby/ant_fire.rb	2007-05-07 19:01:05 UTC (rev 1091)
+@@ -31,7 +31,8 @@
+ 				getMap.removeEntity(self)
+ 			else
+ 				@dead=true
+-				newRestJob(10)
++				# wait 20 seconds, before we delete this entity - the smoke must fade away at least ;-)
++				newRestJob(20)
+ 			end
+ 		end
+ 	end
+
+Modified: antargis/branches/new_hl_jobs/ruby/ant_hero.rb
+===================================================================
+--- antargis/branches/new_hl_jobs/ruby/ant_hero.rb	2007-05-06 10:04:15 UTC (rev 1090)
++++ antargis/branches/new_hl_jobs/ruby/ant_hero.rb	2007-05-07 19:01:05 UTC (rev 1091)
+@@ -341,22 +341,24 @@
+ 	end
+ 
+ 	def eventDie
++		#raise &quot;herodie&quot;
+ 		puts &quot;ENERGY:#{self} #{self.getEnergy}&quot;
+-		super
++		
+ 		puts &quot;ENERGY:#{self} #{self.getEnergy}&quot;
+ 		puts &quot;hero #{self} died.(#{getName})&quot;
+ 		# release all men
+ 		puts &quot;# men:#{@men.length}&quot;
+-		@men.each{|man|
++		@men.clone.each{|man|
+ 			puts &quot;myMen:#{man}:#{man.getName}&quot;
+ 			if man.is_a?(AntMan)
+ 				puts &quot;#{man} #{man.getName}:setBoss(nil)&quot;
+-				man.setBoss(nil)
++				man.setNoBoss
+ 				@men.delete(man)
+ 			end
+ 		}
+-
++		
+ 		killJob
++		super
+ 		if @player
+ 			@player.remove(self)
+ 		end
+
+Modified: antargis/branches/new_hl_jobs/ruby/ant_hljob_states.rb
+===================================================================
+--- antargis/branches/new_hl_jobs/ruby/ant_hljob_states.rb	2007-05-06 10:04:15 UTC (rev 1090)
++++ antargis/branches/new_hl_jobs/ruby/ant_hljob_states.rb	2007-05-07 19:01:05 UTC (rev 1091)
+@@ -617,6 +617,9 @@
+ 			return
+ 		end
+ 
++		if not man.canFight	
++			man.hlJobMode[:defeated]=true
++		end
+ 
+ 		if man.hlJobMode[:defeated]
+ 			# FIXME:send away
+@@ -678,6 +681,7 @@
+ 			machine.eventLost(target)
+ 			@ready=true
+ 		end
++			
+ 		return @ready
+ 	end
+ 
+
+Modified: antargis/branches/new_hl_jobs/ruby/ant_man.rb
+===================================================================
+--- antargis/branches/new_hl_jobs/ruby/ant_man.rb	2007-05-06 10:04:15 UTC (rev 1090)
++++ antargis/branches/new_hl_jobs/ruby/ant_man.rb	2007-05-07 19:01:05 UTC (rev 1091)
+@@ -78,7 +78,11 @@
+ 		end
+ 		
+ 		setFighting(false)
+-		
++
++ 		if @boss
++			assert{@boss.getEnergy&gt;0}
++ 		end
++ 		
+ 		if @boss.nil?
+ 			if @bossName==&quot;&quot; then
+ 			
+@@ -111,6 +115,8 @@
+ 		end
+ 		if @boss
+ 			assert{@boss.getEnergy&gt;0}
++			assert{getEnergy&gt;0}
++			#assert{canFight}
+ 			@boss.assignJob(self)
+ 		end
+ 	end	
+
+Modified: antargis/branches/new_hl_jobs/ruby/ant_manbase.rb
+===================================================================
+--- antargis/branches/new_hl_jobs/ruby/ant_manbase.rb	2007-05-06 10:04:15 UTC (rev 1090)
++++ antargis/branches/new_hl_jobs/ruby/ant_manbase.rb	2007-05-07 19:01:05 UTC (rev 1091)
+@@ -77,6 +77,7 @@
+ 	end
+ 
+ 	def sitStill
++		checkEat
+ 		newRestJob(2)
+ 		setMeshState(&quot;sit&quot;)
+ 	end
+@@ -117,6 +118,7 @@
+ 	end
+ 
+ 	def eventDie
++
+ 		assert{@dead!=true}
+ 		simDeath
+ 		#eventDefeated
+@@ -228,6 +230,16 @@
+ 				getMap.insertEntity(arrow)
+ 		end
+ 	end
++	def checkEat
++		puts &quot;CHECKEAT&quot;
++		if getFood&lt;0.5
++			if resource.get(&quot;food&quot;)&gt;0
++				incFood(1)
++				resource.sub(&quot;food&quot;,1)
++			end
++		end
++	end
++
+ protected
+ 	def haveBoat
+ 		resource.get(&quot;boat&quot;)&gt;=1
+
+Modified: antargis/branches/new_hl_jobs/ruby/ant_new_hljobs.rb
+===================================================================
+--- antargis/branches/new_hl_jobs/ruby/ant_new_hljobs.rb	2007-05-06 10:04:15 UTC (rev 1090)
++++ antargis/branches/new_hl_jobs/ruby/ant_new_hljobs.rb	2007-05-07 19:01:05 UTC (rev 1091)
+@@ -229,8 +229,15 @@
+ 	end
+ 
+ 	def eventWon(opponent)
++
++		trace
++		puts hero,hero.getName
++		raise 1
+ 	end
+ 	def eventLost(opponent)
++		trace
++		puts hero,hero.getName
++		raise 1
+ 		hero.setOwner(opponent)
+ 	end
+ 
+
+Modified: antargis/branches/new_hl_jobs/ruby/antargislib.rb
+===================================================================
+--- antargis/branches/new_hl_jobs/ruby/antargislib.rb	2007-05-06 10:04:15 UTC (rev 1090)
++++ antargis/branches/new_hl_jobs/ruby/antargislib.rb	2007-05-07 19:01:05 UTC (rev 1091)
+@@ -141,6 +141,8 @@
+ 					when &quot;gui-test&quot;
+ 						require 'ruby/tests/gui_tests.rb'
+ 						@@cursorEnabled=true
++					when &quot;no-3d-textures&quot;
++						setUsing3dTextures(false)
+ 					when &quot;help&quot;,&quot;h&quot;
+ 						STDERR.puts &quot;Possible options:
+ 	--help         show this help message
+@@ -166,6 +168,8 @@
+ 	--nogl         disable GL-mode (3d-acceleration) - THIS IS NOT YET FULLY SUPPORTED!!
+ 
+ 	--ruby-raise   raises ruby-exception when assertions fail
++
++	--no-3d-textures disables 3d-textures - they're bad on some graphics chipsets (esp. Intel)
+ 	&quot;
+ 	
+ 						exit
+
+Modified: antargis/branches/new_hl_jobs/src/terrain.cc
+===================================================================
+--- antargis/branches/new_hl_jobs/src/terrain.cc	2007-05-06 10:04:15 UTC (rev 1090)
++++ antargis/branches/new_hl_jobs/src/terrain.cc	2007-05-07 19:01:05 UTC (rev 1091)
+@@ -4,9 +4,15 @@
+ #include &lt;ag_profiler.h&gt;
+ #include &lt;ag_config.h&gt;
+ 
++static bool gUse3dTextures=true;
++void setUsing3dTextures(bool use3dTextures)
++{
++  gUse3dTextures=use3dTextures;
++}
++
+ bool use3dTextures()
+ {
+-  return false;
++  return gUse3dTextures;
+ }
+ 
+ 
+
+Modified: antargis/branches/new_hl_jobs/src/terrain.h
+===================================================================
+--- antargis/branches/new_hl_jobs/src/terrain.h	2007-05-06 10:04:15 UTC (rev 1090)
++++ antargis/branches/new_hl_jobs/src/terrain.h	2007-05-07 19:01:05 UTC (rev 1091)
+@@ -107,5 +107,7 @@
+   void init();
+ };
+ 
++void setUsing3dTextures(bool use3dTextures);
+ 
++
+ #endif
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000048.html">[Antargis-svn] r1090 - in antargis/branches/branch_2d: ruby src
+</A></li>
+	<LI>Next message: <A HREF="000050.html">[Antargis-svn] r1092 - antargis/branches/new_hl_jobs/ruby/ai
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#49">[ date ]</a>
+              <a href="thread.html#49">[ thread ]</a>
+              <a href="subject.html#49">[ subject ]</a>
+              <a href="author.html#49">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

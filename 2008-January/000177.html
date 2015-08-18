@@ -1,0 +1,363 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1220 - in antargis/trunk/ruby: . editor/test gui
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2008-January/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1220%20-%20in%20antargis/trunk/ruby%3A%20.%20editor/test%20gui&In-Reply-To=%3C200801281937.m0SJbKrc002101%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000176.html">
+   <LINK REL="Next"  HREF="000178.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1220 - in antargis/trunk/ruby: . editor/test gui</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1220%20-%20in%20antargis/trunk/ruby%3A%20.%20editor/test%20gui&In-Reply-To=%3C200801281937.m0SJbKrc002101%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1220 - in antargis/trunk/ruby: . editor/test gui">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Mon Jan 28 20:37:20 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000176.html">[Antargis-svn] r1219 - in antargis/trunk/ruby: . spec
+</A></li>
+        <LI>Next message: <A HREF="000178.html">[Antargis-svn] r1221 - in antargis/trunk: . ext/3dengine ext/basic	ext/game ext/gui ext/math ext/sound ext/video
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#177">[ date ]</a>
+              <a href="thread.html#177">[ thread ]</a>
+              <a href="subject.html#177">[ subject ]</a>
+              <a href="author.html#177">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2008-01-28 20:37:20 +0100 (Mon, 28 Jan 2008)
+New Revision: 1220
+
+Added:
+   antargis/trunk/ruby/editor/test/player_dialog.rb
+   antargis/trunk/ruby/gui/testing.rb
+   antargis/trunk/ruby/spec_helper.rb
+Log:
+* some more files
+
+
+Added: antargis/trunk/ruby/editor/test/player_dialog.rb
+===================================================================
+--- antargis/trunk/ruby/editor/test/player_dialog.rb	2008-01-28 19:36:21 UTC (rev 1219)
++++ antargis/trunk/ruby/editor/test/player_dialog.rb	2008-01-28 19:37:20 UTC (rev 1220)
+@@ -0,0 +1,71 @@
++#!/usr/bin/env ruby
++require 'test/unit'
++require 'ruby/gui/testing.rb'
++
++Dir.chdir(File.split(File.split(File.split(File.split(File.expand_path(__FILE__))[0])[0])[0])[0])
++puts Dir.pwd
++
++require 'ruby/editor_app.rb'
++
++
++class DialogTest&lt;Test::Unit::TestCase
++	include GuiTest
++	def setup
++		@app=makeTestAppClass(AntEditorApp).new(1024,768)
++		@mainWidget=@app.getMainWidget
++		@app.step
++	end
++	def test_simplerun
++		newdialog
++		addtree
++ 		playerdialog
++	end
++private
++ 	def checkGlobals
++ 		assert($map.nil?,&quot;$map is nil&quot;)
++ 	end
++	def newdialog
++		new=widget(&quot;new&quot;)
++		assert(new.visible)
++		new.click
++		dialog=widget(&quot;NewDialog&quot;)
++		assert(dialog.visible,&quot;NewDialog is not visible after clicking 'new'&quot;)
++
++		okButton=dialog.child(&quot;ok&quot;)
++		assert(okButton.visible,&quot;ok-button in NewDialog is not visible&quot;)
++		okButton.click
++		@app.step
++		assert((not widget(&quot;NewDialog&quot;).valid),&quot;new dialog is not registered anymore&quot;)
++		@app.step
++	end
++	def addtree
++		entitiesButton=widget(&quot;entities&quot;)
++		assert(entitiesButton.is_a?(AGRadio),&quot;Button named 'entities' is a radio-button&quot;)
++		entitiesButton.click
++		entitiesList=widget(&quot;entitiesTab&quot;)
++		assert(entitiesList.is_a?(AntEntListWidget),&quot;Entity List is named 'entitiesTab'&quot;)
++		assert(entitiesList.visible,&quot;entity list is visible&quot;)
++		fir=entitiesList.child(&quot;AntFir&quot;)
++		assert(fir.is_a?(AGRadio),&quot;fir button is a radio-button&quot;)
++		assert((not fir.isChecked),&quot;Fir button is not checked&quot;)
++		fir.click
++		assert(entitiesList.entType==AntFir,&quot;Fir button is checked&quot;)
++		clickScreen(700,200)
++		assert(@app.getMap.getAllEntities.length==1,&quot;there's one entity!&quot;)
++		clickScreen(710,210)
++		assert(@app.getMap.getAllEntities.length==2,&quot;there're two entities!&quot;)
++	end
++	def playerdialog
++		playerButton=widget(&quot;playerButton&quot;)
++		assert(playerButton.is_a?(AGButton),&quot;playerButton is a button&quot;)
++		playerButton.click
++		playerDialog=widget(&quot;PlayersDialog&quot;)
++		assert(playerDialog.visible,&quot;player dialog is visible&quot;)
++	end
++
++	def clickScreen(x,y)
++		@app.eventMouseButtonDown(newEvent(@app,&quot;&quot;,toSDLEvent(&quot;SDL_MOUSEBUTTONDOWN:0:1:1:#{x.to_i}:#{y.to_i}&quot;)))
++		@app.eventMouseButtonUp(newEvent(@app,&quot;&quot;,toSDLEvent(&quot;SDL_MOUSEBUTTONUP:0:1:1:#{x.to_i}:#{y.to_i}&quot;)))
++	end
++end
++
+
+Added: antargis/trunk/ruby/gui/testing.rb
+===================================================================
+--- antargis/trunk/ruby/gui/testing.rb	2008-01-28 19:36:21 UTC (rev 1219)
++++ antargis/trunk/ruby/gui/testing.rb	2008-01-28 19:37:20 UTC (rev 1220)
+@@ -0,0 +1,111 @@
++module TestModule
++	attr_reader :quitCounter
++	def step
++		run
++	end
++	def eventFrame(t)
++		puts &quot;FRAME&quot;
++		super
++		tryQuit
++		true
++	end
++	def tryQuit
++		super
++		@quitCounter||=0
++		@quitCounter+=1
++	end
++end
++
++def makeTestAppClass(pClass)
++	mClass=Class.new(pClass)
++	mClass.class_eval{||include TestModule}
++	mClass
++end
++# class TestApp&lt;AntEditorApp
++# 	def step
++# 		run
++# 	end
++# 	def eventFrame(t)
++# 		puts &quot;FRAME&quot;
++# 		super
++# 		tryQuit
++# 		true
++# 	end
++# end
++
++class TestWidget
++	attr_reader :widget
++	def initialize(widget)
++		@widget=widget
++	end
++	def click
++# 		r=@widget.getScreenRect
++# 		x=r.x+r.w/2
++# 		y=r.y+r.h/2
++# 		pp r,x,y
++# 
++# 		sdlEvent=toSDLEvent(&quot;SDL_MOUSEBUTTONDOWN:0:1:1:#{x.to_i}:#{y.to_i}&quot;)
++# 		@widget.eventMouseButtonDown(newEvent(nil,&quot;&quot;,sdlEvent))
++# 		sdlEvent=toSDLEvent(&quot;SDL_MOUSEBUTTONUP:0:1:1:#{x.to_i}:#{y.to_i}&quot;)
++# 		event=newEvent(nil,&quot;&quot;,sdlEvent)
++# 		@widget.eventMouseButtonUp(event)
++
++# # 		@widget.eventMouseButtonDown(AGEvent.new(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">widget, at widget.getName</A>))
++# # 		@widget.eventMouseButtonDown(AGEvent.new(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">widget, at widget.getName</A>))
++# 		@widget.sigClick.signal(AGEvent.new(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">widget, at widget.getName</A>))
++ 		@widget.doClick(AGEvent.new(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">widget, at widget.getName</A>))
++	end
++	def child(widgetName)
++		return TestWidget.new(nil) if @widget.nil?
++		TestWidget.new(@widget.getChild(widgetName))
++	end
++	def visible
++		return false if @widget.nil?
++		@widget.visible
++	end
++	def valid
++		(not @widget.nil?)
++	end
++	def is_a?(type)
++		@widget.is_a?(type)
++	end
++	def method_missing(*s)
++		@widget.send(*s)
++	end
++	def printVisible
++		widget=@widget
++		puts &quot;--&quot;
++		while widget
++			puts &quot;#{widget} #{widget.getName} #{widget.visible}&quot;
++			widget=widget.getParent
++		end
++		puts &quot;--&quot;
++	end
++	def kind_of?(type)
++		@widget.kind_of?(type)
++	end
++	def instance_of?(type)
++		@widget.instance_of?(type)
++	end
++	def visible?
++		@widget.visible
++	end
++	def nil?
++		@widget.nil?
++	end
++	def checked?
++		@widget.isChecked
++	end
++end
++
++
++module GuiTest
++protected
++	def widget(widgetName)
++		TestWidget.new(@app.getMainWidget.getChild(widgetName))
++	end
++	def clickScreen(x,y)
++		@app.eventMouseButtonDown(newEvent(@app,&quot;&quot;,toSDLEvent(&quot;SDL_MOUSEBUTTONDOWN:0:1:1:#{x.to_i}:#{y.to_i}&quot;)))
++		@app.eventMouseButtonUp(newEvent(@app,&quot;&quot;,toSDLEvent(&quot;SDL_MOUSEBUTTONUP:0:1:1:#{x.to_i}:#{y.to_i}&quot;)))
++	end
++end
+
+Added: antargis/trunk/ruby/spec_helper.rb
+===================================================================
+--- antargis/trunk/ruby/spec_helper.rb	2008-01-28 19:36:21 UTC (rev 1219)
++++ antargis/trunk/ruby/spec_helper.rb	2008-01-28 19:37:20 UTC (rev 1220)
+@@ -0,0 +1,84 @@
++Dir.chdir(File.split(File.split(File.expand_path(__FILE__))[0])[0])
++
++require 'pp'
++require 'ruby/antargislib.rb'
++
++#if Object.respond_to?(:define_cmethod)
++	
++	class Object
++		def define_cmethod(method_name, method = nil, &amp;proc)
++			if proc.nil?
++				raise ArgumentError
++			else
++				method = proc
++			end if method.nil?
++		
++			(class &lt;&lt; self; self; end).module_eval do
++				define_method( method_name.to_sym, method )
++			end
++		end
++	end
++	
++	$MY_KERNEL=self
++	def kernel
++		$MY_KERNEL
++	end
++	class Cross
++		@@called={}
++		def initialize(target,function)
++			@target=target
++			@function=function
++			@expected=&quot;#{target}.#{function}(.)&quot;
++		end
++		def matches?(proc)      
++			@proc = proc
++			callName=@expected
++			@@called[callName]=0
++			
++			if @target.is_a?(Class) and @target.singleton_methods.member?(@function.to_s)
++				mclass=@target
++				
++				function=@function
++				oldFunction=@target.method(@function)
++				mclass.define_cmethod(@function) do 
++					Cross.symCall(callName)
++				end
++				
++				@proc.call
++				mclass.define_cmethod(@function,oldFunction)
++				
++				return @@called[callName]&gt;0
++	
++			end
++			mclass=@target
++			mclass=@target.class unless @target.is_a?(Class)
++	
++			oldFunction=mclass.instance_method(@function)
++			mclass.send(:<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">define_method, at function</A>) do 
++				Cross.symCall(callName) 
++			end
++			@proc.call
++			mclass.send(:<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">define_method, at function</A>,oldFunction)
++			@@called[callName]&gt;0
++		end
++		def failure_message
++			&quot;expected #{@proc.inspect} to call #{@expected}&quot;
++		end
++		def negative_failure_message
++			&quot;expected #{@proc.inspect} not to call #{@expected}&quot;
++		end
++		def Cross.symCall(name)
++			@@called[name]+=1
++			nil
++		end
++	end
++	
++	def cross(target,function=nil)
++			if function.nil? and target.is_a?(Symbol)
++				function=target
++				target=kernel
++			end
++	
++		Cross.new(target,function)
++	end
++#end
+
+
+Property changes on: antargis/trunk/ruby/spec_helper.rb
+___________________________________________________________________
+Name: svn:executable
+   + *
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000176.html">[Antargis-svn] r1219 - in antargis/trunk/ruby: . spec
+</A></li>
+	<LI>Next message: <A HREF="000178.html">[Antargis-svn] r1221 - in antargis/trunk: . ext/3dengine ext/basic	ext/game ext/gui ext/math ext/sound ext/video
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#177">[ date ]</a>
+              <a href="thread.html#177">[ thread ]</a>
+              <a href="subject.html#177">[ subject ]</a>
+              <a href="author.html#177">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

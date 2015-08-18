@@ -1,0 +1,396 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1135 - in antargis/branches/rant: . build/configs	build/win32 ext/basic ext/external
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-July/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1135%20-%20in%20antargis/branches/rant%3A%20.%20build/configs%0A%09build/win32%20ext/basic%20ext/external&In-Reply-To=%3C200707031855.l63Itt2X003812%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000091.html">
+   <LINK REL="Next"  HREF="000093.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1135 - in antargis/branches/rant: . build/configs	build/win32 ext/basic ext/external</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1135%20-%20in%20antargis/branches/rant%3A%20.%20build/configs%0A%09build/win32%20ext/basic%20ext/external&In-Reply-To=%3C200707031855.l63Itt2X003812%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1135 - in antargis/branches/rant: . build/configs	build/win32 ext/basic ext/external">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Tue Jul  3 20:55:55 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000091.html">[Antargis-svn] r1134 - antargis/branches/rant/ext
+</A></li>
+        <LI>Next message: <A HREF="000093.html">[Antargis-svn] r1136 - in antargis/branches/rant: . build/configs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#92">[ date ]</a>
+              <a href="thread.html#92">[ thread ]</a>
+              <a href="subject.html#92">[ subject ]</a>
+              <a href="author.html#92">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-07-03 20:55:52 +0200 (Tue, 03 Jul 2007)
+New Revision: 1135
+
+Modified:
+   antargis/branches/rant/Rantfile
+   antargis/branches/rant/build/configs/mingw32.rb
+   antargis/branches/rant/build/configs/unix.rb
+   antargis/branches/rant/build/win32/makeLibs.sh
+   antargis/branches/rant/ext/basic/ag_main.h
+   antargis/branches/rant/ext/basic/ag_messageobject.cc
+   antargis/branches/rant/ext/basic/ag_messageobject.h
+   antargis/branches/rant/ext/basic/ag_rand_base.h
+   antargis/branches/rant/ext/basic/ag_serial.h
+   antargis/branches/rant/ext/basic/ag_string.h
+   antargis/branches/rant/ext/basic/ag_stringstream.h
+   antargis/branches/rant/ext/basic/ag_video_base.h
+   antargis/branches/rant/ext/basic/ag_xml.h
+   antargis/branches/rant/ext/external/mtwist.h
+Log:
+many fixes for windows
+
+Modified: antargis/branches/rant/Rantfile
+===================================================================
+--- antargis/branches/rant/Rantfile	2007-07-03 17:51:58 UTC (rev 1134)
++++ antargis/branches/rant/Rantfile	2007-07-03 18:55:52 UTC (rev 1135)
+@@ -24,8 +24,8 @@
+ sourceDeps=[
+ 	[&quot;ext/external&quot;,[&quot;-lz&quot;]+sdlLibs],
+ 	[&quot;ext/basic&quot;,[&quot;ext/external&quot;,&quot;-lmsvcrt-ruby18&quot;,&quot;-lz&quot;]+sdlLibs],
+-	[&quot;ext/math&quot;,[&quot;ext/basic&quot;]],
+-	[&quot;ext/video&quot;,[&quot;ext/math&quot;,&quot;ext/basic&quot;,&quot;-lSDL_image&quot;,&quot;-lSDL_ttf&quot;,&quot;-lGL&quot;,&quot;-lGLU&quot;]],
++	[&quot;ext/math&quot;,[&quot;ext/external&quot;,&quot;ext/basic&quot;]],
++	[&quot;ext/video&quot;,[&quot;ext/external&quot;,&quot;ext/basic&quot;,&quot;ext/math&quot;,&quot;-lSDL_image&quot;,&quot;-lSDL_ttf&quot;]+$config[&quot;LIBGL&quot;].split(&quot; &quot;)+sdlLibs],
+ 	[&quot;ext/gui&quot;,[&quot;ext/basic&quot;,&quot;ext/math&quot;,&quot;ext/video&quot;]],
+ 	[&quot;ext/sound&quot;,[&quot;ext/basic&quot;,&quot;-lSDL_mixer&quot;]],
+ 	[&quot;ext/3dengine&quot;,[&quot;ext/basic&quot;]],
+
+Modified: antargis/branches/rant/build/configs/mingw32.rb
+===================================================================
+--- antargis/branches/rant/build/configs/mingw32.rb	2007-07-03 17:51:58 UTC (rev 1134)
++++ antargis/branches/rant/build/configs/mingw32.rb	2007-07-03 18:55:52 UTC (rev 1135)
+@@ -16,7 +16,7 @@
+     
+     &quot;LIBS&quot;=&gt;&quot;-lmingw32 -lSDLmain -lSDL -mwindows&quot;,
+     &quot;LIBDIR&quot;=&gt;&quot;-L#{Dir.pwd}/build/win32/usr/lib&quot;,
+-
++    &quot;LIBGL&quot;=&gt;&quot;-lopengl32 -lglu32&quot;,
+ 	&quot;LINK&quot;=&gt;&quot;$(CXX)&quot;,
+     #&quot;CFLAGS&quot;=&gt;&quot;-D_GNU_SOURCE=1 -Dmain=SDL_main&quot;,
+     &quot;CFLAGS&quot;=&gt;&quot;-Dmain=SDL_main -IC:/antargis/rant/build/win32/usr/lib/ruby/1.8/i386-mingw32&quot;,
+
+Modified: antargis/branches/rant/build/configs/unix.rb
+===================================================================
+--- antargis/branches/rant/build/configs/unix.rb	2007-07-03 17:51:58 UTC (rev 1134)
++++ antargis/branches/rant/build/configs/unix.rb	2007-07-03 18:55:52 UTC (rev 1135)
+@@ -16,7 +16,7 @@
+ 	&quot;LINK&quot;=&gt;&quot;$(CXX)&quot;,
+     &quot;LIBS&quot;=&gt;&quot;&quot;,
+ 
+-
++    &quot;LIBGL&quot;=&gt;&quot;-lGL -lGLU&quot;,
+   # call the compiler using the standard unix-style mechanism &lt;CC&gt; -c -o &lt;outputname&gt; &lt;input0&gt; [&lt;input1&gt; ...]
+ 	&quot;COMPILE_PARAMS&quot;=&gt;&quot; -c -o $(OUTPUT) $(INPUT)&quot;,
+ 	# an ansi-c compiler call with parameters (using ccache if available)
+
+Modified: antargis/branches/rant/build/win32/makeLibs.sh
+===================================================================
+--- antargis/branches/rant/build/win32/makeLibs.sh	2007-07-03 17:51:58 UTC (rev 1134)
++++ antargis/branches/rant/build/win32/makeLibs.sh	2007-07-03 18:55:52 UTC (rev 1135)
+@@ -32,7 +32,7 @@
+     cp $a usr/include 2&gt;/dev/null
+ }
+ 
+-for a in begin_code.h close_code.h zlib.h zconf.h ; {
++for a in begin_code.h close_code.h zlib.h zconf.h png.h pngconf.h; {
+     cp `find -name $a` usr/include
+ }
+ 
+
+Modified: antargis/branches/rant/ext/basic/ag_main.h
+===================================================================
+--- antargis/branches/rant/ext/basic/ag_main.h	2007-07-03 17:51:58 UTC (rev 1134)
++++ antargis/branches/rant/ext/basic/ag_main.h	2007-07-03 18:55:52 UTC (rev 1135)
+@@ -55,7 +55,7 @@
+   virtual void call();
+ };
+ 
+-class AGMain:public AGRubyObject
++class AGEXPORT AGMain:public AGRubyObject
+ {
+  public:
+   AGMain();
+@@ -89,7 +89,7 @@
+ };
+ 
+ bool hasMain();
+-AGMain *getMain();
++AGEXPORT AGMain *getMain();
+ 
+ bool hasQuit();
+ 
+
+Modified: antargis/branches/rant/ext/basic/ag_messageobject.cc
+===================================================================
+--- antargis/branches/rant/ext/basic/ag_messageobject.cc	2007-07-03 17:51:58 UTC (rev 1134)
++++ antargis/branches/rant/ext/basic/ag_messageobject.cc	2007-07-03 18:55:52 UTC (rev 1135)
+@@ -90,14 +90,14 @@
+   AGVector2 p;
+   switch(mEvent.type) {
+   case SDL_MOUSEMOTION:
+-    p[0]=mEvent.motion.x*getVideo()-&gt;width()/getVideo()-&gt;realWidth();
+-    p[1]=mEvent.motion.y*getVideo()-&gt;height()/getVideo()-&gt;realHeight();
++    p[0]=mEvent.motion.x*getMain()-&gt;getVideo()-&gt;width()/getMain()-&gt;getVideo()-&gt;realWidth();
++    p[1]=mEvent.motion.y*getMain()-&gt;getVideo()-&gt;height()/getMain()-&gt;getVideo()-&gt;realHeight();
+     break;
+     
+   case SDL_MOUSEBUTTONUP:
+   case SDL_MOUSEBUTTONDOWN:
+-    p[0]=mEvent.button.x*getVideo()-&gt;width()/getVideo()-&gt;realWidth();
+-    p[1]=mEvent.button.y*getVideo()-&gt;height()/getVideo()-&gt;realHeight();
++    p[0]=mEvent.button.x*getMain()-&gt;getVideo()-&gt;width()/getMain()-&gt;getVideo()-&gt;realWidth();
++    p[1]=mEvent.button.y*getMain()-&gt;getVideo()-&gt;height()/getMain()-&gt;getVideo()-&gt;realHeight();
+     break;
+     
+   }
+
+Modified: antargis/branches/rant/ext/basic/ag_messageobject.h
+===================================================================
+--- antargis/branches/rant/ext/basic/ag_messageobject.h	2007-07-03 17:51:58 UTC (rev 1134)
++++ antargis/branches/rant/ext/basic/ag_messageobject.h	2007-07-03 18:55:52 UTC (rev 1135)
+@@ -27,7 +27,7 @@
+ #include &lt;string&gt;
+ #include &lt;set&gt;
+ 
+-//#include &quot;ag_geometry.h&quot;
++#include &quot;ag_geometry.h&quot;
+ #include &quot;ag_rubyobj.h&quot;
+ #include &lt;ag_string.h&gt;
+ 
+
+Modified: antargis/branches/rant/ext/basic/ag_rand_base.h
+===================================================================
+--- antargis/branches/rant/ext/basic/ag_rand_base.h	2007-07-03 17:51:58 UTC (rev 1134)
++++ antargis/branches/rant/ext/basic/ag_rand_base.h	2007-07-03 18:55:52 UTC (rev 1135)
+@@ -5,7 +5,7 @@
+ 
+ #include &lt;ag_rubyobj.h&gt;
+ 
+-class AGRandomizerBase:public AGRubyObject
++class AGEXPORT AGRandomizerBase:public AGRubyObject
+ {
+  public:
+ #ifdef SWIG
+
+Modified: antargis/branches/rant/ext/basic/ag_serial.h
+===================================================================
+--- antargis/branches/rant/ext/basic/ag_serial.h	2007-07-03 17:51:58 UTC (rev 1134)
++++ antargis/branches/rant/ext/basic/ag_serial.h	2007-07-03 18:55:52 UTC (rev 1135)
+@@ -11,7 +11,7 @@
+ {
+ };
+ 
+-class BinaryIn
++class AGEXPORT BinaryIn
+ {
+  public:
+   BinaryIn();
+@@ -26,7 +26,7 @@
+   BinaryIn &amp;operator&gt;&gt;(float &amp;f);
+ };
+ 
+-class BinaryOut
++class AGEXPORT BinaryOut
+ {
+  public:
+   BinaryOut();
+@@ -39,7 +39,7 @@
+   BinaryOut &amp;operator&lt;&lt;(const float &amp;f);
+ };
+ 
+-class BinaryFileIn:public BinaryIn
++class AGEXPORT BinaryFileIn:public BinaryIn
+ {
+  public:
+   BinaryFileIn(const std::string &amp;pName);
+@@ -57,7 +57,7 @@
+   size_t size;
+ };
+ 
+-class BinaryFileOut:public BinaryOut
++class AGEXPORT BinaryFileOut:public BinaryOut
+ {
+  public:
+   BinaryFileOut(const std::string &amp;pName);
+@@ -74,7 +74,7 @@
+   size_t p;
+ };
+ 
+-class BinaryStringIn:public BinaryIn
++class AGEXPORT BinaryStringIn:public BinaryIn
+ {
+  public:
+   BinaryStringIn(const std::string &amp;pText);
+@@ -85,7 +85,7 @@
+   std::istringstream is;
+ };
+ 
+-class BinaryStringOut:public BinaryOut
++class AGEXPORT BinaryStringOut:public BinaryOut
+ {
+  public:
+   BinaryStringOut();
+
+Modified: antargis/branches/rant/ext/basic/ag_string.h
+===================================================================
+--- antargis/branches/rant/ext/basic/ag_string.h	2007-07-03 17:51:58 UTC (rev 1134)
++++ antargis/branches/rant/ext/basic/ag_string.h	2007-07-03 18:55:52 UTC (rev 1135)
+@@ -1,13 +1,14 @@
+ #ifndef AG_STRING
+ #define AG_STRING
+-
++
++#include &lt;ag_base.h&gt;
+ #include &lt;string&gt;
+ #include &lt;vector&gt;
+ #include &lt;SDL.h&gt;
+ 
+ 
+ /** A string class that natively supports UTF-8 */
+-class AGString:public std::string
++class AGEXPORT AGString:public std::string
+ {
+  public:
+   static const size_t npos = static_cast&lt;size_t&gt;(-1);
+
+Modified: antargis/branches/rant/ext/basic/ag_stringstream.h
+===================================================================
+--- antargis/branches/rant/ext/basic/ag_stringstream.h	2007-07-03 17:51:58 UTC (rev 1134)
++++ antargis/branches/rant/ext/basic/ag_stringstream.h	2007-07-03 18:55:52 UTC (rev 1135)
+@@ -11,7 +11,7 @@
+ /// possible seperators are:
+ ///  ' '    ','    '_'  ';' '\n'
+ /// the standard behaviour on blanks and newlines is to eat them
+-class AGStringStream
++class AGEXPORT AGStringStream
+ {
+  public:
+   AGStringStream(const AGString &amp;buffer=&quot;&quot;);
+
+Modified: antargis/branches/rant/ext/basic/ag_video_base.h
+===================================================================
+--- antargis/branches/rant/ext/basic/ag_video_base.h	2007-07-03 17:51:58 UTC (rev 1134)
++++ antargis/branches/rant/ext/basic/ag_video_base.h	2007-07-03 18:55:52 UTC (rev 1135)
+@@ -7,6 +7,12 @@
+ 
+ class AGVideoBase:public AGSingleton
+ {
++public:
++  virtual int width() const;
++  virtual int height() const;
++
++  virtual int realWidth() const;
++  virtual int realHeight() const;
+ 
+ };
+ 
+
+Modified: antargis/branches/rant/ext/basic/ag_xml.h
+===================================================================
+--- antargis/branches/rant/ext/basic/ag_xml.h	2007-07-03 17:51:58 UTC (rev 1134)
++++ antargis/branches/rant/ext/basic/ag_xml.h	2007-07-03 18:55:52 UTC (rev 1135)
+@@ -32,7 +32,7 @@
+ 
+ #include &quot;ag_debug.h&quot;
+ 
+-class Node
++class AGEXPORT Node
+   {
+   public:
+     typedef std::map&lt;AGString,AGString&gt; Attributes;
+
+Modified: antargis/branches/rant/ext/external/mtwist.h
+===================================================================
+--- antargis/branches/rant/ext/external/mtwist.h	2007-07-03 17:51:58 UTC (rev 1134)
++++ antargis/branches/rant/ext/external/mtwist.h	2007-07-03 18:55:52 UTC (rev 1135)
+@@ -1,5 +1,7 @@
+ #ifndef MTWIST_H
+-#define MTWIST_H
++#define MTWIST_H
++
++#include &lt;ag_base.h&gt;
+ 
+ /*
+  * $Id: mtwist.h,v 1.15 2003/09/11 23:56:20 geoff Exp geoff $
+@@ -193,8 +195,12 @@
+ 					/* ..the entire state from there. */
+ 					/* ..If /dev/random is unavailable, */
+ 					/* ..falls back to mt_goodseed().  */
+-					/* ..Not usually worth the cost.  */
+-extern void		mts_refresh(mt_state* state);
++					/* ..Not usually worth the cost.  */
++                    
++                    
++// was extern                    
++                    
++AGEXPORT void		mts_refresh(mt_state* state);
+ 					/* Generate 624 more random values */
+ extern int		mts_savestate(FILE* statefile, mt_state* state);
+ 					/* Save state to a file (ASCII). */
+@@ -331,8 +337,21 @@
+ 	while (0)
+ 
+ extern mt_state		mt_default_state;
+-					/* State of the default generator */
+-extern double		mt_32_to_double;
++
++/* State of the default generator */
++#ifdef __cplusplus
++extern &quot;C&quot; {
++    #ifdef WIN32
++__declspec(dllimport)
++#endif
++    extern double		mt_32_to_double;
++}
++    #else
++#ifdef WIN32
++__declspec(dllexport) 
++#endif
++extern   double		mt_32_to_double;
++#endif
+ 					/* Multiplier to convert long to dbl */
+ extern double		mt_64_to_double;
+ 					/* Mult'r to cvt long long to dbl */
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000091.html">[Antargis-svn] r1134 - antargis/branches/rant/ext
+</A></li>
+	<LI>Next message: <A HREF="000093.html">[Antargis-svn] r1136 - in antargis/branches/rant: . build/configs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#92">[ date ]</a>
+              <a href="thread.html#92">[ thread ]</a>
+              <a href="subject.html#92">[ subject ]</a>
+              <a href="author.html#92">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

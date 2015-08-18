@@ -1,0 +1,686 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1189 - in antargis/trunk: . build ext/3dengine	ext/basic ext/game ext/sound ruby
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1189%20-%20in%20antargis/trunk%3A%20.%20build%20ext/3dengine%0A%09ext/basic%20ext/game%20ext/sound%20ruby&In-Reply-To=%3C200712061946.lB6JkqMI017089%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000147.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1189 - in antargis/trunk: . build ext/3dengine	ext/basic ext/game ext/sound ruby</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1189%20-%20in%20antargis/trunk%3A%20.%20build%20ext/3dengine%0A%09ext/basic%20ext/game%20ext/sound%20ruby&In-Reply-To=%3C200712061946.lB6JkqMI017089%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1189 - in antargis/trunk: . build ext/3dengine	ext/basic ext/game ext/sound ruby">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Thu Dec  6 20:46:52 CET 2007</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000147.html">[Antargis-svn] r1190 - in antargis/trunk/build: . configs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#146">[ date ]</a>
+              <a href="thread.html#146">[ thread ]</a>
+              <a href="subject.html#146">[ subject ]</a>
+              <a href="author.html#146">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-12-06 20:46:52 +0100 (Thu, 06 Dec 2007)
+New Revision: 1189
+
+Modified:
+   antargis/trunk/build/configure.rb
+   antargis/trunk/configure
+   antargis/trunk/ext/3dengine/headers.hh
+   antargis/trunk/ext/basic/ag_rtools.h
+   antargis/trunk/ext/game/headers.hh
+   antargis/trunk/ext/sound/headers.hh
+   antargis/trunk/ruby/antargislib.rb
+Log:
+* build-system on mkmf-base
+
+
+Modified: antargis/trunk/build/configure.rb
+===================================================================
+--- antargis/trunk/build/configure.rb	2007-11-20 19:15:12 UTC (rev 1188)
++++ antargis/trunk/build/configure.rb	2007-12-06 19:46:52 UTC (rev 1189)
+@@ -69,7 +69,7 @@
+ 			print text
+ 			ok=c[:proc].call
+ 			#ok=(not ok.nil?)
+-			print &quot; &quot;*(40-text.length)
++			print &quot; &quot;*(60-text.length)
+ 			puts ({true=&gt;&quot;ok&quot;,false=&gt;&quot;failed&quot;,nil=&gt;&quot;failed&quot;}[ok])
+ 			failed &lt;&lt; c[:name] unless ok or not c[:needed]
+ 		}
+@@ -105,15 +105,20 @@
+ 		@@config[n]=v
+ 	end
+ 	def CFG.get(n)
++		puts &quot;GET #{n}:#{@@config[n]}&quot;
++
++
+ 		@@config[n]
+ 	end
+ 
+-	def CFG.checkProgram(program,needed=true)
++	def CFG.checkProgram(name,program,needed=true)
+ 		addCheck(&quot;program &quot;+program,needed) do
+ 			path=get(program)
+ 			path||=findProgram(program)
+ 			r=testProgram(path)
+-			set(program,path) if r
++			#set(program,path) if r
++			set(name,path) if r
++			#pp @@config
+ 			r
+ 		end
+ 	end
+@@ -123,6 +128,8 @@
+ 		psep={&quot;/&quot;=&gt;&quot;:&quot;,&quot;\\&quot;=&gt;&quot;;&quot;}[Dir.separator]
+ 		#puts p,p.class,psep
+ 		ps=p.split(psep)
++		ps+=get(&quot;PATHS&quot;) if get(&quot;PATHS&quot;)
++
+ 		#puts get(&quot;prefix&quot;)
+ 		ps &lt;&lt; get(&quot;prefix&quot;)+Dir.separator+&quot;bin&quot; if get(&quot;prefix&quot;)
+ 		if Dir.separator==&quot;\\&quot;
+@@ -148,15 +155,19 @@
+ 	end
+ 
+ 	def CFG.includeConfig
+-		avail=[&quot;unix&quot;,&quot;mingw32&quot;]
+-		addCheck (&quot;base-config&quot;) do ||
+-			c=get(&quot;base-config&quot;)
+-			c=nil unless avail.member?(c)
+-			c||=&quot;unix&quot;
+-			require &quot;build/configs/&quot;+c+&quot;.rb&quot;
+-			$config.each{|k,v|@@config[k]||=v}
+-			true
+-		end
++		readConfig(&quot;base&quot;)
++
++
++
++# 		avail=[&quot;unix&quot;,&quot;mingw32&quot;]
++# 		addCheck (&quot;base-config&quot;) do ||
++# 			c=get(&quot;base-config&quot;)
++# 			c=nil unless avail.member?(c)
++# 			c||=&quot;unix&quot;
++# 			require &quot;build/configs/&quot;+c+&quot;.rb&quot;
++# 			$config.each{|k,v|@@config[k]||=v}
++# 			true
++# 		end
+ 	end
+ 
+ 	# *FIXME: implement this*
+@@ -165,7 +176,12 @@
+ 		
+ 	end
+ 
++	def CFG.readConfig(file)
++		require &quot;build/configs/&quot;+file+&quot;.rb&quot;
++		$config.each{|k,v|@@config[k]||=v}
++	end
+ 
++
+ 	def CFG.gatherMkmfInfo
+ 		CFG.set(&quot;RUBYLIB&quot;,getConfig(&quot;LIBRUBYARG_SHARED&quot;))
+ 		CFG.set(&quot;LIBS&quot;,CFG.get(&quot;LIBS&quot;).to_s+&quot; &quot;+CFG.get(&quot;RUBYLIB&quot;))
+@@ -235,8 +251,6 @@
+ 			when Hash
+ 				&quot;'&quot;+v.collect{|k,v|&quot;#{k}=&gt;#{v}&quot;}.join(&quot;;&quot;)+&quot;'&quot;
+ 			else
+-				#puts v,v.class
+-				#raise &quot;MUH&quot;
+ 				v.to_s
+ 		end
+ 	end
+
+Modified: antargis/trunk/configure
+===================================================================
+--- antargis/trunk/configure	2007-11-20 19:15:12 UTC (rev 1188)
++++ antargis/trunk/configure	2007-12-06 19:46:52 UTC (rev 1189)
+@@ -1,39 +1,43 @@
+ #!/usr/bin/env ruby
+ 
+-require 'build/configure.rb'
+-require 'ostruct'
+ require 'optparse'
++require 'mkmf'
++require 'build/property.rb'
++require 'build/mkmf_support.rb'
+ require 'pp'
++require 'logger'
+ 
+-puts &lt;&lt;EOT
+-Battle of Antargis - Configuration
+--------------------------------------------------------------------------------
+-EOT
++NEEDED_PROGRAMS={&quot;CC&quot;=&gt;&quot;gcc&quot;,&quot;CXX&quot;=&gt;&quot;g++&quot;,&quot;SWIG&quot;=&gt;&quot;swig&quot;,&quot;RUBY&quot;=&gt;&quot;ruby&quot;}
++POSSIBLE_PROGRAMS={&quot;CCACHE&quot;=&gt;&quot;ccache&quot;,&quot;SDL_CONFIG&quot;=&gt;&quot;sdl-config&quot;}
+ 
+-NEEDED_PROGRAMS=[&quot;gcc&quot;,&quot;g++&quot;,&quot;swig&quot;,&quot;ruby&quot;]
+-POSSIBLE_PROGRAMS=[&quot;ccache&quot;,&quot;sdl-config&quot;]
+-#POSSIBLE_PROGRAMS=[&quot;ccache&quot;]
++NEEDED_LIBS=[
++	&quot;GL&quot;,&quot;GLU&quot;,&quot;png&quot;,&quot;SDL&quot;,&quot;SDL_image&quot;,&quot;SDL_ttf&quot;,&quot;SDL_mixer&quot;,&quot;stdc++&quot;,&quot;zs&quot;
++]
++FALLBACK_LIBS={&quot;GLU&quot;=&gt;&quot;glu32&quot;,&quot;GL&quot;=&gt;&quot;opengl32&quot;,&quot;ruby&quot;=&gt;&quot;msvcrt-ruby18&quot;,&quot;zs&quot;=&gt;&quot;z&quot;}
+ 
+ def allPrograms
+-	POSSIBLE_PROGRAMS+NEEDED_PROGRAMS
++	POSSIBLE_PROGRAMS.merge(NEEDED_PROGRAMS)
+ end
+ 
+ class ConfigureOptions
+ 	def self.parse(args)
+ 		options={}
+ 		options[:use_mkmf]=true
++		options[:use_env]=true
++		options[:use_sdlconfig]=true
++		options[:use_fallbacks]=true
+ 		options[:debug]=false
+ 		options[:gcdebug]=false
+ 		options[:profile]=false
+-		options[:version]=&quot;0.2.1.4&quot;
++		options[:version]=&quot;0.2.1.5&quot;
+ 
+ 		options[:programs]={}
+-		allPrograms.each{|p|
++		allPrograms.keys.each{|p|
+ 			options[:programs][p]=p
+ 		}
+ 	
+ 		opts=OptionParser.new do |opts|
+-		  opts.banner = &quot;Usage: configure [options]&quot;
++			opts.banner = &quot;Usage: configure [options]&quot;
+ 
+ 			opts.separator &quot;&quot;
+ 			opts.separator &quot;Specific options:&quot;
+@@ -53,6 +57,15 @@
+ 				options[:profile]=true
+ 			end
+ 
++			opts.on(&quot;--disable-sdlconfig&quot;,
++							&quot;do not use sdl-config for configuration&quot;) do 
++				options[:use_sdlconfig]=false
++			end
++			opts.on(&quot;--disable-fallbacks&quot;,
++							&quot;do not use fallback dirs for X11 and GL&quot;) do 
++				options[:use_fallbacks]=false
++			end
++
+ 			opts.on(&quot;--prefix PREFIXDIR&quot;,
+ 							&quot;set prefix directory PREFIXDIR&quot;) do |dir|
+ 				options[:prefix]=dir
+@@ -76,12 +89,13 @@
+ 			opts.on(&quot;--ext-config CONFIG&quot;,
+ 				&quot;use user-defined config instead of ruby's mkmf&quot;,&quot;CONFIG maybe in mingw32 or unix&quot;) do |extconfig|
+ 					options[:extconfig]=extconfig
++					options[:use_mkmf]=false
+ 			end
+ 
+-			allPrograms.each{|program|
++			allPrograms.keys.each{|program|
+ 				opts.on(&quot;--path-&quot;+program+&quot; PATH&quot;,
+ 					&quot;set path to program '#{program}'&quot;) do |d|
+-					CFG.set(program,d)
++					options[program]=d
+ 				end
+ 			}
+ 
+@@ -91,89 +105,224 @@
+ 		options
+ 	end
+ end
+-		
+-options = ConfigureOptions.parse(ARGV)
+ 
+-NEEDED_PROGRAMS.each{|program|
+-	CFG.checkProgram(program,true)
+-}
+-POSSIBLE_PROGRAMS.each{|program|
+-	CFG.checkProgram(program,false)
+-}
++######################
++# helpers
++######################
+ 
+-CFG.setOptions(options)
++def gatherENVConfig
++	config={}
++	[&quot;PATH&quot;,&quot;LDFLAGS&quot;,&quot;CFLAGS&quot;,&quot;CXX&quot;,&quot;CC&quot;,&quot;SWIG&quot;].each{|name|
++		if ENV[name]
++			config[name]=ENV[name]
++		end
++	}
++	# FIXME: add system-switch to cmd-line options
++	system=nil
++	if config[&quot;PATH&quot;]=~/^\/usr/
++		config[&quot;PATH&quot;]=config[&quot;PATH&quot;].split(&quot;:&quot;) # Unix ?
++		system=:unix
++	else
++		config[&quot;PATH&quot;]=config[&quot;PATH&quot;].split(&quot;;&quot;) # Windows ?
++		system=:windows
++	end
++	config[&quot;PATH&quot;].each{|d|
++		puts &quot;\nWARNING: Something went wrong while checking PATH. Detected #{system} - was it wrong ? \n&quot; unless File.exists?(d)
++	}
+ 
+-CFG.add(&quot;CFLAGS&quot;,&quot;-I/usr/include/GL&quot;)
++	config
++end
+ 
+-CFG.addCheck(&quot;sdl-config --libs&quot;,false) do
+-	if CFG.get(&quot;sdl-config&quot;).nil?
+-		puts &quot;\nWARNING: sdl-config was not found!&quot;
+-	else
+-		libs=nil
+-		begin
+-			call=&quot;#{CFG.get(&quot;sdl-config&quot;)} --libs&quot;
+-			libs=`#{call}`.gsub(&quot;\n&quot;,&quot;&quot;)
+-		rescue
++def splitLDFLAGS(config)
++	ldflags=config[&quot;LDFLAGS&quot;].value.split(&quot; &quot;)
++	config.set!(&quot;LIBS&quot;,ldflags.select{|s|s=~/^-l/}.join(&quot; &quot;))
++	config.set!(&quot;LDFLAGS&quot;,ldflags.select{|s|not s=~/^-l/}.join(&quot; &quot;))
++	config
++end
++
++def splitCFLAGS(config)
++	cflags=config[&quot;CFLAGS&quot;].value.split(&quot; &quot;)
++	config[&quot;INCLUDEPATH&quot;]=cflags.select{|s|s=~/^-I/}.join(&quot; &quot;)
++	config[&quot;DEFINES&quot;]=cflags.select{|s|s=~/^-D/}.join(&quot; &quot;)
++	config
++end
++
++
++def gatherMkmfConfig
++	mkmfs={
++		&quot;CC&quot;=&gt;&quot;$(CC)&quot;,
++		&quot;LDSHARED&quot;=&gt;&quot;$(LDSHARED)&quot;,
++		&quot;RUBY&quot;=&gt;&quot;$(bindir)/$(ruby_install_name)&quot;,
++		&quot;LIBPATH&quot;=&gt;&quot;-L$(archdir) -L$(sitearchdir)&quot;,
++		&quot;CFLAGS&quot;=&gt;&quot;$(CFLAGS)&quot;,
++		&quot;LDFLAGS&quot;=&gt;&quot;$(LDFLAGS) $(LIBRUBYARG)&quot;,
++		&quot;INCLUDEPATH&quot;=&gt;&quot;-I$(includedir) -I$(archdir) -I$(sitearchdir)&quot;,
++		&quot;target_os&quot;=&gt;&quot;$(target_os)&quot;
++	}
++
++	config={}
++
++	mkmfs.each{|k,v|
++		value=checkMkmf(v,CONFIG)
++		config[k]=value if value
++	}
++
++	# post-process to get LIBS to separate variable
++	config
++end
++
++
++######################
++
++def getUserInput
++	options = ConfigureOptions.parse(ARGV)
++end
++
++def generateHardConfiguration(options)
++	config=Properties.new
++
++	allPrograms.each{|k,v|config[k]=v}
++
++	# FIXME: include default-dirs (/usr/include/GL, /usr/include/X11 /usr/X11/include and such - same for libs!!!
++
++	if options[:use_mkmf]
++		config.merge!(gatherMkmfConfig)
++	end
++	if options[:use_env]
++		config.merge!(gatherENVConfig)
++	end
++	config.merge!(Properties.new(options))
++
++	config
++end
++
++def testProgram(prg)
++	return false unless File.exist?(prg)
++	return true
++	#`#{prg} --help`
++	#$?==0
++end
++
++def searchPrograms(config)
++	allPrograms.each{|k,v|
++		ok=false
++		info=&quot;&quot;
++		if config[k].value!=v
++			# not default - check if ok
++			ok=testProgram(config[k].value)
++			info=&quot;(given by config)&quot;
++			unless ok
++				puts &quot;Given path #{config[k].value} for #{k} was not correct!&quot;
++			end
++		end
++		unless ok
++			pathes=config[&quot;PATH&quot;].value
+ 			
++			pathes.each{|path|
++				cpath=File.join(path,v)
++				
++				if testProgram(cpath)
++					config[k]=cpath
++					ok=true
++					break
++				end
++			}
++
+ 		end
+-		CFG.add(&quot;LIBS&quot;,libs) if libs        
+-		true if libs
+-	end
++		if ok
++			puts &quot;#{k.ljust(10)} found at #{config[k].value.ljust(25)} #{info}&quot;
++		end
++	}
++	config
+ end
+ 
++def tryAddMissingLibs(config)
++	NEEDED_LIBS.each{|lib|
++		ok=have_library(lib)
++		unless ok
++			# check fallback
+ 
+-CFG.addCheck(&quot;sdl-config --cflags&quot;,false) do
+-	if CFG.get(&quot;sdl-config&quot;).nil?
+-		puts &quot;\nWARNING: sdl-config was not found!&quot;
+-	else
+-		libs=nil
+-		begin
+-				libs=`#{CFG.get(&quot;sdl-config&quot;)} --cflags`.gsub(&quot;\n&quot;,&quot;&quot;)
+-		rescue
+-			puts &quot;WARNING: sdl-config was not found!&quot;
++			begin
++				have_library(FALLBACK_LIBS[lib])
++			rescue
++			end
+ 		end
+-		CFG.add(&quot;CFLAGS&quot;,libs) if libs        
+-		true if libs
++	}
++	if not $libs
++		puts &quot;ERROR: Not compatible with current mkmf!&quot;
++		exit
+ 	end
++	config[&quot;LDFLAGS&quot;]=$libs
++	config
+ end
+ 
+-CFG.includeConfig
+-CFG.gatherMkmfInfo if options[:use_mkmf]
++def addSDLConfig(config,userInput)
++	if userInput[:use_sdlconfig]
++		sdlconf=config[&quot;SDL_CONFIG&quot;].value
++		pp sdlconf
++		return config if sdlconf==&quot;sdl-config&quot;
++		#pp sdlconf
++		cflags=`#{sdlconf} --cflags`.chomp
++		config[&quot;CFLAGS&quot;]=cflags if $?==0
++		puts &quot;#{sdlconf} --cflags exited with #{$?} and gave the output:\n#{cflags}&quot; if $?!=0
++		libs=`#{sdlconf} --libs`.chomp
++		config[&quot;LDFLAGS&quot;]=libs if $?==0
++		puts &quot;#{sdlconf} --libs exited with #{$?} and gave the output:\n#{libs}&quot; if $?!=0
++	end
++	config
++end
+ 
+-CFG.checkLibrary(&quot;opengl32&quot;,&quot;OpenGL library (win32)&quot;,false)
+-CFG.checkLibrary(&quot;glu32&quot;,&quot;OpenGL Utility library (win32)&quot;,false)
+-CFG.checkLibrary(&quot;GL&quot;,&quot;OpenGL library&quot;,false)
+-CFG.checkLibrary(&quot;GLU&quot;,&quot;OpenGL Utility library&quot;,false)
++def addStandardFallbacks(config,options)
++	if options[:use_fallbacks]
++		dirs=[&quot;/usr/include/GL&quot;,&quot;/usr/include/X11&quot;,&quot;/usr/X11R6/include&quot;]
++		config[&quot;INCLUDEPATH&quot;]=dirs.inject(&quot;&quot;){|str,d|str+&quot; -I&quot;+d}+&quot; -I.&quot;
++		config[&quot;CFLAGS&quot;]=&quot;-dH&quot;
++	
++		dirs=[&quot;/usr/lib/GL&quot;,&quot;/usr/lib/X11&quot;,&quot;/usr/X11R6/lib&quot;]
++		config[&quot;LIBPATH&quot;]=dirs.inject(&quot;&quot;){|str,d|str+&quot; -L&quot;+d}
++	end	
++	config
++end
+ 
+-CFG.checkLibrary(&quot;png&quot;,&quot;PNG library&quot;,true)
+-CFG.checkLibrary(&quot;SDL&quot;,&quot;the famous SDL library&quot;,true)
+-CFG.checkLibrary(&quot;SDL_image&quot;,&quot;SDL_image library&quot;,true)
+-CFG.checkLibrary(&quot;SDL_ttf&quot;,&quot;SDL_ttf library&quot;,true)
+-CFG.checkLibrary(&quot;SDL_mixer&quot;,&quot;SDL_mixer library&quot;,false)
++def checkFlags(config,options)
++	if options[:debug]
++		options=config[&quot;CFLAGS&quot;].value.split(&quot; &quot;).select{|op|not op=~/^-O[0-5]$/}.join(&quot; &quot;)
++		config.set!(&quot;CFLAGS&quot;,options+&quot; -O0 -g&quot;)
++	end
++	if options[:profile]
++		config[&quot;CFLAGS&quot;]=&quot;-pg&quot; 
++		config[&quot;LDFLAGS&quot;]=&quot;-pg&quot;
++	end
++	config
++end
+ 
+-CFG.checkFunction(&quot;SDL_Init&quot;)
+-CFG.checkFunction(&quot;TTF_Init&quot;)
+-CFG.checkFunction(&quot;Mix_PlayingMusic&quot;)
+-CFG.checkFunction(&quot;ruby_init&quot;)
++def runChecks(config)
++	begin
++		`rake test`
++	rescue
++		puts &quot;Test failed&quot;
++	end
++end
+ 
+-CFG.checkHeader(&quot;SDL.h&quot;,&quot;SDL_Init&quot;)
+-CFG.checkHeader(&quot;SDL.h&quot;,&quot;SDL_Flip&quot;)
+-CFG.checkHeader(&quot;SDL.h&quot;,&quot;SDL_GL_SwapBuffers&quot;,&quot;SDL compiled with GL&quot;)
+-CFG.checkHeader(&quot;SDL_mixer.h&quot;,&quot;Mix_PlayingMusic&quot;)
+-CFG.checkHeader(&quot;SDL_ttf.h&quot;,&quot;TTF_Init&quot;)
+-CFG.checkHeader(&quot;ruby.h&quot;,&quot;ruby_init&quot;)
+-CFG.checkHeader(&quot;gl.h&quot;,&quot;glBegin&quot;)
++def saveConfigurationFile(config)
++	file=File.open(&quot;config.rb&quot;,&quot;w&quot;)
++	file.puts config.toRuby
++	file.close
++end
+ 
+ 
+-CFG.addCheck(&quot;any opengl-library found&quot;) do ||
+-	(CFG.hasLibrary(&quot;opengl32&quot;) or CFG.hasLibrary(&quot;GL&quot;))
+-end
+-CFG.addCheck(&quot;any glu-library found&quot;) do ||
+-	(CFG.hasLibrary(&quot;glu32&quot;) or CFG.hasLibrary(&quot;GLU&quot;))
+-end
++userInput=getUserInput
++config=generateHardConfiguration(userInput)
++config=searchPrograms(config)
++config=tryAddMissingLibs(config)
++config=addSDLConfig(config,userInput)
++config=addStandardFallbacks(config,userInput)
++config=checkFlags(config,userInput)
++config=splitLDFLAGS(config)
++config=splitCFLAGS(config)
++saveConfigurationFile(config)
++runChecks(config)
+ 
+-CFG.run
+ 
+-puts
+-puts &quot;You should run '&gt;rant clean &amp;&amp; rant' to let changes take effect!&quot;
+-puts 
++
++#pp config
+\ No newline at end of file
+
+Modified: antargis/trunk/ext/3dengine/headers.hh
+===================================================================
+--- antargis/trunk/ext/3dengine/headers.hh	2007-11-20 19:15:12 UTC (rev 1188)
++++ antargis/trunk/ext/3dengine/headers.hh	2007-12-06 19:46:52 UTC (rev 1189)
+@@ -56,6 +56,7 @@
+ #include &quot;ext/gui/ag_window.h&quot;
+ #include &quot;ext/gui/ag_layout.h&quot;
+ #include &quot;ext/gui/ag_border.h&quot;
++#include &quot;ext/sound/ag_mixer.h&quot;
+ #include &quot;ext/3dengine/mesh_data.h&quot;
+ #include &quot;ext/3dengine/scene_base.h&quot;
+ #include &quot;ext/3dengine/scenenode.h&quot;
+
+Modified: antargis/trunk/ext/basic/ag_rtools.h
+===================================================================
+--- antargis/trunk/ext/basic/ag_rtools.h	2007-11-20 19:15:12 UTC (rev 1188)
++++ antargis/trunk/ext/basic/ag_rtools.h	2007-12-06 19:46:52 UTC (rev 1189)
+@@ -1,9 +1,10 @@
+ #ifndef AG_RTOOLS_H
+ #define AG_RTOOLS_H
+ 
++#include &lt;ag_base.h&gt;
+ #include &lt;string&gt;
+ 
+-std::string rubyHash(const std::string &amp;p);
++AGEXPORT std::string rubyHash(const std::string &amp;p);
+ 
+ 
+ 
+
+Modified: antargis/trunk/ext/game/headers.hh
+===================================================================
+--- antargis/trunk/ext/game/headers.hh	2007-11-20 19:15:12 UTC (rev 1188)
++++ antargis/trunk/ext/game/headers.hh	2007-12-06 19:46:52 UTC (rev 1189)
+@@ -56,6 +56,7 @@
+ #include &quot;ext/gui/ag_window.h&quot;
+ #include &quot;ext/gui/ag_layout.h&quot;
+ #include &quot;ext/gui/ag_border.h&quot;
++#include &quot;ext/sound/ag_mixer.h&quot;
+ #include &quot;ext/3dengine/anim_mesh_data.h&quot;
+ #include &quot;ext/3dengine/ant_camera.h&quot;
+ #include &quot;ext/3dengine/mesh.h&quot;
+
+Modified: antargis/trunk/ext/sound/headers.hh
+===================================================================
+--- antargis/trunk/ext/sound/headers.hh	2007-11-20 19:15:12 UTC (rev 1188)
++++ antargis/trunk/ext/sound/headers.hh	2007-12-06 19:46:52 UTC (rev 1189)
+@@ -14,6 +14,48 @@
+ #include &quot;ext/basic/ag_fs.h&quot;
+ #include &quot;ext/basic/ag_messageobject.h&quot;
+ #include &quot;ext/basic/ag_rubyobj.h&quot;
++#include &quot;ext/math/ag_rand.h&quot;
++#include &quot;ext/math/ag_algebra.h&quot;
++#include &quot;ext/math/ant_frustum.h&quot;
++#include &quot;ext/video/ag_rendercontext.h&quot;
++#include &quot;ext/video/ag_texturecache.h&quot;
++#include &quot;ext/video/ag_clip.h&quot;
++#include &quot;ext/video/ag_fontengine.h&quot;
++#include &quot;ext/video/ag_font.h&quot;
++#include &quot;ext/video/ag_video.h&quot;
++#include &quot;ext/video/ag_color.h&quot;
++#include &quot;ext/video/ag_screen.h&quot;
++#include &quot;ext/video/ag_painttarget.h&quot;
++#include &quot;ext/video/ag_surface.h&quot;
++#include &quot;ext/video/ag_texture.h&quot;
++#include &quot;ext/video/ag_painter.h&quot;
++#include &quot;ext/gui/ag_image.h&quot;
++#include &quot;ext/gui/ag_listbox.h&quot;
++#include &quot;ext/gui/ag_edit.h&quot;
++#include &quot;ext/gui/ag_scroller.h&quot;
++#include &quot;ext/gui/ag_local.h&quot;
++#include &quot;ext/gui/ag_tooltip.h&quot;
++#include &quot;ext/gui/ag_radio.h&quot;
++#include &quot;ext/gui/ag_application.h&quot;
++#include &quot;ext/gui/ag_colorbutton.h&quot;
++#include &quot;ext/gui/ag_button.h&quot;
++#include &quot;ext/gui/ag_radiogroup.h&quot;
++#include &quot;ext/gui/ag_background.h&quot;
++#include &quot;ext/gui/ag_menuitem.h&quot;
++#include &quot;ext/gui/ag_screenwidget.h&quot;
++#include &quot;ext/gui/ag_widget.h&quot;
++#include &quot;ext/gui/ag_text.h&quot;
++#include &quot;ext/gui/ag_checkbox.h&quot;
++#include &quot;ext/gui/ag_table.h&quot;
++#include &quot;ext/gui/ag_frame.h&quot;
++#include &quot;ext/gui/ag_caption.h&quot;
++#include &quot;ext/gui/ag_combo.h&quot;
++#include &quot;ext/gui/ag_theme.h&quot;
++#include &quot;ext/gui/ag_menu.h&quot;
++#include &quot;ext/gui/ag_layoutfactory.h&quot;
++#include &quot;ext/gui/ag_window.h&quot;
++#include &quot;ext/gui/ag_layout.h&quot;
++#include &quot;ext/gui/ag_border.h&quot;
+ #include &quot;ext/sound/ag_mixer.h&quot;
+ #ifdef SWIG
+ %include &quot;ext/sound/ag_mixer.h&quot;
+
+Modified: antargis/trunk/ruby/antargislib.rb
+===================================================================
+--- antargis/trunk/ruby/antargislib.rb	2007-11-20 19:15:12 UTC (rev 1188)
++++ antargis/trunk/ruby/antargislib.rb	2007-12-06 19:46:52 UTC (rev 1189)
+@@ -4,6 +4,7 @@
+ # - init video-mode
+ # - process config-file and parameter input
+ #
++require 'pp'
+ 
+ 
+ module MyAntargisLib
+@@ -12,7 +13,9 @@
+ 	if not @@antargislibinited
+ 		# try suspending arts
+ 		if File.exists?(&quot;/usr/bin/artsshell&quot;)
+-			File.popen(&quot;/usr/bin/artsshell suspend 2&gt;&amp;1&quot;).close
++			unless ENV[&quot;PATH&quot;]=~/^[A-Za-z]:\\/
++				File.popen(&quot;/usr/bin/artsshell suspend 2&gt;&amp;1&quot;).close
++			end
+ 		end
+ 		
+ 		@@programDir=Dir.pwd+&quot;/ruby&quot;
+@@ -96,6 +99,7 @@
+ 
+ include Antargisgame
+ include Antargisbasic
++include Antargismath
+ include Antargisvideo
+ include Antargisgui
+ include Antargis3dengine
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000147.html">[Antargis-svn] r1190 - in antargis/trunk/build: . configs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#146">[ date ]</a>
+              <a href="thread.html#146">[ thread ]</a>
+              <a href="subject.html#146">[ subject ]</a>
+              <a href="author.html#146">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

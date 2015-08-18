@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1048 - antargis/trunk/data/shaders
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-February/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1048%20-%20antargis/trunk/data/shaders&In-Reply-To=%3C200702041510.l14FAHEH009244%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000007.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1048 - antargis/trunk/data/shaders</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1048%20-%20antargis/trunk/data/shaders&In-Reply-To=%3C200702041510.l14FAHEH009244%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1048 - antargis/trunk/data/shaders">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sun Feb  4 16:10:17 CET 2007</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000007.html">[Antargis-svn] r1049 - in antargis/trunk: . gui/src src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#6">[ date ]</a>
+              <a href="thread.html#6">[ thread ]</a>
+              <a href="subject.html#6">[ subject ]</a>
+              <a href="author.html#6">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-02-04 16:10:17 +0100 (Sun, 04 Feb 2007)
+New Revision: 1048
+
+Modified:
+   antargis/trunk/data/shaders/anim.vert
+Log:
+* animation was disabled
+
+
+Modified: antargis/trunk/data/shaders/anim.vert
+===================================================================
+--- antargis/trunk/data/shaders/anim.vert	2007-01-19 18:47:35 UTC (rev 1047)
++++ antargis/trunk/data/shaders/anim.vert	2007-02-04 15:10:17 UTC (rev 1048)
+@@ -10,8 +10,8 @@
+ 
+ 	int i=int(bones); // convert to int
+ 	mat4 m=matrices[i];
+-	//gl_Position = gl_ModelViewProjectionMatrix *m*v;
+-	gl_Position = gl_ModelViewProjectionMatrix *v;
++	gl_Position = gl_ModelViewProjectionMatrix *m*v;
++	//gl_Position = gl_ModelViewProjectionMatrix *v;
+ 
+ 	normal = normalize(gl_NormalMatrix * gl_Normal);
+ 	
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000007.html">[Antargis-svn] r1049 - in antargis/trunk: . gui/src src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#6">[ date ]</a>
+              <a href="thread.html#6">[ thread ]</a>
+              <a href="subject.html#6">[ subject ]</a>
+              <a href="author.html#6">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

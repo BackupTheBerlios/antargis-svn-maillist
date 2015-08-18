@@ -1,0 +1,867 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1292 - in antargis/trunk: ext/3dengine ext/basic	ext/game ext/gui ext/sound ext/video rookey/lib/rookey/cpp	ruby ruby/spec
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2009-February/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1292%20-%20in%20antargis/trunk%3A%20ext/3dengine%20ext/basic%0A%09ext/game%20ext/gui%20ext/sound%20ext/video%20rookey/lib/rookey/cpp%0A%09ruby%20ruby/spec&In-Reply-To=%3C200902260516.n1Q5Ga0E022143%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000247.html">
+   <LINK REL="Next"  HREF="000249.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1292 - in antargis/trunk: ext/3dengine ext/basic	ext/game ext/gui ext/sound ext/video rookey/lib/rookey/cpp	ruby ruby/spec</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1292%20-%20in%20antargis/trunk%3A%20ext/3dengine%20ext/basic%0A%09ext/game%20ext/gui%20ext/sound%20ext/video%20rookey/lib/rookey/cpp%0A%09ruby%20ruby/spec&In-Reply-To=%3C200902260516.n1Q5Ga0E022143%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1292 - in antargis/trunk: ext/3dengine ext/basic	ext/game ext/gui ext/sound ext/video rookey/lib/rookey/cpp	ruby ruby/spec">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Thu Feb 26 06:16:36 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000247.html">[Antargis-svn] r1291 - in antargis/trunk/ext: basic sound video
+</A></li>
+        <LI>Next message: <A HREF="000249.html">[Antargis-svn] r1293 - in antargis/trunk: ext/3dengine ext/basic	ext/game ext/gui ext/math ext/sound ext/video	rookey/lib/rookey rookey/lib/rookey/cpp
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#248">[ date ]</a>
+              <a href="thread.html#248">[ thread ]</a>
+              <a href="subject.html#248">[ subject ]</a>
+              <a href="author.html#248">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2009-02-26 06:16:34 +0100 (Thu, 26 Feb 2009)
+New Revision: 1292
+
+Added:
+   antargis/trunk/ext/video/ag_surface_internal.cc
+   antargis/trunk/ext/video/ag_surface_internal.h
+Modified:
+   antargis/trunk/ext/3dengine/ag_glsl.cc
+   antargis/trunk/ext/3dengine/anim_mesh_data.cc
+   antargis/trunk/ext/3dengine/ant_particle.cc
+   antargis/trunk/ext/3dengine/ant_renderer.cc
+   antargis/trunk/ext/3dengine/glsl.cc
+   antargis/trunk/ext/3dengine/mesh_data.cc
+   antargis/trunk/ext/basic/ag_decryptor.h
+   antargis/trunk/ext/basic/ag_kill.cc
+   antargis/trunk/ext/basic/ag_serial.cc
+   antargis/trunk/ext/game/entity.cc
+   antargis/trunk/ext/game/minimap.cc
+   antargis/trunk/ext/gui/ag_widget.cc
+   antargis/trunk/ext/sound/ag_sound.h
+   antargis/trunk/ext/sound/init.cc
+   antargis/trunk/ext/video/ag_color.cc
+   antargis/trunk/ext/video/ag_fontengine.cc
+   antargis/trunk/ext/video/ag_glscreen.cc
+   antargis/trunk/ext/video/ag_gltexture.cc
+   antargis/trunk/ext/video/ag_sdlscreen.cc
+   antargis/trunk/ext/video/ag_surface.cc
+   antargis/trunk/ext/video/ag_surface.h
+   antargis/trunk/ext/video/ag_surfacemanager.cc
+   antargis/trunk/ext/video/ag_texture.cc
+   antargis/trunk/ext/video/ag_video.cc
+   antargis/trunk/rookey/lib/rookey/cpp/rk_rubyobj.cc
+   antargis/trunk/rookey/lib/rookey/cpp/rk_rubyobj.h
+   antargis/trunk/ruby/ant_tools.rb
+   antargis/trunk/ruby/spec/spec_coding_style.rb
+Log:
+code review concerning deletes
+
+Modified: antargis/trunk/ext/3dengine/ag_glsl.cc
+===================================================================
+--- antargis/trunk/ext/3dengine/ag_glsl.cc	2009-02-24 20:50:56 UTC (rev 1291)
++++ antargis/trunk/ext/3dengine/ag_glsl.cc	2009-02-26 05:16:34 UTC (rev 1292)
+@@ -164,7 +164,7 @@
+     if(glslOk() &amp;&amp; !hasQuit())
+       glDeleteObjectARB(p);
+     cdebug(&quot;name:&quot;&lt;&lt;name);
+-    delete [] matrixBuf;
++    checkedDeletArray(matrixBuf); // checked - no agrubyobject
+     cdebug(&quot;name:&quot;&lt;&lt;name);
+     assertGL;
+ 
+
+Modified: antargis/trunk/ext/3dengine/anim_mesh_data.cc
+===================================================================
+--- antargis/trunk/ext/3dengine/anim_mesh_data.cc	2009-02-24 20:50:56 UTC (rev 1291)
++++ antargis/trunk/ext/3dengine/anim_mesh_data.cc	2009-02-26 05:16:34 UTC (rev 1292)
+@@ -125,7 +125,7 @@
+ 
+     // delete bones
+     for(std::vector&lt;Bone*&gt;::iterator i=bones.begin();i!=bones.end();++i)
+-      delete *i;
++      checkedDelete(*i); // checked - no agrubyobject
+ 
+ 
+   }
+
+Modified: antargis/trunk/ext/3dengine/ant_particle.cc
+===================================================================
+--- antargis/trunk/ext/3dengine/ant_particle.cc	2009-02-24 20:50:56 UTC (rev 1291)
++++ antargis/trunk/ext/3dengine/ant_particle.cc	2009-02-26 05:16:34 UTC (rev 1292)
+@@ -48,7 +48,8 @@
+ AntParticle::~AntParticle() throw()
+   {
+     for(std::list&lt;Piece*&gt;::iterator i=mPieces.begin();i!=mPieces.end();i++)
+-      delete *i;
++      checkedDelete(*i);    // checked - no agrubyobject
++
+     mPieces.clear();
+ 
+   }
+@@ -81,7 +82,7 @@
+       {
+         if(mPieces.back()-&gt;lived&gt;maxtime)
+           {
+-            delete mPieces.back();
++            checkedDelete(mPieces.back()); // checked - no agrubyobject
+             mPieces.pop_back();
+           }
+         else
+
+Modified: antargis/trunk/ext/3dengine/ant_renderer.cc
+===================================================================
+--- antargis/trunk/ext/3dengine/ant_renderer.cc	2009-02-24 20:50:56 UTC (rev 1291)
++++ antargis/trunk/ext/3dengine/ant_renderer.cc	2009-02-26 05:16:34 UTC (rev 1292)
+@@ -51,7 +51,7 @@
+     cdebug(&quot;gRenderer:&quot;&lt;&lt;gRenderer);
+     assert(gRenderer==this);
+     gRenderer=0;
+-    delete mFBO;
++    checkedDelete(mFBO); // checked - no agrubyobject
+   }
+ 
+ bool Renderer::canMultitexture()
+
+Modified: antargis/trunk/ext/3dengine/glsl.cc
+===================================================================
+--- antargis/trunk/ext/3dengine/glsl.cc	2009-02-24 20:50:56 UTC (rev 1291)
++++ antargis/trunk/ext/3dengine/glsl.cc	2009-02-26 05:16:34 UTC (rev 1292)
+@@ -117,7 +117,7 @@
+   {
+     takeDown();
+ 
+-    delete [] matrixBuf;
++    delete [] matrixBuf; // checked - no agrubyobject
+   }
+ 
+ void AntShaderProgram::onScreenUp()
+@@ -161,8 +161,8 @@
+     if(glslOk() &amp;&amp; !hasQuit())
+       glDeleteObjectARB(p);
+     //  cdebug(&quot;name:&quot;&lt;&lt;name);
+-    delete vertex;
+-    delete frag;
++    checkedDelete(vertex);
++    checkedDelete(frag); // checked - no agrubyobject
+     locations.clear();
+   }
+ 
+
+Modified: antargis/trunk/ext/3dengine/mesh_data.cc
+===================================================================
+--- antargis/trunk/ext/3dengine/mesh_data.cc	2009-02-24 20:50:56 UTC (rev 1291)
++++ antargis/trunk/ext/3dengine/mesh_data.cc	2009-02-26 05:16:34 UTC (rev 1292)
+@@ -374,5 +374,5 @@
+   {
+     VertexArray *va=::makeInstances(mArray,ts);
+     mArray=*va;
+-    delete va;
++    delete va; // checked - no agrubyobject
+   }
+
+Modified: antargis/trunk/ext/basic/ag_decryptor.h
+===================================================================
+--- antargis/trunk/ext/basic/ag_decryptor.h	2009-02-24 20:50:56 UTC (rev 1291)
++++ antargis/trunk/ext/basic/ag_decryptor.h	2009-02-26 05:16:34 UTC (rev 1292)
+@@ -6,7 +6,7 @@
+  */
+ 
+ #ifndef _AGDECRYPTOR_H
+-#define	_AGDECRYPTOR_H
++#define _AGDECRYPTOR_H
+ 
+ #include &quot;rk_base.h&quot;
+ 
+@@ -19,15 +19,15 @@
+  */
+ class AGEXPORT AGDecryptor {
+ public:
+-    AGDecryptor();
+-    AGDecryptor(const AGDecryptor&amp; orig);
+-    virtual ~AGDecryptor();
++  AGDecryptor();
++  AGDecryptor(const AGDecryptor&amp; orig);
++  virtual ~AGDecryptor();
+ 
+-    virtual std::string decrypt(const std::string &amp;s, const std::string &amp;n);
++  virtual std::string decrypt(const std::string &amp;s, const std::string &amp;n);
+ 
+ private:
+ 
+ };
+ 
+-#endif	/* _AGDECRYPTOR_H */
++#endif /* _AGDECRYPTOR_H */
+ 
+
+Modified: antargis/trunk/ext/basic/ag_kill.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_kill.cc	2009-02-24 20:50:56 UTC (rev 1291)
++++ antargis/trunk/ext/basic/ag_kill.cc	2009-02-26 05:16:34 UTC (rev 1292)
+@@ -23,6 +23,7 @@
+ 
+ #include &quot;ag_kill.h&quot;
+ #include &quot;rk_debug.h&quot;
++#include &quot;rk_rubyobj.h&quot;
+ 
+ AGInstanceKiller *mInstanceKiller=0;
+ bool mIndirectInstance=false;
+@@ -35,7 +36,7 @@
+ void deleteInstanceKiller()
+   {
+     assert(mInstanceKiller);
+-    delete mInstanceKiller;
++    delete mInstanceKiller; // checked - no agrubyobject
+   }
+ 
+ AGInstanceKiller *getInstanceKiller()
+@@ -60,7 +61,12 @@
+     for(;i!=bs.end();i++)
+       {
+         (*i)-&gt;kill();
+-        delete *i;
++        AGRubyObject *rubyObject=dynamic_cast&lt;AGRubyObject*&gt;(*i);
++
++        if(rubyObject)
++          saveDelete(rubyObject);
++        else
++          delete *i; // checked - no agrubyobject
+       }
+ 
+   }
+
+Modified: antargis/trunk/ext/basic/ag_serial.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_serial.cc	2009-02-24 20:50:56 UTC (rev 1291)
++++ antargis/trunk/ext/basic/ag_serial.cc	2009-02-26 05:16:34 UTC (rev 1292)
+@@ -111,7 +111,7 @@
+ 
+ 
+     f=std::string(s,l);
+-    delete s;
++    delete s; // checked - no agrubyobject
+ 
+     return *this;
+   }
+
+Modified: antargis/trunk/ext/game/entity.cc
+===================================================================
+--- antargis/trunk/ext/game/entity.cc	2009-02-24 20:50:56 UTC (rev 1291)
++++ antargis/trunk/ext/game/entity.cc	2009-02-26 05:16:34 UTC (rev 1292)
+@@ -86,7 +86,7 @@
+     for(Meshes::iterator i=mMeshes.begin();i!=mMeshes.end();i++)
+       saveDelete(*i);
+     mMeshes.clear();
+-    delete mJob;
++    delete mJob; // checked - no agrubyobject
+     removeOldJobs();
+   }
+ 
+@@ -251,15 +251,12 @@
+             if((*mJob)&lt;=(*pJob))
+               {
+                 mJobFinished.push_back(mJob);
+-                //delete mJob;
+               }
+             else
+               {
+                 // FIXME: Priorities are ignored for now
+                 //        throw int(); // FIXME: delete this, it's a test if priorities get handled correctly
+                 mJobFinished.push_back(mJob);
+-                //        delete pJob;
+-                //    return;
+               }
+           }
+         else
+@@ -295,7 +292,7 @@
+   {
+     std::list&lt;Job*&gt;::iterator i=mJobFinished.begin();
+     for(;i!=mJobFinished.end();i++)
+-      delete *i;
++      delete *i; // checked - no agrubyobject
+     mJobFinished.clear();
+   }
+ 
+
+Modified: antargis/trunk/ext/game/minimap.cc
+===================================================================
+--- antargis/trunk/ext/game/minimap.cc	2009-02-24 20:50:56 UTC (rev 1291)
++++ antargis/trunk/ext/game/minimap.cc	2009-02-26 05:16:34 UTC (rev 1292)
+@@ -153,12 +153,12 @@
+             }
+       }
+ 
+-    delete p;
++    saveDelete(p);
+     if(inmem)
+       {
+         //      mSurface.save(&quot;sicke.png&quot;);
+         cdebug(mTexture);
+-        delete mTexture;
++        saveDelete(mTexture);
+         mTexture=new AGTexture(mSurface);
+         cdebug(mTexture);
+         CTRACE;
+
+Modified: antargis/trunk/ext/gui/ag_widget.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_widget.cc	2009-02-24 20:50:56 UTC (rev 1291)
++++ antargis/trunk/ext/gui/ag_widget.cc	2009-02-26 05:16:34 UTC (rev 1292)
+@@ -1108,7 +1108,7 @@
+     getConfig()-&gt;set(&quot;widgetTextureCache&quot;,&quot;true&quot;);
+ 
+     mCaching=pEnable;
+-    delete mCache;
++    saveDelete(mCache);
+ 
+     mCache=0;
+     mCacheTouched=false;
+
+Modified: antargis/trunk/ext/sound/ag_sound.h
+===================================================================
+--- antargis/trunk/ext/sound/ag_sound.h	2009-02-24 20:50:56 UTC (rev 1291)
++++ antargis/trunk/ext/sound/ag_sound.h	2009-02-26 05:16:34 UTC (rev 1292)
+@@ -1,7 +1,7 @@
+ #ifndef AG_SOUND_H
+ #define AG_SOUND_H
+-
+-#include &lt;ag_base.h&gt;
++
++#include &quot;rk_base.h&quot;
+ AGEXPORT void initSoundEngine();
+ 
+ #endif
+
+Modified: antargis/trunk/ext/sound/init.cc
+===================================================================
+--- antargis/trunk/ext/sound/init.cc	2009-02-24 20:50:56 UTC (rev 1291)
++++ antargis/trunk/ext/sound/init.cc	2009-02-26 05:16:34 UTC (rev 1292)
+@@ -1,6 +1,6 @@
+-#include &lt;ag_main.h&gt;
+-#include &lt;ag_rand.h&gt;
+-#include &lt;rk_debug.h&gt;
++#include &quot;ag_main.h&quot;
++#include &quot;ag_rand.h&quot;
++#include &quot;rk_debug.h&quot;
+ 
+ extern void initSoundEngine();
+ 
+
+Modified: antargis/trunk/ext/video/ag_color.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_color.cc	2009-02-24 20:50:56 UTC (rev 1291)
++++ antargis/trunk/ext/video/ag_color.cc	2009-02-26 05:16:34 UTC (rev 1292)
+@@ -21,6 +21,7 @@
+ #include &quot;ag_color.h&quot;
+ #include &quot;ag_surface.h&quot;
+ #include &quot;rk_tools.h&quot;
++#include &quot;ag_surface_internal.h&quot;
+ 
+ #include &lt;sstream&gt;
+ 
+
+Modified: antargis/trunk/ext/video/ag_fontengine.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_fontengine.cc	2009-02-24 20:50:56 UTC (rev 1291)
++++ antargis/trunk/ext/video/ag_fontengine.cc	2009-02-26 05:16:34 UTC (rev 1292)
+@@ -25,6 +25,8 @@
+ #include &quot;ag_sgeexport.h&quot;
+ #include &quot;ag_profiler.h&quot;
+ 
++#include &quot;ag_surface_internal.h&quot;
++
+ #include &lt;SDL_ttf.h&gt;
+ 
+ #include &lt;math.h&gt;
+@@ -171,8 +173,8 @@
+ 
+         }
+ 
+-    delete [] a;
+-    delete [] b;
++    delete [] a; // checked - no agrubyobject
++    delete [] b; // checked - no agrubyobject
+   }
+ 
+ void embossSurface(AGSurface &amp;s,float depth=1.0f)
+@@ -276,6 +278,7 @@
+      */
+   }
+ 
++
+ AGTexture *AGFontEngine::renderText(int BaseLineX, int BaseLineY, const AGStringUtf8 &amp;pText, const AGFont &amp;pFont)
+   {
+     if(pText.length()==0)
+
+Modified: antargis/trunk/ext/video/ag_glscreen.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_glscreen.cc	2009-02-24 20:50:56 UTC (rev 1291)
++++ antargis/trunk/ext/video/ag_glscreen.cc	2009-02-26 05:16:34 UTC (rev 1292)
+@@ -34,6 +34,8 @@
+ #include &quot;ag_sgeexport.h&quot;
+ #include &quot;SDL_image.h&quot;
+ 
++#include &quot;ag_surface_internal.h&quot;
++
+ #include &lt;ag_rendercontext.h&gt;
+ #include &lt;SDL.h&gt;
+ 
+
+Modified: antargis/trunk/ext/video/ag_gltexture.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_gltexture.cc	2009-02-24 20:50:56 UTC (rev 1291)
++++ antargis/trunk/ext/video/ag_gltexture.cc	2009-02-26 05:16:34 UTC (rev 1292)
+@@ -25,7 +25,9 @@
+ #include &quot;rk_debug.h&quot;
+ #include &quot;ag_vdebug.h&quot;
+ 
++#include &quot;ag_surface_internal.h&quot;
+ 
++
+ //FIXME: this should be static
+ size_t gUsedTexMemory=0;
+ 
+
+Modified: antargis/trunk/ext/video/ag_sdlscreen.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_sdlscreen.cc	2009-02-24 20:50:56 UTC (rev 1291)
++++ antargis/trunk/ext/video/ag_sdlscreen.cc	2009-02-26 05:16:34 UTC (rev 1292)
+@@ -31,6 +31,8 @@
+ 
+ #include &quot;ag_sdlpainter.h&quot;
+ 
++#include &quot;ag_surface_internal.h&quot;
++
+ static bool gUseSDLclipping=true;
+ 
+ SDL_Surface *AGCreate32BitSurface(size_t width,size_t height);
+@@ -64,7 +66,7 @@
+ 
+     SDL_UpdateRects(s,rs.size(),nrs);
+ 
+-    delete [] nrs;
++    delete [] nrs; // checked - no agrubyobject
+   }
+ 
+ 
+
+Modified: antargis/trunk/ext/video/ag_surface.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_surface.cc	2009-02-24 20:50:56 UTC (rev 1291)
++++ antargis/trunk/ext/video/ag_surface.cc	2009-02-26 05:16:34 UTC (rev 1292)
+@@ -31,6 +31,7 @@
+ #include &quot;ag_glscreen.h&quot;
+ #include &quot;ag_sdlpainter.h&quot;
+ #include &quot;ag_surfacemanager.h&quot;
++#include &quot;ag_surface_internal.h&quot;
+ 
+ #include &lt;SDL_image.h&gt;
+ 
+@@ -106,26 +107,8 @@
+ 
+ 
+ 
+-///////////////////////////////////////////////////////////////////////
+-// AGInternalSurface
+-///////////////////////////////////////////////////////////////////////
+ 
+-AGInternalSurface::AGInternalSurface()
+-{
+-  sdlTexture=0;
+-  glTexture=0;
+-  surface=0;
+-  getSurfaceManager()-&gt;registerMe(this);
+-  version=1;
+-}
+ 
+-AGInternalSurface::~AGInternalSurface()
+-{
+-  getSurfaceManager()-&gt;deregisterMe(this);
+-}
+-
+-
+-
+ ///////////////////////////////////////////////////////////////////////
+ // AGSurface
+ ///////////////////////////////////////////////////////////////////////
+
+Modified: antargis/trunk/ext/video/ag_surface.h
+===================================================================
+--- antargis/trunk/ext/video/ag_surface.h	2009-02-24 20:50:56 UTC (rev 1291)
++++ antargis/trunk/ext/video/ag_surface.h	2009-02-26 05:16:34 UTC (rev 1292)
+@@ -40,28 +40,12 @@
+ class AGColor;
+ class AGSurface;
+ class AGGLTexture;
++struct AGInternalSurface;
+ 
+ AGEXPORT void beginRender();
+ AGEXPORT void endRender();
+ AGEXPORT bool isRendering();
+ 
+-/**
+-   AGInternalSurface links plain sdl-surfaces (in main-memory) and textures (both gl-textures and
+-   sdl-screenlike-surfaces)
+-*/
+-struct AGEXPORT AGInternalSurface
+-{
+-  AGInternalSurface  *sdlTexture;
+-  AGGLTexture *glTexture;
+-  SDL_Surface *surface;
+-  size_t version;
+-
+-  AGInternalSurface();
+-  ~AGInternalSurface();
+-};
+-
+-
+-
+ class AGSurfaceEmptyException:public AGException
+ {
+ public:
+
+Added: antargis/trunk/ext/video/ag_surface_internal.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_surface_internal.cc	2009-02-24 20:50:56 UTC (rev 1291)
++++ antargis/trunk/ext/video/ag_surface_internal.cc	2009-02-26 05:16:34 UTC (rev 1292)
+@@ -0,0 +1,36 @@
++/*
++ * Copyright (c) 2009 by David Kamphausen. All rights reserved.
++ *
++ * ag_surface_internal.cc
++ * by David Kamphausen (<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">david.kamphausen at web.de</A>)
++ *
++ * The &quot;Antargis&quot; project, including all files needed to compile it,
++ * is free software; you can redistribute it and/or use it and/or modify it
++ * under the terms of the GNU General Public License as published
++ * by the Free Software Foundation; either version 2 of the License,
++ * or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
++ *
++ * You should have received a copy of the GNU General Public
++ * License along with this program.
++ */
++
++#include &quot;ag_surface_internal.h&quot;
++#include &quot;ag_surfacemanager.h&quot;
++
++AGInternalSurface::AGInternalSurface()
++{
++  sdlTexture=0;
++  glTexture=0;
++  surface=0;
++  getSurfaceManager()-&gt;registerMe(this);
++  version=1;
++}
++
++AGInternalSurface::~AGInternalSurface()
++{
++  getSurfaceManager()-&gt;deregisterMe(this);
++}
+
+Added: antargis/trunk/ext/video/ag_surface_internal.h
+===================================================================
+--- antargis/trunk/ext/video/ag_surface_internal.h	2009-02-24 20:50:56 UTC (rev 1291)
++++ antargis/trunk/ext/video/ag_surface_internal.h	2009-02-26 05:16:34 UTC (rev 1292)
+@@ -0,0 +1,46 @@
++/*
++ * Copyright (c) 2009 by David Kamphausen. All rights reserved.
++ *
++ * ag_surface_internal.h
++ * by David Kamphausen (<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">david.kamphausen at web.de</A>)
++ *
++ * The &quot;Antargis&quot; project, including all files needed to compile it,
++ * is free software; you can redistribute it and/or use it and/or modify it
++ * under the terms of the GNU General Public License as published
++ * by the Free Software Foundation; either version 2 of the License,
++ * or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
++ *
++ * You should have received a copy of the GNU General Public
++ * License along with this program.
++ */
++
++#ifndef AG_SURFACE_INTERNAL
++#define AG_SURFACE_INTERNAL
++
++#include &quot;rk_base.h&quot;
++
++#include &quot;ag_gltexture.h&quot;
++
++class AGGLTexture;
++
++/**
++   AGInternalSurface links plain sdl-surfaces (in main-memory) and textures (both gl-textures and
++   sdl-screenlike-surfaces)
++*/
++struct AGEXPORT AGInternalSurface
++{
++  AGInternalSurface  *sdlTexture;
++  AGGLTexture *glTexture;
++  SDL_Surface *surface;
++  size_t version;
++
++  AGInternalSurface();
++  ~AGInternalSurface();
++};
++
++
++#endif
+
+Modified: antargis/trunk/ext/video/ag_surfacemanager.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_surfacemanager.cc	2009-02-24 20:50:56 UTC (rev 1291)
++++ antargis/trunk/ext/video/ag_surfacemanager.cc	2009-02-26 05:16:34 UTC (rev 1292)
+@@ -28,6 +28,8 @@
+ #include &quot;ag_glscreen.h&quot;
+ #include &quot;ag_profiler.h&quot;
+ 
++#include &quot;ag_surface_internal.h&quot;
++
+ #include &lt;map&gt;
+ 
+ ////////////////////////////////////////////////////////////////////////
+@@ -45,11 +47,11 @@
+     for(std::set&lt;AGInternalSurface*&gt;::iterator i=mSDLSurfaces.begin();i!=mSDLSurfaces.end();++i)
+       {
+         AGFreeSurface((*i)-&gt;surface);
+-        delete *i;
++        delete *i; // checked - no agrubyobject
+       }
+     for(std::set&lt;AGGLTexture*&gt;::iterator i=mGLTextures.begin();i!=mGLTextures.end();++i)
+       {
+-        delete *i;
++        delete *i; // checked - no agrubyobject
+       }
+ 
+     mSurfaceManagerDeleted=true;
+
+Modified: antargis/trunk/ext/video/ag_texture.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_texture.cc	2009-02-24 20:50:56 UTC (rev 1291)
++++ antargis/trunk/ext/video/ag_texture.cc	2009-02-26 05:16:34 UTC (rev 1292)
+@@ -31,6 +31,8 @@
+ #include &quot;ag_sdlpainter.h&quot;
+ #include &quot;ag_video.h&quot;
+ 
++#include &quot;ag_surface_internal.h&quot;
++
+ #include &lt;stdexcept&gt;
+ 
+ size_t nextpow2(size_t i)
+@@ -141,7 +143,7 @@
+   {
+     if(getSurfaceManager())
+       getSurfaceManager()-&gt;deregisterMe(this);
+-    delete mFBO;
++    delete mFBO; // checked - no agrubyobject
+   }
+ 
+ int AGTexture::width() const
+@@ -174,7 +176,7 @@
+ void AGTexture::clearTexture()
+   {
+     mTexture=0;
+-    delete mFBO;
++    delete mFBO; // checked - no agrubyobject
+     mFBO=0;
+   }
+ void AGTexture::clearTextureUsed()
+
+Modified: antargis/trunk/ext/video/ag_video.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_video.cc	2009-02-24 20:50:56 UTC (rev 1291)
++++ antargis/trunk/ext/video/ag_video.cc	2009-02-26 05:16:34 UTC (rev 1292)
+@@ -107,7 +107,7 @@
+ 
+     if(mScreen)
+       {
+-        delete mScreen;
++        saveDelete(mScreen);
+       }
+ 
+     if(vw&lt;w)
+
+Modified: antargis/trunk/rookey/lib/rookey/cpp/rk_rubyobj.cc
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_rubyobj.cc	2009-02-24 20:50:56 UTC (rev 1291)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_rubyobj.cc	2009-02-26 05:16:34 UTC (rev 1292)
+@@ -134,7 +134,41 @@
+     o-&gt;mark();
+   }
+ 
++/** checkedDelete deletes o, but checks before if o is a AGRubyObject
++ **/
+ 
++bool checkedDelete(void *o)
++{
++  AGRubyObject *ro=(AGRubyObject*)o;
++  if(mRubyObjects.find(ro)==mRubyObjects.end())
++    {
++    // not found - it's safe to delete it
++    delete o;
++    return true;
++  }
++  std::cerr&lt;&lt;&quot;Possible error in checkedDelete(.)&quot;&lt;&lt;std::endl;
++
++  return false;
++}
++
++/** checkedDelete deletes o, but checks before if o is a AGRubyObject
++ **/
++
++bool checkedDeleteArray(void *o)
++{
++  AGRubyObject *ro=(AGRubyObject*)o;
++  if(mRubyObjects.find(ro)==mRubyObjects.end())
++    {
++    // not found - it's safe to delete it
++    delete [] o;
++    return true;
++  }
++  std::cerr&lt;&lt;&quot;Possible error in checkedDeleteArray(.)&quot;&lt;&lt;std::endl;
++
++  return false;
++}
++
++
+ /**
+    saveDelete is used to delete AGRubyObjects savely.
+  */
+
+Modified: antargis/trunk/rookey/lib/rookey/cpp/rk_rubyobj.h
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_rubyobj.h	2009-02-24 20:50:56 UTC (rev 1291)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_rubyobj.h	2009-02-26 05:16:34 UTC (rev 1292)
+@@ -125,6 +125,8 @@
+ 
+ AGEXPORT void general_markfunc(void *ptr);
+ AGEXPORT bool saveDelete(AGRubyObject *o);
++AGEXPORT bool checkedDelete(void *o);
++AGEXPORT bool checkedDeleteArray(void *o);
+ 
+ AGEXPORT void *getAddressOfRubyObject(AGRubyObject *object);
+ AGEXPORT bool rubyObjectExists(void *o);
+
+Modified: antargis/trunk/ruby/ant_tools.rb
+===================================================================
+--- antargis/trunk/ruby/ant_tools.rb	2009-02-24 20:50:56 UTC (rev 1291)
++++ antargis/trunk/ruby/ant_tools.rb	2009-02-26 05:16:34 UTC (rev 1292)
+@@ -85,3 +85,13 @@
+     end
+   end
+ end
++
++
++class File
++  def self.load(filename)
++    f=File.open(filename,&quot;r&quot;)
++    c=f.read
++    f.close
++    c
++  end
++end
+
+Modified: antargis/trunk/ruby/spec/spec_coding_style.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_coding_style.rb	2009-02-24 20:50:56 UTC (rev 1291)
++++ antargis/trunk/ruby/spec/spec_coding_style.rb	2009-02-26 05:16:34 UTC (rev 1292)
+@@ -1,3 +1,5 @@
++require File.expand_path('../../ant_tools.rb',__FILE__)
++
+ def checkTabs(filename)
+   file=File.open(filename)
+   c=file.read
+@@ -8,11 +10,29 @@
+   
+   linenr=0
+   numbers=c.split(&quot;\n&quot;).map{|line|[line=~/\t/,linenr+=1]}.select{|l|l[0]}.map{|l|l[1]}
+-  puts &quot;failed line-numbers (#{filename}): #{numbers.join(&quot;,&quot;)}&quot;
++  puts &quot;failed line-numbers (#{filename}): #{numbers.join(&quot;,&quot;)}&quot; if result!=okfilename
+   
+   result.should == okfilename
+ end
+ 
++def checkDeletes(filename)
++  c=File.load(filename)
++  linenr=0
++  ok=&quot;#{filename} contains no unreviewed deletes&quot;
++  result=ok
++  c.split(&quot;\n&quot;).each{|line|
++    linenr+=1
++    #unless line=~/checked - no agrubyobject/
++      line.gsub!(/\/\/.*/,&quot;&quot;)
++      if line=~/delete /
++        puts &quot;failed line-number (#{filename}) #{linenr}&quot;
++        result=&quot;#{filename} contains unreviewed deletes&quot;
++      end
++    #end
++  }
++  result.should == ok
++end
++
+ describe &quot;Coding style C/++&quot; do
+   it &quot;shouldn't include any TABs anymore&quot; do
+     (Dir[&quot;ext/**/*.cc&quot;]+Dir[&quot;ext/**/*.h&quot;]).select{|filename|not filename=~/swig/}.each {|filename|
+@@ -24,6 +44,12 @@
+   it &quot;should include author/modification date&quot;
+   it &quot;should include GPL in all files&quot;
+   it &quot;should not have any TODOs left&quot;
++
++  it &quot;should not include any unreviewed delete-statements&quot; do
++    (Dir[&quot;ext/**/*.cc&quot;]+Dir[&quot;ext/**/*.h&quot;]).select{|filename|not filename=~/swig/}.each {|filename|
++      checkDeletes(filename)
++    }
++  end
+ end
+ 
+ describe &quot;Coding style Ruby&quot; do
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000247.html">[Antargis-svn] r1291 - in antargis/trunk/ext: basic sound video
+</A></li>
+	<LI>Next message: <A HREF="000249.html">[Antargis-svn] r1293 - in antargis/trunk: ext/3dengine ext/basic	ext/game ext/gui ext/math ext/sound ext/video	rookey/lib/rookey rookey/lib/rookey/cpp
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#248">[ date ]</a>
+              <a href="thread.html#248">[ thread ]</a>
+              <a href="subject.html#248">[ subject ]</a>
+              <a href="author.html#248">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

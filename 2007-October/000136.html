@@ -1,0 +1,157 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1179 - in antargis/branches/rant: . data/gui/layout	ruby
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-October/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1179%20-%20in%20antargis/branches/rant%3A%20.%20data/gui/layout%0A%09ruby&In-Reply-To=%3C200710250904.l9P94lpj000653%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000135.html">
+   <LINK REL="Next"  HREF="000137.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1179 - in antargis/branches/rant: . data/gui/layout	ruby</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1179%20-%20in%20antargis/branches/rant%3A%20.%20data/gui/layout%0A%09ruby&In-Reply-To=%3C200710250904.l9P94lpj000653%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1179 - in antargis/branches/rant: . data/gui/layout	ruby">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Thu Oct 25 11:04:47 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000135.html">[Antargis-svn] r1178 - in antargis/branches/rant: ext/3dengine	ext/gui ruby/jobs
+</A></li>
+        <LI>Next message: <A HREF="000137.html">[Antargis-svn] r1180 - in antargis/branches/rant: . data/gui/layout	ruby
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#136">[ date ]</a>
+              <a href="thread.html#136">[ thread ]</a>
+              <a href="subject.html#136">[ subject ]</a>
+              <a href="author.html#136">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-10-25 11:04:47 +0200 (Thu, 25 Oct 2007)
+New Revision: 1179
+
+Modified:
+   antargis/branches/rant/TODO
+   antargis/branches/rant/data/gui/layout/options.xml
+   antargis/branches/rant/ruby/mainmenu.rb
+Log:
+* some crashes within the options-menu fixed
+
+
+Modified: antargis/branches/rant/TODO
+===================================================================
+--- antargis/branches/rant/TODO	2007-10-25 08:48:24 UTC (rev 1178)
++++ antargis/branches/rant/TODO	2007-10-25 09:04:47 UTC (rev 1179)
+@@ -1,4 +1,8 @@
+-* saving !!
++* why is the story-telling dialog taking so much time ??
++* why is the story-telling dialog eating up clicks ?
++* improve settings-dialog!
++
++* saving - hljobs !!
+ * check dep-handling with swig
+ * implement last hl-jobs 
+ * move single entities with path-finder, too?
+
+Modified: antargis/branches/rant/data/gui/layout/options.xml
+===================================================================
+--- antargis/branches/rant/data/gui/layout/options.xml	2007-10-25 08:48:24 UTC (rev 1178)
++++ antargis/branches/rant/data/gui/layout/options.xml	2007-10-25 09:04:47 UTC (rev 1179)
+@@ -16,6 +16,7 @@
+ 			&lt;cell col=&quot;1&quot; row=&quot;0&quot;&gt;
+ 				&lt;!--&lt;text caption=&quot;No options here for the time being&quot;/&gt;--&gt;
+ 				&lt;table cols=&quot;2&quot; rows=&quot;13&quot; name=&quot;VideoOptionsMenu&quot; visible=&quot;false&quot;&gt;
++					&lt;colsize col=&quot;0&quot; relative=&quot;0.6&quot;/&gt;
+ 					&lt;colsize col=&quot;1&quot; relative=&quot;2&quot;/&gt;
+ 					&lt;!--&lt;rowsize row=&quot;0&quot; relative=&quot;5&quot;/&gt;
+ 					&lt;rowsize row=&quot;2&quot; relative=&quot;5&quot;/&gt;
+@@ -37,11 +38,13 @@
+ 								&lt;text caption=&quot;Texture quality&quot;/&gt;
+ 							&lt;/cell&gt;
+ 							&lt;cell col=&quot;2&quot; row=&quot;0&quot;&gt;
+-								&lt;comboBox name=&quot;textureQuality&quot;&gt;
+-									&lt;item id=&quot;low&quot; text=&quot;low&quot;/&gt;
+-									&lt;item id=&quot;medium&quot; text=&quot;medium&quot;/&gt;
+-									&lt;item id=&quot;high&quot; text=&quot;high&quot;/&gt;
+-								&lt;/comboBox&gt;
++								&lt;frame border=&quot;button.border.normal&quot; visible=&quot;true&quot;&gt;
++									&lt;comboBox name=&quot;textureQuality&quot; cache=&quot;false&quot;&gt;
++										&lt;item id=&quot;low&quot; text=&quot;low&quot;/&gt;
++										&lt;item id=&quot;medium&quot; text=&quot;medium&quot;/&gt;
++										&lt;item id=&quot;high&quot; text=&quot;high&quot;/&gt;
++									&lt;/comboBox&gt;
++								&lt;/frame&gt;
+ 							&lt;/cell&gt;
+ 						&lt;/table&gt;
+ 					&lt;/cell&gt;
+
+Modified: antargis/branches/rant/ruby/mainmenu.rb
+===================================================================
+--- antargis/branches/rant/ruby/mainmenu.rb	2007-10-25 08:48:24 UTC (rev 1178)
++++ antargis/branches/rant/ruby/mainmenu.rb	2007-10-25 09:04:47 UTC (rev 1179)
+@@ -341,7 +341,7 @@
+ 	end
+ 
+ 	def eventFullscreen
+-		getMain.initVideo(getMain.realWidth,getMain.realHeight,32,(not getMain.fullscreen),true,1024,768)
++		getMain.getVideo.initVideo(getMain.getVideo.realWidth,getMain.getVideo.realHeight,32,(not getMain.getVideo.fullscreen),true,1024,768)
+ 		getConfig.set(&quot;fullscreen&quot;,getMain.fullscreen.to_s)
+ 		return true
+ 	end
+@@ -370,6 +370,7 @@
+ 	# simple frame-event-handler - only counts how much FPS we have
+ 	# and displays this on CLI
+ 	def eventFrame(t)
++		delay(5)
+ 		@frameTime||=0
+ 		@frames||=0
+ 		@frameTime+=t
+@@ -477,10 +478,10 @@
+ 
+ 	# switch to the video-resolution with pixel-width *w* and height *h*
+ 	def setRes(w,h)
+-		getMain.initVideo(w,h,32,true,true,1024,768) #getMain.fullscreen,true)
+-		getConfig.set(&quot;xRes&quot;,getMain.realWidth.to_s)
+-		getConfig.set(&quot;yRes&quot;,getMain.realHeight.to_s)
+-		puts getSurfaceManager.getUsedTexMem
++		getMain.getVideo.initVideo(w,h,32,true,true,1024,768) #getMain.fullscreen,true)
++		getConfig.set(&quot;xRes&quot;,getMain.getVideo.realWidth.to_s)
++		getConfig.set(&quot;yRes&quot;,getMain.getVideo.realHeight.to_s)
++		#puts getSurfaceManager.getUsedTexMem
+ 		#raise 1
+ 	end
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000135.html">[Antargis-svn] r1178 - in antargis/branches/rant: ext/3dengine	ext/gui ruby/jobs
+</A></li>
+	<LI>Next message: <A HREF="000137.html">[Antargis-svn] r1180 - in antargis/branches/rant: . data/gui/layout	ruby
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#136">[ date ]</a>
+              <a href="thread.html#136">[ thread ]</a>
+              <a href="subject.html#136">[ subject ]</a>
+              <a href="author.html#136">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

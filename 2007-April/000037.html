@@ -1,0 +1,263 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1079 - antargis/branches/branch_2d/ruby
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-April/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1079%20-%20antargis/branches/branch_2d/ruby&In-Reply-To=%3C200704291926.l3TJQkQr027808%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000036.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1079 - antargis/branches/branch_2d/ruby</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1079%20-%20antargis/branches/branch_2d/ruby&In-Reply-To=%3C200704291926.l3TJQkQr027808%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1079 - antargis/branches/branch_2d/ruby">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sun Apr 29 21:26:46 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000036.html">[Antargis-svn] r1078 - in antargis/branches/branch_2d: .	data/textures/models ruby ruby/editor src
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#37">[ date ]</a>
+              <a href="thread.html#37">[ thread ]</a>
+              <a href="subject.html#37">[ subject ]</a>
+              <a href="author.html#37">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-04-29 21:26:46 +0200 (Sun, 29 Apr 2007)
+New Revision: 1079
+
+Modified:
+   antargis/branches/branch_2d/ruby/ant_farm.rb
+   antargis/branches/branch_2d/ruby/ant_field.rb
+   antargis/branches/branch_2d/ruby/ant_fire.rb
+   antargis/branches/branch_2d/ruby/ant_fishing_hut.rb
+   antargis/branches/branch_2d/ruby/ant_models.rb
+   antargis/branches/branch_2d/ruby/ant_stone.rb
+Log:
+* more centralizing meshes
+
+
+Modified: antargis/branches/branch_2d/ruby/ant_farm.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_farm.rb	2007-04-29 18:30:58 UTC (rev 1078)
++++ antargis/branches/branch_2d/ruby/ant_farm.rb	2007-04-29 19:26:46 UTC (rev 1079)
+@@ -35,9 +35,7 @@
+ 	end
+ 	
+ 	def setupMesh
+-		mesh=Mesh.new(getMap.getScene,getMeshData(&quot;data/models/farm.ant2&quot;,0.2,&quot;data/textures/models/farm.png&quot;),AGVector4.new(0,0,0),-30)
+-		#mesh=Mesh.new(getMap.getScene,getMeshData(&quot;data/models/townhall.ant2&quot;,3.2,&quot;data/textures/models/townhall.png&quot;),AGVector4.new(0,0,0),-30)
+-		setMesh(mesh)
++		setMesh(createModel(:farm))
+ 	end
+ 
+ 	def neededStock
+
+Modified: antargis/branches/branch_2d/ruby/ant_field.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_field.rb	2007-04-29 18:30:58 UTC (rev 1078)
++++ antargis/branches/branch_2d/ruby/ant_field.rb	2007-04-29 19:26:46 UTC (rev 1079)
+@@ -5,8 +5,7 @@
+ 		setProvide(&quot;field&quot;,true)
+ 		@size=0
+ 		#init fieldMeshes-var
+-		AntField.getFieldMeshData(0)
+-		@max=@@fieldMeshes.length-1
++		@max=getMeshCount(:field)-1
+ 		setupMesh
+ 		@growTime=20
+ 		@begin=true
+@@ -38,22 +37,6 @@
+ 	
+ 	private
+ 	def setupMesh
+-		
+-		mesh=Mesh.new(getMap.getScene,AntField.getFieldMeshData(@size),AGVector4.new(0,0,0),-30)
+-		setMesh(mesh)
++		setMesh(createModel(:<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">field, at size</A>))		
+ 	end
+-
+-	@@fieldMeshes=nil
+-
+-	def AntField.getFieldMeshData(size)
+-		if @@fieldMeshes.nil?
+-			@@fieldMeshes=[
+-				getMeshData(&quot;data/models/crop_tiny.ant2&quot;,2.2,&quot;data/textures/models/crop_tiny.png&quot;),
+-				getMeshData(&quot;data/models/crop_small.ant2&quot;,2.2,&quot;data/textures/models/crop_green.png&quot;),
+-				getMeshData(&quot;data/models/crop_med.ant2&quot;,2.2,&quot;data/textures/models/crop_yellow.png&quot;),
+-				getMeshData(&quot;data/models/crop_high.ant2&quot;,2.2,&quot;data/textures/models/crop_gold.png&quot;)]
+-		end
+-		@@fieldMeshes[size]
+-	end
+-
+ end
+
+Modified: antargis/branches/branch_2d/ruby/ant_fire.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_fire.rb	2007-04-29 18:30:58 UTC (rev 1078)
++++ antargis/branches/branch_2d/ruby/ant_fire.rb	2007-04-29 19:26:46 UTC (rev 1079)
+@@ -2,8 +2,9 @@
+ 	def initialize(p=AGVector2.new(0,0))
+ 		super
+ 		mp=AGVector3.new(0,0,0)
+-		mesh=Mesh.new(getMap.getScene,getMeshData(&quot;data/models/fire.ant2&quot;,0.3,&quot;data/textures/models/fire.png&quot;),AGVector4.new(0,0,0),0)
+-		setMesh(mesh)
++		setMesh(createModel(:fire,:on))
++# 		mesh=Mesh.new(getMap.getScene,getMeshData(&quot;data/models/fire.ant2&quot;,0.3,&quot;data/textures/models/fire.png&quot;),AGVector4.new(0,0,0),0)
++# 		setMesh(mesh)
+ 		@smokeMesh=Smoke.new(getMap.getScene,4)
+ 		addMesh(@smokeMesh,mp)
+ 		smoke=Smoke.new(getMap.getScene,40)
+@@ -14,7 +15,8 @@
+ 		@enabled=true
+ 	end
+ 	def disable
+-		setMesh(Mesh.new(getMap.getScene,getMeshData(&quot;data/models/fire.ant2&quot;,0.3,&quot;data/textures/models/fire2.png&quot;),AGVector4.new(0,0,0),0))
++		setMesh(createModel(:fire,:off))
++		#setMesh(Mesh.new(getMap.getScene,getMeshData(&quot;data/models/fire.ant2&quot;,0.3,&quot;data/textures/models/fire2.png&quot;),AGVector4.new(0,0,0),0))
+ 		getMap.getScene.addNode(@smokeMesh) # FIXME: dirty hack - solve this another way!!!
+ 		addMesh(@smokeMesh,AGVector3.new(0,0,0))
+ 		@smokeMesh.setEnabled(false)
+
+Modified: antargis/branches/branch_2d/ruby/ant_fishing_hut.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_fishing_hut.rb	2007-04-29 18:30:58 UTC (rev 1078)
++++ antargis/branches/branch_2d/ruby/ant_fishing_hut.rb	2007-04-29 19:26:46 UTC (rev 1079)
+@@ -11,10 +11,13 @@
+ 	end
+ 	
+ 	def setupMesh
+-		data=getMeshData(&quot;data/models/fishing_hut.ant2&quot;,3.2,&quot;data/textures/models/fishing_hut.png&quot;)
+-		data.setTransparent(true)
+-		mesh=Mesh.new(getMap.getScene,data,AGVector4.new(0,0,0),-30)
+-		setMesh(mesh)
++		setMesh(createModel(:fishing_hut))
++# 
++# 
++# 		data=getMeshData(&quot;data/models/fishing_hut.ant2&quot;,3.2,&quot;data/textures/models/fishing_hut.png&quot;)
++# 		data.setTransparent(true)
++# 		mesh=Mesh.new(getMap.getScene,data,AGVector4.new(0,0,0),-30)
++# 		setMesh(mesh)
+ 	end
+ 
+ 	def neededStock
+
+Modified: antargis/branches/branch_2d/ruby/ant_models.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_models.rb	2007-04-29 18:30:58 UTC (rev 1078)
++++ antargis/branches/branch_2d/ruby/ant_models.rb	2007-04-29 19:26:46 UTC (rev 1079)
+@@ -11,7 +11,8 @@
+ 		&quot;well&quot;=&gt;-30,
+ 		&quot;ant_bakery&quot;=&gt;-30,
+ 		&quot;ant_coach&quot;=&gt;-50,
+-		&quot;livinghouse&quot;=&gt;-20
++		&quot;livinghouse&quot;=&gt;-20,
++		&quot;farm&quot;=&gt;-30,
+ 	}
+ 
+ 	if rot.member?(name)
+@@ -40,6 +41,9 @@
+ 		&quot;druid_lp&quot;=&gt;0.08,
+ 		&quot;smith_lp&quot;=&gt;0.08,
+ 		&quot;livinghouse&quot;=&gt;0.16,
++		&quot;farm&quot;=&gt;0.2,
++		&quot;fire&quot;=&gt;0.3,
++		&quot;big_stone&quot;=&gt;0.7,
+ 	}
+ 
+ 	if scales.member?(name)
+@@ -80,6 +84,12 @@
+ 			[1]=&gt;[&quot;data/models/building_site0.ant2&quot;,1.7,&quot;data/textures/models/building_site1.png&quot;],
+ 			[2]=&gt;[&quot;data/models/building_site2.ant2&quot;,1.7,&quot;data/textures/models/building_site1.png&quot;],
+ 		},
++		:field=&gt;{
++			[0]=&gt;[&quot;data/models/crop_tiny.ant2&quot;,2.2,&quot;data/textures/models/crop_tiny.png&quot;],
++			[1]=&gt;[&quot;data/models/crop_small.ant2&quot;,2.2,&quot;data/textures/models/crop_green.png&quot;],
++			[2]=&gt;[&quot;data/models/crop_med.ant2&quot;,2.2,&quot;data/textures/models/crop_yellow.png&quot;],
++			[3]=&gt;[&quot;data/models/crop_high.ant2&quot;,2.2,&quot;data/textures/models/crop_gold.png&quot;]
++		},
+ 		:tower=&gt;{
+ 			[]=&gt;&quot;tower&quot;
+ 		},
+@@ -144,7 +154,23 @@
+ 		{
+ 			[]=&gt;&quot;livinghouse&quot;
+ 		},
+-	
++		:farm=&gt;
++		{
++			[]=&gt;&quot;farm&quot;
++		},	
++		:fire=&gt;
++		{
++			[:on]=&gt;[&quot;data/models/fire.ant2&quot;,0.3,&quot;data/textures/models/fire.png&quot;],
++			[:off]=&gt;[&quot;data/models/fire.ant2&quot;,0.3,&quot;data/textures/models/fire2.png&quot;]
++		},
++		:fishing_hut=&gt;
++		{
++			[]=&gt;[&quot;data/models/fishing_hut.ant2&quot;,3.2,&quot;data/textures/models/fishing_hut.png&quot;,false]
++		},
++		:stone=&gt;
++		{
++			[]=&gt;&quot;big_stone&quot;
++		},
+ 	}
+ end
+ 
+
+Modified: antargis/branches/branch_2d/ruby/ant_stone.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_stone.rb	2007-04-29 18:30:58 UTC (rev 1078)
++++ antargis/branches/branch_2d/ruby/ant_stone.rb	2007-04-29 19:26:46 UTC (rev 1079)
+@@ -23,12 +23,9 @@
+ 		super(AGVector2.new(0,0))
+ 		@typeID=(getRand*2).to_i
+ 		setProvide(&quot;stone&quot;,true)
+-		#setMesh(Mesh.new(getMeshData(&quot;data/models/floor.ant2&quot;,1,&quot;data/textures/splats/gravel_big2.png&quot;,false),AGVector4.new(0,0,0,0),0))
+-		setMesh(Mesh.new(getMap.getScene,getMeshData(&quot;data/models/big_stone.ant2&quot;,0.7,&quot;data/textures/models/big_stone.png&quot;),AGVector4.new(0,0,0,0),getRand*360))
+-		
+-#		setMesh(NewDecal.new(AGVector2.new(3,3),5.3,getMap,&quot;data/textures/gravel.png&quot;))
+-#		setMesh(NewDecal.new(AGVector2.new(3,3),5.3,getMap,&quot;data/textures/terrain/rough_dirt2.png&quot;))
+-#		setMesh(Mesh.new(
++		#setMesh(Mesh.new(getMap.getScene,getMeshData(&quot;data/models/big_stone.ant2&quot;,0.7,&quot;data/textures/models/big_stone.png&quot;),AGVector4.new(0,0,0,0),getRand*360))
++		setMesh(mesh=createModel(:stone))
++		mesh.setRotation(getRand*360)
+ 		resource.set(&quot;stone&quot;,500)
+ 	end
+ 	def setTreeType(t)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000036.html">[Antargis-svn] r1078 - in antargis/branches/branch_2d: .	data/textures/models ruby ruby/editor src
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#37">[ date ]</a>
+              <a href="thread.html#37">[ thread ]</a>
+              <a href="subject.html#37">[ subject ]</a>
+              <a href="author.html#37">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

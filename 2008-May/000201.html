@@ -1,0 +1,4629 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1245 - in antargis/trunk: . build build/swig	build/win32 build/win32/libs data/gui/layout/editor/campaign	ext/basic ext/gui ruby/editor/campaign ruby/gui
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2008-May/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1245%20-%20in%20antargis/trunk%3A%20.%20build%20build/swig%0A%09build/win32%20build/win32/libs%20data/gui/layout/editor/campaign%0A%09ext/basic%20ext/gui%20ruby/editor/campaign%20ruby/gui&In-Reply-To=%3C200805131827.m4DIRqIe026028%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000200.html">
+   <LINK REL="Next"  HREF="000202.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1245 - in antargis/trunk: . build build/swig	build/win32 build/win32/libs data/gui/layout/editor/campaign	ext/basic ext/gui ruby/editor/campaign ruby/gui</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1245%20-%20in%20antargis/trunk%3A%20.%20build%20build/swig%0A%09build/win32%20build/win32/libs%20data/gui/layout/editor/campaign%0A%09ext/basic%20ext/gui%20ruby/editor/campaign%20ruby/gui&In-Reply-To=%3C200805131827.m4DIRqIe026028%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1245 - in antargis/trunk: . build build/swig	build/win32 build/win32/libs data/gui/layout/editor/campaign	ext/basic ext/gui ruby/editor/campaign ruby/gui">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Tue May 13 20:27:52 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000200.html">[Antargis-svn] r1244 - in antargis/trunk: .	data/gui/layout/editor/campaign ext/basic ext/game ext/gui	rookey rookey/cpp ruby ruby/editor/campaign ruby/gui ruby/spec
+</A></li>
+        <LI>Next message: <A HREF="000202.html">[Antargis-svn] r1246 - in antargis/trunk: ext/gui ext/video	ruby/editor/campaign ruby/spec
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#201">[ date ]</a>
+              <a href="thread.html#201">[ thread ]</a>
+              <a href="subject.html#201">[ subject ]</a>
+              <a href="author.html#201">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2008-05-13 20:27:49 +0200 (Tue, 13 May 2008)
+New Revision: 1245
+
+Added:
+   antargis/trunk/config_cache.rb
+   antargis/trunk/debug.txt
+   antargis/trunk/ruby/editor/campaign/editor.rb
+   antargis/trunk/ruby/editor/campaign/spec_campaign_editor.rb
+Removed:
+   antargis/trunk/.antargis_swig.cc.swp
+   antargis/trunk/build/Doxyfile
+   antargis/trunk/build/README
+   antargis/trunk/build/antconfig.rb
+   antargis/trunk/build/base_tools.rb
+   antargis/trunk/build/bin/
+   antargis/trunk/build/config_file.rb
+   antargis/trunk/build/config_tools.rb
+   antargis/trunk/build/configs/
+   antargis/trunk/build/configure.rb
+   antargis/trunk/build/cpp_parser.rb
+   antargis/trunk/build/create_interface.rb
+   antargis/trunk/build/cross_compile.rb
+   antargis/trunk/build/interface_template.rb
+   antargis/trunk/build/mkmf_support.rb
+   antargis/trunk/build/platform.rb
+   antargis/trunk/build/property.rb
+   antargis/trunk/build/shell.rb
+   antargis/trunk/build/spec/
+   antargis/trunk/build/swig/AGString.i
+   antargis/trunk/build/swig/ag_data.i
+   antargis/trunk/build/swig/ag_filename.i
+   antargis/trunk/build/swig/ag_string.i
+   antargis/trunk/build/swig/ag_string_new.i
+   antargis/trunk/build/swig/common.i
+   antargis/trunk/build/swig/std_list.i
+   antargis/trunk/build/swig/std_string.i
+   antargis/trunk/build/swig/tests/
+   antargis/trunk/build/test_suite_c.rb
+   antargis/trunk/build/testing.rb
+   antargis/trunk/build/tests/
+   antargis/trunk/build/win32/libs/usr/
+   antargis/trunk/build/win32/makeLibs.sh
+   antargis/trunk/build/win32/make_ruby.sh
+   antargis/trunk/build/win32/ruby_patch/
+   antargis/trunk/build/win32/win32.h
+Modified:
+   antargis/trunk/data/gui/layout/editor/campaign/main.xml
+   antargis/trunk/ext/basic/ag_messageobject.cc
+   antargis/trunk/ext/basic/ag_messageobject.h
+   antargis/trunk/ext/gui/ag_application.cc
+   antargis/trunk/ext/gui/ag_scrollingwidget.cc
+   antargis/trunk/ext/gui/ag_scrollingwidget.h
+   antargis/trunk/ext/gui/ag_table.cc
+   antargis/trunk/ext/gui/ag_widget.cc
+   antargis/trunk/ext/gui/ag_widget.h
+   antargis/trunk/ruby/editor/campaign/drag_grid.rb
+   antargis/trunk/ruby/gui/testing.rb
+Log:
+Incomplete - task 1: Campaign Editor 
+
+
+Deleted: antargis/trunk/.antargis_swig.cc.swp
+===================================================================
+(Binary files differ)
+
+Deleted: antargis/trunk/build/Doxyfile
+===================================================================
+--- antargis/trunk/build/Doxyfile	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/build/Doxyfile	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -1,275 +0,0 @@
+-# Doxyfile 1.4.6
+-
+-#---------------------------------------------------------------------------
+-# Project related configuration options
+-#---------------------------------------------------------------------------
+-PROJECT_NAME           = Antargis
+-PROJECT_NUMBER         = 0.2.1
+-#OUTPUT_DIRECTORY       = /home/david/projects/antargis/ant/docs/api/
+-OUTPUT_DIRECTORY       = docs/api/
+-CREATE_SUBDIRS         = NO
+-OUTPUT_LANGUAGE        = English
+-USE_WINDOWS_ENCODING   = NO
+-BRIEF_MEMBER_DESC      = YES
+-REPEAT_BRIEF           = YES
+-ABBREVIATE_BRIEF       = &quot;The $name class&quot; \
+-                         &quot;The $name widget&quot; \
+-                         &quot;The $name file&quot; \
+-                         is \
+-                         provides \
+-                         specifies \
+-                         contains \
+-                         represents \
+-                         a \
+-                         an \
+-                         the
+-ALWAYS_DETAILED_SEC    = NO
+-INLINE_INHERITED_MEMB  = NO
+-FULL_PATH_NAMES        = YES
+-STRIP_FROM_PATH        = 
+-STRIP_FROM_INC_PATH    = 
+-SHORT_NAMES            = NO
+-JAVADOC_AUTOBRIEF      = NO
+-MULTILINE_CPP_IS_BRIEF = NO
+-DETAILS_AT_TOP         = NO
+-INHERIT_DOCS           = YES
+-SEPARATE_MEMBER_PAGES  = NO
+-TAB_SIZE               = 8
+-ALIASES                = 
+-OPTIMIZE_OUTPUT_FOR_C  = NO
+-OPTIMIZE_OUTPUT_JAVA   = NO
+-BUILTIN_STL_SUPPORT    = YES
+-DISTRIBUTE_GROUP_DOC   = NO
+-SUBGROUPING            = YES
+-#---------------------------------------------------------------------------
+-# Build related configuration options
+-#---------------------------------------------------------------------------
+-EXTRACT_ALL            = YES
+-EXTRACT_PRIVATE        = NO
+-EXTRACT_STATIC         = YES
+-EXTRACT_LOCAL_CLASSES  = YES
+-EXTRACT_LOCAL_METHODS  = YES
+-HIDE_UNDOC_MEMBERS     = YES
+-HIDE_UNDOC_CLASSES     = YES
+-HIDE_FRIEND_COMPOUNDS  = NO
+-HIDE_IN_BODY_DOCS      = NO
+-INTERNAL_DOCS          = NO
+-CASE_SENSE_NAMES       = YES
+-HIDE_SCOPE_NAMES       = NO
+-SHOW_INCLUDE_FILES     = YES
+-INLINE_INFO            = YES
+-SORT_MEMBER_DOCS       = YES
+-SORT_BRIEF_DOCS        = NO
+-SORT_BY_SCOPE_NAME     = NO
+-GENERATE_TODOLIST      = YES
+-GENERATE_TESTLIST      = YES
+-GENERATE_BUGLIST       = YES
+-GENERATE_DEPRECATEDLIST= YES
+-ENABLED_SECTIONS       = 
+-MAX_INITIALIZER_LINES  = 30
+-SHOW_USED_FILES        = YES
+-SHOW_DIRECTORIES       = NO
+-FILE_VERSION_FILTER    = 
+-#---------------------------------------------------------------------------
+-# configuration options related to warning and progress messages
+-#---------------------------------------------------------------------------
+-QUIET                  = NO
+-WARNINGS               = YES
+-WARN_IF_UNDOCUMENTED   = YES
+-WARN_IF_DOC_ERROR      = YES
+-WARN_NO_PARAMDOC       = NO
+-WARN_FORMAT            = &quot;$file:$line: $text&quot;
+-WARN_LOGFILE           = 
+-#---------------------------------------------------------------------------
+-# configuration options related to the input files
+-#---------------------------------------------------------------------------
+-INPUT                  = ext ruby .
+-#/home/david/projects/antargis/ant/src
+-FILE_PATTERNS          = *.c \
+-                         *.cc \
+-                         *.cxx \
+-                         *.cpp \
+-                         *.c++ \
+-                         *.d \
+-                         *.java \
+-                         *.ii \
+-                         *.ixx \
+-                         *.ipp \
+-                         *.i++ \
+-                         *.inl \
+-                         *.h \
+-                         *.hh \
+-                         *.hxx \
+-                         *.hpp \
+-                         *.h++ \
+-                         *.idl \
+-                         *.odl \
+-                         *.cs \
+-                         *.php \
+-                         *.php3 \
+-                         *.inc \
+-                         *.m \
+-                         *.mm \
+-                         *.dox \
+-                         *.py \
+-                         *.C \
+-                         *.CC \
+-                         *.C++ \
+-                         *.II \
+-                         *.I++ \
+-                         *.H \
+-                         *.HH \
+-                         *.H++ \
+-                         *.CS \
+-                         *.PHP \
+-                         *.PHP3 \
+-                         *.M \
+-                         *.MM \
+-                         *.PY
+-RECURSIVE              = YES
+-EXCLUDE                = 
+-EXCLUDE_SYMLINKS       = NO
+-EXCLUDE_PATTERNS       = *swig.cc *swig.h *GLee.h *GLee.c *nantmarker.hh *marker.h
+-EXAMPLE_PATH           = 
+-EXAMPLE_PATTERNS       = *
+-EXAMPLE_RECURSIVE      = NO
+-IMAGE_PATH             = 
+-INPUT_FILTER           = 
+-FILTER_PATTERNS        = 
+-FILTER_SOURCE_FILES    = NO
+-#---------------------------------------------------------------------------
+-# configuration options related to source browsing
+-#---------------------------------------------------------------------------
+-SOURCE_BROWSER         = NO
+-INLINE_SOURCES         = NO
+-STRIP_CODE_COMMENTS    = YES
+-REFERENCED_BY_RELATION = NO
+-REFERENCES_RELATION    = NO
+-USE_HTAGS              = NO
+-VERBATIM_HEADERS       = NO
+-#---------------------------------------------------------------------------
+-# configuration options related to the alphabetical class index
+-#---------------------------------------------------------------------------
+-ALPHABETICAL_INDEX     = NO
+-COLS_IN_ALPHA_INDEX    = 5
+-IGNORE_PREFIX          = 
+-#---------------------------------------------------------------------------
+-# configuration options related to the HTML output
+-#---------------------------------------------------------------------------
+-GENERATE_HTML          = YES
+-HTML_OUTPUT            = html
+-HTML_FILE_EXTENSION    = .html
+-HTML_HEADER            = 
+-HTML_FOOTER            = 
+-HTML_STYLESHEET        = 
+-HTML_ALIGN_MEMBERS     = YES
+-GENERATE_HTMLHELP      = NO
+-CHM_FILE               = 
+-HHC_LOCATION           = 
+-GENERATE_CHI           = NO
+-BINARY_TOC             = NO
+-TOC_EXPAND             = NO
+-DISABLE_INDEX          = NO
+-ENUM_VALUES_PER_LINE   = 4
+-GENERATE_TREEVIEW      = NO
+-TREEVIEW_WIDTH         = 250
+-#---------------------------------------------------------------------------
+-# configuration options related to the LaTeX output
+-#---------------------------------------------------------------------------
+-GENERATE_LATEX         = NO
+-LATEX_OUTPUT           = latex
+-LATEX_CMD_NAME         = latex
+-MAKEINDEX_CMD_NAME     = makeindex
+-COMPACT_LATEX          = NO
+-PAPER_TYPE             = a4wide
+-EXTRA_PACKAGES         = 
+-LATEX_HEADER           = 
+-PDF_HYPERLINKS         = NO
+-USE_PDFLATEX           = NO
+-LATEX_BATCHMODE        = NO
+-LATEX_HIDE_INDICES     = NO
+-#---------------------------------------------------------------------------
+-# configuration options related to the RTF output
+-#---------------------------------------------------------------------------
+-GENERATE_RTF           = NO
+-RTF_OUTPUT             = rtf
+-COMPACT_RTF            = NO
+-RTF_HYPERLINKS         = NO
+-RTF_STYLESHEET_FILE    = 
+-RTF_EXTENSIONS_FILE    = 
+-#---------------------------------------------------------------------------
+-# configuration options related to the man page output
+-#---------------------------------------------------------------------------
+-GENERATE_MAN           = YES
+-MAN_OUTPUT             = man
+-MAN_EXTENSION          = .3
+-MAN_LINKS              = NO
+-#---------------------------------------------------------------------------
+-# configuration options related to the XML output
+-#---------------------------------------------------------------------------
+-GENERATE_XML           = NO
+-XML_OUTPUT             = xml
+-XML_SCHEMA             = 
+-XML_DTD                = 
+-XML_PROGRAMLISTING     = YES
+-#---------------------------------------------------------------------------
+-# configuration options for the AutoGen Definitions output
+-#---------------------------------------------------------------------------
+-GENERATE_AUTOGEN_DEF   = NO
+-#---------------------------------------------------------------------------
+-# configuration options related to the Perl module output
+-#---------------------------------------------------------------------------
+-GENERATE_PERLMOD       = NO
+-PERLMOD_LATEX          = NO
+-PERLMOD_PRETTY         = YES
+-PERLMOD_MAKEVAR_PREFIX = 
+-#---------------------------------------------------------------------------
+-# Configuration options related to the preprocessor   
+-#---------------------------------------------------------------------------
+-ENABLE_PREPROCESSING   = YES
+-MACRO_EXPANSION        = NO
+-EXPAND_ONLY_PREDEF     = NO
+-SEARCH_INCLUDES        = YES
+-INCLUDE_PATH           = 
+-INCLUDE_FILE_PATTERNS  = 
+-PREDEFINED             = 
+-EXPAND_AS_DEFINED      = 
+-SKIP_FUNCTION_MACROS   = YES
+-#---------------------------------------------------------------------------
+-# Configuration::additions related to external references   
+-#---------------------------------------------------------------------------
+-TAGFILES               = 
+-GENERATE_TAGFILE       = 
+-ALLEXTERNALS           = NO
+-EXTERNAL_GROUPS        = YES
+-PERL_PATH              = /usr/bin/perl
+-#---------------------------------------------------------------------------
+-# Configuration options related to the dot tool   
+-#---------------------------------------------------------------------------
+-CLASS_DIAGRAMS         = YES
+-HIDE_UNDOC_RELATIONS   = YES
+-HAVE_DOT               = NO
+-CLASS_GRAPH            = YES
+-COLLABORATION_GRAPH    = YES
+-GROUP_GRAPHS           = YES
+-UML_LOOK               = NO
+-TEMPLATE_RELATIONS     = NO
+-INCLUDE_GRAPH          = YES
+-INCLUDED_BY_GRAPH      = YES
+-CALL_GRAPH             = NO
+-GRAPHICAL_HIERARCHY    = YES
+-DIRECTORY_GRAPH        = YES
+-DOT_IMAGE_FORMAT       = png
+-DOT_PATH               = 
+-DOTFILE_DIRS           = 
+-MAX_DOT_GRAPH_WIDTH    = 1024
+-MAX_DOT_GRAPH_HEIGHT   = 1024
+-MAX_DOT_GRAPH_DEPTH    = 1000
+-DOT_TRANSPARENT        = NO
+-DOT_MULTI_TARGETS      = NO
+-GENERATE_LEGEND        = YES
+-DOT_CLEANUP            = YES
+-#---------------------------------------------------------------------------
+-# Configuration::additions related to the search engine   
+-#---------------------------------------------------------------------------
+-SEARCHENGINE           = NO
+
+Deleted: antargis/trunk/build/README
+===================================================================
+--- antargis/trunk/build/README	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/build/README	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -1,19 +0,0 @@
+-== Antargis build-process
+-
+-BoA's building bases on <A HREF="http://rake.rubyforge.org">http://rake.rubyforge.org</A>
+-
+-It runs in two steps like most GPL-programs:
+- &gt; ./configure
+- &gt; rake
+-
+-In future releases we might include installing, too:
+- &gt; rake install
+-
+-== Configure
+-
+-BoA's configure is totally independent of autotools - just in case in you might thought this.
+-Instead it uses some proprietary functions, that you'll find in link:files/build/configure_rb.html
+-
+-The actual configure-script is thus written in Ruby, too.
+-
+-link:files/configure.html
+
+Deleted: antargis/trunk/build/antconfig.rb
+===================================================================
+
+Deleted: antargis/trunk/build/base_tools.rb
+===================================================================
+--- antargis/trunk/build/base_tools.rb	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/build/base_tools.rb	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -1,45 +0,0 @@
+-require 'build/platform.rb'
+-require 'config.rb'                   # include build-options
+-require 'build/config_tools.rb'
+-require 'build/build.rb'
+-
+-def getDir(path)
+-	# FIXME: check for windows
+-	path.split(Dir.separator)[0..-2].join(&quot;/&quot;)
+-end
+-
+-def getDirUnix(path)
+-    path.split(&quot;/&quot;)[0..-2].join(&quot;/&quot;)
+-end
+-
+-
+-def makeLibName(dir)
+-    #puts &quot;makeLibName #{dir}&quot;
+-	&quot;antargis&quot;+dir.split(&quot;/&quot;)[-1]
+-end
+-
+-
+-def getDependencies(output)
+-	dep=makeDepName(output)
+-	if File.exists?(dep)
+-		content=File.open(dep).read
+-		content=content.gsub(/^[^:]*:/,&quot;&quot;)
+-		files=content.gsub(&quot;\\\n&quot;,&quot;&quot;).split(&quot; &quot;)
+-		#puts files
+-		return files
+-	end
+-	#raise 1
+-	[]
+-end
+-
+-
+-
+-
+-def U2W(path)
+-    path.gsub(&quot;/&quot;,Dir.separator)
+-end
+-
+-def isWindows
+-	(not ENV['WINDIR'].nil?)
+-end
+-
+
+Deleted: antargis/trunk/build/config_file.rb
+===================================================================
+--- antargis/trunk/build/config_file.rb	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/build/config_file.rb	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -1,5 +0,0 @@
+-require 'config.rb'
+-
+-def getConfigDirect(value,config)
+-	$config[value]
+-end
+\ No newline at end of file
+
+Deleted: antargis/trunk/build/config_tools.rb
+===================================================================
+--- antargis/trunk/build/config_tools.rb	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/build/config_tools.rb	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -1,26 +0,0 @@
+-def extendCommandLine(config,s)
+-	if config[s] 
+-		r=config[s]
+-	else
+-  	r=getConfigDirect(s)
+-	end
+-  return r if r.nil?
+-  r.gsub(/\$\(([^\)]*)\)/) {|a|
+-		n=a[2..-2] # filter &quot;$(xy..z)&quot; to &quot;xy..z&quot;
+-		raise &quot;Endless recursion in #{n}!&quot; if n==s
+-		extendCommandLine(config,n)  # replace recursive values within this form: $(...)
+-	}
+-end
+-
+-def extendCommand(config,name,map={})
+-	c=config.clone
+-	map.each{|k,v|
+-		c[k]=v
+-	}
+-	extendCommandLine(c,name)
+-end
+-
+-# the getConfig function reads out compiler-information out of the mkmf-configuration variables - these are defined in a recursive manner
+-def getConfig(s)
+-	extendCommand(CONFIG,s)
+-end
+
+Deleted: antargis/trunk/build/configure.rb
+===================================================================
+--- antargis/trunk/build/configure.rb	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/build/configure.rb	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -1,262 +0,0 @@
+-#
+-# This is a library for simple build-configuration management.
+-# For a brief example have a look at BoA's configure-script (link:files/configure.html)
+-# This file may contain some examples how to use this.
+-# 
+-# The configuration-process goes like this
+-#  1) include this file
+-#  2) define cmd-line-options with CFG.addOption
+-#  3) add checks for programs, files, libraries (checkProgram, checkFile, checkLibrary)
+-#  4) add custom-checks with addCheck(...)
+-#  5) include basic-configuration functionality with CFG.includeConfig - have a look at build/configs/unix.rb for more information on this
+-#  6) run the configuration with CFG.run - a config.rb file will be written 
+-#
+-
+-require 'build/platform.rb'
+-require 'build/config_tools.rb'
+-
+-alias :oldGetConfig :getConfig
+-def getConfig(n)
+-	v=CFG.get(n)
+-	v=oldGetConfig(n) if v.nil?
+-	#puts &quot;GETCONFIG #{n}:#{v}&quot;
+-	v
+-end
+-
+-# the CFG-module serves with many functions that may be used in a configure script
+-module CFG
+-	@@config={}
+-	@@checks=[]
+-	@@options={}
+-	@@failed=[]
+-
+-	def self.setOptions(ops)
+-		ops.each{|k,v|CFG.set(k,v)}
+-	end
+-
+-	# return an array containing a hash, that describes, how the possible options will be checked
+-	# have a loog at CFG.addOption
+-	def CFG.options
+-		@@options
+-	end
+-
+-	# add check identified by *name*
+-	def CFG.addCheck(name,needed=true,&amp;proc)
+-		@@checks &lt;&lt; {:name=&gt;name,:proc=&gt;proc,:needed=&gt;needed}
+-	end
+-
+-	def CFG.run
+-		checkCompile
+-		ok=runChecks
+-		saveConfig if ok
+-	end
+-
+-	def CFG.runCheck(name,needed=true,&amp;proc)
+-		text=&quot;checking &quot;+name+&quot; ...&quot;
+-		print text
+-		ok=proc.call
+-		#ok=(not ok.nil?)
+-		print &quot; &quot;*(40-text.length)
+-		puts ({true=&gt;&quot;ok&quot;,false=&gt;&quot;failed&quot;,nil=&gt;&quot;failed&quot;}[ok])
+-		@@failed &lt;&lt; c[:name] unless ok or not c[:needed]
+-	end
+-
+-	def CFG.runChecks
+-		puts 
+-		failed=[]
+-		@@checks.each{|c|
+-			text=&quot;checking &quot;+c[:name]+&quot; ...&quot;
+-			print text
+-			ok=c[:proc].call
+-			#ok=(not ok.nil?)
+-			print &quot; &quot;*(60-text.length)
+-			puts ({true=&gt;&quot;ok&quot;,false=&gt;&quot;failed&quot;,nil=&gt;&quot;failed&quot;}[ok])
+-			failed &lt;&lt; c[:name] unless ok or not c[:needed]
+-		}
+-		if failed.length&gt;0
+-			puts 
+-			puts &quot;ERROR:&quot;
+-			puts &quot;The following tests failed:&quot;
+-			failed.each{|f|puts f}
+-			puts &quot;&quot;
+-			puts &quot;For more information look into the log-file config.log.&quot;
+-			puts &quot;And don't hesitate to ask questions our forum: <A HREF="http://antargis.berlios.de/phpBB2">http://antargis.berlios.de/phpBB2</A>&quot;
+-		end
+-
+-		failed.length==0
+-	end
+-
+-	def CFG.saveConfig
+-		configName=&quot;config.rb&quot;
+-		f=File.open(configName,&quot;w&quot;)
+-		f.puts &lt;&lt;EOT
+-$config={
+-#{@@config.collect{|k,v|&quot;  '#{k}'=&gt;&quot;+toS(v)}.join(&quot;,\n&quot;)}
+-}
+-EOT
+-		f.close
+-	end
+-
+-	def self.add(n,v)
+-		set(n,get(n).to_s+&quot; &quot;+v)
+-	end
+-
+-	def CFG.set(n,v)
+-		@@config[n]=v
+-	end
+-	def CFG.get(n)
+-		puts &quot;GET #{n}:#{@@config[n]}&quot;
+-
+-
+-		@@config[n]
+-	end
+-
+-	def CFG.checkProgram(name,program,needed=true)
+-		addCheck(&quot;program &quot;+program,needed) do
+-			path=get(program)
+-			path||=findProgram(program)
+-			r=testProgram(path)
+-			#set(program,path) if r
+-			set(name,path) if r
+-			#pp @@config
+-			r
+-		end
+-	end
+-
+-	def CFG.getPath
+-		p=ENV['PATH']
+-		psep={&quot;/&quot;=&gt;&quot;:&quot;,&quot;\\&quot;=&gt;&quot;;&quot;}[Dir.separator]
+-		#puts p,p.class,psep
+-		ps=p.split(psep)
+-		ps+=get(&quot;PATHS&quot;) if get(&quot;PATHS&quot;)
+-
+-		#puts get(&quot;prefix&quot;)
+-		ps &lt;&lt; get(&quot;prefix&quot;)+Dir.separator+&quot;bin&quot; if get(&quot;prefix&quot;)
+-		if Dir.separator==&quot;\\&quot;
+-				ps &lt;&lt; (Dir.pwd+&quot;/build/win32/usr/bin&quot;).gsub(&quot;/&quot;,Dir.separator)
+-		end
+-		ps
+-	end
+-
+-	def CFG.findProgram(program)
+-		paths=getPath
+-		paths.each{|p|
+-			currentPath=p+Dir.separator+program
+-			if File.exists?(currentPath)
+-				return currentPath
+-			end
+-		}
+-		return findProgram(program+&quot;.exe&quot;) if Dir.separator==&quot;\\&quot; and not program=~/exe$/
+-	end
+-
+-	# check if +path+ exists. Maybe we should check, if +path+ is executable
+-	def CFG.testProgram(path)
+-		File.exists?(path)
+-	end
+-
+-	def CFG.includeConfig
+-		readConfig(&quot;base&quot;)
+-
+-
+-
+-# 		avail=[&quot;unix&quot;,&quot;mingw32&quot;]
+-# 		addCheck (&quot;base-config&quot;) do ||
+-# 			c=get(&quot;base-config&quot;)
+-# 			c=nil unless avail.member?(c)
+-# 			c||=&quot;unix&quot;
+-# 			require &quot;build/configs/&quot;+c+&quot;.rb&quot;
+-# 			$config.each{|k,v|@@config[k]||=v}
+-# 			true
+-# 		end
+-	end
+-
+-	# *FIXME: implement this*
+-	# This function will test if the compiler is able to compile.
+-	def CFG.checkCompile
+-		
+-	end
+-
+-	def CFG.readConfig(file)
+-		require &quot;build/configs/&quot;+file+&quot;.rb&quot;
+-		$config.each{|k,v|@@config[k]||=v}
+-	end
+-
+-
+-	def CFG.gatherMkmfInfo
+-		CFG.set(&quot;RUBYLIB&quot;,getConfig(&quot;LIBRUBYARG_SHARED&quot;))
+-		CFG.set(&quot;LIBS&quot;,CFG.get(&quot;LIBS&quot;).to_s+&quot; &quot;+CFG.get(&quot;RUBYLIB&quot;))
+-		#pp CFG.get(&quot;LIBS&quot;)
+-	end
+-
+-	def CFG.checkCProgram(text,addlibs=[])
+-		require 'build/build.rb'
+-		begin Dir.mkdir(&quot;.tmp&quot;); rescue ;end
+-		filename=&quot;.tmp/test.c&quot;
+-		obj=Build.cFileToObj(filename)
+-		exe=&quot;.tmp/test&quot;
+-		[filename,obj,exe].each{|f|begin File.delete(f); rescue;end}
+-
+-		f=File.open(filename,&quot;w&quot;)
+-		f.puts text
+-		f.close
+-		Build.log=&quot;config.log&quot;
+-		Build.silent=true
+-		Build.compile(filename)
+-		Build.link(exe,[obj],addlibs)
+-		result=system(exe)
+-		#puts exe,result
+-		result
+-	end
+-
+-	def CFG.checkLibrary(libname,description,needed=true)
+-		addCheck(&quot;lib&quot;+libname,needed) do ||
+-			result=checkCProgram(&quot;int main(){return 0;}&quot;,[&quot;-l&quot;+libname])
+-			set(&quot;LIBS&quot;,get(&quot;LIBS&quot;).to_s+&quot; -l#{libname}&quot;) if result
+-			result
+-		end
+-	end
+-
+-	def self.hasLibrary(libname)
+-		get(&quot;LIBS&quot;).split(&quot; &quot;).map{|l|l[2..-1]}.member?(libname)
+-	end
+-
+-	def self.checkFunction(name,needed=true)
+-		addCheck(&quot;function #{name}&quot;,needed) do ||
+-			#puts CFG.get(&quot;LIBS&quot;)
+-			result=checkCProgram(&quot;extern \&quot;C\&quot; int #{name}(...);int main(){#{name}();return 0;}&quot;,[get(&quot;LIBS&quot;)])
+-			raise 1 unless result
+-			result
+-		end
+-	end
+-
+-	def self.checkHeader(header,function=nil,error=nil,needed=true)
+-		error=&quot;header #{header}&quot; if error.nil?
+-		addCheck(error,needed) do ||
+-			#function+=&quot;();&quot; if function
+-			result=checkCProgram(&quot;#include &lt;#{header}&gt;\nint main(){void *f=(void*)#{function};return !f;}&quot;,[get(&quot;LIBS&quot;)])
+-		end
+-	end
+-
+-
+-	private
+-
+-
+-	# convert *v* into a string. used by CFG.saveConfig to write the config.rb
+-	def CFG.toS(v)
+-		case v
+-			when String
+-				&quot;'&quot;+v.to_s+&quot;'&quot;
+-			when Array
+-				&quot;'&quot;+v.join(&quot;;&quot;)+&quot;'&quot;
+-			when Hash
+-				&quot;'&quot;+v.collect{|k,v|&quot;#{k}=&gt;#{v}&quot;}.join(&quot;;&quot;)+&quot;'&quot;
+-			else
+-				v.to_s
+-		end
+-	end
+-end
+-
+-
+-def getConfigDirect(v,config={})
+-	CFG.get(v)
+-end
+\ No newline at end of file
+
+Deleted: antargis/trunk/build/cpp_parser.rb
+===================================================================
+--- antargis/trunk/build/cpp_parser.rb	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/build/cpp_parser.rb	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -1,45 +0,0 @@
+-#
+-# simple c(++) parser
+-
+-class Parser
+-	def initialize
+-		@buf=&quot;&quot;
+-		@lines=[]
+-	end
+-
+-	def parse(content)
+-		@buf=content
+-		# first remove line-comments
+-		@buf.gsub!(/\/\/[^\n]*\n/,&quot;&quot;)
+-		# remove multi-line-comments
+-		@buf.gsub!(/\/\*([^*]|\*[^\/])*\*\//,&quot;&quot;)
+-
+-		# remove preprocessor
+-		@buf=@buf.split(&quot;\n&quot;).collect{|l|l.gsub(/^#.*/,&quot;&quot;)}.join(&quot;\n&quot;)
+-
+-		@buf.gsub!(&quot;virtual&quot;,&quot;&quot;)
+-		@buf.gsub!(/(public|protected|private) *:/,&quot;&quot;)
+-
+-		@buf.gsub!(/ +/,&quot; &quot;)
+-		@buf.gsub!(/\n+/,&quot;\n&quot;)
+-
+-# 		puts @buf
+-# 		puts &quot;---&quot;
+-
+-
+- 		#@buf.scan(/[^{;]*(\{[^}]*\})?;/) {|r|
+- 		@buf.scan(/(([^{;]|\n)*\{[^}]*\};|[^{;]*;)/) {|r|
+- 			puts &quot;R:&quot;,r.join(&quot;||&quot;),r.class
+- 		}
+-
+-	end
+-
+-	def output
+-		puts @buf
+-	end
+-end
+-
+-f=File.open(&quot;ext/gui/ag_messageobject.h&quot;,&quot;r&quot;)
+-p=Parser.new
+-p.parse(f.read)
+-p.output
+\ No newline at end of file
+
+Deleted: antargis/trunk/build/create_interface.rb
+===================================================================
+--- antargis/trunk/build/create_interface.rb	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/build/create_interface.rb	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -1,494 +0,0 @@
+-#!/usr/bin/env ruby
+-#--
+-# Copyright (c) 2005 by David Kamphausen. All rights reserved.
+-#
+-# create_interface.rb
+-# by David Kamphausen (<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">david.kamphausen at web.de</A>)
+-#
+-# The &quot;Antargis&quot; project, including all files needed to compile it,
+-# is free software; you can redistribute it and/or use it and/or modify it
+-# under the terms of the GNU General Public License as published
+-# by the Free Software Foundation; either version 2 of the License,
+-# or (at your option) any later version.
+-#
+-# This program is distributed in the hope that it will be useful,
+-# but WITHOUT ANY WARRANTY; without even the implied warranty of
+-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+-#
+-# You should have received a copy of the GNU General Public
+-# License along with this program.
+-#++
+-# == Short Description
+-# This ruby-script generates swig-interface (input)-files out of
+-# C++-header files.
+-# The header-files to include are marked with INCLUDE_SWIG somewhere in the file.
+-# Apart from simple including classes that are derived from AGRubyObject get
+-# a special treatment to be handled within the garbage collection.
+-#
+-
+-require 'build/interface_template.rb'
+-#require 'build/base_tools.rb'
+-require 'find.rb'
+-require 'pp'
+-
+-#$verbose=true
+-
+-def getDirUnix(path)
+-    path.split(&quot;/&quot;)[0..-2].join(&quot;/&quot;)
+-end
+-
+-def vputs(*a)
+-	puts *a if $verbose
+-end
+-
+-def iputs(*a)
+-	print &quot;   &quot;
+-	puts *a
+-end
+-
+-def makeLibName(dir)
+-    #puts &quot;makeLibName #{dir}&quot;
+-	&quot;antargis&quot;+dir.split(&quot;/&quot;)[-1]
+-end
+-
+-class MyInput
+-	attr_reader :swigInput, :outputDir
+-	def initialize
+-		@outputDir=Dir.pwd # default
+-		@swigInput=&quot;&quot;
+-	
+-
+-		ARGV.each{|a|
+-			case a
+-				when /^-d=/
+-					# in- and output dir
+-					@outputDir=a[3..-1]
+-				when /^-i=/
+-					@swigInput=a[3..-1]
+-				when /^-v$/
+-					$verbose=true
+-				when /^-h/, /^--help/
+-					@help=true
+-					puts &quot;Arguments:&quot;
+-					puts &quot; -h, --help     print this help&quot;
+-					puts &quot; -d=&lt;DIR&gt;       define output-directory&quot;
+-					puts &quot; -i=&lt;SWIGFILE&gt;  define SWIG-input-file (swig.h) - can be set multiple times&quot;
+-					puts &quot; -v             verbose output&quot;
+-			end
+-		}
+-
+-		@swigInput=@swigInput.split(&quot;:&quot;)
+-	end
+-
+-	def valid
+-		@outputDir!=&quot;&quot; &amp;&amp; @help.nil?
+-	end
+-
+-	def interfaceName
+-		name=File.join(@outputDir,&quot;interface.i&quot;)
+-		name
+-	end
+-
+-	def moduleName
+-		moduleName=makeLibName(@outputDir)
+-	end
+-	def headersName
+-		File.join(@outputDir,&quot;headers.hh&quot;)
+-	end
+-	def markerName
+-		File.join(@outputDir,&quot;marker.i&quot;)
+-	end
+-end
+-
+-def getFiles(dir)
+-	pattern=dir+&quot;/&quot;+&quot;*.h&quot;
+-	files=Dir[pattern].select{|f|not f=~/swig.h/} #-[dir+Dir.separator+&quot;swig.h&quot;]
+-	files  
+-end
+-
+-## check if the given string is contained in the file specified by filename
+-def grepBool(filename,string)
+-	File.open(filename).each_line{|l|return true if l=~/#{string}/}
+-	false
+-end
+-
+-## select those files that are set be exported through swig
+-def getSwigInterfaceFiles(files)
+-	files.select{|f|
+-		grepBool(f,&quot;INCLUDE_SWIG&quot;)
+-	}
+-end
+-
+-class ParsedClasses
+-
+-	attr_reader :deriveList
+-
+-	def initialize(files,allfiles)
+-		@rubyClasses=[]
+-		@files=files.collect{|f|f.gsub(/.*\/ext\//,&quot;ext/&quot;)}
+-		loadAllDerivations(allfiles.collect{|f|f.gsub(/.*\/ext\//,&quot;ext/&quot;)})
+-		@myfiles=@files #files.collect{|f|f.gsub(/.*ext/,&quot;ext&quot;)}
+-		processDerivations
+-		initLevels
+-	end
+-
+-
+-	def loadAllDerivations(allfiles)
+-		@class2File={}
+-		@deriveList={} # x=&gt;y :x is child of y
+-		@allClasses=[]
+-
+-		allfiles.each{|fn|
+-			file=File.open(fn)
+-			cn=&quot;&quot;
+-			content=file.read.gsub(/\/\*([^*]|\*[^\/])*\*\//,&quot;&quot;) # /*...*/ delete comments - FIXME: // comments will be ignored!!!
+-
+-			content.split(&quot;\n&quot;).each{|a|
+-				abak=a
+-				a.gsub!(&quot;AGEXPORT&quot;,&quot;&quot;)
+-				a.gsub!(&quot;EXPORT&quot;,&quot;&quot;)
+-				
+-				if a =~ /^ *class.*/ then
+-					cn=a.gsub(/ *class /,&quot;&quot;).gsub(/:.*/,&quot;&quot;).gsub(&quot;\n&quot;,&quot;&quot;).gsub(&quot; &quot;,&quot;&quot;)
+-					@allClasses &lt;&lt; cn.gsub(&quot;;&quot;,&quot;&quot;)
+-					if cn=~/^[A-Z].*/
+-						if a=~ /.*public.*/ then
+-							pn=a.gsub(/.*public /,&quot;&quot;).gsub(&quot;\n&quot;,&quot;&quot;)
+-							@allClasses &lt;&lt; pn
+-							@deriveList[cn]=pn
+-							@class2File[cn]=fn
+-						elsif not a=~/;/ then
+-							@deriveList[cn]=nil
+-							@class2File[cn]=fn
+-						end
+-					end
+-				end
+-			
+-			}
+-		}
+-		@classList=@class2File.keys
+-		@allClasses=@allClasses.sort.uniq
+-	end
+-
+-	# check which classes are derived from AGRubyObject and thus handled specifically
+-	def processDerivations
+-		@rubyClasses &lt;&lt; &quot;AGRubyObject&quot;
+-		@classList.sort!.uniq!
+-		
+-		# check for children of AGWidget
+-		changed=true
+-		while changed do
+-			changed=false
+-			@deriveList.each {|x,y|
+-				if @rubyClasses.member?(y) and not @rubyClasses.member?(x) then
+-					@rubyClasses &lt;&lt; x
+-					changed=true
+-				end
+-			}
+-		end
+-	end
+-
+-	## through derivations
+-	def spreadLevels
+-		changed=true
+-		l=@levels.values.max
+-		while changed
+-			changed=false
+-			@deriveList.each{|x,y|
+-				if @levels[y]==l and @levels[x].nil?
+-					@levels[x]=l+1
+-					changed=true
+-				end
+-			}
+-			l+=1
+-		end
+-	end
+-
+-	def initLevels
+-		vputs &quot;initLevels...&quot;
+-		@levels={}
+-		@levels[&quot;AGRubyObject&quot;]=0
+-		spreadLevels
+-
+-		# give classes with no extisting parent next level
+-		@classList.each{|c|
+-			if @levels[c].nil?
+-				if (not @deriveList.keys.member?(c)) 
+-					@levels[c]=l
+-				end
+-			end
+-		}
+-
+-		spreadLevels
+-
+-		if true
+-			l=@levels.values.max+1
+-			# give classes with no parent next level
+-			@classList.each{|c|
+-				if @levels[c].nil?
+-					if (@deriveList[@deriveList[c]].nil?)
+-						@levels[c]=l
+-					end
+-				end
+-			}
+-	
+-			spreadLevels
+-		end
+-
+-		l=@levels.values.max
+-	end
+-
+-	# in correct order
+-	def getFileList
+-
+-		# build file list out of class-order (files may appear several times)
+-		files=[]
+-		l=@levels.values.max
+-		(0..l).each{|i|
+-            vputs &quot;LEVEL #{i}&quot;
+-			@levels.each{|n,level|
+-				if level==i and @class2File[n]
+-                    vputs n
+-					files &lt;&lt; @class2File[n]
+-				end
+-			}
+-            vputs &quot;----&quot;
+-		}
+-
+-		# add files of classes with unknown level
+-		@classList.each{|c|
+-			if @levels[c].nil? and @class2File[c]
+-				files &lt;&lt; @class2File[c]
+-			end
+-		}
+-        vputs &quot;myfiles:&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at myfiles</A>,&quot;---&quot;
+-        
+-        vputs &quot;FILES:&quot;,files,&quot;---&quot;
+-		files=files.select{|f|@myfiles.member?(f)} # select only &quot;my&quot; files - those included in this directory
+-        vputs &quot;FILES after select:&quot;,files,&quot;---&quot;
+-		addfiles=@files-files
+-		files+=addfiles                            # add files that are in other directories
+-        vputs &quot;FILES (add:&quot;,files,&quot;---&quot;
+-
+-		# unique the array
+-		if files.length&gt;0
+-			files.uniq!
+-		end
+-        vputs &quot;FILES (uniq):&quot;,files,&quot;---&quot;
+-
+-		files
+-	end
+-
+-
+-	def getMyRubyClasses
+-		@rubyClasses.select{|c|@myfiles.member?(@class2File[c])}
+-	end
+-	def getAllRubyClasses
+-		@rubyClasses
+-	end
+-	def getAllClasses
+-		@allClasses
+-	end
+-end
+-
+-
+-def generateInterfaceFile(myInput,files,addfiles)
+-	filename=myInput.interfaceName
+-	interfaceI=File.open(filename,&quot;w&quot;)
+-	#puts filename
+-    #raise 1
+-	interfaceI.puts interface_template(myInput.moduleName,files,myInput.swigInput,addfiles,myInput.outputDir)
+-	
+-	interfaceI.close
+-	
+-	filename=myInput.headersName
+-	headersH=File.open(filename,&quot;w&quot;)
+-	headersH.puts &quot;#ifndef __ANTARGIS_H__&quot;
+-	headersH.puts &quot;#define __ANTARGIS_H__&quot;
+-	headersH.puts addfiles.collect{|f|&quot;#include \&quot;#{f}\&quot;&quot;}.join(&quot;\n&quot;)
+-	headersH.puts files.collect{|f|&quot;#include \&quot;#{f}\&quot;&quot;}.join(&quot;\n&quot;)
+-	headersH.puts &quot;#ifdef SWIG&quot;
+-	headersH.puts files.collect{|f|&quot;%include \&quot;#{f}\&quot;&quot;}.join(&quot;\n&quot;)
+-	headersH.puts &quot;#endif&quot;
+-	headersH.puts &quot;#endif&quot;
+-	headersH.close
+-end
+-
+-def findFilesWith(str)
+-    files=[]
+-    Find.find(&quot;ext&quot;) {|file|files &lt;&lt; file}
+-    files=files.select{|f|f=~/\.h$/}.select{|f|not f=~/swig.h/}.select{|f|File.open(f).read=~/#{str}/}
+-    #dirs=findDirsRecursively(&quot;.&quot;)
+-    #puts &quot;findFilesWith #{str}:&quot;
+-    #puts files
+-    #puts &quot;---&quot;
+-    #exit
+-    files
+-    #Dir[&quot;*/*&quot;].collect{|f|f.gsub(/\/.*/,&quot;&quot;)}.uniq
+-end
+-
+-iputs &quot;processing input parameter...&quot;
+-myInput=MyInput.new
+-
+-iputs &quot;getting input interface files (of current directory #{myInput.outputDir})...&quot;
+-files=getSwigInterfaceFiles(getFiles(myInput.outputDir))
+-vputs &quot;--&quot;
+-vputs files.join(&quot;\n&quot;)
+-vputs &quot;--&quot;
+-iputs &quot;found #{files.length} files&quot;
+-iputs &quot;filtering INCLUDE_SWIG to get header files (all of the whole project)...&quot;
+-cfiles=findFilesWith(&quot;INCLUDE_SWIG&quot;)
+-iputs &quot;found #{cfiles.length} files&quot;
+-vputs &quot;--&quot;
+-vputs cfiles.join(&quot;\n&quot;)
+-vputs &quot;--&quot;
+-#exit
+-
+-#parsedClasses=ParsedClasses.new(files,`find $(pwd) -name &quot;*.h&quot;|grep -v swig`.split(&quot;\n&quot;))
+-parsedClasses=ParsedClasses.new(files,cfiles)
+-files=parsedClasses.getFileList
+-
+-addfiles=[]
+-myInput.swigInput.each{|inDir|
+-  vputs &quot;inDir #{inDir}&quot;
+-	pattern=getDirUnix(inDir)+&quot;/*.h&quot;
+-	vputs &quot;PATTERN:&quot;,pattern,&quot;!!!!&quot;
+-	addfiles+=Dir[pattern].select{|f|not f=~/swig.h/}.select{|f|File.open(f).read=~/INCLUDE_SWIG/}
+-}
+-
+-generateInterfaceFile(myInput,files,addfiles)
+-
+-file=File.open(myInput.markerName,&quot;w&quot;)
+-
+-# ok, first marking is included
+-parsedClasses.getMyRubyClasses.each {|x|
+-	#if y then
+-		file.puts &quot;%exception &quot;+x+&quot;::&quot;+x+&quot; {&quot;
+-		file.puts &quot;	$action&quot;
+-		file.puts &quot;	result-&gt;mRUBY=self;&quot;
+-		file.puts &quot;#ifdef GCDEBUG&quot;
+-		file.puts '     result-&gt;mObjName=typeid(*result).name();'
+-		#file.puts '     printf(&quot;%lx   %s\n&quot;,self,typeid(*result).name());'
+-		file.puts &quot;#endif&quot;
+-		file.puts &quot;	result-&gt;mRubyObject=true;&quot;
+-		file.puts &quot;}&quot;
+-		file.puts &quot;%markfunc &quot;+x+&quot; \&quot;general_markfunc\&quot;&quot;
+-	#end
+-}
+-
+-# swig typemaps
+-# so that always the lowest children in a derivation hierarchy is returned
+-myRubyClasses=parsedClasses.getMyRubyClasses
+-parsedClasses.deriveList.keys.each{|s|
+-	if myRubyClasses.member?(s)
+-		file.puts &quot;%typemap(out) #{s}*{&quot;
+-		file.puts &quot; if($1)&quot;
+-		file.puts &quot; {&quot;
+-		file.puts &quot;   $result=AG_NewPointerObj($1,SWIGTYPE_p_#{s},0);&quot;
+-		file.puts &quot; }&quot;
+-		file.puts &quot;}&quot;
+-
+-		file.puts &quot;%typemap(directorin) #{s}*{&quot;
+-		file.puts &quot; if($1)&quot;
+-		file.puts &quot; {&quot;
+-		file.puts &quot;   $input=AG_NewPointerObj($1,SWIGTYPE_p_#{s},0);&quot;
+-		file.puts &quot; }&quot;
+-		file.puts &quot;}&quot;
+-
+-	end
+-}
+-
+-classList=parsedClasses.getAllClasses
+-# normal typemaps
+-
+-
+-# FIXME
+-# 
+-
+-# 
+-# classList.each{|c|
+-# 	file.puts &quot;%typemap(directorout) #{c} {&quot;
+-# 	file.puts &quot; #{c} *b;&quot;
+-# 	file.puts &quot; Data_Get_Struct($input,#{c},b);&quot;
+-# 	file.puts &quot; $result=*b;&quot;
+-# 	file.puts &quot;}&quot;
+-# }
+-
+-file.puts &quot;%typemap(directorout) Uint8 {&quot;
+-file.puts &quot; $result=NUM2INT($input);&quot;
+-file.puts &quot;}&quot;
+-
+-rubyClasses=parsedClasses.getMyRubyClasses
+-allRubyClasses=parsedClasses.getAllRubyClasses
+-
+-myClasses=parsedClasses.getMyRubyClasses
+-
+-file.puts &lt;&lt;EOT
+-%{
+-
+-#undef write
+-#undef read
+-
+-// cast-function map
+-// it contains the mapping from parent-classes=&gt;dyn-cast-functions to child-classes
+-#include &lt;string&gt;
+-#include &lt;map&gt;
+-#include &lt;list&gt;
+-#include &lt;iostream&gt;
+-
+-typedef swig_type_info*(*CastFunction)(void**);
+-extern std::map&lt;std::string,std::list&lt;CastFunction&gt; &gt; agCastFunctions;
+-%}
+-EOT
+-pp myClasses
+-myClasses.each{|k|
+-file.puts &lt;&lt;EOT	
+-%{
+-// try to cast from #{k} to one of its child classes (if they exist)
+-static swig_type_info* #{k}_dynamic_cast(void **ptr)
+-  {
+-	  std::list&lt;CastFunction&gt; &amp;funcs=agCastFunctions[&quot;#{k}&quot;];
+-    for(std::list&lt;CastFunction&gt;::iterator i=funcs.begin();i!=funcs.end();i++)
+-      {
+-         swig_type_info*t=(*i)(ptr);
+-	       //std::cout&lt;&lt;&quot;test:&quot;&lt;&lt;t&lt;&lt;std::endl;
+-         if(t)
+-           return t;
+-      }
+-   return 0;
+- }
+-%}
+-DYNAMIC_CAST(SWIGTYPE_p_#{k}, #{k}_dynamic_cast);
+-EOT
+-}
+-
+-parsedClasses.deriveList.each{|b,a|
+-	if rubyClasses.member?(b) and allRubyClasses.member?(a)
+-		# for each pair generate a casting function and register it into agCastFunctions
+-file.puts &lt;&lt;EOT
+-%{
+-swig_type_info* #{a}2#{b}cast(void **p)
+-{
+-        #{a}*a=(#{a}*)(*p);
+-        #{b}*b=dynamic_cast&lt;#{b}*&gt;(a);
+-				//printf(&quot;TRY CAST #{a} 2 #{b} : %lx\\n&quot;,b);
+-        if(b)
+-        {
+-                *p=(void*)b;
+-                return SWIGTYPE_p_#{b};
+-        }
+-        return 0;
+-}
+-%}
+-
+-%insert(&quot;init&quot;) %{
+-        agCastFunctions[&quot;#{a}&quot;].push_back(&amp;#{a}2#{b}cast);
+-%}
+-
+-
+-EOT
+-	end
+-}
+-
+-
+-
+
+Deleted: antargis/trunk/build/cross_compile.rb
+===================================================================
+--- antargis/trunk/build/cross_compile.rb	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/build/cross_compile.rb	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -1,71 +0,0 @@
+-#!/usr/bin/env ruby
+-
+-require 'open-uri'
+-require 'pp'
+-require 'ftools.rb'
+-
+-load 'antconfig.rb'
+-
+-def downloadTo(url,filename)
+-	if File.exists?(filename)
+-		puts &quot;File #{filename} already exists - so not downloading!&quot;
+-		return
+-	end
+-	puts &quot;Downloading from #{url}...&quot;
+-	call=&quot;wget -O '#{filename}.tmp' '#{url}'&quot;
+-	system call
+-	File.move(filename+&quot;.tmp&quot;,filename)
+-	return
+-end
+-
+-def unzip(file,dir)
+-	olddir=Dir.pwd
+-	Dir.mkdir(dir) unless File.exists?(dir)
+-	Dir.chdir(dir)
+-	puts &quot;Unzipping #{file} at #{dir}&quot;
+-	system(&quot;tar xvfz #{file} &gt;/dev/null&quot;)
+-	puts &quot;Ready.&quot;
+-	Dir.chdir(olddir)
+-end
+-
+-mydir=File.split(File.expand_path(__FILE__))[0]
+-basedir=File.split(mydir)[0]
+-Dir.chdir(basedir)
+-
+-libdir=&quot;build/win32/libs&quot;
+-
+-sdlLibZip=&quot;ag_sdl_libs.tar.gz&quot;
+-rubyZip=&quot;ag_ruby_bin.tar.gz&quot;
+-
+-downloadTo(&quot;<A HREF="http://svn.berlios.de/wsvn/antargis/contrib/binary/ag_sdl_libs.tar.gz?op=file&amp;rev=0&amp;sc=0">http://svn.berlios.de/wsvn/antargis/contrib/binary/ag_sdl_libs.tar.gz?op=file&amp;rev=0&amp;sc=0</A>&quot;,File.join(libdir,sdlLibZip))
+-downloadTo(&quot;<A HREF="http://svn.berlios.de/wsvn/antargis/contrib/binary/ag_ruby_bin.tar.gz?op=file&amp;rev=0&amp;sc=0">http://svn.berlios.de/wsvn/antargis/contrib/binary/ag_ruby_bin.tar.gz?op=file&amp;rev=0&amp;sc=0</A>&quot;,File.join(libdir,rubyZip))
+-#downloadTo(&quot;<A HREF="ftp://ftp.ruby-lang.org/pub/ruby/binaries/mswin32/ruby-1.8.6-i386-mswin32.zip">ftp://ftp.ruby-lang.org/pub/ruby/binaries/mswin32/ruby-1.8.6-i386-mswin32.zip</A>&quot;,File.join(libdir,rubyZip))
+-
+-unzip(sdlLibZip,libdir)
+-unzip(rubyZip,libdir)
+-
+-File.cp(&quot;build/configs/cross.rb&quot;,&quot;antconfig.rb&quot;)
+-
+-puts &quot;building extension...&quot;
+-system(&quot;rake package&quot;)
+-
+-puts &quot;getting allinoneruby.exe...&quot;
+-
+-downloadTo(&quot;<A HREF="http://svn.berlios.de/wsvn/antargis/contrib/binary/allinoneruby.exe?op=file&amp;rev=0&amp;sc=0">http://svn.berlios.de/wsvn/antargis/contrib/binary/allinoneruby.exe?op=file&amp;rev=0&amp;sc=0</A>&quot;,&quot;allinoneruby.exe&quot;)
+-
+-destdir=&quot;pkg/antargis-win32-&quot;+$CONFIG['version']
+-system(&quot;cp allinoneruby.exe &quot;+destdir)
+-system(&quot;cp build/win32/libs/usr/bin/*.dll &quot;+destdir)
+-
+-puts &quot;strip antargis.so&quot;
+-
+-system(&quot;i586-mingw32msvc-strip #{destdir}/ext/antargis.so&quot;)
+-
+-puts &quot;getting position of Innosetup...&quot;
+-
+-path=`locate ISCC.exe`.chomp
+-path.gsub!(&quot; &quot;,&quot;\\ &quot;)
+-pp path
+-
+-call=path+&quot; antargis.iss&quot;
+-system(call)
+
+Deleted: antargis/trunk/build/interface_template.rb
+===================================================================
+--- antargis/trunk/build/interface_template.rb	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/build/interface_template.rb	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -1,110 +0,0 @@
+-def interface_template(moduleName,files,swigInput,addfiles=[],outputDir=&quot;&quot;)
+-	dirname=outputDir
+-
+-
+-&lt;&lt;EOT
+-%module(directors=&quot;1&quot;) #{moduleName}
+-
+-// include common (stdc++) thingies and set options
+-%include &quot;build/swig/common.i&quot;
+-
+-%{
+-	void AG_Init_lib#{moduleName}();
+-%}
+-%insert(&quot;init&quot;) %{
+-/*
+-	#{swigInput.collect{|i|&quot;rb_require(\&quot;antargis#{i.split(&quot;/&quot;)[-2]+&quot;.so&quot;}\&quot;);&quot;}.join(&quot;\n&quot;)}
+-*/
+-	AG_Init_lib#{moduleName}(); 
+-%}
+-
+-/*
+-#{swigInput.collect{|i|&quot;%import \&quot;#{i}\&quot;&quot;}.join(&quot;\n&quot;)}
+-*/
+-%{
+-#include &lt;string&gt;
+-#{addfiles.collect{|f|&quot;#include \&quot;#{f}\&quot;&quot;}.join(&quot;\n&quot;)}
+-#{files.collect{|f|&quot;#include \&quot;#{f}\&quot;&quot;}.join(&quot;\n&quot;)}
+-%}
+-%include &quot;std_string.i&quot;
+-%include &quot;#{dirname}/marker.i&quot;
+-%include &quot;ext/#{moduleName.gsub(&quot;antargis&quot;,&quot;&quot;)}/templates.i&quot;
+-
+-#{files.collect{|f|&quot;%include \&quot;#{f}\&quot;&quot;}.join(&quot;\n&quot;)}
+-
+-
+-// FIXME: add templates !
+-
+-
+-EOT
+-end
+-
+-
+-
+-def interface_templateBAK(moduleName,files)
+-&lt;&lt;EOT
+-%module(directors=&quot;1&quot;) #{moduleName}
+-
+-
+-
+-
+-
+-
+-
+-
+-%feature(&quot;director&quot;);
+-%include &quot;typemaps.i&quot;
+-%include &quot;std_string.i&quot;
+-%include &quot;AGString.i&quot;
+-%include &quot;std_vector.i&quot;
+-%include &quot;std_pair.i&quot;
+-%include &quot;std_map.i&quot;
+-%include &quot;std_list.i&quot;
+-
+-%{
+-#include &lt;ag_rubyobj.h&gt;
+-
+-SWIGRUNTIME VALUE
+-AG_NewPointerObj(void *ptr, swig_type_info *type, int flags)
+-{
+-	AGRubyObject *o=(AGRubyObject*)ptr;
+-	if(o-&gt;mRubyObject)
+-		return o-&gt;mRUBY;
+-
+-	swig_type_info *t=SWIG_TypeDynamicCast(type,(void**)&amp;o);
+-
+-	o-&gt;mRubyObject=true;
+-	o-&gt;mRUBY=SWIG_NewPointerObj((void *) o, t,flags);
+-	return o-&gt;mRUBY;
+-}
+-
+-%}
+-
+-
+-
+-%{
+-#include &quot;headers.hh&quot;
+-%}
+-%include &quot;marker.i&quot;
+-%{
+-#include &quot;headers.hh&quot;
+-%}
+-/*
+-%template(StringVector) std::vector&lt;std::string&gt;;
+-%template(AGStringVector) std::vector&lt;AGString&gt;;
+-%template(SceneNodeVector) std::vector&lt;SceneNodePtr&gt;;
+-%template(PickResult) std::vector&lt;PickNode&gt;;
+-%template(EntityVector) std::vector&lt;AntEntityPtr&gt;;
+-%template(ResourceMap) std::map&lt;std::string,float&gt;;
+-%template(AGResourceMap) std::map&lt;AGString,float&gt;;
+-%template(AGNodeList) std::vector&lt;Node&gt;;
+-%template(AGNodePList) std::vector&lt;Node*&gt;;
+-%template(AGMatrixVector) std::vector&lt;AGMatrix4&gt;;
+-%template(AGVector2List) std::vector&lt;AGVector2&gt;;
+-%template(AGPairVec2Surface) std::pair&lt;AGVector2,AGSurface*&gt;;
+-%template(AGRect2Vector) std::vector&lt;AGRect2&gt;;
+-%template(AGRect2List) std::list&lt;AGRect2&gt;;
+-%template(SceneNodeList) std::list&lt;SceneNode*&gt;;
+-*/
+-EOT
+-end
+
+Deleted: antargis/trunk/build/mkmf_support.rb
+===================================================================
+--- antargis/trunk/build/mkmf_support.rb	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/build/mkmf_support.rb	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -1,10 +0,0 @@
+-def checkMkmf(value,config)
+-	changed=false
+-		value=value.gsub(/\$\(([^)]*)\)/) do |str|
+-		inner=str[2..-2]
+-		changed=true
+-		config[inner]
+-	end
+-	return checkMkmf(value,config) if changed
+-	value
+-end
+
+Deleted: antargis/trunk/build/platform.rb
+===================================================================
+--- antargis/trunk/build/platform.rb	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/build/platform.rb	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -1,18 +0,0 @@
+-class Dir
+-	@@dirSep=&quot;/&quot;    
+-	@@dirSep=&quot;\\&quot; if ENV['WINDIR']
+-
+-	def Dir.separator
+-		@@dirSep
+-	end
+-end
+-
+-def isWindows
+-	(not ENV['WINDIR'].nil?)
+-end
+-
+-if ENV['WINDIR']
+-    CONFIG={&quot;archdir&quot;=&gt;Dir.pwd+&quot;/build/win32/usr/lib&quot;}
+-else
+-    require 'mkmf'
+-end
+\ No newline at end of file
+
+Deleted: antargis/trunk/build/property.rb
+===================================================================
+--- antargis/trunk/build/property.rb	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/build/property.rb	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -1,99 +0,0 @@
+-class Property
+-	attr_accessor :type,:name,:value
+-	def initialize(type,name,value)
+-		@type=type
+-		@name=name
+-		@value=value
+-	end
+-	def merge!(p)
+-		case @type
+-			when :optionList
+-				@value+=&quot; &quot;+p.value
+-			else
+-				@value=p.value
+-		end
+-	end
+-
+-	def toRubyPriv
+-		case @value
+-			when Array
+-				&quot;'#{@name}'=&gt;['#{@value.join(&quot;','&quot;)}']&quot;
+-			when Hash
+-				&quot;'#{@name}'=&gt;{#{@value.keys.map{|k|&quot;'#{k}'=&gt;'#{@value[k]}'&quot;}.join(&quot;,&quot;)}}&quot;
+-			else String
+-				&quot;'#{@name}'=&gt;'#{@value}'&quot;
+-			
+-		end
+-	end
+-end
+-
+-class Properties
+-	OPTION_LIST=[&quot;LDFLAGS&quot;,&quot;CFLAGS&quot;,&quot;INCLUDEPATH&quot;,&quot;LIBPATH&quot;,&quot;LIBS&quot;]
+-	attr_reader :properties
+-
+-	def initialize(config={})
+-		@properties={}
+-		config.each{|k,v|
+-			if OPTION_LIST.member?(k)
+-				@properties[k]=Property.new(:optionList,k,v)
+-			else
+-				@properties[k]=Property.new(:string,k,v)
+-			end
+-		}
+-	end
+-	def [](key)
+-		@properties[key]
+-	end
+-
+-	def []=(a,b)
+-		b=Property.new(getType(a),a,b) unless b.is_a?(Property)
+-		if @properties[a]
+-			@properties[a].merge!(b)
+-		else
+-			@properties[a]=b
+-		end
+-	end
+-
+-	def set!(a,b)
+-		b=Property.new(getType(a),a,b) unless b.is_a?(Property)
+-		@properties[a]=b
+-	end
+-
+-	def merge!(b)
+-		if b.is_a?(Properties)
+-			b=b.properties
+-			b.each{|k,v|
+-				if @properties[k].nil?
+-					@properties[k]=v
+-				else
+-					@properties[k].merge!(v)
+-				end
+-			}
+-		else
+-			b.each{|k,v|
+-				prop=Property.new(getType(k),k,v)
+-				if @properties[k].nil?
+-					@properties[k]=prop
+-				else
+-					@properties[k].merge!(prop)
+-				end
+-			}
+-		end
+-		self
+-	end
+-
+-	def getType(k)
+-		return :optionList if OPTION_LIST.member?(k)
+-		:string
+-	end
+-
+-	def toRuby
+-		str=&quot;&quot;
+-		str &lt;&lt; &quot;$CONFIG={\n  &quot;
+-		str &lt;&lt; @properties.values.map{|prop|prop.toRubyPriv}.join(&quot;,\n  &quot;)
+-
+-		str &lt;&lt; &quot;\n}&quot;
+-		#str &lt;&lt; &quot;\nrequire 'pp'\npp config&quot;
+-		str
+-	end
+-end
+
+Deleted: antargis/trunk/build/shell.rb
+===================================================================
+--- antargis/trunk/build/shell.rb	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/build/shell.rb	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -1,3 +0,0 @@
+-def msh()
+-	raise &quot;not implemented&quot;
+-end
+\ No newline at end of file
+
+Deleted: antargis/trunk/build/swig/AGString.i
+===================================================================
+--- antargis/trunk/build/swig/AGString.i	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/build/swig/AGString.i	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -1,86 +0,0 @@
+-//
+-// SWIG typemaps for AGString
+-// Luigi Ballabio
+-// Apr 8, 2002
+-//
+-// Ruby implementation
+-
+-
+-// ------------------------------------------------------------------------
+-// AGString is typemapped by value
+-// This can prevent exporting methods which return a string
+-// in order for the user to modify it.
+-// However, I think I'll wait until someone asks for it...
+-// ------------------------------------------------------------------------
+-
+-%include exception.i
+-
+-%{
+-#include &lt;ag_string.h&gt;
+-%}
+-
+-//namespace std {
+-
+-    // Ruby wants class names to start with a capital letter
+-    //%rename(String) AGString;
+-    class AGString;
+-
+-    /* Overloading check */
+-    %typemap(typecheck) AGString = char *;
+-    %typemap(typecheck) const AGString &amp; = char *;
+-
+-    %typemap(in) AGString {
+-        if (TYPE($input) == T_STRING) {
+-//            $1 = AGString(StringValuePtr($input));
+-            $1 = AGString(RSTRING($input)-&gt;ptr,RSTRING($input)-&gt;len);
+-        } else {
+-            SWIG_exception(SWIG_TypeError, &quot;not a string&quot;);
+-        }
+-    }
+-
+-    %typemap(in) const AGString &amp; (AGString temp) {
+-        if (TYPE($input) == T_STRING) {
+-//            temp = AGString(StringValuePtr($input));
+-            temp = AGString(RSTRING($input)-&gt;ptr,RSTRING($input)-&gt;len);
+-            $1 = &temp;
+-        } else {
+-            SWIG_exception(SWIG_TypeError, &quot;not a string&quot;);
+-        }
+-    }
+-
+-    %typemap(out) AGString {
+-        $result = rb_str_new($1.c_str(),$1.length());
+-    }
+-
+-    %typemap(out) const AGString &amp; {
+-        $result = rb_str_new($1-&gt;c_str(),$1-&gt;length());
+-    }
+-
+-    %typemap(directorin) AGString, const AGString &amp;, AGString &amp; &quot;$input=rb_str_new2($1_name.c_str());&quot;;
+-
+-    %typemap(directorin) AGString *, const AGString * &quot;$1_name-&gt;c_str()&quot;;
+-    
+-    %typemap(directorout) AGString {
+-        if (TYPE($input) == T_STRING)
+-//            $result = AGString(StringValuePtr($input));
+-            $result = AGString(RSTRING($input)-&gt;ptr,RSTRING($input)-&gt;len);
+-        else
+-            throw Swig::DirectorTypeMismatchException(&quot;string expected&quot;);
+-    }
+-    
+-    %typemap(directorout) const string &amp; (AGString temp) {
+-        if (TYPE($input) == T_STRING) {
+-//            temp = AGString(StringValuePtr($input));
+-            temp = AGString(RSTRING($input)-&gt;ptr,RSTRING($input)-&gt;len);
+-            $result = &temp;
+-        } else {
+-            throw Swig::DirectorTypeMismatchException(&quot;string expected&quot;);
+-        }
+-    }
+-
+-    %typemap(throws) AGString, const AGString &amp;
+-        &quot;rb_raise(rb_eRuntimeError, $1.c_str());&quot;;
+-
+-    %typemap(throws) AGString *, const AGString *
+-        &quot;rb_raise(rb_eRuntimeError, $1-&gt;c_str());&quot;;
+-//}
+
+Deleted: antargis/trunk/build/swig/ag_data.i
+===================================================================
+--- antargis/trunk/build/swig/ag_data.i	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/build/swig/ag_data.i	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -1,82 +0,0 @@
+-//
+-// SWIG typemaps for std::string
+-// Luigi Ballabio
+-// Apr 8, 2002
+-//
+-// Ruby implementation
+-
+-
+-// ------------------------------------------------------------------------
+-// std::string is typemapped by value
+-// This can prevent exporting methods which return a string
+-// in order for the user to modify it.
+-// However, I think I'll wait until someone asks for it...
+-// ------------------------------------------------------------------------
+-
+-%include exception.i
+-
+-%{
+-#include &lt;ag_string.h&gt;
+-#include &lt;ag_fs.h&gt;
+-%}
+-
+-
+-    // Ruby wants class names to start with a capital letter
+-    // %rename(String) string;
+-    class AGData;
+-
+-    /* Overloading check */
+-    %typemap(typecheck) AGData = char *;
+-    %typemap(typecheck) const AGData &amp; = char *;
+-
+-    %typemap(in) AGData {
+-        if (TYPE($input) == T_STRING) {
+-            $1 = AGData(RSTRING($input)-&gt;ptr,RSTRING($input)-&gt;len);
+-        } else {
+-            SWIG_exception(SWIG_TypeError, &quot;not a string&quot;);
+-        }
+-    }
+-
+-    %typemap(in) const AGData &amp; (AGData temp) {
+-        if (TYPE($input) == T_STRING) {
+-            temp = AGData(RSTRING($input)-&gt;ptr,RSTRING($input)-&gt;len);
+-            $1 = &temp;
+-        } else {
+-            SWIG_exception(SWIG_TypeError, &quot;not a string&quot;);
+-        }
+-    }
+-
+-    %typemap(out) AGData {
+-        $result = rb_str_new($1.c_str(),$1.length());
+-    }
+-
+-    %typemap(out) const AGData &amp; {
+-        $result = rb_str_new($1-&gt;c_str(),$1-&gt;length());
+-    }
+-
+-    %typemap(directorin) AGData, const AGData &amp;, AGData &amp; &quot;$input=rb_str_new($1_name.c_str(),$1_name.length());&quot;;
+-
+-    %typemap(directorin) AGData *, const AGData * &quot;$1_name-&gt;c_str()&quot;;
+-    
+-    %typemap(directorout) AGData {
+-        if (TYPE($input) == T_STRING)
+-            $result = AGData(RSTRING($input)-&gt;ptr,RSTRING($input)-&gt;len);
+-        else
+-            throw Swig::DirectorTypeMismatchException(&quot;string expected&quot;);
+-    }
+-    
+-    %typemap(directorout) const AGData &amp; (AGData temp) {
+-        if (TYPE($input) == T_STRING) {
+-            temp = AGData(RSTRING($input)-&gt;ptr,RSTRING($input)-&gt;len);
+-            $result = &temp;
+-        } else {
+-            throw Swig::DirectorTypeMismatchException(&quot;string expected&quot;);
+-        }
+-    }
+-/*
+-    %typemap(throws) AGData, const string &amp;
+-        &quot;rb_raise(rb_eRuntimeError, $1.c_str());&quot;;
+-
+-    %typemap(throws) string *, const string *
+-        &quot;rb_raise(rb_eRuntimeError, $1-&gt;c_str());&quot;;
+-*/
+
+Deleted: antargis/trunk/build/swig/ag_filename.i
+===================================================================
+--- antargis/trunk/build/swig/ag_filename.i	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/build/swig/ag_filename.i	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -1,82 +0,0 @@
+-//
+-// SWIG typemaps for std::string
+-// Luigi Ballabio
+-// Apr 8, 2002
+-//
+-// Ruby implementation
+-
+-
+-// ------------------------------------------------------------------------
+-// std::string is typemapped by value
+-// This can prevent exporting methods which return a string
+-// in order for the user to modify it.
+-// However, I think I'll wait until someone asks for it...
+-// ------------------------------------------------------------------------
+-
+-%include exception.i
+-
+-%{
+-#include &lt;ag_string.h&gt;
+-#include &lt;ag_fs.h&gt;
+-%}
+-
+-
+-    // Ruby wants class names to start with a capital letter
+-    // %rename(String) string;
+-    class AGFilename;
+-
+-    /* Overloading check */
+-    %typemap(typecheck) AGFilename = char *;
+-    %typemap(typecheck) const AGFilename &amp; = char *;
+-
+-    %typemap(in) AGFilename {
+-        if (TYPE($input) == T_STRING) {
+-            $1 = AGFilename(RSTRING($input)-&gt;ptr,RSTRING($input)-&gt;len);
+-        } else {
+-            SWIG_exception(SWIG_TypeError, &quot;not a string&quot;);
+-        }
+-    }
+-
+-    %typemap(in) const AGFilename &amp; (AGFilename temp) {
+-        if (TYPE($input) == T_STRING) {
+-            temp = AGFilename(RSTRING($input)-&gt;ptr,RSTRING($input)-&gt;len);
+-            $1 = &temp;
+-        } else {
+-            SWIG_exception(SWIG_TypeError, &quot;not a string&quot;);
+-        }
+-    }
+-
+-    %typemap(out) AGFilename {
+-        $result = rb_str_new($1.c_str(),$1.length());
+-    }
+-
+-    %typemap(out) const AGFilename &amp; {
+-        $result = rb_str_new($1-&gt;c_str(),$1-&gt;length());
+-    }
+-
+-    %typemap(directorin) AGFilename, const AGFilename &amp;, AGFilename &amp; &quot;$input=rb_str_new($1_name.c_str(),$1_name.length());&quot;;
+-
+-    %typemap(directorin) AGFilename *, const AGFilename * &quot;$1_name-&gt;c_str()&quot;;
+-    
+-    %typemap(directorout) AGFilename {
+-        if (TYPE($input) == T_STRING)
+-            $result = AGFilename(RSTRING($input)-&gt;ptr,RSTRING($input)-&gt;len);
+-        else
+-            throw Swig::DirectorTypeMismatchException(&quot;string expected&quot;);
+-    }
+-    
+-    %typemap(directorout) const AGFilename &amp; (AGFilename temp) {
+-        if (TYPE($input) == T_STRING) {
+-            temp = AGFilename(RSTRING($input)-&gt;ptr,RSTRING($input)-&gt;len);
+-            $result = &temp;
+-        } else {
+-            throw Swig::DirectorTypeMismatchException(&quot;string expected&quot;);
+-        }
+-    }
+-/*
+-    %typemap(throws) AGFilename, const string &amp;
+-        &quot;rb_raise(rb_eRuntimeError, $1.c_str());&quot;;
+-
+-    %typemap(throws) string *, const string *
+-        &quot;rb_raise(rb_eRuntimeError, $1-&gt;c_str());&quot;;
+-*/
+
+Deleted: antargis/trunk/build/swig/ag_string.i
+===================================================================
+--- antargis/trunk/build/swig/ag_string.i	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/build/swig/ag_string.i	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -1,113 +0,0 @@
+-//
+-// SWIG typemaps for std::string
+-// Luigi Ballabio
+-// Apr 8, 2002
+-//
+-// Ruby implementation
+-
+-
+-// ------------------------------------------------------------------------
+-// std::string is typemapped by value
+-// This can prevent exporting methods which return a string
+-// in order for the user to modify it.
+-// However, I think I'll wait until someone asks for it...
+-// ------------------------------------------------------------------------
+-
+-%include exception.i
+-
+-%{
+-#include &lt;ag_string.h&gt;
+-%}
+-
+-
+-// Ruby wants class names to start with a capital letter
+-%rename(String) AGString;
+-class AGString;
+-
+-    //
+-    %typemap(typecheck) AGString = char *;
+-    %typemap(typecheck) const AGString &amp; = char *;
+-
+-    %typemap(in) AGString {
+-        if (TYPE($input) == T_STRING) {
+-            $1 = AGString(RSTRING($input)-&gt;ptr,RSTRING($input)-&gt;len);
+-        } else {
+-            SWIG_exception(SWIG_TypeError, &quot;not a string&quot;);
+-        }
+-    }
+-
+-    %typemap(in) const AGString &amp; (AGString res) {
+-        if (TYPE($input) == T_STRING) {
+-            res = AGString(RSTRING($input)-&gt;ptr,RSTRING($input)-&gt;len);
+-            $1 = &res;
+-        } else {
+-            SWIG_exception(SWIG_TypeError, &quot;not a string&quot;);
+-        }
+-    }
+-
+-    %typemap(out) AGString {
+-        $result = rb_str_new($1.c_str(),$1.length());
+-    }
+-
+-    %typemap(out) const AGString &amp; {
+-        $result = rb_str_new($1-&gt;c_str(),$1-&gt;length());
+-    }
+-
+-    %typemap(directorin) AGString, const AGString &amp;, AGString &amp; &quot;$input=rb_str_new($1_name.c_str(),$1_name.length());&quot;;
+-
+-    %typemap(directorin) AGString *, const AGString * &quot;$1_name-&gt;c_str()&quot;;
+-    
+-    %typemap(directorout) AGString {
+-        if (TYPE($input) == T_STRING)
+-            $result = AGString(RSTRING($input)-&gt;ptr,RSTRING($input)-&gt;len);
+-        else
+-            throw Swig::DirectorTypeMismatchException(&quot;string expected&quot;);
+-    }
+-    
+-    %typemap(directorout) const AGString &amp; (AGString res) {
+-        if (TYPE($input) == T_STRING) {
+-            res = AGString(RSTRING($input)-&gt;ptr,RSTRING($input)-&gt;len);
+-            $result = &res;
+-        } else {
+-            throw Swig::DirectorTypeMismatchException(&quot;string expected&quot;);
+-        }
+-    }
+-
+-
+-%{
+-AGString SWIG_RB2AGSTR(VALUE x) {
+-    return AGString(RSTRING_PTR(x), RSTRING_LEN(x));
+-}
+-VALUE SWIG_AGSTR2RB(const AGString&amp; s) {
+-    return rb_str_new(s.data(), s.size());
+-}
+-%}
+-namespace std
+-{
+-	specialize_std_vector(AGString,SWIG_STRING_P,SWIG_RB2AGSTR,SWIG_AGSTR2RB);
+-	//specialize_std_vector(AGFilename,SWIG_STRING_P,SWIG_RB2AGSTR,SWIG_AGSTR2RB);
+-	//specialize_std_vector(AGData,SWIG_STRING_P,SWIG_RB2AGSTR,SWIG_AGSTR2RB);
+-}
+-
+-
+-
+-/*
+-%apply std::string { AGString };  
+-%apply const std::string { const AGString }; 
+-
+-%apply std::string* { AGString* };  
+-// Not defined yet 
+-//%apply const std::string* { const AGString* }; 
+- 
+-%apply std::string&amp; { AGString&amp; }; 
+-%apply const std::string&amp; { const AGString&amp; };  
+-*/
+-/*
+-
+-%include &lt;typemaps/std_string.swg&gt;
+-
+-%naturalvar AGString;
+-//typedef std::string AGString;
+-class AGString:public std::string {
+-};
+-*/
+\ No newline at end of file
+
+Deleted: antargis/trunk/build/swig/ag_string_new.i
+===================================================================
+--- antargis/trunk/build/swig/ag_string_new.i	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/build/swig/ag_string_new.i	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -1,16 +0,0 @@
+-//
+-// String
+-//
+-
+-
+-/*
+-%include &lt;typemaps/std_strings.swg&gt;
+-
+-%{
+-#include &lt;ag_string.h&gt;
+-%}
+-  
+-class AGString;
+-
+-%typemaps_std_string(AGString, char, SWIG_AsCharPtrAndSize, SWIG_FromCharPtrAndSize, %checkcode(STDSTRING));
+-*/
+
+Deleted: antargis/trunk/build/swig/common.i
+===================================================================
+--- antargis/trunk/build/swig/common.i	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/build/swig/common.i	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -1,37 +0,0 @@
+-%feature(&quot;director&quot;);
+-%include &quot;typemaps.i&quot;
+-%include &quot;std_string.i&quot;
+-%include &quot;std_vector.i&quot;
+-%include &quot;std_pair.i&quot;
+-%include &quot;std_map.i&quot;
+-%include &quot;std_list.i&quot;
+-%include &quot;ag_string_new.i&quot;
+-%include &quot;ag_string.i&quot;
+-//%include &quot;ag_filename.i&quot;
+-%include &quot;ag_data.i&quot;
+-
+-%{
+-#include &lt;ag_rubyobj.h&gt;
+-
+-SWIGRUNTIME VALUE
+-AG_NewPointerObj(void *ptr, swig_type_info *type, int flags)
+-{
+-	AGRubyObject *o=(AGRubyObject*)ptr;
+-#ifdef GCDEBUG
+-	printf(&quot;AG_NewPointerObj o:0x%lx , ruby:0x%lx vl:0x%lx\n&quot;,o,o-&gt;mRubyObject,o-&gt;mRUBY);
+-#endif
+-	if(o-&gt;mRubyObject)
+-		return o-&gt;mRUBY;
+-
+-	swig_type_info *t=SWIG_TypeDynamicCast(type,(void**)&amp;o);
+-
+-	o-&gt;mRubyObject=true;
+-	o-&gt;mRUBY=SWIG_NewPointerObj((void *) o, t,flags);
+-#ifdef GCDEBUG
+-	printf(&quot;NEW AG_NewPointerObj o:0x%lx , ruby:0x%lx vl:0x%lx\n&quot;,o,o-&gt;mRubyObject,o-&gt;mRUBY);
+-#endif
+-	return o-&gt;mRUBY;
+-}
+-
+-%}
+-
+
+Deleted: antargis/trunk/build/swig/std_list.i
+===================================================================
+--- antargis/trunk/build/swig/std_list.i	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/build/swig/std_list.i	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -1,452 +0,0 @@
+-/* -----------------------------------------------------------------------------
+- * See the LICENSE file for information on copyright, usage and redistribution
+- * of SWIG, and the README file for authors - <A HREF="http://www.swig.org/release.html.">http://www.swig.org/release.html.</A>
+- *
+- * std_vector.i
+- *
+- * SWIG typemaps for std::vector
+- * ----------------------------------------------------------------------------- */
+-
+-%include &lt;std_common.i&gt;
+-
+-// ------------------------------------------------------------------------
+-// std::list
+-// 
+-// The aim of all that follows would be to integrate std::list with 
+-// Ruby as much as possible, namely, to allow the user to pass and 
+-// be returned Ruby arrays
+-// const declarations are used to guess the intent of the function being
+-// exported; therefore, the following rationale is applied:
+-// 
+-//   -- f(std::list&lt;T&gt;), f(const std::list&lt;T&gt;&amp;), f(const std::list&lt;T&gt;*):
+-//      the parameter being read-only, either a Ruby array or a
+-//      previously wrapped std::list&lt;T&gt; can be passed.
+-//   -- f(std::list&lt;T&gt;&amp;), f(std::list&lt;T&gt;*):
+-//      the parameter must be modified; therefore, only a wrapped std::list
+-//      can be passed.
+-//   -- std::list&lt;T&gt; f():
+-//      the list is returned by copy; therefore, a Ruby array of T:s 
+-//      is returned which is most easily used in other Ruby functions
+-//   -- std::list&lt;T&gt;&amp; f(), std::list&lt;T&gt;* f(), const std::list&lt;T&gt;&amp; f(),
+-//      const std::list&lt;T&gt;* f():
+-//      the list is returned by reference; therefore, a wrapped std::list
+-//      is returned
+-// ------------------------------------------------------------------------
+-
+-%{
+-#include &lt;list&gt;
+-#include &lt;algorithm&gt;
+-#include &lt;stdexcept&gt;
+-%}
+-
+-// exported class
+-
+-namespace std {
+-
+-    %mixin list &quot;Enumerable&quot;;
+-
+-    template&lt;class T&gt; class list {
+-        %typemap(in) list&lt;T&gt; {
+-            if (rb_obj_is_kind_of($input,rb_cArray)) {
+-                unsigned int size = RARRAY_LEN($input);
+-                $1;
+-                for (unsigned int i=0; i&lt;size; i++) {
+-                    VALUE o = RARRAY_PTR($input)[i];
+-                    T* x;
+-		    SWIG_ConvertPtr(o, (void **) &amp;x, $descriptor(T *), 1);
+-                    $1.push_back(*x);
+-                }
+-            } else {
+-	        void *ptr;
+-                SWIG_ConvertPtr($input, &amp;ptr, $&amp;1_descriptor, 1);
+-                $1 = *(($&amp;1_type) ptr);
+-            }
+-        }
+-        %typemap(in) const list&lt;T&gt;&amp; (std::list&lt;T&gt; temp),
+-                     const list&lt;T&gt;* (std::list&lt;T&gt; temp) {
+-            if (rb_obj_is_kind_of($input,rb_cArray)) {
+-                unsigned int size = RARRAY_LEN($input);
+-                $1 = &temp;
+-                for (unsigned int i=0; i&lt;size; i++) {
+-                    VALUE o = RARRAY_PTR($input)[i];
+-                    T* x;
+-                    SWIG_ConvertPtr(o, (void **) &amp;x, $descriptor(T *), 1);
+-                    temp.push_back(*x);
+-                }
+-            } else {
+-                SWIG_ConvertPtr($input, (void **) &amp;$1, $1_descriptor, 1);
+-            }
+-        }
+-        %typemap(out) list&lt;T&gt; {
+-            $result = rb_ary_new2($1.size());
+-            size_t j=0;
+-            for($1_type::iterator i=$1.begin();i!=$1.end();i++,j++)
+-            {
+-                T* x = new T(*i);
+-                assert(x);
+-                // no AG_NewPointerObj needed, because object is definitely created above and thus has no mRubyObject defined
+-                rb_ary_store($result,j,SWIG_NewPointerObj((void*)x,$descriptor(T*),1));
+-            }
+-            assert(j==$1.size());
+-        }
+-        %typecheck(SWIG_TYPECHECK_LIST) list&lt;T&gt; {
+-            /* native sequence? */
+-            if (rb_obj_is_kind_of($input,rb_cArray)) {
+-                unsigned int size = RARRAY_LEN($input);
+-                if (size == 0) {
+-                    /* an empty sequence can be of any type */
+-                    $1 = 1;
+-                } else {
+-                    /* check the first element only */
+-                    T* x;
+-                    VALUE o = RARRAY_PTR($input)[0];
+-                    if ((SWIG_ConvertPtr(o,(void **) &amp;x, 
+-                                         $descriptor(T *),0)) != -1)
+-                        $1 = 1;
+-                    else
+-                        $1 = 0;
+-                }
+-            } else {
+-                /* wrapped list? */
+-                std::list&lt;T &gt;* v;
+-                if (SWIG_ConvertPtr($input,(void **) &amp;v, 
+-                                    $&amp;1_descriptor,0) != -1)
+-                    $1 = 1;
+-                else
+-                    $1 = 0;
+-            }
+-        }
+-        %typecheck(SWIG_TYPECHECK_LIST) const list&lt;T&gt;&amp;,
+-                                          const list&lt;T&gt;* {
+-            /* native sequence? */
+-            if (rb_obj_is_kind_of($input,rb_cArray)) {
+-                unsigned int size = RARRAY_LEN($input);
+-                if (size == 0) {
+-                    /* an empty sequence can be of any type */
+-                    $1 = 1;
+-                } else {
+-                    /* check the first element only */
+-                    T* x;
+-                    VALUE o = RARRAY_PTR($input)[0];
+-                    if ((SWIG_ConvertPtr(o,(void **) &amp;x, 
+-                                         $descriptor(T *),0)) != -1)
+-                        $1 = 1;
+-                    else
+-                        $1 = 0;
+-                }
+-            } else {
+-                /* wrapped list? */
+-                std::list&lt;T &gt;* v;
+-                if (SWIG_ConvertPtr($input,(void **) &amp;v, 
+-                                    $1_descriptor,0) != -1)
+-                    $1 = 1;
+-                else
+-                    $1 = 0;
+-            }
+-        }
+-      public:
+-        list();
+-        list(unsigned int size);
+-        list(unsigned int size, const T&amp; value);
+-        list(const list&lt;T&gt; &amp;);
+-
+-        %rename(__len__) size;
+-        unsigned int size() const;
+-        %rename(&quot;empty?&quot;) empty;
+-        bool empty() const;
+-        void clear();
+-        %rename(push) push_back;
+-        void push_back(const T&amp; x);
+-        %extend {
+-            T pop() throw (std::out_of_range) {
+-                if (self-&gt;size() == 0)
+-                    throw std::out_of_range(&quot;pop from empty list&quot;);
+-                T x = self-&gt;back();
+-                self-&gt;pop_back();
+-                return x;
+-            }
+-
+-            void each() {
+-	        for(std::list&lt;T&gt;::iterator i=self-&gt;begin();i!=self-&gt;end();i++) // without ptr
+-                {
+-		    rb_yield(AG_NewPointerObj((void*)&amp;(*i),$descriptor(T*),0));
+-                }
+-            }
+-        }
+-    };
+-
+-    // Partial specialization for lists of pointers.  [ beazley ]
+-
+-    %mixin list&lt;T*&gt; &quot;Enumerable&quot;;
+-    template&lt;class T&gt; class list&lt;T*&gt; {
+-        %typemap(in) list&lt;T*&gt; {
+-            if (rb_obj_is_kind_of($input,rb_cArray)) {
+-                unsigned int size = RARRAY_LEN($input);
+-                $1 = std::list&lt;T* &gt;();//(size);
+-                for (unsigned int i=0; i&lt;size; i++) {
+-                    VALUE o = RARRAY_PTR($input)[i];
+-                    T* x;
+-                    SWIG_ConvertPtr(o, (void **) &amp;x, $descriptor(T *), 1);
+-		    $1.push_back(x);
+-                }
+-            } else {
+-                void *ptr;
+-                SWIG_ConvertPtr($input, &amp;ptr, $&amp;1_descriptor, 1);
+-                $1 = *(($&amp;1_type) ptr);
+-            }
+-        }
+-        %typemap(in) const list&lt;T*&gt;&amp; (std::list&lt;T*&gt; temp),
+-                     const list&lt;T*&gt;* (std::list&lt;T*&gt; temp) {
+-            if (rb_obj_is_kind_of($input,rb_cArray)) {
+-                unsigned int size = RARRAY_LEN($input);
+-                temp = std::list&lt;T* &gt;();//(size);
+-                $1 = &temp;
+-                for (unsigned int i=0; i&lt;size; i++) {
+-                    VALUE o = RARRAY_PTR($input)[i];
+-                    T* x;
+-                    SWIG_ConvertPtr(o, (void **) &amp;x, $descriptor(T *), 1);
+-                    temp.push_back(x);
+-                }
+-            } else {
+-                SWIG_ConvertPtr($input, (void **) &amp;$1, $1_descriptor, 1);
+-            }
+-        }
+-        %typemap(out) list&lt;T*&gt; {
+-            $result = rb_ary_new2($1.size());
+-            size_t j=0;
+-             for($1_type::iterator i=$1.begin();i!=$1.end();i++,j++) {
+-               rb_ary_store($result,j,AG_NewPointerObj(*i,$descriptor(T*),1));
+-             }
+-            assert(j==$1.size());
+-        }
+-        %typecheck(SWIG_TYPECHECK_LIST) list&lt;T*&gt; {
+-            /* native sequence? */
+-            if (rb_obj_is_kind_of($input,rb_cArray)) {
+-                unsigned int size = RARRAY_LEN($input);
+-                if (size == 0) {
+-                    /* an empty sequence can be of any type */
+-                    $1 = 1;
+-                } else {
+-                    /* check the first element only */
+-                    T* x;
+-                    VALUE o = RARRAY_PTR($input)[0];
+-                    if ((SWIG_ConvertPtr(o,(void **) &amp;x, 
+-                                         $descriptor(T *),0)) != -1)
+-                        $1 = 1;
+-                    else
+-                        $1 = 0;
+-                }
+-            } else {
+-                /* wrapped list? */
+-                std::list&lt;T* &gt;* v;
+-                if (SWIG_ConvertPtr($input,(void **) &amp;v, 
+-                                    $&amp;1_descriptor,0) != -1)
+-                    $1 = 1;
+-                else
+-                    $1 = 0;
+-            }
+-        }
+-        %typecheck(SWIG_TYPECHECK_LIST) const list&lt;T*&gt;&amp;,
+-                                          const list&lt;T*&gt;* {
+-            /* native sequence? */
+-            if (rb_obj_is_kind_of($input,rb_cArray)) {
+-                unsigned int size = RARRAY_LEN($input);
+-                if (size == 0) {
+-                    /* an empty sequence can be of any type */
+-                    $1 = 1;
+-                } else {
+-                    /* check the first element only */
+-                    T* x;
+-                    VALUE o = RARRAY_PTR($input)[0];
+-                    if ((SWIG_ConvertPtr(o,(void **) &amp;x, 
+-                                         $descriptor(T *),0)) != -1)
+-                        $1 = 1;
+-                    else
+-                        $1 = 0;
+-                }
+-            } else {
+-                /* wrapped list? */
+-                std::list&lt;T* &gt;* v;
+-                if (SWIG_ConvertPtr($input,(void **) &amp;v, 
+-                                    $1_descriptor,0) != -1)
+-                    $1 = 1;
+-                else
+-                    $1 = 0;
+-            }
+-        }
+-      public:
+-        list();
+-        list(unsigned int size);
+-        list(unsigned int size, T * &amp;value);
+-        list(const list&lt;T*&gt; &amp;);
+-
+-        %rename(__len__) size;
+-        unsigned int size() const;
+-        %rename(&quot;empty?&quot;) empty;
+-        bool empty() const;
+-        void clear();
+-        %rename(push) push_back;
+-        void push_back(T* x);
+-        %extend {
+-            T* pop() throw (std::out_of_range) {
+-                if (self-&gt;size() == 0)
+-                    throw std::out_of_range(&quot;pop from empty list&quot;);
+-                T* x = self-&gt;back();
+-                self-&gt;pop_back();
+-                return x;
+-            }
+-
+-            void each() {
+-                for(std::list&lt;T*&gt;::iterator i=self-&gt;begin();i!=self-&gt;end();i++) // with ptr
+-                {
+-                    rb_yield(AG_NewPointerObj(*i,$descriptor(T*),0));
+-		}
+-            }
+-        }
+-    };
+-        
+-
+-    // specializations for built-ins
+-
+-    %define specialize_std_list(T,CHECK,CONVERT_FROM,CONVERT_TO)
+-    %mixin list&lt;T&gt; &quot;Enumerable&quot;;
+-    template&lt;&gt; class list&lt;T&gt; {
+-        %typemap(in) list&lt;T&gt; {
+-            if (rb_obj_is_kind_of($input,rb_cArray)) {
+-                unsigned int size = RARRAY_LEN($input);
+-                $1 = std::list&lt;T &gt;();//(size);
+-                for (unsigned int i=0; i&lt;size; i++) {
+-                    VALUE o = RARRAY_PTR($input)[i];
+-                    if (CHECK(o))
+-                        (($1_type &amp;)$1)[i] = (T)(CONVERT_FROM(o));
+-                    else
+-                        rb_raise(rb_eTypeError,
+-                                 &quot;wrong argument type&quot;
+-                                 &quot; (expected list&lt;&quot; #T &quot;&gt;)&quot;);
+-                }
+-            } else {
+-	        void *ptr;
+-                SWIG_ConvertPtr($input, &amp;ptr, $&amp;1_descriptor, 1);
+-                $1 = *(($&amp;1_type) ptr);
+-            }
+-        }
+-        %typemap(in) const list&lt;T&gt;&amp; (std::list&lt;T&gt; temp),
+-                     const list&lt;T&gt;* (std::list&lt;T&gt; temp) {
+-            if (rb_obj_is_kind_of($input,rb_cArray)) {
+-                unsigned int size = RARRAY_LEN($input);
+-                temp = std::list&lt;T &gt;();//(size);
+-                $1 = &temp;
+-                for (unsigned int i=0; i&lt;size; i++) {
+-                    VALUE o = RARRAY_PTR($input)[i];
+-                    if (CHECK(o))
+-                        temp.push_back((T)(CONVERT_FROM(o)));
+-                    else
+-                        rb_raise(rb_eTypeError,
+-                                 &quot;wrong argument type&quot;
+-                                 &quot; (expected list&lt;&quot; #T &quot;&gt;)&quot;);
+-                }
+-            } else {
+-                SWIG_ConvertPtr($input, (void **) &amp;$1, $1_descriptor, 1);
+-            }
+-        }
+-        %typemap(out) list&lt;T&gt; {
+-            $result = rb_ary_new2($1.size());
+-            for (($1_type)::iterator i=$1.begin();i!=$1.end();i++) //unsigned int i=0; i&lt;$1.size(); i++)
+-                rb_ary_store($result,i,CONVERT_TO(*i));
+-        }
+-        %typecheck(SWIG_TYPECHECK_LIST) list&lt;T&gt; {
+-            /* native sequence? */
+-            if (rb_obj_is_kind_of($input,rb_cArray)) {
+-                unsigned int size = RARRAY_LEN($input);
+-                if (size == 0) {
+-                    /* an empty sequence can be of any type */
+-                    $1 = 1;
+-                } else {
+-                    /* check the first element only */
+-                    VALUE o = RARRAY_PTR($input)[0];
+-                    if (CHECK(o))
+-                        $1 = 1;
+-                    else
+-                        $1 = 0;
+-                }
+-            } else {
+-                /* wrapped list? */
+-                std::list&lt;T &gt;* v;
+-                if (SWIG_ConvertPtr($input,(void **) &amp;v, 
+-                                    $&amp;1_descriptor,0) != -1)
+-                    $1 = 1;
+-                else
+-                    $1 = 0;
+-            }
+-        }
+-        %typecheck(SWIG_TYPECHECK_LIST) const list&lt;T&gt;&amp;,
+-                                          const list&lt;T&gt;* {
+-            /* native sequence? */
+-            if (rb_obj_is_kind_of($input,rb_cArray)) {
+-                unsigned int size = RARRAY_LEN($input);
+-                if (size == 0) {
+-                    /* an empty sequence can be of any type */
+-                    $1 = 1;
+-                } else {
+-                    /* check the first element only */
+-                    VALUE o = RARRAY_PTR($input)[0];
+-                    if (CHECK(o))
+-                        $1 = 1;
+-                    else
+-                        $1 = 0;
+-                }
+-            } else {
+-                /* wrapped list? */
+-                std::list&lt;T &gt;* v;
+-                if (SWIG_ConvertPtr($input,(void **) &amp;v, 
+-                                    $1_descriptor,0) != -1)
+-                    $1 = 1;
+-                else
+-                    $1 = 0;
+-            }
+-        }
+-      public:
+-        list();
+-        list(unsigned int size);
+-        list(unsigned int size, const T&amp; value);
+-        list(const list&lt;T&gt; &amp;);
+-
+-        %rename(__len__) size;
+-        unsigned int size() const;
+-        %rename(&quot;empty?&quot;) empty;
+-        bool empty() const;
+-        void clear();
+-        %rename(push) push_back;
+-        void push_back(T x);
+-        %extend {
+-            T pop() throw (std::out_of_range) {
+-                if (self-&gt;size() == 0)
+-                    throw std::out_of_range(&quot;pop from empty list&quot;);
+-                T x = self-&gt;back();
+-                self-&gt;pop_back();
+-                return x;
+-            }
+-		
+-            void each() {
+-		for(std::list&lt;T&gt;::iterator i=self-&gt;begin();i!=self-&gt;end();i++) // with ptr2
+-                    rb_yield(CONVERT_TO(*i));
+-            }
+-        }
+-    };
+-    %enddef
+-
+-    specialize_std_list(bool,SWIG_BOOL_P,SWIG_RB2BOOL,SWIG_BOOL2RB);
+-    specialize_std_list(char,FIXNUM_P,FIX2INT,INT2NUM);
+-    specialize_std_list(int,FIXNUM_P,FIX2INT,INT2NUM);
+-    specialize_std_list(short,FIXNUM_P,FIX2INT,INT2NUM);
+-    specialize_std_list(long,FIXNUM_P,FIX2INT,INT2NUM);
+-    specialize_std_list(unsigned char,FIXNUM_P,FIX2INT,INT2NUM);
+-    specialize_std_list(unsigned int,FIXNUM_P,FIX2INT,INT2NUM);
+-    specialize_std_list(unsigned short,FIXNUM_P,FIX2INT,INT2NUM);
+-    specialize_std_list(unsigned long,FIXNUM_P,FIX2INT,INT2NUM);
+-    specialize_std_list(double,SWIG_FLOAT_P,SWIG_NUM2DBL,rb_float_new);
+-    specialize_std_list(float,SWIG_FLOAT_P,SWIG_NUM2DBL,rb_float_new);
+-    specialize_std_list(std::string,SWIG_STRING_P,SWIG_RB2STR,SWIG_STR2RB);
+-
+-}
+-
+
+Deleted: antargis/trunk/build/swig/std_string.i
+===================================================================
+--- antargis/trunk/build/swig/std_string.i	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/build/swig/std_string.i	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -1,96 +0,0 @@
+-//
+-// SWIG typemaps for std::string
+-// Luigi Ballabio
+-// Apr 8, 2002
+-//
+-// Ruby implementation
+-
+-
+-// ------------------------------------------------------------------------
+-// std::string is typemapped by value
+-// This can prevent exporting methods which return a string
+-// in order for the user to modify it.
+-// However, I think I'll wait until someone asks for it...
+-// ------------------------------------------------------------------------
+-
+-%include exception.i
+-
+-%{
+-#include &lt;string&gt;
+-%}
+-
+-namespace std {
+-
+-    // Ruby wants class names to start with a capital letter
+-    %rename(String) string;
+-    class string;
+-
+-    /* Overloading check */
+-    %typemap(typecheck) string = char *;
+-    %typemap(typecheck) const string &amp; = char *;
+-
+-    %typemap(in) string {
+-        if (TYPE($input) == T_STRING) {
+-//            $1 = std::string(StringValuePtr($input));
+-            $1 = std::string(RSTRING($input)-&gt;ptr,RSTRING($input)-&gt;len);
+-        } else {
+-            SWIG_exception(SWIG_TypeError, &quot;not a string&quot;);
+-        }
+-    }
+-
+-    %typemap(in) const string &amp; (std::string temp) {
+-        if (TYPE($input) == T_STRING) {
+-//            temp = std::string(StringValuePtr($input));
+-            temp = std::string(RSTRING($input)-&gt;ptr,RSTRING($input)-&gt;len);
+-            $1 = &temp;
+-        } else {
+-            SWIG_exception(SWIG_TypeError, &quot;not a string&quot;);
+-        }
+-    }
+-
+-    %typemap(out) string {
+-        $result = rb_str_new($1.c_str(),$1.length());
+-    }
+-
+-    %typemap(out) const string &amp; {
+-        $result = rb_str_new($1-&gt;c_str(),$1.length());
+-    }
+-
+-    %typemap(directorin) string, const string &amp;, string &amp; &quot;$input=rb_str_new2($1_name.c_str());&quot;;
+-
+-    %typemap(directorin) string *, const string * &quot;$1_name-&gt;c_str()&quot;;
+-    
+-    %typemap(directorout) string {
+-        if (TYPE($input) == T_STRING)
+-//            $result = std::string(StringValuePtr($input));
+-            $result = std::string(RSTRING($input)-&gt;ptr,RSTRING($input)-&gt;len);
+-        else
+-            throw Swig::DirectorTypeMismatchException(&quot;string expected&quot;);
+-    }
+-    
+-    %typemap(directorout) const string &amp; (std::string temp) {
+-        if (TYPE($input) == T_STRING) {
+-//            temp = std::string(StringValuePtr($input));
+-            temp = std::string(RSTRING($input)-&gt;ptr,RSTRING($input)-&gt;len);
+-            $result = &temp;
+-        } else {
+-            throw Swig::DirectorTypeMismatchException(&quot;string expected&quot;);
+-        }
+-    }
+-
+-    %typemap(throws) string, const string &amp;
+-        &quot;rb_raise(rb_eRuntimeError, $1.c_str());&quot;;
+-
+-    %typemap(throws) string *, const string *
+-        &quot;rb_raise(rb_eRuntimeError, $1-&gt;c_str());&quot;;
+-}
+-
+-%{
+-int SWIG_AsVal_std_string(VALUE x,std::string *s) {
+-    s=new std::string(RSTRING_PTR(x), RSTRING_LEN(x));
+-return 0;
+-}
+-VALUE SWIG_From_std_string(const std::string&amp; s) {
+-    return rb_str_new(s.data(), s.size());
+-}
+-%}
+
+Deleted: antargis/trunk/build/test_suite_c.rb
+===================================================================
+--- antargis/trunk/build/test_suite_c.rb	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/build/test_suite_c.rb	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -1,124 +0,0 @@
+-require 'build/base_tools.rb'
+-module Testing
+-	@@stats={}
+-	def Testing.runCTest(file)
+-		@@stats={}
+-
+-		puts &quot;testing #{file}&quot;
+-		functions=extractFunctions(file)
+-
+-		writeInterfaceFile(functions)
+-		files=[interfaceFile,file]
+-		files.each{|f|Build.compile(f)}
+-		objs=files.collect{|f|Build.cFileToObj(f)}
+-
+-		Build.linkToLib(libName,objs,extLibs)
+-		runTest(functions)
+-
+-	end
+-
+-	def Testing.getStats
+-		@@stats
+-	end
+-
+-private
+-
+-	def Testing.initRunEnvironment
+-		if ENV[&quot;WINDIR&quot;] and false
+-      ENV[&quot;PATH&quot;]+=&quot;;.\\ext&quot;
+-    else
+-      ENV[&quot;PATH&quot;]+=&quot;:./ext&quot;
+-		end
+-		$:.push(&quot;ext&quot;)
+-		ENV[&quot;LD_LIBRARY_PATH&quot;]||=&quot;&quot;
+-		ENV[&quot;LD_LIBRARY_PATH&quot;]+=&quot;./ext/&quot;
+-	end
+-	def Testing.runTest(functions)
+-		initRunEnvironment
+-
+-		funcCalls=functions.map{|f|&quot;result[\&quot;#{f}\&quot;]=#{f}&quot;}.join(&quot;\n&quot;)
+-
+-		script=&lt;&lt;EOT
+-require '#{libName}'
+-include #{moduleName}
+-result={}
+-#{funcCalls}
+-result.each{|k,v|
+-	puts &quot;TESTING:&quot;+k.to_s+&quot;:&quot;+v.to_s
+-}
+-EOT
+-		f=File.open(&quot;curtest.rb&quot;,&quot;w&quot;)
+-		f.puts script
+-		f.close
+-		output=`ruby curtest.rb`
+-
+-		result=output.split(&quot;\n&quot;).select{|l|l=~/^TESTING/}.map{|l|l.gsub(&quot;TESTING:&quot;,&quot;&quot;).split(&quot;:&quot;)}
+-
+-		result.each{|a|
+-			puts a[0]+&quot;:::&quot;+a[1]
+-			k=a[0]
+-			v=a[1]==&quot;true&quot;
+-	
+-			@@stats[v]||=0
+-			@@stats[v]+=1
+-		}
+-		
+-		puts output
+-	end
+-
+-	def Testing.extractFunctions(file)
+-		content=File.open(file,&quot;r&quot;).read
+-
+-		lines=content.split(&quot;\n&quot;).select{|line|line=~/bool +test_[a-zA-Z_0-9]+\(\)/}
+-		functions=lines.collect{|line|line.gsub(/.* test/,&quot;test&quot;).gsub(/\(.*/,&quot;&quot;)}
+-		functions
+-	end
+-
+-	def Testing.extLibs
+-		#return []
+-		Dir[&quot;ext/*.so&quot;].select{|f|not f=~/lib/}.collect{|f|f.gsub(/^ext\/(.*)\.so/,'-l\1')}-[&quot;-lanttesting&quot;]
+-	end
+-
+-	def Testing.libName
+-		&quot;ext/anttesting.so&quot;
+-	end
+-
+-	def Testing.moduleName
+-		&quot;Anttesting&quot;
+-	end
+-
+-	def Testing.interfaceFile
+-		&quot;tmpInterface.cc&quot;
+-	end
+-
+-	def Testing.writeInterfaceFile(functions)
+-		f=File.open(interfaceFile,&quot;w&quot;)
+-		writeInterface(functions,f)
+-		f.close
+-	end
+-
+-	def Testing.writeInterface(functions,fileHandle)
+-		funcDeclarations=functions.collect{|f|&quot;bool #{f}();&quot;}.join(&quot;\n&quot;)
+-		wrappers=functions.collect{|f|&quot;VALUE wrap#{f}(ANYARGS)\n{\n  bool r=#{f}();\n  return (r?Qtrue:Qfalse);\n}&quot;}.join(&quot;\n&quot;)
+-		funcDefinitions=functions.collect{|f|&quot;rb_define_module_function(mModule,\&quot;#{f}\&quot;,&amp;wrap#{f},0);&quot;}.join(&quot;\n&quot;)
+-
+-		fileHandle.puts &lt;&lt;EOT
+-
+-#include &lt;ruby.h&gt;
+-#include &lt;stdio.h&gt;
+-
+-#{funcDeclarations}
+-
+-#{wrappers}
+-extern &quot;C&quot; {
+-void Init_#{moduleName.downcase}()
+-{
+-	VALUE mModule = rb_define_module(&quot;#{moduleName}&quot;);
+-
+-	#{funcDefinitions}
+-}
+-}
+-EOT
+-	
+-	end
+-end
+\ No newline at end of file
+
+Deleted: antargis/trunk/build/testing.rb
+===================================================================
+--- antargis/trunk/build/testing.rb	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/build/testing.rb	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -1,4 +0,0 @@
+-$:.push(&quot;build&quot;)
+-
+-require 'test_suite_c.rb'
+-
+
+Deleted: antargis/trunk/build/win32/makeLibs.sh
+===================================================================
+--- antargis/trunk/build/win32/makeLibs.sh	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/build/win32/makeLibs.sh	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -1,88 +0,0 @@
+-#!/bin/bash
+-
+-#prepare()
+-#{
+-
+-mkdir -p usr
+-mkdir -p usr/bin
+-mkdir -p usr/include
+-mkdir -p usr/lib
+-
+-mkdir tmp
+-
+-# unzip zip-files
+-for a in libs/*.zip ; {
+-    cd tmp
+-	unzip -qou ../${a}
+-    cd ..
+-}
+-
+-# extract tar.gz-files
+-for a in libs/*.gz ; {
+-    cd tmp
+-	tar xfz ../${a}
+-    cd ..
+-}
+-
+-for a in `find -name &quot;*.dll&quot; ` ; {
+-    cp $a usr/bin 2&gt;/dev/null
+-}
+-
+-for a in `find -name &quot;SDL*.h&quot; ` ; {
+-    cp $a usr/include 2&gt;/dev/null
+-}
+-
+-for a in begin_code.h close_code.h zlib.h zconf.h png.h pngconf.h; {
+-    cp `find -name $a` usr/include
+-}
+-
+-
+-for a in `find -name &quot;*.a&quot; ` ; {
+-    cp $a usr/lib 2&gt;/dev/null
+-}
+-
+-for a in `find -name &quot;*.lib&quot; ` ; {
+-    cp $a usr/lib 2&gt;/dev/null
+-}
+-for a in usr/lib/*.lib ; {
+-    cp $a `dirname $a``basename &quot;$a&quot;|sed -e &quot;s/\.lib$/\.dll\.a/&quot;`
+-}
+-for a in usr/lib/*.dll.a ; {
+-    cp $a `dirname $a``basename &quot;$a&quot;|sed -e &quot;s/^/lib/&quot;`
+-}
+-
+-for a in `find -name &quot;*.exe&quot;;find -name &quot;*-config&quot;` ; {
+-    cp $a usr/bin 2&gt;/dev/null
+-}
+-
+-mv usr/bin/i386-mingw32msvc-sdl-config usr/bin/sdl-config
+-
+-#}
+-dir=$(pwd)
+-
+-
+-
+-
+-# build ruby
+-cd tmp
+-tar xfz ../libs/ruby-1.8.6.tar.gz
+-cd ruby-1.8.6
+-        ./configure --prefix=/usr --enable-debug --enable-install-doc
+-####                # patch fake.rb
+-#####                cat fake.rb |sed -e &quot;s/\&quot;\\\\\&quot;;/\&quot;\\\\\&quot;\&quot;;/&quot;&gt;fake.tmp
+-#####                mv fake.tmp fake.rb
+-                make
+-    export DESTDIR=../../
+-                make install
+-    export DESTDIR=&quot;&quot;
+-cd ..
+-
+-# install rant
+-tar xfz ../libs/rant-0.5.8.tar.gz
+-cd rant-0.5.8
+-../../usr/bin/ruby.exe install.rb
+-
+-
+-cd ..
+-cd ..
+-
+
+Deleted: antargis/trunk/build/win32/make_ruby.sh
+===================================================================
+--- antargis/trunk/build/win32/make_ruby.sh	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/build/win32/make_ruby.sh	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -1,16 +0,0 @@
+-#!/bin/sh
+-
+-# download site: <A HREF="ftp://ftp.ruby-lang.org/pub/ruby/1.8/ruby-1.8.6-p110.tar.gz">ftp://ftp.ruby-lang.org/pub/ruby/1.8/ruby-1.8.6-p110.tar.gz</A>
+-
+-env ac_cv_func_getpgrp_void=no \
+-	ac_cv_func_setpgrp_void=yes \
+-	rb_cv_negative_time_t=no \
+-	ac_cv_func_memcmp_working=yes \
+-	rb_cv_binary_elf=no \
+-	./configure \
+-	--host=i586-mingw32msvc \
+-	--target=i386-mingw32 \
+-	--build=i686-linux \
+-	--prefix=/where/to/install/ruby-mingw32
+-make ruby
+-#make install
+\ No newline at end of file
+
+Deleted: antargis/trunk/build/win32/win32.h
+===================================================================
+--- antargis/trunk/build/win32/win32.h	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/build/win32/win32.h	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -1,558 +0,0 @@
+-#ifndef RUBY_WIN32_H
+-#define RUBY_WIN32_H
+-
+-/*
+- *  Copyright (c) 1993, Intergraph Corporation
+- *
+- *  You may distribute under the terms of either the GNU General Public
+- *  License or the Artistic License, as specified in the perl README file.
+- *
+- */
+-
+-//
+-// Definitions for NT port of Perl
+-//
+-
+-
+-//
+-// Ok now we can include the normal include files.
+-//
+-
+-// #include &lt;stdarg.h&gt; conflict with varargs.h?
+-// There is function-name conflitct, so we rename it
+-#if !defined(IN) &amp;&amp; !defined(FLOAT)
+-#define OpenFile  WINAPI_OpenFile
+-#ifdef __BORLANDC__
+-#define USE_WINSOCK2
+-#endif
+-#ifdef USE_WINSOCK2
+-#include &lt;winsock2.h&gt;
+-#include &lt;windows.h&gt;
+-#else
+-#include &lt;windows.h&gt;
+-#include &lt;winsock.h&gt;
+-#endif
+-#undef OpenFile
+-#endif
+-
+-#define NT 1			/* deprecated */
+-
+-#ifdef _WIN32_WCE
+-#undef CharNext
+-#define CharNext CharNextA
+-#endif
+-
+-//
+-// We're not using Microsoft's &quot;extensions&quot; to C for
+-// Structured Exception Handling (SEH) so we can nuke these
+-//
+-#undef try
+-#undef except
+-#undef finally
+-#undef leave
+-
+-#if defined(__cplusplus)
+-extern &quot;C++&quot; {
+-#endif
+-
+-#include &lt;stdio.h&gt;
+-#include &lt;stdlib.h&gt;
+-#include &lt;string.h&gt;
+-#include &lt;direct.h&gt;
+-#include &lt;process.h&gt;
+-#include &lt;time.h&gt;
+-#include &lt;math.h&gt;
+-#include &lt;signal.h&gt;
+-#include &lt;sys/stat.h&gt;
+-#include &lt;sys/types.h&gt;
+-#if !defined(__BORLANDC__)
+-# include &lt;sys/utime.h&gt;
+-#else
+-# include &lt;utime.h&gt;
+-#endif
+-#include &lt;io.h&gt;
+-#include &lt;malloc.h&gt;
+-
+-#if defined(__cplusplus)
+-}
+-#endif
+-
+-#ifdef _M_IX86
+-# define WIN95 1
+-#else
+-# undef  WIN95
+-#endif
+-
+-#ifdef WIN95
+-extern DWORD rb_w32_osid(void);
+-#define rb_w32_iswinnt()  (rb_w32_osid() == VER_PLATFORM_WIN32_NT)
+-#define rb_w32_iswin95()  (rb_w32_osid() == VER_PLATFORM_WIN32_WINDOWS)
+-#else
+-#define rb_w32_iswinnt()  TRUE
+-#define rb_w32_iswin95()  FALSE
+-#endif
+-
+-#define WNOHANG -1
+-
+-#undef getc
+-#undef putc
+-#undef fgetc
+-#undef fputc
+-#undef getchar
+-#undef putchar
+-#undef fgetchar
+-#undef fputchar
+-#undef utime
+-#define getc(_stream)		rb_w32_getc(_stream)
+-#define putc(_c, _stream)	rb_w32_putc(_c, _stream)
+-#define fgetc(_stream)		getc(_stream)
+-#define fputc(_c, _stream)	putc(_c, _stream)
+-#define getchar()		rb_w32_getc(stdin)
+-#define putchar(_c)		rb_w32_putc(_c, stdout)
+-#define fgetchar()		getchar()
+-#define fputchar(_c)		putchar(_c)
+-#define utime(_p, _t)		rb_w32_utime(_p, _t)
+-
+-#define strcasecmp(s1, s2)	stricmp(s1, s2)
+-#define strncasecmp(s1, s2, n)	strnicmp(s1, s2, n)
+-
+-#define close(h)		rb_w32_close(h)
+-#define fclose(f)		rb_w32_fclose(f)
+-//#define read(f, b, s)		rb_w32_read(f, b, s)
+-//#define write(f, b, s)		rb_w32_write(f, b, s)
+-#define getpid()		rb_w32_getpid()
+-#define sleep(x)		rb_w32_sleep((x)*1000)
+-#ifdef __BORLANDC__
+-#define creat(p, m)		_creat(p, m)
+-#define eof()			_eof()
+-#define filelength(h)		_filelength(h)
+-#define mktemp(t)		_mktemp(t)
+-#define tell(h)			_tell(h)
+-#define unlink(p)		_unlink(p)
+-#define _open			_sopen
+-#define sopen			_sopen
+-#undef fopen
+-#define fopen(p, m)		rb_w32_fopen(p, m)
+-#undef fdopen
+-#define fdopen(h, m)		rb_w32_fdopen(h, m)
+-#undef fsopen
+-#define fsopen(p, m, sh)	rb_w32_fsopen(p, m, sh)
+-#endif
+-#define fsync(h)		_commit(h)
+-#undef stat
+-#define stat(path,st)		rb_w32_stat(path,st)
+-#undef execv
+-#define execv(path,argv)	do_aspawn(P_OVERLAY,path,argv)
+-#if !defined(__BORLANDC__) &amp;&amp; !defined(_WIN32_WCE)
+-#undef isatty
+-#define isatty(h)		rb_w32_isatty(h)
+-#endif
+-#undef mkdir
+-#define mkdir(p, m)		rb_w32_mkdir(p, m)
+-#undef rmdir
+-#define rmdir(p)		rb_w32_rmdir(p)
+-#undef unlink
+-#define unlink(p)		rb_w32_unlink(p)
+-
+-#ifdef __MINGW32__
+-struct timezone {
+-  int tz_minuteswest;
+-  int tz_dsttime;
+-};
+-#undef isascii
+-#define isascii __isascii
+-#endif
+-extern void   NtInitialize(int *, char ***);
+-extern int    rb_w32_cmdvector(const char *, char ***);
+-extern rb_pid_t pipe_exec(char *, int, FILE **, FILE **);
+-extern int    flock(int fd, int oper);
+-extern int    rb_w32_accept(int, struct sockaddr *, int *);
+-extern int    rb_w32_bind(int, struct sockaddr *, int);
+-extern int    rb_w32_connect(int, struct sockaddr *, int);
+-extern void   rb_w32_fdset(int, fd_set*);
+-extern void   rb_w32_fdclr(int, fd_set*);
+-extern int    rb_w32_fdisset(int, fd_set*);
+-extern long   rb_w32_select(int, fd_set *, fd_set *, fd_set *, struct timeval *);
+-extern int    rb_w32_getpeername(int, struct sockaddr *, int *);
+-extern int    rb_w32_getsockname(int, struct sockaddr *, int *);
+-extern int    rb_w32_getsockopt(int, int, int, char *, int *);
+-extern int    rb_w32_ioctlsocket(int, long, u_long *);
+-extern int    rb_w32_listen(int, int);
+-extern int    rb_w32_recv(int, char *, int, int);
+-extern int    rb_w32_recvfrom(int, char *, int, int, struct sockaddr *, int *);
+-extern int    rb_w32_send(int, const char *, int, int);
+-extern int    rb_w32_sendto(int, const char *, int, int, struct sockaddr *, int);
+-extern int    rb_w32_setsockopt(int, int, int, char *, int);
+-extern int    rb_w32_shutdown(int, int);
+-extern int    rb_w32_socket(int, int, int);
+-extern SOCKET rb_w32_get_osfhandle(int);
+-extern struct hostent * rb_w32_gethostbyaddr(char *, int, int);
+-extern struct hostent * rb_w32_gethostbyname(char *);
+-extern int    rb_w32_gethostname(char *, int);
+-extern struct protoent * rb_w32_getprotobyname(char *);
+-extern struct protoent * rb_w32_getprotobynumber(int);
+-extern struct servent  * rb_w32_getservbyname(char *, char *);
+-extern struct servent  * rb_w32_getservbyport(int, char *);
+-extern char * rb_w32_getenv(const char *);
+-extern int    rb_w32_rename(const char *, const char *);
+-extern int    rb_w32_stat(const char *, struct stat *);
+-extern char **rb_w32_get_environ(void);
+-extern void   rb_w32_free_environ(char **);
+-
+-#define vsnprintf(s,n,f,l) rb_w32_vsnprintf(s,n,f,l)
+-#define snprintf   rb_w32_snprintf
+-extern int rb_w32_vsnprintf(char *, size_t, const char *, va_list);
+-extern int rb_w32_snprintf(char *, size_t, const char *, ...);
+-
+-extern int chown(const char *, int, int);
+-extern int link(char *, char *);
+-extern int gettimeofday(struct timeval *, struct timezone *);
+-extern rb_pid_t waitpid (rb_pid_t, int *, int);
+-extern int do_spawn(int, char *);
+-extern int do_aspawn(int, char *, char **);
+-extern int kill(int, int);
+-extern int fcntl(int, int, ...);
+-extern rb_pid_t rb_w32_getpid(void);
+-
+-#if !defined(__BORLANDC__) &amp;&amp; !defined(_WIN32_WCE)
+-extern int rb_w32_isatty(int);
+-#endif
+-extern int rb_w32_mkdir(const char *, int);
+-extern int rb_w32_rmdir(const char *);
+-extern int rb_w32_unlink(const char*);
+-
+-#ifdef __BORLANDC__
+-extern FILE *rb_w32_fopen(const char *, const char *);
+-extern FILE *rb_w32_fdopen(int, const char *);
+-extern FILE *rb_w32_fsopen(const char *, const char *, int);
+-#endif
+-
+-#include &lt;float.h&gt;
+-#if !defined __MINGW32__ || defined __NO_ISOCEXT
+-#ifndef isnan
+-#define isnan(x) _isnan(x)
+-#endif
+-#ifndef finite
+-#define finite(x) _finite(x)
+-#endif
+-#ifndef copysign
+-#define copysign(a, b) _copysign(a, b)
+-#endif
+-#ifndef scalb
+-#define scalb(a, b) _scalb(a, b)
+-#endif
+-#endif
+-
+-#if !defined S_IFIFO &amp;&amp; defined _S_IFIFO
+-#define S_IFIFO _S_IFIFO
+-#endif
+-
+-#ifdef __BORLANDC__
+-#undef S_ISDIR
+-#undef S_ISFIFO
+-#undef S_ISBLK
+-#undef S_ISCHR
+-#undef S_ISREG
+-#define S_ISDIR(m)  (((unsigned short)(m) &amp; S_IFMT) == S_IFDIR)
+-#define S_ISFIFO(m) (((unsigned short)(m) &amp; S_IFMT) == S_IFIFO)
+-#define S_ISBLK(m)  (((unsigned short)(m) &amp; S_IFMT) == S_IFBLK)
+-#define S_ISCHR(m)  (((unsigned short)(m) &amp; S_IFMT) == S_IFCHR)
+-#define S_ISREG(m)  (((unsigned short)(m) &amp; S_IFMT) == S_IFREG)
+-#endif
+-
+-#if !defined S_IRUSR &amp;&amp; !defined __MINGW32__
+-#define S_IRUSR 0400
+-#endif
+-#ifndef S_IRGRP
+-#define S_IRGRP 0040
+-#endif
+-#ifndef S_IROTH
+-#define S_IROTH 0004
+-#endif
+-
+-#if !defined S_IWUSR &amp;&amp; !defined __MINGW32__
+-#define S_IWUSR 0200
+-#endif
+-#ifndef S_IWGRP
+-#define S_IWGRP 0020
+-#endif
+-#ifndef S_IWOTH
+-#define S_IWOTH 0002
+-#endif
+-
+-#if !defined S_IXUSR &amp;&amp; !defined __MINGW32__
+-#define S_IXUSR 0100
+-#endif
+-#ifndef S_IXGRP
+-#define S_IXGRP 0010
+-#endif
+-#ifndef S_IXOTH
+-#define S_IXOTH 0001
+-#endif
+-
+-//
+-// define this so we can do inplace editing
+-//
+-
+-#define SUFFIX
+-
+-//
+-// stubs
+-//
+-#if !defined(__BORLANDC__)
+-extern int       ioctl (int, unsigned int, long);
+-#endif
+-extern rb_uid_t  getuid (void);
+-extern rb_uid_t  geteuid (void);
+-extern rb_gid_t  getgid (void);
+-extern rb_gid_t  getegid (void);
+-extern int       setuid (rb_uid_t);
+-extern int       setgid (rb_gid_t);
+-
+-extern char *rb_w32_strerror(int);
+-
+-#define strerror(e) rb_w32_strerror(e)
+-
+-#define PIPE_BUF 1024
+-
+-#define LOCK_SH 1
+-#define LOCK_EX 2
+-#define LOCK_NB 4
+-#define LOCK_UN 8
+-
+-
+-#ifndef SIGINT
+-#define SIGINT 2
+-#endif
+-#ifndef SIGKILL
+-#define SIGKILL	9
+-#endif
+-
+-
+-/* #undef va_start */
+-/* #undef va_end */
+-
+-/* winsock error map */
+-#define EWOULDBLOCK	WSAEWOULDBLOCK
+-#define EINPROGRESS	WSAEINPROGRESS
+-#define EALREADY	WSAEALREADY
+-#define ENOTSOCK	WSAENOTSOCK
+-#define EDESTADDRREQ	WSAEDESTADDRREQ
+-#define EMSGSIZE	WSAEMSGSIZE
+-#define EPROTOTYPE	WSAEPROTOTYPE
+-#define ENOPROTOOPT	WSAENOPROTOOPT
+-#define EPROTONOSUPPORT	WSAEPROTONOSUPPORT
+-#define ESOCKTNOSUPPORT	WSAESOCKTNOSUPPORT
+-#define EOPNOTSUPP	WSAEOPNOTSUPP
+-#define EPFNOSUPPORT	WSAEPFNOSUPPORT
+-#define EAFNOSUPPORT	WSAEAFNOSUPPORT
+-#define EADDRINUSE	WSAEADDRINUSE
+-#define EADDRNOTAVAIL	WSAEADDRNOTAVAIL
+-#define ENETDOWN	WSAENETDOWN
+-#define ENETUNREACH	WSAENETUNREACH
+-#define ENETRESET	WSAENETRESET
+-#define ECONNABORTED	WSAECONNABORTED
+-#define ECONNRESET	WSAECONNRESET
+-#define ENOBUFS		WSAENOBUFS
+-#define EISCONN		WSAEISCONN
+-#define ENOTCONN	WSAENOTCONN
+-#define ESHUTDOWN	WSAESHUTDOWN
+-#define ETOOMANYREFS	WSAETOOMANYREFS
+-#define ETIMEDOUT	WSAETIMEDOUT
+-#define ECONNREFUSED	WSAECONNREFUSED
+-#define ELOOP		WSAELOOP
+-/*#define ENAMETOOLONG	WSAENAMETOOLONG*/
+-#define EHOSTDOWN	WSAEHOSTDOWN
+-#define EHOSTUNREACH	WSAEHOSTUNREACH
+-/*#define ENOTEMPTY	WSAENOTEMPTY*/
+-#define EPROCLIM	WSAEPROCLIM
+-#define EUSERS		WSAEUSERS
+-#define EDQUOT		WSAEDQUOT
+-#define ESTALE		WSAESTALE
+-#define EREMOTE		WSAEREMOTE
+-
+-#define F_SETFL 1
+-#define O_NONBLOCK 1
+-
+-#ifdef accept
+-#undef accept
+-#endif
+-#define accept(s, a, l)		rb_w32_accept(s, a, l)
+-
+-#ifdef bind
+-#undef bind
+-#endif
+-#define bind(s, a, l)		rb_w32_bind(s, a, l)
+-
+-#ifdef connect
+-#undef connect
+-#endif
+-#define connect(s, a, l)	rb_w32_connect(s, a, l)
+-
+-#undef FD_SET
+-#define FD_SET(f, s)		rb_w32_fdset(f, s)
+-
+-#undef FD_CLR
+-#define FD_CLR(f, s)		rb_w32_fdclr(f, s)
+-
+-#undef FD_ISSET
+-#define FD_ISSET(f, s)		rb_w32_fdisset(f, s)
+-
+-#undef select
+-#define select(n, r, w, e, t)	rb_w32_select(n, r, w, e, t)
+-
+-#ifdef getpeername
+-#undef getpeername
+-#endif
+-#define getpeername(s, a, l)	rb_w32_getpeername(s, a, l)
+-
+-#ifdef getsockname
+-#undef getsockname
+-#endif
+-#define getsockname(s, a, l)	rb_w32_getsockname(s, a, l)
+-
+-#ifdef getsockopt
+-#undef getsockopt
+-#endif
+-#define getsockopt(s, v, n, o, l) rb_w32_getsockopt(s, v, n, o, l)
+-
+-#ifdef ioctlsocket
+-#undef ioctlsocket
+-#endif
+-#define ioctlsocket(s, c, a)	rb_w32_ioctlsocket(s, c, a)
+-
+-#ifdef listen
+-#undef listen
+-#endif
+-#define listen(s, b)		rb_w32_listen(s, b)
+-
+-#ifdef recv
+-#undef recv
+-#endif
+-#define recv(s, b, l, f)	rb_w32_recv(s, b, l, f)
+-
+-#ifdef recvfrom
+-#undef recvfrom
+-#endif
+-#define recvfrom(s, b, l, f, fr, frl) rb_w32_recvfrom(s, b, l, f, fr, frl)
+-
+-#ifdef send
+-#undef send
+-#endif
+-#define send(s, b, l, f)	rb_w32_send(s, b, l, f)
+-
+-#ifdef sendto
+-#undef sendto
+-#endif
+-#define sendto(s, b, l, f, t, tl) rb_w32_sendto(s, b, l, f, t, tl)
+-
+-#ifdef setsockopt
+-#undef setsockopt
+-#endif
+-#define setsockopt(s, v, n, o, l) rb_w32_setsockopt(s, v, n, o, l)
+-
+-#ifdef shutdown
+-#undef shutdown
+-#endif
+-#define shutdown(s, h)		rb_w32_shutdown(s, h)
+-
+-#ifdef socket
+-#undef socket
+-#endif
+-#define socket(s, t, p)		rb_w32_socket(s, t, p)
+-
+-#ifdef gethostbyaddr
+-#undef gethostbyaddr
+-#endif
+-#define gethostbyaddr(a, l, t)	rb_w32_gethostbyaddr(a, l, t)
+-
+-#ifdef gethostbyname
+-#undef gethostbyname
+-#endif
+-#define gethostbyname(n)	rb_w32_gethostbyname(n)
+-
+-#ifdef gethostname
+-#undef gethostname
+-#endif
+-#define gethostname(n, l)	rb_w32_gethostname(n, l)
+-
+-#ifdef getprotobyname
+-#undef getprotobyname
+-#endif
+-#define getprotobyname(n)	rb_w32_getprotobyname(n)
+-
+-#ifdef getprotobynumber
+-#undef getprotobynumber
+-#endif
+-#define getprotobynumber(n)	rb_w32_getprotobynumber(n)
+-
+-#ifdef getservbyname
+-#undef getservbyname
+-#endif
+-#define getservbyname(n, p)	rb_w32_getservbyname(n, p)
+-
+-#ifdef getservbyport
+-#undef getservbyport
+-#endif
+-#define getservbyport(p, pr)	rb_w32_getservbyport(p, pr)
+-
+-#ifdef get_osfhandle
+-#undef get_osfhandle
+-#endif
+-#define get_osfhandle(h)	rb_w32_get_osfhandle(h)
+-
+-#ifdef getcwd
+-#undef getcwd
+-#endif
+-#define getcwd(b, s)		rb_w32_getcwd(b, s)
+-
+-#ifdef getenv
+-#undef getenv
+-#endif
+-#define getenv(n)		rb_w32_getenv(n)
+-
+-#ifdef rename
+-#undef rename
+-#endif
+-#define rename(o, n)		rb_w32_rename(o, n)
+-
+-struct tms {
+-	long	tms_utime;
+-	long	tms_stime;
+-	long	tms_cutime;
+-	long	tms_cstime;
+-};
+-
+-#ifdef times
+-#undef times
+-#endif
+-#define times(t) rb_w32_times(t)
+-int rb_w32_times(struct tms *);
+-
+-/* thread stuff */
+-HANDLE GetCurrentThreadHandle(void);
+-void rb_w32_interrupted(void);
+-int  rb_w32_main_context(int arg, void (*handler)(int));
+-int  rb_w32_sleep(unsigned long msec);
+-void rb_w32_enter_critical(void);
+-void rb_w32_leave_critical(void);
+-int  rb_w32_putc(int, FILE*);
+-int  rb_w32_getc(FILE*);
+-int  rb_w32_close(int);
+-int  rb_w32_fclose(FILE*);
+-size_t rb_w32_read(int, void *, size_t);
+-size_t rb_w32_write(int, const void *, size_t);
+-int  rb_w32_utime(const char *, struct utimbuf *);
+-#define Sleep(msec) (void)rb_w32_sleep(msec)
+-
+-/*
+-== ***CAUTION***
+-Since this function is very dangerous, ((*NEVER*))
+-* lock any HANDLEs(i.e. Mutex, Semaphore, CriticalSection and so on) or,
+-* use anything like TRAP_BEG...TRAP_END block structure,
+-in asynchronous_func_t.
+-*/
+-typedef DWORD (*asynchronous_func_t)(DWORD self, int argc, DWORD* argv);
+-DWORD rb_w32_asynchronize(asynchronous_func_t func, DWORD self, int argc, DWORD* argv, DWORD intrval);
+-
+-#endif
+
+Added: antargis/trunk/config_cache.rb
+===================================================================
+--- antargis/trunk/config_cache.rb	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/config_cache.rb	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -0,0 +1,5 @@
++module Rookey
++  @@config=Marshal.load(&quot;o:Rookey::Config:
+<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">+ at hash</A>{\&quot;SWIG_OPTIONS\&quot; -Wall -DAGEXPORT\&quot;CCACHE\&quot;/opt/local/bin/ccache\&quot;	SWIG\&quot; /opt/local/bin/swig\&quot;CFLAGS\&quot;O -arch ppc -arch i386 -Os -pipe -fno-common -D_GNU_SOURCE=1 -D_THREAD_SAFE\&quot;host_os\&quot;darwin9.0\&quot;
++DLEXT\&quot;bundle\&quot;INCLUDEDIRS\&quot;&#251; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include /usr/X11/include /Users/davidkamphausen/projects/antargis/rookey/cpp /opt/local/include/SDL\&quot;LDFLAGS\&quot;&#147; -lpthread -ldl -lm  -lruby -Wl,-framework,OpenGL -lz -L/opt/local/lib -lSDLmain -lSDL -Wl,-framework,Cocoa -lSDL_image -lSDL_ttf -lSDL_mixer -lpng\&quot;LDSHAREDFLAGS\&quot;B -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;)
++end
+
+Modified: antargis/trunk/data/gui/layout/editor/campaign/main.xml
+===================================================================
+--- antargis/trunk/data/gui/layout/editor/campaign/main.xml	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/data/gui/layout/editor/campaign/main.xml	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -5,7 +5,8 @@
+   &lt;rowsize row=&quot;0&quot; fixed=&quot;50&quot;/&gt;
+   &lt;cell col=&quot;0&quot; row=&quot;0&quot;&gt;
+     &lt;toolBar&gt;
+-         &lt;toolButton text=&quot;Save&quot; name=&quot;save&quot; caption=&quot;muh&quot;/&gt;
++         &lt;toolButton text=&quot;Save&quot; name=&quot;save&quot; caption=&quot;muh&quot; caption-image=&quot;gui/save.png&quot;/&gt;
++         &lt;toolButton text=&quot;Load&quot; name=&quot;load&quot; caption=&quot;muh&quot; caption-image=&quot;gui/load.png&quot;/&gt;
+     &lt;/toolBar&gt;
+   &lt;/cell&gt;
+   
+@@ -20,10 +21,10 @@
+         &lt;rowsize row=&quot;1&quot; fixed=&quot;100&quot;/&gt;
+         &lt;rowsize row=&quot;2&quot; fixed=&quot;100&quot;/&gt;
+         &lt;cell col=&quot;0&quot; row=&quot;0&quot;&gt;
+-          &lt;dragSource class=&quot;DragBox&quot; text=&quot;Level&quot;/&gt;
++          &lt;dragSource name=&quot;levelSource&quot; class=&quot;DragBox&quot; text=&quot;Level&quot;/&gt;
+         &lt;/cell&gt;
+         &lt;cell col=&quot;0&quot; row=&quot;1&quot;&gt;
+-          &lt;dragSource class=&quot;DragBoxStory&quot; text=&quot;Story&quot;/&gt;
++          &lt;dragSource name =&quot;storySource&quot; class=&quot;DragBoxStory&quot; text=&quot;Story&quot;/&gt;
+         &lt;/cell&gt;
+         &lt;cell col=&quot;0&quot; row=&quot;2&quot;&gt;
+           &lt;dragTrash/&gt;
+@@ -52,6 +53,6 @@
+   &lt;/table&gt;
+   &lt;/cell&gt;
+   &lt;/table&gt;
+-  &lt;appearEffect name=&quot;showEdit&quot; table=&quot;bigTable&quot; row=&quot;1&quot; size=&quot;50&quot; duration=&quot;10&quot;/&gt;
++  &lt;appearEffect name=&quot;showEdit&quot; table=&quot;bigTable&quot; row=&quot;1&quot; size=&quot;40&quot; duration=&quot;0.2&quot;/&gt;
+ &lt;/dragEnvironment&gt;
+ &lt;/layout&gt;
+\ No newline at end of file
+
+Added: antargis/trunk/debug.txt
+===================================================================
+
+
+Property changes on: antargis/trunk/debug.txt
+___________________________________________________________________
+Name: svn:mime-type
+   + text/plain
+
+Modified: antargis/trunk/ext/basic/ag_messageobject.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_messageobject.cc	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/ext/basic/ag_messageobject.cc	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -26,7 +26,8 @@
+ SDL_Event AGEvent::NullEvent={SDL_NOEVENT};
+ 
+ // AGEvent
+-AGEvent::AGEvent(AGListener *pCaller,const AGString &amp;pName,const SDL_Event &amp;e):mCaller(pCaller),mName(pName),mEvent(e)
++AGEvent::AGEvent(AGListener *pCaller,const AGString &amp;pName,const SDL_Event &amp;e):mCaller(pCaller),mName(pName),mEvent(e),
++  mMousePosition(0)
+   {
+   }
+ AGEvent::~AGEvent()
+@@ -83,8 +84,20 @@
+   return mEvent;
+ }
+ 
++void AGEvent::setMousePosition(const AGVector2 &amp;p)
++  {
++    if(mMousePosition)
++      *mMousePosition=p;
++    else
++      mMousePosition=new AGVector2(p);
++  }
++
++
+ AGVector2 AGEvent::getMousePosition() const
+ {
++  if(mMousePosition)
++    return *mMousePosition;
++  
+   assert(eventOk(mEvent));
+   AGVector2 p;
+   switch(mEvent.type) {
+@@ -325,7 +338,6 @@
+ 
+ bool AGMessageObject::processEvent(AGEvent* agEvent) 
+   {
+-    cdebug(agEvent-&gt;getKey()&lt;&lt;&quot;:&quot;&lt;&lt;typeid(*this).name());
+     bool rc=false;
+ 
+     if(agEvent-&gt;isSDLEvent())
+
+Modified: antargis/trunk/ext/basic/ag_messageobject.h
+===================================================================
+--- antargis/trunk/ext/basic/ag_messageobject.h	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/ext/basic/ag_messageobject.h	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -68,6 +68,8 @@
+   void setCaller(AGListener *pCaller);
+   AGString getName() const;
+ 
++  void setMousePosition(const AGVector2 &amp;p);
++  
+   AGVector2 getMousePosition() const;
+   SDLKey getKey() const;
+   MSDLMod getMod() const;
+@@ -90,6 +92,7 @@
+   SDL_Event mEvent;
+ 
+   AGVector2 mVector;
++  AGVector2 *mMousePosition;
+ 
+  protected:
+   static SDL_Event NullEvent;
+
+Modified: antargis/trunk/ext/gui/ag_application.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_application.cc	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/ext/gui/ag_application.cc	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -35,7 +35,7 @@
+ 
+ void disableKeyrepeat()
+   {
+-    SDL_EnableKeyRepeat(0,0);
++    SDL_EnableKeyRepeat(0, 0);
+   }
+ 
+ AGApplication *gApplication=0;
+@@ -47,19 +47,19 @@
+     return gApplication;
+   }
+ 
++AGApplication::AGApplication() :
++  mRunning(true), mIdleCalls(true), mainWidget(0), mTooltip(0), mOverlay(0)
++  {
++    assertGL;
++    SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,SDL_DEFAULT_REPEAT_INTERVAL);
++    if (videoInited())
++      {
++        setCursor(getTextureCache()-&gt;get(&quot;blue_cursor.png&quot;));
++        setNormalCursor();
++      }
++    mDemoTime=-1;
++  }
+ 
+-AGApplication::AGApplication():mRunning(true),mIdleCalls(true),mainWidget(0),mTooltip(0),mOverlay(0)
+-{
+-  assertGL;
+-  SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,SDL_DEFAULT_REPEAT_INTERVAL);
+-  if(videoInited())
+-    {
+-      setCursor(getTextureCache()-&gt;get(&quot;blue_cursor.png&quot;));
+-      setNormalCursor();
+-    }
+-  mDemoTime=-1;
+-}
+-
+ AGApplication::~AGApplication()
+   {
+     CTRACE;
+@@ -68,18 +68,17 @@
+ 
+ void AGApplication::setKeyRepeat(bool enable)
+   {
+-    if(enable)
++    if (enable)
+       SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,SDL_DEFAULT_REPEAT_INTERVAL);
+     else
+-      SDL_EnableKeyRepeat(0,0);
++      SDL_EnableKeyRepeat(0, 0);
+   }
+ 
+-
+ void AGApplication::setMainWidget(AGWidget *w)
+   {
+     mainWidget=w;
+     setOverlay(0);
+-    if(w)
++    if (w)
+       w-&gt;redraw();
+   }
+ 
+@@ -97,10 +96,10 @@
+  * FIXME: redesign this!
+  */
+ 
+-bool AGApplication::run() 
++bool AGApplication::run()
+   {
+-    STACKTRACE; 
+-    Uint32 last,now;
++    STACKTRACE;
++    Uint32 last, now;
+     SDL_Event event;
+     float t;
+     mRunning=true;
+@@ -112,9 +111,9 @@
+ 
+     size_t loopCount=0;
+ 
+-    while(mRunning)
++    while (mRunning)
+       {
+-        STACKTRACE; 
++        STACKTRACE;
+ 
+         gApplication=this;
+ 
+@@ -127,50 +126,50 @@
+ 
+             now=SDL_GetTicks();
+             /*
+-  // pull motion events (may flood the eventqueue)
+-    while(SDL_PeepEvents(&amp;event, 1, SDL_GETEVENT, SDL_MOUSEMOTIONMASK) &gt; 0)
+-    ;
++             // pull motion events (may flood the eventqueue)
++             while(SDL_PeepEvents(&amp;event, 1, SDL_GETEVENT, SDL_MOUSEMOTIONMASK) &gt; 0)
++             ;
+              */
+             clearOldMousePosition();
+             //  dbout(2,&quot;loop pre-event:&quot;&lt;&lt;loopCount);
+             event=getNewEvent();
+-            if(eventOk(event))
++            if (eventOk(event))
+               {
+                 do
+                   {
+                     //    dbout(2,&quot;eventok  &quot;&lt;&lt;toString(&amp;event));
+                     doEvent(event);
+-                    if(mIdleCalls)
++                    if (mIdleCalls)
+                       {
+                         //        dbout(2,&quot;getNewEvent...  (idlecalls:&quot;&lt;&lt;mIdleCalls&lt;&lt;&quot;)&quot;);
+                         event=getNewEvent();
+                       }
+                     else
+                       resetEvent(event);
+-                  }while(eventOk(event));
+-              } 
++                  } while (eventOk(event));
++              }
+             //  dbout(2,&quot;loop post-event:&quot;&lt;&lt;loopCount);
+             /*
+-  if(mIdleCalls) 
+-    {
+-      if (SDL_PollEvent(&amp;event) == 0) 
+-        eventIdle();
+-      else
+-        {
+-    do
+-      {
+-        doEvent(&amp;event);
+-      }while(SDL_PollEvent(&amp;event)!=0);
+-        }
++             if(mIdleCalls) 
++             {
++             if (SDL_PollEvent(&amp;event) == 0) 
++             eventIdle();
++             else
++             {
++             do
++             {
++             doEvent(&amp;event);
++             }while(SDL_PollEvent(&amp;event)!=0);
++             }
+ 
+-    } 
+-  else 
+-    {
+-      SDL_WaitEvent(&amp;event);
+-      doEvent(&amp;event);
+-      }*/
++             } 
++             else 
++             {
++             SDL_WaitEvent(&amp;event);
++             doEvent(&amp;event);
++             }*/
+ 
+-            if(mDemoTime&gt;=0)
++            if (mDemoTime&gt;=0)
+               {
+                 t=mDemoTime;
+                 mDemoTime=-1;
+@@ -180,32 +179,32 @@
+               {
+                 t=(now-last)/1000.0;
+               }
+-            if(mainWidget)
++            if (mainWidget)
+               mainWidget-&gt;sigTick(t);
+ 
+-//            dbout(2,&quot;frame events:&quot;&lt;&lt;t);
++            //            dbout(2,&quot;frame events:&quot;&lt;&lt;t);
+             eventPrepareFrame(t);
+ 
+             eventFrame(t);
+           }
+-            {
+-              // drawing
+-              STACKTRACE;
+-                {
+-                  STACKTRACE;
+-                  prepareDraw();
+-                }
+-                  {
+-                    STACKTRACE;
+-                    draw();
+-                  }
+-            }
++          {
++            // drawing
++            STACKTRACE;
++              {
++                STACKTRACE;
++                prepareDraw();
++              }
++              {
++                STACKTRACE;
++                draw();
++              }
++          }
+ 
+-            eventFrameEnd(t);
+-            last=now;
++        eventFrameEnd(t);
++        last=now;
+ 
+-            loopCount++;
+-            //      dbout(2,&quot;Running:&quot;&lt;&lt;mRunning);
++        loopCount++;
++        //      dbout(2,&quot;Running:&quot;&lt;&lt;mRunning);
+       }
+     gApplication=0;
+ 
+@@ -218,50 +217,49 @@
+     mDemoTime=t;
+   }
+ 
+-
+ SDL_Event AGApplication::getNewEvent()
+   {
+     SDL_Event mEvent;
+     resetEvent(mEvent);
+     // pull motion events (may flood the eventqueue)
+-    while(SDL_PeepEvents(&amp;mEvent, 1, SDL_GETEVENT, SDL_MOUSEMOTIONMASK) &gt; 0)
++    while (SDL_PeepEvents(&amp;mEvent, 1, SDL_GETEVENT, SDL_MOUSEMOTIONMASK) &gt; 0)
+       ;
+ 
+-    if(mIdleCalls) 
++    if (mIdleCalls)
+       {
+-        if (SDL_PollEvent(&amp;mEvent) == 0) 
++        if (SDL_PollEvent(&amp;mEvent) == 0)
+           {
+             resetEvent(mEvent);
+             return mEvent;
+           }
+-      } 
+-    else 
++      }
++    else
+       SDL_WaitEvent(&amp;mEvent);
+     return mEvent;
+   }
+ 
+-
+-
+-bool AGApplication::doEvent(const SDL_Event &amp;event) 
++bool AGApplication::doEvent(const SDL_Event &amp;event)
+   {
+     STACKTRACE;
+     SDL_Event e;
+ 
+     // eat up old mouse motion events
+-    while(SDL_PeepEvents(&amp;e, 1, SDL_GETEVENT, SDL_MOUSEMOTIONMASK) &gt; 0);
++    while (SDL_PeepEvents(&amp;e, 1, SDL_GETEVENT, SDL_MOUSEMOTIONMASK) &gt; 0)
++      ;
+ 
+-    AGEvent *message=newEvent(this,&quot;&quot;,event);
++    AGEvent *message=newEvent(this, &quot;&quot;, event);
+     bool processed=false;
+-    if(mOverlay)
++    //cdebug(event);
++    if (mOverlay)
+       processed=mOverlay-&gt;processEvent(message);
+ 
+     cdebug(processed);
+-    if(!processed)
++    if (!processed)
+       {
+-        if(!processed &amp;&amp; mainWidget)
++        if (!processed &amp;&amp; mainWidget)
+           processed=mainWidget-&gt;processEvent(message);
+ 
+-        if(!processed)
++        if (!processed)
+           processed=processEvent(message);
+       }
+ 
+@@ -274,13 +272,14 @@
+   }
+ void AGApplication::drawCursor()
+   {
+-    if(!videoInited())
++    if (!videoInited())
+       return;
+     AGPainter p;
+-    if(mCursor)
++    if (mCursor)
+       {
+-        mCursorOld=AGRect2(gAppCursorPos[0],gAppCursorPos[1],mCursor-&gt;width(),mCursor-&gt;height());
+-        p.blit(*mCursor,mCursorOld);
++        mCursorOld=AGRect2(gAppCursorPos[0], gAppCursorPos[1],
++            mCursor-&gt;width(), mCursor-&gt;height());
++        p.blit(*mCursor, mCursorOld);
+       }
+ 
+   }
+@@ -301,28 +300,26 @@
+     return false;
+   }
+ 
+-
+ /**
+-   \brief prepares the actual drawing process
++ \brief prepares the actual drawing process
+ 
+-   prepareDraw runs prepareDraw for the main-widget, which itself runs
+-   prepareDraw recursively. This functions are meant to prepare possible
+-   texture contents and other things, that might be updated in each frame.
++ prepareDraw runs prepareDraw for the main-widget, which itself runs
++ prepareDraw recursively. This functions are meant to prepare possible
++ texture contents and other things, that might be updated in each frame.
+  */
+ void AGApplication::prepareDraw()
+   {
+-    STACKTRACE; 
++    STACKTRACE;
+ 
+-    if(mainWidget)
++    if (mainWidget)
+       {
+         mainWidget-&gt;prepareDrawAll();
+         mainWidget-&gt;useTexturesRecursive();
+       }
+-    if(mOverlay)
++    if (mOverlay)
+       mOverlay-&gt;prepareDrawAll();
+-  }  
++  }
+ 
+-
+ AGWidget *pLastDrawn=0;
+ 
+ /**
+@@ -336,7 +333,7 @@
+   {
+     pLastDrawn=0;
+ 
+-    if(mainWidget)
++    if (mainWidget)
+       mainWidget-&gt;redraw();
+   }
+ 
+@@ -350,15 +347,15 @@
+ 
+ void AGApplication::draw()
+   {
+-    if(delCue.size()&gt;0)
++    if (delCue.size()&gt;0)
+       {
+-        for(std::list&lt;AGWidget*&gt;::iterator i=delCue.begin();i!=delCue.end();i++)
+-          if(*i)
++        for (std::list&lt;AGWidget*&gt;::iterator i=delCue.begin(); i!=delCue.end(); i++)
++          if (*i)
+             saveDelete(*i);
+         delCue.clear();
+       }
+ 
+-    if(!videoInited())
++    if (!videoInited())
+       return;
+ 
+     bool oldClippingTechnique=false;
+@@ -368,25 +365,25 @@
+     beginRender();
+ 
+     //  cdebug(&quot;mainWidget:&quot;&lt;&lt;mainWidget);
+-    if(mainWidget)
++    if (mainWidget)
+       {
+         getScreen().begin();
+ 
+         AGPainter *p;
+         AGClipPaintTarget paintTarget(&amp;getScreen());
+ 
+-        if(opengl())
++        if (opengl())
+           p=new AGPainter(getScreen());
+         else
+           p=new AGPainter(paintTarget);
+ 
+         clip.exclude(mainWidget-&gt;getScreenRect());
+-        if(pLastDrawn==mainWidget &amp;&amp; !opengl())
++        if (pLastDrawn==mainWidget &amp;&amp; !opengl())
+           {
+-            if(oldClippingTechnique)
++            if (oldClippingTechnique)
+               {
+                 AGRect2 r=mainWidget-&gt;getChangeRect();
+-                if(mCursor)
++                if (mCursor)
+                   r+=mCursorOld;
+ 
+                 p-&gt;clip(r);
+@@ -406,12 +403,12 @@
+         paintTarget.clip(clip);
+         mainWidget-&gt;drawAll(*p);
+ 
+-        if(mTooltip)
++        if (mTooltip)
+           {
+             AGPainter p;
+             mTooltip-&gt;drawAll(p);
+           }
+-        if(mOverlay)
++        if (mOverlay)
+           {
+             AGPainter p;
+             mOverlay-&gt;drawAll(p);
+@@ -426,18 +423,19 @@
+     drawCursor();
+ 
+     std::list&lt;AGRect2&gt; changeList;
+-    if(mainWidget)
++    if (mainWidget)
+       {
+         changeList=mainWidget-&gt;aquireChanges();
+         mainWidget-&gt;clearChangeRects();
+       }
+-    if(opengl())// || true)
++    if (opengl())// || true)
+       getScreen().flip();
+     else
+       {
+         std::vector&lt;AGRect2&gt; changeV=clip.clip(mainWidget-&gt;getScreenRect());
+         changeList.clear();
+-        std::copy(changeV.begin(),changeV.end(),std::back_inserter(changeList));
++        std::copy(changeV.begin(), changeV.end(),
++            std::back_inserter(changeList));
+         getScreen().update(changeList);
+       }
+ 
+@@ -463,18 +461,18 @@
+   {
+     CTRACE;
+     cdebug(&quot;M:&quot;&lt;&lt;m-&gt;getKey());
+-    if(m-&gt;isSDLEvent())
++    if (m-&gt;isSDLEvent())
+       {
+         SDLKey k=m-&gt;getKey();
+         SDLMod mod=m-&gt;getMod();
+ 
+-        if(k==SDLK_RETURN &amp;&amp; ((mod&amp;KMOD_LALT)||(mod&amp;KMOD_RALT)))
++        if (k==SDLK_RETURN &amp;&amp; ((mod&amp;KMOD_LALT)||(mod&amp;KMOD_RALT)))
+           {
+             getVideo()-&gt;toggleFull();
+             eventChangedRes();
+             redraw();
+           }
+-        else if(k==SDLK_F10)
++        else if (k==SDLK_F10)
+           tryQuit();
+       }
+     return false;
+@@ -489,7 +487,6 @@
+     return false;
+   }
+ 
+-
+ bool AGApplication::eventFrame(float pTime)
+   {
+     return false;
+@@ -500,9 +497,9 @@
+   }
+ 
+ long AGApplication::getTicks() const
+-{
+-  return SDL_GetTicks();
+-}
++  {
++    return SDL_GetTicks();
++  }
+ 
+ /// delays execution for ms milliseconds. This can be used to decrease framerate and cpu-load.
+ void AGApplication::delay(int ms)
+@@ -511,14 +508,13 @@
+     SDL_Delay(ms);
+   }
+ 
+-
+ /// mark my mainWidget and my tooltip, as they can be ruby-objects
+ void AGApplication::mark()
+   {
+     CTRACE;
+-    if(mainWidget)
++    if (mainWidget)
+       markObject(mainWidget);
+-    if(mTooltip)
++    if (mTooltip)
+       markObject(mTooltip);
+   }
+ 
+@@ -534,7 +530,7 @@
+ /// @param pTooltip a tooltip of a widget
+ void AGApplication::resetTooltip(AGTooltip *pTooltip)
+   {
+-    if(pTooltip==mTooltip)
++    if (pTooltip==mTooltip)
+       {
+         delete mTooltip;
+         mTooltip=0;
+@@ -546,16 +542,14 @@
+     return mOverlay;
+   }
+ 
+-
+ void AGApplication::setOverlay(AGWidget *pOverlay)
+   {
+     CTRACE;
+-    if(mOverlay)
++    if (mOverlay)
+       delCue.push_back(mOverlay);
+     mOverlay=pOverlay;
+   }
+ 
+-
+ bool AGApplication::eventMouseMotion(AGEvent *m)
+   {
+     gAppCursorPos=m-&gt;getMousePosition();
+@@ -578,11 +572,11 @@
+   }
+ 
+ bool AGApplication::hardwareCursor() const
+-{
+-  return mCursor==0;
+-}
++  {
++    return mCursor==0;
++  }
+ 
+ bool AGApplication::isRunning() const
+-{
+-  return mRunning;
+-}
++  {
++    return mRunning;
++  }
+
+Modified: antargis/trunk/ext/gui/ag_scrollingwidget.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_scrollingwidget.cc	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/ext/gui/ag_scrollingwidget.cc	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -30,6 +30,21 @@
+     {
+     }
+ 
++bool AGScrollingWidget::letChildProcess(AGWidget *pChild,AGEvent *event)
++  {
++    bool retValue;
++    AGVector2 old=event-&gt;getMousePosition();
++    
++    event-&gt;setMousePosition(old+mVector);
++    
++    retValue=pChild-&gt;processEvent(event);
++    
++    event-&gt;setMousePosition(old);
++    
++    return retValue;
++  }
++
++
+ void AGScrollingWidget::setClientRect(const AGRect2 &amp;pRect)
+   {
+     mClient=pRect;
+@@ -47,7 +62,6 @@
+     bool result=AGWidget::eventMouseButtonDown(pEvent);
+     cdebug(getScreenRect());
+     cdebug(pEvent-&gt;getMousePosition());
+-    //if((getScreenRect()+mVector).contains(pEvent-&gt;getMousePosition()))
+     if(hovered())
+       {
+         mDragging=true;
+
+Modified: antargis/trunk/ext/gui/ag_scrollingwidget.h
+===================================================================
+--- antargis/trunk/ext/gui/ag_scrollingwidget.h	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/ext/gui/ag_scrollingwidget.h	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -39,7 +39,9 @@
+   AGRect2 getClientRect() const;
+   
+   AGRect2 getScreenRect() const;
+-  
++protected:
++  virtual bool letChildProcess(AGWidget *pChild,AGEvent *event);
++
+ private:
+   AGRect2 mClient;
+   AGVector2 mVector;
+
+Modified: antargis/trunk/ext/gui/ag_table.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_table.cc	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/ext/gui/ag_table.cc	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -314,14 +314,11 @@
+ 
+ void AGTable::setWidth(float w)
+   {
+-    CTRACE;
+-    cdebug(w);
+     AGWidget::setWidth(w);
+     arrange();
+   }
+ void AGTable::setHeight(float w)
+   {
+-    CTRACE;
+     AGWidget::setHeight(w);
+     arrange();
+   }
+
+Modified: antargis/trunk/ext/gui/ag_widget.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_widget.cc	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/ext/gui/ag_widget.cc	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -80,7 +80,7 @@
+       }
+     return mPAllWidgets;
+   }
+-*/
++ */
+ AGWidget::AGWidget(AGWidget *pParent,const AGRect2 &amp;r):
+   sigMouseEnter(this,&quot;sigMouseEnter&quot;),
+   sigMouseLeave(this,&quot;sigMouseLeave&quot;),
+@@ -91,22 +91,22 @@
+   mFixedWidth(false),mFixedHeight(false),mVisible(true),mCaching(false),
+   mHasFocus(false),mFocus(0)
+ 
+-  {
+-    CTRACE;
+-    if(mParent)
+-      mParent-&gt;addChildRef(this);
+-    
+-    mChangeRect=AGRect2(0,0,0,0);
+-    mCache=0;
+-    mCacheTouched=false;
+-    mTooltipWidget=0;
+-    mModal=false;
+-    //if(getAllWidgets())
+-    //  getAllWidgets()-&gt;insert(this);
++    {
++      CTRACE;
++      if(mParent)
++        mParent-&gt;addChildRef(this);
+ 
+-    getMain()-&gt;getCollector()-&gt;insertGlobal(this);
+-  }
++      mChangeRect=AGRect2(0,0,0,0);
++      mCache=0;
++      mCacheTouched=false;
++      mTooltipWidget=0;
++      mModal=false;
++      //if(getAllWidgets())
++      //  getAllWidgets()-&gt;insert(this);
+ 
++      getMain()-&gt;getCollector()-&gt;insertGlobal(this);
++    }
++
+ AGWidget::~AGWidget()
+   {
+     CTRACE;
+@@ -128,9 +128,9 @@
+                 dbout(5000,&quot;WARNING:Error in ~AGWidget!!!&quot;);
+               }
+             else*/
+-           
+-              getParent()-&gt;eventChildrenDeleted(this);
+-          //}
++
++        getParent()-&gt;eventChildrenDeleted(this);
++        //}
+       }
+     //if(getAllWidgets())
+     //  getAllWidgets()-&gt;erase(this);
+@@ -258,8 +258,6 @@
+   {
+     if(!mVisible)
+       return false;
+-    cdebug(&quot;proc&quot;);
+-    cdebug(event-&gt;getKey());
+ 
+     bool processed = false;
+     // do i have a capturehook set ? (modal)
+@@ -269,7 +267,8 @@
+ 
+     std::list&lt;AGWidget*&gt; children=mChildren; // copy children, so that changes do not affect iteration
+     for(i=children.begin();i!=children.end() &amp;&amp; !processed; i++)
+-      processed=(*i)-&gt;processEvent(event);
++      //      processed=(*i)-&gt;processEvent(event);
++      processed=letChildProcess(*i,event);
+ 
+     if(processed)
+       return processed;
+@@ -286,6 +285,12 @@
+     return false;
+   }
+ 
++bool AGWidget::letChildProcess(AGWidget *pChild,AGEvent *event)
++  {
++    return pChild-&gt;processEvent(event);
++  }
++
++
+ bool AGWidget::eventShow()
+   {
+     return false;
+@@ -440,7 +445,7 @@
+ void AGWidget::addChild(AGWidget *w)
+   {
+     mRefChildren.erase(w);
+-    
++
+     mChildren.push_front(w); // set on top
+     if(mHasFocus &amp;&amp; w-&gt;canFocus())
+       {
+@@ -547,12 +552,14 @@
+     regChange();
+     mr.setWidth(w);
+     regChange();
++    queryRedraw();
+   }
+ void AGWidget::setHeight(float h)
+   {
+     regChange();
+     mr.setHeight(h);
+     regChange();
++    queryRedraw();
+   }
+ 
+ void AGWidget::setTop(float y)
+@@ -861,7 +868,7 @@
+     if(mName==pName)
+       return this;
+ 
+-    
++
+     AGWidget *w=0;
+     std::list&lt;AGWidget*&gt;::iterator i=mChildren.begin();
+ 
+@@ -890,7 +897,7 @@
+     for(std::list&lt;AGWidget*&gt;::iterator i=mToClear.begin();i!=mToClear.end();i++)
+       markObject(*i);
+ 
+-  
++
+     for(std::set&lt;AGWidget*&gt;::iterator i=mRefChildren.begin();i!=mRefChildren.end();i++)
+       {
+         assert((*i));
+
+Modified: antargis/trunk/ext/gui/ag_widget.h
+===================================================================
+--- antargis/trunk/ext/gui/ag_widget.h	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/ext/gui/ag_widget.h	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -235,7 +235,7 @@
+ 
+   void addChildRef(AGWidget *pWidget);
+ protected:
+-  
++  virtual bool letChildProcess(AGWidget *pChild,AGEvent *event);
+ 
+ private:
+   
+
+Modified: antargis/trunk/ruby/editor/campaign/drag_grid.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/drag_grid.rb	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/ruby/editor/campaign/drag_grid.rb	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -127,11 +127,8 @@
+     @time=0
+   end
+   def eventFrame(t)
+-    pp @running
+-    #exit
+     if @running
+       @time+=t
+-     # exit
+       @running=false if @time&gt;=@duration
+       @time=@duration if @time&gt;@duration 
+       step(@time/@duration)
+@@ -488,21 +485,26 @@
+     @ll=getColor(&quot;ll&quot;,&quot;#999999&quot;)
+     @lr=getColor(&quot;lr&quot;,&quot;#999999&quot;)
+     @borderWidth=ops[&quot;borderWidth&quot;].to_i
++    @count=0
+   end
+   def draw(p)
+     p.drawGradient(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">getRect.origin, at ul</A><A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at ur</A><A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at ll</A><A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at lr</A>)
+   end
+   def getNextChildRect
+     cCount=getChildren.length
++    #cCount=@count
++    #@count+=1
++    #p getChildRects,cCount
++    #exit
+     getChildRects[cCount].shrink(3)
+   end
+   
+   def getChildRects
+     rectSize=[width,height].min
+     rects=[]
+-    0.upto(width/rectSize){|x|
+-      0.upto(height/rectSize){|y|
+-        rects&lt;&lt;AGRect.new(x,y,rectSize,rectSize)
++    0.upto(width/rectSize-1){|x|
++      0.upto(height/rectSize-1){|y|
++        rects&lt;&lt;AGRect.new(x*rectSize,y*rectSize,rectSize,rectSize)
+       }
+     }
+     rects
+@@ -513,12 +515,13 @@
+   def initialize(p,r,ops)
+     puts &quot;MUH1&quot;
+     puts self.object_id
+-    text=AGStringUtf8.new(&quot;HUP&quot;) #ops[&quot;text&quot;])
++    text=AGStringUtf8.new(&quot;HUP&quot;)
+     super(p,r,text)
+     setCaching(false)
+     puts &quot;MUH2&quot;
+     setRect(p.getNextChildRect)
+     setCaption(text)
++    setSurface(AGSurface::load(ops[&quot;caption-image&quot;])) if ops[&quot;caption-image&quot;]
+     setName(ops[&quot;name&quot;])
+   end
+ end
+@@ -661,7 +664,6 @@
+ def createSignal(x)
+   signal=RubySignal.new(x)
+   self.define_cmethod(x) {|*s|
+-    puts s.length
+     if s.length==0
+       signal
+     else
+@@ -670,7 +672,7 @@
+   }
+ end
+ 
+-class MApp&lt;AGApplication
++class CampaignEditorApp&lt;AGApplication
+   def initialize()
+     super
+     createSignal :sigFrame
+@@ -693,12 +695,9 @@
+     @grid.select(nil)
+   end
+   def eventFrame(t)
+-    pp 1/t
+     sigFrame(t)
+     super
+   end
+   
+ end
+ 
+-app=MApp.new
+-app.run
+\ No newline at end of file
+
+Added: antargis/trunk/ruby/editor/campaign/editor.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/editor.rb	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/ruby/editor/campaign/editor.rb	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -0,0 +1,4 @@
++require File.join(File.split(__FILE__)[0],'drag_grid.rb')
++
++app=CampaignEditorApp.new
++app.run
+\ No newline at end of file
+
+Added: antargis/trunk/ruby/editor/campaign/spec_campaign_editor.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/spec_campaign_editor.rb	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/ruby/editor/campaign/spec_campaign_editor.rb	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -0,0 +1,46 @@
++
++require File.join(File.split(__FILE__)[0],&quot;..&quot;,&quot;..&quot;,&quot;spec_helper.rb&quot;)
++require File.join(File.split(__FILE__)[0],&quot;..&quot;,&quot;..&quot;,&quot;gui&quot;,&quot;testing.rb&quot;)
++require File.join(File.split(__FILE__)[0],&quot;drag_grid.rb&quot;)
++
++describe &quot;Campaign editor&quot; do
++  include GuiTest
++  before(:all) do
++    @app=makeTestAppClass(CampaignEditorApp).new
++  end
++  it &quot;should be possible to place levels on the grid&quot; do
++    
++    drag(getSourceMiddle(&quot;levelSource&quot;),getGridPos(1,1),50)
++  end
++  it &quot;should be possible to place stories on the grid&quot;
++  it &quot;should be possible to define a start-node&quot;
++  it &quot;should be possible to draw arrows from one node to another&quot;
++  it &quot;should be possible to name grid-nodes&quot;
++  it &quot;should be possible to name arrows&quot;
++  
++  private
++  def drag(from,to,frames)
++    p from,to
++    #exit
++    @app.setCursor(getTextureCache.get(&quot;blue_cursor.png&quot;))
++    
++    mouseDown(from)
++    1.upto(frames) {|f|
++      mouseMotion(from+(to-from)*f/frames)
++      @app.step
++    }
++    mouseUp(to)
++  end
++  
++  def getSourceMiddle(name)
++    getWidget(name).getScreenRect.getMiddle
++  end
++  
++  def getWidget(name)
++    @app.getMainWidget.getChild(name)
++  end
++  def getGridPos(x,y)
++    gridWidth=50
++    (AGRect2.new(x*gridWidth,y*gridWidth,gridWidth,gridWidth)+getWidget(&quot;dragGrid&quot;).getScreenRect.getV0).getMiddle
++  end
++end
+\ No newline at end of file
+
+Modified: antargis/trunk/ruby/gui/testing.rb
+===================================================================
+--- antargis/trunk/ruby/gui/testing.rb	2008-05-10 20:06:38 UTC (rev 1244)
++++ antargis/trunk/ruby/gui/testing.rb	2008-05-13 18:27:49 UTC (rev 1245)
+@@ -107,9 +107,37 @@
+ 		TestWidget.new(@app.getMainWidget.getChild(widgetName))
+ 	end
+ 	def clickScreen(x,y)
+-		@app.eventMouseButtonDown(newEvent(@app,&quot;&quot;,toSDLEvent(&quot;SDL_MOUSEBUTTONDOWN:0:1:1:#{x.to_i}:#{y.to_i}&quot;)))
+-		@app.eventMouseButtonUp(newEvent(@app,&quot;&quot;,toSDLEvent(&quot;SDL_MOUSEBUTTONUP:0:1:1:#{x.to_i}:#{y.to_i}&quot;)))
++	  pos=AGVector2.new(x,y)
++	  mouseDown(pos)
++    mouseUp(pos)
++		#@app.eventMouseButtonDown(newEvent(@app,&quot;&quot;,toSDLEvent(&quot;SDL_MOUSEBUTTONDOWN:0:1:1:#{x.to_i}:#{y.to_i}&quot;)))
++		#@app.eventMouseButtonUp(newEvent(@app,&quot;&quot;,toSDLEvent(&quot;SDL_MOUSEBUTTONUP:0:1:1:#{x.to_i}:#{y.to_i}&quot;)))
+ 	end
++  
++  def mouseMotion(pos)
++    
++    x=pos[0]
++    y=pos[1]
++    @@oldPos||=pos
++    
++    d=pos-@@oldPos
++    dx=d[0].to_i
++    dy=d[1].to_i
++    p x,y,dx,dy
++    @app.doEvent(toSDLEvent(&quot;SDL_MOUSEMOTION:0:1:#{x.to_i}:#{y.to_i}:#{dx}:#{dy}&quot;))
++  end
++  
++  def mouseDown(pos)
++    x=pos[0]
++    y=pos[1]
++    @app.doEvent(toSDLEvent(&quot;SDL_MOUSEBUTTONDOWN:0:1:1:#{x.to_i}:#{y.to_i}&quot;))
++  end
++  def mouseUp(pos)
++    x=pos[0]
++    y=pos[1]
++    @app.doEvent(toSDLEvent(&quot;SDL_MOUSEBUTTONUP:0:1:1:#{x.to_i}:#{y.to_i}&quot;))
++  end
++  
+   def key(pkey)
+     sym=pkey[0]
+     s1=&quot;SDL_KEYDOWN:0:1:0:#{sym}:0:#{sym}&quot;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000200.html">[Antargis-svn] r1244 - in antargis/trunk: .	data/gui/layout/editor/campaign ext/basic ext/game ext/gui	rookey rookey/cpp ruby ruby/editor/campaign ruby/gui ruby/spec
+</A></li>
+	<LI>Next message: <A HREF="000202.html">[Antargis-svn] r1246 - in antargis/trunk: ext/gui ext/video	ruby/editor/campaign ruby/spec
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#201">[ date ]</a>
+              <a href="thread.html#201">[ thread ]</a>
+              <a href="subject.html#201">[ subject ]</a>
+              <a href="author.html#201">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

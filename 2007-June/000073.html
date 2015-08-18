@@ -1,0 +1,716 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1116 - in antargis/branches/rant: . build	data/gui/layout ext ext/basic ext/gui ruby ruby/entities
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-June/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1116%20-%20in%20antargis/branches/rant%3A%20.%20build%0A%09data/gui/layout%20ext%20ext/basic%20ext/gui%20ruby%20ruby/entities&In-Reply-To=%3C200706251850.l5PIoRZe008254%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000072.html">
+   <LINK REL="Next"  HREF="000074.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1116 - in antargis/branches/rant: . build	data/gui/layout ext ext/basic ext/gui ruby ruby/entities</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1116%20-%20in%20antargis/branches/rant%3A%20.%20build%0A%09data/gui/layout%20ext%20ext/basic%20ext/gui%20ruby%20ruby/entities&In-Reply-To=%3C200706251850.l5PIoRZe008254%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1116 - in antargis/branches/rant: . build	data/gui/layout ext ext/basic ext/gui ruby ruby/entities">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Mon Jun 25 20:50:27 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000072.html">[Antargis-svn] r1115 - in antargis/branches/rant: ext/basic ruby
+</A></li>
+        <LI>Next message: <A HREF="000074.html">[Antargis-svn] r1117 - antargis/branches/rant/ext/3dengine
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#73">[ date ]</a>
+              <a href="thread.html#73">[ thread ]</a>
+              <a href="subject.html#73">[ subject ]</a>
+              <a href="author.html#73">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-06-25 20:50:26 +0200 (Mon, 25 Jun 2007)
+New Revision: 1116
+
+Added:
+   antargis/branches/rant/build/win32/
+Modified:
+   antargis/branches/rant/Rantfile
+   antargis/branches/rant/build/ag_data.i
+   antargis/branches/rant/build/ag_filename.i
+   antargis/branches/rant/build/base_tools.rb
+   antargis/branches/rant/build/common.i
+   antargis/branches/rant/data/gui/layout/campaign.xml
+   antargis/branches/rant/data/gui/layout/mainmenu.xml
+   antargis/branches/rant/data/gui/layout/options.xml
+   antargis/branches/rant/data/gui/layout/single.xml
+   antargis/branches/rant/ext/.rant.meta
+   antargis/branches/rant/ext/basic/ag_rubyobj.cc
+   antargis/branches/rant/ext/gui/ag_application.cc
+   antargis/branches/rant/ext/gui/ag_widget.cc
+   antargis/branches/rant/ruby/entities/ant_bakery.rb
+   antargis/branches/rant/ruby/mainmenu.rb
+Log:
+* many changes
+
+
+Modified: antargis/branches/rant/Rantfile
+===================================================================
+--- antargis/branches/rant/Rantfile	2007-06-24 10:32:11 UTC (rev 1115)
++++ antargis/branches/rant/Rantfile	2007-06-25 18:50:26 UTC (rev 1116)
+@@ -1,4 +1,4 @@
+-import &quot;md5&quot;                          # md5 is needed for automatic checksum-check for changes in files
++#import &quot;md5&quot;                          # md5 is needed for automatic checksum-check for changes in files
+ import &quot;autoclean&quot;                    # autoclean includes the a simple facility for a clean-make-target
+ 
+ require 'build/base_tools.rb'
+@@ -6,34 +6,41 @@
+ require 'config.rb'                   # include build-options
+     
+ 
+-# sitearchdir - include in usr/local
+ 
+-rubyIncDir=getConfig(&quot;archdir&quot;)
+-
++# get library-dependencies for libSDL
+ sdlLibs=[`sdl-config --libs`]
+-   
++
++# configure source-directories.
++# DLLs will be build for each directory and in the given order.
++# on the left the directory containing the sources is given
++# on the right the dependencies, which can be one of the following:
++# - an external library, which then marked by &quot;-l&quot; in front, like &quot;-lz&quot; for the z-library
++# - an internal dependency on a directory
++# NOTE: dependencies are not automatically inherited, you have to include them yourself!
++
+ sourceDeps=[
+ 	[&quot;ext/external&quot;,[&quot;-lz&quot;]],
+ 	[&quot;ext/basic&quot;,[&quot;ext/external&quot;]+sdlLibs],
+ 	[&quot;ext/math&quot;,[&quot;ext/basic&quot;]],
+ 	[&quot;ext/video&quot;,[&quot;ext/math&quot;,&quot;ext/basic&quot;,&quot;-lSDL_image&quot;,&quot;-lSDL_ttf&quot;,&quot;-lGL&quot;,&quot;-lGLU&quot;]],
+ 	[&quot;ext/gui&quot;,[&quot;ext/basic&quot;,&quot;ext/math&quot;,&quot;ext/video&quot;]],
+-	[&quot;ext/sound&quot;,[&quot;ext/basic&quot;,&quot;-lSDL_mixer&quot;]], # FIXME: remove dependency from AGWidget somehow !
++	[&quot;ext/sound&quot;,[&quot;ext/basic&quot;,&quot;-lSDL_mixer&quot;]],
+ 	[&quot;ext/3dengine&quot;,[&quot;ext/basic&quot;]],
+ 	[&quot;ext/game&quot;,[&quot;ext/basic&quot;,&quot;ext/math&quot;,&quot;ext/video&quot;,&quot;ext/gui&quot;,&quot;ext/3dengine&quot;]],
+ ]
+ 
+ $sourceDeps=sourceDeps
+ 
+-sourceDirs=sourceDeps.collect{|a|a[0]}
++sourceDirs=sourceDeps.collect{|a|a[0]}    # collect dirs containing source (in the correct order !)
+ 
+-# puts sourceDirs
+-# exit
+-
+ externalIncludes=`sdl-config --cflags`.gsub(&quot;\n&quot;,&quot;&quot;)
++
++# sitearchdir - include in usr/local
++rubyIncDir=getConfig(&quot;archdir&quot;)
+     
+-var :INCLUDES =&gt; sourceDirs+[rubyIncDir,&quot;.&quot;] #.collect{|d|&quot;-I#{d}&quot;}.join(&quot; &quot;)+&quot; &quot;+externalIncludes+&quot; &quot;+rubyIncDir
+-var :INCLUDESTR =&gt; var[:INCLUDES].collect{|d|&quot;-I#{d}&quot;}.join(&quot; &quot;)+&quot; &quot;+externalIncludes
++# gather include-directories (separately from other cflags, so they can be used for swig later on
++var :INCLUDES =&gt; sourceDirs+[rubyIncDir,&quot;.&quot;]
++var :INCLUDESTR =&gt; var[:INCLUDES].collect{|d|&quot;-I#{d}&quot;}.join(&quot; &quot;)+&quot; &quot;+externalIncludes    # build include-string (-I...)
+ 
+ 
+ # configure cflags out of config.rb
+@@ -43,15 +50,10 @@
+ cflags+=&quot; -O2&quot;       unless $antConfig[&quot;debug&quot;] # enable optimizations
+ 	
+ 
++var :CFLAGS =&gt; var[:INCLUDESTR]+cflags          # store cflags in &quot;var&quot; for later read-out while compiling
+ 
+-var :CFLAGS =&gt; var[:INCLUDESTR]+cflags
+-    
+-var.env %w(CC CFLAGS)
+-    
+-sources=sourceDirs.collect{|dir,deps|sys[dir+&quot;/*.cc&quot;]}.flatten.collect{|f|f.sub_ext(&quot;oo&quot;)}
++var.env %w(CC CFLAGS)                           # get cflags from environment
+ 
+-sources+=(sourceDirs-[&quot;ext/external&quot;]).collect{|dir|dir+&quot;/swig.oo&quot;}
+-
+ ###########################################
+ # all-target
+ buildLibs=sourceDirs.collect{|d|&quot;ext&quot;+Dir.separator+&quot;lib&quot;+makeLibName(d)+&quot;.so&quot;}
+@@ -66,10 +68,7 @@
+ ###########################################
+ # configure - clean-task
+ gen AutoClean, :clean
+-var[:clean].include &quot;**/marker.i&quot;
+-var[:clean].include &quot;**/*swig.h&quot;
+-var[:clean].include &quot;**/*swig.cc&quot;
+-var[:clean].include &quot;**/*.so&quot;
++#var[:clean].include &quot;**/marker.i&quot;   # not needed any more - managed by Rule
+ ###########################################
+ 
+ 
+@@ -79,32 +78,26 @@
+ # build libraries (without swig)
+ #
+ sourceDeps.each{|pair|
+-	dir,dep=pair
+-	target=&quot;ext&quot;+Dir.separator+&quot;lib&quot;+makeLibName(dir)+&quot;.so&quot;
+-	tsources=Dir[dir+Dir.separator+&quot;*.cc&quot;]-[dir+Dir.separator+&quot;swig.cc&quot;]
+-	tsources.collect!{|f|f.sub_ext(&quot;oo&quot;)}
+-	tsources+=Dir[dir+Dir.separator+&quot;*.c&quot;].collect!{|f|f.sub_ext(&quot;o&quot;)}
++	dir,dep=pair                                                               # get directory and dependencies
++	target=&quot;ext&quot;+Dir.separator+&quot;lib&quot;+makeLibName(dir)+&quot;.so&quot;                    # make library name like &quot;ext/libantargisgui.so&quot;
++	tsources=Dir[dir+Dir.separator+&quot;*.cc&quot;].select{|f|not f=~/swig/}            # get all *.cc files (without the swig-generated file)
++	tsources.collect!{|f|f.sub_ext(&quot;oo&quot;)}                                      # translate the .cc files to .oo
++	tsources+=Dir[dir+Dir.separator+&quot;*.c&quot;].collect!{|f|f.sub_ext(&quot;o&quot;)}         # add *.c files if there are any
+ 	extlibs=[]
+ 	dep.each{|d|
+ 		if d[0..0]==&quot;-&quot;
+-			extlibs &lt;&lt; d
++			extlibs &lt;&lt; d                                                           # gather external libraries (-lz)
+ 		else
+-			tsources+=[&quot;ext&quot;+Dir.separator+&quot;lib&quot;+makeLibName(d)+&quot;.so&quot;]
++			tsources+=[&quot;ext&quot;+Dir.separator+&quot;lib&quot;+makeLibName(d)+&quot;.so&quot;]             # gather internal deps like (ext/libantargisbasic.so)
+ 		end
+ 	}
+-# 	puts &quot;DIR:&quot;,dir
+-# 	puts &quot;TSOURCES:&quot;
+-# 	puts tsources
+-# 	puts &quot;TARGET:&quot;,target
+-	task target =&gt; tsources do |t|
+-# 		puts extlibs
+-# 		puts t.prerequisites
+-		cmd=&quot;g++ -shared -o &quot;+sys.expand_path(t.name)+&quot; &quot;+(t.prerequisites.collect{|f|sys.expand_path(f)}+ extlibs).join(&quot; &quot;)
++	gen Rule, target =&gt; tsources do |t|
++		# build command
++		cmd=makeCommand($antConfig[&quot;LINKSHARED&quot;],sys.expand_path(t.name), (t.prerequisites.collect{|f|sys.expand_path(f)}+extlibs).join(&quot; &quot;))
+ 		sys cmd
+-		#sys %w(g++ -shared -o ), sys.expand_path(t.name), t.prerequisites.collect{|f|sys.expand_path(f)}+ extlibs
+ 	end
+ }
+-#exit
++#
+ ###########################################
+ 
+ 
+@@ -123,17 +116,11 @@
+ 			tsources+=[&quot;ext&quot;+Dir.separator+makeLibName(d)+&quot;.so&quot;]
+ 		end
+ 	}
+-#  	puts &quot;DIR:&quot;,dir
+-#  	puts &quot;TSOURCES:&quot;
+-#  	puts tsources
+-#  	puts &quot;TARGET:&quot;,target
+-	task target =&gt; tsources do |t|
+-		sys %w(g++ -shared -o ), sys.expand_path(t.name), t.prerequisites.collect{|f|sys.expand_path(f)}
++	gen Rule, target =&gt; tsources do |t|
++		cmd=makeCommand($antConfig[&quot;LINKSHARED&quot;],sys.expand_path(t.name), t.prerequisites.collect{|f|sys.expand_path(f)}.join(&quot; &quot;))
++		sys cmd
+ 	end
+ }
+-# task &quot;libantargis.so&quot; =&gt; sources do |t|
+-#   sys %w(g++ -shared -o ), sys.expand_path(t.name), t.prerequisites.collect{|f|sys.expand_path(f)}
+-# end
+ ###########################################
+     
+ 
+@@ -141,7 +128,8 @@
+ # build c
+ #
+ gen Rule, '.o' =&gt; '.c' do |t|
+-        sys &quot;ccache gcc -c -o #{sys.expand_path(t.name)} #{var :CFLAGS} #{sys.expand_path(t.source)}&quot;
++	cmd=makeCommand($antConfig[&quot;CC&quot;],sys.expand_path(t.name),&quot;#{var :CFLAGS} #{sys.expand_path(t.source)}&quot;)
++	sys cmd
+ end
+ ###########################################
+ 
+@@ -149,19 +137,10 @@
+ # build c++
+ #
+ gen Rule, '.oo' =&gt; '.cc' do |t|
+-        sys &quot;ccache g++ -c -o #{sys.expand_path(t.name)} #{var :CFLAGS} #{sys.expand_path(t.source)}&quot;
++	cmd=makeCommand($antConfig[&quot;CXX&quot;],sys.expand_path(t.name),&quot;#{var :CFLAGS} #{sys.expand_path(t.source)}&quot;)
++	sys cmd
+ end
+-
+-# # task &quot;ext/math/swig.oo&quot; =&gt; &quot;ext/math/swig.cc&quot; do |t|
+-# # 	raise 123
+-# # end
+-# # 
+-# # swigOsrc = lambda {|target|
+-# # 	[target.sub(&quot;swig.oo&quot;,&quot;swig.cc&quot;)]
+-# # }
+-# # gen Rule, /^.*swig.oo/ =&gt; swigOsrc do |t|
+-# #         sys &quot;ccache g++ -c -o #{sys.expand_path(t.name)} #{var :CFLAGS} #{sys.expand_path(t.source)}&quot;
+-# # end
++#
+ ###########################################
+ 
+ 
+@@ -174,8 +153,9 @@
+ 	[target.sub(name+&quot;swig.cc&quot;,&quot;interface.i&quot;)]+sys[&quot;build/*.i&quot;]+importsForInterface(target).split(&quot;:&quot;) 
+ }
+ 
+-gen Rule, /^.*swig.cc$/ =&gt; swigSrc do |t|
+-	sys &quot;swig -v -Wall -ruby -c++ -o #{sys.expand_path(t.name)} -DAGEXPORT -Ibuild -I#{sys.expand_path(getDir(t.name))} #{var :INCLUDESTR} #{sys.expand_path(t.source)}&quot;
++gen Rule, /^.*swig.(cc|h)$/ =&gt; swigSrc do |t|
++	cmd=makeCommand($antConfig[&quot;SWIG&quot;],sys.expand_path(t.name),&quot;-DAGEXPORT -Ibuild -I#{sys.expand_path(getDir(t.name))} #{var :INCLUDESTR} #{sys.expand_path(t.source)}&quot;)
++	sys cmd
+ end
+ #
+ ###########################################
+@@ -187,35 +167,25 @@
+ #
+ 
+ def importsForInterface(name)
+-	
+ 	$sourceDeps.each{|t|
+ 		if name=~/#{t[0]}/
+ 			return t[1].select{|f|not f=~/-.*/}.collect{|f|f+&quot;/interface.i&quot;}.join(&quot;:&quot;)
+ 		end
+ 	}
+ 	return &quot;&quot;
+-
+-
+-	case name
+-		when /ext\/math/
+-			&quot;ext/basic/interface.i&quot;
+-		when /ext\/video/
+-			&quot;ext/basic/interface.i:ext/math/interface.i&quot;
+-		else
+-			&quot;&quot;
+-	end
+-#	puts &quot;NAME:&quot;,name
+-#	exit
+ end
+ 
+ interfaceSrc = lambda { |target| 
+ 	list=Dir[getDir(target)+Dir.separator+&quot;*.h&quot;].select{|f|not f=~/swig.h/}+Dir[&quot;build/*.rb&quot;] # FIXME:replace
+ 	list+=importsForInterface(target).split(&quot;:&quot;)
+-	puts &quot;LIST:&quot;,list,&quot;---&quot;
+ 	list
+ }
+-gen Rule, /^.*interface.i$/ =&gt; interfaceSrc do |t|
+-	sys &quot;ruby build/create_interface.rb -d=#{getDir(sys.expand_path(t.name))} -i=#{importsForInterface(t.name)}&quot;
++gen Rule, /^.*(marker|interface).i$/ =&gt; interfaceSrc do |t|
++	cmd=makeCommand($antConfig[&quot;CREATEINTERFACE&quot;],getDir(sys.expand_path(t.name)),importsForInterface(t.name))
++	sys cmd
+ end
+ #
+ ###########################################
++
++
++
+
+Modified: antargis/branches/rant/build/ag_data.i
+===================================================================
+--- antargis/branches/rant/build/ag_data.i	2007-06-24 10:32:11 UTC (rev 1115)
++++ antargis/branches/rant/build/ag_data.i	2007-06-25 18:50:26 UTC (rev 1116)
+@@ -23,7 +23,7 @@
+ 
+     // Ruby wants class names to start with a capital letter
+     // %rename(String) string;
+-//    class string;
++    class AGData;
+ 
+     /* Overloading check */
+     %typemap(typecheck) AGData = char *;
+
+Modified: antargis/branches/rant/build/ag_filename.i
+===================================================================
+--- antargis/branches/rant/build/ag_filename.i	2007-06-24 10:32:11 UTC (rev 1115)
++++ antargis/branches/rant/build/ag_filename.i	2007-06-25 18:50:26 UTC (rev 1116)
+@@ -23,7 +23,7 @@
+ 
+     // Ruby wants class names to start with a capital letter
+     // %rename(String) string;
+-//    class string;
++    class AGFilename;
+ 
+     /* Overloading check */
+     %typemap(typecheck) AGFilename = char *;
+
+Modified: antargis/branches/rant/build/base_tools.rb
+===================================================================
+--- antargis/branches/rant/build/base_tools.rb	2007-06-24 10:32:11 UTC (rev 1115)
++++ antargis/branches/rant/build/base_tools.rb	2007-06-25 18:50:26 UTC (rev 1116)
+@@ -22,3 +22,8 @@
+   return r if r.nil?
+   r.gsub(/\$\(([^\)]*)\)/) {|a|getConfig(a[2..-2])} # replace recursive values within this form: $(...)
+ end
++
++# build a command out of templates in config.rb
++def makeCommand(cmd,output,input)
++	cmd.sub(&quot;&#167;OUTPUT&#167;&quot;,output).sub(&quot;&#167;INPUT&#167;&quot;,input)
++end
+\ No newline at end of file
+
+Modified: antargis/branches/rant/build/common.i
+===================================================================
+--- antargis/branches/rant/build/common.i	2007-06-24 10:32:11 UTC (rev 1115)
++++ antargis/branches/rant/build/common.i	2007-06-25 18:50:26 UTC (rev 1116)
+@@ -1,12 +1,12 @@
+ %feature(&quot;director&quot;);
+ %include &quot;typemaps.i&quot;
+ %include &quot;std_string.i&quot;
+-%include &quot;AGString.i&quot;
++//%include &quot;AGString.i&quot;
+ %include &quot;std_vector.i&quot;
+ %include &quot;std_pair.i&quot;
+ %include &quot;std_map.i&quot;
+ %include &quot;std_list.i&quot;
+-//%include &quot;ag_string.i&quot;
++%include &quot;ag_string.i&quot;
+ %include &quot;ag_filename.i&quot;
+ %include &quot;ag_data.i&quot;
+ 
+@@ -17,7 +17,9 @@
+ AG_NewPointerObj(void *ptr, swig_type_info *type, int flags)
+ {
+ 	AGRubyObject *o=(AGRubyObject*)ptr;
++#ifdef GCDEBUG
+ 	printf(&quot;AG_NewPointerObj o:0x%lx , ruby:0x%lx vl:0x%lx\n&quot;,o,o-&gt;mRubyObject,o-&gt;mRUBY);
++#endif
+ 	if(o-&gt;mRubyObject)
+ 		return o-&gt;mRUBY;
+ 
+@@ -25,7 +27,9 @@
+ 
+ 	o-&gt;mRubyObject=true;
+ 	o-&gt;mRUBY=SWIG_NewPointerObj((void *) o, t,flags);
++#ifdef GCDEBUG
+ 	printf(&quot;NEW AG_NewPointerObj o:0x%lx , ruby:0x%lx vl:0x%lx\n&quot;,o,o-&gt;mRubyObject,o-&gt;mRUBY);
++#endif
+ 	return o-&gt;mRUBY;
+ }
+ 
+
+Modified: antargis/branches/rant/data/gui/layout/campaign.xml
+===================================================================
+--- antargis/branches/rant/data/gui/layout/campaign.xml	2007-06-24 10:32:11 UTC (rev 1115)
++++ antargis/branches/rant/data/gui/layout/campaign.xml	2007-06-25 18:50:26 UTC (rev 1116)
+@@ -50,6 +50,6 @@
+ 				&lt;text col=&quot;0&quot; row=&quot;2&quot; name=&quot;campaignDescription&quot; font=&quot;story.font&quot; align=&quot;center&quot; enabled=&quot;false&quot; caption=&quot;&quot;/&gt;
+ 			&lt;/table&gt;
+ 		&lt;/table&gt;
+-		&lt;text col=&quot;0&quot; row=&quot;3&quot; font=&quot;yellow.font&quot; align=&quot;center&quot; enabled=&quot;false&quot; caption=&quot;(C) 2005 by the Antargis-team&quot;/&gt;
++		&lt;text col=&quot;0&quot; row=&quot;3&quot; font=&quot;yellow.font&quot; align=&quot;center&quot; enabled=&quot;false&quot; caption=&quot;(C) 2005-2007 by the Antargis-team&quot;/&gt;
+ 	&lt;/table&gt;
+ &lt;/layout&gt;
+
+Modified: antargis/branches/rant/data/gui/layout/mainmenu.xml
+===================================================================
+--- antargis/branches/rant/data/gui/layout/mainmenu.xml	2007-06-24 10:32:11 UTC (rev 1115)
++++ antargis/branches/rant/data/gui/layout/mainmenu.xml	2007-06-25 18:50:26 UTC (rev 1116)
+@@ -46,6 +46,6 @@
+ 				&lt;/frame&gt;
+ 			&lt;/table&gt;
+ 		&lt;/table&gt;
+-		&lt;text col=&quot;0&quot; row=&quot;3&quot; font=&quot;yellow.font&quot; align=&quot;center&quot; enabled=&quot;false&quot; caption=&quot;(C) 2005 by the Antargis-team&quot;/&gt;
++		&lt;text col=&quot;0&quot; row=&quot;3&quot; font=&quot;yellow.font&quot; align=&quot;center&quot; enabled=&quot;false&quot; caption=&quot;(C) 2005-2007 by the Antargis-team&quot;/&gt;
+ 	&lt;/table&gt;
+ &lt;/layout&gt;
+
+Modified: antargis/branches/rant/data/gui/layout/options.xml
+===================================================================
+--- antargis/branches/rant/data/gui/layout/options.xml	2007-06-24 10:32:11 UTC (rev 1115)
++++ antargis/branches/rant/data/gui/layout/options.xml	2007-06-25 18:50:26 UTC (rev 1116)
+@@ -106,6 +106,6 @@
+ 				&lt;/table&gt;
+ 			&lt;/radioGroup&gt;
+ 		&lt;/table&gt;
+-		&lt;text col=&quot;0&quot; row=&quot;3&quot; font=&quot;yellow.font&quot; align=&quot;center&quot; enabled=&quot;false&quot; caption=&quot;(C) 2005 by the Antargis-team&quot;/&gt;
++		&lt;text col=&quot;0&quot; row=&quot;3&quot; font=&quot;yellow.font&quot; align=&quot;center&quot; enabled=&quot;false&quot; caption=&quot;(C) 2005-2007 by the Antargis-team&quot;/&gt;
+ 	&lt;/table&gt;
+ &lt;/layout&gt;
+
+Modified: antargis/branches/rant/data/gui/layout/single.xml
+===================================================================
+--- antargis/branches/rant/data/gui/layout/single.xml	2007-06-24 10:32:11 UTC (rev 1115)
++++ antargis/branches/rant/data/gui/layout/single.xml	2007-06-25 18:50:26 UTC (rev 1116)
+@@ -47,6 +47,6 @@
+ 				&lt;/table&gt;
+ 			&lt;/table&gt;
+ 		&lt;/table&gt;
+-		&lt;text col=&quot;0&quot; row=&quot;3&quot; font=&quot;yellow.font&quot; align=&quot;center&quot; enabled=&quot;false&quot; caption=&quot;(C) 2005 by the Antargis-team&quot;/&gt;
++		&lt;text col=&quot;0&quot; row=&quot;3&quot; font=&quot;yellow.font&quot; align=&quot;center&quot; enabled=&quot;false&quot; caption=&quot;(C) 2005-2007 by the Antargis-team&quot;/&gt;
+ 	&lt;/table&gt;
+ &lt;/layout&gt;
+
+Modified: antargis/branches/rant/ext/.rant.meta
+===================================================================
+--- antargis/branches/rant/ext/.rant.meta	2007-06-24 10:32:11 UTC (rev 1115)
++++ antargis/branches/rant/ext/.rant.meta	2007-06-25 18:50:26 UTC (rev 1116)
+@@ -1,7 +1,135 @@
+ Rant
++libantargisexternal.so
++2
++prerequisites_sig_md5
++1
++3cedb4faecf684c055ae15b7137ecd50660c3ce33439666f4c3bbf2c90b5d56475a688182fcc4e827a16819858fcf565b997f20acfc0205d6a2d23b2070dd09cc958fc20101f94a08177c8a189aae31b
++target_sig_md5
++1
++7fa3f2f4232bda44555357f58bc1cfe9
++antargis3dengine.so
++2
++prerequisites_sig_md5
++1
++01ece2d834c2aa55d470c0aa91007b4855779375dee8000c16850f6efcbe366f9446863bb2d0af8e2ea93d7cf4fe508c
++target_sig_md5
++1
++e0e6e7483ffdcd897fcfa40fb63f92c3
++libantargisvideo.so
++2
++prerequisites_sig_md5
++1
++002f9e267617fcb72c4fb978b9beb0fc01c0b4d8c26e933aa135c2faea09f33f1c4ff715bb34c24e176b25496aa4db7834c872e2123e719ba5050c7ce0b62bb23aec5919092d64b6101632ada6209622419e53177932609ecdabcc101c022fee423356e24215145e2bf3e048f436a9ce472c95204c2bb4a60fd07559c33d6a4b4ab1035f65ad68c9df1f64d65dfa991c5080868f7c76e9008d5837a57ece77335896b92c1985b57094accfb09e74e25f5e9c66ff1d8c359db85fbb77ee25172265b4b58953896dcadf4ae95c037344ea68b6de48dea2e8903b1af3ca99c71d566a286943ae3623e4735a9004ff31ee9e8e9f1b082d6acd8c415d81707d5a394a927bb513226a9d1905bd561b30c3747bb05cc6911ae5a7b3ccbd6f9482bb103cbee26a6407b99f468bd39bde0a3523e9c2dc8866299d63e8324f9a42f5a6769fc467827c18671b9d83fb9d8a981e0f56c58311d370c2c9f7ae500ee626a49650d6ec46bb84f57975ca8f0a8be3fc0a8edf35ef5161cd9dda302bc400a2daccc2e990b9e41ab17086d24c9bd322fb09c3efb3d9dbcf74ec01d3e7170bee3be632f8db4591103ba7c99ad758f3e631c7c8
++target_sig_md5
++1
++047cb4e513ceb2cac02f9835edaf1106
++antargismath.so
++2
++prerequisites_sig_md5
++1
++2fd34b7beb9fddf380425b196b84e5fb55779375dee8000c16850f6efcbe366fc467827c18671b9d83fb9d8a981e0f56
++target_sig_md5
++1
++b5d8bd5837608b25c97913c9ca82846e
++libantargis3dengine.so
++2
++prerequisites_sig_md5
++1
++105ba72ae6d8a3e7d3b664a86430475317596c69a5a96c188f77d80c9e9d165625973b3a9e356e1c7a122b03717fcb0d25f934c66595121b167f24f7bcf13cfb28fd33d5710ee421e71b3c29b5d74dda31e0991913fd38cefdd7c00256402c4f34c872e2123e719ba5050c7ce0b62bb246d327ac31522036603b7a10f8aab8f44b16f1c18e63d7e99aab160b874fecb574b94bfe778192c6105f9ff9fd499e5887e4580838f92c64e3ca373c5623431c8b99c4fb3b8bc0d715dc438f88be3181a140b61f78eb30653dcd792bad4f043db7523d050e2ef24fc1e0fe184e372544bd4a7b0dc42319ef93adc53d660cfde2c7a656179d44ba6191b08cf35e0bfefec96546e1b2ef6fc6a6708b62eaae3667df276d6117d7a714f0ba6c52c867cbfae3dedd1ea086d021af835f198d3bf6beeaee29b7734eef5d757280e7c2473f68faef37bd85e56fcd6f030cc496a9ff34
++target_sig_md5
++1
++9446863bb2d0af8e2ea93d7cf4fe508c
++libantargissound.so
++2
++prerequisites_sig_md5
++1
++34c872e2123e719ba5050c7ce0b62bb24da795f84d2273d36c5d86f9e0c2e7bc60031d6af82471f5b792403faaaabbebb3b75099ba86ea131fc40d7b5427c874
++target_sig_md5
++1
++453b94e98445bdd17d5017afd89a8df3
++antargisbasic.so
++2
++prerequisites_sig_md5
++1
++34c872e2123e719ba5050c7ce0b62bb2ca067f7ab178da5a16418cb2313a62f9eb43e10d26c7a1b88f5a9d9234a5b5d6
++target_sig_md5
++1
++55779375dee8000c16850f6efcbe366f
++libantargismath.so
++2
++prerequisites_sig_md5
++1
++000aacb38152d084628e68c5b60fbe6c34c872e2123e719ba5050c7ce0b62bb24642f7e6c5c821b10718b6c4ae25c062847fa85d0734cd899c2e5e722aeb7be9ab8c493898352ba1606ae8127e6a99edcc1452c4d3ba9b09aa3753a741208ba8df80addfd13d57a378d4b48d66f15a6de9a27147ef031f5fc08581c6ef7b5497
++target_sig_md5
++1
++c467827c18671b9d83fb9d8a981e0f56
++libantargisgui.so
++2
++prerequisites_sig_md5
++1
++047cb4e513ceb2cac02f9835edaf11060995f407ed2e711306ffd6f99dd218021099057a84f7b1c9bd20becbece1a4351550d1e77500414a18bf148ef9dae16018f9cf569420bbcc32f8d5a22c36d1092136012771a49d7f4609b3d09ff194c42736f8f1b4c9d81028e85adcf3194f4934c872e2123e719ba5050c7ce0b62bb242f600b8fed8ed3170b2716a77d8e73f455b29f06550f3b822a5938553744aec6152a1a07ca065fd1cb4f23baee18b3f63e932eda0d6819d579a7d2896dfa2db6a5bff4dc8b7905058f1408d5f874bc8733c82537f414cd0bb4f8de35db172137cc4b02d5bbb8b6f65283dfac9d8d4b894c6a38c3a3d608d878059283499bcc29cd47badd10cf78ae2b4fe05390393a0a4199c050b13ab4f2a85e8d1660dc573adae8caa4ee35b565f31b0ce2ca3fd8bb856d96b67e9cf434e2ec2bb8c3b8f9bbba2a01f43a40b083c91d97783ddab59bd6ab65828f764468398104b3ea019bdc2899ea2a44d1602b34b69df56bd7ce1c467827c18671b9d83fb9d8a981e0f56c599a0431bc2cacb1415d4ecf8d5ea7cc7f16c521245a8ae1e74ecd6e90bbbf9d1906084beb095ce840142c7b77d55d9e30c806ce70ebf42c7b23f42b11d380fe628de248848fc25a750ead1d24ae932e79fa353a4033329f1026361a1678d54e81f3d5f0e370ad050f5651fd4e5!
+ 0805f2064368b9f6c7f365e159d9ec0b72c7
++target_sig_md5
++1
++f9035dd63a15d6b39064ee18c6d6610d
++libantargisgame.so
++2
++prerequisites_sig_md5
++1
++04344fd903271dcebfad227e90283b47047cb4e513ceb2cac02f9835edaf11060643b66820d2b30362a192fa8688372d2e06762707c397287ac47a5990b9f47734c872e2123e719ba5050c7ce0b62bb24f987eff3595f8ad5167175780180c4a5e23dfe04d74c28daba9108cdf482d4b69aa6fbeffd4a61f47faa54e0a0d97f37aeeabe317b8d0d3822cbf3038ea768b8d6165bec2304d76a39e1dc63c93536f9446863bb2d0af8e2ea93d7cf4fe508caf8b9a79ceb24180e080ff6e9bf397deb3bd2792b4b6060f2d5227eb3cd44556c467827c18671b9d83fb9d8a981e0f56d34c1a5ae34f3624e1cdfba62cbf7695e4fe422fb11e35d27bff652d99e5d307e7ec22359d9a9feb9b495aed8ae0d6a7f9035dd63a15d6b39064ee18c6d6610d
++target_sig_md5
++1
++2be2d4fe8fcc1182f86e4cc0fcf6d63e
++libantargisbasic.so
++2
++prerequisites_sig_md5
++1
++2b6a36f4d1663d8b80062ab4e7beae18591c5b8f3171b242ba7c231bd72a061a660fbd1c678f76f05fbca8fb35e2205f691841758a3630be9ab49a889d074c9d6b88902cd8d5665c51039e3c14d470af6ffc363b6c80f17b9f4a17373335c792760054753ccc2852327487f6e1c6d0ba7a8975e12a0c8950f21cb9593e7c31287cce33f7fb1805db020ac780186c701b7e9a2e0f9672d535670e940a5bd0c4f67fa3f2f4232bda44555357f58bc1cfe980e380c2ead2e32283ac93c906492760863c5b7902342c679c2879e0ea0aa0d78fdd30ce22387dad7b80b4ad770b7a439bd5de34207d007398e6deb963466125a860b611050e68adc545131dfdd85af5adea56135b09d6d9fb753e19e03833f0b0e5c46e36467b034a7988db881332f9cb41a6e39a25e450c0bc258f5f01412fd3c44fe8d72a5fdf6f93a9b9bd47f15eda28fd616bcc03d4715e900542c50327e6abf3f052f117d7b82738991f87e07a
++target_sig_md5
++1
++34c872e2123e719ba5050c7ce0b62bb2
++antargisvideo.so
++2
++prerequisites_sig_md5
++1
++047cb4e513ceb2cac02f9835edaf11064538e88c80f14fc2b5281d71a96af57d55779375dee8000c16850f6efcbe366fb5d8bd5837608b25c97913c9ca82846e
++target_sig_md5
++1
++50c05c0cb4e4506031224a8027bf6676
++antargisgui.so
++2
++prerequisites_sig_md5
++1
++50c05c0cb4e4506031224a8027bf667655779375dee8000c16850f6efcbe366fb5d8bd5837608b25c97913c9ca82846ef6067d9d9ac56ba3be550844ac345b8af9035dd63a15d6b39064ee18c6d6610d
++target_sig_md5
++1
++8616b01c787c259720b62e63dc71cd52
+ interface.i
+ 2
+ prerequisites_sig_md5
+ 0
+ target_sig_md5
+ 0
++antargissound.so
++2
++prerequisites_sig_md5
++1
++1a863a108a9b8b3405fa37b0694b1b57453b94e98445bdd17d5017afd89a8df355779375dee8000c16850f6efcbe366f
++target_sig_md5
++1
++14722ae85908c11196cd19f269f81863
++antargisgame.so
++2
++prerequisites_sig_md5
++1
++2be2d4fe8fcc1182f86e4cc0fcf6d63e50c05c0cb4e4506031224a8027bf667655779375dee8000c16850f6efcbe366f56094a6d27cddcf7b10ed7f229fead418616b01c787c259720b62e63dc71cd52b5d8bd5837608b25c97913c9ca82846ee0e6e7483ffdcd897fcfa40fb63f92c3
++target_sig_md5
++1
++a6f5f5cb095884bb6b50ec55e047f342
++antargisexternal.so
++2
++prerequisites_sig_md5
++1
++7fa3f2f4232bda44555357f58bc1cfe9f8e85a1a9e99802a41aeca1899087f1d
++target_sig_md5
++1
++ca067f7ab178da5a16418cb2313a62f9
+
+Modified: antargis/branches/rant/ext/basic/ag_rubyobj.cc
+===================================================================
+--- antargis/branches/rant/ext/basic/ag_rubyobj.cc	2007-06-24 10:32:11 UTC (rev 1115)
++++ antargis/branches/rant/ext/basic/ag_rubyobj.cc	2007-06-25 18:50:26 UTC (rev 1116)
+@@ -131,7 +131,9 @@
+   assert(o);
+   if(gExistingRubies.find(o)==gExistingRubies.end())
+     {
++#ifdef GCDEBUG
+       cdebug(&quot;already deleted!&quot;);
++#endif
+       return false; // already deleted
+     }
+   assert(!o-&gt;mDeleted);
+
+Modified: antargis/branches/rant/ext/gui/ag_application.cc
+===================================================================
+--- antargis/branches/rant/ext/gui/ag_application.cc	2007-06-24 10:32:11 UTC (rev 1115)
++++ antargis/branches/rant/ext/gui/ag_application.cc	2007-06-25 18:50:26 UTC (rev 1116)
+@@ -363,7 +363,7 @@
+   STACKTRACE;
+   beginRender();
+ 
+-  cdebug(&quot;mainWidget:&quot;&lt;&lt;mainWidget);
++//  cdebug(&quot;mainWidget:&quot;&lt;&lt;mainWidget);
+   if(mainWidget)
+     {
+       getScreen().begin();
+@@ -398,7 +398,7 @@
+ 	  clip.include(mainWidget-&gt;getScreenRect());
+ 	}
+ 
+-      cdebug(&quot;CLIP:&quot;&lt;&lt;clip.toString());
++  //    cdebug(&quot;CLIP:&quot;&lt;&lt;clip.toString());
+       paintTarget.clip(clip);
+       mainWidget-&gt;drawAll(*p);
+ 
+@@ -438,7 +438,7 @@
+     }
+ 
+   endRender();
+-  cdebug(&quot;end render&quot;);
++//  cdebug(&quot;end render&quot;);
+ }
+ 
+ /**
+
+Modified: antargis/branches/rant/ext/gui/ag_widget.cc
+===================================================================
+--- antargis/branches/rant/ext/gui/ag_widget.cc	2007-06-24 10:32:11 UTC (rev 1115)
++++ antargis/branches/rant/ext/gui/ag_widget.cc	2007-06-25 18:50:26 UTC (rev 1116)
+@@ -817,7 +817,7 @@
+       if(w)
+ 				break;
+     }
+-	cdebug(&quot;w:&quot;&lt;&lt;w);
++//	cdebug(&quot;w:&quot;&lt;&lt;w);
+   return w;
+ }
+ 
+@@ -965,7 +965,7 @@
+ 
+ void AGWidget::queryRedraw()
+ {
+-  cdebug(getName()&lt;&lt;&quot;::&quot;&lt;&lt;typeid(*this).name());
++//  cdebug(getName()&lt;&lt;&quot;::&quot;&lt;&lt;typeid(*this).name());
+   mCacheTouched=true;
+   regChange();
+ }
+@@ -1098,7 +1098,7 @@
+ }
+ void AGWidget::pushChangeRect(const AGRect2 &amp;pRect)
+ {
+-  cdebug(&quot;push:&quot;&lt;&lt;pRect);
++//  cdebug(&quot;push:&quot;&lt;&lt;pRect);
+   mMyChanges.push_back(pRect);
+ }
+ void AGWidget::clearChangeRects()
+
+Modified: antargis/branches/rant/ruby/entities/ant_bakery.rb
+===================================================================
+--- antargis/branches/rant/ruby/entities/ant_bakery.rb	2007-06-24 10:32:11 UTC (rev 1115)
++++ antargis/branches/rant/ruby/entities/ant_bakery.rb	2007-06-25 18:50:26 UTC (rev 1116)
+@@ -15,7 +15,7 @@
+ 	def setupMesh
+ 		setMesh
+ 		p=AGVector3.new(0,1.6,2.2)
+-		addMesh(@smokeMesh=Smoke.new(getMap.getScene,5),p)
++		addMesh(@smokeMesh=AntParticle.new(getMap.getScene,5),p)
+ 		checkSmoke
+ 	end
+ 
+
+Modified: antargis/branches/rant/ruby/mainmenu.rb
+===================================================================
+--- antargis/branches/rant/ruby/mainmenu.rb	2007-06-24 10:32:11 UTC (rev 1115)
++++ antargis/branches/rant/ruby/mainmenu.rb	2007-06-25 18:50:26 UTC (rev 1116)
+@@ -170,7 +170,6 @@
+ 			return true
+ 		end
+ 		puts &quot;MUH&quot;
+-		#raise 1
+ 		@loadMenu.getChild(&quot;desc&quot;).setText(AGStringUtf8.new(&quot;&quot;))
+ 		filename=id=@loadMenu.getChild(&quot;list&quot;).getSelectedID
+ 		fn=&quot;savegames/&quot;+id.gsub(&quot;.antcmp&quot;,&quot;.png&quot;)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000072.html">[Antargis-svn] r1115 - in antargis/branches/rant: ext/basic ruby
+</A></li>
+	<LI>Next message: <A HREF="000074.html">[Antargis-svn] r1117 - antargis/branches/rant/ext/3dengine
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#73">[ date ]</a>
+              <a href="thread.html#73">[ thread ]</a>
+              <a href="subject.html#73">[ subject ]</a>
+              <a href="author.html#73">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

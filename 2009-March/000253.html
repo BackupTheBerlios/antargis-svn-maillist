@@ -1,0 +1,91 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1297 - antargis/trunk/rookey/lib/rookey/cpp
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2009-March/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1297%20-%20antargis/trunk/rookey/lib/rookey/cpp&In-Reply-To=%3C200903031955.n23JtHYs031605%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000252.html">
+   <LINK REL="Next"  HREF="000254.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1297 - antargis/trunk/rookey/lib/rookey/cpp</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1297%20-%20antargis/trunk/rookey/lib/rookey/cpp&In-Reply-To=%3C200903031955.n23JtHYs031605%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1297 - antargis/trunk/rookey/lib/rookey/cpp">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Tue Mar  3 20:55:17 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000252.html">[Antargis-svn] r1296 - antargis/trunk/rookey/lib/rookey/cpp/spec
+</A></li>
+        <LI>Next message: <A HREF="000254.html">[Antargis-svn] r1298 - in antargis/trunk: ext/video	rookey/lib/rookey/cpp ruby ruby/editor/campaign ruby/gui ruby/tools
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#253">[ date ]</a>
+              <a href="thread.html#253">[ thread ]</a>
+              <a href="subject.html#253">[ subject ]</a>
+              <a href="author.html#253">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2009-03-03 20:55:17 +0100 (Tue, 03 Mar 2009)
+New Revision: 1297
+
+Modified:
+   antargis/trunk/rookey/lib/rookey/cpp/rk_logging.cc
+Log:
+fix loggin
+
+Modified: antargis/trunk/rookey/lib/rookey/cpp/rk_logging.cc
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_logging.cc	2009-03-03 19:33:45 UTC (rev 1296)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_logging.cc	2009-03-03 19:55:17 UTC (rev 1297)
+@@ -150,10 +150,14 @@
+   Channel &amp;Channel::operator&lt;&lt;(const Special &amp;s) {
+     if (s.getType() == Special::ENDL)
+       flush();
++    return *this;
+   }
+ 
+   Channel &amp;Channel::operator&lt;&lt;(const std::string &amp;s) {
+-    RKLogging::getInstance()-&gt;log(s, getType(mType));
++    RKLogging *clogger=RKLogging::getInstance();
++    if(clogger)
++      clogger-&gt;log(s, getType(mType));
++    return *this;
+   }
+ 
+   std::string Channel::getType(const Type &amp;pType) {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000252.html">[Antargis-svn] r1296 - antargis/trunk/rookey/lib/rookey/cpp/spec
+</A></li>
+	<LI>Next message: <A HREF="000254.html">[Antargis-svn] r1298 - in antargis/trunk: ext/video	rookey/lib/rookey/cpp ruby ruby/editor/campaign ruby/gui ruby/tools
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#253">[ date ]</a>
+              <a href="thread.html#253">[ thread ]</a>
+              <a href="subject.html#253">[ subject ]</a>
+              <a href="author.html#253">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

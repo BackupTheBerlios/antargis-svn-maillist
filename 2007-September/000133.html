@@ -1,0 +1,950 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1176 - in antargis/branches/rant: . build	build/configs ext/3dengine ext/game
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-September/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1176%20-%20in%20antargis/branches/rant%3A%20.%20build%0A%09build/configs%20ext/3dengine%20ext/game&In-Reply-To=%3C200709121849.l8CInlAm017769%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000132.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1176 - in antargis/branches/rant: . build	build/configs ext/3dengine ext/game</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1176%20-%20in%20antargis/branches/rant%3A%20.%20build%0A%09build/configs%20ext/3dengine%20ext/game&In-Reply-To=%3C200709121849.l8CInlAm017769%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1176 - in antargis/branches/rant: . build	build/configs ext/3dengine ext/game">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Wed Sep 12 20:49:47 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000132.html">[Antargis-svn] r1175 - in antargis/branches/rant/ruby: . jobs	jobs/spec spec
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#133">[ date ]</a>
+              <a href="thread.html#133">[ thread ]</a>
+              <a href="subject.html#133">[ subject ]</a>
+              <a href="author.html#133">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-09-12 20:49:46 +0200 (Wed, 12 Sep 2007)
+New Revision: 1176
+
+Added:
+   antargis/branches/rant/build/build.rb
+   antargis/branches/rant/build/config_file.rb
+Modified:
+   antargis/branches/rant/build/base_tools.rb
+   antargis/branches/rant/build/config_tools.rb
+   antargis/branches/rant/build/configs/unix.rb
+   antargis/branches/rant/build/configure.rb
+   antargis/branches/rant/build/create_interface.rb
+   antargis/branches/rant/configure
+   antargis/branches/rant/ext/3dengine/scene_base.cc
+   antargis/branches/rant/ext/3dengine/scenenode.cc
+   antargis/branches/rant/ext/game/height_map.cc
+   antargis/branches/rant/ext/game/map.cc
+   antargis/branches/rant/ext/game/terrain.cc
+   antargis/branches/rant/ext/game/water.cc
+Log:
+* many changes on the build-system
+
+
+Modified: antargis/branches/rant/build/base_tools.rb
+===================================================================
+--- antargis/branches/rant/build/base_tools.rb	2007-09-10 19:38:54 UTC (rev 1175)
++++ antargis/branches/rant/build/base_tools.rb	2007-09-12 18:49:46 UTC (rev 1176)
+@@ -1,6 +1,7 @@
+ require 'build/platform.rb'
+ require 'config.rb'                   # include build-options
+ require 'build/config_tools.rb'
++require 'build/build.rb'
+ 
+ def getDir(path)
+ 	# FIXME: check for windows
+@@ -17,9 +18,6 @@
+ 	&quot;antargis&quot;+dir.split(&quot;/&quot;)[-1]
+ end
+ 
+-def makeDepName(output)
+-	dep=&quot;.deps/&quot;+output.gsub(&quot;/&quot;,&quot;_&quot;)
+-end
+ 
+ def getDependencies(output)
+ 	dep=makeDepName(output)
+@@ -34,16 +32,6 @@
+ 	[]
+ end
+ 
+-# build a command out of templates in config.rb
+-def makeCommand(cmd,output,input)
+-	#cmd.sub(&quot;&#167;OUTPUT&#167;&quot;,output).sub(&quot;&#167;INPUT&#167;&quot;,input)
+-	begin
+-		Dir.mkdir(&quot;.deps&quot;)
+-	rescue
+-	end
+-	dep=makeDepName(output)
+-	extendCommand($config,cmd,{&quot;OUTPUT&quot;=&gt;output,&quot;INPUT&quot;=&gt;input,&quot;DEP&quot;=&gt;dep})
+-end
+ 
+ 
+ 
+@@ -55,52 +43,3 @@
+ 	(not ENV['WINDIR'].nil?)
+ end
+ 
+-module Cmd
+-	@@quiet=false 
+-	def Cmd.sys(cmd)
+-		
+-		puts cmd if not @@quiet
+-		#as=`#{cmd}`
+-		
+-		#puts &quot;-#{cmd}-&quot;,cmd.class
+-		res=system(cmd)
+-		#puts a
+-		raise 1 unless res
+-		
+-	end
+-
+-	def Cmd.setQuiet(flag)
+-		@@quiet=flag
+-	end
+-end
+-
+-
+-module Build
+-	include Cmd
+-
+-	def Build.includes
+-		includes=Dir.glob(File.join(&quot;ext&quot;,&quot;**&quot;,&quot;*.h&quot;)).collect{|f|f.sub(/\/[^\/]*$/,&quot;&quot;)}.uniq+[getConfig(&quot;archdir&quot;)]
+-		includes.collect{|i|&quot;-I#{i}&quot;}.join(&quot; &quot;)
+-	end
+-
+-	def Build.cflags
+-		includes+&quot; &quot;+getConfig(&quot;CFLAGS&quot;)+&quot; &quot;+$config[&quot;CFLAGS&quot;]
+-	end
+-
+-	def Build.compile(cFile)
+-		cObj=cFileToObj(cFile)
+-		cmd=makeCommand(&quot;CXX_CALL&quot;,cObj,cflags+&quot; &quot;+cFile)
+-		Cmd.sys cmd
+-	end
+-	
+-	def Build.linkToLib(target,objs,libs)
+-		cmd=makeCommand(&quot;LINK_SHARED&quot;,target,(objs+libs).join(&quot; &quot;))
+-		Cmd.sys cmd
+-	end
+-
+-	def Build.cFileToObj(filename)
+-		filename.sub(/\.cc$/,&quot;.oo&quot;).sub(/\.c$/,&quot;.o&quot;)
+-	end
+-
+-end
+-
+
+Added: antargis/branches/rant/build/build.rb
+===================================================================
+--- antargis/branches/rant/build/build.rb	2007-09-10 19:38:54 UTC (rev 1175)
++++ antargis/branches/rant/build/build.rb	2007-09-12 18:49:46 UTC (rev 1176)
+@@ -0,0 +1,78 @@
++def makeDepName(output)
++	dep=&quot;.deps/&quot;+output.gsub(&quot;/&quot;,&quot;_&quot;)
++end
++
++
++# build a command out of templates in config.rb
++def makeCommand(cmd,output,input)
++	#cmd.sub(&quot;&#167;OUTPUT&#167;&quot;,output).sub(&quot;&#167;INPUT&#167;&quot;,input)
++	begin
++		Dir.mkdir(&quot;.deps&quot;)
++	rescue
++	end
++	dep=makeDepName(output)
++	extendCommand($config,cmd,{&quot;OUTPUT&quot;=&gt;output,&quot;INPUT&quot;=&gt;input,&quot;DEP&quot;=&gt;dep})
++end
++
++module Cmd
++	@@quiet=false 
++	def Cmd.sys(cmd)
++		puts cmd if not @@quiet
++		res=system(cmd)
++		raise 1 unless res
++	end
++
++	def Cmd.setQuiet(flag)
++		@@quiet=flag
++	end
++end
++
++
++module Build
++	include Cmd
++	@@silent=false
++
++	def self.silent=(flag)
++		@@silent=flag
++	end
++
++	def Build.includes
++		includes=Dir.glob(File.join(&quot;ext&quot;,&quot;**&quot;,&quot;*.h&quot;)).collect{|f|f.sub(/\/[^\/]*$/,&quot;&quot;)}.uniq+[getConfig(&quot;archdir&quot;)]
++		includes.collect{|i|&quot;-I#{i}&quot;}.join(&quot; &quot;)
++	end
++
++	def Build.cflags
++		includes+&quot; &quot;+getConfig(&quot;CFLAGS&quot;)+&quot; &quot;+$config[&quot;CFLAGS&quot;].to_s
++	end
++
++	def Build.compile(cFile)
++		cObj=cFileToObj(cFile)
++		cmd=makeCommand(&quot;CXX_CALL&quot;,cObj,cflags+&quot; &quot;+cFile)
++		call(cmd)
++	end
++
++	def Build.link(target,objs,libs)
++		cmd=makeCommand(&quot;LINK_EXE&quot;,target,(objs+libs).join(&quot; &quot;))
++		call(cmd)
++	end
++	
++	def Build.linkToLib(target,objs,libs)
++		cmd=makeCommand(&quot;LINK_SHARED&quot;,target,(objs+libs).join(&quot; &quot;))
++		call(cmd)
++	end
++
++	def Build.cFileToObj(filename)
++		filename.sub(/\.cc$/,&quot;.oo&quot;).sub(/\.c$/,&quot;.o&quot;)
++	end
++private	
++	def self.call(cmd)
++		if @@silent
++			cmd+=&quot; 2&gt;/dev/null&quot;
++			#puts cmd
++			system(cmd)
++		else
++			Cmd.sys(cmd)
++		end
++	end
++end
++
+
+Added: antargis/branches/rant/build/config_file.rb
+===================================================================
+--- antargis/branches/rant/build/config_file.rb	2007-09-10 19:38:54 UTC (rev 1175)
++++ antargis/branches/rant/build/config_file.rb	2007-09-12 18:49:46 UTC (rev 1176)
+@@ -0,0 +1,5 @@
++require 'config.rb'
++
++def getConfigDirect(value,config)
++	$config[value]
++end
+\ No newline at end of file
+
+Modified: antargis/branches/rant/build/config_tools.rb
+===================================================================
+--- antargis/branches/rant/build/config_tools.rb	2007-09-10 19:38:54 UTC (rev 1175)
++++ antargis/branches/rant/build/config_tools.rb	2007-09-12 18:49:46 UTC (rev 1176)
+@@ -1,5 +1,9 @@
+ def extendCommandLine(config,s)
+-  r=config[s]
++	if config[s] 
++		r=config[s]
++	else
++  	r=getConfigDirect(s)
++	end
+   return r if r.nil?
+   r.gsub(/\$\(([^\)]*)\)/) {|a|
+ 		n=a[2..-2] # filter &quot;$(xy..z)&quot; to &quot;xy..z&quot;
+
+Modified: antargis/branches/rant/build/configs/unix.rb
+===================================================================
+--- antargis/branches/rant/build/configs/unix.rb	2007-09-10 19:38:54 UTC (rev 1175)
++++ antargis/branches/rant/build/configs/unix.rb	2007-09-12 18:49:46 UTC (rev 1176)
+@@ -26,6 +26,9 @@
+ 	&quot;CXX_CALL&quot;=&gt;&quot;$(CCACHE) $(CXX) $(COMPILE_PARAMS)&quot;,
+ 	# build a shared library (.so or .dll)
+ 	&quot;LINK_SHARED&quot;=&gt;&quot;$(LINK) -shared -o $(OUTPUT) -Lext $(INPUT)&quot;,
++	# build a program (.exe)
++	&quot;LINK_EXE&quot;=&gt;&quot;$(LINK) -o $(OUTPUT) -Lext $(INPUT)&quot;,
++
+ 	# generate c++-code from a swig-interface file
+ 	&quot;SWIG_CALL&quot;=&gt;&quot;$(SWIG) -v -Wall -ruby -c++ -o $(OUTPUT) $(INPUT)&quot;,
+ 	# generate dependencies for swig-interface files
+
+Modified: antargis/branches/rant/build/configure.rb
+===================================================================
+--- antargis/branches/rant/build/configure.rb	2007-09-10 19:38:54 UTC (rev 1175)
++++ antargis/branches/rant/build/configure.rb	2007-09-12 18:49:46 UTC (rev 1176)
+@@ -15,26 +15,23 @@
+ require 'build/platform.rb'
+ require 'build/config_tools.rb'
+ 
++alias :oldGetConfig :getConfig
++def getConfig(n)
++	v=CFG.get(n)
++	v=oldGetConfig(n) if v.nil?
++	#puts &quot;GETCONFIG #{n}:#{v}&quot;
++	v
++end
++
+ # the CFG-module serves with many functions that may be used in a configure script
+ module CFG
+-	@@options=[]
+ 	@@config={}
+ 	@@checks=[]
++	@@options={}
++	@@failed=[]
+ 
+-	# add a cli-option with name *name* and short-cut *short*
+-	# Example:
+-	#  CFG.addOption(&quot;enable-debug&quot;,&quot;d&quot;,
+-	#  	&quot;enable debugging&quot;) do  ||
+-	#  	  	CFG.set(&quot;debug&quot;,true)
+-	#   end
+-	# will result in an output like this:
+-	#   -Battle of Antargis - Configuration
+-  #   -------------------------------------------------------------------------------
+-  #   --help, -h                              display help text
+-	#   --enable-debug, -d                      enable debugging
+-	# the given block *proc* will do whatever you define for instance setting debug to true in set configuration hash
+-	def CFG.addOption(name,short,help,param=nil,default=nil,&amp;proc)
+-		@@options.push({:name=&gt;name,:short=&gt;short,:help=&gt;help,:proc=&gt;proc,:param=&gt;param,:default=&gt;default})
++	def self.setOptions(ops)
++		ops.each{|k,v|CFG.set(k,v)}
+ 	end
+ 
+ 	# return an array containing a hash, that describes, how the possible options will be checked
+@@ -48,31 +45,22 @@
+ 		@@checks &lt;&lt; {:name=&gt;name,:proc=&gt;proc,:needed=&gt;needed}
+ 	end
+ 
+-	def CFG.call(name)
+-		@@options.each{|op|
+-			if op[:name]==name || op[:short]==name
+-				op[:proc].call
+-			end
+-		}
+-	end
+-
+-
+-	def CFG.checkDefaults
+-		@@options.each{|op|
+-			if get(op[:name]).nil? and op[:default]
+-				set(op[:name],op[:default])
+-			end
+-		}
+-	end
+-
+ 	def CFG.run
+-		parseArgs
+-		checkDefaults
+ 		checkCompile
+ 		ok=runChecks
+ 		saveConfig if ok
+ 	end
+ 
++	def CFG.runCheck(name,needed=true,&amp;proc)
++		text=&quot;checking &quot;+name+&quot; ...&quot;
++		print text
++		ok=proc.call
++		#ok=(not ok.nil?)
++		print &quot; &quot;*(40-text.length)
++		puts ({true=&gt;&quot;ok&quot;,false=&gt;&quot;failed&quot;,nil=&gt;&quot;failed&quot;}[ok])
++		@@failed &lt;&lt; c[:name] unless ok or not c[:needed]
++	end
++
+ 	def CFG.runChecks
+ 		puts 
+ 		failed=[]
+@@ -82,7 +70,7 @@
+ 			ok=c[:proc].call
+ 			#ok=(not ok.nil?)
+ 			print &quot; &quot;*(40-text.length)
+-			puts ({true=&gt;&quot;ok&quot;,false=&gt;&quot;failed&quot;}[ok])
++			puts ({true=&gt;&quot;ok&quot;,false=&gt;&quot;failed&quot;,nil=&gt;&quot;failed&quot;}[ok])
+ 			failed &lt;&lt; c[:name] unless ok or not c[:needed]
+ 		}
+ 		if failed.length&gt;0
+@@ -100,7 +88,7 @@
+ 		f=File.open(configName,&quot;w&quot;)
+ 		f.puts &lt;&lt;EOT
+ $config={
+-#{@@config.collect{|k,v|&quot;  '&quot;+k+&quot;'=&gt;&quot;+toS(v)}.join(&quot;,\n&quot;)}
++#{@@config.collect{|k,v|&quot;  '#{k}'=&gt;&quot;+toS(v)}.join(&quot;,\n&quot;)}
+ }
+ EOT
+ 		f.close
+@@ -116,15 +104,16 @@
+ 	end
+ 
+ 	def CFG.checkProgram(program,needed=true)
+-		addOption(&quot;path-&quot;+program,&quot;&quot;,
+-			&quot;set path to program '#{program}' like this:\n --path-#{program}=/usr/local/bin/#{program}&quot;,&quot;path&quot;) do |d|
+-				set(program,d)
+-			end
++# 		addOption(&quot;path-&quot;+program,&quot;&quot;,
++# 			&quot;set path to program '#{program}' like this:\n --path-#{program}=/usr/local/bin/#{program}&quot;,&quot;path&quot;) do |d|
++# 				set(program,d)
++# 			end
+ 
+ 		addCheck(&quot;program &quot;+program,needed) do
+ 			path=get(program)
+ 			path||=findProgram(program)
+ 			r=testProgram(path)
++			#puts &quot;found at #{path}&quot;
+ 			set(program,path) if r
+ 			r
+ 		end
+@@ -167,10 +156,6 @@
+ 
+ 	def CFG.includeConfig
+ 		avail=[&quot;unix&quot;,&quot;mingw32&quot;]
+-		addOption(&quot;base-config&quot;,&quot;&quot;,
+-			&quot;set base-config like &quot;+avail.join(&quot;, &quot;),&quot;config&quot;) do |v|
+-			set(&quot;base-config&quot;,v)
+-		end
+ 		addCheck (&quot;base-config&quot;) do ||
+ 			c=get(&quot;base-config&quot;)
+ 			c=nil unless avail.member?(c)
+@@ -192,16 +177,44 @@
+ 		CFG.set(&quot;RUBYLIB&quot;,getConfig(&quot;LIBRUBYARG_SHARED&quot;))
+ 	end
+ 
+-	def CFG.checkLibrary(libname)
++	def CFG.checkLibrary(libname,description,needed=true)
++		addCheck(&quot;lib&quot;+libname,needed) do ||
++			#puts &quot;FIXME checkLibrary #{libname}  #{description}&quot;
++			if true
++				
++				# C-check
++				begin Dir.mkdir(&quot;.tmp&quot;); rescue ;end
++				filename=&quot;.tmp/test.c&quot;
++				f=File.open(filename,&quot;w&quot;)
++				f.puts &quot;int main(){return 0;}&quot;
++				f.close
++				require 'build/build.rb'
++				Build.silent=true
++				Build.compile(filename)
++				obj=Build.cFileToObj(filename)
++				exe=&quot;.tmp/test&quot;
++				Build.link(exe,[obj],[&quot;-l&quot;+libname])
++				result=system(exe)
++				
++				set(&quot;LIBS&quot;,get(&quot;LIBS&quot;).to_s+&quot; -l#{libname}&quot;) if result
++				result
++			end
++			
++
++		end
+ 	end
+ 
++	def self.hasLibrary(libname)
++		get(&quot;LIBS&quot;).split(&quot; &quot;).map{|l|l[2..-1]}.member?(libname)
++	end
+ 
++
+ 	private
+ 
+ 	# this function parses the cli-inputs
+ 	#
+ 	# *FIXME: replace this with the standard ruby-cli-input-parser
+-	def CFG.parseArgs
++	def CFG.parseArgsOld
+ 		ARGV.each{|arg|
+ 			found=false
+ 			# parse single arguments like &quot;-d&quot; or &quot;-dgh&quot; (like tar -xfz)
+@@ -214,7 +227,12 @@
+ 				if found
+ 					# all were ok, so call each these options
+ 					arg[1..-1].scan(/./){|byte|
+-						@@options.each{|op|op[:proc].call if op[:short]==byte}
++						@@options.each{|op|
++							if op[:short]==byte
++								puts &quot;* #{op[:help]}&quot;
++								op[:proc].call(true)
++							end
++						}
+ 					}
+ 				end
+ 			end
+@@ -227,7 +245,8 @@
+ 					# parse &quot;simple&quot; options without parameters
+ 					if arg=~/^--#{ename}$/ or arg=~/^-#{op[:short]}$/
+ 						found=true
+-						op[:proc].call
++						puts &quot;* #{op[:help]}&quot;
++						op[:proc].call(found)
+ 					# parse options with parameter, given like this : &quot;-d=&lt;somedir&gt;&quot; or &quot;--dir=bladir&quot;
+ 					elsif arg=~/^--#{ename}=.+/ or arg=~/^-#{op[:short]}=.+$/
+ 						found=true
+@@ -244,27 +263,19 @@
+ 		case v
+ 			when String
+ 				&quot;'&quot;+v.to_s+&quot;'&quot;
++			when Array
++				&quot;'&quot;+v.join(&quot;;&quot;)+&quot;'&quot;
++			when Hash
++				&quot;'&quot;+v.collect{|k,v|&quot;#{k}=&gt;#{v}&quot;}.join(&quot;;&quot;)+&quot;'&quot;
+ 			else
++				#puts v,v.class
++				#raise &quot;MUH&quot;
+ 				v.to_s
+ 		end
+ 	end
++end
+ 
+-	addOption(&quot;help&quot;,&quot;h&quot;,
+-		&quot;display help text&quot;) do
+-			CFG.options.each{|op|
+-				text=&quot;&quot;
+-				text &lt;&lt; &quot;--#{op[:name]}&quot;
+-				text &lt;&lt; &quot;=&lt;#{op[:param]}&gt;&quot; if op[:param]
+-				text &lt;&lt; &quot;, -#{op[:short]}&quot; if op[:short]!=&quot;&quot;
+-				text &lt;&lt; &quot;=&lt;#{op[:param]}&gt;&quot; if op[:short]!=&quot;&quot; and op[:param]
+-				text+=&quot; &quot;*(40-text.length)
+-				l=text.length
+-				helpa=op[:help].split(&quot;\n&quot;)
+-				text+=helpa[0]
+-				helpa[1..-1].each{|h|
+-					text &lt;&lt; &quot;\n&quot;+&quot; &quot;*l+h
+-				}
+-				puts text
+-			}
+-	end
+-end
++
++def getConfigDirect(v,config={})
++	CFG.get(v)
++end
+\ No newline at end of file
+
+Modified: antargis/branches/rant/build/create_interface.rb
+===================================================================
+--- antargis/branches/rant/build/create_interface.rb	2007-09-10 19:38:54 UTC (rev 1175)
++++ antargis/branches/rant/build/create_interface.rb	2007-09-12 18:49:46 UTC (rev 1176)
+@@ -434,7 +434,7 @@
+     for(std::list&lt;CastFunction&gt;::iterator i=funcs.begin();i!=funcs.end();i++)
+       {
+          swig_type_info*t=(*i)(ptr);
+-	       std::cout&lt;&lt;&quot;test:&quot;&lt;&lt;t&lt;&lt;std::endl;
++	       //std::cout&lt;&lt;&quot;test:&quot;&lt;&lt;t&lt;&lt;std::endl;
+          if(t)
+            return t;
+       }
+@@ -454,7 +454,7 @@
+ {
+         #{a}*a=(#{a}*)(*p);
+         #{b}*b=dynamic_cast&lt;#{b}*&gt;(a);
+-				printf(&quot;TRY CAST #{a} 2 #{b} : %lx\\n&quot;,b);
++				//printf(&quot;TRY CAST #{a} 2 #{b} : %lx\\n&quot;,b);
+         if(b)
+         {
+                 *p=(void*)b;
+
+Modified: antargis/branches/rant/configure
+===================================================================
+--- antargis/branches/rant/configure	2007-09-10 19:38:54 UTC (rev 1175)
++++ antargis/branches/rant/configure	2007-09-12 18:49:46 UTC (rev 1176)
+@@ -1,104 +1,148 @@
+ #!/usr/bin/env ruby
+ 
+ require 'build/configure.rb'
++require 'ostruct'
++require 'optparse'
++require 'pp'
+ 
+-version=&quot;0.2.1.3&quot;
+-
+ puts &lt;&lt;EOT
+ Battle of Antargis - Configuration
+ -------------------------------------------------------------------------------
+ EOT
+ 
+-CFG.addOption(&quot;enable-debug&quot;,&quot;d&quot;,
+-	&quot;enable debugging&quot;) do  ||
+-		CFG.set(&quot;debug&quot;,true)
+-	end
++NEEDED_PROGRAMS=[&quot;gcc&quot;,&quot;g++&quot;,&quot;swig&quot;,&quot;ruby&quot;]
++POSSIBLE_PROGRAMS=[&quot;ccache&quot;,&quot;sdl-config&quot;]
+ 
+-CFG.addOption(&quot;enable-gc-debug&quot;,&quot;g&quot;,
+-	&quot;enable debugging of garbage collector&quot;) do  ||
+-		CFG.set(&quot;gcdebug&quot;,true)
+-	end
++def allPrograms
++	POSSIBLE_PROGRAMS+NEEDED_PROGRAMS
++end
+ 
+-CFG.addOption(&quot;enable-profile&quot;,&quot;p&quot;,
+-	&quot;enable c++ profiling&quot;) do  ||
+-		CFG.set(&quot;profile&quot;,true)
+-	end
++class ConfigureOptions
++	def self.parse(args)
++		options={}
++		options[:use_mkmf]=true
++		options[:debug]=false
++		options[:gcdebug]=false
++		options[:profile]=false
++		options[:version]=&quot;0.2.1.4&quot;
+ 
++		options[:programs]={}
++		allPrograms.each{|p|
++			options[:programs][p]=p
++		}
++	
++		opts=OptionParser.new do |opts|
++		  opts.banner = &quot;Usage: configure [options]&quot;
+ 
+-CFG.addOption(&quot;prefix&quot;,&quot;&quot;,
+-	&quot;set prefix directory&quot;,&quot;dir&quot;) do |d|
+-		CFG.set(&quot;prefix&quot;,d)
+-	end
++			opts.separator &quot;&quot;
++			opts.separator &quot;Specific options:&quot;
+ 
+-CFG.addOption(&quot;profile&quot;,&quot;p&quot;,
+-	&quot;enable profiling of C++-code&quot;) do ||
+-		CFG.set(&quot;profile&quot;,true)
+-	end
++			opts.on(&quot;-d&quot;, &quot;--enable-debug&quot;,
++							&quot;enable debugging&quot;) do 
++				options[:debug]=true
++			end
+ 
+-CFG.addOption(&quot;drmuser&quot;,&quot;&quot;,
+-	&quot;set user for DRM&quot;,&quot;user&quot;) do |v|
+-		CFG.set(&quot;drmuser&quot;,v)
+-	end
++			opts.on(&quot;-g&quot;,&quot;--enable-gc-debug&quot;,
++							&quot;enable debugging of garbage collector&quot;) do
++				options[:gcdebug]=true
++			end
+ 
+-CFG.addOption(&quot;drmpw&quot;,&quot;&quot;,
+-	&quot;set password for DRM&quot;,&quot;password&quot;) do |v|
+-		CFG.set(&quot;drmpass&quot;,v)
+-	end
++			opts.on(&quot;-p&quot;,&quot;--enable-profile&quot;,
++							&quot;enable c++ profiling&quot;) do 
++				options[:profile]=true
++			end
+ 
+-CFG.addOption(&quot;version&quot;,&quot;v&quot;,
+-	&quot;set release version of BoA&quot;,&quot;version&quot;,version) do |v|
+-		CFG.set(&quot;version&quot;,v)
+-	end
++			opts.on(&quot;--prefix PREFIXDIR&quot;,
++							&quot;set prefix directory PREFIXDIR&quot;) do |dir|
++				options[:prefix]=dir
++			end
+ 
+-if $:.join(&quot;&quot;)=~/1.8/
+-	if isWindows
+-		CFG.set(&quot;RUBYLIB&quot;,&quot;-lmsvcrt-ruby18&quot;)
+-	else
+-		CFG.set(&quot;RUBYLIB&quot;,&quot;-lruby1.8&quot;)
++			opts.on(&quot;--drmuser DRMUSER&quot;,
++				&quot;set user for DRM&quot;) do |v|
++					options[:drmuser]=v
++			end
++			
++			opts.on(&quot;--drmpw DRMPASSWORD&quot;,
++				&quot;set password for DRM&quot;) do |v|
++					options[:drmpass]=v
++			end
++			
++			opts.on(&quot;-v&quot;,&quot;--version&quot;,
++				&quot;set release version of BoA&quot;) do |v|
++					options[:version]=v
++			end
++
++			opts.on(&quot;--ext-config CONFIG&quot;,
++				&quot;use user-defined config instead of ruby's mkmf&quot;,&quot;CONFIG maybe in mingw32 or unix&quot;) do |extconfig|
++					options[:extconfig]=extconfig
++			end
++
++			allPrograms.each{|program|
++				opts.on(&quot;--path-&quot;+program+&quot; PATH&quot;,
++					&quot;set path to program '#{program}'&quot;) do |d|
++					CFG.set(program,d)
++				end
++			}
++
++
++		end
++		opts.parse!(args)
++		options
+ 	end
+-else
+-	if isWindows
+-		CFG.set(&quot;RUBYLIB&quot;,&quot;-lmsvcrt-ruby19&quot;)
+-	else
+-		CFG.set(&quot;RUBYLIB&quot;,&quot;-lruby1.9&quot;)
+-	end
+ end
++		
++options = ConfigureOptions.parse(ARGV)
+ 
+-CFG.checkProgram(&quot;ccache&quot;,false)
+-CFG.checkProgram(&quot;gcc&quot;)
+-CFG.checkProgram(&quot;g++&quot;)
+-CFG.checkProgram(&quot;swig&quot;)
+-CFG.checkProgram(&quot;ruby&quot;)
+-CFG.checkProgram(&quot;sdl-config&quot;,false)
+ 
+-CFG.addCheck(&quot;sdl-config --libs&quot;,false) do
+-        libs=nil
+-        begin
+-            libs=`#{CFG.get(&quot;sdl-config&quot;)} --libs`.gsub(&quot;\n&quot;,&quot;&quot;)
+-        rescue
+-        end
+-        CFG.set(&quot;LIBS&quot;,libs) if libs        
+-    end
++NEEDED_PROGRAMS.each{|program|
++	CFG.checkProgram(program,true)
++}
++POSSIBLE_PROGRAMS.each{|program|
++	CFG.checkProgram(program,false)
++}
+ 
+-CFG.addCheck(&quot;sdl-config --cflags&quot;,false) do
+-        libs=nil
+-        begin
+-            libs=`#{CFG.get(&quot;sdl-config&quot;)} --cflags`.gsub(&quot;\n&quot;,&quot;&quot;)
+-        rescue
+-        end
+-        CFG.set(&quot;CFLAGS&quot;,libs) if libs        
+-    end
++CFG.setOptions(options)
+ 
+ 
+-CFG.addOption(&quot;use-mkmf&quot;,&quot;&quot;,
+-	&quot;use ruby's configuration mechanism for configuration&quot;) do  ||
+-		CFG.gatherMkmfInfo
++CFG.addCheck(&quot;sdl-config --libs&quot;,false) do
++	libs=nil
++	begin
++		call=&quot;#{CFG.get(&quot;sdl-config&quot;)} --libs&quot;
++		libs=`#{call}`.gsub(&quot;\n&quot;,&quot;&quot;)
++	rescue
+ 	end
++	CFG.set(&quot;LIBS&quot;,libs) if libs        
++	true if libs
++end
+ 
++CFG.addCheck(&quot;sdl-config --cflags&quot;,false) do
++	libs=nil
++	begin
++			libs=`#{CFG.get(&quot;sdl-config&quot;)} --cflags`.gsub(&quot;\n&quot;,&quot;&quot;)
++	rescue
++	end
++	CFG.set(&quot;CFLAGS&quot;,libs) if libs        
++	true if libs
++end
++
+ CFG.includeConfig
++CFG.gatherMkmfInfo if options[:use_mkmf]
+ 
++CFG.checkLibrary(&quot;opengl32&quot;,&quot;OpenGL library (win32)&quot;,false)
++CFG.checkLibrary(&quot;glu32&quot;,&quot;OpenGL Utility library (win32)&quot;,false)
++#puts foundGL
++CFG.checkLibrary(&quot;GL&quot;,&quot;OpenGL library&quot;,false)
++CFG.checkLibrary(&quot;GLU&quot;,&quot;OpenGL Utility library&quot;,false)
++
+ CFG.run
+ 
++if (not (CFG.hasLibrary(&quot;opengl32&quot;) or CFG.hasLibrary(&quot;GL&quot;)))
++	puts &quot;NO opengl-library found. Please install one - including dev-packages!&quot;
++end
++if (not (CFG.hasLibrary(&quot;glu32&quot;) or CFG.hasLibrary(&quot;GLU&quot;)))
++	puts &quot;NO glu-library found. Please install one - including dev-packages!&quot;
++end
++
+ puts
+ puts &quot;You should run '&gt;rant clean &amp;&amp; rant' to let changes take effect!&quot;
+ puts 
+
+Modified: antargis/branches/rant/ext/3dengine/scene_base.cc
+===================================================================
+--- antargis/branches/rant/ext/3dengine/scene_base.cc	2007-09-10 19:38:54 UTC (rev 1175)
++++ antargis/branches/rant/ext/3dengine/scene_base.cc	2007-09-12 18:49:46 UTC (rev 1176)
+@@ -26,7 +26,7 @@
+ 
+ void SceneBase::addNode(SceneNode *node)
+ {
+-  std::cout&lt;&lt;&quot;addNode:(this:&quot;&lt;&lt;this&lt;&lt;&quot;) &quot;&lt;&lt;node&lt;&lt;&quot;  &quot;&lt;&lt;typeid(*node).name()&lt;&lt;std::endl;
++  //  std::cout&lt;&lt;&quot;addNode:(this:&quot;&lt;&lt;this&lt;&lt;&quot;) &quot;&lt;&lt;node&lt;&lt;&quot;  &quot;&lt;&lt;typeid(*node).name()&lt;&lt;std::endl;
+   if(mNodeSet.find(node)==mNodeSet.end())
+     {
+       node-&gt;setScene(this);
+@@ -57,7 +57,7 @@
+ 
+ void SceneBase::removeNode(SceneNode *node)
+ {
+-  std::cout&lt;&lt;&quot;remove node:&quot;&lt;&lt;node&lt;&lt;std::endl;
++  //  std::cout&lt;&lt;&quot;remove node:&quot;&lt;&lt;node&lt;&lt;std::endl;
+   if(mNodeSet.find(node)!=mNodeSet.end())
+     {
+       Nodes::iterator i=std::find(mNodes.begin(),mNodes.end(),node);
+@@ -107,8 +107,8 @@
+     {
+       if((*i)-&gt;visible())
+ 	{
+-	  std::cout&lt;&lt;(*i)&lt;&lt;std::endl;
+-	  std::cout&lt;&lt;(typeid(**i).name())&lt;&lt;std::endl;
++	  //	  std::cout&lt;&lt;(*i)&lt;&lt;std::endl;
++	  //	  std::cout&lt;&lt;(typeid(**i).name())&lt;&lt;std::endl;
+ 	  (*i)-&gt;advance(time);
+ 	}
+     }
+@@ -125,12 +125,12 @@
+ 
+ void SceneBase::mark()
+ {
+-  std::cout&lt;&lt;&quot;SceneBase::mark()&quot;&lt;&lt;std::endl;
++  //  std::cout&lt;&lt;&quot;SceneBase::mark()&quot;&lt;&lt;std::endl;
+   SceneBase::Nodes::iterator i=mNodes.begin();
+ 
+   for(;i!=mNodes.end();i++)
+     {
+-      std::cout&lt;&lt;&quot;scenebase-mark:&quot;&lt;&lt; this&lt;&lt;&quot;  &quot;&lt;&lt;*i&lt;&lt;std::endl;
++      //  std::cout&lt;&lt;&quot;scenebase-mark:&quot;&lt;&lt; this&lt;&lt;&quot;  &quot;&lt;&lt;*i&lt;&lt;std::endl;
+       markObject(*i);
+     }
+ }
+
+Modified: antargis/branches/rant/ext/3dengine/scenenode.cc
+===================================================================
+--- antargis/branches/rant/ext/3dengine/scenenode.cc	2007-09-10 19:38:54 UTC (rev 1175)
++++ antargis/branches/rant/ext/3dengine/scenenode.cc	2007-09-12 18:49:46 UTC (rev 1176)
+@@ -5,7 +5,7 @@
+ SceneNode::SceneNode(SceneBase *s,const AGVector4 &amp;pPos,const AGBox3 &amp;b):
+   mPos(pPos),mBBox(b)
+ {
+-  std::cout&lt;&lt;&quot;new scene-node: &quot;&lt;&lt;this&lt;&lt;std::endl;
++  //  std::cout&lt;&lt;&quot;new scene-node: &quot;&lt;&lt;this&lt;&lt;std::endl;
+   assert(s);
+   mRubyObject=false;
+   mScene=s;
+@@ -18,7 +18,7 @@
+ 
+ SceneNode::~SceneNode()
+ {
+-  std::cout&lt;&lt;&quot;del scene-node: &quot;&lt;&lt;this&lt;&lt;&quot; scene:&quot;&lt;&lt;mScene&lt;&lt;std::endl;
++  //  std::cout&lt;&lt;&quot;del scene-node: &quot;&lt;&lt;this&lt;&lt;&quot; scene:&quot;&lt;&lt;mScene&lt;&lt;std::endl;
+   //  CTRACE;
+   //mRubyObject=false; // why was this here ??????
+ 
+@@ -34,14 +34,14 @@
+ {
+   assert(mScene==0 || mScene==pScene);
+   mScene=pScene;
+-  std::cout&lt;&lt;&quot;setscene:&quot;&lt;&lt;this&lt;&lt;&quot; to &quot;&lt;&lt;mScene&lt;&lt;std::endl;
++  //  std::cout&lt;&lt;&quot;setscene:&quot;&lt;&lt;this&lt;&lt;&quot; to &quot;&lt;&lt;mScene&lt;&lt;std::endl;
+ }
+ 
+ 
+ /// release attaching to scene
+ void SceneNode::resetScene()
+ {
+-  std::cout&lt;&lt;&quot;resetScene from &quot;&lt;&lt;this&lt;&lt;std::endl;
++  //  std::cout&lt;&lt;&quot;resetScene from &quot;&lt;&lt;this&lt;&lt;std::endl;
+   mScene=0;
+ }
+ 
+
+Modified: antargis/branches/rant/ext/game/height_map.cc
+===================================================================
+--- antargis/branches/rant/ext/game/height_map.cc	2007-09-10 19:38:54 UTC (rev 1175)
++++ antargis/branches/rant/ext/game/height_map.cc	2007-09-12 18:49:46 UTC (rev 1176)
+@@ -625,7 +625,7 @@
+ 
+ void HeightMap::mark()
+ {
+-  std::cout&lt;&lt;&quot;HeightMap::mark tihs:&quot;&lt;&lt;this&lt;&lt;&quot; scene:&quot;&lt;&lt;mScene&lt;&lt;std::endl;
++  //  std::cout&lt;&lt;&quot;HeightMap::mark tihs:&quot;&lt;&lt;this&lt;&lt;&quot; scene:&quot;&lt;&lt;mScene&lt;&lt;std::endl;
+   if(mScene)
+     markObject(mScene);
+   if(mTerrain)
+
+Modified: antargis/branches/rant/ext/game/map.cc
+===================================================================
+--- antargis/branches/rant/ext/game/map.cc	2007-09-10 19:38:54 UTC (rev 1175)
++++ antargis/branches/rant/ext/game/map.cc	2007-09-12 18:49:46 UTC (rev 1176)
+@@ -458,7 +458,7 @@
+ 
+ void AntMap::mark()
+ {
+-  cout&lt;&lt;&quot;AntMap::mark()&quot;&lt;&lt;std::endl;
++  //  cout&lt;&lt;&quot;AntMap::mark()&quot;&lt;&lt;std::endl;
+   CTRACE;
+   HeightMap::mark();
+   AntMap::EntityList::iterator i=mEntities.begin();
+
+Modified: antargis/branches/rant/ext/game/terrain.cc
+===================================================================
+--- antargis/branches/rant/ext/game/terrain.cc	2007-09-10 19:38:54 UTC (rev 1175)
++++ antargis/branches/rant/ext/game/terrain.cc	2007-09-12 18:49:46 UTC (rev 1176)
+@@ -346,7 +346,7 @@
+ 
+ void Terrain::mark()
+ {
+-  std::cout&lt;&lt;&quot;Terrain::mark()&quot;&lt;&lt;std::endl;
++  //  std::cout&lt;&lt;&quot;Terrain::mark()&quot;&lt;&lt;std::endl;
+   for(Nodes::iterator i=mNodes.begin();i!=mNodes.end();i++)
+     markObject(*i);
+ }
+
+Modified: antargis/branches/rant/ext/game/water.cc
+===================================================================
+--- antargis/branches/rant/ext/game/water.cc	2007-09-10 19:38:54 UTC (rev 1175)
++++ antargis/branches/rant/ext/game/water.cc	2007-09-12 18:49:46 UTC (rev 1176)
+@@ -33,7 +33,7 @@
+   mX(x),mY(y),mW(w),mH(h),mMap(&amp;map)
+ {
+   CTRACE;
+-  std::cout&lt;&lt;&quot;water:&quot;&lt;&lt;this&lt;&lt;std::endl;
++
+   step=2;
+   tex=getTextureCache()-&gt;get(&quot;data/textures/terrain/water.png&quot;);
+ 
+@@ -46,7 +46,6 @@
+ 
+ WaterPiece::~WaterPiece()
+ {
+-  std::cout&lt;&lt;&quot;water killed:&quot;&lt;&lt;this&lt;&lt;std::endl;
+   if(sceneValid())
+     getScene()-&gt;removeNode(this);
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000132.html">[Antargis-svn] r1175 - in antargis/branches/rant/ruby: . jobs	jobs/spec spec
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#133">[ date ]</a>
+              <a href="thread.html#133">[ thread ]</a>
+              <a href="subject.html#133">[ subject ]</a>
+              <a href="author.html#133">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,574 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1279 - in antargis/trunk: . data/gui ext/3dengine	ext/video rookey rookey/configs rookey/externals	rookey/maintainenance ruby ruby/spec
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2008-July/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1279%20-%20in%20antargis/trunk%3A%20.%20data/gui%20ext/3dengine%0A%09ext/video%20rookey%20rookey/configs%20rookey/externals%0A%09rookey/maintainenance%20ruby%20ruby/spec&In-Reply-To=%3C200807171939.m6HJdJdf015947%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000234.html">
+   <LINK REL="Next"  HREF="000236.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1279 - in antargis/trunk: . data/gui ext/3dengine	ext/video rookey rookey/configs rookey/externals	rookey/maintainenance ruby ruby/spec</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1279%20-%20in%20antargis/trunk%3A%20.%20data/gui%20ext/3dengine%0A%09ext/video%20rookey%20rookey/configs%20rookey/externals%0A%09rookey/maintainenance%20ruby%20ruby/spec&In-Reply-To=%3C200807171939.m6HJdJdf015947%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1279 - in antargis/trunk: . data/gui ext/3dengine	ext/video rookey rookey/configs rookey/externals	rookey/maintainenance ruby ruby/spec">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Thu Jul 17 21:39:19 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000234.html">[Antargis-svn] r1278 - in antargis/trunk/rookey: . configs
+</A></li>
+        <LI>Next message: <A HREF="000236.html">[Antargis-svn] r1280 - in antargis/trunk/rookey: . configs	maintainenance
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#235">[ date ]</a>
+              <a href="thread.html#235">[ thread ]</a>
+              <a href="subject.html#235">[ subject ]</a>
+              <a href="author.html#235">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2008-07-17 21:39:17 +0200 (Thu, 17 Jul 2008)
+New Revision: 1279
+
+Added:
+   antargis/trunk/AUTHORS
+   antargis/trunk/data/gui/antargis.icns
+   antargis/trunk/rookey/config_class.rb
+   antargis/trunk/rookey/maintainenance/
+   antargis/trunk/rookey/maintainenance/Rakefile
+   antargis/trunk/ruby/spec/spec_files.rb
+Modified:
+   antargis/trunk/ext/3dengine/ag_glsl.cc
+   antargis/trunk/ext/video/ag_gl.h
+   antargis/trunk/rookey/config_generator.rb
+   antargis/trunk/rookey/configs/gl.rb
+   antargis/trunk/rookey/configs/ruby.rb
+   antargis/trunk/rookey/externals/
+   antargis/trunk/rookey/tasks.rb
+   antargis/trunk/ruby/antargislib.rb
+Log:
+Incomplete - task 18: MinGW on MacOSX 
+<A HREF="http://localhost:3000/issues/show/18">http://localhost:3000/issues/show/18</A>
+
+Added: antargis/trunk/AUTHORS
+===================================================================
+--- antargis/trunk/AUTHORS	2008-07-13 13:31:38 UTC (rev 1278)
++++ antargis/trunk/AUTHORS	2008-07-17 19:39:17 UTC (rev 1279)
+@@ -0,0 +1,42 @@
++development &amp; art:
++David Kamphausen &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">david.kamphausen at web.de</A>&gt;
++
++contributors:
++Yura Semashko (Yurand) &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">yurand at land.ru</A>&gt;
++Alexandru Lazar (std) &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">std at cwazy.co.uk</A>&gt;
++Toby Haynes (Nexus6)
++Chris Smith (Sparky)
++Andreas Bresser (Pscho)
++
++Story:
++David Kamphausen (Godrin)
++Gonzalo Baltan&#225;s (Nerian)
++Alexandru Lazar
++
++Translators:
++Gonzalo Baltan&#225;s (Nerian)
++
++Music &amp; Sounds:
++Mr.Maudaline
++
++Arts:
++Jason Lutes (portraits from Wesnoth)
++
++
++For more information on contributors or so have a look at the &quot;People&quot; page in the wiki:
++<A HREF="http://antargis.berlios.de/wiki/index.php/People">http://antargis.berlios.de/wiki/index.php/People</A>
++
++some images were taken/inspired from the wesnoth-project (www.wesnoth.org)
++some authors are:
++Copyright (C) 2003,2004,2005 David White
++Copyright (C) 2005 Guillaume Melquiond
++Copyright (C) 2005 Philippe Plantier
++Copyright (C) 2005 Yann Dirson
++Copyright (C) 2005 Isaac Clerencia
++
++For more authors of images please have a look at their website.
++
++The gui/src/sge* files were taken from libSGE. Have a look at these files or at <A HREF="http://www.etek.chalmers.se/~e8cal1/sge/">http://www.etek.chalmers.se/~e8cal1/sge/</A> for AUTHOR's information.
++LibSGE is published under LGPL, which corresponds to AntargisGUILib.
++
++The files under gui/src/mtwist are licensed under LGPL and are copyrighted to Geoff Kuenning. Download the sources from <A HREF="http://lasr.cs.ucla.edu/geoff/mtwist.html#downloading.">http://lasr.cs.ucla.edu/geoff/mtwist.html#downloading.</A>
+\ No newline at end of file
+
+Added: antargis/trunk/data/gui/antargis.icns
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/trunk/data/gui/antargis.icns
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Modified: antargis/trunk/ext/3dengine/ag_glsl.cc
+===================================================================
+--- antargis/trunk/ext/3dengine/ag_glsl.cc	2008-07-13 13:31:38 UTC (rev 1278)
++++ antargis/trunk/ext/3dengine/ag_glsl.cc	2008-07-17 19:39:17 UTC (rev 1279)
+@@ -1,3 +1,4 @@
++#include &quot;ag_gl.h&quot;
+ #include &quot;ag_glsl.h&quot;
+ #include &quot;ag_vdebug.h&quot;
+ #include &quot;ag_main.h&quot;
+
+Modified: antargis/trunk/ext/video/ag_gl.h
+===================================================================
+--- antargis/trunk/ext/video/ag_gl.h	2008-07-13 13:31:38 UTC (rev 1278)
++++ antargis/trunk/ext/video/ag_gl.h	2008-07-17 19:39:17 UTC (rev 1279)
+@@ -3,10 +3,12 @@
+ 
+ #include &lt;GLee.h&gt;
+ 
++#ifdef __APPLE__
+ // patch for mac os
+ #ifdef GL_GLEXT_VERSION
+ #undef GL_GLEXT_VERSION
+ #endif
++#endif
+ 
+ #include &lt;SDL_opengl.h&gt;
+ #include &lt;GL/glu.h&gt;
+
+Added: antargis/trunk/rookey/config_class.rb
+===================================================================
+--- antargis/trunk/rookey/config_class.rb	2008-07-13 13:31:38 UTC (rev 1278)
++++ antargis/trunk/rookey/config_class.rb	2008-07-17 19:39:17 UTC (rev 1279)
+@@ -0,0 +1,33 @@
++module Rookey
++  
++  # Rookeys Config-hash. 
++  class Config
++    def initialize(hash={})
++      @hash=hash
++    end
++    def [](name)
++      @hash[name]||&quot;&quot;
++    end
++    def []=(name,value)
++      @hash[name]=value
++    end
++    def add(name,value)
++      @hash[name]||=&quot;&quot;
++      @hash[name]+=&quot; &quot;+value
++    end
++  end
++  @@config=nil
++  
++  def Rookey.getConfig
++    if @@config.nil?
++      if File.exists?(Rookey::CONFIG_FILENAME)
++        load Rookey::CONFIG_FILENAME
++      else 
++        runConfigure
++        hibe(@@config,Rookey::CONFIG_FILENAME)
++      end
++      CLEAN &lt;&lt; Rookey::CONFIG_FILENAME
++    end
++    @@config
++  end 
++end
+\ No newline at end of file
+
+Modified: antargis/trunk/rookey/config_generator.rb
+===================================================================
+--- antargis/trunk/rookey/config_generator.rb	2008-07-13 13:31:38 UTC (rev 1278)
++++ antargis/trunk/rookey/config_generator.rb	2008-07-17 19:39:17 UTC (rev 1279)
+@@ -1,4 +1,6 @@
+ 
++require File.join(File.split(__FILE__)[0],'config_class.rb')
++
+ class Class
+   def provides(s=nil)
+     @provides||=[]
+@@ -14,40 +16,10 @@
+ 
+ module Rookey
+   
+-  # Rookeys Config-hash. 
+-  class Config
+-    def initialize(hash={})
+-      @hash=hash
+-    end
+-    def [](name)
+-      @hash[name]||&quot;&quot;
+-    end
+-    def []=(name,value)
+-      @hash[name]=value
+-    end
+-    def add(name,value)
+-      @hash[name]||=&quot;&quot;
+-      @hash[name]+=&quot; &quot;+value
+-    end
+-  end
+   
+   CONFIG_FILENAME=&quot;config_cache.rb&quot;
+   
+-  @@config=nil
+   
+-  def Rookey.getConfig
+-    if @@config.nil?
+-      if File.exists?(Rookey::CONFIG_FILENAME)
+-        load Rookey::CONFIG_FILENAME
+-	    else 
+-	      runConfigure
+-        hibe(@@config,Rookey::CONFIG_FILENAME)
+-	    end
+-      CLEAN &lt;&lt; Rookey::CONFIG_FILENAME
+-    end
+-    @@config
+-  end 
+-  
+   # stores a dumpable ruby-object *what* into a file named *filename*
+   def Rookey.hibe(what,filename)
+     content=Marshal.dump(what).gsub(&quot;\&quot;&quot;,&quot;\\\&quot;&quot;)
+
+Modified: antargis/trunk/rookey/configs/gl.rb
+===================================================================
+--- antargis/trunk/rookey/configs/gl.rb	2008-07-13 13:31:38 UTC (rev 1278)
++++ antargis/trunk/rookey/configs/gl.rb	2008-07-17 19:39:17 UTC (rev 1279)
+@@ -12,7 +12,7 @@
+           config.add(&quot;INCLUDEDIRS&quot;,&quot;/usr/X11/include&quot;)        
+           config.add(&quot;LDFLAGS&quot;,&quot;-Wl,-framework,OpenGL&quot;)
+         when /win32/
+-          config.add(&quot;INCLUDEDIRS&quot;,&quot;/usr/X11/include&quot;)        
++          #config.add(&quot;INCLUDEDIRS&quot;,&quot;/usr/X11/include&quot;)        
+           config.add(&quot;LDFLAGS&quot;,&quot;-lopengl32 -lglu32&quot;)
+         else
+           config.add(&quot;LDFLAGS&quot;,&quot;-lGL -lGLU&quot;)
+
+Modified: antargis/trunk/rookey/configs/ruby.rb
+===================================================================
+--- antargis/trunk/rookey/configs/ruby.rb	2008-07-13 13:31:38 UTC (rev 1278)
++++ antargis/trunk/rookey/configs/ruby.rb	2008-07-17 19:39:17 UTC (rev 1279)
+@@ -19,6 +19,9 @@
+ 		      {&quot;CPP&quot;=&gt;&quot;GPP_BASE&quot;,&quot;CC&quot;=&gt;&quot;GCC_BASE&quot;}.each{|name,base|      
+ 		        config[name]=searchProgram(config[base])
+ 		      }
++          
++          config.add(&quot;CFLAGS&quot;,&quot;-pg&quot;) if ROOKEY_CONFIG[:profile]
++          config.add(&quot;LDFLAGS&quot;,&quot;-pg&quot;) if ROOKEY_CONFIG[:profile]
+ 	    end
+ 	    
+ 	  private
+
+
+Property changes on: antargis/trunk/rookey/externals
+___________________________________________________________________
+Name: svn:ignore
+   - build
+
+   + build
+swig-*
+temp
+
+
+Added: antargis/trunk/rookey/maintainenance/Rakefile
+===================================================================
+--- antargis/trunk/rookey/maintainenance/Rakefile	2008-07-13 13:31:38 UTC (rev 1278)
++++ antargis/trunk/rookey/maintainenance/Rakefile	2008-07-17 19:39:17 UTC (rev 1279)
+@@ -0,0 +1,196 @@
++require 'ostruct'
++require 'ftools'
++
++alias :oldSystem :system
++def system(s)
++  puts s
++  oldSystem(s)
++end
++
++  
++
++class RookeyDist
++  def initialize(config)
++    @config=config
++
++    @baseDir=Dir.pwd
++    
++    @distDir=File.join(@baseDir,&quot;packages&quot;)
++  end
++
++  def distDarwin
++    sDir=sourceDir
++    sDir=sDir[0..0].upcase+sDir[1..-1]
++    
++    mkdir(sDir)
++    
++    aDir=File.join(sDir,sDir+&quot;.app&quot;)
++
++    mkdir(aDir)
++    cDir=File.join(aDir,&quot;Contents&quot;)
++    mkdir(cDir)
++    mDir=File.join(cDir,&quot;MacOS&quot;)
++    mkdir(mDir)
++    rDir=File.join(cDir,&quot;Resources&quot;)
++    mkdir(rDir)
++    
++    cp(&quot;../../antargis.bundle&quot;,mDir)
++    cp(&quot;../../antargis&quot;,mDir)
++    cp(&quot;../../data/gui/antargis.icns&quot;,rDir)
++    File.copy(&quot;../../data/gui/antargis.icns&quot;,File.join(sDir,&quot;.VolumeIcon.icns&quot;))
++#    File.copy(&quot;/Volumes/Firefox/.VolumeIcon.icns&quot;,File.join(sDir,&quot;.VolumeIcon.icns&quot;))
++    
++    f=File.open(File.join(cDir,&quot;PkgInfo&quot;),&quot;w&quot;)
++    f.puts(&quot;APPL????&quot;)
++    f.close
++    
++    
++    f=File.open(File.join(cDir,&quot;Info.plist&quot;),&quot;w&quot;)
++f.puts '&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
++    &lt;!DOCTYPE plist PUBLIC &quot;-//Apple//DTD PLIST 1.0//EN&quot; &quot;<A HREF="http://www.apple.com/DTDs/PropertyList-1.0.dtd">http://www.apple.com/DTDs/PropertyList-1.0.dtd</A>&quot;&gt;
++    &lt;plist version=&quot;1.0&quot;&gt;
++    &lt;dict&gt;
++      &lt;key&gt;CFBundleDevelopmentRegion&lt;/key&gt;
++      &lt;string&gt;English&lt;/string&gt;
++      &lt;key&gt;CFBundleExecutable&lt;/key&gt;
++      &lt;string&gt;antargis&lt;/string&gt;
++      &lt;key&gt;CFBundleIdentifier&lt;/key&gt;
++      &lt;string&gt;com.apple.rubycocoa.testRubyApp&lt;/string&gt;
++      &lt;key&gt;CFBundleInfoDictionaryVersion&lt;/key&gt;
++      &lt;string&gt;6.0&lt;/string&gt;
++      &lt;key&gt;CFBundlePackageType&lt;/key&gt;
++      &lt;string&gt;APPL&lt;/string&gt;
++      &lt;key&gt;CFBundleShortVersionString&lt;/key&gt;
++      &lt;string&gt;1.0&lt;/string&gt;
++      &lt;key&gt;CFBundleSignature&lt;/key&gt;
++      &lt;string&gt;????&lt;/string&gt;
++      &lt;key&gt;CFBundleVersion&lt;/key&gt;
++      &lt;string&gt;1.0&lt;/string&gt;
++      &lt;key&gt;NSMainNibFile&lt;/key&gt;
++      &lt;string&gt;MainMenu&lt;/string&gt;
++      &lt;key&gt;NSPrincipalClass&lt;/key&gt;
++      &lt;string&gt;NSApplication&lt;/string&gt;
++      &lt;key&gt;CFBundleIconFile&lt;/key&gt;
++      &lt;string&gt;antargis.icns&lt;/string&gt;
++    &lt;/dict&gt;
++    &lt;/plist&gt;'
++f.close
++
++		system &quot;cp -R ../../data &quot;+mDir
++		system &quot;cp -R ../../antargisStarter.rb &quot;+mDir
++		system &quot;cp -R ../../ruby &quot;+mDir
++		system &quot;find #{cDir} -name '*.svn'|xargs rm -rf&quot;
++		
++    #FIXME GPL+authors+README, etc    
++		
++		system &quot;hdiutil create -scrub -volname Antargis -srcfolder #{sDir} #{sDir}.dmg&quot;
++    
++    system &quot;rm -rf &quot;+sDir
++  end
++    
++  def distSource
++    system(&quot;cd ../.. &amp;&amp; ./configure &amp;&amp; rake&quot;)
++    sDir=sourceDir
++    mkdir(sDir)
++    copyMainTo(sDir)
++    copySourcesTo(sDir)
++    [&quot;Rakefile&quot;,&quot;configure&quot;].each{|f|
++      cp(&quot;../../&quot;+f,sDir)
++    }
++    
++    #system &quot;tar cfz #{sDir}.tar.gz #{sDir}&quot;
++    #system &quot;tar cfj #{sDir}.tar.bz2 #{sDir}&quot;
++    #system &quot;zip -r #{sDir}.zip #{sDir}&quot;
++    checkSource(sDir)
++  end
++  
++  def prepareDistribution
++  end
++  
++  private
++  
++  def checkSource(dir)
++    system &quot;cd #{dir} &amp;&amp; export PATH=/usr/bin &amp;&amp; ./configure &amp;&amp; rake &amp;&amp; rake spec&quot;
++    raise &quot;Did not work&quot; if $?!=0
++  end
++  
++  def cp(from,todir)
++    File.copy(from,File.join(todir,File.split(from)[1]))
++  end
++  
++  def copySourcesTo(dir)
++    copyDirTo(&quot;../../ext&quot;,File.join(dir,&quot;ext&quot;),[&quot;cc&quot;,&quot;h&quot;,&quot;Rakefile&quot;,&quot;c&quot;,&quot;i&quot;])
++    copyDirTo(&quot;../../rookey&quot;,File.join(dir,&quot;rookey&quot;),[&quot;rb&quot;,&quot;h&quot;,&quot;Rakefile&quot;,&quot;c&quot;,&quot;i&quot;,&quot;cc&quot;])
++    require '../config_class.rb'
++    require '../../config_cache.rb'
++    copy(&quot;../../.build_&quot;+Rookey.getConfig[&quot;host_os&quot;]+&quot;/antargis_swig.cc&quot;,dir)
++    copy(&quot;../../.build_&quot;+Rookey.getConfig[&quot;host_os&quot;]+&quot;/antargis_swig.h&quot;,dir)
++  end
++  
++  def copyMainTo(dir)
++    copyDirTo(&quot;../../data&quot;,File.join(dir,&quot;data&quot;),[&quot;png&quot;,&quot;xml&quot;,&quot;wav&quot;,&quot;mp3&quot;,&quot;ant2&quot;,&quot;ant4&quot;,&quot;anim&quot;,&quot;antlvl&quot;,&quot;rb&quot;,&quot;hmap&quot;])
++    copyDirTo(&quot;../../ruby&quot;,File.join(dir,&quot;ruby&quot;),[&quot;rb&quot;])
++    [&quot;COPYING&quot;,&quot;ChangeLog&quot;,&quot;INSTALL&quot;,&quot;AUTHORS&quot;,&quot;README&quot;,&quot;TODO&quot;].each{|file|
++      cp(&quot;../../&quot;+file,dir)
++    }
++  end
++  
++  def copyDirTo(from,to,filetypes,exclude=['\..*'])
++    puts from
++    mkdir(to) unless File.directory?(to)
++    Dir[File.join(from,&quot;*&quot;)].each{|entry|
++      entry=File.split(entry)[1]
++     #puts entry
++      fromPath=File.join(from,entry)
++      toPath=File.join(to,entry)
++      if File.directory?(fromPath)
++        if exclude.select{|regex|entry=~/#{regex}/}.length==0
++          mkdir(toPath)
++          copyDirTo(fromPath,toPath,filetypes)
++        end
++      else
++        if filetypes.member?(entry.gsub(/.*\./,&quot;&quot;))
++          copy(fromPath,toPath)
++        end
++      end
++    }
++  end
++  
++  def mkdir(d)
++    return if File.directory?(d)
++    puts &quot;MKDIR #{d}&quot;
++    begin
++      Dir.mkdir(d)
++    rescue
++      if d=~/\//
++        mkdir(File.split(d)[0])
++        begin
++          Dir.mkdir(d)
++        rescue
++          puts &quot;FAIELD MKDIR #{d}&quot;
++        end
++      else
++        puts &quot;FAILED MKDIR #{d}&quot;
++      end
++    end
++  end
++  
++  def sourceDir
++    @config.name+&quot;-&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">+ at config.version</A>
++  end
++end
++
++DistConfig=Struct.new(:name,:version)
++
++task :dist do
++  config=DistConfig.new(&quot;antargis&quot;,&quot;0.3&quot;)
++  d=RookeyDist.new(config)
++  #d.distDarwin
++  d.distSource
++  #dist(:win32)
++  #dist(:source)
++end
++
++task :clean do
++  system &quot;rm -rf Antargis* antargis*&quot;
++end
+\ No newline at end of file
+
+Modified: antargis/trunk/rookey/tasks.rb
+===================================================================
+--- antargis/trunk/rookey/tasks.rb	2008-07-13 13:31:38 UTC (rev 1278)
++++ antargis/trunk/rookey/tasks.rb	2008-07-17 19:39:17 UTC (rev 1279)
+@@ -143,19 +143,22 @@
+   def Rookey.ruby_ext(name,files,inits)
+     headerFiles=files.select{|f|f=~/h$/}
+     libs=files.select{|f|f=~/so$/ or f=~/bundle/}
+-    swigInterfaces=libs.map{|f|f.sub(/\.[a-zA-Z]+$/,&quot;.i&quot;)}
+-    swigInterfaces=files.select{|f|f=~/i$/}
+-    swigInterface = Rookey::swig_interface(name=&gt;headerFiles+swigInterfaces,:initializers=&gt;inits)
++
+     cppFiles=files.select{|f|f=~/c$/}
+ 
+     sourceDirs=files.map{|file|File.split(file)[0]}.sort.uniq
+-    
++
+     config=Rookey::getConfig
+     sourceDirs &lt;&lt; &quot;.&quot;
+     config.add(&quot;INCLUDEDIRS&quot;,sourceDirs.join(&quot; &quot;))
+     
+     compiler=Rookey::Compiler.new(config)
+-        
++            
++    #FIXME: check if swig is present
++    
++    swigInterfaces=libs.map{|f|f.sub(/\.[a-zA-Z]+$/,&quot;.i&quot;)}
++    swigInterfaces=files.select{|f|f=~/i$/}
++    swigInterface = Rookey::swig_interface(name=&gt;headerFiles+swigInterfaces,:initializers=&gt;inits)
+     swigTarget = Rookey::swig({File.join(compiler.getPlainBuildDir,name+&quot;_swig.cc&quot;)=&gt;swigInterface},config)
+     
+     
+
+Modified: antargis/trunk/ruby/antargislib.rb
+===================================================================
+--- antargis/trunk/ruby/antargislib.rb	2008-07-13 13:31:38 UTC (rev 1278)
++++ antargis/trunk/ruby/antargislib.rb	2008-07-17 19:39:17 UTC (rev 1279)
+@@ -70,8 +70,13 @@
+ 
+   def eventPrepareFrame(t)
+     if $enableLogging and not $demoMode
+-      @@eventDebugging||=File.open(&quot;events.txt&quot;,&quot;w&quot;)
+-      @@eventDebugging.puts &quot;T: #{t}&quot;
++      begin
++        @@eventDebugging||=File.open(&quot;events.txt&quot;,&quot;w&quot;)
++        @@eventDebugging.puts &quot;T: #{t}&quot;
++      rescue
++        puts &quot;Cannot write events.txt - disabling loggin&quot;
++        $enableLogging=false
++      end
+       #puts &quot;TIME #{t}&quot;
+     end
+     return false
+
+Added: antargis/trunk/ruby/spec/spec_files.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_files.rb	2008-07-13 13:31:38 UTC (rev 1278)
++++ antargis/trunk/ruby/spec/spec_files.rb	2008-07-17 19:39:17 UTC (rev 1279)
+@@ -0,0 +1,5 @@
++describe &quot;Package&quot; do
++  it &quot;should have some files included&quot; do
++    files=[&quot;COPYING&quot;,&quot;ChangeLog&quot;,&quot;INSTALL&quot;,&quot;AUTHORS&quot;,&quot;README&quot;,&quot;TODO&quot;]
++  end
++end
+\ No newline at end of file
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000234.html">[Antargis-svn] r1278 - in antargis/trunk/rookey: . configs
+</A></li>
+	<LI>Next message: <A HREF="000236.html">[Antargis-svn] r1280 - in antargis/trunk/rookey: . configs	maintainenance
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#235">[ date ]</a>
+              <a href="thread.html#235">[ thread ]</a>
+              <a href="subject.html#235">[ subject ]</a>
+              <a href="author.html#235">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,371 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1168 - in antargis/branches/rant/ruby: . entities	tests
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-September/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1168%20-%20in%20antargis/branches/rant/ruby%3A%20.%20entities%0A%09tests&In-Reply-To=%3C200709021722.l82HM0Gt017327%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000126.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1168 - in antargis/branches/rant/ruby: . entities	tests</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1168%20-%20in%20antargis/branches/rant/ruby%3A%20.%20entities%0A%09tests&In-Reply-To=%3C200709021722.l82HM0Gt017327%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1168 - in antargis/branches/rant/ruby: . entities	tests">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sun Sep  2 19:22:00 CEST 2007</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000126.html">[Antargis-svn] r1169 - in antargis/branches/rant/ruby: . jobs	state_machine state_machine/spec state_machine/tests
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#125">[ date ]</a>
+              <a href="thread.html#125">[ thread ]</a>
+              <a href="subject.html#125">[ subject ]</a>
+              <a href="author.html#125">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-09-02 19:22:00 +0200 (Sun, 02 Sep 2007)
+New Revision: 1168
+
+Modified:
+   antargis/branches/rant/ruby/README
+   antargis/branches/rant/ruby/ant_hljobs.rb
+   antargis/branches/rant/ruby/ant_tools.rb
+   antargis/branches/rant/ruby/entities/entities.rb
+   antargis/branches/rant/ruby/map.rb
+   antargis/branches/rant/ruby/tests/impostor.rb
+   antargis/branches/rant/ruby/view.rb
+Log:
+* some new files
+
+
+Modified: antargis/branches/rant/ruby/README
+===================================================================
+--- antargis/branches/rant/ruby/README	2007-08-30 18:32:20 UTC (rev 1167)
++++ antargis/branches/rant/ruby/README	2007-09-02 17:22:00 UTC (rev 1168)
+@@ -20,10 +20,6 @@
+ 
+ == BoA's world
+ 
+-=== Entities
+-The basic objects of the game, like trees, people, buildings and so forth are called entities.
+-To read more about entities go here: link:files/ruby/entities/README.html
+-
+ === Map
+ A map represents the complete world of BoA. It consists of:
+ * a height-map
+@@ -34,3 +30,11 @@
+ * C++-HeightMap
+ * C++-AntargisMap
+ 
++
++=== Entities
++The basic objects of the game, like trees, people, buildings and so forth are called entities.
++To read more about entities go here: link:files/ruby/entities/README.html
++
++=== Jobs
++Each entity has a job, a low-level-job (LLJob) to be more specific. Certain entities additionally have high-level-jobs (HLJobs).
++For more information on this topic head on to link:files/ruby/jobs/README.html
+\ No newline at end of file
+
+Modified: antargis/branches/rant/ruby/ant_hljobs.rb
+===================================================================
+--- antargis/branches/rant/ruby/ant_hljobs.rb	2007-08-30 18:32:20 UTC (rev 1167)
++++ antargis/branches/rant/ruby/ant_hljobs.rb	2007-09-02 17:22:00 UTC (rev 1168)
+@@ -27,6 +27,9 @@
+ 
+ require 'entities.rb'
+ 
++if false
++
++
+ # Base class for high-level jobs. It contains the basic functions that're needed for usage within
+ # AntBoss (AntHero and AntHouse)
+ class AntHLJob
+@@ -1121,5 +1124,7 @@
+ 	return false
+ end
+ 
+-#require 'ant_new_hljobs.rb'
++end
+ 
++require 'jobs/ant_new_hljobs.rb'
++
+
+Modified: antargis/branches/rant/ruby/ant_tools.rb
+===================================================================
+--- antargis/branches/rant/ruby/ant_tools.rb	2007-08-30 18:32:20 UTC (rev 1167)
++++ antargis/branches/rant/ruby/ant_tools.rb	2007-09-02 17:22:00 UTC (rev 1168)
+@@ -1,4 +1,4 @@
+-require &quot;ant_sound.rb&quot;
++require &quot;ruby/ant_sound.rb&quot;
+ 
+ def getMeshData(file,zoom,texture=&quot;&quot;,shadow=true)
+ 	id=file+&quot;:&quot;+texture
+@@ -72,9 +72,15 @@
+ 	puts &quot;TRACE #{caller[0]}&quot;
+ end
+ 
+-def assert(&amp;block)
++class AntargisException&lt;Exception
++	attr_accessor :text
++end
++
++def assert(text=&quot;&quot;,&amp;block)
+ 	if not block.call
+-		raise &quot;Assertion #{block} failed in #{caller[0]} #{block.binding}&quot;
++		exception=AntargisException.new
++		exception.text=&quot;#{text} #{block} failed in #{caller[0]} #{block.binding}&quot;
++		raise exception
+ 	end
+ end
+ 
+
+Modified: antargis/branches/rant/ruby/entities/entities.rb
+===================================================================
+--- antargis/branches/rant/ruby/entities/entities.rb	2007-08-30 18:32:20 UTC (rev 1167)
++++ antargis/branches/rant/ruby/entities/entities.rb	2007-09-02 17:22:00 UTC (rev 1168)
+@@ -38,9 +38,12 @@
+ 	end
+ 
+ 
+-
+-	def initialize(p)
+-		super(p)
++	# create a new entity at the position *p*
++	# set some default settings
++	# get a unique ID
++	# loading must be done externally in loadXML !
++	def initialize(position)
++		super(position)
+ 		@xmlProps={}
+ 		@birthday=getMap.getTime
+ 		@mode=&quot;&quot;
+@@ -49,8 +52,6 @@
+ 	
+ 		@uid=getMap.getUniqueID
+ 
+-		#self.experience=0
+-
+ 		setHunger(0) # general entities have no hunger
+ 	end
+ 
+@@ -115,7 +116,10 @@
+ 		_(&quot;This is an entity - no more info here.&quot;)
+ 	end
+ 
++	# :section: miscellanous
++
+ 	# simple comparison operator, so that ents can be distinguished
++	# for what is this needed ???
+ 	def &lt;=&gt;(e)
+ 		to_s&lt;=&gt;e.to_s
+ 	end
+@@ -149,9 +153,12 @@
+ 		super
+ 		setMoraleStrength(v*2)
+ 	end
++
++	# get the age of this entity - computed from @birthday
+ 	def age
+ 		((<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">getMap.getTime- at birthday</A>).to_f/YEAR).to_i
+ 	end
++	# @birthday will be set according to the current date (get it by calling getMap.getTime)
+ 	def age=(years)
+ 		@birthday=getMap.getTime-years*YEAR
+ 	end
+@@ -250,6 +257,10 @@
+ 
+ 	# :section: state-changes
+ 
++	# set a mesh for this entity - have a look at AntModels for more information on how this works
++	# * normally you give a subtype or nothing at all to this function and AntModels will take care of the right
++	#   mesh. *sym* override the current entities type.
++	# * you can pipe in a SceneNode-based object through *subtype* though this is no good !
+ 	def setMesh(subtype=&quot;&quot;,sym=nil)
+ 		if subtype.is_a?(SceneNode)
+ 			puts  &quot;THIS SHOULD NOT BE USED ANY LONGER: setMesh(realMesh) !!!!!!!!!!!!&quot;
+
+Modified: antargis/branches/rant/ruby/map.rb
+===================================================================
+--- antargis/branches/rant/ruby/map.rb	2007-08-30 18:32:20 UTC (rev 1167)
++++ antargis/branches/rant/ruby/map.rb	2007-09-02 17:22:00 UTC (rev 1168)
+@@ -483,7 +483,7 @@
+ 
+ 	def createPathfinder
+ 		@path=CombinedPathFinder.new(self)
+-		@path.displayPathfindingGraph(self,getScene)
++		#@path.displayPathfindingGraph(self,getScene)
+ 	end
+ 
+ 	def createPathfinderOLD
+
+Modified: antargis/branches/rant/ruby/tests/impostor.rb
+===================================================================
+--- antargis/branches/rant/ruby/tests/impostor.rb	2007-08-30 18:32:20 UTC (rev 1167)
++++ antargis/branches/rant/ruby/tests/impostor.rb	2007-09-02 17:22:00 UTC (rev 1168)
+@@ -1,98 +1,40 @@
+ #!/usr/bin/env ruby
+ 
+ require 'ruby/antargislib.rb'
+-require 'ruby/ant_models.rb'
+ 
+-class MMap
+-	def getScene
+-		$scene
+-	end
+-end
+ 
+-def getMap
+-	MMap.new
+-end
+ 
+ class MyApp&lt;GLApp
+-	@@types=[]
+-	AntModels.getMeshMap.each{|k,v|
+-		puts &quot;#{k}(#{k.class}):#{v} #{v.class}&quot;
+-		v.each{|x,y|
+-			assert{!(k.is_a?(Hash)||x.is_a?(Hash))}
+-			x.each{|xi|
+-				@@types&lt;&lt;[k,xi]
+-				puts &quot;K:#{k}(#{k.class}) Y:#{x}(#{x.class})&quot;
+-			}
+-		}
+-	}
+-	puts @@types.inspect
+-	
+ 	def initialize(w,h)
+ 		super
+-		$scene=getScene
++		#node=Mesh.new(getScene,getMeshData(&quot;data/models/sack.ant2&quot;,0.3,&quot;data/textures/models/sack.png&quot;),AGVector4.new(0,0,0),0)
++		node=Mesh.new(getScene,getMeshData(&quot;data/models/workshop.ant2&quot;,0.18,&quot;data/textures/models/workshop.png&quot;),AGVector4.new(0,0,0),-50)
+ 
+-		hotpoints={}
++		getScene.addNode(node)
+ 
+-		#@@types=[[:man,&quot;stand&quot;]]
++		imp=AntImpostorData.new(node)
+ 
+-		tex=nil
+-		@@types.each{|t,t2|
+-			puts &quot;TRY CREATE #{t}(#{t.class}) #{t2}(#{t2.class})&quot;
+-			node=AntModels.createModel(t,t2)
+-			puts &quot;#{t}:#{t2} failed creation&quot; if node.nil?
+-			if node.is_a?(AnimMesh)
+-				anims=node.getData.getAnimations
+-				puts &quot;# anims:#{anims.length}&quot;
+-				anims.collect!{|s|s.to_s+&quot;&quot;}
+-				anim=anims[0]
+-				if anims.member?(t2.to_s)
+-					anim=t2
+-# 				else
+-# 					anims.each{|a|puts &quot;#{a}(#{a.class})&quot;}
+-# 					puts &quot;t2:#{t2} (#{t2.class})&quot;
+-# 					raise 1
+-				end
+-				puts &quot;anim:#{anim}&quot;
+-				node.setAnimation(anim.to_s)
+-				node.advance(0.1)
+-				node.setRotation(30)
+-			end
+-			$scene.addNode(node)
+-			imp=AntImpostorData.new(node,512,512)
+-	
+-			tex=imp.getTexture
+-			name=t.to_s
+-			if t2
+-				name+=&quot;_&quot;+(t2.to_s)	
+-			end
+-			name+=&quot;.png&quot;
+-			surface=imp.getSurface
+-			p=surface.shrink2Fit
+-	
+-			hotpoints[name]=p
+-			surface.save(name)
+-			getScene.removeNode(node)
+-		}
+-
+-		text=&quot;&quot;
+-		hotpoints.each{|k,v|text+=k+&quot;:&quot;+(v.to_s)+&quot;\n&quot;}
+-		saveFile(&quot;hotspots.txt&quot;,text)
++		tex=imp.getTexture
+ 			
+-# 		image=AGImage.new(nil,AGRect2.new(0,0,tex.width,tex.height),tex,false)
+-# 		setMainWidget(image)
++		image=AGImage.new(nil,AGRect2.new(0,0,tex.width,tex.height),tex,false)
++		setMainWidget(image)
+ 		
+-		#getScene.removeNode(node)
++		getScene.removeNode(node)
+ 	end
+ 
+ 	def eventFrame(t)
+-# 		delay(100)
++		#imp=
++		delay(100)
+ 	puts t
+ 		return true
+ 	end
++
++#  	def draw(p)
++#  		p.blit(imp.getTexture)
++#  	end
+ end
+ 
+-#getMain.initVideo(512,512,32,false,true)
++#app=MyApp.new(128,128) #800,600)
++app=MyApp.new(1024,768) #800,600)
+ 
+-app=MyApp.new(1024,768)
+-
+ app.run
+
+Modified: antargis/branches/rant/ruby/view.rb
+===================================================================
+--- antargis/branches/rant/ruby/view.rb	2007-08-30 18:32:20 UTC (rev 1167)
++++ antargis/branches/rant/ruby/view.rb	2007-09-02 17:22:00 UTC (rev 1168)
+@@ -42,7 +42,9 @@
+ 
+ # AntRubyView is the central view class of antargis. It contains several sub-views like:
+ # * AntButtonPanel
++# * AntNameDisplay
+ # * FIXME
++#
+ class AntRubyView &lt;AntBaseMapView
+ 	def initialize(w,h)
+ 		super(w,h)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000126.html">[Antargis-svn] r1169 - in antargis/branches/rant/ruby: . jobs	state_machine state_machine/spec state_machine/tests
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#125">[ date ]</a>
+              <a href="thread.html#125">[ thread ]</a>
+              <a href="subject.html#125">[ subject ]</a>
+              <a href="author.html#125">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

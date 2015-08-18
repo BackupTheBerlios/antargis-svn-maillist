@@ -1,0 +1,122 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1097 - antargis/branches/branch_2d/ruby/tests
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-May/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1097%20-%20antargis/branches/branch_2d/ruby/tests&In-Reply-To=%3C200705130845.l4D8jCTq012208%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000054.html">
+   <LINK REL="Next"  HREF="000056.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1097 - antargis/branches/branch_2d/ruby/tests</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1097%20-%20antargis/branches/branch_2d/ruby/tests&In-Reply-To=%3C200705130845.l4D8jCTq012208%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1097 - antargis/branches/branch_2d/ruby/tests">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sun May 13 10:45:12 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000054.html">[Antargis-svn] r1096 - in antargis/branches/branch_2d: gui/src ruby	ruby/tests
+</A></li>
+        <LI>Next message: <A HREF="000056.html">[Antargis-svn] r1098 - in antargis/branches/branch_2d: . gui/src	ruby ruby/tests src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#55">[ date ]</a>
+              <a href="thread.html#55">[ thread ]</a>
+              <a href="subject.html#55">[ subject ]</a>
+              <a href="author.html#55">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-05-13 10:45:12 +0200 (Sun, 13 May 2007)
+New Revision: 1097
+
+Added:
+   antargis/branches/branch_2d/ruby/tests/dirty_rects.rb
+Log:
+* added missing file
+
+
+Added: antargis/branches/branch_2d/ruby/tests/dirty_rects.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/tests/dirty_rects.rb	2007-05-13 08:43:36 UTC (rev 1096)
++++ antargis/branches/branch_2d/ruby/tests/dirty_rects.rb	2007-05-13 08:45:12 UTC (rev 1097)
+@@ -0,0 +1,44 @@
++#!/usr/bin/env ruby
++
++require 'ruby/antargislib.rb'
++
++getMain.initVideo(800,600,32,false,false)
++
++
++class MyWidget&lt;AGWidget
++	def initialize(p,r)
++		super
++		@x=0
++		@y=0
++	end
++	def prepareDraw
++	end
++	def draw(p)
++		p.fillRect(AGRect2.new(0,0,300,300),AGColor.new(0,0,0))
++		p.fillRect(AGRect2.new(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">x, at y</A>,10,10),AGColor.new(0xFF,0,0))
++	end
++	def eventFrame(t)
++		@x+=2
++		@y+=1
++		@x%=207
++		@y%=293
++		#queryRedraw
++		pushChangeRect(AGRect2.new(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">x-2, at y-2</A>,12,12))
++	end
++end
++
++class MyApp&lt;AGApplication
++	def initialize
++		super
++		@imw=MyWidget.new(nil,AGRect2.new(0,0,800,600))
++		setMainWidget(@imw)
++	end
++	def eventFrame(t)
++		@imw.eventFrame(t)
++		delay(5)
++		true
++	end
++end
++
++app=MyApp.new
++app.run
+\ No newline at end of file
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000054.html">[Antargis-svn] r1096 - in antargis/branches/branch_2d: gui/src ruby	ruby/tests
+</A></li>
+	<LI>Next message: <A HREF="000056.html">[Antargis-svn] r1098 - in antargis/branches/branch_2d: . gui/src	ruby ruby/tests src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#55">[ date ]</a>
+              <a href="thread.html#55">[ thread ]</a>
+              <a href="subject.html#55">[ subject ]</a>
+              <a href="author.html#55">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

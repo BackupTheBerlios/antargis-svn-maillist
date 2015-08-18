@@ -1,0 +1,1085 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1049 - in antargis/trunk: . gui/src src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-February/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1049%20-%20in%20antargis/trunk%3A%20.%20gui/src%20src&In-Reply-To=%3C200702111516.l1BFGLrq024984%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000006.html">
+   <LINK REL="Next"  HREF="000008.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1049 - in antargis/trunk: . gui/src src</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1049%20-%20in%20antargis/trunk%3A%20.%20gui/src%20src&In-Reply-To=%3C200702111516.l1BFGLrq024984%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1049 - in antargis/trunk: . gui/src src">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sun Feb 11 16:16:21 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000006.html">[Antargis-svn] r1048 - antargis/trunk/data/shaders
+</A></li>
+        <LI>Next message: <A HREF="000008.html">[Antargis-svn] r1050 - in antargis/trunk: gui/src ruby
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#7">[ date ]</a>
+              <a href="thread.html#7">[ thread ]</a>
+              <a href="subject.html#7">[ subject ]</a>
+              <a href="author.html#7">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-02-11 16:16:20 +0100 (Sun, 11 Feb 2007)
+New Revision: 1049
+
+Added:
+   antargis/trunk/gui/src/ag_glscreen.cc
+   antargis/trunk/gui/src/ag_glscreen.h
+Removed:
+   antargis/trunk/gui/src/ag_glsurface.cc
+   antargis/trunk/gui/src/ag_glsurface.h
+Modified:
+   antargis/trunk/Rakefile
+   antargis/trunk/gui/src/ag_application.cc
+   antargis/trunk/gui/src/ag_button.cc
+   antargis/trunk/gui/src/ag_edit.cc
+   antargis/trunk/gui/src/ag_main.cc
+   antargis/trunk/gui/src/ag_painter.cc
+   antargis/trunk/gui/src/ag_surface.cc
+   antargis/trunk/gui/src/ag_surfacemanager.cc
+   antargis/trunk/gui/src/ag_texture.cc
+   antargis/trunk/src/antargisgui.h
+Log:
+* Dateien umbenannt
+
+
+Modified: antargis/trunk/Rakefile
+===================================================================
+--- antargis/trunk/Rakefile	2007-02-04 15:10:17 UTC (rev 1048)
++++ antargis/trunk/Rakefile	2007-02-11 15:16:20 UTC (rev 1049)
+@@ -38,7 +38,7 @@
+ &quot;ag_rubyobj.h&quot;,&quot;ag_messageobject.h&quot;,&quot;ag_serial.h&quot;,&quot;ag_aes.h&quot;,&quot;ag_singleton.h&quot;,
+  &quot;ag_geometry.h&quot;,&quot;ag_font.h&quot;,&quot;ag_color.h&quot;,&quot;ag_local.h&quot;,&quot;ag_config.h&quot;,&quot;ag_string.h&quot;,&quot;ag_string_utf8.h&quot;,
+  &quot;ag_widget.h&quot;,&quot;ag_colorbutton.h&quot;,&quot;ag_glwidget.h&quot;,&quot;ag_xml.h&quot;,&quot;ag_layout.h&quot;,&quot;ag_dialog.h&quot;,&quot;ag_mutex.h&quot;,
+- &quot;ag_application.h&quot;,&quot;ag_background.h&quot;,&quot;ag_border.h&quot;,&quot;ag_button.h&quot;,&quot;ag_text.h&quot;,&quot;ag_caption.h&quot;,&quot;ag_checkbox.h&quot;,&quot;ag_combo.h&quot;,&quot;ag_edit.h&quot;,&quot;ag_fontengine.h&quot;,&quot;ag_fs.h&quot;,&quot;ag_painttarget.h&quot;,&quot;ag_surface.h&quot;,&quot;ag_texture.h&quot;,&quot;ag_surfacemanager.h&quot;,&quot;ag_image.h&quot;,&quot;ag_layoutfactory.h&quot;,&quot;ag_listbox.h&quot;,&quot;ag_list.h&quot;,&quot;ag_main.h&quot;,&quot;ag_menu.h&quot;,&quot;ag_menuitem.h&quot;,&quot;ag_mixer.h&quot;,&quot;ag_mutex.h&quot;,&quot;ag_painter.h&quot;,&quot;ag_png.h&quot;,&quot;ag_radio.h&quot;,&quot;ag_screen.h&quot;,&quot;ag_glsurface.h&quot;,&quot;ag_table.h&quot;,&quot;ag_texturecache.h&quot;,&quot;ag_theme.h&quot;,&quot;ag_tools.h&quot;,&quot;ag_window.h&quot;,&quot;ag_xml.h&quot;,&quot;ag_screenwidget.h&quot;,&quot;ag_scroller.h&quot;,&quot;ag_plugin.h&quot;,&quot;ag_destructor.h&quot;]
++ &quot;ag_application.h&quot;,&quot;ag_background.h&quot;,&quot;ag_border.h&quot;,&quot;ag_button.h&quot;,&quot;ag_text.h&quot;,&quot;ag_caption.h&quot;,&quot;ag_checkbox.h&quot;,&quot;ag_combo.h&quot;,&quot;ag_edit.h&quot;,&quot;ag_fontengine.h&quot;,&quot;ag_fs.h&quot;,&quot;ag_painttarget.h&quot;,&quot;ag_surface.h&quot;,&quot;ag_texture.h&quot;,&quot;ag_surfacemanager.h&quot;,&quot;ag_image.h&quot;,&quot;ag_layoutfactory.h&quot;,&quot;ag_listbox.h&quot;,&quot;ag_list.h&quot;,&quot;ag_main.h&quot;,&quot;ag_menu.h&quot;,&quot;ag_menuitem.h&quot;,&quot;ag_mixer.h&quot;,&quot;ag_mutex.h&quot;,&quot;ag_painter.h&quot;,&quot;ag_png.h&quot;,&quot;ag_radio.h&quot;,&quot;ag_screen.h&quot;,&quot;ag_glscreen.h&quot;,&quot;ag_table.h&quot;,&quot;ag_texturecache.h&quot;,&quot;ag_theme.h&quot;,&quot;ag_tools.h&quot;,&quot;ag_window.h&quot;,&quot;ag_xml.h&quot;,&quot;ag_screenwidget.h&quot;,&quot;ag_scroller.h&quot;,&quot;ag_plugin.h&quot;,&quot;ag_destructor.h&quot;]
+ 
+ interfaceHeadersSRC.collect!{|s|&quot;src/&quot;+s}
+ interfaceHeadersGUI.collect!{|s|&quot;gui/src/&quot;+s}
+
+Modified: antargis/trunk/gui/src/ag_application.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_application.cc	2007-02-04 15:10:17 UTC (rev 1048)
++++ antargis/trunk/gui/src/ag_application.cc	2007-02-11 15:16:20 UTC (rev 1049)
+@@ -21,7 +21,7 @@
+ #include &quot;ag_application.h&quot;
+ #include &quot;ag_main.h&quot;
+ #include &quot;ag_screen.h&quot;
+-#include &quot;ag_glsurface.h&quot;
++#include &quot;ag_glscreen.h&quot;
+ #include &quot;ag_main.h&quot;
+ #include &quot;ag_debug.h&quot;
+ #include &quot;ag_mixer.h&quot;
+
+Modified: antargis/trunk/gui/src/ag_button.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_button.cc	2007-02-04 15:10:17 UTC (rev 1048)
++++ antargis/trunk/gui/src/ag_button.cc	2007-02-11 15:16:20 UTC (rev 1049)
+@@ -25,7 +25,7 @@
+ #include &quot;ag_debug.h&quot;
+ #include &quot;ag_image.h&quot;
+ #include &quot;ag_border.h&quot;
+-#include &quot;ag_glsurface.h&quot;
++#include &quot;ag_glscreen.h&quot;
+ 
+ using namespace std;
+ 
+
+Modified: antargis/trunk/gui/src/ag_edit.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_edit.cc	2007-02-04 15:10:17 UTC (rev 1048)
++++ antargis/trunk/gui/src/ag_edit.cc	2007-02-11 15:16:20 UTC (rev 1049)
+@@ -24,7 +24,7 @@
+ #include &quot;ag_debug.h&quot;
+ #include &quot;ag_menu.h&quot;
+ #include &quot;ag_sgeexport.h&quot;
+-#include &quot;ag_glsurface.h&quot;
++#include &quot;ag_glscreen.h&quot;
+ #include &quot;ag_tools.h&quot;
+ 
+ 
+
+Copied: antargis/trunk/gui/src/ag_glscreen.cc (from rev 1048, antargis/trunk/gui/src/ag_glsurface.cc)
+===================================================================
+--- antargis/trunk/gui/src/ag_glsurface.cc	2007-02-04 15:10:17 UTC (rev 1048)
++++ antargis/trunk/gui/src/ag_glscreen.cc	2007-02-11 15:16:20 UTC (rev 1049)
+@@ -0,0 +1,365 @@
++/*
++ * Copyright (c) 2005 by David Kamphausen. All rights reserved.
++ *
++ * ag_glsurface.cc
++ * by David Kamphausen (<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">david.kamphausen at web.de</A>)
++ *
++ * The &quot;Antargis&quot; project, including all files needed to compile it,
++ * is free software; you can redistribute it and/or use it and/or modify it
++ * under the terms of the GNU General Public License as published
++ * by the Free Software Foundation; either version 2 of the License,
++ * or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
++ *
++ * You should have received a copy of the GNU General Public
++ * License along with this program.
++ */
++#include &quot;GLee.h&quot;
++
++#include &lt;SDL_opengl.h&gt;
++#include &quot;ag_glscreen.h&quot;
++#include &quot;ag_color.h&quot;
++#include &quot;ag_debug.h&quot;
++#include &quot;ag_fontengine.h&quot;
++#include &quot;ag_surfacemanager.h&quot;
++#include &lt;GL/gl.h&gt;
++#include &lt;GL/glext.h&gt;
++#include &lt;GL/glu.h&gt;
++#include &lt;assert.h&gt;
++#include &lt;set&gt;
++#include &lt;map&gt;
++#include &lt;vector&gt;
++#include &quot;ag_sgeexport.h&quot;
++#include &quot;SDL_image.h&quot;
++
++#include &lt;ag_rendercontext.h&gt;
++#include &lt;SDL.h&gt;
++
++#include &lt;ag_fs.h&gt;
++
++#include &lt;ag_geometry.h&gt;
++#include &lt;ag_texture.h&gt;
++#include &lt;ag_profiler.h&gt;
++#include &lt;ag_glpainter.h&gt;
++
++std::set&lt;SDL_Surface *&gt; glTestSurfaces;
++
++#define SIMPLE
++
++
++void initDraw()
++{
++  glEnable( GL_BLEND );
++  glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
++
++  glDisable(GL_DEPTH_TEST); // enable depth test
++  glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT); // clear screen and depth buffer
++  glLoadIdentity();
++  glDepthMask(false);
++  //  glTranslatef(0.375, 0.375, 0.0);
++  glEnable(GL_CULL_FACE);
++  glCullFace(GL_BACK);
++}
++
++void initGUIView(int w,int h)
++{
++  glMatrixMode( GL_PROJECTION );
++  glLoadIdentity( );
++
++  GLfloat ratio;
++
++  ratio = ( float )w / ( float )h;
++
++  gluOrtho2D(0,w,0,h);
++
++  glMatrixMode( GL_MODELVIEW );
++  glLoadIdentity( );
++
++}
++
++void myFlip()
++{
++  SDL_GL_SwapBuffers();
++}
++
++AGGLScreen::AGGLScreen(int W,int H,int VW,int VH):
++  w(VW),h(VH),
++  rw(W),rh(H)
++{
++  if(w&lt;rw)
++    w=rw;
++  if(h&lt;rh)
++    h=rh;
++
++  mLineWidth=2;
++
++  cdebug(&quot;w:&quot;&lt;&lt;w&lt;&lt;&quot; h:&quot;&lt;&lt;h);
++
++  // init GL
++  glEnable(GL_TEXTURE_2D);
++  glShadeModel(GL_SMOOTH);
++  glClearColor(0.0f,0.0f,0.0f,0.0f); // clear bgcolor
++  glClearDepth(1.0f);      // clear depth buffer
++  glEnable(GL_DEPTH_TEST); // enable depth test
++  glDepthFunc(GL_LEQUAL); // set type depth test
++  glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); // GL_NICEST // best perspective correction
++  glEnable(GL_BLEND);
++
++  glViewport( 0, 0, rw, rh );
++  glMatrixMode( GL_PROJECTION );
++  glLoadIdentity( );
++
++  GLfloat ratio;
++
++  ratio = ( float )w / ( float )h;
++
++  //  gluPerspective( 45.0f, ratio, 1.0f, 100.0f );
++
++  gluOrtho2D(0,w,0,h);
++
++  glMatrixMode( GL_MODELVIEW );
++  glLoadIdentity( );
++}
++
++
++
++
++AGGLScreen::~AGGLScreen()
++{ 
++}
++
++AGSurface AGGLScreen::screenshot()
++{
++  AGSurface s(getWidth(),getHeight());
++
++  SDL_Surface *surface=s.surface()-&gt;surface;
++
++  unsigned char *buffer=new unsigned char[getWidth()*getHeight()*4];
++  glReadBuffer(GL_FRONT);
++
++  cdebug(s.surface());
++  cdebug(s.surface()-&gt;surface);
++
++  glPixelStorei(GL_PACK_ALIGNMENT, 2);
++  assertGL;
++  glPixelStorei(GL_PACK_ROW_LENGTH, getWidth());
++  //                surface-&gt;pitch / surface-&gt;format-&gt;BytesPerPixel);
++  assertGL;
++
++
++  {
++    TRACE;
++    glReadPixels(0,0,getWidth(),getHeight(),GL_RGBA,GL_UNSIGNED_BYTE,buffer);//s.surface()-&gt;surface);
++    glReadBuffer(GL_BACK);
++  }
++
++  {
++    // copy
++    TRACE;
++    int h=getHeight()-1;
++    for(int x=0;x&lt;getWidth();x++)
++      for(int y=0;y&lt;getHeight();y++)
++	{
++	  unsigned char*p=buffer+((x+(h-y)*getWidth())*4);
++	  AGColor c(p[0],p[1],p[2],p[3]);
++	  s.putPixel(x,y,c);
++	}
++  }
++  
++
++  delete [] buffer;
++  return s;
++}
++
++
++void AGGLScreen::begin()
++{
++  glViewport( 0, 0, rw, rh );
++  glDisable(GL_LIGHTING);
++  glEnable(GL_TEXTURE_2D);
++  glShadeModel(GL_SMOOTH);
++
++  glEnable(GL_DEPTH_TEST); // enable depth test
++  glDepthFunc(GL_LEQUAL); // set type depth test
++  glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); // GL_NICEST // best perspective correction
++  glEnable(GL_BLEND);
++
++  glViewport( 0, 0, rw, rh );
++  glMatrixMode( GL_PROJECTION );
++  glLoadIdentity( );
++
++  GLfloat ratio;
++
++  ratio = ( float )w / ( float )h;
++
++  gluOrtho2D(0,w,0,h);
++
++  glMatrixMode( GL_MODELVIEW );
++  glLoadIdentity( );
++
++  glEnable( GL_BLEND );
++  glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
++
++  glDisable(GL_DEPTH_TEST); // enable depth test
++
++  glDepthMask(false);
++}
++
++void AGGLScreen::flip()
++{
++  myFlip();
++  getSurfaceManager()-&gt;cleanup(); // FIXME: maybe delete it - or do cleanup in 2 stages
++  initDraw();
++
++  initGUIView(w,h);
++}
++
++size_t next2pow(size_t i)
++{
++  size_t j=1;
++  while(j&lt;i)
++    j&lt;&lt;=1;
++
++  return j;
++}
++
++
++bool AGGLScreen::inScreen(const AGRect2 &amp;r) const
++{
++  return AGRect2(0,0,w,h).contains(r);
++}
++
++void AGGLScreen::blit(const AGTexture &amp;pSource,const AGRect2 &amp;pRect,const AGRect2 &amp;pSrc)
++{
++  blit(pSource,pRect,pSrc,AGColor(0xFF,0xFF,0xFF,0xFF));
++}
++
++void AGGLScreen::blit(const AGTexture &amp;pSource,const AGRect2 &amp;pRect,const AGRect2 &amp;pSrc,const AGColor &amp;pColor)
++{
++  AGGLPainter::blit(pSource,pRect,pSrc,pColor);
++}
++
++
++void AGGLScreen::blit(const AGTexture &amp;pSource,const std::vector&lt;std::pair&lt;AGRect2,AGRect2&gt; &gt; &amp;pSrcDestRects,const AGColor &amp;pColor)
++{
++  AGGLPainter::blit(pSource,pSrcDestRects,pColor);
++}
++
++
++void AGGLScreen::tile(const AGTexture &amp;pSource,const AGRect2 &amp;pTarget,const AGColor &amp;pColor)
++{
++  AGGLPainter::tile(pSource,pTarget,pColor);
++}
++
++
++void AGGLScreen::fillRect(const AGRect2 &amp;pRect,const AGColor &amp;c)
++{
++  AGGLPainter::fillRect(pRect,c);
++}
++
++void AGGLScreen::fillRects(const std::vector&lt;std::pair&lt;AGRect2,AGVector4&gt; &gt; &amp;pRects)
++{
++  AGGLPainter::fillRects(pRects);
++}
++
++
++AGRect2 AGGLScreen::getRect() const
++{
++  return AGRect2(0,0,w,h);
++}
++
++void glColor(const AGColor &amp;c)
++{
++  glColor4f(c.r/255.0,c.g/255.0,c.b/255.0,c.a/255.0);
++}
++
++void AGGLScreen::drawGradientAlpha(const AGRect2&amp; pRect, const AGColor&amp; ul, const AGColor&amp; ur, const AGColor&amp; dl, const AGColor&amp; dr)
++{
++  AGGLPainter::drawGradientAlpha(pRect,ul,ur,dl,dr);
++}
++
++void AGGLScreen::drawBorder(const AGRect2&amp; rect,int W, const AGColor&amp; c1, const AGColor&amp; c2)
++{
++  AGGLPainter::drawBorder(rect,W,c1,c2);
++}
++
++void AGGLScreen::putPixel(int x,int y,const AGColor &amp;pc)
++{
++  AGGLPainter::putPixel(x,y,pc);
++}
++
++void AGGLScreen::drawGradient(const AGRect2&amp; rect, const AGColor&amp; ul, const AGColor&amp; ur, const AGColor&amp; dl, const AGColor&amp; dr)
++{
++  drawGradientAlpha(rect,ul,ur,dl,dr);
++}
++
++void AGGLScreen::drawLine(const AGVector2 &amp;p0,const AGVector2 &amp;p1,const AGColor &amp;c)
++{
++  AGGLPainter::drawLine(p0,p1,c,mLineWidth);
++}
++
++void AGGLScreen::blitTri(const AGTexture &amp;pSource,const AGTriangle2 &amp;pSrc,const AGTriangle2 &amp;pDest)
++{
++  AGGLPainter::blitTri(pSource,pSrc,pDest);
++}
++
++size_t AGGLScreen::getWidth() const
++{
++  return w;
++}
++size_t AGGLScreen::getHeight() const
++{
++  return h;
++}
++void AGGLScreen::clip(const AGRect2 &amp;r)
++{
++  return;
++#warning &quot;insert clipping facility for opengl&quot;
++
++  AGRect2 x=AGRect2(0,0,w,h);
++  AGRect2 m=x.intersect(r);
++
++  glScissor((GLint)(m.x0()),
++	    (GLint)(h-1-m.y1()),
++	    (GLint)(m.width()),
++	    (GLint)(m.height()));
++  assertGL;
++  glEnable(GL_SCISSOR_TEST);
++  assertGL;
++}
++void AGGLScreen::unclip()
++{
++  glDisable(GL_SCISSOR_TEST);
++  assertGL;
++}
++
++
++void AGGLScreen::beginPaint()
++{
++  //  CTRACE;
++  glMatrixMode(GL_MODELVIEW);
++  glLoadIdentity();
++  glTranslatef(0,getHeight()+1,0);
++  glScalef(1,-1,1);
++}
++
++void AGGLScreen::endPaint()
++{
++  glMatrixMode(GL_MODELVIEW);
++  glLoadIdentity();
++}
++
++void AGGLScreen::setLineWidth(float w)
++{
++  mLineWidth=w;
++}
++
++
++
++bool opengl()
++{
++  return dynamic_cast&lt;AGGLScreen*&gt;(&amp;getScreen());
++}
+
+Copied: antargis/trunk/gui/src/ag_glscreen.h (from rev 1048, antargis/trunk/gui/src/ag_glsurface.h)
+
+Deleted: antargis/trunk/gui/src/ag_glsurface.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_glsurface.cc	2007-02-04 15:10:17 UTC (rev 1048)
++++ antargis/trunk/gui/src/ag_glsurface.cc	2007-02-11 15:16:20 UTC (rev 1049)
+@@ -1,365 +0,0 @@
+-/*
+- * Copyright (c) 2005 by David Kamphausen. All rights reserved.
+- *
+- * ag_glsurface.cc
+- * by David Kamphausen (<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">david.kamphausen at web.de</A>)
+- *
+- * The &quot;Antargis&quot; project, including all files needed to compile it,
+- * is free software; you can redistribute it and/or use it and/or modify it
+- * under the terms of the GNU General Public License as published
+- * by the Free Software Foundation; either version 2 of the License,
+- * or (at your option) any later version.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+- *
+- * You should have received a copy of the GNU General Public
+- * License along with this program.
+- */
+-#include &quot;GLee.h&quot;
+-
+-#include &lt;SDL_opengl.h&gt;
+-#include &quot;ag_glsurface.h&quot;
+-#include &quot;ag_color.h&quot;
+-#include &quot;ag_debug.h&quot;
+-#include &quot;ag_fontengine.h&quot;
+-#include &quot;ag_surfacemanager.h&quot;
+-#include &lt;GL/gl.h&gt;
+-#include &lt;GL/glext.h&gt;
+-#include &lt;GL/glu.h&gt;
+-#include &lt;assert.h&gt;
+-#include &lt;set&gt;
+-#include &lt;map&gt;
+-#include &lt;vector&gt;
+-#include &quot;ag_sgeexport.h&quot;
+-#include &quot;SDL_image.h&quot;
+-
+-#include &lt;ag_rendercontext.h&gt;
+-#include &lt;SDL.h&gt;
+-
+-#include &lt;ag_fs.h&gt;
+-
+-#include &lt;ag_geometry.h&gt;
+-#include &lt;ag_texture.h&gt;
+-#include &lt;ag_profiler.h&gt;
+-#include &lt;ag_glpainter.h&gt;
+-
+-std::set&lt;SDL_Surface *&gt; glTestSurfaces;
+-
+-#define SIMPLE
+-
+-
+-void initDraw()
+-{
+-  glEnable( GL_BLEND );
+-  glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+-
+-  glDisable(GL_DEPTH_TEST); // enable depth test
+-  glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT); // clear screen and depth buffer
+-  glLoadIdentity();
+-  glDepthMask(false);
+-  //  glTranslatef(0.375, 0.375, 0.0);
+-  glEnable(GL_CULL_FACE);
+-  glCullFace(GL_BACK);
+-}
+-
+-void initGUIView(int w,int h)
+-{
+-  glMatrixMode( GL_PROJECTION );
+-  glLoadIdentity( );
+-
+-  GLfloat ratio;
+-
+-  ratio = ( float )w / ( float )h;
+-
+-  gluOrtho2D(0,w,0,h);
+-
+-  glMatrixMode( GL_MODELVIEW );
+-  glLoadIdentity( );
+-
+-}
+-
+-void myFlip()
+-{
+-  SDL_GL_SwapBuffers();
+-}
+-
+-AGGLScreen::AGGLScreen(int W,int H,int VW,int VH):
+-  w(VW),h(VH),
+-  rw(W),rh(H)
+-{
+-  if(w&lt;rw)
+-    w=rw;
+-  if(h&lt;rh)
+-    h=rh;
+-
+-  mLineWidth=2;
+-
+-  cdebug(&quot;w:&quot;&lt;&lt;w&lt;&lt;&quot; h:&quot;&lt;&lt;h);
+-
+-  // init GL
+-  glEnable(GL_TEXTURE_2D);
+-  glShadeModel(GL_SMOOTH);
+-  glClearColor(0.0f,0.0f,0.0f,0.0f); // clear bgcolor
+-  glClearDepth(1.0f);      // clear depth buffer
+-  glEnable(GL_DEPTH_TEST); // enable depth test
+-  glDepthFunc(GL_LEQUAL); // set type depth test
+-  glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); // GL_NICEST // best perspective correction
+-  glEnable(GL_BLEND);
+-
+-  glViewport( 0, 0, rw, rh );
+-  glMatrixMode( GL_PROJECTION );
+-  glLoadIdentity( );
+-
+-  GLfloat ratio;
+-
+-  ratio = ( float )w / ( float )h;
+-
+-  //  gluPerspective( 45.0f, ratio, 1.0f, 100.0f );
+-
+-  gluOrtho2D(0,w,0,h);
+-
+-  glMatrixMode( GL_MODELVIEW );
+-  glLoadIdentity( );
+-}
+-
+-
+-
+-
+-AGGLScreen::~AGGLScreen()
+-{ 
+-}
+-
+-AGSurface AGGLScreen::screenshot()
+-{
+-  AGSurface s(getWidth(),getHeight());
+-
+-  SDL_Surface *surface=s.surface()-&gt;surface;
+-
+-  unsigned char *buffer=new unsigned char[getWidth()*getHeight()*4];
+-  glReadBuffer(GL_FRONT);
+-
+-  cdebug(s.surface());
+-  cdebug(s.surface()-&gt;surface);
+-
+-  glPixelStorei(GL_PACK_ALIGNMENT, 2);
+-  assertGL;
+-  glPixelStorei(GL_PACK_ROW_LENGTH, getWidth());
+-  //                surface-&gt;pitch / surface-&gt;format-&gt;BytesPerPixel);
+-  assertGL;
+-
+-
+-  {
+-    TRACE;
+-    glReadPixels(0,0,getWidth(),getHeight(),GL_RGBA,GL_UNSIGNED_BYTE,buffer);//s.surface()-&gt;surface);
+-    glReadBuffer(GL_BACK);
+-  }
+-
+-  {
+-    // copy
+-    TRACE;
+-    int h=getHeight()-1;
+-    for(int x=0;x&lt;getWidth();x++)
+-      for(int y=0;y&lt;getHeight();y++)
+-	{
+-	  unsigned char*p=buffer+((x+(h-y)*getWidth())*4);
+-	  AGColor c(p[0],p[1],p[2],p[3]);
+-	  s.putPixel(x,y,c);
+-	}
+-  }
+-  
+-
+-  delete [] buffer;
+-  return s;
+-}
+-
+-
+-void AGGLScreen::begin()
+-{
+-  glViewport( 0, 0, rw, rh );
+-  glDisable(GL_LIGHTING);
+-  glEnable(GL_TEXTURE_2D);
+-  glShadeModel(GL_SMOOTH);
+-
+-  glEnable(GL_DEPTH_TEST); // enable depth test
+-  glDepthFunc(GL_LEQUAL); // set type depth test
+-  glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); // GL_NICEST // best perspective correction
+-  glEnable(GL_BLEND);
+-
+-  glViewport( 0, 0, rw, rh );
+-  glMatrixMode( GL_PROJECTION );
+-  glLoadIdentity( );
+-
+-  GLfloat ratio;
+-
+-  ratio = ( float )w / ( float )h;
+-
+-  gluOrtho2D(0,w,0,h);
+-
+-  glMatrixMode( GL_MODELVIEW );
+-  glLoadIdentity( );
+-
+-  glEnable( GL_BLEND );
+-  glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+-
+-  glDisable(GL_DEPTH_TEST); // enable depth test
+-
+-  glDepthMask(false);
+-}
+-
+-void AGGLScreen::flip()
+-{
+-  myFlip();
+-  getSurfaceManager()-&gt;cleanup(); // FIXME: maybe delete it - or do cleanup in 2 stages
+-  initDraw();
+-
+-  initGUIView(w,h);
+-}
+-
+-size_t next2pow(size_t i)
+-{
+-  size_t j=1;
+-  while(j&lt;i)
+-    j&lt;&lt;=1;
+-
+-  return j;
+-}
+-
+-
+-bool AGGLScreen::inScreen(const AGRect2 &amp;r) const
+-{
+-  return AGRect2(0,0,w,h).contains(r);
+-}
+-
+-void AGGLScreen::blit(const AGTexture &amp;pSource,const AGRect2 &amp;pRect,const AGRect2 &amp;pSrc)
+-{
+-  blit(pSource,pRect,pSrc,AGColor(0xFF,0xFF,0xFF,0xFF));
+-}
+-
+-void AGGLScreen::blit(const AGTexture &amp;pSource,const AGRect2 &amp;pRect,const AGRect2 &amp;pSrc,const AGColor &amp;pColor)
+-{
+-  AGGLPainter::blit(pSource,pRect,pSrc,pColor);
+-}
+-
+-
+-void AGGLScreen::blit(const AGTexture &amp;pSource,const std::vector&lt;std::pair&lt;AGRect2,AGRect2&gt; &gt; &amp;pSrcDestRects,const AGColor &amp;pColor)
+-{
+-  AGGLPainter::blit(pSource,pSrcDestRects,pColor);
+-}
+-
+-
+-void AGGLScreen::tile(const AGTexture &amp;pSource,const AGRect2 &amp;pTarget,const AGColor &amp;pColor)
+-{
+-  AGGLPainter::tile(pSource,pTarget,pColor);
+-}
+-
+-
+-void AGGLScreen::fillRect(const AGRect2 &amp;pRect,const AGColor &amp;c)
+-{
+-  AGGLPainter::fillRect(pRect,c);
+-}
+-
+-void AGGLScreen::fillRects(const std::vector&lt;std::pair&lt;AGRect2,AGVector4&gt; &gt; &amp;pRects)
+-{
+-  AGGLPainter::fillRects(pRects);
+-}
+-
+-
+-AGRect2 AGGLScreen::getRect() const
+-{
+-  return AGRect2(0,0,w,h);
+-}
+-
+-void glColor(const AGColor &amp;c)
+-{
+-  glColor4f(c.r/255.0,c.g/255.0,c.b/255.0,c.a/255.0);
+-}
+-
+-void AGGLScreen::drawGradientAlpha(const AGRect2&amp; pRect, const AGColor&amp; ul, const AGColor&amp; ur, const AGColor&amp; dl, const AGColor&amp; dr)
+-{
+-  AGGLPainter::drawGradientAlpha(pRect,ul,ur,dl,dr);
+-}
+-
+-void AGGLScreen::drawBorder(const AGRect2&amp; rect,int W, const AGColor&amp; c1, const AGColor&amp; c2)
+-{
+-  AGGLPainter::drawBorder(rect,W,c1,c2);
+-}
+-
+-void AGGLScreen::putPixel(int x,int y,const AGColor &amp;pc)
+-{
+-  AGGLPainter::putPixel(x,y,pc);
+-}
+-
+-void AGGLScreen::drawGradient(const AGRect2&amp; rect, const AGColor&amp; ul, const AGColor&amp; ur, const AGColor&amp; dl, const AGColor&amp; dr)
+-{
+-  drawGradientAlpha(rect,ul,ur,dl,dr);
+-}
+-
+-void AGGLScreen::drawLine(const AGVector2 &amp;p0,const AGVector2 &amp;p1,const AGColor &amp;c)
+-{
+-  AGGLPainter::drawLine(p0,p1,c,mLineWidth);
+-}
+-
+-void AGGLScreen::blitTri(const AGTexture &amp;pSource,const AGTriangle2 &amp;pSrc,const AGTriangle2 &amp;pDest)
+-{
+-  AGGLPainter::blitTri(pSource,pSrc,pDest);
+-}
+-
+-size_t AGGLScreen::getWidth() const
+-{
+-  return w;
+-}
+-size_t AGGLScreen::getHeight() const
+-{
+-  return h;
+-}
+-void AGGLScreen::clip(const AGRect2 &amp;r)
+-{
+-  return;
+-#warning &quot;insert clipping facility for opengl&quot;
+-
+-  AGRect2 x=AGRect2(0,0,w,h);
+-  AGRect2 m=x.intersect(r);
+-
+-  glScissor((GLint)(m.x0()),
+-	    (GLint)(h-1-m.y1()),
+-	    (GLint)(m.width()),
+-	    (GLint)(m.height()));
+-  assertGL;
+-  glEnable(GL_SCISSOR_TEST);
+-  assertGL;
+-}
+-void AGGLScreen::unclip()
+-{
+-  glDisable(GL_SCISSOR_TEST);
+-  assertGL;
+-}
+-
+-
+-void AGGLScreen::beginPaint()
+-{
+-  //  CTRACE;
+-  glMatrixMode(GL_MODELVIEW);
+-  glLoadIdentity();
+-  glTranslatef(0,getHeight()+1,0);
+-  glScalef(1,-1,1);
+-}
+-
+-void AGGLScreen::endPaint()
+-{
+-  glMatrixMode(GL_MODELVIEW);
+-  glLoadIdentity();
+-}
+-
+-void AGGLScreen::setLineWidth(float w)
+-{
+-  mLineWidth=w;
+-}
+-
+-
+-
+-bool opengl()
+-{
+-  return dynamic_cast&lt;AGGLScreen*&gt;(&amp;getScreen());
+-}
+
+Deleted: antargis/trunk/gui/src/ag_glsurface.h
+===================================================================
+--- antargis/trunk/gui/src/ag_glsurface.h	2007-02-04 15:10:17 UTC (rev 1048)
++++ antargis/trunk/gui/src/ag_glsurface.h	2007-02-11 15:16:20 UTC (rev 1049)
+@@ -1,100 +0,0 @@
+-/*
+- * Copyright (c) 2005 by David Kamphausen. All rights reserved.
+- *
+- * ag_glsurface.h
+- * by David Kamphausen (<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">david.kamphausen at web.de</A>)
+- *
+- * The &quot;Antargis&quot; project, including all files needed to compile it,
+- * is free software; you can redistribute it and/or use it and/or modify it
+- * under the terms of the GNU General Public License as published
+- * by the Free Software Foundation; either version 2 of the License,
+- * or (at your option) any later version.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+- *
+- * You should have received a copy of the GNU General Public
+- * License along with this program.
+- */
+-
+-#ifndef __GUI_GLSURFACE_H
+-#define __GUI_GLSURFACE_H
+-
+-#include &lt;string&gt;
+-#include &lt;map&gt;
+-#include &lt;list&gt;
+-#include &lt;SDL.h&gt;
+-#include &quot;ag_geometry.h&quot;
+-#include &quot;ag_screen.h&quot;
+-#include &lt;GL/gl.h&gt;
+-
+-#define NEW_TEXTURES
+-
+-class AGColor;
+-
+-typedef GLuint TextureID;
+-
+-class AGGLScreen:public AGScreen
+-{
+- public:
+-  AGGLScreen(int W,int H,int VW=-1,int VH=-1);
+-
+-  virtual ~AGGLScreen();
+-
+-  virtual void blitTri(const AGTexture &amp;pSource,const AGTriangle2 &amp;pSrc,const AGTriangle2 &amp;pDest);
+-
+-  virtual void blit(const AGTexture &amp;pSource,const AGRect2 &amp;pDest,const AGRect2 &amp;pSrc);
+-  virtual void blit(const AGTexture &amp;pSource,const AGRect2 &amp;pDest,const AGRect2 &amp;pSrc,const AGColor &amp;pColor);
+-
+-
+-  virtual void blit(const AGTexture &amp;pSource,const std::vector&lt;std::pair&lt;AGRect2,AGRect2&gt; &gt; &amp;pSrcDestRects,const AGColor &amp;pColor);
+-
+-  virtual void tile(const AGTexture &amp;pSource,const AGRect2 &amp;pTarget,const AGColor &amp;pColor);
+-
+-
+-  virtual void fillRect(const AGRect2 &amp;pRect,const AGColor &amp;c);
+-  virtual void fillRects(const std::vector&lt;std::pair&lt;AGRect2,AGVector4&gt; &gt; &amp;pRects);
+-  virtual void drawLine(const AGVector2 &amp;p0,const AGVector2 &amp;p1,const AGColor &amp;c);
+-
+-  virtual AGRect2 getRect() const;
+-
+-  virtual void drawGradient(const AGRect2&amp; rect, const AGColor&amp; ul, const AGColor&amp; ur, const AGColor&amp; dl, const AGColor&amp; dr);
+-
+-  virtual void drawGradientAlpha(const AGRect2&amp; rect, const AGColor&amp; ul, const AGColor&amp; ur, const AGColor&amp; dl, const AGColor&amp; dr);
+-  virtual void drawBorder(const AGRect2&amp; rect,int W, const AGColor&amp; c1, const AGColor&amp; c2);
+-  virtual void putPixel(int x,int y,const AGColor &amp;c);
+-
+-  virtual void begin(); // call before start drawing
+-
+-  AGSurface screenshot();
+-
+-  void flip();
+-  bool inScreen(const AGRect2 &amp;r) const;
+-
+-  virtual size_t getWidth() const;
+-  virtual size_t getHeight() const;
+-
+-  void clip(const AGRect2 &amp;r);
+-  void unclip();
+-
+-  void beginPaint();
+-  void endPaint();
+-
+-  void setLineWidth(float w);
+-
+- private:
+-  AGRect2 getRect(SDL_Surface *s);
+-  void checkUnusedTextures();
+-
+-  int w,h;
+-  int rw,rh;
+-
+-  float mLineWidth;
+-
+-  friend class AGTexture;
+-};
+-
+-bool opengl();
+-
+-#endif
+
+Modified: antargis/trunk/gui/src/ag_main.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_main.cc	2007-02-04 15:10:17 UTC (rev 1048)
++++ antargis/trunk/gui/src/ag_main.cc	2007-02-11 15:16:20 UTC (rev 1049)
+@@ -27,7 +27,7 @@
+ #include &quot;ag_surface.h&quot;
+ #include &quot;ag_texture.h&quot;
+ #include &quot;ag_sdlsurface.h&quot;
+-#include &quot;ag_glsurface.h&quot;
++#include &quot;ag_glscreen.h&quot;
+ #include &quot;ag_fs.h&quot;
+ #include &quot;ag_layout.h&quot;
+ #include &quot;ag_debug.h&quot;
+
+Modified: antargis/trunk/gui/src/ag_painter.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_painter.cc	2007-02-04 15:10:17 UTC (rev 1048)
++++ antargis/trunk/gui/src/ag_painter.cc	2007-02-11 15:16:20 UTC (rev 1049)
+@@ -21,7 +21,7 @@
+ #include &lt;ag_debug.h&gt;
+ #include &lt;ag_draw.h&gt;
+ #include &lt;ag_fontengine.h&gt;
+-#include &lt;ag_glsurface.h&gt;
++#include &lt;ag_glscreen.h&gt;
+ #include &lt;ag_painter.h&gt;
+ #include &lt;ag_profiler.h&gt;
+ #include &lt;ag_sdlsurface.h&gt;
+
+Modified: antargis/trunk/gui/src/ag_surface.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_surface.cc	2007-02-04 15:10:17 UTC (rev 1048)
++++ antargis/trunk/gui/src/ag_surface.cc	2007-02-11 15:16:20 UTC (rev 1049)
+@@ -29,7 +29,7 @@
+ #include &quot;ag_sgeexport.h&quot;
+ #include &quot;ag_kill.h&quot;
+ #include &quot;ag_png.h&quot;
+-#include &quot;ag_glsurface.h&quot;
++#include &quot;ag_glscreen.h&quot;
+ #include &quot;ag_surfacemanager.h&quot;
+ 
+ #include &quot;SDL_image.h&quot;
+
+Modified: antargis/trunk/gui/src/ag_surfacemanager.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_surfacemanager.cc	2007-02-04 15:10:17 UTC (rev 1048)
++++ antargis/trunk/gui/src/ag_surfacemanager.cc	2007-02-11 15:16:20 UTC (rev 1049)
+@@ -25,7 +25,7 @@
+ #include &quot;ag_kill.h&quot;
+ #include &quot;ag_debug.h&quot;
+ #include &quot;ag_config.h&quot;
+-#include &quot;ag_glsurface.h&quot;
++#include &quot;ag_glscreen.h&quot;
+ #include &quot;ag_profiler.h&quot;
+ 
+ #include &lt;map&gt;
+
+Modified: antargis/trunk/gui/src/ag_texture.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_texture.cc	2007-02-04 15:10:17 UTC (rev 1048)
++++ antargis/trunk/gui/src/ag_texture.cc	2007-02-11 15:16:20 UTC (rev 1049)
+@@ -19,7 +19,7 @@
+  */
+ 
+ #include &quot;ag_texture.h&quot;
+-#include &quot;ag_glsurface.h&quot;
++#include &quot;ag_glscreen.h&quot;
+ #include &quot;ag_debug.h&quot;
+ #include &quot;ag_rendercontext.h&quot;
+ #include &quot;ag_sgeexport.h&quot;
+
+Modified: antargis/trunk/src/antargisgui.h
+===================================================================
+--- antargis/trunk/src/antargisgui.h	2007-02-04 15:10:17 UTC (rev 1048)
++++ antargis/trunk/src/antargisgui.h	2007-02-11 15:16:20 UTC (rev 1049)
+@@ -47,7 +47,7 @@
+ #include &quot;../gui/src/ag_png.h&quot;
+ #include &quot;../gui/src/ag_radio.h&quot;
+ #include &quot;../gui/src/ag_screen.h&quot;
+-#include &quot;../gui/src/ag_glsurface.h&quot;
++#include &quot;../gui/src/ag_glscreen.h&quot;
+ #include &quot;../gui/src/ag_table.h&quot;
+ #include &quot;../gui/src/ag_texturecache.h&quot;
+ #include &quot;../gui/src/ag_theme.h&quot;
+@@ -132,7 +132,7 @@
+ %include &quot;../gui/src/ag_png.h&quot;
+ %include &quot;../gui/src/ag_radio.h&quot;
+ %include &quot;../gui/src/ag_screen.h&quot;
+-%include &quot;../gui/src/ag_glsurface.h&quot;
++%include &quot;../gui/src/ag_glscreen.h&quot;
+ %include &quot;../gui/src/ag_table.h&quot;
+ %include &quot;../gui/src/ag_texturecache.h&quot;
+ %include &quot;../gui/src/ag_theme.h&quot;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000006.html">[Antargis-svn] r1048 - antargis/trunk/data/shaders
+</A></li>
+	<LI>Next message: <A HREF="000008.html">[Antargis-svn] r1050 - in antargis/trunk: gui/src ruby
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#7">[ date ]</a>
+              <a href="thread.html#7">[ thread ]</a>
+              <a href="subject.html#7">[ subject ]</a>
+              <a href="author.html#7">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

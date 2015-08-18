@@ -1,0 +1,4204 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1256 - in antargis/trunk: . ext/basic ext/game	rookey/cpp ruby ruby/jobs ruby/spec
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2008-May/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1256%20-%20in%20antargis/trunk%3A%20.%20ext/basic%20ext/game%0A%09rookey/cpp%20ruby%20ruby/jobs%20ruby/spec&In-Reply-To=%3C200805271753.m4RHrUgL025958%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000211.html">
+   <LINK REL="Next"  HREF="000213.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1256 - in antargis/trunk: . ext/basic ext/game	rookey/cpp ruby ruby/jobs ruby/spec</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1256%20-%20in%20antargis/trunk%3A%20.%20ext/basic%20ext/game%0A%09rookey/cpp%20ruby%20ruby/jobs%20ruby/spec&In-Reply-To=%3C200805271753.m4RHrUgL025958%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1256 - in antargis/trunk: . ext/basic ext/game	rookey/cpp ruby ruby/jobs ruby/spec">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Tue May 27 19:53:30 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000211.html">[Antargis-svn] r1255 - in antargis/trunk: ext/basic ext/game	ext/gui ext/math ext/video rookey ruby ruby/editor/campaign	ruby/spec
+</A></li>
+        <LI>Next message: <A HREF="000213.html">[Antargis-svn] r1257 - in antargis/trunk: . data/gui/layout	ext/basic ext/game ext/gui rookey ruby ruby/entities	ruby/jobs ruby/spec
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#212">[ date ]</a>
+              <a href="thread.html#212">[ thread ]</a>
+              <a href="subject.html#212">[ subject ]</a>
+              <a href="author.html#212">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2008-05-27 19:53:28 +0200 (Tue, 27 May 2008)
+New Revision: 1256
+
+Added:
+   antargis/trunk/ruby/spec/spec_hljob_saving.rb
+Modified:
+   antargis/trunk/TODO
+   antargis/trunk/ext/basic/templates.i
+   antargis/trunk/ext/game/map.cc
+   antargis/trunk/rookey/cpp/ag_rubyobj.cc
+   antargis/trunk/ruby/dialogs.rb
+   antargis/trunk/ruby/jobs/ant_hljob_base.rb
+   antargis/trunk/ruby/jobs/ant_hljob_states.rb
+   antargis/trunk/ruby/spec/spec_coding_style.rb
+   antargis/trunk/ruby/spec/spec_hljobs.rb
+   antargis/trunk/ruby/spec/spec_scrollingwidget.rb
+Log:
+Incomplete - task 9: Scrollingwidget 
+<A HREF="http://localhost:3000/issues/show/9">http://localhost:3000/issues/show/9</A>
+Incomplete - task 7: Saving doesn't work 
+<A HREF="http://localhost:3000/issues/show/7">http://localhost:3000/issues/show/7</A>
+
+Modified: antargis/trunk/TODO
+===================================================================
+--- antargis/trunk/TODO	2008-05-26 18:22:36 UTC (rev 1255)
++++ antargis/trunk/TODO	2008-05-27 17:53:28 UTC (rev 1256)
+@@ -1,11 +1,3 @@
+-* AGFilename remove!
+-
+-
+-* bug-report at apple site on glTexSubImage issue 
+-* fix shadows on mac (on shadow-extension ?)
+-* check mingw on macosx
+-* toggling fullscreen destroys animated meshes (and textures partly)
+-
+ * fix saving - problem occurs only if game is loaded ? (in editor, too)
+ ** hljobs can't be saved right now
+ 
+
+Modified: antargis/trunk/ext/basic/templates.i
+===================================================================
+--- antargis/trunk/ext/basic/templates.i	2008-05-26 18:22:36 UTC (rev 1255)
++++ antargis/trunk/ext/basic/templates.i	2008-05-27 17:53:28 UTC (rev 1256)
+@@ -2,14 +2,11 @@
+ 
+ %template(StdVectorPNode) std::vector&lt;Node*&gt;;
+ %template(AGNodeList) std::vector&lt;Node&gt;;
+-//%template(AGNodePList) std::vector&lt;Node*&gt;;
+ 
+ 
+-
+ %template(StringVector) std::vector&lt;std::string&gt;;
+ %template(AGStringVector) std::vector&lt;AGString&gt;;
+ %template(AGStringUtf8Vector) std::vector&lt;AGStringUtf8&gt;;
+-//%template(AGFilenameVector) std::vector&lt;AGFilename&gt;;
+ %template(AGVector2List) std::list&lt;AGVector2&gt;;
+ 
+ 
+
+Modified: antargis/trunk/ext/game/map.cc
+===================================================================
+--- antargis/trunk/ext/game/map.cc	2008-05-26 18:22:36 UTC (rev 1255)
++++ antargis/trunk/ext/game/map.cc	2008-05-27 17:53:28 UTC (rev 1256)
+@@ -90,18 +90,13 @@
+ void AntMap::saveXML(Node &amp;node) const
+ {
+   HeightMap::saveXML(node);
+-  cdebug(&quot;height map saving ready&quot;);
+   // entities
+   std::list&lt;AntEntity*&gt;::const_iterator i=mEntities.begin();
+   for(;i!=mEntities.end();i++)
+     {
+-      cdebug(&quot;try saving child1 &quot;&lt;&lt;*i);
+       AGString s=(*i)-&gt;xmlName();
+-      cdebug(&quot;xmlName:&quot;&lt;&lt;s);
+       Node &amp;child=node.addChild(s);
+-      cdebug(&quot;try saving child2 &quot;&lt;&lt;*i);
+       (*i)-&gt;saveXML(child);
+-      cdebug(&quot;try saving child3 &quot;&lt;&lt;*i);
+     }
+ 
+ }
+
+Modified: antargis/trunk/rookey/cpp/ag_rubyobj.cc
+===================================================================
+--- antargis/trunk/rookey/cpp/ag_rubyobj.cc	2008-05-26 18:22:36 UTC (rev 1255)
++++ antargis/trunk/rookey/cpp/ag_rubyobj.cc	2008-05-27 17:53:28 UTC (rev 1256)
+@@ -135,7 +135,9 @@
+     // in case we're quitting this the deletion order is not defined for ruby-objects !!
+     if(mRubyObjects.find(o)==mRubyObjects.end())
+       {
++#ifdef GC_DEBUG
+         std::cerr&lt;&lt;&quot;RubyObject &quot;&lt;&lt;o&lt;&lt;&quot; no longer existant - maybe we're quitting ?!&quot;&lt;&lt;std::endl;
++#endif
+         return false;
+       }
+ 
+
+Modified: antargis/trunk/ruby/dialogs.rb
+===================================================================
+--- antargis/trunk/ruby/dialogs.rb	2008-05-26 18:22:36 UTC (rev 1255)
++++ antargis/trunk/ruby/dialogs.rb	2008-05-27 17:53:28 UTC (rev 1256)
+@@ -24,311 +24,311 @@
+ #
+ # the default time for blending to dark is 500 ms (this is not changeable)
+ class RectWidget&lt;AGWidget
+-	def initialize(p,r,opac)
+-		super(p,r)
+-		@opac=opac
+-		@startTime=$app.getTicks
+-		@blendTime=500.0
+-	end
+-	def draw(p)
+-		t=$app.getTicks
+-		b=(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">t- at startTime</A>)/@blendTime
+-		b=[1,b].min
+-		c=AGVector4.new(0,0,0,b*@opac)
+-		p.fillRect(getRect.origin,AGColor.new(c))
+-	end
+-	def eventMouseButtonDown(e)
+-		# eat up the events when visible
+-		if visible
+-			return true
+-		else
+-			return super(e)
+-		end
+-	end
++  def initialize(p,r,opac)
++    super(p,r)
++    @opac=opac
++    @startTime=$app.getTicks
++    @blendTime=500.0
++  end
++  def draw(p)
++    t=$app.getTicks
++    b=(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">t- at startTime</A>)/@blendTime
++    b=[1,b].min
++    c=AGVector4.new(0,0,0,b*@opac)
++    p.fillRect(getRect.origin,AGColor.new(c))
++  end
++  def eventMouseButtonDown(e)
++    # eat up the events when visible
++    if visible
++      return true
++    else
++      return super(e)
++    end
++  end
+ end
+ 
+ class AntDialog&lt;AGLayout
+-	include AGHandler
+-	def initialize(parent,filename,fade=true)
+-		super(parent)
+-		loadXML(loadFile(filename)) # it's safe here to call loadXML in constructor as &quot;self&quot; is already a ruby-object
+-		addHandler(getChild(&quot;ok&quot;),:sigClick,:eventOk)
+-		if getChild(&quot;cancel&quot;)
+-			addHandler(getChild(&quot;cancel&quot;),:sigClick,:eventCancel)
+-		end
+-		window=getChild(&quot;window&quot;)
+-		addHandler(window,:sigClose,:eventClose)
+-		addSignal(&quot;sigClosed&quot;)
+-		#setModal(true)
+-		if fade
+-			addChildBack(RectWidget.new(self,getRect.origin,0.5))
+-			AntSound.setQuietVolumeWave
+-		end
+-	end
+-	def eventOk(e)
+-		eventClose(e)
+-		return true
+-	end
+-	def eventCancel(e)
+-		eventClose(e)
+-		return true
+-	end
+-	
+-	def eventKeyDown(e)
+-		if super then return true end
++  include AGHandler
++  def initialize(parent,filename,fade=true)
++    super(parent)
++    loadXML(loadFile(filename)) # it's safe here to call loadXML in constructor as &quot;self&quot; is already a ruby-object
++    addHandler(getChild(&quot;ok&quot;),:sigClick,:eventOk)
++    if getChild(&quot;cancel&quot;)
++      addHandler(getChild(&quot;cancel&quot;),:sigClick,:eventCancel)
++    end
++    window=getChild(&quot;window&quot;)
++    addHandler(window,:sigClose,:eventClose)
++    addSignal(&quot;sigClosed&quot;)
++    #setModal(true)
++    if fade
++      addChildBack(RectWidget.new(self,getRect.origin,0.5))
++      AntSound.setQuietVolumeWave
++    end
++  end
++  def eventOk(e)
++    eventClose(e)
++    return true
++  end
++  def eventCancel(e)
++    eventClose(e)
++    return true
++  end
++  
++  def eventKeyDown(e)
++    if super then return true end
+ 
+-		case e.getKey
+-			when SDLK_ESCAPE
+-				getApp.getMap.pause=false
+-				eventClose(e)
+-				return true
+-			when SDLK_RETURN, SDLK_SPACE
+-				eventOk(e)
+-		end
+-		return false
+-	end
+-	def eventClose(e)
+-		close
+-		sigClosed(AGEvent.new(self,&quot;sigClosed&quot;))
+-		AntSound.setNormalVolumeWave
+-		return true
+-	end
++    case e.getKey
++      when SDLK_ESCAPE
++        getApp.getMap.pause=false
++        eventClose(e)
++        return true
++      when SDLK_RETURN, SDLK_SPACE
++        eventOk(e)
++    end
++    return false
++  end
++  def eventClose(e)
++    close
++    sigClosed(AGEvent.new(self,&quot;sigClosed&quot;))
++    AntSound.setNormalVolumeWave
++    return true
++  end
+ end
+ 
+ class AntStoryTalk&lt;AntDialog
+-	def initialize(parent)
+-		super(parent,&quot;data/gui/layout/storytalk.xml&quot;,false)
+-		getApp.getMap().pause=true
+-		addHandler(getChild(&quot;window&quot;),:sigClose,:eventOk)
+-		addHandler(getChild(&quot;back&quot;),:sigClick,:eventBack)
+-		addHandler(getChild(&quot;forward&quot;),:sigClick,:eventClose)
+-		addSignal(&quot;sigStoryFinished&quot;)
+-	end
+-	def setFlow(flow)
+-		if @flow.nil?
+-			@flow=flow
+-		else
+-			@flow.append(flow)
+-		end
+-		updateText
+-	end
+-	def setText(text)
+-		getChild(&quot;text&quot;).setText(_(text))
+-	end
+-	def setTitle(text)
+-		# it's AGText # FIXME: maybe exchange all AGText usages by AGEdit
+-		getChild(&quot;title&quot;).setText(_(text))
+-	end
++  def initialize(parent)
++    super(parent,&quot;data/gui/layout/storytalk.xml&quot;,false)
++    getApp.getMap().pause=true
++    addHandler(getChild(&quot;window&quot;),:sigClose,:eventOk)
++    addHandler(getChild(&quot;back&quot;),:sigClick,:eventBack)
++    addHandler(getChild(&quot;forward&quot;),:sigClick,:eventClose)
++    addSignal(&quot;sigStoryFinished&quot;)
++  end
++  def setFlow(flow)
++    if @flow.nil?
++      @flow=flow
++    else
++      @flow.append(flow)
++    end
++    updateText
++  end
++  def setText(text)
++    getChild(&quot;text&quot;).setText(_(text))
++  end
++  def setTitle(text)
++    # it's AGText # FIXME: maybe exchange all AGText usages by AGEdit
++    getChild(&quot;title&quot;).setText(_(text))
++  end
+ 
+-	def setFace(s)
+-		getChild(&quot;face&quot;).setSurface(s)
+-	end
++  def setFace(s)
++    getChild(&quot;face&quot;).setSurface(s)
++  end
+ 
+-	def updateText
+-		c=@flow.get
+-		if c
+-			setTitle(c[0])
+-			setFace(getApp.getMap.getPortrait(c[0]))
+-			setText(c[1])
+-			return true
+-		else
+-			return false
+-		end
+-	end
+-	
+-	# signals	
+-	def eventClose(e)
+-		if not updateText
+-			sigStoryFinished(e)
+-			getApp.getMap().pause=false
+-			hide
+-			super
+-		else
+-			getChild(&quot;window&quot;).show
+-		end
+-		return true
+-	end
+-	def eventBack(e)
+-		@flow.back
+-		@flow.back
+-		updateText
+-	end
++  def updateText
++    c=@flow.get
++    if c
++      setTitle(c[0])
++      setFace(getApp.getMap.getPortrait(c[0]))
++      setText(c[1])
++      return true
++    else
++      return false
++    end
++  end
++  
++  # signals  
++  def eventClose(e)
++    if not updateText
++      sigStoryFinished(e)
++      getApp.getMap().pause=false
++      hide
++      super
++    else
++      getChild(&quot;window&quot;).show
++    end
++    return true
++  end
++  def eventBack(e)
++    @flow.back
++    @flow.back
++    updateText
++  end
+ end
+ 
+ class AntInspectWindow&lt;AntDialog
+-	def initialize(p,ent)
+-		@ent=ent
+-		super(p,&quot;data/gui/layout/inspect.xml&quot;)
+-	end
+-	def draw(p)
+-		update
+-		super
+-	end
++  def initialize(p,ent)
++    @ent=ent
++    super(p,&quot;data/gui/layout/inspect.xml&quot;)
++  end
++  def draw(p)
++    update
++    super
++  end
+ private
+-	def update
+-		text=@ent.getDescription
+-		if @oldtext!=text
+-			getChild(&quot;text&quot;).setText(text)
+-			@oldtext=text
+-			getChild(&quot;window&quot;).getChild(&quot;title&quot;).setText(_(@ent.getName))
+-		end
+-	end
++  def update
++    text=@ent.getDescription
++    if @oldtext!=text
++      getChild(&quot;text&quot;).setText(text)
++      @oldtext=text
++      getChild(&quot;window&quot;).getChild(&quot;title&quot;).setText(_(@ent.getName))
++    end
++  end
+ end
+ 
+ class AntQuitDialog&lt;AntDialog
+-	def initialize(parent)
+-		super(parent,&quot;data/gui/layout/quitquery.xml&quot;)
+-		setName(&quot;QuitDialog&quot;)
+-		getApp.getMap.pause=true
+-	end
+-	def eventClose(e)
+-		getApp.getMap.pause=false
+-		super
+-		return true
+-	end
+-	def eventOk(e)
+-		$app.tryQuit
+-		return true
+-	end
++  def initialize(parent)
++    super(parent,&quot;data/gui/layout/quitquery.xml&quot;)
++    setName(&quot;QuitDialog&quot;)
++    getApp.getMap.pause=true
++  end
++  def eventClose(e)
++    getApp.getMap.pause=false
++    super
++    return true
++  end
++  def eventOk(e)
++    $app.tryQuit
++    return true
++  end
+ end
+ 
+ class AntOptionsDialog&lt;AntDialog
+-	def initialize(parent)
+-		super(parent,&quot;data/gui/layout/dialog_options.xml&quot;)
+-		setName(&quot;OptionsDialog&quot;)
+-		addHandler(getChild(&quot;save&quot;),:sigClick,:eventSave)
+-		addHandler(getChild(&quot;load&quot;),:sigClick,:eventLoad)
+-		addHandler(getChild(&quot;story&quot;),:sigClick,:eventStory)
+-		addHandler(getChild(&quot;video&quot;),:sigClick,:eventVideo)
+-		addHandler(getChild(&quot;audio&quot;),:sigClick,:eventAudio)
+-		getApp.getMap.pause=true
+-	end
+-	def eventStory
+-		close
+-		f=StoryFlow.new(&quot;&quot;)
+-		$app.tellStory(f)
+-		return true
+-	end
+-	def eventVideo
+-		$app.videoOptions
+-		close
+-		return true
+-	end
+-	def eventAudio
+-		$app.audioOptions
+-		close
+-		return true
+-	end
+-	def eventSave
+-		$app.save
+-		close
+-		return true
+-	end
+-	def eventLoad
+-		$app.load
+-		close
+-		return true
+-	end
+-	def eventClose(e)
+-		getApp.getMap.pause=false
+-		super
+-		return true
+-	end
++  def initialize(parent)
++    super(parent,&quot;data/gui/layout/dialog_options.xml&quot;)
++    setName(&quot;OptionsDialog&quot;)
++    addHandler(getChild(&quot;save&quot;),:sigClick,:eventSave)
++    addHandler(getChild(&quot;load&quot;),:sigClick,:eventLoad)
++    addHandler(getChild(&quot;story&quot;),:sigClick,:eventStory)
++    addHandler(getChild(&quot;video&quot;),:sigClick,:eventVideo)
++    addHandler(getChild(&quot;audio&quot;),:sigClick,:eventAudio)
++    getApp.getMap.pause=true
++  end
++  def eventStory
++    close
++    f=StoryFlow.new(&quot;&quot;)
++    $app.tellStory(f)
++    return true
++  end
++  def eventVideo
++    $app.videoOptions
++    close
++    return true
++  end
++  def eventAudio
++    $app.audioOptions
++    close
++    return true
++  end
++  def eventSave
++    $app.save
++    close
++    return true
++  end
++  def eventLoad
++    $app.load
++    close
++    return true
++  end
++  def eventClose(e)
++    getApp.getMap.pause=false
++    super
++    return true
++  end
+ end
+ 
+ def takeScreenshot
+-	$app.hidePanel
+-	$app.draw
+-	s=getScreen.screenshotSurface
+-	$app.showPanel
+-	s
++  $app.hidePanel
++  $app.draw
++  s=getScreen.screenshotSurface
++  $app.showPanel
++  s
+ end
+ 
+ def takeSmallScreenshot
+-	takeScreenshot.scale(256,192)
++  takeScreenshot.scale(256,192)
+ end
+ 
+ class AntSaveDialog&lt;AntDialog
+-	def initialize(parent)
+-		super(parent,&quot;data/gui/layout/savedialog.xml&quot;)
+-	end
+-	def eventOk(e)
+-		filename=getChild(&quot;Filename&quot;).getText
+-		#puts &quot;FILENAME:&quot;+filename.to_s
+-		if not filename =~ /.*\.antlvl/ then
+-			filename=filename.to_s+&quot;.antlvl&quot;
+-		end
+-		hide
+-		map=getApp.getMap
+-		path=getSavePath+&quot;/&quot;+filename
+-		map.saveMap(path)
+-		takeSmallScreenshot.save(getSavePath+&quot;/#{filename.gsub(&quot;antlvl&quot;,&quot;png&quot;)}&quot;)
+-		getApp.getMap.pause=false
+-		AntSound.setNormalVolumeWave
+-		close
+-		return true
+-	end
++  def initialize(parent)
++    super(parent,File.join(&quot;data&quot;,&quot;gui&quot;,&quot;layout&quot;,&quot;savedialog.xml&quot;))
++  end
++  def eventOk(e)
++    filename=getChild(&quot;Filename&quot;).getText
++    #puts &quot;FILENAME:&quot;+filename.to_s
++    if not filename =~ /.*\.antlvl/ then
++      filename=filename.to_s+&quot;.antlvl&quot;
++    end
++    hide
++    map=getApp.getMap
++    path=getSavePath+&quot;/&quot;+filename
++    map.saveMap(path)
++    takeSmallScreenshot.save(getSavePath+&quot;/#{filename.gsub(&quot;antlvl&quot;,&quot;png&quot;)}&quot;)
++    getApp.getMap.pause=false
++    AntSound.setNormalVolumeWave
++    close
++    return true
++  end
+ end
+ 
+ class AntSaveCampaignDialog&lt;AntDialog
+-	def initialize(parent)
+-		super(parent,&quot;data/gui/layout/savedialog.xml&quot;)
+-		if $campaign==nil
+-			raise &quot;saving while not in campaign!&quot;
+-		end
+-		getChild(&quot;window&quot;).getChild(&quot;title&quot;).setText(_(&quot;Save campaign&quot;))
+-	end
+-	def eventOk(e)
+-		filename=getChild(&quot;Filename&quot;).getText.to_s
+-		puts &quot;FILENAME:&quot;+filename.to_s
+-		if not filename =~ /.*\.antcmp/ then
+-			filename=filename+&quot;.antcmp&quot;
+-		end
+-		hide
+-		$campaign.save(&quot;savegames/&quot;+filename)
+-		takeSmallScreenshot.save(&quot;savegames/#{filename.gsub(&quot;antcmp&quot;,&quot;png&quot;)}&quot;)
+-		#getApp.getMap.saveMap(&quot;savegames/&quot;+filename)
+-		getApp.getMap.pause=false
+-		close
+-		return true
+-	end
+-	def eventClose(e)
+-		getApp.getMap.pause=false
+-		super
+-		return true
+-	end
++  def initialize(parent)
++    super(parent,&quot;data/gui/layout/savedialog.xml&quot;)
++    if $campaign==nil
++      raise &quot;saving while not in campaign!&quot;
++    end
++    getChild(&quot;window&quot;).getChild(&quot;title&quot;).setText(_(&quot;Save campaign&quot;))
++  end
++  def eventOk(e)
++    filename=getChild(&quot;Filename&quot;).getText.to_s
++    puts &quot;FILENAME:&quot;+filename.to_s
++    if not filename =~ /.*\.antcmp/ then
++      filename=filename+&quot;.antcmp&quot;
++    end
++    hide
++    $campaign.save(&quot;savegames/&quot;+filename)
++    takeSmallScreenshot.save(&quot;savegames/#{filename.gsub(&quot;antcmp&quot;,&quot;png&quot;)}&quot;)
++    #getApp.getMap.saveMap(&quot;savegames/&quot;+filename)
++    getApp.getMap.pause=false
++    close
++    return true
++  end
++  def eventClose(e)
++    getApp.getMap.pause=false
++    super
++    return true
++  end
+ end
+ 
+ class AntLoadDialog&lt;AntDialog
+-	def initialize(parent)
+-		super(parent,&quot;data/gui/layout/loaddialog.xml&quot;)
+-		d=getDirectory(getSavePath)
+-		@lb=getChild(&quot;Files&quot;)
+-		puts d
+-		d.each { |x|
+-			if x =~ /.*\.antlvl/ then
+-				puts &quot;FILE:&quot;+x
+-				value=x.gsub(&quot;.antlvl&quot;,&quot;&quot;)
+-				@lb.insertItem(x,AGStringUtf8.new(value))
+-			end
+-		}
+-	end
+-	def eventOk(e)
+-		file=@lb.getSelectedID
+-		if file!=&quot;&quot; then
+-			getApp.getMap.clear
+-			getApp.getMap.loadMap(getSavePath+&quot;/&quot;+file)
+-			GC.start
+-		end
+-		getApp.getMap.pause=false
+-		close
+-		return true
+-	end
+-	def eventClose(e)
+-		getApp.getMap.pause=false
+-		super
+-		return true
+-	end
++  def initialize(parent)
++    super(parent,&quot;data/gui/layout/loaddialog.xml&quot;)
++    d=getDirectory(getSavePath)
++    @lb=getChild(&quot;Files&quot;)
++    puts d
++    d.each { |x|
++      if x =~ /.*\.antlvl/ then
++        puts &quot;FILE:&quot;+x
++        value=x.gsub(&quot;.antlvl&quot;,&quot;&quot;)
++        @lb.insertItem(x,AGStringUtf8.new(value))
++      end
++    }
++  end
++  def eventOk(e)
++    file=@lb.getSelectedID
++    if file!=&quot;&quot; then
++      getApp.getMap.clear
++      getApp.getMap.loadMap(getSavePath+&quot;/&quot;+file)
++      GC.start
++    end
++    getApp.getMap.pause=false
++    close
++    return true
++  end
++  def eventClose(e)
++    getApp.getMap.pause=false
++    super
++    return true
++  end
+ end
+ 
+ 
+@@ -336,241 +336,241 @@
+ # you can set music,ambient and sound volumes there
+ # volumes are stored into the config.xml file.
+ class AntAudioOptionsDialog&lt;AntDialog
+-	def initialize(parent)
+-		super(parent,&quot;data/gui/layout/dialog_audio_options.xml&quot;)
++  def initialize(parent)
++    super(parent,&quot;data/gui/layout/dialog_audio_options.xml&quot;)
+ 
+-		@barnames=[&quot;music&quot;,&quot;ambient&quot;,&quot;sound&quot;]
+-		@bars={}
+-		@barnames.each{|n|
+-			@bars[n]=getChild(n+&quot;Bar&quot;)
+-		}
+-		@barnames.each{|n|
+-			cname=&quot;inc#{n[0..0].upcase+n[1..-1]}&quot;
+-			addHandler(getChild(cname),:sigClick,:eventModBar)
+-			cname=&quot;dec#{n[0..0].upcase+n[1..-1]}&quot;
+-			addHandler(getChild(cname),:sigClick,:eventModBar)
+-		}
++    @barnames=[&quot;music&quot;,&quot;ambient&quot;,&quot;sound&quot;]
++    @bars={}
++    @barnames.each{|n|
++      @bars[n]=getChild(n+&quot;Bar&quot;)
++    }
++    @barnames.each{|n|
++      cname=&quot;inc#{n[0..0].upcase+n[1..-1]}&quot;
++      addHandler(getChild(cname),:sigClick,:eventModBar)
++      cname=&quot;dec#{n[0..0].upcase+n[1..-1]}&quot;
++      addHandler(getChild(cname),:sigClick,:eventModBar)
++    }
+ 
+-		getApp.getMap.pause=true
+-		readVolumes
+-	end
++    getApp.getMap.pause=true
++    readVolumes
++  end
+ 
+-	# eventHandler for a + or - Button being pressed
+-	# resets set bar-values then.
+-	def eventModBar(e)
+-		name=e.getCaller.getName
+-		what=name[0..2]
+-		barname=name[3..-1].downcase
+-		case what
+-			when &quot;inc&quot;
+-				@bars[barname].setValue(@bars[barname].getValue+0.1)
+-			when &quot;dec&quot;
+-				@bars[barname].setValue(@bars[barname].getValue-0.1)
+-		end
+-		updateVolumesP
+-	end
+-	def eventOk(e)
+-		getApp.getMap.pause=false
+-		close
+-		return true
+-	end
++  # eventHandler for a + or - Button being pressed
++  # resets set bar-values then.
++  def eventModBar(e)
++    name=e.getCaller.getName
++    what=name[0..2]
++    barname=name[3..-1].downcase
++    case what
++      when &quot;inc&quot;
++        @bars[barname].setValue(@bars[barname].getValue+0.1)
++      when &quot;dec&quot;
++        @bars[barname].setValue(@bars[barname].getValue-0.1)
++    end
++    updateVolumesP
++  end
++  def eventOk(e)
++    getApp.getMap.pause=false
++    close
++    return true
++  end
+ private
+-	# read volumes from config-file
+-	def readVolumes
+-		@barnames.each{|n|
+-			@bars[n].setValue(getConfig.get(&quot;#{n}Volume&quot;).to_f)
+-		}
+-	
+-		updateVolumesP
+-	end
+-	# saves volumes to config-file and sets current volumes
+-	def updateVolumesP
+-		@bars.each{|n,v|
+-			getConfig.set(&quot;#{n}Volume&quot;,v.getValue.to_s)
+-		}
+-		AntSound.updateVolumes
+-	end
++  # read volumes from config-file
++  def readVolumes
++    @barnames.each{|n|
++      @bars[n].setValue(getConfig.get(&quot;#{n}Volume&quot;).to_f)
++    }
++  
++    updateVolumesP
++  end
++  # saves volumes to config-file and sets current volumes
++  def updateVolumesP
++    @bars.each{|n,v|
++      getConfig.set(&quot;#{n}Volume&quot;,v.getValue.to_s)
++    }
++    AntSound.updateVolumes
++  end
+ end
+ 
+ 
+ class AntVideoOptionsDialog&lt;AntDialog
+-	def initialize(parent)
+-		super(parent,&quot;data/gui/layout/dialog_video_options.xml&quot;)
+-		addHandler(getChild(&quot;fullscreen&quot;),:sigClick,:eventFullscreen)
+-		addHandler(getChild(&quot;shadow&quot;),:sigClick,:eventShadow)
+-		addHandler(getChild(&quot;animation&quot;),:sigClick,:eventAnimation)
+-		addHandler(getChild(&quot;particle&quot;),:sigClick,:eventParticle)
+-		addHandler(getChild(&quot;1024&quot;),:sigClick,:event1024)
+-		addHandler(getChild(&quot;1280&quot;),:sigClick,:event1280)
+-		addHandler(getChild(&quot;1400&quot;),:sigClick,:event1400)
+-		getApp.getMap.pause=true
+-	end
+-	def eventOk(e)
+-		getApp.getMap.pause=false
+-		close
+-		return true
+-	end
+-	def eventFullscreen
+-	  getMain.toggleFull
+-		return true
+-	end
+-	def eventParticle
+-		toggleConfig(&quot;particleEffects&quot;)
+-	end
+-	def eventAnimation
+-		toggleConfig(&quot;animationType&quot;)
+-	end
+-	def eventShadow
+-		s=$app.getScene
+-		case s.getShadow
+-			when 0
+-				s.setShadow(1)
+-			else
+-				s.setShadow(0)
+-		end
+-		return true
+-	end
+-	def event1024
+-		setRes(1024,768)
+-		return true
+-	end
+-	def event1280
+-		setRes(1280,1024)
+-		return true
+-	end
+-	def event1400
+-		setRes(1400,1050)
+-		return true
+-	end
+-	def setRes(w,h)
+-		getMain.initVideo(w,h,32,getMain.fullscreen,true)
+-		return true
+-	end
++  def initialize(parent)
++    super(parent,&quot;data/gui/layout/dialog_video_options.xml&quot;)
++    addHandler(getChild(&quot;fullscreen&quot;),:sigClick,:eventFullscreen)
++    addHandler(getChild(&quot;shadow&quot;),:sigClick,:eventShadow)
++    addHandler(getChild(&quot;animation&quot;),:sigClick,:eventAnimation)
++    addHandler(getChild(&quot;particle&quot;),:sigClick,:eventParticle)
++    addHandler(getChild(&quot;1024&quot;),:sigClick,:event1024)
++    addHandler(getChild(&quot;1280&quot;),:sigClick,:event1280)
++    addHandler(getChild(&quot;1400&quot;),:sigClick,:event1400)
++    getApp.getMap.pause=true
++  end
++  def eventOk(e)
++    getApp.getMap.pause=false
++    close
++    return true
++  end
++  def eventFullscreen
++    getMain.toggleFull
++    return true
++  end
++  def eventParticle
++    toggleConfig(&quot;particleEffects&quot;)
++  end
++  def eventAnimation
++    toggleConfig(&quot;animationType&quot;)
++  end
++  def eventShadow
++    s=$app.getScene
++    case s.getShadow
++      when 0
++        s.setShadow(1)
++      else
++        s.setShadow(0)
++    end
++    return true
++  end
++  def event1024
++    setRes(1024,768)
++    return true
++  end
++  def event1280
++    setRes(1280,1024)
++    return true
++  end
++  def event1400
++    setRes(1400,1050)
++    return true
++  end
++  def setRes(w,h)
++    getMain.initVideo(w,h,32,getMain.fullscreen,true)
++    return true
++  end
+ private
+-	def toggleConfig(n)
+-		if getConfig.get(n)==&quot;false&quot;
+-			getConfig.set(n,&quot;true&quot;)
+-		else
+-			getConfig.set(n,&quot;false&quot;)
+-		end
+-	end
++  def toggleConfig(n)
++    if getConfig.get(n)==&quot;false&quot;
++      getConfig.set(n,&quot;true&quot;)
++    else
++      getConfig.set(n,&quot;false&quot;)
++    end
++  end
+ end
+ 
+ class AntPauseDialog&lt;AntDialog
+-	def initialize(parent)
+-		super(parent,&quot;data/gui/layout/pause.xml&quot;)
+-		setName(&quot;PauseDialog&quot;)
+-		if getApp.getMap
+-			getApp.getMap.pause=true
+-		end
+-	end
+-	def eventOk(e)
+-		getApp.getMap.pause=false
+-		super
+-		return true
+-	end
++  def initialize(parent)
++    super(parent,&quot;data/gui/layout/pause.xml&quot;)
++    setName(&quot;PauseDialog&quot;)
++    if getApp.getMap
++      getApp.getMap.pause=true
++    end
++  end
++  def eventOk(e)
++    getApp.getMap.pause=false
++    super
++    return true
++  end
+ end
+ 
+ class AntQueryDialog&lt;AntDialog
+-	def initialize(parent,file=nil,&amp;block)
+-		if file==nil
+-			file=&quot;data/gui/layout/query_dialog.xml&quot;
+-		end
+-		super(parent,file)
++  def initialize(parent,file=nil,&amp;block)
++    if file==nil
++      file=&quot;data/gui/layout/query_dialog.xml&quot;
++    end
++    super(parent,file)
+ 
+-		@block=block
++    @block=block
+ 
+-		setName(&quot;PauseDialog&quot;)
+-		if getApp.getMap
+-			getApp.getMap.pause=true
+-		end
+-	end
+-	def eventCancel(e)
+-		getApp.getMap.pause=false
+-		super
+-		return true
+-	end
++    setName(&quot;PauseDialog&quot;)
++    if getApp.getMap
++      getApp.getMap.pause=true
++    end
++  end
++  def eventCancel(e)
++    getApp.getMap.pause=false
++    super
++    return true
++  end
+ 
+-	def eventOk(e)
+-		getApp.getMap.pause=false
+-		super
++  def eventOk(e)
++    getApp.getMap.pause=false
++    super
+ 
+-		@block.call
+-		return true
+-	end
++    @block.call
++    return true
++  end
+ end
+ 
+ # draw a simple (loading) bar
+ class AGBar&lt;AGWidget
+-	# contructor-parameters:
+-	# * p - parent widget
+-	# * r - rectangle of widget in client area of p
+-	# * c - color of the bar
+-	# * bc - background-color of the bar
+-	# the default value is 0.5
+-	def initialize(p,r,c,bc)
+-		super(p,r)
+-		@color=c
+-		@bcolor=bc
+-		@value=0.5
++  # contructor-parameters:
++  # * p - parent widget
++  # * r - rectangle of widget in client area of p
++  # * c - color of the bar
++  # * bc - background-color of the bar
++  # the default value is 0.5
++  def initialize(p,r,c,bc)
++    super(p,r)
++    @color=c
++    @bcolor=bc
++    @value=0.5
+ 
+-		@c0=c*0.7
+-		@c1=c*0.7
+-		@c2=c*1.2
+-		@c3=c
++    @c0=c*0.7
++    @c1=c*0.7
++    @c2=c*1.2
++    @c3=c
+ 
+-		@b0=bc*0.7
+-		@b1=bc*0.7
+-		@b2=bc*1.2
+-		@b3=bc
+-	end
+-	# get the current value
+-	def getValue
+-		@value
+-	end
+-	# sets the bar to the value of v, which should be between 0 and 1
+-	def setValue(v)
+-		@value=[0,v,1].sort[1]
+-	end
++    @b0=bc*0.7
++    @b1=bc*0.7
++    @b2=bc*1.2
++    @b3=bc
++  end
++  # get the current value
++  def getValue
++    @value
++  end
++  # sets the bar to the value of v, which should be between 0 and 1
++  def setValue(v)
++    @value=[0,v,1].sort[1]
++  end
+ 
+-	# draw 2 super-imposed gradients with painter p
+-	# this is called automatically
+-	def draw(p)
+-		p.drawGradient(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">getRect.origin, at b0</A><A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at b1</A><A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at b2</A><A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at b3</A>)
+-		p.drawGradient(AGRect.new(0,0,width*@value,height)<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at c0</A><A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at c1</A><A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at c2</A><A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at c3</A>)
+-	end
++  # draw 2 super-imposed gradients with painter p
++  # this is called automatically
++  def draw(p)
++    p.drawGradient(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">getRect.origin, at b0</A><A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at b1</A><A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at b2</A><A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at b3</A>)
++    p.drawGradient(AGRect.new(0,0,width*@value,height)<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at c0</A><A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at c1</A><A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at c2</A><A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at c3</A>)
++  end
+ 
+-	# load value from XML - parameter &quot;value&quot;
+-	def loadXML(n)
+-		super
+-		@value=n.get(&quot;value&quot;).to_f
+-		redraw
+-	end
++  # load value from XML - parameter &quot;value&quot;
++  def loadXML(n)
++    super
++    @value=n.get(&quot;value&quot;).to_f
++    redraw
++  end
+ end
+ 
+ 
+ # the creator class for a AGBar
+ class AGBarCreator&lt;AGLayoutCreator
+-	# overrides the AGLayoutCreator function
+-	# * p Widget parent
+-	# * r client rectangle
+-	# * n XML-Node describing the agbar
+-	def create(p,r,n)
+-		c=AGColor.new(n.get(&quot;color&quot;))
+-		bc=AGColor.new(n.get(&quot;bgcolor&quot;))
+-		w=AGBar.new(p,r,c,bc)
+-		setResult(w)
+-	end
++  # overrides the AGLayoutCreator function
++  # * p Widget parent
++  # * r client rectangle
++  # * n XML-Node describing the agbar
++  def create(p,r,n)
++    c=AGColor.new(n.get(&quot;color&quot;))
++    bc=AGColor.new(n.get(&quot;bgcolor&quot;))
++    w=AGBar.new(p,r,c,bc)
++    setResult(w)
++  end
+ end
+ getLayoutFactory.addCreator(&quot;bar&quot;,AGBarCreator.new)
+ 
+ 
+ # a widget for displaying the &quot;loading...&quot; screen
+ class LoadScreen&lt;AGLayout
+-	def initialize(p)
+-		super(p)
+-		loadXML(loadFile(&quot;data/gui/layout/loadscreen.xml&quot;)) # ok - see at AntDialog
+-	end
++  def initialize(p)
++    super(p)
++    loadXML(loadFile(&quot;data/gui/layout/loadscreen.xml&quot;)) # ok - see at AntDialog
++  end
+ end
+ 
+ # this is an application object for showing the screen with loading... bar
+@@ -583,57 +583,57 @@
+ # loadscreen.tick
+ # and so on
+ class LoadApp&lt;AntApplication
+-	def initialize
+-		super
+-		@s=LoadScreen.new(nil)
+-		setMainWidget(@s)
+-	end
+-	def setValue(p)
+-		@s.getChild(&quot;bar&quot;).setValue(p)
+-	end
+-	def tick
+-		prepareDraw
+-		draw
+-	end
++  def initialize
++    super
++    @s=LoadScreen.new(nil)
++    setMainWidget(@s)
++  end
++  def setValue(p)
++    @s.getChild(&quot;bar&quot;).setValue(p)
++  end
++  def tick
++    prepareDraw
++    draw
++  end
+ end
+ 
+ class AntBuildDialog&lt;AGLayout
+-	def initialize(p,pos,hero)
+-		super(p)
+-		@pos=pos
+-		@hero=hero
+-		loadXML(loadFile(&quot;data/gui/layout/build_dialog.xml&quot;))
++  def initialize(p,pos,hero)
++    super(p)
++    @pos=pos
++    @hero=hero
++    loadXML(loadFile(&quot;data/gui/layout/build_dialog.xml&quot;))
+ 
+-		addHandler(getChild(&quot;cancel&quot;),:sigClick,:eventCancel)
+-		ds=getDescendantsOfClass(AntHouse)
+-		@map={}
+-		ds.each{|d|
+-			c=getChild(d.to_s)
+-			if c
+-				addHandler(c,:sigClick,:eventBuild)
+-				@map[d.to_s]=d
+-			end
+-		}
+-	end
+-	def eventCancel(e)
+-		close
+-		return true
+-	end
+-	def eventBuild(e)
+-		if false
+-			# direct placement
+-			house=@map[e.getCaller.getName].new
+-			puts &quot;POS:#{@pos}&quot;
+-			house.setPos(@pos)
+-			getApp.getMap.insertEntity(house)
+-			house.setPlayer(getApp.getMap.getPlayer)
+-			house.setName(house.class.to_s.gsub(&quot;Ant&quot;,&quot;&quot;))
+-		else
+-			@hero.newHLBuildJob(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">pos, at map</A>[e.getCaller.getName])
+-		end
+-		close
+-		return true
+-	end
++    addHandler(getChild(&quot;cancel&quot;),:sigClick,:eventCancel)
++    ds=getDescendantsOfClass(AntHouse)
++    @map={}
++    ds.each{|d|
++      c=getChild(d.to_s)
++      if c
++        addHandler(c,:sigClick,:eventBuild)
++        @map[d.to_s]=d
++      end
++    }
++  end
++  def eventCancel(e)
++    close
++    return true
++  end
++  def eventBuild(e)
++    if false
++      # direct placement
++      house=@map[e.getCaller.getName].new
++      puts &quot;POS:#{@pos}&quot;
++      house.setPos(@pos)
++      getApp.getMap.insertEntity(house)
++      house.setPlayer(getApp.getMap.getPlayer)
++      house.setName(house.class.to_s.gsub(&quot;Ant&quot;,&quot;&quot;))
++    else
++      @hero.newHLBuildJob(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">pos, at map</A>[e.getCaller.getName])
++    end
++    close
++    return true
++  end
+ end
+ 
+ require 'ant_messagebox.rb'
+
+Modified: antargis/trunk/ruby/jobs/ant_hljob_base.rb
+===================================================================
+--- antargis/trunk/ruby/jobs/ant_hljob_base.rb	2008-05-26 18:22:36 UTC (rev 1255)
++++ antargis/trunk/ruby/jobs/ant_hljob_base.rb	2008-05-27 17:53:28 UTC (rev 1256)
+@@ -1,6 +1,8 @@
+ require 'jobs/ant_state_machine.rb'
+ 
+ class AntNewHLJob&lt;BaseMachine
++  include XMLSaver
++  
+ 	attr_reader :finished, :stopped
+ 	# some magic here
+ 	def initialize(hero,startState=nil)
+@@ -12,9 +14,19 @@
+ 
+ 		firstCall
+ 	end
++  
++  def xmlName
++    self.class.to_s
++  end
++  #def saveXML(n)
++  #  saveXMLNode(n)
++    #if hasState
++    #  sNode=n.addChild(&quot;state&quot;)
++    #  state.saveXMLNode(sNode)
++    #end
++  #end
+ 
+ 	def getTime
+-		#puts &quot;getTime&quot;
+ 		@hero.getMap.getTime
+ 	end
+ 
+
+Modified: antargis/trunk/ruby/jobs/ant_hljob_states.rb
+===================================================================
+--- antargis/trunk/ruby/jobs/ant_hljob_states.rb	2008-05-26 18:22:36 UTC (rev 1255)
++++ antargis/trunk/ruby/jobs/ant_hljob_states.rb	2008-05-27 17:53:28 UTC (rev 1256)
+@@ -4,765 +4,832 @@
+ require 'jobs/ant_state_machine.rb'
+ 
+ class Module
+-	def wrap(objectName,methodName,objectMethodName=nil)
+-		objectMethodName||=methodName
+-		ts=&quot;*s&quot;
+-		ts=&quot;s&quot; if methodName=~/.*=$/
+-		s=&quot;def #{methodName}(#{ts})\n#{objectName}.#{objectMethodName}(#{ts})\nend\n&quot;
+-		#puts s
+-		module_eval s
+-	end
++  def wrap(objectName,methodName,objectMethodName=nil)
++    objectMethodName||=methodName
++    ts=&quot;*s&quot;
++    ts=&quot;s&quot; if methodName=~/.*=$/
++    s=&quot;def #{methodName}(#{ts})\n#{objectName}.#{objectMethodName}(#{ts})\nend\n&quot;
++    #puts s
++    module_eval s
++  end
+ end
+ 
+ 
++
++module XMLSaver
++  def saveXML(node)
++    XMLSaver.saveXML(self,node)
++    if false
++    instance_variables.each{|n|
++      if n!=&quot;@machine&quot;
++        v=instance_variable_get(n)
++        
++        m=node.addChild(&quot;member&quot;)
++        m.set(&quot;name&quot;,n.to_s)
++        m.set(&quot;type&quot;,v.class.to_s)
++        unless XMLSaver.saveXML(v,m)
++          puts &quot;unknown type #{n}:#{v}&quot;
++        end
++        p &quot;#{n}:#{v}&quot;
++      end
++    }
++    pp instance_variables
++    end
++    #raise &quot;not implemented&quot;
++  end
++  
++  def XMLSaver.saveXML(what,node)
++    node.set(&quot;type&quot;,what.class.to_s)
++    case what
++      when Numeric,String,FalseClass,TrueClass,Symbol
++        node.set(&quot;value&quot;,what.to_s)
++      when AntEntity
++        node.set(&quot;value&quot;,what.uid.to_s)
++      when Hash
++        what.each{|k,v|
++          n=node.addChild(&quot;element&quot;)
++          saveXML(k,n.addChild(&quot;key&quot;))
++          saveXML(v,n.addChild(&quot;value&quot;))
++        }
++      when Array
++        what.each{|v|
++          n=node.addChild(&quot;element&quot;)
++          #n.set(&quot;type&quot;,v.class.to_s)
++          XMLSaver.saveXML(n,v)
++        }
++      when HLJob_BaseState, AntNewHLJob
++        what.instance_variables.each{|n|
++          if n!=&quot;@machine&quot;
++            v=what.instance_variable_get(n)
++            
++            m=node.addChild(&quot;member&quot;)
++            m.set(&quot;name&quot;,n.to_s)
++            #m.set(&quot;type&quot;,v.class.to_s)
++            unless XMLSaver.saveXML(v,m)
++              puts &quot;unknown type #{n}:#{v}&quot;
++            end
++          end
++        }        
++      else
++        pp &quot;UNKNOWN:&quot;,what.class.to_s
++        return false
++    end
++    true
++  end
++  
++end
++
+ module HLJob_Additions
+-	attr_accessor :machine
+-	[&quot;getMap&quot;,&quot;getRand&quot;,&quot;hero&quot;,&quot;allMen&quot;,&quot;getTime&quot;,&quot;targetPos&quot;,&quot;targetPos=&quot;,&quot;formatDir&quot;,&quot;formatDir=&quot;,&quot;target&quot;].each{|n|wrap &quot;machine&quot;,n}
++  attr_accessor :machine
++  [&quot;getMap&quot;,&quot;getRand&quot;,&quot;hero&quot;,&quot;allMen&quot;,&quot;getTime&quot;,&quot;targetPos&quot;,&quot;targetPos=&quot;,&quot;formatDir&quot;,&quot;formatDir=&quot;,&quot;target&quot;].each{|n|wrap &quot;machine&quot;,n}
+ end
+ 
+ class HLJob_BaseState
+-	include HLJob_Additions
++  include HLJob_Additions
++  include XMLSaver
+ 
+-	def trace
+-		if @hero.nil?
+-			puts &quot;TRACE #{caller[0]} #{self}&quot;
+-		else
+-			puts &quot;TRACE #{caller[0]} #{self} #{hero} #{getTime}&quot;
+-		end
+-	end
++  
++  
++  def trace
++    if @hero.nil?
++      puts &quot;TRACE #{caller[0]} #{self}&quot;
++    else
++      puts &quot;TRACE #{caller[0]} #{self} #{hero} #{getTime}&quot;
++    end
++  end
+ 
+ end
+ 
+ class HLJob_DummyState&lt;HLJob_BaseState
+-	def ready
+-		true
+-	end
++  def ready
++    true
++  end
+ end
+ 
+ class HLJob_FormatWalk&lt;HLJob_BaseState
+-	# needed: getTime
++  # needed: getTime
+ 
+-	# wait 5 seconds at max for formatting
+-	FORMAT_MAX_TIME=5
++  # wait 5 seconds at max for formatting
++  FORMAT_MAX_TIME=5
+ 
+-	def enter
+-		puts &quot;#{self}:enter&quot;
+-		trace
+-		hero.formation=AntFormationBlock.new(hero,formatDir)
+-		heroPos=hero.getPos2D
+-		allMen.each{|man|
+-			pos=hero.getFormation(man,heroPos)
+-			man.walkTo(pos)
+-			man.hlJobMode[:formatting]=true
+-		}
+-		@formatStart=getTime
+-	end
++  def enter
++    puts &quot;#{self}:enter&quot;
++    trace
++    hero.formation=AntFormationBlock.new(hero,formatDir)
++    heroPos=hero.getPos2D
++    allMen.each{|man|
++      pos=hero.getFormation(man,heroPos)
++      man.walkTo(pos)
++      man.hlJobMode[:formatting]=true
++    }
++    @formatStart=getTime
++  end
+ 
+-	def assign(man)
+-		#raise 1
+-		man.setDirection(180-(targetPos-hero.getPos2D).normalized.getAngle.angle*180.0/Math::PI)
+-		man.standStill
+-		man.hlJobMode.delete(:formatting)
+-	end
++  def assign(man)
++    #raise 1
++    man.setDirection(180-(targetPos-hero.getPos2D).normalized.getAngle.angle*180.0/Math::PI)
++    man.standStill
++    man.hlJobMode.delete(:formatting)
++  end
+ 
+-	def ready
+-		if <A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">getTime- at formatStart</A>&gt;FORMAT_MAX_TIME
+-			#log &quot;MUST BE READY&quot;
+-			return true
+-		end
+-		allMen.each{|man|
+-			#log &quot;formatting:#{man}:#{man.hlJobMode[:formatting]}&quot;
+-			if man.hlJobMode[:formatting]
+-				return false
+-			end
+-		}
+-		return true
+-	end
++  def ready
++    if <A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">getTime- at formatStart</A>&gt;FORMAT_MAX_TIME
++      #log &quot;MUST BE READY&quot;
++      return true
++    end
++    allMen.each{|man|
++      #log &quot;formatting:#{man}:#{man.hlJobMode[:formatting]}&quot;
++      if man.hlJobMode[:formatting]
++        return false
++      end
++    }
++    return true
++  end
+ 
+ private
+ 
+ end
+ 
+ class HLJob_FormatSit&lt;HLJob_BaseState
+-	# needed: getTime
++  # needed: getTime
+ 
+-	# wait 5 seconds at max for formatting
+-	FORMAT_MAX_TIME=15
++  # wait 5 seconds at max for formatting
++  FORMAT_MAX_TIME=15
+ 
+-	def enter
+-		hero.formation=AntFormationRest.new(hero)
+-		heroPos=hero.getPos2D
+-		allMen.each{|man|
+-			pos=hero.getFormation(man,heroPos)
+-			man.walkTo(pos)
+-			man.hlJobMode[:formatting]=true
+-		}
+-		@formatStart=getTime
+-	end
++  def enter
++    hero.formation=AntFormationRest.new(hero)
++    heroPos=hero.getPos2D
++    allMen.each{|man|
++      pos=hero.getFormation(man,heroPos)
++      man.walkTo(pos)
++      man.hlJobMode[:formatting]=true
++    }
++    @formatStart=getTime
++  end
+ 
+-	def assign(man)
+-		man.setDirection(180-(hero.getPos2D-man.getPos2D).normalized.getAngle.angle*180.0/Math::PI)
+-		man.standStill
+-		man.hlJobMode.delete(:formatting)
+-	end
++  def assign(man)
++    man.setDirection(180-(hero.getPos2D-man.getPos2D).normalized.getAngle.angle*180.0/Math::PI)
++    man.standStill
++    man.hlJobMode.delete(:formatting)
++  end
+ 
+-	def ready
+-		puts &quot;#{self}:ready&quot;
+-		if <A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">getTime- at formatStart</A>&gt;FORMAT_MAX_TIME
+-			# FIXME:rest deserts
+-			return true
+-		end
+-		allMen.each{|man|
+-			if man.hlJobMode[:formatting]
+-				return false
+-			end
+-		}
+-		return true
+-	end
++  def ready
++    puts &quot;#{self}:ready&quot;
++    if <A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">getTime- at formatStart</A>&gt;FORMAT_MAX_TIME
++      # FIXME:rest deserts
++      return true
++    end
++    allMen.each{|man|
++      if man.hlJobMode[:formatting]
++        return false
++      end
++    }
++    return true
++  end
+ end
+ 
+ class HLJob_MoveToNextWayPoint&lt;HLJob_BaseState
+-	# needed: hero,allMen,targetPos, near
++  # needed: hero,allMen,targetPos, near
+ 
+-	attr_accessor :near
++  attr_accessor :near
+ 
+-	def initialize
+-		super
+-		@near=0
+-	end
++  def initialize
++    super
++    @near=0
++  end
+ 
+-	def enter
+-		puts &quot;#{self}:enter&quot;
+-		hero.formation=AntFormationBlock.new(hero,formatDir)
+-		allMen.each{|man|
+-			pos=hero.getFormation(man,targetPos)
+-			man.newMoveJob(0,pos,near)
+-			man.hlJobMode[:walking]=true
+-		}
+-	end
++  def enter
++    puts &quot;#{self}:enter&quot;
++    hero.formation=AntFormationBlock.new(hero,formatDir)
++    allMen.each{|man|
++      pos=hero.getFormation(man,targetPos)
++      man.newMoveJob(0,pos,near)
++      man.hlJobMode[:walking]=true
++    }
++  end
+ 
+-	def assign(man)
+-		man.standStill
+-		man.hlJobMode.delete(:walking)
++  def assign(man)
++    man.standStill
++    man.hlJobMode.delete(:walking)
+ 
+-		# FIXME: maybe let him desert if this is called too often ?
+-	end
++    # FIXME: maybe let him desert if this is called too often ?
++  end
+ 
+-	def ready
+-		allMen.each{|man|
+-			if man.hlJobMode[:walking]
+-				return false
+-			end
+-		}
+-		return true
+-	end
++  def ready
++    allMen.each{|man|
++      if man.hlJobMode[:walking]
++        return false
++      end
++    }
++    return true
++  end
+ 
+ end
+ 
+ class HLJob_MoveComplete&lt;BaseState
+-	include HLJob_Additions
+-	state :moveToNextPoint=&gt;HLJob_MoveToNextWayPoint
+-	state :formatWalk=&gt;HLJob_FormatWalk
+-	state :endState=&gt;HLJob_DummyState
++  include HLJob_Additions
++  state :moveToNextPoint=&gt;HLJob_MoveToNextWayPoint
++  state :formatWalk=&gt;HLJob_FormatWalk
++  state :endState=&gt;HLJob_DummyState
+ 
+-	startState :formatWalk
+-	endState :endState
+-	
+-	edge :moveToNextPoint, :formatWalk, :stillHasWaypoints
+-	edge :formatWalk, :moveToNextPoint
+-	edge :moveToNextPoint, :endState, :noMoreWaypoints
++  startState :formatWalk
++  endState :endState
++  
++  edge :moveToNextPoint, :formatWalk, :stillHasWaypoints
++  edge :formatWalk, :moveToNextPoint
++  edge :moveToNextPoint, :endState, :noMoreWaypoints
+ 
+-	def enter
+-		@near=machine.near
+-		@near||=0
+-		puts &quot;#{self}:enter&quot;
+-		if @waypoints.nil?
+-			initWaypoints
+-		end
+-	end
++  def enter
++    @near=machine.near
++    @near||=0
++    puts &quot;#{self}:enter&quot;
++    if @waypoints.nil?
++      initWaypoints
++    end
++  end
+ 
+-	def stillHasWaypoints
+-		puts state
+-		if @waypoints.length&gt;0
+-			self.targetPos=@waypoints.shift
++  def stillHasWaypoints
++    puts state
++    if @waypoints.length&gt;0
++      self.targetPos=@waypoints.shift
+ 
+-			if @waypoints.length==0
+-				self.targetPos=checkPosNear(self.targetPos)
+-				@states[:moveToNextPoint].near=@near 
+-			end
+-			
+-			return true
+-		end
+-		false
+-	end
++      if @waypoints.length==0
++        self.targetPos=checkPosNear(self.targetPos)
++        @states[:moveToNextPoint].near=@near 
++      end
++      
++      return true
++    end
++    false
++  end
+ 
+-	def near=(n)
+-		@near=n
+-		#@states[:moveToNextPoint].near=n
+-	end
++  def near=(n)
++    @near=n
++    #@states[:moveToNextPoint].near=n
++  end
+ 
+-	def noMoreWaypoints
+-		@waypoints.length==0
+-	end
++  def noMoreWaypoints
++    @waypoints.length==0
++  end
+ 
+-	def moveDirectly
+-		@state=:moveToNextPoint
+-	end
++  def moveDirectly
++    @state=:moveToNextPoint
++  end
+ 
+-	def assign(man)
+-		#raise 1
+-		state.assign(man)
+-	end
++  def assign(man)
++    #raise 1
++    state.assign(man)
++  end
+ 
+-	def hero
+-		machine.hero
+-	end
+-	def formatDir
+-		(targetPos-hero.getPos2D).normalized
+-	end
++  def hero
++    machine.hero
++  end
++  def formatDir
++    (targetPos-hero.getPos2D).normalized
++  end
+ 
+-	private
++  private
+ 
+-	def initWaypoints
+-		@finalPos=targetPos
+-		if getMap.path
+-			@waypoints=[hero.getPos2D]+getMap.path.computePath(hero.getPos2D,targetPos,hero)+[targetPos]
+-			# remove waypoints in between - if they're not necessary - origin must be given, too
+-			@waypoints=getMap.path.refinePath(@waypoints,hero).dup
+-			# remove origin for waypoint-list
+-			assert{@waypoints.length&gt;=2}
+-			@waypoints.shift
+-			
+-			#@waypoints+=[targetPos]
++  def initWaypoints
++    @finalPos=targetPos
++    if getMap.path
++      @waypoints=[hero.getPos2D]+getMap.path.computePath(hero.getPos2D,targetPos,hero)+[targetPos]
++      # remove waypoints in between - if they're not necessary - origin must be given, too
++      @waypoints=getMap.path.refinePath(@waypoints,hero).dup
++      # remove origin for waypoint-list
++      assert{@waypoints.length&gt;=2}
++      @waypoints.shift
++      
++      #@waypoints+=[targetPos]
+ 
+-		else
+-			@waypoints=[targetPos]
+-		end
+-		@completeTargetPos=targetPos
+-		self.targetPos=@waypoints.shift
+-		self.targetPos=checkPosNear(self.targetPos)
+- 		#puts &quot;--&quot;
+- 		#pp <A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">self.targetPos,hero.getPos2D, at near</A>,(hero.getPos2D-self.targetPos).length
+- 		#raise 1
+-	end
++    else
++      @waypoints=[targetPos]
++    end
++    @completeTargetPos=targetPos
++    self.targetPos=@waypoints.shift
++    self.targetPos=checkPosNear(self.targetPos)
++     #puts &quot;--&quot;
++     #pp <A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">self.targetPos,hero.getPos2D, at near</A>,(hero.getPos2D-self.targetPos).length
++     #raise 1
++  end
+ 
+-	def checkPosNear(to)
+-		from=hero.getPos2D
+-		return from if (from-to).length&lt;@near
+-		line=AGLine2.new(from,to)
+-		circle=AGCircle2.new(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">finalPos, at near</A>)
+-		list=circle.collide(line)
+-		if list.length&gt;0
+-			to=list.min{|a,b|(a-from).length&lt;=&gt;(b-from).length}
+-		end
+-		to
+-	end
++  def checkPosNear(to)
++    from=hero.getPos2D
++    return from if (from-to).length&lt;@near
++    line=AGLine2.new(from,to)
++    circle=AGCircle2.new(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">finalPos, at near</A>)
++    list=circle.collide(line)
++    if list.length&gt;0
++      to=list.min{|a,b|(a-from).length&lt;=&gt;(b-from).length}
++    end
++    to
++  end
+ end
+ 
+ class HLJob_SitDown&lt;HLJob_BaseState
+-	def enter
+-		allMen.each{|man|
+-			man.setDirection(180-(hero.getPos2D-man.getPos2D).normalized.getAngle.angle*180.0/Math::PI)
+-			man.sitDown
+-			man.hlJobMode[:sitting]=true
+-		}
+-	end
++  def enter
++    allMen.each{|man|
++      man.setDirection(180-(hero.getPos2D-man.getPos2D).normalized.getAngle.angle*180.0/Math::PI)
++      man.sitDown
++      man.hlJobMode[:sitting]=true
++    }
++  end
+ 
+-	def assign(man)
+-		man.sitStill
+-		man.hlJobMode.delete(:sitting)
+-	end
++  def assign(man)
++    man.sitStill
++    man.hlJobMode.delete(:sitting)
++  end
+ 
+-	def ready
+-		allMen.each{|man|
+-			if man.hlJobMode[:sitting]
+-				return false
+-			end
+-		}
+-		return true
+-	end
++  def ready
++    allMen.each{|man|
++      if man.hlJobMode[:sitting]
++        return false
++      end
++    }
++    return true
++  end
+ end
+ 
+ class HLJob_JustSit&lt;HLJob_BaseState
+-	def enter
+-		allMen.each{|man|
+-			man.sitStill
+-		}
+-	end
+-	def assign(man)
+-		man.sitStill # and rest
+-	end
++  def enter
++    allMen.each{|man|
++      man.sitStill
++    }
++  end
++  def assign(man)
++    man.sitStill # and rest
++  end
+ 
+-	def ready
+-		return false
+-	end
++  def ready
++    return false
++  end
+ end
+ 
+ class HLJob_JustSitOnce&lt;HLJob_BaseState
+-	def enter
+-		allMen.each{|man|
+-			man.sitStill
+-			man.hlJobMode[:justSitting]=true
+-		}
+-	end
+-	def assign(man)
+-		man.hlJobMode.delete(:justSitting)
+-	end
+-	def ready
+-		allMen.each{|man|
+-			if man.hlJobMode[:justSitting]
+-				return false
+-			else
+-				return true
+-			end
+-		}
+-	end
++  def enter
++    allMen.each{|man|
++      man.sitStill
++      man.hlJobMode[:justSitting]=true
++    }
++  end
++  def assign(man)
++    man.hlJobMode.delete(:justSitting)
++  end
++  def ready
++    allMen.each{|man|
++      if man.hlJobMode[:justSitting]
++        return false
++      else
++        return true
++      end
++    }
++  end
+ end
+-	
++  
+ 
+ class HLJob_FetchStart&lt;HLJob_BaseState
+-	# needed a target-entity
+-	def enter
+-		trace
+-		fetchPoint=machine.target.getPos2D
+-		puts &quot;fetchPoint:#{fetchPoint}  heroPos:#{hero.getPos2D}&quot;
+-		allMen.each{|man|
+-			man.walkTo(fetchPoint)
+-			man.hlJobMode[:fetching]=true
+-			puts &quot;set to fetching: #{man}&quot;
+-		}
+-		
+-	end
++  # needed a target-entity
++  def enter
++    trace
++    fetchPoint=machine.target.getPos2D
++    puts &quot;fetchPoint:#{fetchPoint}  heroPos:#{hero.getPos2D}&quot;
++    allMen.each{|man|
++      man.walkTo(fetchPoint)
++      man.hlJobMode[:fetching]=true
++      puts &quot;set to fetching: #{man}&quot;
++    }
++    
++  end
+ 
+-	def assign(man)
+-		trace
+-		man.standStill
+-		man.hlJobMode.delete(:fetching)
+-	end
++  def assign(man)
++    trace
++    man.standStill
++    man.hlJobMode.delete(:fetching)
++  end
+ 
+-	def ready
+-		trace
+-		allMen.each{|man|
+-			puts &quot;fetchStart_ready check: #{man} : #{man.hlJobMode[:fetching]}&quot;
+-			if man.hlJobMode[:fetching]
+-				return false
+-			end
+-			puts &quot;false&quot;
+-		}
+-		puts &quot;return true ??&quot;
+-		return true
+-	end
++  def ready
++    trace
++    allMen.each{|man|
++      puts &quot;fetchStart_ready check: #{man} : #{man.hlJobMode[:fetching]}&quot;
++      if man.hlJobMode[:fetching]
++        return false
++      end
++      puts &quot;false&quot;
++    }
++    puts &quot;return true ??&quot;
++    return true
++  end
+ end
+ 
+ class HLJob_GetResource&lt;HLJob_BaseState
+-	# needed: resources return array of resource-strings
+-	attr_accessor :resources
++  # needed: resources return array of resource-strings
++  attr_accessor :resources
+ 
+-	def initialize
+-		@resources=[]
+-	end
++  def initialize
++    @resources=[]
++  end
+ 
+-	def enter
+-		for i in 1..hero.getAggression
+-			allMen.each{|man|
+-				resources.each{|r|
+-					a=machine.target.resource.get(r)
+-					if a&gt;0
+-						man.resource.add(r,1)
+-						target.resource.sub(r,1)
+-					end
+-				}
+-			}
+-		end
+-		allMen.each{|m|m.resourceChanged}
+-		machine.target.resourceChanged
+-	end
+-	def ready
+-		return true
+-	end
++  def enter
++    for i in 1..hero.getAggression
++      allMen.each{|man|
++        resources.each{|r|
++          a=machine.target.resource.get(r)
++          if a&gt;0
++            man.resource.add(r,1)
++            target.resource.sub(r,1)
++          end
++        }
++      }
++    end
++    allMen.each{|m|m.resourceChanged}
++    machine.target.resourceChanged
++  end
++  def ready
++    return true
++  end
+ end
+ 
+ class HLJob_KillAnimal&lt;HLJob_BaseState
+-	def enter
+-		target.eventDie
+-		hero.resource.takeAll(target.resource)
+-		allMen.each{|m|m.resourceChanged}
+-		target.resourceChanged
+-	end
++  def enter
++    target.eventDie
++    hero.resource.takeAll(target.resource)
++    allMen.each{|m|m.resourceChanged}
++    target.resourceChanged
++  end
+ end
+ 
+ # spread things among team-members
+ class HLJob_SpreadThings&lt;HLJob_BaseState
+-	RESOURCES_TO_SPREAD=[&quot;sword&quot;,&quot;shield&quot;,&quot;bow&quot;,&quot;boat&quot;]
++  RESOURCES_TO_SPREAD=[&quot;sword&quot;,&quot;shield&quot;,&quot;bow&quot;,&quot;boat&quot;]
+ 
+-	def enter
+-		allMen.each{|man|
+-			man.walkTo(hero.getPos2D)
+-			man.hlJobMode[:gatherToSpread]=true
+-		}
+-		@alreadySpread=false
+-	end
++  def enter
++    allMen.each{|man|
++      man.walkTo(hero.getPos2D)
++      man.hlJobMode[:gatherToSpread]=true
++    }
++    @alreadySpread=false
++  end
+ 
+-	def assign(man)
+-		man.standStillShort
+-		if man.hlJobMode[:gatherToSpread]
+-			man.hlJobMode.delete(:gatherToSpread)
+-			man.hlJobMode[:waitForSpread]=true
+-		elsif man.hlJobMode[:waitForSpread]
+-			man.hlJobMode.delete(:waitForSpread)
+-		else
+-			# nothing for now
+-		end
+-	end
++  def assign(man)
++    man.standStillShort
++    if man.hlJobMode[:gatherToSpread]
++      man.hlJobMode.delete(:gatherToSpread)
++      man.hlJobMode[:waitForSpread]=true
++    elsif man.hlJobMode[:waitForSpread]
++      man.hlJobMode.delete(:waitForSpread)
++    else
++      # nothing for now
++    end
++  end
+ 
+-	def ready
+-		return true if @alreadySpread		
+-		allMen.each{|man|
+-			return false if man.hlJobMode[:gatherToSpread] or man.hlJobMode[:waitForSpread]
+-		}
+-		# we can spread now
+-		doSpreading
+-		@alreadySpread=true
+-		return true
+-	end
+-	private
+-	
+-	def doSpreading
+-		# FIXME: maybe this can be done more easily ???
+-		trace
+-	
+-		all={}
+-		RESOURCES_TO_SPREAD.each{|r|	
+-			all=0
+-			allMen.each{|m|
+-				c=m.resource.get(r)
+-				all+=c
+-			}
+-			if all&gt;=allMen.length
+-				# give everyone 1 of these and put the rest on the hero
+-				allMen.each{|m|
+-					m.resource.set(r,1)
+-				}
+-				hero.resource.add(r,all-allMen.length)
+-			else
+-				men=allMen.sort {|b,a|a.resource.get(r)&lt;=&gt;b.resource.get(r)} # sort descending
+-				# put hero at first
+-				men.delete(hero)
+-				men=[hero]+men
+-				men.each{|m|m.resource.set(r,0)} # reset
+-				for i in 1..all # now give to those who had a weapon and to hero (at first)
+-					men[i-1].resource.set(r,1)
+-				end
+-			end
+-		}
+-		# spread food equally
+-		food=0
+-		allMen.each{|m|food+=m.resource.get(&quot;food&quot;)}
+-		min=(food/allMen.length).to_i
+-		allMen.each{|m|m.resource.set(&quot;food&quot;,min)}
+-		# spread rest on first
+-		food-=min*allMen.length
+-		for i in 1..food
+-			allMen[i-1].resource.add(&quot;food&quot;,1)
+-		end
++  def ready
++    return true if @alreadySpread    
++    allMen.each{|man|
++      return false if man.hlJobMode[:gatherToSpread] or man.hlJobMode[:waitForSpread]
++    }
++    # we can spread now
++    doSpreading
++    @alreadySpread=true
++    return true
++  end
++  private
++  
++  def doSpreading
++    # FIXME: maybe this can be done more easily ???
++    trace
++  
++    all={}
++    RESOURCES_TO_SPREAD.each{|r|  
++      all=0
++      allMen.each{|m|
++        c=m.resource.get(r)
++        all+=c
++      }
++      if all&gt;=allMen.length
++        # give everyone 1 of these and put the rest on the hero
++        allMen.each{|m|
++          m.resource.set(r,1)
++        }
++        hero.resource.add(r,all-allMen.length)
++      else
++        men=allMen.sort {|b,a|a.resource.get(r)&lt;=&gt;b.resource.get(r)} # sort descending
++        # put hero at first
++        men.delete(hero)
++        men=[hero]+men
++        men.each{|m|m.resource.set(r,0)} # reset
++        for i in 1..all # now give to those who had a weapon and to hero (at first)
++          men[i-1].resource.set(r,1)
++        end
++      end
++    }
++    # spread food equally
++    food=0
++    allMen.each{|m|food+=m.resource.get(&quot;food&quot;)}
++    min=(food/allMen.length).to_i
++    allMen.each{|m|m.resource.set(&quot;food&quot;,min)}
++    # spread rest on first
++    food-=min*allMen.length
++    for i in 1..food
++      allMen[i-1].resource.add(&quot;food&quot;,1)
++    end
+ 
+-		allMen.each{|m|m.resourceChanged}
+-	end
+-	
++    allMen.each{|m|m.resourceChanged}
++  end
++  
+ end
+ 
+ class HLJob_FightData&lt;HLJob_BaseState
+ 
+-	attr_reader :inited
+-	# only attacker creates fightData
+-	def initialize(fightJob)
+-		@parties={:attacker=&gt;[fightJob],:defender=&gt;[]}
+-		@oldparties=@parties.dup
+-	end
+-	def add(fightJob)
+-		@parties[getFightType(fightJob)].push(fightJob)
+-		@oldparties[getFightType(fightJob)].push(fightJob)
+-		reshuffle
+-	end
++  attr_reader :inited
++  # only attacker creates fightData
++  def initialize(fightJob)
++    @parties={:attacker=&gt;[fightJob],:defender=&gt;[]}
++    @oldparties=@parties.dup
++  end
++  def add(fightJob)
++    @parties[getFightType(fightJob)].push(fightJob)
++    @oldparties[getFightType(fightJob)].push(fightJob)
++    reshuffle
++  end
+ 
+-	# this called if (and only if) the hero has won or is fleeing (and thus aborting the fight)
+-	def remove(fightJob)
+-		@parties[fightJob.fightType].delete(fightJob)
+-		@oldparties[fightJob.fightType].delete(fightJob)
+-		reshuffle
+-	end
++  # this called if (and only if) the hero has won or is fleeing (and thus aborting the fight)
++  def remove(fightJob)
++    @parties[fightJob.fightType].delete(fightJob)
++    @oldparties[fightJob.fightType].delete(fightJob)
++    reshuffle
++  end
+ 
+-	# this called if (and only if) the hero has lost
+-	def removeLost(fightJob)
+-		@parties[fightJob.fightType].delete(fightJob)
+-		reshuffle
+-	end
++  # this called if (and only if) the hero has lost
++  def removeLost(fightJob)
++    @parties[fightJob.fightType].delete(fightJob)
++    reshuffle
++  end
+ 
+-	def getFightType(fightJob)
+-		target=fightJob.target
+-		[:attacker,:defender].each{|t| 
+-			return otherType(t) if @parties[t].collect{|a|a.hero}.member?(target)
+-		}
+-		raise &quot;Target #{fightJob} (target:#{target}) not found in getFightType!&quot;
+-	end
++  def getFightType(fightJob)
++    target=fightJob.target
++    [:attacker,:defender].each{|t| 
++      return otherType(t) if @parties[t].collect{|a|a.hero}.member?(target)
++    }
++    raise &quot;Target #{fightJob} (target:#{target}) not found in getFightType!&quot;
++  end
+ 
+-	def getNewOpponent(man,fightJob)
+-		assert{man.canFight}
+-		assert{man.is_a?(AntHero) or man.is_a?(AntMan)}
+-		assert{man.getHero==fightJob.hero}
+-	
+-		checkForUpdate
++  def getNewOpponent(man,fightJob)
++    assert{man.canFight}
++    assert{man.is_a?(AntHero) or man.is_a?(AntMan)}
++    assert{man.getHero==fightJob.hero}
++  
++    checkForUpdate
+ 
+-		# for a start: get next opponent
+-		# (maybe take next free opponent ??)
+-		# (maybe: find weakest friend and help him ???)
++    # for a start: get next opponent
++    # (maybe take next free opponent ??)
++    # (maybe: find weakest friend and help him ???)
+ 
+-		myType=fightJob.fightType
+-		oType=otherType(myType)
++    myType=fightJob.fightType
++    oType=otherType(myType)
+ 
+-		opponent=@parties[oType].collect{|job|job.undefeatedMen}.flatten.uniq.shuffle[0]
+-		if opponent.nil?
+-			# we won ???
+-			#eventWon(myType)
+-			return nil
+-		else
+-			assert{opponent.canFight}
+-			return opponent
+-		end
+-	end
++    opponent=@parties[oType].collect{|job|job.undefeatedMen}.flatten.uniq.shuffle[0]
++    if opponent.nil?
++      # we won ???
++      #eventWon(myType)
++      return nil
++    else
++      assert{opponent.canFight}
++      return opponent
++    end
++  end
+ 
+-	def checkForUpdate
++  def checkForUpdate
+ 
+-		#raise &quot;FIXME&quot;
+-		# check, if heroes are still able to fight, else reshuffle - let hero lose or sth else
++    #raise &quot;FIXME&quot;
++    # check, if heroes are still able to fight, else reshuffle - let hero lose or sth else
+ 
+-		nparties={}
+-		oldparties=@parties
+-		@parties.each{|type,jobs|
+-			njobs=jobs.select{|job|job.hero.canFight}
+-			nparties[type]=njobs
+-		}
+-		@parties=nparties
++    nparties={}
++    oldparties=@parties
++    @parties.each{|type,jobs|
++      njobs=jobs.select{|job|job.hero.canFight}
++      nparties[type]=njobs
++    }
++    @parties=nparties
+ 
+-		if @parties!=oldparties
+-			reshuffle
+-		end
++    if @parties!=oldparties
++      reshuffle
++    end
+ 
+-	end
++  end
+ 
+-	private
++  private
+ 
+-	def otherType(my)
+-		{:attacker=&gt;:defender,:defender=&gt;:attacker}[my]
+-	end
++  def otherType(my)
++    {:attacker=&gt;:defender,:defender=&gt;:attacker}[my]
++  end
+ 
+-	def getAllJobs
+-		@parties.collect{|type,jobs|jobs}.flatten
+-	end
+-	def getAllHeroes
+-		getAllJobs.collect{|job|job.hero}
+-	end
++  def getAllJobs
++    @parties.collect{|type,jobs|jobs}.flatten
++  end
++  def getAllHeroes
++    getAllJobs.collect{|job|job.hero}
++  end
+ 
+-	def reshuffle
+-		trace
+-		# reinit and assign
++  def reshuffle
++    trace
++    # reinit and assign
+ 
+-		menGroup={}
+-		leave=false
+-		@parties.each{|type,jobs|
+-			puts &quot;parties: #{type}:#{jobs}&quot;
+-			menGroup[type]=jobs.collect{|job|job.undefeatedMen}.flatten.uniq
+-			menGroup[type].each{|man|man.delJob}
+-			if menGroup[type].length==0
+-				if @inited
+-					leave=true # a fightjob is leaving
+-				else
+-					# party is still defeated, but job is not yet finished ?
+-					leave=true 
+-				end
+-			end
+-		}
+-		return if leave
+-		assert{@parties.length&gt;0}
+-	
+-		# check that each group has more than 0 members
+-		assert{menGroup.select{|k,v|v.length==0}.length==0}
++    menGroup={}
++    leave=false
++    @parties.each{|type,jobs|
++      puts &quot;parties: #{type}:#{jobs}&quot;
++      menGroup[type]=jobs.collect{|job|job.undefeatedMen}.flatten.uniq
++      menGroup[type].each{|man|man.delJob}
++      if menGroup[type].length==0
++        if @inited
++          leave=true # a fightjob is leaving
++        else
++          # party is still defeated, but job is not yet finished ?
++          leave=true 
++        end
++      end
++    }
++    return if leave
++    assert{@parties.length&gt;0}
++  
++    # check that each group has more than 0 members
++    assert{menGroup.select{|k,v|v.length==0}.length==0}
+ 
+-		defenders=menGroup[:defender].dup
++    defenders=menGroup[:defender].dup
+ 
+-		defenders.each{|d|d.hlJobMode.delete(:fightTarget)}
+-		
+-		assert{defenders.length&gt;0}
++    defenders.each{|d|d.hlJobMode.delete(:fightTarget)}
++    
++    assert{defenders.length&gt;0}
+ 
+-		# each attacker gets an opponent - if all defenders are used - restart them agaim
+-		menGroup[:attacker].each{|attacker|
+-			defender=defenders.min{|a,b|(a.getPos2D-attacker.getPos2D).length&lt;=&gt;(b.getPos2D-attacker.getPos2D).length}
++    # each attacker gets an opponent - if all defenders are used - restart them agaim
++    menGroup[:attacker].each{|attacker|
++      defender=defenders.min{|a,b|(a.getPos2D-attacker.getPos2D).length&lt;=&gt;(b.getPos2D-attacker.getPos2D).length}
+ 
+-			assert{not defender.nil?}
++      assert{not defender.nil?}
+ 
+-			attacker.hlJobMode[:fightTarget]=defender
+-			if not defender.hlJobMode.member?(:fightTarget)
+-				defender.hlJobMode[:fightTarget]=attacker
+-			end
++      attacker.hlJobMode[:fightTarget]=defender
++      if not defender.hlJobMode.member?(:fightTarget)
++        defender.hlJobMode[:fightTarget]=attacker
++      end
+ 
+-			defenders.delete(defender)
++      defenders.delete(defender)
+ 
+-			defenders=menGroup[:defender].dup if defenders.length==0
+-		}
+-		menGroup[:defender].each{|defender|
+-			if not defender.hlJobMode.member?(:fightTarget)
+-				# assign remaining defenders to attackers
+-				attacker=menGroup[:attacker].min{|a,b|(a.getPos2D-defender.getPos2D).length&lt;=&gt;(b.getPos2D-defender.getPos2D).length}
+-				defender.hlJobMode[:fightTarget]=attacker
+-			end
+-		}
+-		@inited=true
+-	end
++      defenders=menGroup[:defender].dup if defenders.length==0
++    }
++    menGroup[:defender].each{|defender|
++      if not defender.hlJobMode.member?(:fightTarget)
++        # assign remaining defenders to attackers
++        attacker=menGroup[:attacker].min{|a,b|(a.getPos2D-defender.getPos2D).length&lt;=&gt;(b.getPos2D-defender.getPos2D).length}
++        defender.hlJobMode[:fightTarget]=attacker
++      end
++    }
++    @inited=true
++  end
+ 
+ 
+ end
+ 
+ class HLJob_Fight&lt;HLJob_BaseState
+-	# needed: hero,target, undefeatedMen
++  # needed: hero,target, undefeatedMen
+ 
+-	attr_reader :fightType, :fightData, :won
++  attr_reader :fightType, :fightData, :won
+ 
+-	def enter
+-		@oldHeroPosition=hero.getPos2D
+-		trace
++  def enter
++    @oldHeroPosition=hero.getPos2D
++    trace
+ 
+-		targetHadFightData=target.hlJobMode[:fightData].nil?
+-		
+-		puts &quot;fightData: #{target.hlJobMode[:fightData]}&quot;
+-		checkForFightData
+-		if targetHadFightData
+-			puts &quot;NOT YET INITED #{self} hero:#{hero} target:#{target}&quot;
+-			target.newHLDefendJob(hero)
+-		end
+-		trace
+-		assignAllJobs
+-	end
++    targetHadFightData=target.hlJobMode[:fightData].nil?
++    
++    puts &quot;fightData: #{target.hlJobMode[:fightData]}&quot;
++    checkForFightData
++    if targetHadFightData
++      puts &quot;NOT YET INITED #{self} hero:#{hero} target:#{target}&quot;
++      target.newHLDefendJob(hero)
++    end
++    trace
++    assignAllJobs
++  end
+ 
+-	def assign(man)
+-		if man.is_a?(AntHouse)
+-			man.newRestJob(20)
+-			return
+-		end
++  def assign(man)
++    if man.is_a?(AntHouse)
++      man.newRestJob(20)
++      return
++    end
+ 
+-		if not man.canFight	
+-			# it's possible that man is defeated is the same time that another is defeated ?
+-			# this way his morale is low - but eventDefeated wasn't called yet
+-			man.hlJobMode[:defeated]=true
+-		end
++    if not man.canFight  
++      # it's possible that man is defeated is the same time that another is defeated ?
++      # this way his morale is low - but eventDefeated wasn't called yet
++      man.hlJobMode[:defeated]=true
++    end
+ 
+-		if man.hlJobMode[:defeated]
+-			# FIXME:send away
+-			# FIXME: maybe flee ?
+-			if hero.is_a?(AntHouse)
+-				if man.hlJobMode[:homing]
+-					man.standStill
+-				else
+-					man.hlJobMode[:homing]
+-					man.walkTo(@oldHeroPosition+AGVector2.new(getRand*2-1,getRand*2-1))
+-				end
+-			else
+-				# FIXME
+-			end
+-			man.hlJobMode[:defeated]=true
+-			man.hlJobMode.delete(:fighting)
+-		else
+-			puts &quot;.canFight:#{man.canFight} #{man.getEnergy} #{man.getMorale}&quot;
+-			assert{man.canFight}
++    if man.hlJobMode[:defeated]
++      # FIXME:send away
++      # FIXME: maybe flee ?
++      if hero.is_a?(AntHouse)
++        if man.hlJobMode[:homing]
++          man.standStill
++        else
++          man.hlJobMode[:homing]
++          man.walkTo(@oldHeroPosition+AGVector2.new(getRand*2-1,getRand*2-1))
++        end
++      else
++        # FIXME
++      end
++      man.hlJobMode[:defeated]=true
++      man.hlJobMode.delete(:fighting)
++    else
++      puts &quot;.canFight:#{man.canFight} #{man.getEnergy} #{man.getMorale}&quot;
++      assert{man.canFight}
+ 
+-			opponent=@fightData.getNewOpponent(man,self)
+-			if opponent.nil?
+-				# won
+-				@won=true
+-			else
+-				assert{man.canFight and opponent.canFight}
+-				man.hlJobMode[:fightTarget]=opponent
+-				man.newFightJob(0,man.hlJobMode[:fightTarget])
+-			end
+-		end
+-	end
++      opponent=@fightData.getNewOpponent(man,self)
++      if opponent.nil?
++        # won
++        @won=true
++      else
++        assert{man.canFight and opponent.canFight}
++        man.hlJobMode[:fightTarget]=opponent
++        man.newFightJob(0,man.hlJobMode[:fightTarget])
++      end
++    end
++  end
+ 
+-	def leave
+-		if lost
+-			@fightData.removeLost(self)
+-		else
+-			@fightData.remove(self)
+-		end
+-		@fightData=nil
+-		@fightType=nil
+-		hero.hlJobMode.delete(:fightType)
+-		hero.hlJobMode.delete(:fightData)
++  def leave
++    if lost
++      @fightData.removeLost(self)
++    else
++      @fightData.remove(self)
++    end
++    @fightData=nil
++    @fightType=nil
++    hero.hlJobMode.delete(:fightType)
++    hero.hlJobMode.delete(:fightData)
+ 
+-		allMen.each{|man|
+-			man.hlJobMode.delete(:defeated)
+-			man.hlJobMode.delete(:fighting)
+-			man.hlJobMode.delete(:homing)
+-		}
+-	end
++    allMen.each{|man|
++      man.hlJobMode.delete(:defeated)
++      man.hlJobMode.delete(:fighting)
++      man.hlJobMode.delete(:homing)
++    }
++  end
+ 
+-	def ready
+-		return true if @ready
+-		if won 
+-			@won=true
+-			machine.eventWon(target)
+-			@ready=true
+-		elsif lost
+-			@lost=true
+-			machine.eventLost(target)
+-			@ready=true
+-		end
+-			
+-		return @ready
+-	end
++  def ready
++    return true if @ready
++    if won 
++      @won=true
++      machine.eventWon(target)
++      @ready=true
++    elsif lost
++      @lost=true
++      machine.eventLost(target)
++      @ready=true
++    end
++      
++    return @ready
++  end
+ 
+-	def lost
+-		((not @won) and undefeatedMen.length==0) or (not hero.canFight)
+-	end
++  def lost
++    ((not @won) and undefeatedMen.length==0) or (not hero.canFight)
++  end
+ 
+-	def undefeatedMen
+-		allMen.select{|man|man.hlJobMode[:defeated].nil? &amp;&amp; man.canFight}
+-	end
++  def undefeatedMen
++    allMen.select{|man|man.hlJobMode[:defeated].nil? &amp;&amp; man.canFight}
++  end
+ 
+-	private
+-	# return true if fightData already exists
+-	def checkForFightData
+-		trace
+-		puts &quot;TARGET #{target}&quot;
+-		if target.hlJobMode[:fightData]
+-			trace
+-			@fightData=target.hlJobMode[:fightData]
+-			@fightData.add(self)
+-			@fightType=@fightData.getFightType(self)
+-			return true
+-		else
+-			trace
+-			@fightData=HLJob_FightData.new(self)
+-			@fightType=:attacker
+-		end
+-		puts &quot;assigned fightData!&quot;
+-		hero.hlJobMode[:fightData]=@fightData # store so that it's avaiable above
+-	end
+-	def assignAllJobs
+-		# FIXME:assign a fight-job to every member (undefeatedMen)
+-		trace
++  private
++  # return true if fightData already exists
++  def checkForFightData
++    trace
++    puts &quot;TARGET #{target}&quot;
++    if target.hlJobMode[:fightData]
++      trace
++      @fightData=target.hlJobMode[:fightData]
++      @fightData.add(self)
++      @fightType=@fightData.getFightType(self)
++      return true
++    else
++      trace
++      @fightData=HLJob_FightData.new(self)
++      @fightType=:attacker
++    end
++    puts &quot;assigned fightData!&quot;
++    hero.hlJobMode[:fightData]=@fightData # store so that it's avaiable above
++  end
++  def assignAllJobs
++    # FIXME:assign a fight-job to every member (undefeatedMen)
++    trace
+ 
+-		undefeatedMen.each{|man|
+-			if man.hlJobMode[:fightTarget]
+-				assert{not man.hlJobMode[:fightTarget].nil?}
+-				man.newFightJob(0,man.hlJobMode[:fightTarget])
+-				# FIXME: check if morale is high enough
+-				man.hlJobMode.delete(:defeated)
+-				man.hlJobMode[:fighting]=true
+-			else
+-				# this the case, when an already defeated party is attacked
+-				puts &quot;POSSIBLE ERROR: #{man} has no opponent ?&quot;
+-			end
+-		}
+-	end
++    undefeatedMen.each{|man|
++      if man.hlJobMode[:fightTarget]
++        assert{not man.hlJobMode[:fightTarget].nil?}
++        man.newFightJob(0,man.hlJobMode[:fightTarget])
++        # FIXME: check if morale is high enough
++        man.hlJobMode.delete(:defeated)
++        man.hlJobMode[:fighting]=true
++      else
++        # this the case, when an already defeated party is attacked
++        puts &quot;POSSIBLE ERROR: #{man} has no opponent ?&quot;
++      end
++    }
++  end
+ end
+ 
+ 
+@@ -771,130 +838,130 @@
+ # 
+ #
+ class HLJob_Recruit&lt;HLJob_BaseState
+-	MAX_DIST=0.01
++  MAX_DIST=0.01
+   
+   attr_reader :countRecruited
+   
+-	def enter
+-		@countTargetMen=target.getMen.length
+-		#@countRecruiting=0
+-		@countRecruited=0
+-		@myPos=hero.getPos2D
+-		hero.formation=AntFormationRest.new(hero)
+-		initRecruiting
+-	end
++  def enter
++    @countTargetMen=target.getMen.length
++    #@countRecruiting=0
++    @countRecruited=0
++    @myPos=hero.getPos2D
++    hero.formation=AntFormationRest.new(hero)
++    initRecruiting
++  end
+ 
+-	def ready
+-		#return false
+-	  recruitedEnough=(((@countRecruited+countRecruiting)&gt;=howManyToRecruit) or nonToRecruitLeft)
+-		everyoneIsAtHisPlace=(hero.getMen).map{|man|(man.getPos2D-hero.getFormation(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">man, at myPos</A>)).length}.max&lt;MAX_DIST
+-		heroIsAtHisPlace=(hero.getPos2D-hero.getFormation(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">hero, at myPos</A>)).length&lt;MAX_DIST
++  def ready
++    #return false
++    recruitedEnough=(((@countRecruited+countRecruiting)&gt;=howManyToRecruit) or nonToRecruitLeft)
++    everyoneIsAtHisPlace=(hero.getMen).map{|man|(man.getPos2D-hero.getFormation(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">man, at myPos</A>)).length}.max&lt;MAX_DIST
++    heroIsAtHisPlace=(hero.getPos2D-hero.getFormation(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">hero, at myPos</A>)).length&lt;MAX_DIST
+     allReady=(countRecruiting==0)
+-		return (recruitedEnough and everyoneIsAtHisPlace and allReady)
+-	end
++    return (recruitedEnough and everyoneIsAtHisPlace and allReady)
++  end
+ 
+-	def assign(man)
+-		puts &quot;MAN:#{man}&quot;
+-		if hasAtLeastOneFollower # has more than the hero himself
+-			if man.is_a?(AntHero)
+-				#man.newRestJob(10)
+-				returnToStart(man)
+-				return
+-			end
+-		end
++  def assign(man)
++    puts &quot;MAN:#{man}&quot;
++    if hasAtLeastOneFollower # has more than the hero himself
++      if man.is_a?(AntHero)
++        #man.newRestJob(10)
++        returnToStart(man)
++        return
++      end
++    end
+ 
+-		if checkRecruited(man)
+-			returnToStart(man)
+-			return
+-		end
++    if checkRecruited(man)
++      returnToStart(man)
++      return
++    end
+ 
+-		if (not ready)
+-			if not letRecruit(man)
+-				returnToStart(man)
+-			end
+-		else
+-			returnToStart(man)
+-		end
+-	end
++    if (not ready)
++      if not letRecruit(man)
++        returnToStart(man)
++      end
++    else
++      returnToStart(man)
++    end
++  end
+ 
+-	private
++  private
+ 
+-	def hasAtLeastOneFollower
+-		hero.getMen.length&gt;1
+-	end
++  def hasAtLeastOneFollower
++    hero.getMen.length&gt;1
++  end
+ 
+-	def howManyToRecruit
+-		@countTargetMen*hero.getAggression/3
+-	end
++  def howManyToRecruit
++    @countTargetMen*hero.getAggression/3
++  end
+ 
+-	def checkRecruited(man)
+-		if man.hlJobMode[:recruitTarget]
+-			target=man.hlJobMode[:recruitTarget]
+-			target.setBoss(hero)
+-			target.hlJobMode[:recruitTarget]=nil
+-			man.hlJobMode[:recruitTarget]=nil
+-			returnToStart(target)
+-			@countRecruited+=1
+-			return true
+-		end
+-		return false
+-	end
++  def checkRecruited(man)
++    if man.hlJobMode[:recruitTarget]
++      target=man.hlJobMode[:recruitTarget]
++      target.setBoss(hero)
++      target.hlJobMode[:recruitTarget]=nil
++      man.hlJobMode[:recruitTarget]=nil
++      returnToStart(target)
++      @countRecruited+=1
++      return true
++    end
++    return false
++  end
+ 
+-	def returnToStart(man)
+-		pos=hero.getFormation(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">man, at myPos</A>)
+-		puts &quot;RETURN to start: mypos:#{@myPos} diffHero:#{@myPos-hero.getPos2D} manpos:#{man.getPos2D} tposman:#{pos} diff:#{pos-man.getPos2D}&quot;
+-		
+-		
+-		if (man.getPos2D-pos).length&lt;MAX_DIST
+-			man.lookTo(@myPos)
+-			man.standStillShort # FIXME: really short ?
+-			puts &quot;standStill #{man} #{pos}==#{man.getPos2D}  ---#{@myPos} &quot;
+-		else
+-			man.walkTo(pos)
+-			puts &quot;walkTo #{pos} #{man}&quot;
+-		end
+-	end
++  def returnToStart(man)
++    pos=hero.getFormation(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">man, at myPos</A>)
++    puts &quot;RETURN to start: mypos:#{@myPos} diffHero:#{@myPos-hero.getPos2D} manpos:#{man.getPos2D} tposman:#{pos} diff:#{pos-man.getPos2D}&quot;
++    
++    
++    if (man.getPos2D-pos).length&lt;MAX_DIST
++      man.lookTo(@myPos)
++      man.standStillShort # FIXME: really short ?
++      puts &quot;standStill #{man} #{pos}==#{man.getPos2D}  ---#{@myPos} &quot;
++    else
++      man.walkTo(pos)
++      puts &quot;walkTo #{pos} #{man}&quot;
++    end
++  end
+   
+   def assignedTargets
+     hero.getMen.map{|man|man.hlJobMode[:recruitTarget]}
+   end
+ 
+-	def getAssignableTargets
+-		# all target's men without already assigned and target(hero) itself
+-	  target.getMen-hero.getMen.map{|man|man.getTarget}-[target]-assignedTargets
+-	end
++  def getAssignableTargets
++    # all target's men without already assigned and target(hero) itself
++    target.getMen-hero.getMen.map{|man|man.getTarget}-[target]-assignedTargets
++  end
+ 
+-	def nonToRecruitLeft
+-		getAssignableTargets==0
+-	end
++  def nonToRecruitLeft
++    getAssignableTargets==0
++  end
+ 
+-	def getNext(man,targets)
+-		targets.min{|a,b|(a.getPos2D-man.getPos2D).length&lt;=&gt;(b.getPos2D-man.getPos2D).length}
+-	end
++  def getNext(man,targets)
++    targets.min{|a,b|(a.getPos2D-man.getPos2D).length&lt;=&gt;(b.getPos2D-man.getPos2D).length}
++  end
+ 
+-	def letRecruit(man)
+-	  return false if countRecruited+countRecruiting&gt;howManyToRecruit
+-		target=getNext(man,getAssignableTargets)
+-		if target
++  def letRecruit(man)
++    return false if countRecruited+countRecruiting&gt;howManyToRecruit
++    target=getNext(man,getAssignableTargets)
++    if target
+       assert{countRecruited+countRecruiting&lt;=howManyToRecruit}
+-			man.hlJobMode[:recruitTarget]=target
+-			man.newMoveJob(0,target,1)
+-			#@countRecruiting=@countRecruiting+1
+-			return true
+-		end
+-		false
+-	end
++      man.hlJobMode[:recruitTarget]=target
++      man.newMoveJob(0,target,1)
++      #@countRecruiting=@countRecruiting+1
++      return true
++    end
++    false
++  end
+ 
+-	def initRecruiting
+-		hero.getMen.each{|man|man.hlJobMode[:recruitTarget]=nil}
+-		# exclude hero, if there are other men
+-		menList=hero.getMen
+-		menList=menList-[hero] if hasAtLeastOneFollower
+-		menList.reverse.each{|man|
+-			letRecruit(man)
+-			break if countRecruiting+countRecruited&gt;=howManyToRecruit
+-		}
+-	end
++  def initRecruiting
++    hero.getMen.each{|man|man.hlJobMode[:recruitTarget]=nil}
++    # exclude hero, if there are other men
++    menList=hero.getMen
++    menList=menList-[hero] if hasAtLeastOneFollower
++    menList.reverse.each{|man|
++      letRecruit(man)
++      break if countRecruiting+countRecruited&gt;=howManyToRecruit
++    }
++  end
+   
+   def countRecruiting
+     hero.getMen.select{|man|man.hlJobMode[:recruitTarget]}.length
+@@ -902,13 +969,13 @@
+ end
+ 
+ begin
+-	class ProductionRule
+-		attr_reader :what, :from
+-		def initialize(what,from)
+-			@what=what
+-			@from=from
+-		end
+-	end
++  class ProductionRule
++    attr_reader :what, :from
++    def initialize(what,from)
++      @what=what
++      @from=from
++    end
++  end
+ rescue;end
+ 
+ class ConstructException&lt;Exception
+@@ -916,241 +983,241 @@
+ 
+ 
+ module HLJob_HarvestModule
+-	# :section: harvesting
++  # :section: harvesting
+ protected
+-	def goHarvesting(man)
+-		list=whatToHarvestList
+-		list.each{|what|
+-			#pp what
+-			assert{what.is_a?(String)}
+-			# check if 'what' is reachable
+-			entity=getNextWithResource(what)
+-			if entity
+-				man.hlJobMode[:task]=:harvest
+-				man.hlJobMode[:what]=what
+-				man.hlJobMode[:target]=entity
+-				man.walkTo(entity)
+-				break
+-			end
+-		}
+-	end
++  def goHarvesting(man)
++    list=whatToHarvestList
++    list.each{|what|
++      #pp what
++      assert{what.is_a?(String)}
++      # check if 'what' is reachable
++      entity=getNextWithResource(what)
++      if entity
++        man.hlJobMode[:task]=:harvest
++        man.hlJobMode[:what]=what
++        man.hlJobMode[:target]=entity
++        man.walkTo(entity)
++        break
++      end
++    }
++  end
+ 
+-	def harvest(man)
+-		error(&quot;wrong fetch-resource&quot;) unless resources.member?(man.hlJobMode[:what])
+-		error(&quot;man has invalid target&quot;) if man.hlJobMode[:target].nil?
+-		error(&quot;target doesn't have resource (#{man.hlJobMode[:what]})&quot;) unless man.hlJobMode[:target].resource.get(man.hlJobMode[:what])&gt;0
+-		error(&quot;target is too far away&quot;) unless (man.hlJobMode[:target].getPos2D-man.getPos2D).length&lt;1
++  def harvest(man)
++    error(&quot;wrong fetch-resource&quot;) unless resources.member?(man.hlJobMode[:what])
++    error(&quot;man has invalid target&quot;) if man.hlJobMode[:target].nil?
++    error(&quot;target doesn't have resource (#{man.hlJobMode[:what]})&quot;) unless man.hlJobMode[:target].resource.get(man.hlJobMode[:what])&gt;0
++    error(&quot;target is too far away&quot;) unless (man.hlJobMode[:target].getPos2D-man.getPos2D).length&lt;1
+ 
+-		man.newRestJob(4,true)
+-		man.digResource(man.hlJobMode[:what])
+-		man.hlJobMode[:task]=:comeBack
+-	end
++    man.newRestJob(4,true)
++    man.digResource(man.hlJobMode[:what])
++    man.hlJobMode[:task]=:comeBack
++  end
+ 
+-	def comeBack(man)
+-		ctarget=man.hlJobMode[:target]
+-		what=man.hlJobMode[:what]
+-		error(&quot;target is not ok&quot;) unless ctarget.is_a?(AntEntity)
+-		error(&quot;selected resource is not ok&quot;) unless what.is_a?(String)
+-		error(&quot;target doesn't have enough resource&quot;) unless ctarget.resource.get(what)&gt;0
+-		# ok, finished harvesting - take what's harvested
+-		
+-		amount=[ctarget.resource.get(what),man.canCarry].min
+-		ctarget.resource.sub(what,amount)
+-		man.resource.add(what,amount)
+-		man.newMoveJob(0,target.getPos2D,0)
+-		man.collectResource(what)
++  def comeBack(man)
++    ctarget=man.hlJobMode[:target]
++    what=man.hlJobMode[:what]
++    error(&quot;target is not ok&quot;) unless ctarget.is_a?(AntEntity)
++    error(&quot;selected resource is not ok&quot;) unless what.is_a?(String)
++    error(&quot;target doesn't have enough resource&quot;) unless ctarget.resource.get(what)&gt;0
++    # ok, finished harvesting - take what's harvested
++    
++    amount=[ctarget.resource.get(what),man.canCarry].min
++    ctarget.resource.sub(what,amount)
++    man.resource.add(what,amount)
++    man.newMoveJob(0,target.getPos2D,0)
++    man.collectResource(what)
+ 
+-		# come back
+-		man.hlJobMode[:task]=:deliverAll
+-		log &quot;#{man}(#{man.getPos2D}) coming back to #{target}(#{target.getPos2D}) from #{ctarget}(#{ctarget.getPos2D})&quot;
+-		log &quot;job of #{man}:#{man.getJobName}&quot;
+-		man.hlJobMode[:target]=nil
+-	end
++    # come back
++    man.hlJobMode[:task]=:deliverAll
++    log &quot;#{man}(#{man.getPos2D}) coming back to #{target}(#{target.getPos2D}) from #{ctarget}(#{ctarget.getPos2D})&quot;
++    log &quot;job of #{man}:#{man.getJobName}&quot;
++    man.hlJobMode[:target]=nil
++  end
+ 
+-	def deliverAll(man)
+-		error(&quot;not yet at target&quot;) if (target.getPos2D-man.getPos2D).length&gt;1
+-		resources.each{|res|
+-			amount=man.resource.get(res)
+-			target.resource.add(res,amount)
+-			man.resource.sub(res,amount)
+-		}
+-		man.resourceChanged
+-		target.resourceChanged
+-		man.newRestJob(2)
+-		man.hlJobMode[:task]=nil
+-		man.hlJobMode[:done]+=1
+-		man.hlJobMode[:what]=nil
+-	end
++  def deliverAll(man)
++    error(&quot;not yet at target&quot;) if (target.getPos2D-man.getPos2D).length&gt;1
++    resources.each{|res|
++      amount=man.resource.get(res)
++      target.resource.add(res,amount)
++      man.resource.sub(res,amount)
++    }
++    man.resourceChanged
++    target.resourceChanged
++    man.newRestJob(2)
++    man.hlJobMode[:task]=nil
++    man.hlJobMode[:done]+=1
++    man.hlJobMode[:what]=nil
++  end
+ 
+ end
+ 
+ module HLJob_RestingModule
+-	# :section: Resting
++  # :section: Resting
+ 
+-	def goResting(man)
+-		man.walkTo(hero.getFormation(man,hero.getPos2D))
+-		man.hlJobMode[:task]=:sitDown
+-	end
+-	def sitDown(man)
+-		man.sitDown
+-		man.hlJobMode[:task]=:rest
+-		man.lookTo(hero.getPos2D)
+-	end
+-	def rest(man)
+-		man.sitStill
+-		man.hlJobMode[:task]=nil
+-		man.hlJobMode[:done]=0
+-		man.lookTo(hero.getPos2D)
+-	end
++  def goResting(man)
++    man.walkTo(hero.getFormation(man,hero.getPos2D))
++    man.hlJobMode[:task]=:sitDown
++  end
++  def sitDown(man)
++    man.sitDown
++    man.hlJobMode[:task]=:rest
++    man.lookTo(hero.getPos2D)
++  end
++  def rest(man)
++    man.sitStill
++    man.hlJobMode[:task]=nil
++    man.hlJobMode[:done]=0
++    man.lookTo(hero.getPos2D)
++  end
+ end
+ 
+ 
+ 
+ class HLJob_CreationBase&lt;HLJob_BaseState
+-	def enter
+-		hero.getMen.each{|man| man.hlJobMode.clear ; man.hlJobMode[:done]=0}
+-		hero.getMen.each{|man|assign(man)}
+-	end
++  def enter
++    hero.getMen.each{|man| man.hlJobMode.clear ; man.hlJobMode[:done]=0}
++    hero.getMen.each{|man|assign(man)}
++  end
+ 
+-	def leave
+-		hero.getMen.each{|man|target.decSmoke if man.hlJobMode[:task]==:producing}
+-	end
++  def leave
++    hero.getMen.each{|man|target.decSmoke if man.hlJobMode[:task]==:producing}
++  end
+ 
+-	def assign(man)
+-		if man.is_a?(AntHero)
+-			man.sitStill
+-			return
+-		end
++  def assign(man)
++    if man.is_a?(AntHero)
++      man.sitStill
++      return
++    end
+ 
+-		#pp man.hlJobMode
+-		begin
+-			if man.hlJobMode[:task].nil?
+-				man.hlJobMode[:task]=whatToDo(man)
+-			end
+-			self.send(man.hlJobMode[:task],man)
+-		rescue ConstructException =&gt; e
+-			log &quot;don't know what to do for #{man} : exceptino #{e}&quot;
+-			man.hlJobMode.clear
+-			assign(man)
+-		end
+-	end
++    #pp man.hlJobMode
++    begin
++      if man.hlJobMode[:task].nil?
++        man.hlJobMode[:task]=whatToDo(man)
++      end
++      self.send(man.hlJobMode[:task],man)
++    rescue ConstructException =&gt; e
++      log &quot;don't know what to do for #{man} : exceptino #{e}&quot;
++      man.hlJobMode.clear
++      assign(man)
++    end
++  end
+ 
+ end
+ 
+ 
+ class HLJob_Construct&lt;HLJob_CreationBase
+-	PRODUCTION_RULES=[
+-		ProductionRule.new(&quot;rod&quot;,[[&quot;wood&quot;,1]]),
+-		ProductionRule.new(&quot;steel&quot;,[[&quot;ore&quot;,1],[&quot;coal&quot;,1]]),
+-		ProductionRule.new(&quot;gold&quot;,[[&quot;ore&quot;,4],[&quot;coal&quot;,1]]),
+-		ProductionRule.new(&quot;boat&quot;,[[&quot;wood&quot;,2]]),
+-		ProductionRule.new(&quot;shield&quot;,[[&quot;wood&quot;,1]]),
+-		ProductionRule.new(&quot;bow&quot;,[[&quot;wood&quot;,1],[&quot;stone&quot;,1]]),
+-		ProductionRule.new(&quot;sword&quot;,[[&quot;wood&quot;,1],[&quot;steel&quot;,1]])
+-	]
+-	RESOURCES=PRODUCTION_RULES.map{|rule|rule.from.map{|f|f[0]}}.flatten.uniq-PRODUCTION_RULES.map{|rule|rule.what}
+-	TARGETS=PRODUCTION_RULES.map{|rule|rule.what}.uniq
++  PRODUCTION_RULES=[
++    ProductionRule.new(&quot;rod&quot;,[[&quot;wood&quot;,1]]),
++    ProductionRule.new(&quot;steel&quot;,[[&quot;ore&quot;,1],[&quot;coal&quot;,1]]),
++    ProductionRule.new(&quot;gold&quot;,[[&quot;ore&quot;,4],[&quot;coal&quot;,1]]),
++    ProductionRule.new(&quot;boat&quot;,[[&quot;wood&quot;,2]]),
++    ProductionRule.new(&quot;shield&quot;,[[&quot;wood&quot;,1]]),
++    ProductionRule.new(&quot;bow&quot;,[[&quot;wood&quot;,1],[&quot;stone&quot;,1]]),
++    ProductionRule.new(&quot;sword&quot;,[[&quot;wood&quot;,1],[&quot;steel&quot;,1]])
++  ]
++  RESOURCES=PRODUCTION_RULES.map{|rule|rule.from.map{|f|f[0]}}.flatten.uniq-PRODUCTION_RULES.map{|rule|rule.what}
++  TARGETS=PRODUCTION_RULES.map{|rule|rule.what}.uniq
+ 
+-	include HLJob_HarvestModule
+-	include HLJob_RestingModule
++  include HLJob_HarvestModule
++  include HLJob_RestingModule
+ 
+-	VALID_STATES=[
+-		:goHarvesting,:harvest,:comeBack,:deliverAll,
+-		:goProducing,:produce,:endProduce,
+-		:goResting,:sitDown,:rest
+-	]
++  VALID_STATES=[
++    :goHarvesting,:harvest,:comeBack,:deliverAll,
++    :goProducing,:produce,:endProduce,
++    :goResting,:sitDown,:rest
++  ]
+ 
+-	def resources
+-		RESOURCES
+-	end
++  def resources
++    RESOURCES
++  end
+ 
+ 
+-	def ready
+-		TARGETS.each{|t|return false if target.resource.get(t)&lt;constructAtMost}
+-		true
+-	end
++  def ready
++    TARGETS.each{|t|return false if target.resource.get(t)&lt;constructAtMost}
++    true
++  end
+ 
+-	private
++  private
+ 
+-	# :section: Producing
++  # :section: Producing
+ 
+-	def goProducing(man)
+-		man.walkTo(target)
+-		man.hlJobMode[:task]=:produce
+-	end
++  def goProducing(man)
++    man.walkTo(target)
++    man.hlJobMode[:task]=:produce
++  end
+ 
+-	def produce(man)
+-		target.incSmoke
+-		man.hlJobMode[:task]=:endProduce
+-		man.newRestJob(3,true)
+-	end
++  def produce(man)
++    target.incSmoke
++    man.hlJobMode[:task]=:endProduce
++    man.newRestJob(3,true)
++  end
+ 
+-	def endProduce(man)
+-		target.decSmoke
+-		man.hlJobMode[:task]=nil
++  def endProduce(man)
++    target.decSmoke
++    man.hlJobMode[:task]=nil
+ 
+-		# decide whats to produce
+-		PRODUCTION_RULES.shuffle.each{|rule|
+-			what=rule.what
+-			from=rule.from
++    # decide whats to produce
++    PRODUCTION_RULES.shuffle.each{|rule|
++      what=rule.what
++      from=rule.from
+ 
+-			if target.resource.get(what)&lt;constructAtMost
+-				ok=true
+-				from.each{|f|	
+-					ok=false if target.resource.get(f[0])&lt;f[1]
+-				}
+-				if ok
+-					from.each{|f|	target.resource.sub(f[0],f[1])}
+-					target.resource.add(what,1)
+-					break
+-				end
+-			end
+-		}
++      if target.resource.get(what)&lt;constructAtMost
++        ok=true
++        from.each{|f|  
++          ok=false if target.resource.get(f[0])&lt;f[1]
++        }
++        if ok
++          from.each{|f|  target.resource.sub(f[0],f[1])}
++          target.resource.add(what,1)
++          break
++        end
++      end
++    }
+ 
+-	end
++  end
+ 
+-	def whatToDo(man)
+-		man.hlJobMode[:done]||=0
+-		return :goResting if man.hlJobMode[:done]&gt;=man.getAggression
+-		return :goHarvesting if whatToHarvestList.length&gt;0 
+-		return :goProducing if whatToConstructList.length&gt;0 # ATM this is always true
+-	end
++  def whatToDo(man)
++    man.hlJobMode[:done]||=0
++    return :goResting if man.hlJobMode[:done]&gt;=man.getAggression
++    return :goHarvesting if whatToHarvestList.length&gt;0 
++    return :goProducing if whatToConstructList.length&gt;0 # ATM this is always true
++  end
+ 
+-	# what the stock of all resources should be
+-	def stockShouldBe
+-		5
+-	end
++  # what the stock of all resources should be
++  def stockShouldBe
++    5
++  end
+ 
+-	def constructAtMost
+-		15
+-	end
++  def constructAtMost
++    15
++  end
+ 
+-	# for each resource get the target's stock; check if it's below stockShouldbe;
+-	# collect those with lower stock first
+-	def whatToHarvestList
+-		list=RESOURCES.map{|res|[res,getResourceNearing(res)]}.select{|p|p[1]&lt;stockShouldBe}.sort{|a,b|a[1]&lt;=&gt;b[1]}.map{|r|r[0]}
+-	end
++  # for each resource get the target's stock; check if it's below stockShouldbe;
++  # collect those with lower stock first
++  def whatToHarvestList
++    list=RESOURCES.map{|res|[res,getResourceNearing(res)]}.select{|p|p[1]&lt;stockShouldBe}.sort{|a,b|a[1]&lt;=&gt;b[1]}.map{|r|r[0]}
++  end
+ 
+-	# get resources of target and resources that men are already harvesting
+-	def getResourceNearing(resource)
+-		target.resource.get(resource)+hero.getMen.select{|man|man.hlJobMode[:what]==resource}.length
+-	end
++  # get resources of target and resources that men are already harvesting
++  def getResourceNearing(resource)
++    target.resource.get(resource)+hero.getMen.select{|man|man.hlJobMode[:what]==resource}.length
++  end
+ 
+-	def whatToConstructList
+-		list=TARGETS.map{|res|[res,getTargetNearing(res)]}.select{|p|p[1]&lt;constructAtMost}.sort{|a,b|a[1]&lt;=&gt;b[1]}.map{|r|r[0]}
+-	end
++  def whatToConstructList
++    list=TARGETS.map{|res|[res,getTargetNearing(res)]}.select{|p|p[1]&lt;constructAtMost}.sort{|a,b|a[1]&lt;=&gt;b[1]}.map{|r|r[0]}
++  end
+ 
+-	def getTargetNearing(resource)
+-		target.resource.get(resource)+hero.getMen.select{|man|man.hlJobMode[:construct]==resource}.length
+-	end
++  def getTargetNearing(resource)
++    target.resource.get(resource)+hero.getMen.select{|man|man.hlJobMode[:construct]==resource}.length
++  end
+ 
+-	def getNextWithResource(res)
+-		getMap.getNext(target,res,1)
+-	end
++  def getNextWithResource(res)
++    getMap.getNext(target,res,1)
++  end
+ 
+-	def error(text)
+-		raise ConstructException.new(text)
+-	end
++  def error(text)
++    raise ConstructException.new(text)
++  end
+ end
+ 
+ 
+@@ -1167,222 +1234,222 @@
+ 
+ 
+ class HLJob_Build&lt;HLJob_CreationBase
+-	RESOURCES=[&quot;wood&quot;,&quot;stone&quot;]
++  RESOURCES=[&quot;wood&quot;,&quot;stone&quot;]
+ 
+-	include HLJob_HarvestModule
+-	include HLJob_RestingModule
++  include HLJob_HarvestModule
++  include HLJob_RestingModule
+ 
+-	VALID_STATES=[
+-		:goHarvesting,:harvest,:comeBack,:deliverAll,
+-		:goBuilding,:build,:endBuild,
+-		:goResting,:sitDown,:rest,
+-		:goFlatten,:flatten,:endFlatten
+-	]
++  VALID_STATES=[
++    :goHarvesting,:harvest,:comeBack,:deliverAll,
++    :goBuilding,:build,:endBuild,
++    :goResting,:sitDown,:rest,
++    :goFlatten,:flatten,:endFlatten
++  ]
+ 
+-	def resources
+-		RESOURCES
+-	end
++  def resources
++    RESOURCES
++  end
+ 
+-	def ready
+-		target.ready
+-	end
++  def ready
++    target.ready
++  end
+ 
+-	private
++  private
+ 
+-	def goFlatten(man)
+-		possible=getWhatToFlatten
+-		position=possible[0]
+-		man.hlJobMode[:flattening]=position
+-		assert{not position.nil?}
+-		man.walkTo(AGVector2.new(position[0],position[1]))
+-		man.hlJobMode[:task]=:flatten
+-	end
+-	def flatten(man)
+-		man.hlJobMode[:task]=:endFlatten
+-		man.newRestJob(3,true)
+-		man.setMeshState(&quot;pick&quot;)
+-	end
++  def goFlatten(man)
++    possible=getWhatToFlatten
++    position=possible[0]
++    man.hlJobMode[:flattening]=position
++    assert{not position.nil?}
++    man.walkTo(AGVector2.new(position[0],position[1]))
++    man.hlJobMode[:task]=:flatten
++  end
++  def flatten(man)
++    man.hlJobMode[:task]=:endFlatten
++    man.newRestJob(3,true)
++    man.setMeshState(&quot;pick&quot;)
++  end
+ 
+-	def endFlatten(man)
+-		p=man.hlJobMode[:flattening]
+-		assert{not p.nil?}
+-		v=getMap.get(p[0],p[1])*(1-p[2])<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">+ at flatheight</A>*p[2]
+-		getMap.set(p[0],p[1],v)
+-		v=getMap.getTerrain(p[0],p[1],EARTH)*(1-p[2])+p[2]
+-		getMap.setTerrain(p[0],p[1],EARTH,v)
+-		getMap.endChange
+-		@flatpositions.delete(p)
+-		man.hlJobMode[:flattening]=nil
+-		man.hlJobMode[:task]=nil
+-	end
+-	def somethingToFlattenLeft
+-		getWhatToFlatten.length&gt;0
+-	end
++  def endFlatten(man)
++    p=man.hlJobMode[:flattening]
++    assert{not p.nil?}
++    v=getMap.get(p[0],p[1])*(1-p[2])<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">+ at flatheight</A>*p[2]
++    getMap.set(p[0],p[1],v)
++    v=getMap.getTerrain(p[0],p[1],EARTH)*(1-p[2])+p[2]
++    getMap.setTerrain(p[0],p[1],EARTH,v)
++    getMap.endChange
++    @flatpositions.delete(p)
++    man.hlJobMode[:flattening]=nil
++    man.hlJobMode[:task]=nil
++  end
++  def somethingToFlattenLeft
++    getWhatToFlatten.length&gt;0
++  end
+ 
+-	def getWhatToFlatten
+-		if @flatpositions.nil?
+-			targetpos=target.getPos2D
+-	
+-			px=targetpos.x.to_i+1
+-			py=targetpos.y.to_i+1
+-			@flatpositions=[]
+-			(-3..3).each{|y|
+-				(-3..3).each{|x|
+-					v=1-Math::sqrt(x**2+y**2)/4.0
+-					v=[0,1,v*1.5].sort[1]
+-					@flatpositions.push([x+px,y+py,v])
+-				}
+-			}
+-			@flatheight=getMap.get(px,py)
+-			@flatpositions=@flatpositions.shuffle
+-		end
+-		
+-		@flatpositions-hero.getMen.collect{|man|man.hlJobMode[:flattening]}
+-	end
++  def getWhatToFlatten
++    if @flatpositions.nil?
++      targetpos=target.getPos2D
++  
++      px=targetpos.x.to_i+1
++      py=targetpos.y.to_i+1
++      @flatpositions=[]
++      (-3..3).each{|y|
++        (-3..3).each{|x|
++          v=1-Math::sqrt(x**2+y**2)/4.0
++          v=[0,1,v*1.5].sort[1]
++          @flatpositions.push([x+px,y+py,v])
++        }
++      }
++      @flatheight=getMap.get(px,py)
++      @flatpositions=@flatpositions.shuffle
++    end
++    
++    @flatpositions-hero.getMen.collect{|man|man.hlJobMode[:flattening]}
++  end
+ 
+-	# :section: Producing
++  # :section: Producing
+ 
+-	def goBuilding(man)
+-		puts &quot;goBuilding #{man}&quot;
+-		man.walkTo(target)
+-		man.hlJobMode[:task]=:build
+-	end
++  def goBuilding(man)
++    puts &quot;goBuilding #{man}&quot;
++    man.walkTo(target)
++    man.hlJobMode[:task]=:build
++  end
+ 
+-	def build(man)
+-		puts &quot;build #{man}&quot;
+-		man.hlJobMode[:task]=:endBuild
+-		man.newRestJob(3,true)
+-		man.setMeshState(&quot;pick&quot;)
+-	end
++  def build(man)
++    puts &quot;build #{man}&quot;
++    man.hlJobMode[:task]=:endBuild
++    man.newRestJob(3,true)
++    man.setMeshState(&quot;pick&quot;)
++  end
+ 
+-	def endBuild(man)
+-		man.incExperience(man.learnAmount)
+-		buildIncrease
+-	end
++  def endBuild(man)
++    man.incExperience(man.learnAmount)
++    buildIncrease
++  end
+ 
+-	def whatToDo(man)
+-		res=whatToDo2(man)
+-		print &quot;whatToDo:&quot;
+-		pp res
+-		res
+-	end
++  def whatToDo(man)
++    res=whatToDo2(man)
++    print &quot;whatToDo:&quot;
++    pp res
++    res
++  end
+ 
+-	def whatToDo2(man)
+-		man.hlJobMode[:done]||=0
+-		return :goResting if man.hlJobMode[:done]&gt;=man.getAggression
+-		return :goFlatten if somethingToFlattenLeft
+-		return :goBuilding if enoughResourceLeft and not target.ready
+-		return :goHarvesting #if whatToHarvestList.length&gt;0 # always
+-	end
++  def whatToDo2(man)
++    man.hlJobMode[:done]||=0
++    return :goResting if man.hlJobMode[:done]&gt;=man.getAggression
++    return :goFlatten if somethingToFlattenLeft
++    return :goBuilding if enoughResourceLeft and not target.ready
++    return :goHarvesting #if whatToHarvestList.length&gt;0 # always
++  end
+ 
+-	# what the stock of all resources should be
+-	def stockShouldBe
+-		5
+-	end
++  # what the stock of all resources should be
++  def stockShouldBe
++    5
++  end
+ 
+-	# for each resource get the target's stock; check if it's below stockShouldbe;
+-	# collect those with lower stock first
+-	def whatToHarvestList
+-		list=RESOURCES.map{|res|[res,getResourceNearing(res),target.resource.get(res)]}.select{|p|p[1]&lt;stockShouldBe or p[2]&lt;2}.sort{|a,b|a[1]&lt;=&gt;b[1]}.map{|r|r[0]}
+-	end
++  # for each resource get the target's stock; check if it's below stockShouldbe;
++  # collect those with lower stock first
++  def whatToHarvestList
++    list=RESOURCES.map{|res|[res,getResourceNearing(res),target.resource.get(res)]}.select{|p|p[1]&lt;stockShouldBe or p[2]&lt;2}.sort{|a,b|a[1]&lt;=&gt;b[1]}.map{|r|r[0]}
++  end
+ 
+-	# get resources of target and resources that men are already harvesting
+-	def getResourceNearing(resource)
+-		target.resource.get(resource)+(hero.getMen-[hero]).select{|man|man.hlJobMode[:what]==resource}.length
+-	end
++  # get resources of target and resources that men are already harvesting
++  def getResourceNearing(resource)
++    target.resource.get(resource)+(hero.getMen-[hero]).select{|man|man.hlJobMode[:what]==resource}.length
++  end
+ 
+-	def getNextWithResource(res)
+-		getMap.getNext(target,res,1)
+-	end
++  def getNextWithResource(res)
++    getMap.getNext(target,res,1)
++  end
+ 
+-	def enoughResourceLeft
+-		alreadyBuilding=hero.getMen.select{|man|[:build,:goBuilding].member?(man.hlJobMode[:task])}.length+1
+-		puts &quot;alreadyBuilding:#{alreadyBuilding}&quot;
+-		#return true if alreadyBuilding==0
+-		neededResources=target.building.buildResources
+-		ok=true
+-		neededResources.each{|k,v|
++  def enoughResourceLeft
++    alreadyBuilding=hero.getMen.select{|man|[:build,:goBuilding].member?(man.hlJobMode[:task])}.length+1
++    puts &quot;alreadyBuilding:#{alreadyBuilding}&quot;
++    #return true if alreadyBuilding==0
++    neededResources=target.building.buildResources
++    ok=true
++    neededResources.each{|k,v|
+ 
+-			ok=false if target.resource.get(k)&lt;v*alreadyBuilding
+-		}
+-		puts &quot;ok: #{ok}&quot;
+-		ok
+-	end
++      ok=false if target.resource.get(k)&lt;v*alreadyBuilding
++    }
++    puts &quot;ok: #{ok}&quot;
++    ok
++  end
+ 
+-	def error(text)
+-		raise ConstructException.new(text)
+-	end
++  def error(text)
++    raise ConstructException.new(text)
++  end
+ 
+ 
+-	def flattenLand
+-		targetpos=target.getPos2D
++  def flattenLand
++    targetpos=target.getPos2D
+ 
+ 
+-		px=targetpos.x.to_i+1
+-		py=targetpos.y.to_i+1
+-		if @flatpositions.nil?
+-			@flatpositions=[]
+-			(-3..3).each{|y|
+-				(-3..3).each{|x|
+-					v=1-Math::sqrt(x**2+y**2)/4.0
+-					v=[0,1,v*1.5].sort[1]
+-					@flatpositions.push([x+px,y+py,v])
+-				}
+-			}
+-			@flatheight=getMap.get(px,py)
+-			@flatpositions.shuffle
+-		end
++    px=targetpos.x.to_i+1
++    py=targetpos.y.to_i+1
++    if @flatpositions.nil?
++      @flatpositions=[]
++      (-3..3).each{|y|
++        (-3..3).each{|x|
++          v=1-Math::sqrt(x**2+y**2)/4.0
++          v=[0,1,v*1.5].sort[1]
++          @flatpositions.push([x+px,y+py,v])
++        }
++      }
++      @flatheight=getMap.get(px,py)
++      @flatpositions.shuffle
++    end
+ 
+ 
+-		
+-		if @flatpositions.length&gt;0
+-			(0..1).each{|i|
+-				break if @flatpositions.length==0
+-				p=@flatpositions.shift
+-				v=getMap.get(p[0],p[1])*(1-p[2])<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">+ at flatheight</A>*p[2]
+-				getMap.set(p[0],p[1],v)
+-				v=getMap.getTerrain(p[0],p[1],EARTH)*(1-p[2])+p[2]
+-				getMap.setTerrain(p[0],p[1],EARTH,v)
+-			}
+-			getMap.endChange
+-			return true
+-		end
+-		false
+-	end
++    
++    if @flatpositions.length&gt;0
++      (0..1).each{|i|
++        break if @flatpositions.length==0
++        p=@flatpositions.shift
++        v=getMap.get(p[0],p[1])*(1-p[2])<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">+ at flatheight</A>*p[2]
++        getMap.set(p[0],p[1],v)
++        v=getMap.getTerrain(p[0],p[1],EARTH)*(1-p[2])+p[2]
++        getMap.setTerrain(p[0],p[1],EARTH,v)
++      }
++      getMap.endChange
++      return true
++    end
++    false
++  end
+ 
+-	def buildIncrease
+-		puts &quot;buildIncrease&quot;
+-		#return if flattenLand
++  def buildIncrease
++    puts &quot;buildIncrease&quot;
++    #return if flattenLand
+ 
+-		building=target.building
+-		neededResources=building.buildResources
+-	
+-		neededResources.each{|k,v|
+-			if target.resource.get(k)&lt;v
+-				puts &quot;NOT FOUDN: #{k}:#{v}&quot;
+-				return # oooooh
+-			end
+-		}
+-		neededResources.each{|k,v|
+-			target.resource.sub(k,v)
+-		}
++    building=target.building
++    neededResources=building.buildResources
++  
++    neededResources.each{|k,v|
++      if target.resource.get(k)&lt;v
++        puts &quot;NOT FOUDN: #{k}:#{v}&quot;
++        return # oooooh
++      end
++    }
++    neededResources.each{|k,v|
++      target.resource.sub(k,v)
++    }
+ 
+-		puts &quot;inc:&quot;,target.building.buildSteps
+-		puts &quot;stepcount:&quot;,target.getStepCount
+-		target.incProgress(target.building.buildSteps)
+-		
+-		if target.ready
+-			puts &quot;READY&quot;
+-			# delete buildingsite and replace with building
+-			getMap.removeEntity(target)
+-			house=building.new(getMap)
+-			house.setPos(target.getPos2D)
+-			getMap.insertEntity(house)
+-			house.setPlayer(hero.getPlayer)
+-			house.setName(house.class.to_s.gsub(&quot;Ant&quot;,&quot;&quot;))
+-			house.resource.takeAll(target.resource) # give remaining resources to house
+-		end
+-	end
++    puts &quot;inc:&quot;,target.building.buildSteps
++    puts &quot;stepcount:&quot;,target.getStepCount
++    target.incProgress(target.building.buildSteps)
++    
++    if target.ready
++      puts &quot;READY&quot;
++      # delete buildingsite and replace with building
++      getMap.removeEntity(target)
++      house=building.new(getMap)
++      house.setPos(target.getPos2D)
++      getMap.insertEntity(house)
++      house.setPlayer(hero.getPlayer)
++      house.setName(house.class.to_s.gsub(&quot;Ant&quot;,&quot;&quot;))
++      house.resource.takeAll(target.resource) # give remaining resources to house
++    end
++  end
+ 
+ end
+ 
+
+Modified: antargis/trunk/ruby/spec/spec_coding_style.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_coding_style.rb	2008-05-26 18:22:36 UTC (rev 1255)
++++ antargis/trunk/ruby/spec/spec_coding_style.rb	2008-05-27 17:53:28 UTC (rev 1256)
+@@ -1,18 +1,22 @@
++def checkTabs(filename)
++  file=File.open(filename)
++  c=file.read
++  file.close
++  okfilename=&quot;#{filename} contains no tabs&quot;
++  result=okfilename
++  result=&quot;#{filename} contains tabs&quot; if c =~/\t/
++  
++  linenr=0
++  numbers=c.split(&quot;\n&quot;).map{|line|[line=~/\t/,linenr+=1]}.select{|l|l[0]}.map{|l|l[1]}
++  puts &quot;failed line-numbers (#{filename}): #{numbers.join(&quot;,&quot;)}&quot;
++  
++  result.should == okfilename
++end
++
+ describe &quot;Coding style C/++&quot; do
+   it &quot;shouldn't include any TABs anymore&quot; do
+     (Dir[&quot;ext/**/*.cc&quot;]+Dir[&quot;ext/**/*.h&quot;]).select{|filename|not filename=~/swig/}.each {|filename|
+-      file=File.open(filename)
+-      c=file.read
+-      file.close
+-      okfilename=&quot;#{filename} contains no tabs&quot;
+-      result=okfilename
+-      result=&quot;#{filename} contains tabs&quot; if c =~/\t/
+-      
+-      linenr=0
+-      numbers=c.split(&quot;\n&quot;).map{|line|[line=~/\t/,linenr+=1]}.select{|l|l[0]}.map{|l|l[1]}
+-      puts &quot;failed line-numbers (#{filename}): #{numbers.join(&quot;,&quot;)}&quot;
+-      
+-      result.should == okfilename
++      checkTabs(filename)
+     }
+   end
+   it &quot;should not have senseless comments (outcommenting)&quot;
+@@ -23,7 +27,11 @@
+ end
+ 
+ describe &quot;Coding style Ruby&quot; do
+-  it &quot;shouldn't include any TABs anymore&quot;
++  it &quot;shouldn't include any TABs anymore&quot; do
++    Dir[&quot;ruby/**/*.rb&quot;].each{|filename|
++      checkTabs(filename)
++    }
++  end
+   it &quot;should include decent documentation&quot;
+   it &quot;should include author/modification date&quot;
+   it &quot;should include GPL in all files&quot;
+
+Added: antargis/trunk/ruby/spec/spec_hljob_saving.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_hljob_saving.rb	2008-05-26 18:22:36 UTC (rev 1255)
++++ antargis/trunk/ruby/spec/spec_hljob_saving.rb	2008-05-27 17:53:28 UTC (rev 1256)
+@@ -0,0 +1,22 @@
++
++require 'ruby/spec/level_testing.rb'
++
++describe &quot;Saving of&quot; do
++  include LevelTesting
++  describe &quot;RestJob&quot; do
++    before(:all) do
++      getTestApp(:tutorial0)
++      advance
++      clickAwayStory
++      advance
++    end
++    it &quot;should be possible to save normal resting&quot; do
++      @app.save
++      advance
++      dialog=widget(&quot;SaveDialog&quot;)
++      dialog.getChild(&quot;Filename&quot;).setText(AGStringUtf8.new(&quot;testfile0&quot;))
++      click(dialog.getChild(&quot;ok&quot;).getScreenRect.getMiddle)
++      advance
++    end
++  end
++end
+\ No newline at end of file
+
+Modified: antargis/trunk/ruby/spec/spec_hljobs.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_hljobs.rb	2008-05-26 18:22:36 UTC (rev 1255)
++++ antargis/trunk/ruby/spec/spec_hljobs.rb	2008-05-27 17:53:28 UTC (rev 1256)
+@@ -3,20 +3,20 @@
+ 
+ 
+ class Store
+-	def initialize
+-		@store={}
+-	end
+-	def [](name)
+-		@store[name]
+-	end
+-	def []=(name,value)
+-		@store[name]=value
+-	end
++  def initialize
++    @store={}
++  end
++  def [](name)
++    @store[name]
++  end
++  def []=(name,value)
++    @store[name]=value
++  end
+ end
+ 
+ describe &quot;HL-MoveJob&quot; do
+-	it &quot;should format correctly&quot;
+-	it &quot;should use only limited count of ll-jobs&quot;
++  it &quot;should format correctly&quot;
++  it &quot;should use only limited count of ll-jobs&quot;
+ end
+ 
+ describe &quot;Recruit job&quot; do
+@@ -48,119 +48,119 @@
+   include LevelTesting
+   before(:all) do
+     getTestApp(:tutorial0)
+-	  @store=Store.new
++    @store=Store.new
+   end
+   it &quot;should start off with hero with no men&quot; do
+-  	advance
+-  	clickAwayStory
+-  	hero(&quot;Rowen&quot;).getMen.length.should == 1
++    advance
++    clickAwayStory
++    hero(&quot;Rowen&quot;).getMen.length.should == 1
+   end
+   it &quot;starting recruit-job should work&quot; do
+-  	rowen=hero(&quot;Rowen&quot;)
+-		rowen.newHLRecruitJob(building(&quot;Keep&quot;))
+-		rowen.getJob.should be_a_kind_of(AntHeroRecruitJob)
++    rowen=hero(&quot;Rowen&quot;)
++    rowen.newHLRecruitJob(building(&quot;Keep&quot;))
++    rowen.getJob.should be_a_kind_of(AntHeroRecruitJob)
+   end
+ 
+   it &quot;should then send hero to tower (at most 10 low-level move-jobs for format and move)&quot; do
+     rowen=hero(&quot;Rowen&quot;)
+     keep=building(&quot;Keep&quot;)
+ 
+-  	# format
++    # format
+     while rowen.getJob.stateName==:moveComplete
+-		  advance
++      advance
+     end
+-	
+-		rowen.getJobName.should ==&quot;moveJob&quot;
+-		rowen.getTarget.should be_a_kind_of(AntMan)
+-		@store[:oldPos]=rowen.getPos2D
++  
++    rowen.getJobName.should ==&quot;moveJob&quot;
++    rowen.getTarget.should be_a_kind_of(AntMan)
++    @store[:oldPos]=rowen.getPos2D
+   end
+   it &quot;hero should only go fetch one man;go back and then stay at his position&quot; do
+-		rowen=hero(&quot;Rowen&quot;)
+-		man=rowen.getTarget
+-		runUntilLowLevelJobToFinish(rowen)
+-		rowen.getJobName.should == &quot;moveJob&quot;
+-		rowen.getTarget.should be_nil
+-		trials=0
+-		while rowen.getJobName==&quot;moveJob&quot;
++    rowen=hero(&quot;Rowen&quot;)
++    man=rowen.getTarget
++    runUntilLowLevelJobToFinish(rowen)
++    rowen.getJobName.should == &quot;moveJob&quot;
++    rowen.getTarget.should be_nil
++    trials=0
++    while rowen.getJobName==&quot;moveJob&quot;
+       runUntilLowLevelJobToFinish(rowen)
+-			trials+=1
+-			raise &quot;too many trials&quot; if trials&gt;10
+-		end
+-		(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">rowen.getPos2D- at store</A>[:oldPos]).length.should &lt; 0.1
++      trials+=1
++      raise &quot;too many trials&quot; if trials&gt;10
++    end
++    (<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">rowen.getPos2D- at store</A>[:oldPos]).length.should &lt; 0.1
+   end
+   it &quot;all men should stand at the sitting-position when job is finished&quot; do
+-  	while rowen.getJob.stateName == :recruit
+-  		advance
+-	 end
++    while rowen.getJob.stateName == :recruit
++      advance
++   end
+  
+-	
+-		clickAwayStory
+-		rowen.getJob.should_not be_a_kind_of(AntHeroRecruitJob)
+-		rowen.formation.should be_a_kind_of(AntFormationRest)
+-		rowen.getMen.each{|man|
+-			(man.getPos2D-rowen.getFormation(man,rowen.getPos2D)).length.should &lt; 0.1
+-		}
++  
++    clickAwayStory
++    rowen.getJob.should_not be_a_kind_of(AntHeroRecruitJob)
++    rowen.formation.should be_a_kind_of(AntFormationRest)
++    rowen.getMen.each{|man|
++      (man.getPos2D-rowen.getFormation(man,rowen.getPos2D)).length.should &lt; 0.1
++    }
+   end
+   
+   
+   def rowen
+-  	hero(&quot;Rowen&quot;)
++    hero(&quot;Rowen&quot;)
+   end
+ end
+ 
+ 
+ describe &quot;Recruit job - aggression&quot; do
+   include LevelTesting
+-	it &quot;men should fetch a few men if aggression is low&quot;
++  it &quot;men should fetch a few men if aggression is low&quot;
+   it &quot;men should fetch all men if aggression if high&quot;
+ end
+ 
+ 
+ describe &quot;Build job&quot; do
+-	include LevelTesting
+-	before(:all) do
+-	  getTestApp(:tutorial3)
+-	  @store=Store.new
+-	end
++  include LevelTesting
++  before(:all) do
++    getTestApp(:tutorial3)
++    @store=Store.new
++  end
+     it &quot;should run at all&quot; do
+-    	waitForStory
+-		clickAwayStory
+-    	rowen=hero(&quot;Rowen&quot;)
+-		dist=AGVector2.new(-5,8)
+-		rowen.newHLBuildJob(rowen.getPos2D+dist,AntTower)
+-		map.getBuildings.length.should ==0
+-		steps=0
+-		while rowen.getJob and rowen.getJob.is_a?(AntHeroBuildJob)
+-			advance
+-			steps.should &lt; 100
+-		end
+-		map.getBuildings.length.should == 1
+-		map.getBuildings[0].should be_a_kind_of(AntTower)
++      waitForStory
++    clickAwayStory
++      rowen=hero(&quot;Rowen&quot;)
++    dist=AGVector2.new(-5,8)
++    rowen.newHLBuildJob(rowen.getPos2D+dist,AntTower)
++    map.getBuildings.length.should ==0
++    steps=0
++    while rowen.getJob and rowen.getJob.is_a?(AntHeroBuildJob)
++      advance
++      steps.should &lt; 100
+     end
+-	it &quot;- the tower should be of Rowen&quot; do
+-		hero(&quot;Rowen&quot;).getPlayer.should equal(map.getBuildings[0].getPlayer)
+-	end
+-	it &quot;should not work on water&quot; do
+-		getTestApp(:tutorial3)
+-		rowen=hero(&quot;Rowen&quot;)
+-		waitForStory
+-		clickAwayStory
++    map.getBuildings.length.should == 1
++    map.getBuildings[0].should be_a_kind_of(AntTower)
++    end
++  it &quot;- the tower should be of Rowen&quot; do
++    hero(&quot;Rowen&quot;).getPlayer.should equal(map.getBuildings[0].getPlayer)
++  end
++  it &quot;should not work on water&quot; do
++    getTestApp(:tutorial3)
++    rowen=hero(&quot;Rowen&quot;)
++    waitForStory
++    clickAwayStory
+     widget(&quot;MessageBox&quot;).should be_nil
+-		rowen.newHLBuildJob(rowen.getPos2D+AGVector2.new(-5,-10),AntTower)
++    rowen.newHLBuildJob(rowen.getPos2D+AGVector2.new(-5,-10),AntTower)
+     widget(&quot;MessageBox&quot;).should_not be_nil
+     widget(&quot;MessageBox&quot;).should be_visible
+     widget(&quot;MessageBox&quot;).child(&quot;text&quot;).getText.should ==_(&quot;You can't build on water.&quot;)
+-		rowen.getJob.should_not be_a_kind_of(AntHeroBuildJob)
+-	end
++    rowen.getJob.should_not be_a_kind_of(AntHeroBuildJob)
++  end
+   it &quot;should use meshes correctly (in correct order)&quot;
+   it &quot;should find resources correctly&quot;
+   
+-	describe &quot;Continue a build job&quot; do
+-		it &quot;should work correctly&quot;
+-	end
++  describe &quot;Continue a build job&quot; do
++    it &quot;should work correctly&quot;
++  end
+   
+   it &quot;should let people rest enough when aggression is low&quot;
+-	it &quot;should let people rest at the correct position&quot;
++  it &quot;should let people rest at the correct position&quot;
+ end
+ 
+ 
+
+Modified: antargis/trunk/ruby/spec/spec_scrollingwidget.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_scrollingwidget.rb	2008-05-26 18:22:36 UTC (rev 1255)
++++ antargis/trunk/ruby/spec/spec_scrollingwidget.rb	2008-05-27 17:53:28 UTC (rev 1256)
+@@ -83,7 +83,7 @@
+       screenshot.getSubSurface(MyTestApp::SMALLRECT).should == @app.surface
+     end
+     it &quot;shouldn't draw anything when the widget is scrolled to the right lower corner&quot; do
+-      @app.sWidget.setVector(MyTestApp::VECTOR*0.5)
++      @app.sWidget.setVector(MyTestApp::VECTOR*-0.5)
+       @app.makeScreenshot
+       @app.step
+       s=@app.screenshot
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000211.html">[Antargis-svn] r1255 - in antargis/trunk: ext/basic ext/game	ext/gui ext/math ext/video rookey ruby ruby/editor/campaign	ruby/spec
+</A></li>
+	<LI>Next message: <A HREF="000213.html">[Antargis-svn] r1257 - in antargis/trunk: . data/gui/layout	ext/basic ext/game ext/gui rookey ruby ruby/entities	ruby/jobs ruby/spec
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#212">[ date ]</a>
+              <a href="thread.html#212">[ thread ]</a>
+              <a href="subject.html#212">[ subject ]</a>
+              <a href="author.html#212">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

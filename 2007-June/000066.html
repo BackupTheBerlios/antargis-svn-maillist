@@ -1,0 +1,556 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1109 - in antargis/branches/rant: build	ext/3dengine ext/basic ext/game ext/math ruby ruby/entities
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-June/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1109%20-%20in%20antargis/branches/rant%3A%20build%0A%09ext/3dengine%20ext/basic%20ext/game%20ext/math%20ruby%20ruby/entities&In-Reply-To=%3C200706231926.l5NJQkox025763%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000065.html">
+   <LINK REL="Next"  HREF="000067.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1109 - in antargis/branches/rant: build	ext/3dengine ext/basic ext/game ext/math ruby ruby/entities</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1109%20-%20in%20antargis/branches/rant%3A%20build%0A%09ext/3dengine%20ext/basic%20ext/game%20ext/math%20ruby%20ruby/entities&In-Reply-To=%3C200706231926.l5NJQkox025763%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1109 - in antargis/branches/rant: build	ext/3dengine ext/basic ext/game ext/math ruby ruby/entities">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sat Jun 23 21:26:46 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000065.html">[Antargis-svn] r1108 - in antargis/branches/rant: build data/gui	data/gui/images data/gui/images/basic ext/game
+</A></li>
+        <LI>Next message: <A HREF="000067.html">[Antargis-svn] r1110 - antargis/branches/rant/ext/3dengine
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#66">[ date ]</a>
+              <a href="thread.html#66">[ thread ]</a>
+              <a href="subject.html#66">[ subject ]</a>
+              <a href="author.html#66">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-06-23 21:26:45 +0200 (Sat, 23 Jun 2007)
+New Revision: 1109
+
+Modified:
+   antargis/branches/rant/build/create_interface_new.rb
+   antargis/branches/rant/build/std_list.i
+   antargis/branches/rant/ext/3dengine/ant_camera.h
+   antargis/branches/rant/ext/3dengine/ant_projection.cc
+   antargis/branches/rant/ext/3dengine/ant_projection.h
+   antargis/branches/rant/ext/3dengine/headers.hh
+   antargis/branches/rant/ext/basic/ag_rubyobj.cc
+   antargis/branches/rant/ext/game/headers.hh
+   antargis/branches/rant/ext/game/map.cc
+   antargis/branches/rant/ext/game/map.h
+   antargis/branches/rant/ext/game/path.cc
+   antargis/branches/rant/ext/game/path.h
+   antargis/branches/rant/ext/game/templates.i
+   antargis/branches/rant/ext/math/ant_frustum.cc
+   antargis/branches/rant/ext/math/ant_frustum.h
+   antargis/branches/rant/ext/math/headers.hh
+   antargis/branches/rant/ruby/entities/ant_fire.rb
+   antargis/branches/rant/ruby/map.rb
+   antargis/branches/rant/ruby/view.rb
+Log:
+* some more patches
+
+
+Modified: antargis/branches/rant/build/create_interface_new.rb
+===================================================================
+--- antargis/branches/rant/build/create_interface_new.rb	2007-06-23 16:55:08 UTC (rev 1108)
++++ antargis/branches/rant/build/create_interface_new.rb	2007-06-23 19:26:45 UTC (rev 1109)
+@@ -165,23 +165,23 @@
+ 				end
+ 			}
+ 		end
+-		puts &quot;-------------------------&quot;
+-		puts &quot;CLASSLIST:&quot;
+-		puts @classList
+-
+-		puts &quot;-------------------------&quot;
+-		puts &quot;RUBY CLASSLIST:&quot;
+-		puts @rubyClasses
+-
+-		puts &quot;-------------------------&quot;
+-		puts &quot;DERIVATIONS:&quot;
+-			@deriveList.each {|x,y|
+-				puts &quot;#{x} #{y} #{@class2File[x]} &quot;
+-			}
+-		puts &quot;-------------------------&quot;
+-		puts &quot;my ruby:&quot;
+-		puts getMyRubyClasses
+-		puts &quot;-------------------------&quot;
++# 		puts &quot;-------------------------&quot;
++# 		puts &quot;CLASSLIST:&quot;
++# 		puts @classList
++# 
++# 		puts &quot;-------------------------&quot;
++# 		puts &quot;RUBY CLASSLIST:&quot;
++# 		puts @rubyClasses
++# 
++# 		puts &quot;-------------------------&quot;
++# 		puts &quot;DERIVATIONS:&quot;
++# 			@deriveList.each {|x,y|
++# 				puts &quot;#{x} #{y} #{@class2File[x]} &quot;
++# 			}
++# 		puts &quot;-------------------------&quot;
++# 		puts &quot;my ruby:&quot;
++# 		puts getMyRubyClasses
++# 		puts &quot;-------------------------&quot;
+ 	end
+ 
+ 	def initLevels
+
+Modified: antargis/branches/rant/build/std_list.i
+===================================================================
+--- antargis/branches/rant/build/std_list.i	2007-06-23 16:55:08 UTC (rev 1108)
++++ antargis/branches/rant/build/std_list.i	2007-06-23 19:26:45 UTC (rev 1109)
+@@ -424,7 +424,7 @@
+             }
+ 		
+             void each() {
+-		for(std::list&lt;T*&gt;::iterator i=self-&gt;begin();i!=self-&gt;end();i++) // with ptr2
++		for(std::list&lt;T&gt;::iterator i=self-&gt;begin();i!=self-&gt;end();i++) // with ptr2
+                     rb_yield(CONVERT_TO(&amp;(*i));
+             }
+         }
+
+Modified: antargis/branches/rant/ext/3dengine/ant_camera.h
+===================================================================
+--- antargis/branches/rant/ext/3dengine/ant_camera.h	2007-06-23 16:55:08 UTC (rev 1108)
++++ antargis/branches/rant/ext/3dengine/ant_camera.h	2007-06-23 19:26:45 UTC (rev 1109)
+@@ -21,6 +21,8 @@
+ #ifndef ANT_CAMERA_H
+ #define ANT_CAMERA_H
+ 
++// INCLUDE_SWIG - used to filter, which files are included in swig-interfacing
++
+ #include &lt;GLee.h&gt;
+ 
+ #include &lt;ant_frustum.h&gt;
+
+Modified: antargis/branches/rant/ext/3dengine/ant_projection.cc
+===================================================================
+--- antargis/branches/rant/ext/3dengine/ant_projection.cc	2007-06-23 16:55:08 UTC (rev 1108)
++++ antargis/branches/rant/ext/3dengine/ant_projection.cc	2007-06-23 19:26:45 UTC (rev 1109)
+@@ -1,8 +1,14 @@
+ #include &quot;ant_projection.h&quot;
++#include &lt;ag_debug.h&gt;
+ 
+ #include &lt;GL/glu.h&gt;
+ 
+ 
++AntProjection::AntProjection()
++{
++  cdebug(&quot;Possible Error: AntProjection not initialized!&quot;);
++}
++
+ AntProjection::AntProjection(const AGMatrix4 &amp;pMv,const AGMatrix4 &amp;pPr,const Viewport &amp;pVp):
+   modelview(pMv),projection(pPr),viewport(pVp)
+ {
+
+Modified: antargis/branches/rant/ext/3dengine/ant_projection.h
+===================================================================
+--- antargis/branches/rant/ext/3dengine/ant_projection.h	2007-06-23 16:55:08 UTC (rev 1108)
++++ antargis/branches/rant/ext/3dengine/ant_projection.h	2007-06-23 19:26:45 UTC (rev 1109)
+@@ -1,6 +1,8 @@
+ #ifndef ANT_PROJECTION_H
+ #define ANT_PROJECTION_H
+ 
++// INCLUDE_SWIG - used to filter, which files are included in swig-interfacing
++
+ #include &lt;GLee.h&gt;
+ 
+ #include &lt;ant_frustum.h&gt;
+@@ -20,6 +22,7 @@
+ class AntProjection
+ {
+  public:
++  AntProjection();
+   AntProjection(const AGMatrix4 &amp;pMv,const AGMatrix4 &amp;pPr,const Viewport &amp;pVp);
+ 
+   AGVector3 project(const AGVector3 &amp;p) const;
+
+Modified: antargis/branches/rant/ext/3dengine/headers.hh
+===================================================================
+--- antargis/branches/rant/ext/3dengine/headers.hh	2007-06-23 16:55:08 UTC (rev 1108)
++++ antargis/branches/rant/ext/3dengine/headers.hh	2007-06-23 19:26:45 UTC (rev 1109)
+@@ -31,9 +31,12 @@
+ #include &quot;/home/david/projects/antargis/rant/ext/3dengine/anim_mesh_data.h&quot;
+ #include &quot;/home/david/projects/antargis/rant/ext/3dengine/mesh.h&quot;
+ #include &quot;/home/david/projects/antargis/rant/ext/3dengine/mesh_2d.h&quot;
++#include &quot;/home/david/projects/antargis/rant/ext/3dengine/ant_particle.h&quot;
+ #include &quot;/home/david/projects/antargis/rant/ext/3dengine/scene.h&quot;
+ #include &quot;/home/david/projects/antargis/rant/ext/3dengine/anim_mesh.h&quot;
++#include &quot;/home/david/projects/antargis/rant/ext/3dengine/ant_camera.h&quot;
+ #include &quot;/home/david/projects/antargis/rant/ext/3dengine/mesh_optimizer.h&quot;
++#include &quot;/home/david/projects/antargis/rant/ext/3dengine/ant_projection.h&quot;
+ #ifdef SWIG
+ %include &quot;/home/david/projects/antargis/rant/ext/3dengine/mesh_data.h&quot;
+ %include &quot;/home/david/projects/antargis/rant/ext/3dengine/scene_base.h&quot;
+@@ -42,8 +45,11 @@
+ %include &quot;/home/david/projects/antargis/rant/ext/3dengine/anim_mesh_data.h&quot;
+ %include &quot;/home/david/projects/antargis/rant/ext/3dengine/mesh.h&quot;
+ %include &quot;/home/david/projects/antargis/rant/ext/3dengine/mesh_2d.h&quot;
++%include &quot;/home/david/projects/antargis/rant/ext/3dengine/ant_particle.h&quot;
+ %include &quot;/home/david/projects/antargis/rant/ext/3dengine/scene.h&quot;
+ %include &quot;/home/david/projects/antargis/rant/ext/3dengine/anim_mesh.h&quot;
++%include &quot;/home/david/projects/antargis/rant/ext/3dengine/ant_camera.h&quot;
+ %include &quot;/home/david/projects/antargis/rant/ext/3dengine/mesh_optimizer.h&quot;
++%include &quot;/home/david/projects/antargis/rant/ext/3dengine/ant_projection.h&quot;
+ #endif
+ #endif
+
+Modified: antargis/branches/rant/ext/basic/ag_rubyobj.cc
+===================================================================
+--- antargis/branches/rant/ext/basic/ag_rubyobj.cc	2007-06-23 16:55:08 UTC (rev 1108)
++++ antargis/branches/rant/ext/basic/ag_rubyobj.cc	2007-06-23 19:26:45 UTC (rev 1109)
+@@ -22,6 +22,10 @@
+   mDeleted=false;
+   gExistingRubies.insert(this);
+   mRUBY=0;
++#ifdef GCDEBUG
++  printf(&quot;NEW ME:%lx\n&quot;,this);
++#endif
++  
+ }
+ AGRubyObject::~AGRubyObject()
+ {
+@@ -31,7 +35,7 @@
+ 
+   //  cdebug(&quot;DEL:&quot;&lt;&lt;mRUBY);
+ #ifdef GCDEBUG
+-  printf(&quot;DEL:%lx  %s\n&quot;,mRUBY,mObjName.c_str());
++  printf(&quot;DEL:%lx  %s (me:%lx)\n&quot;,mRUBY,mObjName.c_str(),this);
+ #endif
+   mDeleted=true;
+   gExistingRubies.erase(this);
+
+Modified: antargis/branches/rant/ext/game/headers.hh
+===================================================================
+--- antargis/branches/rant/ext/game/headers.hh	2007-06-23 16:55:08 UTC (rev 1108)
++++ antargis/branches/rant/ext/game/headers.hh	2007-06-23 19:26:45 UTC (rev 1109)
+@@ -103,6 +103,7 @@
+ #include &quot;ext/3dengine/mesh_2d_data.h&quot;
+ #include &quot;ext/3dengine/ant_projection.h&quot;
+ #include &quot;ext/3dengine/ag_glsl.h&quot;
++#include &quot;ext/3dengine/ant_particle.h&quot;
+ #include &quot;/home/david/projects/antargis/rant/ext/game/path.h&quot;
+ #include &quot;/home/david/projects/antargis/rant/ext/game/terrain.h&quot;
+ #include &quot;/home/david/projects/antargis/rant/ext/game/entity.h&quot;
+
+Modified: antargis/branches/rant/ext/game/map.cc
+===================================================================
+--- antargis/branches/rant/ext/game/map.cc	2007-06-23 16:55:08 UTC (rev 1108)
++++ antargis/branches/rant/ext/game/map.cc	2007-06-23 19:26:45 UTC (rev 1109)
+@@ -218,22 +218,25 @@
+ {
+   return mEntities;
+ }
++/*
+ std::vector&lt;AntEntityPtr&gt; AntMap::getAllEntitiesV()
+ {
+   std::vector&lt;AntEntityPtr&gt; v;
+   std::copy(mEntities.begin(),mEntities.end(),std::back_inserter(v));
+   return v;
+ }
+-std::vector&lt;AntEntityPtr&gt; AntMap::getEntities(const AGString &amp;pName)
++*/
++
++std::vector&lt;AntEntity*&gt; AntMap::getEntities(const AGString &amp;pName)
+ {
+-  std::vector&lt;AntEntityPtr&gt; v;
++  std::vector&lt;AntEntity*&gt; v;
+   for(EntityList::iterator i=mEntities.begin();i!=mEntities.end();i++)
+     if((*i)-&gt;provides(pName))
+       v.push_back(*i);
+   return v;
+ }
+ 
+-std::vector&lt;AntEntityPtr&gt; AntMap::getNextList(AntEntity *me,const AGString &amp;pType,size_t atLeast)
++std::vector&lt;AntEntity*&gt; AntMap::getNextList(AntEntity *me,const AGString &amp;pType,size_t atLeast)
+ {
+   //  assert(mHeuristicFunction);
+ 
+@@ -264,7 +267,7 @@
+         }
+     }
+ 
+-  std::vector&lt;AntEntityPtr&gt; vec;
++  std::vector&lt;AntEntity*&gt; vec;
+ 
+   // take one of the nearest, but no farer away than 30% of nearest
+   //  AntEntity *e=0;
+
+Modified: antargis/branches/rant/ext/game/map.h
+===================================================================
+--- antargis/branches/rant/ext/game/map.h	2007-06-23 16:55:08 UTC (rev 1108)
++++ antargis/branches/rant/ext/game/map.h	2007-06-23 19:26:45 UTC (rev 1109)
+@@ -62,7 +62,7 @@
+   EntityList getAllEntities();
+ //  std::vector&lt;AntEntityPtr&gt; getAllEntitiesV();
+ //  std::vector&lt;AntEntityPtr&gt; getEntities(const AGString &amp;pName);
+-  std::vector&lt;AntEntity*&gt; getAllEntitiesV();
++//  std::vector&lt;AntEntity*&gt; getAllEntitiesV();
+   std::vector&lt;AntEntity*&gt; getEntities(const AGString &amp;pName);
+ 
+   AntEntity *getEntity(const Mesh &amp;pMesh);
+
+Modified: antargis/branches/rant/ext/game/path.cc
+===================================================================
+--- antargis/branches/rant/ext/game/path.cc	2007-06-23 16:55:08 UTC (rev 1108)
++++ antargis/branches/rant/ext/game/path.cc	2007-06-23 19:26:45 UTC (rev 1109)
+@@ -244,10 +244,25 @@
+ 
+ SimpleGraph::SimpleGraph()
+ {
++  CTRACE;
+   mWidth=0.00001;
+ }
+ 
++SimpleGraph::SimpleGraph(const SimpleGraph &amp;g)
++{
++  mWidth=g.mWidth;
+ 
++  std::map&lt;Node*,Node*&gt; nodemap;
++  for(NodeMap::const_iterator i=g.mNodeMap.begin();i!=g.mNodeMap.end();i++)
++    {
++      nodemap[i-&gt;second]=addNode(i-&gt;first);
++    }
++  for(EdgeSet::const_iterator i=g.mEdges.begin();i!=g.mEdges.end();i++)
++    addEdge(nodemap[(*i)-&gt;a],nodemap[(*i)-&gt;b],(*i)-&gt;w0,(*i)-&gt;w1);
++}
++
++
++
+ SimpleGraph::Node *SimpleGraph::addNode(const AGVector2 &amp;p)
+ {
+   Node *n=findNode(p);
+@@ -371,6 +386,7 @@
+ 
+ SimpleGraph::~SimpleGraph()
+ {
++  CTRACE;
+   for(NodeSet::iterator i=mNodes.begin();i!=mNodes.end();i++)
+     delete *i;
+   for(EdgeSet::iterator i=mEdges.begin();i!=mEdges.end();i++)
+@@ -455,6 +471,25 @@
+   }
+ };
+ 
++
++DecimatedGraph::DecimatedGraph()
++{
++  CTRACE;
++}
++
++DecimatedGraph::DecimatedGraph(const SimpleGraph &amp;g):SimpleGraph(g)
++{
++  CTRACE;
++  cdebug(&quot;old:&quot;&lt;&lt;(&amp;g));
++}
++
++DecimatedGraph::~DecimatedGraph()
++{
++  CTRACE;
++}
++
++
++
+ void DecimatedGraph::decimate(float amount,MapPathWeighter *pWeighter)
+ {
+   size_t m=(size_t)(mNodes.size()*(1.0-amount));
+@@ -747,6 +782,8 @@
+   mGraph(pGraph),mHeuristic(pHeuristic),
+   mDebug(d)
+ {
++  CTRACE;
++  cdebug(&quot;Simplegraph:&quot;&lt;&lt;mGraph);
+ }
+ 
+ void Pathfinder::mark()
+
+Modified: antargis/branches/rant/ext/game/path.h
+===================================================================
+--- antargis/branches/rant/ext/game/path.h	2007-06-23 16:55:08 UTC (rev 1108)
++++ antargis/branches/rant/ext/game/path.h	2007-06-23 19:26:45 UTC (rev 1109)
+@@ -131,7 +131,7 @@
+   };
+ 
+   SimpleGraph();
+-  
++  SimpleGraph(const SimpleGraph &amp;g);
+ 
+   Node *addNode(const AGVector2 &amp;p);
+   /**
+@@ -188,12 +188,9 @@
+ class DecimatedGraph:public SimpleGraph
+ {
+  public:
+-  DecimatedGraph()
+-    {
+-    }
+-  DecimatedGraph(const SimpleGraph &amp;g):SimpleGraph(g)
+-    {
+-    }
++  DecimatedGraph();
++  DecimatedGraph(const SimpleGraph &amp;g);
++  ~DecimatedGraph();
+   void decimate(float amount,MapPathWeighter *pWeighter);
+  private:
+   void tryRemove(Edge *e,MapPathWeighter *pWeighter);
+
+Modified: antargis/branches/rant/ext/game/templates.i
+===================================================================
+--- antargis/branches/rant/ext/game/templates.i	2007-06-23 16:55:08 UTC (rev 1108)
++++ antargis/branches/rant/ext/game/templates.i	2007-06-23 19:26:45 UTC (rev 1109)
+@@ -16,8 +16,8 @@
+ 
+ namespace std
+ {
+-	specialize_std_vector(AntEntity*,SWIG_ANTENTITY_P,SWIG_RB2AntEntity,SWIG_AntEntity2RB);
+-	specialize_std_list(AntEntity*,SWIG_ANTENTITY_P,SWIG_RB2AntEntity,SWIG_AntEntity2RB);
++	specialize_std_vector(AntEntity,SWIG_ANTENTITY_P,SWIG_RB2AntEntity,SWIG_AntEntity2RB);
++	specialize_std_list(AntEntity,SWIG_ANTENTITY_P,SWIG_RB2AntEntity,SWIG_AntEntity2RB);
+ }
+ 
+ 
+
+Modified: antargis/branches/rant/ext/math/ant_frustum.cc
+===================================================================
+--- antargis/branches/rant/ext/math/ant_frustum.cc	2007-06-23 16:55:08 UTC (rev 1108)
++++ antargis/branches/rant/ext/math/ant_frustum.cc	2007-06-23 19:26:45 UTC (rev 1109)
+@@ -48,6 +48,11 @@
+ /////////////////////////////////////////////////////////////////////
+ // AntFrustum
+ /////////////////////////////////////////////////////////////////////
++AntFrustum::AntFrustum()
++{
++	throw std::runtime_error(&quot;Possible error in AntFrustum::AntFrustum(): this function shouldn't be called!&quot;);
++}
++
+ AntFrustum::AntFrustum(const std::vector&lt;AntPlane&gt; &amp;pPlanes):
+   mPlanes(pPlanes)
+ {
+
+Modified: antargis/branches/rant/ext/math/ant_frustum.h
+===================================================================
+--- antargis/branches/rant/ext/math/ant_frustum.h	2007-06-23 16:55:08 UTC (rev 1108)
++++ antargis/branches/rant/ext/math/ant_frustum.h	2007-06-23 19:26:45 UTC (rev 1109)
+@@ -18,6 +18,8 @@
+  * License along with this program.
+  */
+ 
++// INCLUDE_SWIG - used to filter, which files are included in swig-interfacing
++
+ #ifndef ANT_FRUSTUM_H
+ #define ANT_FRUSTUM_H
+ 
+@@ -42,6 +44,7 @@
+ class AntFrustum
+ {
+  public:
++  AntFrustum();
+   AntFrustum(const std::vector&lt;AntPlane&gt; &amp;pPlanes);
+ 
+   bool inside(const AGVector3 &amp;v) const;
+
+Modified: antargis/branches/rant/ext/math/headers.hh
+===================================================================
+--- antargis/branches/rant/ext/math/headers.hh	2007-06-23 16:55:08 UTC (rev 1108)
++++ antargis/branches/rant/ext/math/headers.hh	2007-06-23 19:26:45 UTC (rev 1109)
+@@ -26,10 +26,12 @@
+ #include &quot;ext/basic/ag_mutex.h&quot;
+ #include &quot;/home/david/projects/antargis/rant/ext/math/ag_rand.h&quot;
+ #include &quot;/home/david/projects/antargis/rant/ext/math/ag_geometry.h&quot;
++#include &quot;/home/david/projects/antargis/rant/ext/math/ant_frustum.h&quot;
+ #include &quot;/home/david/projects/antargis/rant/ext/math/ag_algebra.h&quot;
+ #ifdef SWIG
+ %include &quot;/home/david/projects/antargis/rant/ext/math/ag_rand.h&quot;
+ %include &quot;/home/david/projects/antargis/rant/ext/math/ag_geometry.h&quot;
++%include &quot;/home/david/projects/antargis/rant/ext/math/ant_frustum.h&quot;
+ %include &quot;/home/david/projects/antargis/rant/ext/math/ag_algebra.h&quot;
+ #endif
+ #endif
+
+Modified: antargis/branches/rant/ruby/entities/ant_fire.rb
+===================================================================
+--- antargis/branches/rant/ruby/entities/ant_fire.rb	2007-06-23 16:55:08 UTC (rev 1108)
++++ antargis/branches/rant/ruby/entities/ant_fire.rb	2007-06-23 19:26:45 UTC (rev 1109)
+@@ -4,9 +4,9 @@
+ 		mp=AGVector3.new(0,0,0)
+ 		setMesh(:on)
+ 		if MyAntargislib.opengl
+-			@smokeMesh=Smoke.new(getMap.getScene,4)
++			@smokeMesh=AntParticle.new(getMap.getScene,4)
+ 			addMesh(@smokeMesh,mp)
+-			smoke=Smoke.new(getMap.getScene,40)
++			smoke=AntParticle.new(getMap.getScene,40)
+ 			smoke.setFire(true)
+ 			smoke.setMaxTime(0.8)
+ 			addMesh(smoke,mp)
+
+Modified: antargis/branches/rant/ruby/map.rb
+===================================================================
+--- antargis/branches/rant/ruby/map.rb	2007-06-23 16:55:08 UTC (rev 1108)
++++ antargis/branches/rant/ruby/map.rb	2007-06-23 19:26:45 UTC (rev 1109)
+@@ -178,10 +178,10 @@
+ 	#end
+ 
+ 	def getHeroes()
+-		ents=getAllEntitiesV
++		ents=getAllEntities
+ 		ret=[]
+ 		ents.each{|eptr|
+-			ent=eptr.get
++			ent=eptr
+ 			#dputs ent
+ 			if ent.class==AntHero
+ 				ret.push(ent)
+
+Modified: antargis/branches/rant/ruby/view.rb
+===================================================================
+--- antargis/branches/rant/ruby/view.rb	2007-06-23 16:55:08 UTC (rev 1108)
++++ antargis/branches/rant/ruby/view.rb	2007-06-23 19:26:45 UTC (rev 1109)
+@@ -166,7 +166,7 @@
+ 		return true
+ 	end
+ 	def checkMove(t)
+-		if getMain.fullscreen
++		if getVideo.fullscreen
+ 			p=@mousepos
+ 			m=0
+ 			w=20
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000065.html">[Antargis-svn] r1108 - in antargis/branches/rant: build data/gui	data/gui/images data/gui/images/basic ext/game
+</A></li>
+	<LI>Next message: <A HREF="000067.html">[Antargis-svn] r1110 - antargis/branches/rant/ext/3dengine
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#66">[ date ]</a>
+              <a href="thread.html#66">[ thread ]</a>
+              <a href="subject.html#66">[ subject ]</a>
+              <a href="author.html#66">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

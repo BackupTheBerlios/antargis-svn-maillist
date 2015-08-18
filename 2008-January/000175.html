@@ -1,0 +1,3550 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1218 - in antargis/trunk: . ext ext/3dengine	ext/basic ext/game ext/gui ext/math ext/sound ext/video
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2008-January/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1218%20-%20in%20antargis/trunk%3A%20.%20ext%20ext/3dengine%0A%09ext/basic%20ext/game%20ext/gui%20ext/math%20ext/sound%20ext/video&In-Reply-To=%3C200801271547.m0RFlRrI012086%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000174.html">
+   <LINK REL="Next"  HREF="000176.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1218 - in antargis/trunk: . ext ext/3dengine	ext/basic ext/game ext/gui ext/math ext/sound ext/video</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1218%20-%20in%20antargis/trunk%3A%20.%20ext%20ext/3dengine%0A%09ext/basic%20ext/game%20ext/gui%20ext/math%20ext/sound%20ext/video&In-Reply-To=%3C200801271547.m0RFlRrI012086%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1218 - in antargis/trunk: . ext ext/3dengine	ext/basic ext/game ext/gui ext/math ext/sound ext/video">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sun Jan 27 16:47:27 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000174.html">[Antargis-svn] r1217 - antargis/trunk/build/swig
+</A></li>
+        <LI>Next message: <A HREF="000176.html">[Antargis-svn] r1219 - in antargis/trunk/ruby: . spec
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#175">[ date ]</a>
+              <a href="thread.html#175">[ thread ]</a>
+              <a href="subject.html#175">[ subject ]</a>
+              <a href="author.html#175">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2008-01-27 16:47:21 +0100 (Sun, 27 Jan 2008)
+New Revision: 1218
+
+Removed:
+   antargis/trunk/antargis.rb
+Modified:
+   antargis/trunk/TODO
+   antargis/trunk/configure
+   antargis/trunk/ext/3dengine/headers.hh
+   antargis/trunk/ext/Rakefile
+   antargis/trunk/ext/basic/headers.hh
+   antargis/trunk/ext/game/headers.hh
+   antargis/trunk/ext/game/path.cc
+   antargis/trunk/ext/gui/headers.hh
+   antargis/trunk/ext/math/headers.hh
+   antargis/trunk/ext/sound/headers.hh
+   antargis/trunk/ext/video/GLee.c
+   antargis/trunk/ext/video/GLee.h
+   antargis/trunk/ext/video/headers.hh
+Log:
+* many changes for macosx
+
+Modified: antargis/trunk/TODO
+===================================================================
+--- antargis/trunk/TODO	2008-01-26 19:48:26 UTC (rev 1217)
++++ antargis/trunk/TODO	2008-01-27 15:47:21 UTC (rev 1218)
+@@ -1,4 +1,6 @@
++* check for ccache in configure and only use it if available!
+ 
++
+ * fix saving - problem occurs only if game is loaded ? (in editor, too)
+ * move build/*.rb files to build/unused_tools/* if they're not used
+ * google for &quot;/tmp/cciSLVG5.s:932678: Warning: .stabs: description field '1c216' too big, try a different debug format&quot;
+
+Deleted: antargis/trunk/antargis.rb
+===================================================================
+
+Modified: antargis/trunk/configure
+===================================================================
+--- antargis/trunk/configure	2008-01-26 19:48:26 UTC (rev 1217)
++++ antargis/trunk/configure	2008-01-27 15:47:21 UTC (rev 1218)
+@@ -119,7 +119,7 @@
+ 	}
+ 	# FIXME: add system-switch to cmd-line options
+ 	system=nil
+-	if config[&quot;PATH&quot;]=~/^\/usr/
++	unless config[&quot;PATH&quot;]=~/^[a-zA-Z]:\\/
+ 		config[&quot;PATH&quot;]=config[&quot;PATH&quot;].split(&quot;:&quot;) # Unix ?
+ 		system=:unix
+ 	else
+@@ -217,9 +217,11 @@
+ 		end
+ 		unless ok
+ 			pathes=config[&quot;PATH&quot;].value
++			pp pathes
+ 			
+ 			pathes.each{|path|
+ 				cpath=File.join(path,v)
++				pp cpath
+ 				
+ 				if testProgram(cpath)
+ 					config[k]=cpath
+@@ -231,6 +233,8 @@
+ 		end
+ 		if ok
+ 			puts &quot;#{k.ljust(10)} found at #{config[k].value.ljust(25)} #{info}&quot;
++		else
++			puts &quot;#{k.ljust(10)} not found!&quot;
+ 		end
+ 	}
+ 	config
+@@ -310,7 +314,9 @@
+ 	file.close
+ end
+ 
++$LDFLAGS+=&quot; -L/usr/X11R6/lib -L/opt/local/lib&quot;
+ 
++
+ userInput=getUserInput
+ config=generateHardConfiguration(userInput)
+ config=searchPrograms(config)
+
+Modified: antargis/trunk/ext/3dengine/headers.hh
+===================================================================
+--- antargis/trunk/ext/3dengine/headers.hh	2008-01-26 19:48:26 UTC (rev 1217)
++++ antargis/trunk/ext/3dengine/headers.hh	2008-01-27 15:47:21 UTC (rev 1218)
+@@ -1,62 +1,62 @@
+ #ifndef __ANTARGIS_H__
+ #define __ANTARGIS_H__
++#include &quot;ext/basic/ag_config.h&quot;
++#include &quot;ext/basic/ag_fs.h&quot;
++#include &quot;ext/basic/ag_geometry.h&quot;
+ #include &quot;ext/basic/ag_main.h&quot;
+-#include &quot;ext/basic/ag_utf8.h&quot;
++#include &quot;ext/basic/ag_messageobject.h&quot;
++#include &quot;ext/basic/ag_rand_base.h&quot;
++#include &quot;ext/basic/ag_rubyobj.h&quot;
++#include &quot;ext/basic/ag_serial.h&quot;
+ #include &quot;ext/basic/ag_singleton.h&quot;
+-#include &quot;ext/basic/ag_config.h&quot;
+ #include &quot;ext/basic/ag_string_utf8.h&quot;
+-#include &quot;ext/basic/ag_rand_base.h&quot;
+-#include &quot;ext/basic/ag_serial.h&quot;
+ #include &quot;ext/basic/ag_stringstream.h&quot;
+-#include &quot;ext/basic/ag_geometry.h&quot;
++#include &quot;ext/basic/ag_utf8.h&quot;
+ #include &quot;ext/basic/ag_video_base.h&quot;
+ #include &quot;ext/basic/ag_xml.h&quot;
+-#include &quot;ext/basic/ag_fs.h&quot;
+-#include &quot;ext/basic/ag_messageobject.h&quot;
+-#include &quot;ext/basic/ag_rubyobj.h&quot;
+ #include &quot;ext/sound/ag_mixer.h&quot;
++#include &quot;ext/math/ag_algebra.h&quot;
+ #include &quot;ext/math/ag_rand.h&quot;
+-#include &quot;ext/math/ag_algebra.h&quot;
+ #include &quot;ext/math/ant_frustum.h&quot;
+-#include &quot;ext/video/ag_rendercontext.h&quot;
+-#include &quot;ext/video/ag_texturecache.h&quot;
+ #include &quot;ext/video/ag_clip.h&quot;
++#include &quot;ext/video/ag_color.h&quot;
++#include &quot;ext/video/ag_font.h&quot;
+ #include &quot;ext/video/ag_fontengine.h&quot;
+-#include &quot;ext/video/ag_font.h&quot;
+-#include &quot;ext/video/ag_video.h&quot;
+-#include &quot;ext/video/ag_color.h&quot;
++#include &quot;ext/video/ag_painter.h&quot;
++#include &quot;ext/video/ag_painttarget.h&quot;
++#include &quot;ext/video/ag_rendercontext.h&quot;
+ #include &quot;ext/video/ag_screen.h&quot;
+-#include &quot;ext/video/ag_painttarget.h&quot;
+ #include &quot;ext/video/ag_surface.h&quot;
+ #include &quot;ext/video/ag_texture.h&quot;
+-#include &quot;ext/video/ag_painter.h&quot;
++#include &quot;ext/video/ag_texturecache.h&quot;
++#include &quot;ext/video/ag_video.h&quot;
++#include &quot;ext/gui/ag_application.h&quot;
++#include &quot;ext/gui/ag_background.h&quot;
++#include &quot;ext/gui/ag_border.h&quot;
++#include &quot;ext/gui/ag_button.h&quot;
++#include &quot;ext/gui/ag_caption.h&quot;
++#include &quot;ext/gui/ag_checkbox.h&quot;
++#include &quot;ext/gui/ag_colorbutton.h&quot;
++#include &quot;ext/gui/ag_combo.h&quot;
++#include &quot;ext/gui/ag_edit.h&quot;
++#include &quot;ext/gui/ag_frame.h&quot;
+ #include &quot;ext/gui/ag_image.h&quot;
++#include &quot;ext/gui/ag_layout.h&quot;
++#include &quot;ext/gui/ag_layoutfactory.h&quot;
+ #include &quot;ext/gui/ag_listbox.h&quot;
+-#include &quot;ext/gui/ag_edit.h&quot;
+-#include &quot;ext/gui/ag_scroller.h&quot;
+ #include &quot;ext/gui/ag_local.h&quot;
+-#include &quot;ext/gui/ag_tooltip.h&quot;
++#include &quot;ext/gui/ag_menu.h&quot;
++#include &quot;ext/gui/ag_menuitem.h&quot;
+ #include &quot;ext/gui/ag_radio.h&quot;
+-#include &quot;ext/gui/ag_application.h&quot;
+-#include &quot;ext/gui/ag_colorbutton.h&quot;
+-#include &quot;ext/gui/ag_button.h&quot;
+ #include &quot;ext/gui/ag_radiogroup.h&quot;
+-#include &quot;ext/gui/ag_background.h&quot;
+-#include &quot;ext/gui/ag_menuitem.h&quot;
+ #include &quot;ext/gui/ag_screenwidget.h&quot;
+-#include &quot;ext/gui/ag_widget.h&quot;
++#include &quot;ext/gui/ag_scroller.h&quot;
++#include &quot;ext/gui/ag_table.h&quot;
+ #include &quot;ext/gui/ag_text.h&quot;
+-#include &quot;ext/gui/ag_checkbox.h&quot;
+-#include &quot;ext/gui/ag_table.h&quot;
+-#include &quot;ext/gui/ag_frame.h&quot;
+-#include &quot;ext/gui/ag_caption.h&quot;
+-#include &quot;ext/gui/ag_combo.h&quot;
+ #include &quot;ext/gui/ag_theme.h&quot;
+-#include &quot;ext/gui/ag_menu.h&quot;
+-#include &quot;ext/gui/ag_layoutfactory.h&quot;
++#include &quot;ext/gui/ag_tooltip.h&quot;
++#include &quot;ext/gui/ag_widget.h&quot;
+ #include &quot;ext/gui/ag_window.h&quot;
+-#include &quot;ext/gui/ag_layout.h&quot;
+-#include &quot;ext/gui/ag_border.h&quot;
+ #include &quot;ext/3dengine/mesh_data.h&quot;
+ #include &quot;ext/3dengine/scene_base.h&quot;
+ #include &quot;ext/3dengine/scenenode.h&quot;
+
+Modified: antargis/trunk/ext/Rakefile
+===================================================================
+--- antargis/trunk/ext/Rakefile	2008-01-26 19:48:26 UTC (rev 1217)
++++ antargis/trunk/ext/Rakefile	2008-01-27 15:47:21 UTC (rev 1218)
+@@ -29,6 +29,8 @@
+ 	&quot;ext/game&quot;,
+ ]
+ 
++AntargisLibName=&quot;antargis.&quot;+CONFIG[&quot;DLEXT&quot;]
++
+ $LIBDEPS={&quot;ext/basic&quot;=&gt;[&quot;SDL&quot;,&quot;RUBY&quot;]}
+ 
+ $BOASOURCES=$SOURCEDIRS.select{|dir|not dir=~/external/}
+@@ -93,7 +95,19 @@
+ 		winadd=&quot;-Wl,--enable-auto-image-base -Xlinker --out-implib -Xlinker #{name.gsub(/\.so$/,&quot;.dll&quot;)}.a&quot;
+ 	end
+ 
+-	cmd=$CONFIG[&quot;CXX&quot;]+&quot; -dH -shared -o #{name} -Lext #{winadd} -Wl,-\\( #{$CONFIG[&quot;LDFLAGS&quot;]} #{$CONFIG[&quot;LIBPATH&quot;]} #{objects.join(&quot; &quot;)}&quot;
++
++	add=&quot;&quot;
++	if $CONFIG[&quot;target_os&quot;]=~/darwin/
++	    add=&quot;-framework OpenGL&quot;
++	else
++		add=&quot;-Wl,-\\(&quot;
++	end
++
++	cmd=$CONFIG[&quot;CXX&quot;]+&quot; -dH -shared -o #{name} -Lext #{winadd} #{add}  #{$CONFIG[&quot;LDFLAGS&quot;]} #{$CONFIG[&quot;LIBPATH&quot;]} #{objects.join(&quot; &quot;)}&quot;
++	
++	cmd=$CONFIG[&quot;LDSHARED&quot;]+&quot; -dH  -o #{name} -Lext #{winadd} #{add}  #{$CONFIG[&quot;LDFLAGS&quot;]} #{$CONFIG[&quot;LIBPATH&quot;]} #{objects.join(&quot; &quot;)}&quot;
++	pp cmd
++	#exit
+ 	if $CONFIG[&quot;CCACHE&quot;]
+ 		cmd=$CONFIG[&quot;CCACHE&quot;]+&quot; &quot;+cmd
+ 	end
+@@ -255,12 +269,12 @@
+ task :libraries=&gt;$BOA_LIBRARIES do
+ end
+ 
+-task &quot;ext/antargis.so&quot; =&gt; ((Dir[&quot;ext/*/*.cc&quot;]+Dir[&quot;ext/*/*.c&quot;]).select{|file|not file=~/[a-z]swig/}.map{|file|file.sub(&quot;.cc&quot;,&quot;.oo&quot;).sub(&quot;.c&quot;,&quot;.o&quot;)}+[&quot;ext/swig.oo&quot;]) do |t|
++task AntargisLibName =&gt; ((Dir[&quot;ext/*/*.cc&quot;]+Dir[&quot;ext/*/*.c&quot;]).select{|file|not file=~/[a-z]swig/}.map{|file|file.sub(&quot;.cc&quot;,&quot;.oo&quot;).sub(&quot;.c&quot;,&quot;.o&quot;)}+[&quot;ext/swig.oo&quot;]) do |t|
+ 	linkLib(t.name,t.prerequisites+$CONFIG[&quot;LIBS&quot;].split(&quot; &quot;))
+ end
+ 
+ 
+-task :library=&gt;&quot;ext/antargis.so&quot; do
++task :library=&gt;AntargisLibName do
+ end
+ 
+ if SWIG_ENABLED and false
+
+Modified: antargis/trunk/ext/basic/headers.hh
+===================================================================
+--- antargis/trunk/ext/basic/headers.hh	2008-01-26 19:48:26 UTC (rev 1217)
++++ antargis/trunk/ext/basic/headers.hh	2008-01-27 15:47:21 UTC (rev 1218)
+@@ -13,8 +13,8 @@
+ #include &quot;ext/basic/ag_xml.h&quot;
+ #include &quot;ext/basic/ag_string_utf8.h&quot;
+ #include &quot;ext/basic/ag_stringstream.h&quot;
++#include &quot;ext/basic/ag_fs.h&quot;
+ #include &quot;ext/basic/ag_utf8.h&quot;
+-#include &quot;ext/basic/ag_fs.h&quot;
+ #ifdef SWIG
+ %include &quot;ext/basic/ag_rubyobj.h&quot;
+ %include &quot;ext/basic/ag_messageobject.h&quot;
+@@ -28,7 +28,7 @@
+ %include &quot;ext/basic/ag_xml.h&quot;
+ %include &quot;ext/basic/ag_string_utf8.h&quot;
+ %include &quot;ext/basic/ag_stringstream.h&quot;
++%include &quot;ext/basic/ag_fs.h&quot;
+ %include &quot;ext/basic/ag_utf8.h&quot;
+-%include &quot;ext/basic/ag_fs.h&quot;
+ #endif
+ #endif
+
+Modified: antargis/trunk/ext/game/headers.hh
+===================================================================
+--- antargis/trunk/ext/game/headers.hh	2008-01-26 19:48:26 UTC (rev 1217)
++++ antargis/trunk/ext/game/headers.hh	2008-01-27 15:47:21 UTC (rev 1218)
+@@ -1,77 +1,78 @@
+ #ifndef __ANTARGIS_H__
+ #define __ANTARGIS_H__
++#include &quot;ext/basic/ag_config.h&quot;
++#include &quot;ext/basic/ag_fs.h&quot;
++#include &quot;ext/basic/ag_geometry.h&quot;
+ #include &quot;ext/basic/ag_main.h&quot;
+-#include &quot;ext/basic/ag_utf8.h&quot;
++#include &quot;ext/basic/ag_messageobject.h&quot;
++#include &quot;ext/basic/ag_rand_base.h&quot;
++#include &quot;ext/basic/ag_rubyobj.h&quot;
++#include &quot;ext/basic/ag_serial.h&quot;
+ #include &quot;ext/basic/ag_singleton.h&quot;
+-#include &quot;ext/basic/ag_config.h&quot;
+ #include &quot;ext/basic/ag_string_utf8.h&quot;
+-#include &quot;ext/basic/ag_rand_base.h&quot;
+-#include &quot;ext/basic/ag_serial.h&quot;
+ #include &quot;ext/basic/ag_stringstream.h&quot;
+-#include &quot;ext/basic/ag_geometry.h&quot;
++#include &quot;ext/basic/ag_utf8.h&quot;
+ #include &quot;ext/basic/ag_video_base.h&quot;
+ #include &quot;ext/basic/ag_xml.h&quot;
+-#include &quot;ext/basic/ag_fs.h&quot;
+-#include &quot;ext/basic/ag_messageobject.h&quot;
+-#include &quot;ext/basic/ag_rubyobj.h&quot;
+ #include &quot;ext/sound/ag_mixer.h&quot;
++#include &quot;ext/math/ag_algebra.h&quot;
+ #include &quot;ext/math/ag_rand.h&quot;
+-#include &quot;ext/math/ag_algebra.h&quot;
+ #include &quot;ext/math/ant_frustum.h&quot;
+-#include &quot;ext/video/ag_rendercontext.h&quot;
+-#include &quot;ext/video/ag_texturecache.h&quot;
+ #include &quot;ext/video/ag_clip.h&quot;
++#include &quot;ext/video/ag_color.h&quot;
++#include &quot;ext/video/ag_font.h&quot;
+ #include &quot;ext/video/ag_fontengine.h&quot;
+-#include &quot;ext/video/ag_font.h&quot;
+-#include &quot;ext/video/ag_video.h&quot;
+-#include &quot;ext/video/ag_color.h&quot;
++#include &quot;ext/video/ag_painter.h&quot;
++#include &quot;ext/video/ag_painttarget.h&quot;
++#include &quot;ext/video/ag_rendercontext.h&quot;
+ #include &quot;ext/video/ag_screen.h&quot;
+-#include &quot;ext/video/ag_painttarget.h&quot;
+ #include &quot;ext/video/ag_surface.h&quot;
+ #include &quot;ext/video/ag_texture.h&quot;
+-#include &quot;ext/video/ag_painter.h&quot;
++#include &quot;ext/video/ag_texturecache.h&quot;
++#include &quot;ext/video/ag_video.h&quot;
++#include &quot;ext/gui/ag_application.h&quot;
++#include &quot;ext/gui/ag_background.h&quot;
++#include &quot;ext/gui/ag_border.h&quot;
++#include &quot;ext/gui/ag_button.h&quot;
++#include &quot;ext/gui/ag_caption.h&quot;
++#include &quot;ext/gui/ag_checkbox.h&quot;
++#include &quot;ext/gui/ag_colorbutton.h&quot;
++#include &quot;ext/gui/ag_combo.h&quot;
++#include &quot;ext/gui/ag_edit.h&quot;
++#include &quot;ext/gui/ag_frame.h&quot;
+ #include &quot;ext/gui/ag_image.h&quot;
++#include &quot;ext/gui/ag_layout.h&quot;
++#include &quot;ext/gui/ag_layoutfactory.h&quot;
+ #include &quot;ext/gui/ag_listbox.h&quot;
+-#include &quot;ext/gui/ag_edit.h&quot;
+-#include &quot;ext/gui/ag_scroller.h&quot;
+ #include &quot;ext/gui/ag_local.h&quot;
+-#include &quot;ext/gui/ag_tooltip.h&quot;
++#include &quot;ext/gui/ag_menu.h&quot;
++#include &quot;ext/gui/ag_menuitem.h&quot;
+ #include &quot;ext/gui/ag_radio.h&quot;
+-#include &quot;ext/gui/ag_application.h&quot;
+-#include &quot;ext/gui/ag_colorbutton.h&quot;
+-#include &quot;ext/gui/ag_button.h&quot;
+ #include &quot;ext/gui/ag_radiogroup.h&quot;
+-#include &quot;ext/gui/ag_background.h&quot;
+-#include &quot;ext/gui/ag_menuitem.h&quot;
+ #include &quot;ext/gui/ag_screenwidget.h&quot;
+-#include &quot;ext/gui/ag_widget.h&quot;
++#include &quot;ext/gui/ag_scroller.h&quot;
++#include &quot;ext/gui/ag_table.h&quot;
+ #include &quot;ext/gui/ag_text.h&quot;
+-#include &quot;ext/gui/ag_checkbox.h&quot;
+-#include &quot;ext/gui/ag_table.h&quot;
+-#include &quot;ext/gui/ag_frame.h&quot;
+-#include &quot;ext/gui/ag_caption.h&quot;
+-#include &quot;ext/gui/ag_combo.h&quot;
+ #include &quot;ext/gui/ag_theme.h&quot;
+-#include &quot;ext/gui/ag_menu.h&quot;
+-#include &quot;ext/gui/ag_layoutfactory.h&quot;
++#include &quot;ext/gui/ag_tooltip.h&quot;
++#include &quot;ext/gui/ag_widget.h&quot;
+ #include &quot;ext/gui/ag_window.h&quot;
+-#include &quot;ext/gui/ag_layout.h&quot;
+-#include &quot;ext/gui/ag_border.h&quot;
++#include &quot;ext/3dengine/ag_glwidget.h&quot;
++#include &quot;ext/3dengine/anim_mesh.h&quot;
+ #include &quot;ext/3dengine/anim_mesh_data.h&quot;
+ #include &quot;ext/3dengine/ant_camera.h&quot;
++#include &quot;ext/3dengine/ant_particle.h&quot;
++#include &quot;ext/3dengine/ant_projection.h&quot;
++#include &quot;ext/3dengine/boa_3d_wireframe.h&quot;
+ #include &quot;ext/3dengine/mesh.h&quot;
+-#include &quot;ext/3dengine/scene.h&quot;
+-#include &quot;ext/3dengine/mesh_optimizer.h&quot;
+-#include &quot;ext/3dengine/ant_particle.h&quot;
++#include &quot;ext/3dengine/mesh_2d.h&quot;
+ #include &quot;ext/3dengine/mesh_2d_data.h&quot;
+-#include &quot;ext/3dengine/ag_glwidget.h&quot;
+-#include &quot;ext/3dengine/mesh_2d.h&quot;
++#include &quot;ext/3dengine/mesh_base.h&quot;
+ #include &quot;ext/3dengine/mesh_data.h&quot;
++#include &quot;ext/3dengine/mesh_optimizer.h&quot;
++#include &quot;ext/3dengine/scene.h&quot;
+ #include &quot;ext/3dengine/scene_base.h&quot;
+-#include &quot;ext/3dengine/boa_3d_wireframe.h&quot;
+-#include &quot;ext/3dengine/anim_mesh.h&quot;
+ #include &quot;ext/3dengine/scenenode.h&quot;
+-#include &quot;ext/3dengine/ant_projection.h&quot;
+ #include &quot;ext/game/path.h&quot;
+ #include &quot;ext/game/terrain.h&quot;
+ #include &quot;ext/game/entity.h&quot;
+
+Modified: antargis/trunk/ext/game/path.cc
+===================================================================
+--- antargis/trunk/ext/game/path.cc	2008-01-26 19:48:26 UTC (rev 1217)
++++ antargis/trunk/ext/game/path.cc	2008-01-27 15:47:21 UTC (rev 1218)
+@@ -277,10 +277,10 @@
+   std::vector&lt;AGVector2&gt; vecs;
+   std::vector&lt;Node*&gt; nodes;
+   AGVector2 p;
+-  size_t a,b;
++  Uint32 a,b;
+   float w0,w1;
+ 
+-  size_t count,i;
++  Uint32 count,i;
+   pIn&gt;&gt;count;
+   for(i=0;i&lt;count;i++)
+     {
+@@ -301,15 +301,15 @@
+ 
+ void SimpleGraph::printTo(BinaryOut &amp;pOut) const
+ {
+-  std::map&lt;AGVector2,size_t&gt; saveMap;
++  std::map&lt;AGVector2,Uint32&gt; saveMap;
+   size_t j=0;
+-  pOut&lt;&lt;mNodes.size();
++  pOut&lt;&lt;(Uint32)mNodes.size();
+   for(NodeSet::const_iterator i=mNodes.begin();i!=mNodes.end();i++,j++)
+     {
+       pOut&lt;&lt;(*i)-&gt;p;
+       saveMap[(*i)-&gt;p]=j;
+     }
+-  pOut&lt;&lt;mEdges.size();
++  pOut&lt;&lt;(Uint32)mEdges.size();
+   for(EdgeSet::const_iterator i=mEdges.begin();i!=mEdges.end();i++)
+     {
+       pOut&lt;&lt;saveMap[(*i)-&gt;a-&gt;p]&lt;&lt;saveMap[(*i)-&gt;b-&gt;p]&lt;&lt;(*i)-&gt;w0&lt;&lt;(*i)-&gt;w1;
+
+Modified: antargis/trunk/ext/gui/headers.hh
+===================================================================
+--- antargis/trunk/ext/gui/headers.hh	2008-01-26 19:48:26 UTC (rev 1217)
++++ antargis/trunk/ext/gui/headers.hh	2008-01-27 15:47:21 UTC (rev 1218)
+@@ -1,35 +1,35 @@
+ #ifndef __ANTARGIS_H__
+ #define __ANTARGIS_H__
++#include &quot;ext/basic/ag_config.h&quot;
++#include &quot;ext/basic/ag_fs.h&quot;
++#include &quot;ext/basic/ag_geometry.h&quot;
+ #include &quot;ext/basic/ag_main.h&quot;
+-#include &quot;ext/basic/ag_utf8.h&quot;
++#include &quot;ext/basic/ag_messageobject.h&quot;
++#include &quot;ext/basic/ag_rand_base.h&quot;
++#include &quot;ext/basic/ag_rubyobj.h&quot;
++#include &quot;ext/basic/ag_serial.h&quot;
+ #include &quot;ext/basic/ag_singleton.h&quot;
+-#include &quot;ext/basic/ag_config.h&quot;
+ #include &quot;ext/basic/ag_string_utf8.h&quot;
+-#include &quot;ext/basic/ag_rand_base.h&quot;
+-#include &quot;ext/basic/ag_serial.h&quot;
+ #include &quot;ext/basic/ag_stringstream.h&quot;
+-#include &quot;ext/basic/ag_geometry.h&quot;
++#include &quot;ext/basic/ag_utf8.h&quot;
+ #include &quot;ext/basic/ag_video_base.h&quot;
+ #include &quot;ext/basic/ag_xml.h&quot;
+-#include &quot;ext/basic/ag_fs.h&quot;
+-#include &quot;ext/basic/ag_messageobject.h&quot;
+-#include &quot;ext/basic/ag_rubyobj.h&quot;
+ #include &quot;ext/sound/ag_mixer.h&quot;
++#include &quot;ext/math/ag_algebra.h&quot;
+ #include &quot;ext/math/ag_rand.h&quot;
+-#include &quot;ext/math/ag_algebra.h&quot;
+ #include &quot;ext/math/ant_frustum.h&quot;
+-#include &quot;ext/video/ag_rendercontext.h&quot;
+-#include &quot;ext/video/ag_texturecache.h&quot;
+ #include &quot;ext/video/ag_clip.h&quot;
++#include &quot;ext/video/ag_color.h&quot;
++#include &quot;ext/video/ag_font.h&quot;
+ #include &quot;ext/video/ag_fontengine.h&quot;
+-#include &quot;ext/video/ag_font.h&quot;
+-#include &quot;ext/video/ag_video.h&quot;
+-#include &quot;ext/video/ag_color.h&quot;
++#include &quot;ext/video/ag_painter.h&quot;
++#include &quot;ext/video/ag_painttarget.h&quot;
++#include &quot;ext/video/ag_rendercontext.h&quot;
+ #include &quot;ext/video/ag_screen.h&quot;
+-#include &quot;ext/video/ag_painttarget.h&quot;
+ #include &quot;ext/video/ag_surface.h&quot;
+ #include &quot;ext/video/ag_texture.h&quot;
+-#include &quot;ext/video/ag_painter.h&quot;
++#include &quot;ext/video/ag_texturecache.h&quot;
++#include &quot;ext/video/ag_video.h&quot;
+ #include &quot;ext/gui/ag_layoutfactory.h&quot;
+ #include &quot;ext/gui/ag_widget.h&quot;
+ #include &quot;ext/gui/ag_application.h&quot;
+
+Modified: antargis/trunk/ext/math/headers.hh
+===================================================================
+--- antargis/trunk/ext/math/headers.hh	2008-01-26 19:48:26 UTC (rev 1217)
++++ antargis/trunk/ext/math/headers.hh	2008-01-27 15:47:21 UTC (rev 1218)
+@@ -1,19 +1,19 @@
+ #ifndef __ANTARGIS_H__
+ #define __ANTARGIS_H__
++#include &quot;ext/basic/ag_config.h&quot;
++#include &quot;ext/basic/ag_fs.h&quot;
++#include &quot;ext/basic/ag_geometry.h&quot;
+ #include &quot;ext/basic/ag_main.h&quot;
+-#include &quot;ext/basic/ag_utf8.h&quot;
++#include &quot;ext/basic/ag_messageobject.h&quot;
++#include &quot;ext/basic/ag_rand_base.h&quot;
++#include &quot;ext/basic/ag_rubyobj.h&quot;
++#include &quot;ext/basic/ag_serial.h&quot;
+ #include &quot;ext/basic/ag_singleton.h&quot;
+-#include &quot;ext/basic/ag_config.h&quot;
+ #include &quot;ext/basic/ag_string_utf8.h&quot;
+-#include &quot;ext/basic/ag_rand_base.h&quot;
+-#include &quot;ext/basic/ag_serial.h&quot;
+ #include &quot;ext/basic/ag_stringstream.h&quot;
+-#include &quot;ext/basic/ag_geometry.h&quot;
++#include &quot;ext/basic/ag_utf8.h&quot;
+ #include &quot;ext/basic/ag_video_base.h&quot;
+ #include &quot;ext/basic/ag_xml.h&quot;
+-#include &quot;ext/basic/ag_fs.h&quot;
+-#include &quot;ext/basic/ag_messageobject.h&quot;
+-#include &quot;ext/basic/ag_rubyobj.h&quot;
+ #include &quot;ext/sound/ag_mixer.h&quot;
+ #include &quot;ext/math/ag_rand.h&quot;
+ #include &quot;ext/math/ant_frustum.h&quot;
+
+Modified: antargis/trunk/ext/sound/headers.hh
+===================================================================
+--- antargis/trunk/ext/sound/headers.hh	2008-01-26 19:48:26 UTC (rev 1217)
++++ antargis/trunk/ext/sound/headers.hh	2008-01-27 15:47:21 UTC (rev 1218)
+@@ -1,19 +1,19 @@
+ #ifndef __ANTARGIS_H__
+ #define __ANTARGIS_H__
++#include &quot;ext/basic/ag_config.h&quot;
++#include &quot;ext/basic/ag_fs.h&quot;
++#include &quot;ext/basic/ag_geometry.h&quot;
+ #include &quot;ext/basic/ag_main.h&quot;
+-#include &quot;ext/basic/ag_utf8.h&quot;
++#include &quot;ext/basic/ag_messageobject.h&quot;
++#include &quot;ext/basic/ag_rand_base.h&quot;
++#include &quot;ext/basic/ag_rubyobj.h&quot;
++#include &quot;ext/basic/ag_serial.h&quot;
+ #include &quot;ext/basic/ag_singleton.h&quot;
+-#include &quot;ext/basic/ag_config.h&quot;
+ #include &quot;ext/basic/ag_string_utf8.h&quot;
+-#include &quot;ext/basic/ag_rand_base.h&quot;
+-#include &quot;ext/basic/ag_serial.h&quot;
+ #include &quot;ext/basic/ag_stringstream.h&quot;
+-#include &quot;ext/basic/ag_geometry.h&quot;
++#include &quot;ext/basic/ag_utf8.h&quot;
+ #include &quot;ext/basic/ag_video_base.h&quot;
+ #include &quot;ext/basic/ag_xml.h&quot;
+-#include &quot;ext/basic/ag_fs.h&quot;
+-#include &quot;ext/basic/ag_messageobject.h&quot;
+-#include &quot;ext/basic/ag_rubyobj.h&quot;
+ #include &quot;ext/sound/ag_mixer.h&quot;
+ #ifdef SWIG
+ %include &quot;ext/sound/ag_mixer.h&quot;
+
+Modified: antargis/trunk/ext/video/GLee.c
+===================================================================
+--- antargis/trunk/ext/video/GLee.c	2008-01-26 19:48:26 UTC (rev 1217)
++++ antargis/trunk/ext/video/GLee.c	2008-01-27 15:47:21 UTC (rev 1218)
+@@ -2,7 +2,7 @@
+ *
+ * GLee.c
+ * GLee (OpenGL Easy Extension library)        
+-* Version : 5.1
++* Version : 5.21
+ *
+ * Copyright (c)2006  Ben Woodhouse  All rights reserved.
+ *
+@@ -29,12 +29,12 @@
+ 
+ * Web: <A HREF="http://elf-stone.com/glee.php">http://elf-stone.com/glee.php</A>
+ *
+-* [This file was automatically generated by GLeeGen 5.1
++* [This file was automatically generated by GLeeGen 5.21
+ *
+ ***************************************************************************/
+ 
+ #ifdef _MSC_VER
+-#pragma optimize( &quot;g&quot;, off )
++	#pragma optimize( &quot;g&quot;, off )
+ #endif
+ 
+ #include &lt;stdio.h&gt;
+@@ -42,18 +42,40 @@
+ #include &lt;string.h&gt;
+ #include &quot;GLee.h&quot;
+ 
++#if defined(__APPLE__) || defined(__APPLE_CC__)
++	#include &lt;Carbon/Carbon.h&gt;
++#endif
++
+ typedef GLuint(*GLEE_LINK_FUNCTION)(void);
+ 
+ GLboolean __GLeeInited=GL_FALSE;
+ 
+ #ifndef _WIN32
+-#define __stdcall  /* nothing */
++	#define __stdcall  /* nothing */
+ #endif 
+ 
+ void * __GLeeGetProcAddress(const char *extname)
+ {
+ #ifdef WIN32
+ 	return (void*)wglGetProcAddress(extname);
++#elif defined(__APPLE__) || defined(__APPLE_CC__)
++    CFBundleRef bundle;
++    CFURLRef bundleURL = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, CFSTR(&quot;/System/Library/Frameworks/OpenGL.framework&quot;), kCFURLPOSIXPathStyle, true);
++
++    CFStringRef functionName = CFStringCreateWithCString(kCFAllocatorDefault, extname, kCFStringEncodingASCII);
++
++    void *function;
++
++    bundle = CFBundleCreate(kCFAllocatorDefault, bundleURL);
++    assert(bundle != NULL);
++
++    function = CFBundleGetFunctionPointerForName(bundle, functionName);
++
++    CFRelease(bundleURL);
++    CFRelease(functionName);
++    CFRelease(bundle);
++
++    return function;
+ #else
+ 	return (void*)glXGetProcAddressARB((const GLubyte *)extname);
+ #endif
+@@ -70,6 +92,7 @@
+ GLboolean _GLEE_VERSION_1_4 = GL_FALSE;
+ GLboolean _GLEE_VERSION_1_5 = GL_FALSE;
+ GLboolean _GLEE_VERSION_2_0 = GL_FALSE;
++GLboolean _GLEE_VERSION_2_1 = GL_FALSE;
+ GLboolean _GLEE_ARB_multitexture = GL_FALSE;
+ GLboolean _GLEE_ARB_transpose_matrix = GL_FALSE;
+ GLboolean _GLEE_ARB_multisample = GL_FALSE;
+@@ -321,14 +344,35 @@
+ GLboolean _GLEE_NV_vertex_program3 = GL_FALSE;
+ GLboolean _GLEE_EXT_framebuffer_object = GL_FALSE;
+ GLboolean _GLEE_GREMEDY_string_marker = GL_FALSE;
++GLboolean _GLEE_EXT_Cg_shader = GL_FALSE;
++GLboolean _GLEE_EXT_timer_query = GL_FALSE;
++GLboolean _GLEE_EXT_texture_buffer_object = GL_FALSE;
++GLboolean _GLEE_EXT_gpu_shader4 = GL_FALSE;
++GLboolean _GLEE_EXT_geometry_shader4 = GL_FALSE;
++GLboolean _GLEE_EXT_bindable_uniform = GL_FALSE;
++GLboolean _GLEE_EXT_framebuffer_sRGB = GL_FALSE;
++GLboolean _GLEE_EXT_texture_shared_exponent = GL_FALSE;
++GLboolean _GLEE_EXT_packed_float = GL_FALSE;
++GLboolean _GLEE_EXT_texture_array = GL_FALSE;
++GLboolean _GLEE_EXT_texture_integer = GL_FALSE;
++GLboolean _GLEE_NV_depth_buffer_float = GL_FALSE;
++GLboolean _GLEE_EXT_texture_compression_latc = GL_FALSE;
++GLboolean _GLEE_NV_transform_feedback = GL_FALSE;
++GLboolean _GLEE_NV_geometry_program4 = GL_FALSE;
++GLboolean _GLEE_NV_gpu_program4 = GL_FALSE;
++GLboolean _GLEE_NV_framebuffer_multisample_coverage = GL_FALSE;
++GLboolean _GLEE_EXT_framebuffer_multisample = GL_FALSE;
++GLboolean _GLEE_EXT_framebuffer_blit = GL_FALSE;
++GLboolean _GLEE_EXT_texture_compression_rgtc = GL_FALSE;
+ GLboolean _GLEE_EXT_color_matrix = GL_FALSE;
+ GLboolean _GLEE_SGIX_texture_select = GL_FALSE;
+ GLboolean _GLEE_INGR_blend_func_separate = GL_FALSE;
+ GLboolean _GLEE_SGIX_depth_pass_instrument = GL_FALSE;
+ GLboolean _GLEE_SGIX_igloo_interface = GL_FALSE;
++GLboolean _GLEE_EXT_draw_buffers2 = GL_FALSE;
++GLboolean _GLEE_NV_parameter_buffer_object = GL_FALSE;
++GLboolean _GLEE_EXT_draw_instanced = GL_FALSE;
+ GLboolean _GLEE_EXT_fragment_lighting = GL_FALSE;
+-GLboolean _GLEE_EXT_framebuffer_blit = GL_FALSE;
+-GLboolean _GLEE_EXT_framebuffer_multisample = GL_FALSE;
+ GLboolean _GLEE_EXT_packed_depth_stencil = GL_FALSE;
+ GLboolean _GLEE_EXT_scene_marker = GL_FALSE;
+ GLboolean _GLEE_EXT_stencil_clear_tag = GL_FALSE;
+@@ -345,13 +389,14 @@
+ 
+ /*  GL Extension names */
+ 
+-char __GLeeGLExtensionNames[278][35]={
++char __GLeeGLExtensionNames[300][39]={
+     &quot;GL_VERSION_1_2&quot;,
+     &quot;GL_ARB_imaging&quot;,
+     &quot;GL_VERSION_1_3&quot;,
+     &quot;GL_VERSION_1_4&quot;,
+     &quot;GL_VERSION_1_5&quot;,
+     &quot;GL_VERSION_2_0&quot;,
++    &quot;GL_VERSION_2_1&quot;,
+     &quot;GL_ARB_multitexture&quot;,
+     &quot;GL_ARB_transpose_matrix&quot;,
+     &quot;GL_ARB_multisample&quot;,
+@@ -603,14 +648,35 @@
+     &quot;GL_NV_vertex_program3&quot;,
+     &quot;GL_EXT_framebuffer_object&quot;,
+     &quot;GL_GREMEDY_string_marker&quot;,
++    &quot;GL_EXT_Cg_shader&quot;,
++    &quot;GL_EXT_timer_query&quot;,
++    &quot;GL_EXT_texture_buffer_object&quot;,
++    &quot;GL_EXT_gpu_shader4&quot;,
++    &quot;GL_EXT_geometry_shader4&quot;,
++    &quot;GL_EXT_bindable_uniform&quot;,
++    &quot;GL_EXT_framebuffer_sRGB&quot;,
++    &quot;GL_EXT_texture_shared_exponent&quot;,
++    &quot;GL_EXT_packed_float&quot;,
++    &quot;GL_EXT_texture_array&quot;,
++    &quot;GL_EXT_texture_integer&quot;,
++    &quot;GL_NV_depth_buffer_float&quot;,
++    &quot;GL_EXT_texture_compression_latc&quot;,
++    &quot;GL_NV_transform_feedback&quot;,
++    &quot;GL_NV_geometry_program4&quot;,
++    &quot;GL_NV_gpu_program4&quot;,
++    &quot;GL_NV_framebuffer_multisample_coverage&quot;,
++    &quot;GL_EXT_framebuffer_multisample&quot;,
++    &quot;GL_EXT_framebuffer_blit&quot;,
++    &quot;GL_EXT_texture_compression_rgtc&quot;,
+     &quot;GL_EXT_color_matrix&quot;,
+     &quot;GL_SGIX_texture_select&quot;,
+     &quot;GL_INGR_blend_func_separate&quot;,
+     &quot;GL_SGIX_depth_pass_instrument&quot;,
+     &quot;GL_SGIX_igloo_interface&quot;,
++    &quot;GL_EXT_draw_buffers2&quot;,
++    &quot;GL_NV_parameter_buffer_object&quot;,
++    &quot;GL_EXT_draw_instanced&quot;,
+     &quot;GL_EXT_fragment_lighting&quot;,
+-    &quot;GL_EXT_framebuffer_blit&quot;,
+-    &quot;GL_EXT_framebuffer_multisample&quot;,
+     &quot;GL_EXT_packed_depth_stencil&quot;,
+     &quot;GL_EXT_scene_marker&quot;,
+     &quot;GL_EXT_stencil_clear_tag&quot;,
+@@ -625,7 +691,7 @@
+     &quot;GL_SGIX_pixel_texture_bits&quot;,
+     &quot;GL_SGIX_texture_range&quot;
+ };
+-int __GLeeGLNumExtensions=278;
++int __GLeeGLNumExtensions=300;
+ 
+ /* GL_VERSION_1_2 */
+ 
+@@ -1139,6 +1205,23 @@
+ PFNGLVERTEXATTRIBPOINTERPROC pglVertexAttribPointer=_Lazy_glVertexAttribPointer;
+ #endif 
+ 
++/* GL_VERSION_2_1 */
++
++#ifdef __GLEE_GL_VERSION_2_1
++void __stdcall _Lazy_glUniformMatrix2x3fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat * value)  {if (GLeeInit()) glUniformMatrix2x3fv(location, count, transpose, value);}
++void __stdcall _Lazy_glUniformMatrix3x2fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat * value)  {if (GLeeInit()) glUniformMatrix3x2fv(location, count, transpose, value);}
++void __stdcall _Lazy_glUniformMatrix2x4fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat * value)  {if (GLeeInit()) glUniformMatrix2x4fv(location, count, transpose, value);}
++void __stdcall _Lazy_glUniformMatrix4x2fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat * value)  {if (GLeeInit()) glUniformMatrix4x2fv(location, count, transpose, value);}
++void __stdcall _Lazy_glUniformMatrix3x4fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat * value)  {if (GLeeInit()) glUniformMatrix3x4fv(location, count, transpose, value);}
++void __stdcall _Lazy_glUniformMatrix4x3fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat * value)  {if (GLeeInit()) glUniformMatrix4x3fv(location, count, transpose, value);}
++PFNGLUNIFORMMATRIX2X3FVPROC pglUniformMatrix2x3fv=_Lazy_glUniformMatrix2x3fv;
++PFNGLUNIFORMMATRIX3X2FVPROC pglUniformMatrix3x2fv=_Lazy_glUniformMatrix3x2fv;
++PFNGLUNIFORMMATRIX2X4FVPROC pglUniformMatrix2x4fv=_Lazy_glUniformMatrix2x4fv;
++PFNGLUNIFORMMATRIX4X2FVPROC pglUniformMatrix4x2fv=_Lazy_glUniformMatrix4x2fv;
++PFNGLUNIFORMMATRIX3X4FVPROC pglUniformMatrix3x4fv=_Lazy_glUniformMatrix3x4fv;
++PFNGLUNIFORMMATRIX4X3FVPROC pglUniformMatrix4x3fv=_Lazy_glUniformMatrix4x3fv;
++#endif 
++
+ /* GL_ARB_multitexture */
+ 
+ #ifdef __GLEE_GL_ARB_multitexture
+@@ -4080,6 +4163,274 @@
+ PFNGLSTRINGMARKERGREMEDYPROC pglStringMarkerGREMEDY=_Lazy_glStringMarkerGREMEDY;
+ #endif 
+ 
++/* GL_EXT_Cg_shader */
++
++#ifdef __GLEE_GL_EXT_Cg_shader
++#endif 
++
++/* GL_EXT_timer_query */
++
++#ifdef __GLEE_GL_EXT_timer_query
++void __stdcall _Lazy_glGetQueryObjecti64vEXT(GLuint id, GLenum pname, GLint64EXT * params)  {if (GLeeInit()) glGetQueryObjecti64vEXT(id, pname, params);}
++void __stdcall _Lazy_glGetQueryObjectui64vEXT(GLuint id, GLenum pname, GLuint64EXT * params)  {if (GLeeInit()) glGetQueryObjectui64vEXT(id, pname, params);}
++PFNGLGETQUERYOBJECTI64VEXTPROC pglGetQueryObjecti64vEXT=_Lazy_glGetQueryObjecti64vEXT;
++PFNGLGETQUERYOBJECTUI64VEXTPROC pglGetQueryObjectui64vEXT=_Lazy_glGetQueryObjectui64vEXT;
++#endif 
++
++/* GL_EXT_texture_buffer_object */
++
++#ifdef __GLEE_GL_EXT_texture_buffer_object
++void __stdcall _Lazy_glTexBufferEXT(GLenum target, GLenum internalformat, GLuint buffer)  {if (GLeeInit()) glTexBufferEXT(target, internalformat, buffer);}
++PFNGLTEXBUFFEREXTPROC pglTexBufferEXT=_Lazy_glTexBufferEXT;
++#endif 
++
++/* GL_EXT_gpu_shader4 */
++
++#ifdef __GLEE_GL_EXT_gpu_shader4
++void __stdcall _Lazy_glGetUniformuivEXT(GLuint program, GLint location, GLuint * params)  {if (GLeeInit()) glGetUniformuivEXT(program, location, params);}
++void __stdcall _Lazy_glBindFragDataLocationEXT(GLuint program, GLuint color, const GLchar * name)  {if (GLeeInit()) glBindFragDataLocationEXT(program, color, name);}
++GLint __stdcall _Lazy_glGetFragDataLocationEXT(GLuint program, const GLchar * name)       {if (GLeeInit()) return glGetFragDataLocationEXT(program, name); return (GLint)0;}
++void __stdcall _Lazy_glUniform1uiEXT(GLint location, GLuint v0)                           {if (GLeeInit()) glUniform1uiEXT(location, v0);}
++void __stdcall _Lazy_glUniform2uiEXT(GLint location, GLuint v0, GLuint v1)                {if (GLeeInit()) glUniform2uiEXT(location, v0, v1);}
++void __stdcall _Lazy_glUniform3uiEXT(GLint location, GLuint v0, GLuint v1, GLuint v2)     {if (GLeeInit()) glUniform3uiEXT(location, v0, v1, v2);}
++void __stdcall _Lazy_glUniform4uiEXT(GLint location, GLuint v0, GLuint v1, GLuint v2, GLuint v3)  {if (GLeeInit()) glUniform4uiEXT(location, v0, v1, v2, v3);}
++void __stdcall _Lazy_glUniform1uivEXT(GLint location, GLsizei count, const GLuint * value)  {if (GLeeInit()) glUniform1uivEXT(location, count, value);}
++void __stdcall _Lazy_glUniform2uivEXT(GLint location, GLsizei count, const GLuint * value)  {if (GLeeInit()) glUniform2uivEXT(location, count, value);}
++void __stdcall _Lazy_glUniform3uivEXT(GLint location, GLsizei count, const GLuint * value)  {if (GLeeInit()) glUniform3uivEXT(location, count, value);}
++void __stdcall _Lazy_glUniform4uivEXT(GLint location, GLsizei count, const GLuint * value)  {if (GLeeInit()) glUniform4uivEXT(location, count, value);}
++void __stdcall _Lazy_glVertexAttribI1iEXT(GLuint index, GLint x)                          {if (GLeeInit()) glVertexAttribI1iEXT(index, x);}
++void __stdcall _Lazy_glVertexAttribI2iEXT(GLuint index, GLint x, GLint y)                 {if (GLeeInit()) glVertexAttribI2iEXT(index, x, y);}
++void __stdcall _Lazy_glVertexAttribI3iEXT(GLuint index, GLint x, GLint y, GLint z)        {if (GLeeInit()) glVertexAttribI3iEXT(index, x, y, z);}
++void __stdcall _Lazy_glVertexAttribI4iEXT(GLuint index, GLint x, GLint y, GLint z, GLint w)  {if (GLeeInit()) glVertexAttribI4iEXT(index, x, y, z, w);}
++void __stdcall _Lazy_glVertexAttribI1uiEXT(GLuint index, GLuint x)                        {if (GLeeInit()) glVertexAttribI1uiEXT(index, x);}
++void __stdcall _Lazy_glVertexAttribI2uiEXT(GLuint index, GLuint x, GLuint y)              {if (GLeeInit()) glVertexAttribI2uiEXT(index, x, y);}
++void __stdcall _Lazy_glVertexAttribI3uiEXT(GLuint index, GLuint x, GLuint y, GLuint z)    {if (GLeeInit()) glVertexAttribI3uiEXT(index, x, y, z);}
++void __stdcall _Lazy_glVertexAttribI4uiEXT(GLuint index, GLuint x, GLuint y, GLuint z, GLuint w)  {if (GLeeInit()) glVertexAttribI4uiEXT(index, x, y, z, w);}
++void __stdcall _Lazy_glVertexAttribI1ivEXT(GLuint index, const GLint * v)                 {if (GLeeInit()) glVertexAttribI1ivEXT(index, v);}
++void __stdcall _Lazy_glVertexAttribI2ivEXT(GLuint index, const GLint * v)                 {if (GLeeInit()) glVertexAttribI2ivEXT(index, v);}
++void __stdcall _Lazy_glVertexAttribI3ivEXT(GLuint index, const GLint * v)                 {if (GLeeInit()) glVertexAttribI3ivEXT(index, v);}
++void __stdcall _Lazy_glVertexAttribI4ivEXT(GLuint index, const GLint * v)                 {if (GLeeInit()) glVertexAttribI4ivEXT(index, v);}
++void __stdcall _Lazy_glVertexAttribI1uivEXT(GLuint index, const GLuint * v)               {if (GLeeInit()) glVertexAttribI1uivEXT(index, v);}
++void __stdcall _Lazy_glVertexAttribI2uivEXT(GLuint index, const GLuint * v)               {if (GLeeInit()) glVertexAttribI2uivEXT(index, v);}
++void __stdcall _Lazy_glVertexAttribI3uivEXT(GLuint index, const GLuint * v)               {if (GLeeInit()) glVertexAttribI3uivEXT(index, v);}
++void __stdcall _Lazy_glVertexAttribI4uivEXT(GLuint index, const GLuint * v)               {if (GLeeInit()) glVertexAttribI4uivEXT(index, v);}
++void __stdcall _Lazy_glVertexAttribI4bvEXT(GLuint index, const GLbyte * v)                {if (GLeeInit()) glVertexAttribI4bvEXT(index, v);}
++void __stdcall _Lazy_glVertexAttribI4svEXT(GLuint index, const GLshort * v)               {if (GLeeInit()) glVertexAttribI4svEXT(index, v);}
++void __stdcall _Lazy_glVertexAttribI4ubvEXT(GLuint index, const GLubyte * v)              {if (GLeeInit()) glVertexAttribI4ubvEXT(index, v);}
++void __stdcall _Lazy_glVertexAttribI4usvEXT(GLuint index, const GLushort * v)             {if (GLeeInit()) glVertexAttribI4usvEXT(index, v);}
++void __stdcall _Lazy_glVertexAttribIPointerEXT(GLuint index, GLint size, GLenum type, GLsizei stride, const GLvoid * pointer)  {if (GLeeInit()) glVertexAttribIPointerEXT(index, size, type, stride, pointer);}
++void __stdcall _Lazy_glGetVertexAttribIivEXT(GLuint index, GLenum pname, GLint * params)  {if (GLeeInit()) glGetVertexAttribIivEXT(index, pname, params);}
++void __stdcall _Lazy_glGetVertexAttribIuivEXT(GLuint index, GLenum pname, GLuint * params)  {if (GLeeInit()) glGetVertexAttribIuivEXT(index, pname, params);}
++PFNGLGETUNIFORMUIVEXTPROC pglGetUniformuivEXT=_Lazy_glGetUniformuivEXT;
++PFNGLBINDFRAGDATALOCATIONEXTPROC pglBindFragDataLocationEXT=_Lazy_glBindFragDataLocationEXT;
++PFNGLGETFRAGDATALOCATIONEXTPROC pglGetFragDataLocationEXT=_Lazy_glGetFragDataLocationEXT;
++PFNGLUNIFORM1UIEXTPROC pglUniform1uiEXT=_Lazy_glUniform1uiEXT;
++PFNGLUNIFORM2UIEXTPROC pglUniform2uiEXT=_Lazy_glUniform2uiEXT;
++PFNGLUNIFORM3UIEXTPROC pglUniform3uiEXT=_Lazy_glUniform3uiEXT;
++PFNGLUNIFORM4UIEXTPROC pglUniform4uiEXT=_Lazy_glUniform4uiEXT;
++PFNGLUNIFORM1UIVEXTPROC pglUniform1uivEXT=_Lazy_glUniform1uivEXT;
++PFNGLUNIFORM2UIVEXTPROC pglUniform2uivEXT=_Lazy_glUniform2uivEXT;
++PFNGLUNIFORM3UIVEXTPROC pglUniform3uivEXT=_Lazy_glUniform3uivEXT;
++PFNGLUNIFORM4UIVEXTPROC pglUniform4uivEXT=_Lazy_glUniform4uivEXT;
++PFNGLVERTEXATTRIBI1IEXTPROC pglVertexAttribI1iEXT=_Lazy_glVertexAttribI1iEXT;
++PFNGLVERTEXATTRIBI2IEXTPROC pglVertexAttribI2iEXT=_Lazy_glVertexAttribI2iEXT;
++PFNGLVERTEXATTRIBI3IEXTPROC pglVertexAttribI3iEXT=_Lazy_glVertexAttribI3iEXT;
++PFNGLVERTEXATTRIBI4IEXTPROC pglVertexAttribI4iEXT=_Lazy_glVertexAttribI4iEXT;
++PFNGLVERTEXATTRIBI1UIEXTPROC pglVertexAttribI1uiEXT=_Lazy_glVertexAttribI1uiEXT;
++PFNGLVERTEXATTRIBI2UIEXTPROC pglVertexAttribI2uiEXT=_Lazy_glVertexAttribI2uiEXT;
++PFNGLVERTEXATTRIBI3UIEXTPROC pglVertexAttribI3uiEXT=_Lazy_glVertexAttribI3uiEXT;
++PFNGLVERTEXATTRIBI4UIEXTPROC pglVertexAttribI4uiEXT=_Lazy_glVertexAttribI4uiEXT;
++PFNGLVERTEXATTRIBI1IVEXTPROC pglVertexAttribI1ivEXT=_Lazy_glVertexAttribI1ivEXT;
++PFNGLVERTEXATTRIBI2IVEXTPROC pglVertexAttribI2ivEXT=_Lazy_glVertexAttribI2ivEXT;
++PFNGLVERTEXATTRIBI3IVEXTPROC pglVertexAttribI3ivEXT=_Lazy_glVertexAttribI3ivEXT;
++PFNGLVERTEXATTRIBI4IVEXTPROC pglVertexAttribI4ivEXT=_Lazy_glVertexAttribI4ivEXT;
++PFNGLVERTEXATTRIBI1UIVEXTPROC pglVertexAttribI1uivEXT=_Lazy_glVertexAttribI1uivEXT;
++PFNGLVERTEXATTRIBI2UIVEXTPROC pglVertexAttribI2uivEXT=_Lazy_glVertexAttribI2uivEXT;
++PFNGLVERTEXATTRIBI3UIVEXTPROC pglVertexAttribI3uivEXT=_Lazy_glVertexAttribI3uivEXT;
++PFNGLVERTEXATTRIBI4UIVEXTPROC pglVertexAttribI4uivEXT=_Lazy_glVertexAttribI4uivEXT;
++PFNGLVERTEXATTRIBI4BVEXTPROC pglVertexAttribI4bvEXT=_Lazy_glVertexAttribI4bvEXT;
++PFNGLVERTEXATTRIBI4SVEXTPROC pglVertexAttribI4svEXT=_Lazy_glVertexAttribI4svEXT;
++PFNGLVERTEXATTRIBI4UBVEXTPROC pglVertexAttribI4ubvEXT=_Lazy_glVertexAttribI4ubvEXT;
++PFNGLVERTEXATTRIBI4USVEXTPROC pglVertexAttribI4usvEXT=_Lazy_glVertexAttribI4usvEXT;
++PFNGLVERTEXATTRIBIPOINTEREXTPROC pglVertexAttribIPointerEXT=_Lazy_glVertexAttribIPointerEXT;
++PFNGLGETVERTEXATTRIBIIVEXTPROC pglGetVertexAttribIivEXT=_Lazy_glGetVertexAttribIivEXT;
++PFNGLGETVERTEXATTRIBIUIVEXTPROC pglGetVertexAttribIuivEXT=_Lazy_glGetVertexAttribIuivEXT;
++#endif 
++
++/* GL_EXT_geometry_shader4 */
++
++#ifdef __GLEE_GL_EXT_geometry_shader4
++void __stdcall _Lazy_glProgramParameteriEXT(GLuint program, GLenum pname, GLint value)    {if (GLeeInit()) glProgramParameteriEXT(program, pname, value);}
++void __stdcall _Lazy_glFramebufferTextureEXT(GLenum target, GLenum attachment, GLuint texture, GLint level)  {if (GLeeInit()) glFramebufferTextureEXT(target, attachment, texture, level);}
++void __stdcall _Lazy_glFramebufferTextureLayerEXT(GLenum target, GLenum attachment, GLuint texture, GLint level, GLint layer)  {if (GLeeInit()) glFramebufferTextureLayerEXT(target, attachment, texture, level, layer);}
++void __stdcall _Lazy_glFramebufferTextureFaceEXT(GLenum target, GLenum attachment, GLuint texture, GLint level, GLenum face)  {if (GLeeInit()) glFramebufferTextureFaceEXT(target, attachment, texture, level, face);}
++PFNGLPROGRAMPARAMETERIEXTPROC pglProgramParameteriEXT=_Lazy_glProgramParameteriEXT;
++PFNGLFRAMEBUFFERTEXTUREEXTPROC pglFramebufferTextureEXT=_Lazy_glFramebufferTextureEXT;
++PFNGLFRAMEBUFFERTEXTURELAYEREXTPROC pglFramebufferTextureLayerEXT=_Lazy_glFramebufferTextureLayerEXT;
++PFNGLFRAMEBUFFERTEXTUREFACEEXTPROC pglFramebufferTextureFaceEXT=_Lazy_glFramebufferTextureFaceEXT;
++#endif 
++
++/* GL_EXT_bindable_uniform */
++
++#ifdef __GLEE_GL_EXT_bindable_uniform
++void __stdcall _Lazy_glUniformBufferEXT(GLuint program, GLint location, GLuint buffer)    {if (GLeeInit()) glUniformBufferEXT(program, location, buffer);}
++GLint __stdcall _Lazy_glGetUniformBufferSizeEXT(GLuint program, GLint location)           {if (GLeeInit()) return glGetUniformBufferSizeEXT(program, location); return (GLint)0;}
++GLintptr __stdcall _Lazy_glGetUniformOffsetEXT(GLuint program, GLint location)            {if (GLeeInit()) return glGetUniformOffsetEXT(program, location); return (GLintptr)0;}
++PFNGLUNIFORMBUFFEREXTPROC pglUniformBufferEXT=_Lazy_glUniformBufferEXT;
++PFNGLGETUNIFORMBUFFERSIZEEXTPROC pglGetUniformBufferSizeEXT=_Lazy_glGetUniformBufferSizeEXT;
++PFNGLGETUNIFORMOFFSETEXTPROC pglGetUniformOffsetEXT=_Lazy_glGetUniformOffsetEXT;
++#endif 
++
++/* GL_EXT_framebuffer_sRGB */
++
++#ifdef __GLEE_GL_EXT_framebuffer_sRGB
++#endif 
++
++/* GL_EXT_texture_shared_exponent */
++
++#ifdef __GLEE_GL_EXT_texture_shared_exponent
++#endif 
++
++/* GL_EXT_packed_float */
++
++#ifdef __GLEE_GL_EXT_packed_float
++#endif 
++
++/* GL_EXT_texture_array */
++
++#ifdef __GLEE_GL_EXT_texture_array
++#endif 
++
++/* GL_EXT_texture_integer */
++
++#ifdef __GLEE_GL_EXT_texture_integer
++void __stdcall _Lazy_glTexParameterIivEXT(GLenum target, GLenum pname, const GLint * params)  {if (GLeeInit()) glTexParameterIivEXT(target, pname, params);}
++void __stdcall _Lazy_glTexParameterIuivEXT(GLenum target, GLenum pname, const GLuint * params)  {if (GLeeInit()) glTexParameterIuivEXT(target, pname, params);}
++void __stdcall _Lazy_glGetTexParameterIivEXT(GLenum target, GLenum pname, GLint * params)  {if (GLeeInit()) glGetTexParameterIivEXT(target, pname, params);}
++void __stdcall _Lazy_glGetTexParameterIuivEXT(GLenum target, GLenum pname, GLuint * params)  {if (GLeeInit()) glGetTexParameterIuivEXT(target, pname, params);}
++void __stdcall _Lazy_glClearColorIiEXT(GLint red, GLint green, GLint blue, GLint alpha)   {if (GLeeInit()) glClearColorIiEXT(red, green, blue, alpha);}
++void __stdcall _Lazy_glClearColorIuiEXT(GLuint red, GLuint green, GLuint blue, GLuint alpha)  {if (GLeeInit()) glClearColorIuiEXT(red, green, blue, alpha);}
++PFNGLTEXPARAMETERIIVEXTPROC pglTexParameterIivEXT=_Lazy_glTexParameterIivEXT;
++PFNGLTEXPARAMETERIUIVEXTPROC pglTexParameterIuivEXT=_Lazy_glTexParameterIuivEXT;
++PFNGLGETTEXPARAMETERIIVEXTPROC pglGetTexParameterIivEXT=_Lazy_glGetTexParameterIivEXT;
++PFNGLGETTEXPARAMETERIUIVEXTPROC pglGetTexParameterIuivEXT=_Lazy_glGetTexParameterIuivEXT;
++PFNGLCLEARCOLORIIEXTPROC pglClearColorIiEXT=_Lazy_glClearColorIiEXT;
++PFNGLCLEARCOLORIUIEXTPROC pglClearColorIuiEXT=_Lazy_glClearColorIuiEXT;
++#endif 
++
++/* GL_NV_depth_buffer_float */
++
++#ifdef __GLEE_GL_NV_depth_buffer_float
++void __stdcall _Lazy_glDepthRangedNV(GLdouble zNear, GLdouble zFar)                       {if (GLeeInit()) glDepthRangedNV(zNear, zFar);}
++void __stdcall _Lazy_glClearDepthdNV(GLdouble depth)                                      {if (GLeeInit()) glClearDepthdNV(depth);}
++void __stdcall _Lazy_glDepthBoundsdNV(GLdouble zmin, GLdouble zmax)                       {if (GLeeInit()) glDepthBoundsdNV(zmin, zmax);}
++PFNGLDEPTHRANGEDNVPROC pglDepthRangedNV=_Lazy_glDepthRangedNV;
++PFNGLCLEARDEPTHDNVPROC pglClearDepthdNV=_Lazy_glClearDepthdNV;
++PFNGLDEPTHBOUNDSDNVPROC pglDepthBoundsdNV=_Lazy_glDepthBoundsdNV;
++#endif 
++
++/* GL_EXT_texture_compression_latc */
++
++#ifdef __GLEE_GL_EXT_texture_compression_latc
++#endif 
++
++/* GL_NV_transform_feedback */
++
++#ifdef __GLEE_GL_NV_transform_feedback
++void __stdcall _Lazy_glBeginTransformFeedbackNV(GLenum primitiveMode)                     {if (GLeeInit()) glBeginTransformFeedbackNV(primitiveMode);}
++void __stdcall _Lazy_glEndTransformFeedbackNV(void)                                       {if (GLeeInit()) glEndTransformFeedbackNV();}
++void __stdcall _Lazy_glTransformFeedbackAttribsNV(GLuint count, const GLint * attribs, GLenum bufferMode)  {if (GLeeInit()) glTransformFeedbackAttribsNV(count, attribs, bufferMode);}
++void __stdcall _Lazy_glBindBufferRangeNV(GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size)  {if (GLeeInit()) glBindBufferRangeNV(target, index, buffer, offset, size);}
++void __stdcall _Lazy_glBindBufferOffsetNV(GLenum target, GLuint index, GLuint buffer, GLintptr offset)  {if (GLeeInit()) glBindBufferOffsetNV(target, index, buffer, offset);}
++void __stdcall _Lazy_glBindBufferBaseNV(GLenum target, GLuint index, GLuint buffer)       {if (GLeeInit()) glBindBufferBaseNV(target, index, buffer);}
++void __stdcall _Lazy_glTransformFeedbackVaryingsNV(GLuint program, GLsizei count, const GLint * locations, GLenum bufferMode)  {if (GLeeInit()) glTransformFeedbackVaryingsNV(program, count, locations, bufferMode);}
++void __stdcall _Lazy_glActiveVaryingNV(GLuint program, const GLchar * name)               {if (GLeeInit()) glActiveVaryingNV(program, name);}
++GLint __stdcall _Lazy_glGetVaryingLocationNV(GLuint program, const GLchar * name)         {if (GLeeInit()) return glGetVaryingLocationNV(program, name); return (GLint)0;}
++void __stdcall _Lazy_glGetActiveVaryingNV(GLuint program, GLuint index, GLsizei bufSize, GLsizei * length, GLsizei * size, GLenum * type, GLchar * name)  {if (GLeeInit()) glGetActiveVaryingNV(program, index, bufSize, length, size, type, name);}
++void __stdcall _Lazy_glGetTransformFeedbackVaryingNV(GLuint program, GLuint index, GLint * location)  {if (GLeeInit()) glGetTransformFeedbackVaryingNV(program, index, location);}
++PFNGLBEGINTRANSFORMFEEDBACKNVPROC pglBeginTransformFeedbackNV=_Lazy_glBeginTransformFeedbackNV;
++PFNGLENDTRANSFORMFEEDBACKNVPROC pglEndTransformFeedbackNV=_Lazy_glEndTransformFeedbackNV;
++PFNGLTRANSFORMFEEDBACKATTRIBSNVPROC pglTransformFeedbackAttribsNV=_Lazy_glTransformFeedbackAttribsNV;
++PFNGLBINDBUFFERRANGENVPROC pglBindBufferRangeNV=_Lazy_glBindBufferRangeNV;
++PFNGLBINDBUFFEROFFSETNVPROC pglBindBufferOffsetNV=_Lazy_glBindBufferOffsetNV;
++PFNGLBINDBUFFERBASENVPROC pglBindBufferBaseNV=_Lazy_glBindBufferBaseNV;
++PFNGLTRANSFORMFEEDBACKVARYINGSNVPROC pglTransformFeedbackVaryingsNV=_Lazy_glTransformFeedbackVaryingsNV;
++PFNGLACTIVEVARYINGNVPROC pglActiveVaryingNV=_Lazy_glActiveVaryingNV;
++PFNGLGETVARYINGLOCATIONNVPROC pglGetVaryingLocationNV=_Lazy_glGetVaryingLocationNV;
++PFNGLGETACTIVEVARYINGNVPROC pglGetActiveVaryingNV=_Lazy_glGetActiveVaryingNV;
++PFNGLGETTRANSFORMFEEDBACKVARYINGNVPROC pglGetTransformFeedbackVaryingNV=_Lazy_glGetTransformFeedbackVaryingNV;
++#endif 
++
++/* GL_NV_geometry_program4 */
++
++#ifdef __GLEE_GL_NV_geometry_program4
++void __stdcall _Lazy_glProgramVertexLimitNV(GLenum target, GLint limit)                   {if (GLeeInit()) glProgramVertexLimitNV(target, limit);}
++PFNGLPROGRAMVERTEXLIMITNVPROC pglProgramVertexLimitNV=_Lazy_glProgramVertexLimitNV;
++#endif 
++
++/* GL_NV_gpu_program4 */
++
++#ifdef __GLEE_GL_NV_gpu_program4
++void __stdcall _Lazy_glProgramLocalParameterI4iNV(GLenum target, GLuint index, GLint x, GLint y, GLint z, GLint w)  {if (GLeeInit()) glProgramLocalParameterI4iNV(target, index, x, y, z, w);}
++void __stdcall _Lazy_glProgramLocalParameterI4ivNV(GLenum target, GLuint index, const GLint * params)  {if (GLeeInit()) glProgramLocalParameterI4ivNV(target, index, params);}
++void __stdcall _Lazy_glProgramLocalParametersI4ivNV(GLenum target, GLuint index, GLsizei count, const GLint * params)  {if (GLeeInit()) glProgramLocalParametersI4ivNV(target, index, count, params);}
++void __stdcall _Lazy_glProgramLocalParameterI4uiNV(GLenum target, GLuint index, GLuint x, GLuint y, GLuint z, GLuint w)  {if (GLeeInit()) glProgramLocalParameterI4uiNV(target, index, x, y, z, w);}
++void __stdcall _Lazy_glProgramLocalParameterI4uivNV(GLenum target, GLuint index, const GLuint * params)  {if (GLeeInit()) glProgramLocalParameterI4uivNV(target, index, params);}
++void __stdcall _Lazy_glProgramLocalParametersI4uivNV(GLenum target, GLuint index, GLsizei count, const GLuint * params)  {if (GLeeInit()) glProgramLocalParametersI4uivNV(target, index, count, params);}
++void __stdcall _Lazy_glProgramEnvParameterI4iNV(GLenum target, GLuint index, GLint x, GLint y, GLint z, GLint w)  {if (GLeeInit()) glProgramEnvParameterI4iNV(target, index, x, y, z, w);}
++void __stdcall _Lazy_glProgramEnvParameterI4ivNV(GLenum target, GLuint index, const GLint * params)  {if (GLeeInit()) glProgramEnvParameterI4ivNV(target, index, params);}
++void __stdcall _Lazy_glProgramEnvParametersI4ivNV(GLenum target, GLuint index, GLsizei count, const GLint * params)  {if (GLeeInit()) glProgramEnvParametersI4ivNV(target, index, count, params);}
++void __stdcall _Lazy_glProgramEnvParameterI4uiNV(GLenum target, GLuint index, GLuint x, GLuint y, GLuint z, GLuint w)  {if (GLeeInit()) glProgramEnvParameterI4uiNV(target, index, x, y, z, w);}
++void __stdcall _Lazy_glProgramEnvParameterI4uivNV(GLenum target, GLuint index, const GLuint * params)  {if (GLeeInit()) glProgramEnvParameterI4uivNV(target, index, params);}
++void __stdcall _Lazy_glProgramEnvParametersI4uivNV(GLenum target, GLuint index, GLsizei count, const GLuint * params)  {if (GLeeInit()) glProgramEnvParametersI4uivNV(target, index, count, params);}
++void __stdcall _Lazy_glGetProgramLocalParameterIivNV(GLenum target, GLuint index, GLint * params)  {if (GLeeInit()) glGetProgramLocalParameterIivNV(target, index, params);}
++void __stdcall _Lazy_glGetProgramLocalParameterIuivNV(GLenum target, GLuint index, GLuint * params)  {if (GLeeInit()) glGetProgramLocalParameterIuivNV(target, index, params);}
++void __stdcall _Lazy_glGetProgramEnvParameterIivNV(GLenum target, GLuint index, GLint * params)  {if (GLeeInit()) glGetProgramEnvParameterIivNV(target, index, params);}
++void __stdcall _Lazy_glGetProgramEnvParameterIuivNV(GLenum target, GLuint index, GLuint * params)  {if (GLeeInit()) glGetProgramEnvParameterIuivNV(target, index, params);}
++PFNGLPROGRAMLOCALPARAMETERI4INVPROC pglProgramLocalParameterI4iNV=_Lazy_glProgramLocalParameterI4iNV;
++PFNGLPROGRAMLOCALPARAMETERI4IVNVPROC pglProgramLocalParameterI4ivNV=_Lazy_glProgramLocalParameterI4ivNV;
++PFNGLPROGRAMLOCALPARAMETERSI4IVNVPROC pglProgramLocalParametersI4ivNV=_Lazy_glProgramLocalParametersI4ivNV;
++PFNGLPROGRAMLOCALPARAMETERI4UINVPROC pglProgramLocalParameterI4uiNV=_Lazy_glProgramLocalParameterI4uiNV;
++PFNGLPROGRAMLOCALPARAMETERI4UIVNVPROC pglProgramLocalParameterI4uivNV=_Lazy_glProgramLocalParameterI4uivNV;
++PFNGLPROGRAMLOCALPARAMETERSI4UIVNVPROC pglProgramLocalParametersI4uivNV=_Lazy_glProgramLocalParametersI4uivNV;
++PFNGLPROGRAMENVPARAMETERI4INVPROC pglProgramEnvParameterI4iNV=_Lazy_glProgramEnvParameterI4iNV;
++PFNGLPROGRAMENVPARAMETERI4IVNVPROC pglProgramEnvParameterI4ivNV=_Lazy_glProgramEnvParameterI4ivNV;
++PFNGLPROGRAMENVPARAMETERSI4IVNVPROC pglProgramEnvParametersI4ivNV=_Lazy_glProgramEnvParametersI4ivNV;
++PFNGLPROGRAMENVPARAMETERI4UINVPROC pglProgramEnvParameterI4uiNV=_Lazy_glProgramEnvParameterI4uiNV;
++PFNGLPROGRAMENVPARAMETERI4UIVNVPROC pglProgramEnvParameterI4uivNV=_Lazy_glProgramEnvParameterI4uivNV;
++PFNGLPROGRAMENVPARAMETERSI4UIVNVPROC pglProgramEnvParametersI4uivNV=_Lazy_glProgramEnvParametersI4uivNV;
++PFNGLGETPROGRAMLOCALPARAMETERIIVNVPROC pglGetProgramLocalParameterIivNV=_Lazy_glGetProgramLocalParameterIivNV;
++PFNGLGETPROGRAMLOCALPARAMETERIUIVNVPROC pglGetProgramLocalParameterIuivNV=_Lazy_glGetProgramLocalParameterIuivNV;
++PFNGLGETPROGRAMENVPARAMETERIIVNVPROC pglGetProgramEnvParameterIivNV=_Lazy_glGetProgramEnvParameterIivNV;
++PFNGLGETPROGRAMENVPARAMETERIUIVNVPROC pglGetProgramEnvParameterIuivNV=_Lazy_glGetProgramEnvParameterIuivNV;
++#endif 
++
++/* GL_NV_framebuffer_multisample_coverage */
++
++#ifdef __GLEE_GL_NV_framebuffer_multisample_coverage
++void __stdcall _Lazy_glRenderbufferStorageMultisampleCoverageNV(GLenum target, GLsizei coverageSamples, GLsizei colorSamples, GLenum internalformat, GLsizei width, GLsizei height)  {if (GLeeInit()) glRenderbufferStorageMultisampleCoverageNV(target, coverageSamples, colorSamples, internalformat, width, height);}
++PFNGLRENDERBUFFERSTORAGEMULTISAMPLECOVERAGENVPROC pglRenderbufferStorageMultisampleCoverageNV=_Lazy_glRenderbufferStorageMultisampleCoverageNV;
++#endif 
++
++/* GL_EXT_framebuffer_multisample */
++
++#ifdef __GLEE_GL_EXT_framebuffer_multisample
++void __stdcall _Lazy_glRenderbufferStorageMultisampleEXT(GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height)  {if (GLeeInit()) glRenderbufferStorageMultisampleEXT(target, samples, internalformat, width, height);}
++PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC pglRenderbufferStorageMultisampleEXT=_Lazy_glRenderbufferStorageMultisampleEXT;
++#endif 
++
++/* GL_EXT_framebuffer_blit */
++
++#ifdef __GLEE_GL_EXT_framebuffer_blit
++void __stdcall _Lazy_glBlitFramebufferEXT(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter)  {if (GLeeInit()) glBlitFramebufferEXT(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);}
++PFNGLBLITFRAMEBUFFEREXTPROC pglBlitFramebufferEXT=_Lazy_glBlitFramebufferEXT;
++#endif 
++
++/* GL_EXT_texture_compression_rgtc */
++
++#ifdef __GLEE_GL_EXT_texture_compression_rgtc
++#endif 
++
+ /* GL_EXT_color_matrix */
+ 
+ #ifdef __GLEE_GL_EXT_color_matrix
+@@ -4109,6 +4460,43 @@
+ PFNGLIGLOOINTERFACESGIXPROC pglIglooInterfaceSGIX=_Lazy_glIglooInterfaceSGIX;
+ #endif 
+ 
++/* GL_EXT_draw_buffers2 */
++
++#ifdef __GLEE_GL_EXT_draw_buffers2
++void __stdcall _Lazy_glColorMaskIndexedEXT(GLuint index, GLboolean r, GLboolean g, GLboolean b, GLboolean a)  {if (GLeeInit()) glColorMaskIndexedEXT(index, r, g, b, a);}
++void __stdcall _Lazy_glGetBooleanIndexedvEXT(GLenum target, GLuint index, GLboolean * data)  {if (GLeeInit()) glGetBooleanIndexedvEXT(target, index, data);}
++void __stdcall _Lazy_glGetIntegerIndexedvEXT(GLenum target, GLuint index, GLint * data)   {if (GLeeInit()) glGetIntegerIndexedvEXT(target, index, data);}
++void __stdcall _Lazy_glEnableIndexedEXT(GLenum target, GLuint index)                      {if (GLeeInit()) glEnableIndexedEXT(target, index);}
++void __stdcall _Lazy_glDisableIndexedEXT(GLenum target, GLuint index)                     {if (GLeeInit()) glDisableIndexedEXT(target, index);}
++GLboolean __stdcall _Lazy_glIsEnabledIndexedEXT(GLenum target, GLuint index)              {if (GLeeInit()) return glIsEnabledIndexedEXT(target, index); return (GLboolean)0;}
++PFNGLCOLORMASKINDEXEDEXTPROC pglColorMaskIndexedEXT=_Lazy_glColorMaskIndexedEXT;
++PFNGLGETBOOLEANINDEXEDVEXTPROC pglGetBooleanIndexedvEXT=_Lazy_glGetBooleanIndexedvEXT;
++PFNGLGETINTEGERINDEXEDVEXTPROC pglGetIntegerIndexedvEXT=_Lazy_glGetIntegerIndexedvEXT;
++PFNGLENABLEINDEXEDEXTPROC pglEnableIndexedEXT=_Lazy_glEnableIndexedEXT;
++PFNGLDISABLEINDEXEDEXTPROC pglDisableIndexedEXT=_Lazy_glDisableIndexedEXT;
++PFNGLISENABLEDINDEXEDEXTPROC pglIsEnabledIndexedEXT=_Lazy_glIsEnabledIndexedEXT;
++#endif 
++
++/* GL_NV_parameter_buffer_object */
++
++#ifdef __GLEE_GL_NV_parameter_buffer_object
++void __stdcall _Lazy_glProgramBufferParametersfvNV(GLenum target, GLuint buffer, GLuint index, GLsizei count, const GLfloat * params)  {if (GLeeInit()) glProgramBufferParametersfvNV(target, buffer, index, count, params);}
++void __stdcall _Lazy_glProgramBufferParametersIivNV(GLenum target, GLuint buffer, GLuint index, GLsizei count, const GLint * params)  {if (GLeeInit()) glProgramBufferParametersIivNV(target, buffer, index, count, params);}
++void __stdcall _Lazy_glProgramBufferParametersIuivNV(GLenum target, GLuint buffer, GLuint index, GLsizei count, const GLuint * params)  {if (GLeeInit()) glProgramBufferParametersIuivNV(target, buffer, index, count, params);}
++PFNGLPROGRAMBUFFERPARAMETERSFVNVPROC pglProgramBufferParametersfvNV=_Lazy_glProgramBufferParametersfvNV;
++PFNGLPROGRAMBUFFERPARAMETERSIIVNVPROC pglProgramBufferParametersIivNV=_Lazy_glProgramBufferParametersIivNV;
++PFNGLPROGRAMBUFFERPARAMETERSIUIVNVPROC pglProgramBufferParametersIuivNV=_Lazy_glProgramBufferParametersIuivNV;
++#endif 
++
++/* GL_EXT_draw_instanced */
++
++#ifdef __GLEE_GL_EXT_draw_instanced
++void __stdcall _Lazy_glDrawArraysInstancedEXT(GLenum mode, GLint start, GLsizei count, GLsizei primcount)  {if (GLeeInit()) glDrawArraysInstancedEXT(mode, start, count, primcount);}
++void __stdcall _Lazy_glDrawElementsInstancedEXT(GLenum mode, GLsizei count, GLenum type, const GLvoid * indices, GLsizei primcount)  {if (GLeeInit()) glDrawElementsInstancedEXT(mode, count, type, indices, primcount);}
++PFNGLDRAWARRAYSINSTANCEDEXTPROC pglDrawArraysInstancedEXT=_Lazy_glDrawArraysInstancedEXT;
++PFNGLDRAWELEMENTSINSTANCEDEXTPROC pglDrawElementsInstancedEXT=_Lazy_glDrawElementsInstancedEXT;
++#endif 
++
+ /* GL_EXT_fragment_lighting */
+ 
+ #ifdef __GLEE_GL_EXT_fragment_lighting
+@@ -4150,20 +4538,6 @@
+ PFNGLLIGHTENVIEXTPROC pglLightEnviEXT=_Lazy_glLightEnviEXT;
+ #endif 
+ 
+-/* GL_EXT_framebuffer_blit */
+-
+-#ifdef __GLEE_GL_EXT_framebuffer_blit
+-GLvoid __stdcall _Lazy_glBlitFramebufferEXT(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter)  {if (GLeeInit()) glBlitFramebufferEXT(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);}
+-PFNGLBLITFRAMEBUFFEREXTPROC pglBlitFramebufferEXT=_Lazy_glBlitFramebufferEXT;
+-#endif 
+-
+-/* GL_EXT_framebuffer_multisample */
+-
+-#ifdef __GLEE_GL_EXT_framebuffer_multisample
+-GLvoid __stdcall _Lazy_glRenderbufferStorageMultisampleEXT(GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height)  {if (GLeeInit()) glRenderbufferStorageMultisampleEXT(target, samples, internalformat, width, height);}
+-PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC pglRenderbufferStorageMultisampleEXT=_Lazy_glRenderbufferStorageMultisampleEXT;
+-#endif 
+-
+ /* GL_EXT_packed_depth_stencil */
+ 
+ #ifdef __GLEE_GL_EXT_packed_depth_stencil
+@@ -4245,7 +4619,7 @@
+ #ifdef __GLEE_GL_SGIX_texture_range
+ #endif 
+ 
+-/* WIN32 SPECIFIC */
++/* WGL */
+ 
+ #ifdef WIN32
+ 
+@@ -4615,7 +4989,8 @@
+ BOOL __stdcall _Lazy_wglSetStereoEmitterState3DL(HDC hDC, UINT uState)                    {if (GLeeInit()) return wglSetStereoEmitterState3DL(hDC, uState); return (BOOL)0;}
+ PFNWGLSETSTEREOEMITTERSTATE3DLPROC pwglSetStereoEmitterState3DL=_Lazy_wglSetStereoEmitterState3DL;
+ #endif 
+-#else /* WIN32 defined */
++#elif defined(__APPLE__) || defined(__APPLE_CC__)
++#else /* GLX */
+ 
+ /* Extension querying variables */
+ 
+@@ -4985,7 +5360,7 @@
+ 
+ #ifdef __GLEE_GLX_EXT_scene_marker
+ #endif 
+-#endif /* end linux */
++#endif /* end GLX */
+ /*****************************************************************
+ * Extension link functions
+ *****************************************************************/
+@@ -5283,6 +5658,22 @@
+     return GLEE_LINK_PARTIAL;
+ }
+ 
++GLuint __GLeeLink_GL_VERSION_2_1(void)
++{
++    GLint nLinked=0;
++#ifdef __GLEE_GL_VERSION_2_1
++    if ((pglUniformMatrix2x3fv = (PFNGLUNIFORMMATRIX2X3FVPROC) __GLeeGetProcAddress(&quot;glUniformMatrix2x3fv&quot;))!=0) nLinked++;
++    if ((pglUniformMatrix3x2fv = (PFNGLUNIFORMMATRIX3X2FVPROC) __GLeeGetProcAddress(&quot;glUniformMatrix3x2fv&quot;))!=0) nLinked++;
++    if ((pglUniformMatrix2x4fv = (PFNGLUNIFORMMATRIX2X4FVPROC) __GLeeGetProcAddress(&quot;glUniformMatrix2x4fv&quot;))!=0) nLinked++;
++    if ((pglUniformMatrix4x2fv = (PFNGLUNIFORMMATRIX4X2FVPROC) __GLeeGetProcAddress(&quot;glUniformMatrix4x2fv&quot;))!=0) nLinked++;
++    if ((pglUniformMatrix3x4fv = (PFNGLUNIFORMMATRIX3X4FVPROC) __GLeeGetProcAddress(&quot;glUniformMatrix3x4fv&quot;))!=0) nLinked++;
++    if ((pglUniformMatrix4x3fv = (PFNGLUNIFORMMATRIX4X3FVPROC) __GLeeGetProcAddress(&quot;glUniformMatrix4x3fv&quot;))!=0) nLinked++;
++#endif
++    if (nLinked==6) return GLEE_LINK_COMPLETE;
++    if (nLinked==0) return GLEE_LINK_FAIL;
++    return GLEE_LINK_PARTIAL;
++}
++
+ GLuint __GLeeLink_GL_ARB_multitexture(void)
+ {
+     GLint nLinked=0;
+@@ -7500,6 +7891,234 @@
+     return GLEE_LINK_PARTIAL;
+ }
+ 
++GLuint __GLeeLink_GL_EXT_Cg_shader(void) {return GLEE_LINK_COMPLETE;}
++
++GLuint __GLeeLink_GL_EXT_timer_query(void)
++{
++    GLint nLinked=0;
++#ifdef __GLEE_GL_EXT_timer_query
++    if ((pglGetQueryObjecti64vEXT = (PFNGLGETQUERYOBJECTI64VEXTPROC) __GLeeGetProcAddress(&quot;glGetQueryObjecti64vEXT&quot;))!=0) nLinked++;
++    if ((pglGetQueryObjectui64vEXT = (PFNGLGETQUERYOBJECTUI64VEXTPROC) __GLeeGetProcAddress(&quot;glGetQueryObjectui64vEXT&quot;))!=0) nLinked++;
++#endif
++    if (nLinked==2) return GLEE_LINK_COMPLETE;
++    if (nLinked==0) return GLEE_LINK_FAIL;
++    return GLEE_LINK_PARTIAL;
++}
++
++GLuint __GLeeLink_GL_EXT_texture_buffer_object(void)
++{
++    GLint nLinked=0;
++#ifdef __GLEE_GL_EXT_texture_buffer_object
++    if ((pglTexBufferEXT = (PFNGLTEXBUFFEREXTPROC) __GLeeGetProcAddress(&quot;glTexBufferEXT&quot;))!=0) nLinked++;
++#endif
++    if (nLinked==1) return GLEE_LINK_COMPLETE;
++    if (nLinked==0) return GLEE_LINK_FAIL;
++    return GLEE_LINK_PARTIAL;
++}
++
++GLuint __GLeeLink_GL_EXT_gpu_shader4(void)
++{
++    GLint nLinked=0;
++#ifdef __GLEE_GL_EXT_gpu_shader4
++    if ((pglGetUniformuivEXT = (PFNGLGETUNIFORMUIVEXTPROC) __GLeeGetProcAddress(&quot;glGetUniformuivEXT&quot;))!=0) nLinked++;
++    if ((pglBindFragDataLocationEXT = (PFNGLBINDFRAGDATALOCATIONEXTPROC) __GLeeGetProcAddress(&quot;glBindFragDataLocationEXT&quot;))!=0) nLinked++;
++    if ((pglGetFragDataLocationEXT = (PFNGLGETFRAGDATALOCATIONEXTPROC) __GLeeGetProcAddress(&quot;glGetFragDataLocationEXT&quot;))!=0) nLinked++;
++    if ((pglUniform1uiEXT = (PFNGLUNIFORM1UIEXTPROC) __GLeeGetProcAddress(&quot;glUniform1uiEXT&quot;))!=0) nLinked++;
++    if ((pglUniform2uiEXT = (PFNGLUNIFORM2UIEXTPROC) __GLeeGetProcAddress(&quot;glUniform2uiEXT&quot;))!=0) nLinked++;
++    if ((pglUniform3uiEXT = (PFNGLUNIFORM3UIEXTPROC) __GLeeGetProcAddress(&quot;glUniform3uiEXT&quot;))!=0) nLinked++;
++    if ((pglUniform4uiEXT = (PFNGLUNIFORM4UIEXTPROC) __GLeeGetProcAddress(&quot;glUniform4uiEXT&quot;))!=0) nLinked++;
++    if ((pglUniform1uivEXT = (PFNGLUNIFORM1UIVEXTPROC) __GLeeGetProcAddress(&quot;glUniform1uivEXT&quot;))!=0) nLinked++;
++    if ((pglUniform2uivEXT = (PFNGLUNIFORM2UIVEXTPROC) __GLeeGetProcAddress(&quot;glUniform2uivEXT&quot;))!=0) nLinked++;
++    if ((pglUniform3uivEXT = (PFNGLUNIFORM3UIVEXTPROC) __GLeeGetProcAddress(&quot;glUniform3uivEXT&quot;))!=0) nLinked++;
++    if ((pglUniform4uivEXT = (PFNGLUNIFORM4UIVEXTPROC) __GLeeGetProcAddress(&quot;glUniform4uivEXT&quot;))!=0) nLinked++;
++    if ((pglVertexAttribI1iEXT = (PFNGLVERTEXATTRIBI1IEXTPROC) __GLeeGetProcAddress(&quot;glVertexAttribI1iEXT&quot;))!=0) nLinked++;
++    if ((pglVertexAttribI2iEXT = (PFNGLVERTEXATTRIBI2IEXTPROC) __GLeeGetProcAddress(&quot;glVertexAttribI2iEXT&quot;))!=0) nLinked++;
++    if ((pglVertexAttribI3iEXT = (PFNGLVERTEXATTRIBI3IEXTPROC) __GLeeGetProcAddress(&quot;glVertexAttribI3iEXT&quot;))!=0) nLinked++;
++    if ((pglVertexAttribI4iEXT = (PFNGLVERTEXATTRIBI4IEXTPROC) __GLeeGetProcAddress(&quot;glVertexAttribI4iEXT&quot;))!=0) nLinked++;
++    if ((pglVertexAttribI1uiEXT = (PFNGLVERTEXATTRIBI1UIEXTPROC) __GLeeGetProcAddress(&quot;glVertexAttribI1uiEXT&quot;))!=0) nLinked++;
++    if ((pglVertexAttribI2uiEXT = (PFNGLVERTEXATTRIBI2UIEXTPROC) __GLeeGetProcAddress(&quot;glVertexAttribI2uiEXT&quot;))!=0) nLinked++;
++    if ((pglVertexAttribI3uiEXT = (PFNGLVERTEXATTRIBI3UIEXTPROC) __GLeeGetProcAddress(&quot;glVertexAttribI3uiEXT&quot;))!=0) nLinked++;
++    if ((pglVertexAttribI4uiEXT = (PFNGLVERTEXATTRIBI4UIEXTPROC) __GLeeGetProcAddress(&quot;glVertexAttribI4uiEXT&quot;))!=0) nLinked++;
++    if ((pglVertexAttribI1ivEXT = (PFNGLVERTEXATTRIBI1IVEXTPROC) __GLeeGetProcAddress(&quot;glVertexAttribI1ivEXT&quot;))!=0) nLinked++;
++    if ((pglVertexAttribI2ivEXT = (PFNGLVERTEXATTRIBI2IVEXTPROC) __GLeeGetProcAddress(&quot;glVertexAttribI2ivEXT&quot;))!=0) nLinked++;
++    if ((pglVertexAttribI3ivEXT = (PFNGLVERTEXATTRIBI3IVEXTPROC) __GLeeGetProcAddress(&quot;glVertexAttribI3ivEXT&quot;))!=0) nLinked++;
++    if ((pglVertexAttribI4ivEXT = (PFNGLVERTEXATTRIBI4IVEXTPROC) __GLeeGetProcAddress(&quot;glVertexAttribI4ivEXT&quot;))!=0) nLinked++;
++    if ((pglVertexAttribI1uivEXT = (PFNGLVERTEXATTRIBI1UIVEXTPROC) __GLeeGetProcAddress(&quot;glVertexAttribI1uivEXT&quot;))!=0) nLinked++;
++    if ((pglVertexAttribI2uivEXT = (PFNGLVERTEXATTRIBI2UIVEXTPROC) __GLeeGetProcAddress(&quot;glVertexAttribI2uivEXT&quot;))!=0) nLinked++;
++    if ((pglVertexAttribI3uivEXT = (PFNGLVERTEXATTRIBI3UIVEXTPROC) __GLeeGetProcAddress(&quot;glVertexAttribI3uivEXT&quot;))!=0) nLinked++;
++    if ((pglVertexAttribI4uivEXT = (PFNGLVERTEXATTRIBI4UIVEXTPROC) __GLeeGetProcAddress(&quot;glVertexAttribI4uivEXT&quot;))!=0) nLinked++;
++    if ((pglVertexAttribI4bvEXT = (PFNGLVERTEXATTRIBI4BVEXTPROC) __GLeeGetProcAddress(&quot;glVertexAttribI4bvEXT&quot;))!=0) nLinked++;
++    if ((pglVertexAttribI4svEXT = (PFNGLVERTEXATTRIBI4SVEXTPROC) __GLeeGetProcAddress(&quot;glVertexAttribI4svEXT&quot;))!=0) nLinked++;
++    if ((pglVertexAttribI4ubvEXT = (PFNGLVERTEXATTRIBI4UBVEXTPROC) __GLeeGetProcAddress(&quot;glVertexAttribI4ubvEXT&quot;))!=0) nLinked++;
++    if ((pglVertexAttribI4usvEXT = (PFNGLVERTEXATTRIBI4USVEXTPROC) __GLeeGetProcAddress(&quot;glVertexAttribI4usvEXT&quot;))!=0) nLinked++;
++    if ((pglVertexAttribIPointerEXT = (PFNGLVERTEXATTRIBIPOINTEREXTPROC) __GLeeGetProcAddress(&quot;glVertexAttribIPointerEXT&quot;))!=0) nLinked++;
++    if ((pglGetVertexAttribIivEXT = (PFNGLGETVERTEXATTRIBIIVEXTPROC) __GLeeGetProcAddress(&quot;glGetVertexAttribIivEXT&quot;))!=0) nLinked++;
++    if ((pglGetVertexAttribIuivEXT = (PFNGLGETVERTEXATTRIBIUIVEXTPROC) __GLeeGetProcAddress(&quot;glGetVertexAttribIuivEXT&quot;))!=0) nLinked++;
++#endif
++    if (nLinked==34) return GLEE_LINK_COMPLETE;
++    if (nLinked==0) return GLEE_LINK_FAIL;
++    return GLEE_LINK_PARTIAL;
++}
++
++GLuint __GLeeLink_GL_EXT_geometry_shader4(void)
++{
++    GLint nLinked=0;
++#ifdef __GLEE_GL_EXT_geometry_shader4
++    if ((pglProgramParameteriEXT = (PFNGLPROGRAMPARAMETERIEXTPROC) __GLeeGetProcAddress(&quot;glProgramParameteriEXT&quot;))!=0) nLinked++;
++    if ((pglFramebufferTextureEXT = (PFNGLFRAMEBUFFERTEXTUREEXTPROC) __GLeeGetProcAddress(&quot;glFramebufferTextureEXT&quot;))!=0) nLinked++;
++    if ((pglFramebufferTextureLayerEXT = (PFNGLFRAMEBUFFERTEXTURELAYEREXTPROC) __GLeeGetProcAddress(&quot;glFramebufferTextureLayerEXT&quot;))!=0) nLinked++;
++    if ((pglFramebufferTextureFaceEXT = (PFNGLFRAMEBUFFERTEXTUREFACEEXTPROC) __GLeeGetProcAddress(&quot;glFramebufferTextureFaceEXT&quot;))!=0) nLinked++;
++#endif
++    if (nLinked==4) return GLEE_LINK_COMPLETE;
++    if (nLinked==0) return GLEE_LINK_FAIL;
++    return GLEE_LINK_PARTIAL;
++}
++
++GLuint __GLeeLink_GL_EXT_bindable_uniform(void)
++{
++    GLint nLinked=0;
++#ifdef __GLEE_GL_EXT_bindable_uniform
++    if ((pglUniformBufferEXT = (PFNGLUNIFORMBUFFEREXTPROC) __GLeeGetProcAddress(&quot;glUniformBufferEXT&quot;))!=0) nLinked++;
++    if ((pglGetUniformBufferSizeEXT = (PFNGLGETUNIFORMBUFFERSIZEEXTPROC) __GLeeGetProcAddress(&quot;glGetUniformBufferSizeEXT&quot;))!=0) nLinked++;
++    if ((pglGetUniformOffsetEXT = (PFNGLGETUNIFORMOFFSETEXTPROC) __GLeeGetProcAddress(&quot;glGetUniformOffsetEXT&quot;))!=0) nLinked++;
++#endif
++    if (nLinked==3) return GLEE_LINK_COMPLETE;
++    if (nLinked==0) return GLEE_LINK_FAIL;
++    return GLEE_LINK_PARTIAL;
++}
++
++GLuint __GLeeLink_GL_EXT_framebuffer_sRGB(void) {return GLEE_LINK_COMPLETE;}
++
++GLuint __GLeeLink_GL_EXT_texture_shared_exponent(void) {return GLEE_LINK_COMPLETE;}
++
++GLuint __GLeeLink_GL_EXT_packed_float(void) {return GLEE_LINK_COMPLETE;}
++
++GLuint __GLeeLink_GL_EXT_texture_array(void) {return GLEE_LINK_COMPLETE;}
++
++GLuint __GLeeLink_GL_EXT_texture_integer(void)
++{
++    GLint nLinked=0;
++#ifdef __GLEE_GL_EXT_texture_integer
++    if ((pglTexParameterIivEXT = (PFNGLTEXPARAMETERIIVEXTPROC) __GLeeGetProcAddress(&quot;glTexParameterIivEXT&quot;))!=0) nLinked++;
++    if ((pglTexParameterIuivEXT = (PFNGLTEXPARAMETERIUIVEXTPROC) __GLeeGetProcAddress(&quot;glTexParameterIuivEXT&quot;))!=0) nLinked++;
++    if ((pglGetTexParameterIivEXT = (PFNGLGETTEXPARAMETERIIVEXTPROC) __GLeeGetProcAddress(&quot;glGetTexParameterIivEXT&quot;))!=0) nLinked++;
++    if ((pglGetTexParameterIuivEXT = (PFNGLGETTEXPARAMETERIUIVEXTPROC) __GLeeGetProcAddress(&quot;glGetTexParameterIuivEXT&quot;))!=0) nLinked++;
++    if ((pglClearColorIiEXT = (PFNGLCLEARCOLORIIEXTPROC) __GLeeGetProcAddress(&quot;glClearColorIiEXT&quot;))!=0) nLinked++;
++    if ((pglClearColorIuiEXT = (PFNGLCLEARCOLORIUIEXTPROC) __GLeeGetProcAddress(&quot;glClearColorIuiEXT&quot;))!=0) nLinked++;
++#endif
++    if (nLinked==6) return GLEE_LINK_COMPLETE;
++    if (nLinked==0) return GLEE_LINK_FAIL;
++    return GLEE_LINK_PARTIAL;
++}
++
++GLuint __GLeeLink_GL_NV_depth_buffer_float(void)
++{
++    GLint nLinked=0;
++#ifdef __GLEE_GL_NV_depth_buffer_float
++    if ((pglDepthRangedNV = (PFNGLDEPTHRANGEDNVPROC) __GLeeGetProcAddress(&quot;glDepthRangedNV&quot;))!=0) nLinked++;
++    if ((pglClearDepthdNV = (PFNGLCLEARDEPTHDNVPROC) __GLeeGetProcAddress(&quot;glClearDepthdNV&quot;))!=0) nLinked++;
++    if ((pglDepthBoundsdNV = (PFNGLDEPTHBOUNDSDNVPROC) __GLeeGetProcAddress(&quot;glDepthBoundsdNV&quot;))!=0) nLinked++;
++#endif
++    if (nLinked==3) return GLEE_LINK_COMPLETE;
++    if (nLinked==0) return GLEE_LINK_FAIL;
++    return GLEE_LINK_PARTIAL;
++}
++
++GLuint __GLeeLink_GL_EXT_texture_compression_latc(void) {return GLEE_LINK_COMPLETE;}
++
++GLuint __GLeeLink_GL_NV_transform_feedback(void)
++{
++    GLint nLinked=0;
++#ifdef __GLEE_GL_NV_transform_feedback
++    if ((pglBeginTransformFeedbackNV = (PFNGLBEGINTRANSFORMFEEDBACKNVPROC) __GLeeGetProcAddress(&quot;glBeginTransformFeedbackNV&quot;))!=0) nLinked++;
++    if ((pglEndTransformFeedbackNV = (PFNGLENDTRANSFORMFEEDBACKNVPROC) __GLeeGetProcAddress(&quot;glEndTransformFeedbackNV&quot;))!=0) nLinked++;
++    if ((pglTransformFeedbackAttribsNV = (PFNGLTRANSFORMFEEDBACKATTRIBSNVPROC) __GLeeGetProcAddress(&quot;glTransformFeedbackAttribsNV&quot;))!=0) nLinked++;
++    if ((pglBindBufferRangeNV = (PFNGLBINDBUFFERRANGENVPROC) __GLeeGetProcAddress(&quot;glBindBufferRangeNV&quot;))!=0) nLinked++;
++    if ((pglBindBufferOffsetNV = (PFNGLBINDBUFFEROFFSETNVPROC) __GLeeGetProcAddress(&quot;glBindBufferOffsetNV&quot;))!=0) nLinked++;
++    if ((pglBindBufferBaseNV = (PFNGLBINDBUFFERBASENVPROC) __GLeeGetProcAddress(&quot;glBindBufferBaseNV&quot;))!=0) nLinked++;
++    if ((pglTransformFeedbackVaryingsNV = (PFNGLTRANSFORMFEEDBACKVARYINGSNVPROC) __GLeeGetProcAddress(&quot;glTransformFeedbackVaryingsNV&quot;))!=0) nLinked++;
++    if ((pglActiveVaryingNV = (PFNGLACTIVEVARYINGNVPROC) __GLeeGetProcAddress(&quot;glActiveVaryingNV&quot;))!=0) nLinked++;
++    if ((pglGetVaryingLocationNV = (PFNGLGETVARYINGLOCATIONNVPROC) __GLeeGetProcAddress(&quot;glGetVaryingLocationNV&quot;))!=0) nLinked++;
++    if ((pglGetActiveVaryingNV = (PFNGLGETACTIVEVARYINGNVPROC) __GLeeGetProcAddress(&quot;glGetActiveVaryingNV&quot;))!=0) nLinked++;
++    if ((pglGetTransformFeedbackVaryingNV = (PFNGLGETTRANSFORMFEEDBACKVARYINGNVPROC) __GLeeGetProcAddress(&quot;glGetTransformFeedbackVaryingNV&quot;))!=0) nLinked++;
++#endif
++    if (nLinked==11) return GLEE_LINK_COMPLETE;
++    if (nLinked==0) return GLEE_LINK_FAIL;
++    return GLEE_LINK_PARTIAL;
++}
++
++GLuint __GLeeLink_GL_NV_geometry_program4(void)
++{
++    GLint nLinked=0;
++#ifdef __GLEE_GL_NV_geometry_program4
++    if ((pglProgramVertexLimitNV = (PFNGLPROGRAMVERTEXLIMITNVPROC) __GLeeGetProcAddress(&quot;glProgramVertexLimitNV&quot;))!=0) nLinked++;
++#endif
++    if (nLinked==1) return GLEE_LINK_COMPLETE;
++    if (nLinked==0) return GLEE_LINK_FAIL;
++    return GLEE_LINK_PARTIAL;
++}
++
++GLuint __GLeeLink_GL_NV_gpu_program4(void)
++{
++    GLint nLinked=0;
++#ifdef __GLEE_GL_NV_gpu_program4
++    if ((pglProgramLocalParameterI4iNV = (PFNGLPROGRAMLOCALPARAMETERI4INVPROC) __GLeeGetProcAddress(&quot;glProgramLocalParameterI4iNV&quot;))!=0) nLinked++;
++    if ((pglProgramLocalParameterI4ivNV = (PFNGLPROGRAMLOCALPARAMETERI4IVNVPROC) __GLeeGetProcAddress(&quot;glProgramLocalParameterI4ivNV&quot;))!=0) nLinked++;
++    if ((pglProgramLocalParametersI4ivNV = (PFNGLPROGRAMLOCALPARAMETERSI4IVNVPROC) __GLeeGetProcAddress(&quot;glProgramLocalParametersI4ivNV&quot;))!=0) nLinked++;
++    if ((pglProgramLocalParameterI4uiNV = (PFNGLPROGRAMLOCALPARAMETERI4UINVPROC) __GLeeGetProcAddress(&quot;glProgramLocalParameterI4uiNV&quot;))!=0) nLinked++;
++    if ((pglProgramLocalParameterI4uivNV = (PFNGLPROGRAMLOCALPARAMETERI4UIVNVPROC) __GLeeGetProcAddress(&quot;glProgramLocalParameterI4uivNV&quot;))!=0) nLinked++;
++    if ((pglProgramLocalParametersI4uivNV = (PFNGLPROGRAMLOCALPARAMETERSI4UIVNVPROC) __GLeeGetProcAddress(&quot;glProgramLocalParametersI4uivNV&quot;))!=0) nLinked++;
++    if ((pglProgramEnvParameterI4iNV = (PFNGLPROGRAMENVPARAMETERI4INVPROC) __GLeeGetProcAddress(&quot;glProgramEnvParameterI4iNV&quot;))!=0) nLinked++;
++    if ((pglProgramEnvParameterI4ivNV = (PFNGLPROGRAMENVPARAMETERI4IVNVPROC) __GLeeGetProcAddress(&quot;glProgramEnvParameterI4ivNV&quot;))!=0) nLinked++;
++    if ((pglProgramEnvParametersI4ivNV = (PFNGLPROGRAMENVPARAMETERSI4IVNVPROC) __GLeeGetProcAddress(&quot;glProgramEnvParametersI4ivNV&quot;))!=0) nLinked++;
++    if ((pglProgramEnvParameterI4uiNV = (PFNGLPROGRAMENVPARAMETERI4UINVPROC) __GLeeGetProcAddress(&quot;glProgramEnvParameterI4uiNV&quot;))!=0) nLinked++;
++    if ((pglProgramEnvParameterI4uivNV = (PFNGLPROGRAMENVPARAMETERI4UIVNVPROC) __GLeeGetProcAddress(&quot;glProgramEnvParameterI4uivNV&quot;))!=0) nLinked++;
++    if ((pglProgramEnvParametersI4uivNV = (PFNGLPROGRAMENVPARAMETERSI4UIVNVPROC) __GLeeGetProcAddress(&quot;glProgramEnvParametersI4uivNV&quot;))!=0) nLinked++;
++    if ((pglGetProgramLocalParameterIivNV = (PFNGLGETPROGRAMLOCALPARAMETERIIVNVPROC) __GLeeGetProcAddress(&quot;glGetProgramLocalParameterIivNV&quot;))!=0) nLinked++;
++    if ((pglGetProgramLocalParameterIuivNV = (PFNGLGETPROGRAMLOCALPARAMETERIUIVNVPROC) __GLeeGetProcAddress(&quot;glGetProgramLocalParameterIuivNV&quot;))!=0) nLinked++;
++    if ((pglGetProgramEnvParameterIivNV = (PFNGLGETPROGRAMENVPARAMETERIIVNVPROC) __GLeeGetProcAddress(&quot;glGetProgramEnvParameterIivNV&quot;))!=0) nLinked++;
++    if ((pglGetProgramEnvParameterIuivNV = (PFNGLGETPROGRAMENVPARAMETERIUIVNVPROC) __GLeeGetProcAddress(&quot;glGetProgramEnvParameterIuivNV&quot;))!=0) nLinked++;
++#endif
++    if (nLinked==16) return GLEE_LINK_COMPLETE;
++    if (nLinked==0) return GLEE_LINK_FAIL;
++    return GLEE_LINK_PARTIAL;
++}
++
++GLuint __GLeeLink_GL_NV_framebuffer_multisample_coverage(void)
++{
++    GLint nLinked=0;
++#ifdef __GLEE_GL_NV_framebuffer_multisample_coverage
++    if ((pglRenderbufferStorageMultisampleCoverageNV = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLECOVERAGENVPROC) __GLeeGetProcAddress(&quot;glRenderbufferStorageMultisampleCoverageNV&quot;))!=0) nLinked++;
++#endif
++    if (nLinked==1) return GLEE_LINK_COMPLETE;
++    if (nLinked==0) return GLEE_LINK_FAIL;
++    return GLEE_LINK_PARTIAL;
++}
++
++GLuint __GLeeLink_GL_EXT_framebuffer_multisample(void)
++{
++    GLint nLinked=0;
++#ifdef __GLEE_GL_EXT_framebuffer_multisample
++    if ((pglRenderbufferStorageMultisampleEXT = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC) __GLeeGetProcAddress(&quot;glRenderbufferStorageMultisampleEXT&quot;))!=0) nLinked++;
++#endif
++    if (nLinked==1) return GLEE_LINK_COMPLETE;
++    if (nLinked==0) return GLEE_LINK_FAIL;
++    return GLEE_LINK_PARTIAL;
++}
++
++GLuint __GLeeLink_GL_EXT_framebuffer_blit(void)
++{
++    GLint nLinked=0;
++#ifdef __GLEE_GL_EXT_framebuffer_blit
++    if ((pglBlitFramebufferEXT = (PFNGLBLITFRAMEBUFFEREXTPROC) __GLeeGetProcAddress(&quot;glBlitFramebufferEXT&quot;))!=0) nLinked++;
++#endif
++    if (nLinked==1) return GLEE_LINK_COMPLETE;
++    if (nLinked==0) return GLEE_LINK_FAIL;
++    return GLEE_LINK_PARTIAL;
++}
++
++GLuint __GLeeLink_GL_EXT_texture_compression_rgtc(void) {return GLEE_LINK_COMPLETE;}
++
+ GLuint __GLeeLink_GL_EXT_color_matrix(void) {return GLEE_LINK_COMPLETE;}
+ 
+ GLuint __GLeeLink_GL_SGIX_texture_select(void) {return GLEE_LINK_COMPLETE;}
+@@ -7528,6 +8147,47 @@
+     return GLEE_LINK_PARTIAL;
+ }
+ 
++GLuint __GLeeLink_GL_EXT_draw_buffers2(void)
++{
++    GLint nLinked=0;
++#ifdef __GLEE_GL_EXT_draw_buffers2
++    if ((pglColorMaskIndexedEXT = (PFNGLCOLORMASKINDEXEDEXTPROC) __GLeeGetProcAddress(&quot;glColorMaskIndexedEXT&quot;))!=0) nLinked++;
++    if ((pglGetBooleanIndexedvEXT = (PFNGLGETBOOLEANINDEXEDVEXTPROC) __GLeeGetProcAddress(&quot;glGetBooleanIndexedvEXT&quot;))!=0) nLinked++;
++    if ((pglGetIntegerIndexedvEXT = (PFNGLGETINTEGERINDEXEDVEXTPROC) __GLeeGetProcAddress(&quot;glGetIntegerIndexedvEXT&quot;))!=0) nLinked++;
++    if ((pglEnableIndexedEXT = (PFNGLENABLEINDEXEDEXTPROC) __GLeeGetProcAddress(&quot;glEnableIndexedEXT&quot;))!=0) nLinked++;
++    if ((pglDisableIndexedEXT = (PFNGLDISABLEINDEXEDEXTPROC) __GLeeGetProcAddress(&quot;glDisableIndexedEXT&quot;))!=0) nLinked++;
++    if ((pglIsEnabledIndexedEXT = (PFNGLISENABLEDINDEXEDEXTPROC) __GLeeGetProcAddress(&quot;glIsEnabledIndexedEXT&quot;))!=0) nLinked++;
++#endif
++    if (nLinked==6) return GLEE_LINK_COMPLETE;
++    if (nLinked==0) return GLEE_LINK_FAIL;
++    return GLEE_LINK_PARTIAL;
++}
++
++GLuint __GLeeLink_GL_NV_parameter_buffer_object(void)
++{
++    GLint nLinked=0;
++#ifdef __GLEE_GL_NV_parameter_buffer_object
++    if ((pglProgramBufferParametersfvNV = (PFNGLPROGRAMBUFFERPARAMETERSFVNVPROC) __GLeeGetProcAddress(&quot;glProgramBufferParametersfvNV&quot;))!=0) nLinked++;
++    if ((pglProgramBufferParametersIivNV = (PFNGLPROGRAMBUFFERPARAMETERSIIVNVPROC) __GLeeGetProcAddress(&quot;glProgramBufferParametersIivNV&quot;))!=0) nLinked++;
++    if ((pglProgramBufferParametersIuivNV = (PFNGLPROGRAMBUFFERPARAMETERSIUIVNVPROC) __GLeeGetProcAddress(&quot;glProgramBufferParametersIuivNV&quot;))!=0) nLinked++;
++#endif
++    if (nLinked==3) return GLEE_LINK_COMPLETE;
++    if (nLinked==0) return GLEE_LINK_FAIL;
++    return GLEE_LINK_PARTIAL;
++}
++
++GLuint __GLeeLink_GL_EXT_draw_instanced(void)
++{
++    GLint nLinked=0;
++#ifdef __GLEE_GL_EXT_draw_instanced
++    if ((pglDrawArraysInstancedEXT = (PFNGLDRAWARRAYSINSTANCEDEXTPROC) __GLeeGetProcAddress(&quot;glDrawArraysInstancedEXT&quot;))!=0) nLinked++;
++    if ((pglDrawElementsInstancedEXT = (PFNGLDRAWELEMENTSINSTANCEDEXTPROC) __GLeeGetProcAddress(&quot;glDrawElementsInstancedEXT&quot;))!=0) nLinked++;
++#endif
++    if (nLinked==2) return GLEE_LINK_COMPLETE;
++    if (nLinked==0) return GLEE_LINK_FAIL;
++    return GLEE_LINK_PARTIAL;
++}
++
+ GLuint __GLeeLink_GL_EXT_fragment_lighting(void)
+ {
+     GLint nLinked=0;
+@@ -7556,28 +8216,6 @@
+     return GLEE_LINK_PARTIAL;
+ }
+ 
+-GLuint __GLeeLink_GL_EXT_framebuffer_blit(void)
+-{
+-    GLint nLinked=0;
+-#ifdef __GLEE_GL_EXT_framebuffer_blit
+-    if ((pglBlitFramebufferEXT = (PFNGLBLITFRAMEBUFFEREXTPROC) __GLeeGetProcAddress(&quot;glBlitFramebufferEXT&quot;))!=0) nLinked++;
+-#endif
+-    if (nLinked==1) return GLEE_LINK_COMPLETE;
+-    if (nLinked==0) return GLEE_LINK_FAIL;
+-    return GLEE_LINK_PARTIAL;
+-}
+-
+-GLuint __GLeeLink_GL_EXT_framebuffer_multisample(void)
+-{
+-    GLint nLinked=0;
+-#ifdef __GLEE_GL_EXT_framebuffer_multisample
+-    if ((pglRenderbufferStorageMultisampleEXT = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC) __GLeeGetProcAddress(&quot;glRenderbufferStorageMultisampleEXT&quot;))!=0) nLinked++;
+-#endif
+-    if (nLinked==1) return GLEE_LINK_COMPLETE;
+-    if (nLinked==0) return GLEE_LINK_FAIL;
+-    return GLEE_LINK_PARTIAL;
+-}
+-
+ GLuint __GLeeLink_GL_EXT_packed_depth_stencil(void) {return GLEE_LINK_COMPLETE;}
+ 
+ GLuint __GLeeLink_GL_EXT_scene_marker(void)
+@@ -7628,7 +8266,7 @@
+ 
+ GLuint __GLeeLink_GL_SGIX_texture_range(void) {return GLEE_LINK_COMPLETE;}
+ 
+-GLEE_LINK_FUNCTION __GLeeGLLoadFunction[278];
++GLEE_LINK_FUNCTION __GLeeGLLoadFunction[300];
+ 
+ void initGLLoadFunctions(void)
+ {
+@@ -7638,278 +8276,300 @@
+     __GLeeGLLoadFunction[3]=__GLeeLink_GL_VERSION_1_4;
+     __GLeeGLLoadFunction[4]=__GLeeLink_GL_VERSION_1_5;
+     __GLeeGLLoadFunction[5]=__GLeeLink_GL_VERSION_2_0;
+-    __GLeeGLLoadFunction[6]=__GLeeLink_GL_ARB_multitexture;
+-    __GLeeGLLoadFunction[7]=__GLeeLink_GL_ARB_transpose_matrix;
+-    __GLeeGLLoadFunction[8]=__GLeeLink_GL_ARB_multisample;
+-    __GLeeGLLoadFunction[9]=__GLeeLink_GL_ARB_texture_env_add;
+-    __GLeeGLLoadFunction[10]=__GLeeLink_GL_ARB_texture_cube_map;
+-    __GLeeGLLoadFunction[11]=__GLeeLink_GL_ARB_texture_compression;
+-    __GLeeGLLoadFunction[12]=__GLeeLink_GL_ARB_texture_border_clamp;
+-    __GLeeGLLoadFunction[13]=__GLeeLink_GL_ARB_point_parameters;
+-    __GLeeGLLoadFunction[14]=__GLeeLink_GL_ARB_vertex_blend;
+-    __GLeeGLLoadFunction[15]=__GLeeLink_GL_ARB_matrix_palette;
+-    __GLeeGLLoadFunction[16]=__GLeeLink_GL_ARB_texture_env_combine;
+-    __GLeeGLLoadFunction[17]=__GLeeLink_GL_ARB_texture_env_crossbar;
+-    __GLeeGLLoadFunction[18]=__GLeeLink_GL_ARB_texture_env_dot3;
+-    __GLeeGLLoadFunction[19]=__GLeeLink_GL_ARB_texture_mirrored_repeat;
+-    __GLeeGLLoadFunction[20]=__GLeeLink_GL_ARB_depth_texture;
+-    __GLeeGLLoadFunction[21]=__GLeeLink_GL_ARB_shadow;
+-    __GLeeGLLoadFunction[22]=__GLeeLink_GL_ARB_shadow_ambient;
+-    __GLeeGLLoadFunction[23]=__GLeeLink_GL_ARB_window_pos;
+-    __GLeeGLLoadFunction[24]=__GLeeLink_GL_ARB_vertex_program;
+-    __GLeeGLLoadFunction[25]=__GLeeLink_GL_ARB_fragment_program;
+-    __GLeeGLLoadFunction[26]=__GLeeLink_GL_ARB_vertex_buffer_object;
+-    __GLeeGLLoadFunction[27]=__GLeeLink_GL_ARB_occlusion_query;
+-    __GLeeGLLoadFunction[28]=__GLeeLink_GL_ARB_shader_objects;
+-    __GLeeGLLoadFunction[29]=__GLeeLink_GL_ARB_vertex_shader;
+-    __GLeeGLLoadFunction[30]=__GLeeLink_GL_ARB_fragment_shader;
+-    __GLeeGLLoadFunction[31]=__GLeeLink_GL_ARB_shading_language_100;
+-    __GLeeGLLoadFunction[32]=__GLeeLink_GL_ARB_texture_non_power_of_two;
+-    __GLeeGLLoadFunction[33]=__GLeeLink_GL_ARB_point_sprite;
+-    __GLeeGLLoadFunction[34]=__GLeeLink_GL_ARB_fragment_program_shadow;
+-    __GLeeGLLoadFunction[35]=__GLeeLink_GL_ARB_draw_buffers;
+-    __GLeeGLLoadFunction[36]=__GLeeLink_GL_ARB_texture_rectangle;
+-    __GLeeGLLoadFunction[37]=__GLeeLink_GL_ARB_color_buffer_float;
+-    __GLeeGLLoadFunction[38]=__GLeeLink_GL_ARB_half_float_pixel;
+-    __GLeeGLLoadFunction[39]=__GLeeLink_GL_ARB_texture_float;
+-    __GLeeGLLoadFunction[40]=__GLeeLink_GL_ARB_pixel_buffer_object;
+-    __GLeeGLLoadFunction[41]=__GLeeLink_GL_EXT_abgr;
+-    __GLeeGLLoadFunction[42]=__GLeeLink_GL_EXT_blend_color;
+-    __GLeeGLLoadFunction[43]=__GLeeLink_GL_EXT_polygon_offset;
+-    __GLeeGLLoadFunction[44]=__GLeeLink_GL_EXT_texture;
+-    __GLeeGLLoadFunction[45]=__GLeeLink_GL_EXT_texture3D;
+-    __GLeeGLLoadFunction[46]=__GLeeLink_GL_SGIS_texture_filter4;
+-    __GLeeGLLoadFunction[47]=__GLeeLink_GL_EXT_subtexture;
+-    __GLeeGLLoadFunction[48]=__GLeeLink_GL_EXT_copy_texture;
+-    __GLeeGLLoadFunction[49]=__GLeeLink_GL_EXT_histogram;
+-    __GLeeGLLoadFunction[50]=__GLeeLink_GL_EXT_convolution;
+-    __GLeeGLLoadFunction[51]=__GLeeLink_GL_SGI_color_matrix;
+-    __GLeeGLLoadFunction[52]=__GLeeLink_GL_SGI_color_table;
+-    __GLeeGLLoadFunction[53]=__GLeeLink_GL_SGIS_pixel_texture;
+-    __GLeeGLLoadFunction[54]=__GLeeLink_GL_SGIX_pixel_texture;
+-    __GLeeGLLoadFunction[55]=__GLeeLink_GL_SGIS_texture4D;
+-    __GLeeGLLoadFunction[56]=__GLeeLink_GL_SGI_texture_color_table;
+-    __GLeeGLLoadFunction[57]=__GLeeLink_GL_EXT_cmyka;
+-    __GLeeGLLoadFunction[58]=__GLeeLink_GL_EXT_texture_object;
+-    __GLeeGLLoadFunction[59]=__GLeeLink_GL_SGIS_detail_texture;
+-    __GLeeGLLoadFunction[60]=__GLeeLink_GL_SGIS_sharpen_texture;
+-    __GLeeGLLoadFunction[61]=__GLeeLink_GL_EXT_packed_pixels;
+-    __GLeeGLLoadFunction[62]=__GLeeLink_GL_SGIS_texture_lod;
+-    __GLeeGLLoadFunction[63]=__GLeeLink_GL_SGIS_multisample;
+-    __GLeeGLLoadFunction[64]=__GLeeLink_GL_EXT_rescale_normal;
+-    __GLeeGLLoadFunction[65]=__GLeeLink_GL_EXT_vertex_array;
+-    __GLeeGLLoadFunction[66]=__GLeeLink_GL_EXT_misc_attribute;
+-    __GLeeGLLoadFunction[67]=__GLeeLink_GL_SGIS_generate_mipmap;
+-    __GLeeGLLoadFunction[68]=__GLeeLink_GL_SGIX_clipmap;
+-    __GLeeGLLoadFunction[69]=__GLeeLink_GL_SGIX_shadow;
+-    __GLeeGLLoadFunction[70]=__GLeeLink_GL_SGIS_texture_edge_clamp;
+-    __GLeeGLLoadFunction[71]=__GLeeLink_GL_SGIS_texture_border_clamp;
+-    __GLeeGLLoadFunction[72]=__GLeeLink_GL_EXT_blend_minmax;
+-    __GLeeGLLoadFunction[73]=__GLeeLink_GL_EXT_blend_subtract;
+-    __GLeeGLLoadFunction[74]=__GLeeLink_GL_EXT_blend_logic_op;
+-    __GLeeGLLoadFunction[75]=__GLeeLink_GL_SGIX_interlace;
+-    __GLeeGLLoadFunction[76]=__GLeeLink_GL_SGIX_pixel_tiles;
+-    __GLeeGLLoadFunction[77]=__GLeeLink_GL_SGIS_texture_select;
+-    __GLeeGLLoadFunction[78]=__GLeeLink_GL_SGIX_sprite;
+-    __GLeeGLLoadFunction[79]=__GLeeLink_GL_SGIX_texture_multi_buffer;
+-    __GLeeGLLoadFunction[80]=__GLeeLink_GL_EXT_point_parameters;
+-    __GLeeGLLoadFunction[81]=__GLeeLink_GL_SGIS_point_parameters;
+-    __GLeeGLLoadFunction[82]=__GLeeLink_GL_SGIX_instruments;
+-    __GLeeGLLoadFunction[83]=__GLeeLink_GL_SGIX_texture_scale_bias;
+-    __GLeeGLLoadFunction[84]=__GLeeLink_GL_SGIX_framezoom;
+-    __GLeeGLLoadFunction[85]=__GLeeLink_GL_SGIX_tag_sample_buffer;
+-    __GLeeGLLoadFunction[86]=__GLeeLink_GL_FfdMaskSGIX;
+-    __GLeeGLLoadFunction[87]=__GLeeLink_GL_SGIX_polynomial_ffd;
+-    __GLeeGLLoadFunction[88]=__GLeeLink_GL_SGIX_reference_plane;
+-    __GLeeGLLoadFunction[89]=__GLeeLink_GL_SGIX_flush_raster;
+-    __GLeeGLLoadFunction[90]=__GLeeLink_GL_SGIX_depth_texture;
+-    __GLeeGLLoadFunction[91]=__GLeeLink_GL_SGIS_fog_function;
+-    __GLeeGLLoadFunction[92]=__GLeeLink_GL_SGIX_fog_offset;
+-    __GLeeGLLoadFunction[93]=__GLeeLink_GL_HP_image_transform;
+-    __GLeeGLLoadFunction[94]=__GLeeLink_GL_HP_convolution_border_modes;
+-    __GLeeGLLoadFunction[95]=__GLeeLink_GL_INGR_palette_buffer;
+-    __GLeeGLLoadFunction[96]=__GLeeLink_GL_SGIX_texture_add_env;
+-    __GLeeGLLoadFunction[97]=__GLeeLink_GL_EXT_color_subtable;
+-    __GLeeGLLoadFunction[98]=__GLeeLink_GL_PGI_vertex_hints;
+-    __GLeeGLLoadFunction[99]=__GLeeLink_GL_PGI_misc_hints;
+-    __GLeeGLLoadFunction[100]=__GLeeLink_GL_EXT_paletted_texture;
+-    __GLeeGLLoadFunction[101]=__GLeeLink_GL_EXT_clip_volume_hint;
+-    __GLeeGLLoadFunction[102]=__GLeeLink_GL_SGIX_list_priority;
+-    __GLeeGLLoadFunction[103]=__GLeeLink_GL_SGIX_ir_instrument1;
+-    __GLeeGLLoadFunction[104]=__GLeeLink_GL_SGIX_calligraphic_fragment;
+-    __GLeeGLLoadFunction[105]=__GLeeLink_GL_SGIX_texture_lod_bias;
+-    __GLeeGLLoadFunction[106]=__GLeeLink_GL_SGIX_shadow_ambient;
+-    __GLeeGLLoadFunction[107]=__GLeeLink_GL_EXT_index_texture;
+-    __GLeeGLLoadFunction[108]=__GLeeLink_GL_EXT_index_material;
+-    __GLeeGLLoadFunction[109]=__GLeeLink_GL_EXT_index_func;
+-    __GLeeGLLoadFunction[110]=__GLeeLink_GL_EXT_index_array_formats;
+-    __GLeeGLLoadFunction[111]=__GLeeLink_GL_EXT_compiled_vertex_array;
+-    __GLeeGLLoadFunction[112]=__GLeeLink_GL_EXT_cull_vertex;
+-    __GLeeGLLoadFunction[113]=__GLeeLink_GL_SGIX_ycrcb;
+-    __GLeeGLLoadFunction[114]=__GLeeLink_GL_SGIX_fragment_lighting;
+-    __GLeeGLLoadFunction[115]=__GLeeLink_GL_IBM_rasterpos_clip;
+-    __GLeeGLLoadFunction[116]=__GLeeLink_GL_HP_texture_lighting;
+-    __GLeeGLLoadFunction[117]=__GLeeLink_GL_EXT_draw_range_elements;
+-    __GLeeGLLoadFunction[118]=__GLeeLink_GL_WIN_phong_shading;
+-    __GLeeGLLoadFunction[119]=__GLeeLink_GL_WIN_specular_fog;
+-    __GLeeGLLoadFunction[120]=__GLeeLink_GL_EXT_light_texture;
+-    __GLeeGLLoadFunction[121]=__GLeeLink_GL_SGIX_blend_alpha_minmax;
+-    __GLeeGLLoadFunction[122]=__GLeeLink_GL_SGIX_impact_pixel_texture;
+-    __GLeeGLLoadFunction[123]=__GLeeLink_GL_EXT_bgra;
+-    __GLeeGLLoadFunction[124]=__GLeeLink_GL_SGIX_async;
+-    __GLeeGLLoadFunction[125]=__GLeeLink_GL_SGIX_async_pixel;
+-    __GLeeGLLoadFunction[126]=__GLeeLink_GL_SGIX_async_histogram;
+-    __GLeeGLLoadFunction[127]=__GLeeLink_GL_INTEL_texture_scissor;
+-    __GLeeGLLoadFunction[128]=__GLeeLink_GL_INTEL_parallel_arrays;
+-    __GLeeGLLoadFunction[129]=__GLeeLink_GL_HP_occlusion_test;
+-    __GLeeGLLoadFunction[130]=__GLeeLink_GL_EXT_pixel_transform;
+-    __GLeeGLLoadFunction[131]=__GLeeLink_GL_EXT_pixel_transform_color_table;
+-    __GLeeGLLoadFunction[132]=__GLeeLink_GL_EXT_shared_texture_palette;
+-    __GLeeGLLoadFunction[133]=__GLeeLink_GL_EXT_separate_specular_color;
+-    __GLeeGLLoadFunction[134]=__GLeeLink_GL_EXT_secondary_color;
+-    __GLeeGLLoadFunction[135]=__GLeeLink_GL_EXT_texture_perturb_normal;
+-    __GLeeGLLoadFunction[136]=__GLeeLink_GL_EXT_multi_draw_arrays;
+-    __GLeeGLLoadFunction[137]=__GLeeLink_GL_EXT_fog_coord;
+-    __GLeeGLLoadFunction[138]=__GLeeLink_GL_REND_screen_coordinates;
+-    __GLeeGLLoadFunction[139]=__GLeeLink_GL_EXT_coordinate_frame;
+-    __GLeeGLLoadFunction[140]=__GLeeLink_GL_EXT_texture_env_combine;
+-    __GLeeGLLoadFunction[141]=__GLeeLink_GL_APPLE_specular_vector;
+-    __GLeeGLLoadFunction[142]=__GLeeLink_GL_APPLE_transform_hint;
+-    __GLeeGLLoadFunction[143]=__GLeeLink_GL_SGIX_fog_scale;
+-    __GLeeGLLoadFunction[144]=__GLeeLink_GL_SUNX_constant_data;
+-    __GLeeGLLoadFunction[145]=__GLeeLink_GL_SUN_global_alpha;
+-    __GLeeGLLoadFunction[146]=__GLeeLink_GL_SUN_triangle_list;
+-    __GLeeGLLoadFunction[147]=__GLeeLink_GL_SUN_vertex;
+-    __GLeeGLLoadFunction[148]=__GLeeLink_GL_EXT_blend_func_separate;
+-    __GLeeGLLoadFunction[149]=__GLeeLink_GL_INGR_color_clamp;
+-    __GLeeGLLoadFunction[150]=__GLeeLink_GL_INGR_interlace_read;
+-    __GLeeGLLoadFunction[151]=__GLeeLink_GL_EXT_stencil_wrap;
+-    __GLeeGLLoadFunction[152]=__GLeeLink_GL_EXT_422_pixels;
+-    __GLeeGLLoadFunction[153]=__GLeeLink_GL_NV_texgen_reflection;
+-    __GLeeGLLoadFunction[154]=__GLeeLink_GL_EXT_texture_cube_map;
+-    __GLeeGLLoadFunction[155]=__GLeeLink_GL_SUN_convolution_border_modes;
+-    __GLeeGLLoadFunction[156]=__GLeeLink_GL_EXT_texture_env_add;
+-    __GLeeGLLoadFunction[157]=__GLeeLink_GL_EXT_texture_lod_bias;
+-    __GLeeGLLoadFunction[158]=__GLeeLink_GL_EXT_texture_filter_anisotropic;
+-    __GLeeGLLoadFunction[159]=__GLeeLink_GL_EXT_vertex_weighting;
+-    __GLeeGLLoadFunction[160]=__GLeeLink_GL_NV_light_max_exponent;
+-    __GLeeGLLoadFunction[161]=__GLeeLink_GL_NV_vertex_array_range;
+-    __GLeeGLLoadFunction[162]=__GLeeLink_GL_NV_register_combiners;
+-    __GLeeGLLoadFunction[163]=__GLeeLink_GL_NV_fog_distance;
+-    __GLeeGLLoadFunction[164]=__GLeeLink_GL_NV_texgen_emboss;
+-    __GLeeGLLoadFunction[165]=__GLeeLink_GL_NV_blend_square;
+-    __GLeeGLLoadFunction[166]=__GLeeLink_GL_NV_texture_env_combine4;
+-    __GLeeGLLoadFunction[167]=__GLeeLink_GL_MESA_resize_buffers;
+-    __GLeeGLLoadFunction[168]=__GLeeLink_GL_MESA_window_pos;
+-    __GLeeGLLoadFunction[169]=__GLeeLink_GL_EXT_texture_compression_s3tc;
+-    __GLeeGLLoadFunction[170]=__GLeeLink_GL_IBM_cull_vertex;
+-    __GLeeGLLoadFunction[171]=__GLeeLink_GL_IBM_multimode_draw_arrays;
+-    __GLeeGLLoadFunction[172]=__GLeeLink_GL_IBM_vertex_array_lists;
+-    __GLeeGLLoadFunction[173]=__GLeeLink_GL_SGIX_subsample;
+-    __GLeeGLLoadFunction[174]=__GLeeLink_GL_SGIX_ycrcb_subsample;
+-    __GLeeGLLoadFunction[175]=__GLeeLink_GL_SGIX_ycrcba;
+-    __GLeeGLLoadFunction[176]=__GLeeLink_GL_SGI_depth_pass_instrument;
+-    __GLeeGLLoadFunction[177]=__GLeeLink_GL_3DFX_texture_compression_FXT1;
+-    __GLeeGLLoadFunction[178]=__GLeeLink_GL_3DFX_multisample;
+-    __GLeeGLLoadFunction[179]=__GLeeLink_GL_3DFX_tbuffer;
+-    __GLeeGLLoadFunction[180]=__GLeeLink_GL_EXT_multisample;
+-    __GLeeGLLoadFunction[181]=__GLeeLink_GL_SGIX_vertex_preclip;
+-    __GLeeGLLoadFunction[182]=__GLeeLink_GL_SGIX_convolution_accuracy;
+-    __GLeeGLLoadFunction[183]=__GLeeLink_GL_SGIX_resample;
+-    __GLeeGLLoadFunction[184]=__GLeeLink_GL_SGIS_point_line_texgen;
+-    __GLeeGLLoadFunction[185]=__GLeeLink_GL_SGIS_texture_color_mask;
+-    __GLeeGLLoadFunction[186]=__GLeeLink_GL_EXT_texture_env_dot3;
+-    __GLeeGLLoadFunction[187]=__GLeeLink_GL_ATI_texture_mirror_once;
+-    __GLeeGLLoadFunction[188]=__GLeeLink_GL_NV_fence;
+-    __GLeeGLLoadFunction[189]=__GLeeLink_GL_IBM_texture_mirrored_repeat;
+-    __GLeeGLLoadFunction[190]=__GLeeLink_GL_NV_evaluators;
+-    __GLeeGLLoadFunction[191]=__GLeeLink_GL_NV_packed_depth_stencil;
+-    __GLeeGLLoadFunction[192]=__GLeeLink_GL_NV_register_combiners2;
+-    __GLeeGLLoadFunction[193]=__GLeeLink_GL_NV_texture_compression_vtc;
+-    __GLeeGLLoadFunction[194]=__GLeeLink_GL_NV_texture_rectangle;
+-    __GLeeGLLoadFunction[195]=__GLeeLink_GL_NV_texture_shader;
+-    __GLeeGLLoadFunction[196]=__GLeeLink_GL_NV_texture_shader2;
+-    __GLeeGLLoadFunction[197]=__GLeeLink_GL_NV_vertex_array_range2;
+-    __GLeeGLLoadFunction[198]=__GLeeLink_GL_NV_vertex_program;
+-    __GLeeGLLoadFunction[199]=__GLeeLink_GL_SGIX_texture_coordinate_clamp;
+-    __GLeeGLLoadFunction[200]=__GLeeLink_GL_SGIX_scalebias_hint;
+-    __GLeeGLLoadFunction[201]=__GLeeLink_GL_OML_interlace;
+-    __GLeeGLLoadFunction[202]=__GLeeLink_GL_OML_subsample;
+-    __GLeeGLLoadFunction[203]=__GLeeLink_GL_OML_resample;
+-    __GLeeGLLoadFunction[204]=__GLeeLink_GL_NV_copy_depth_to_color;
+-    __GLeeGLLoadFunction[205]=__GLeeLink_GL_ATI_envmap_bumpmap;
+-    __GLeeGLLoadFunction[206]=__GLeeLink_GL_ATI_fragment_shader;
+-    __GLeeGLLoadFunction[207]=__GLeeLink_GL_ATI_pn_triangles;
+-    __GLeeGLLoadFunction[208]=__GLeeLink_GL_ATI_vertex_array_object;
+-    __GLeeGLLoadFunction[209]=__GLeeLink_GL_EXT_vertex_shader;
+-    __GLeeGLLoadFunction[210]=__GLeeLink_GL_ATI_vertex_streams;
+-    __GLeeGLLoadFunction[211]=__GLeeLink_GL_ATI_element_array;
+-    __GLeeGLLoadFunction[212]=__GLeeLink_GL_SUN_mesh_array;
+-    __GLeeGLLoadFunction[213]=__GLeeLink_GL_SUN_slice_accum;
+-    __GLeeGLLoadFunction[214]=__GLeeLink_GL_NV_multisample_filter_hint;
+-    __GLeeGLLoadFunction[215]=__GLeeLink_GL_NV_depth_clamp;
+-    __GLeeGLLoadFunction[216]=__GLeeLink_GL_NV_occlusion_query;
+-    __GLeeGLLoadFunction[217]=__GLeeLink_GL_NV_point_sprite;
+-    __GLeeGLLoadFunction[218]=__GLeeLink_GL_NV_texture_shader3;
+-    __GLeeGLLoadFunction[219]=__GLeeLink_GL_NV_vertex_program1_1;
+-    __GLeeGLLoadFunction[220]=__GLeeLink_GL_EXT_shadow_funcs;
+-    __GLeeGLLoadFunction[221]=__GLeeLink_GL_EXT_stencil_two_side;
+-    __GLeeGLLoadFunction[222]=__GLeeLink_GL_ATI_text_fragment_shader;
+-    __GLeeGLLoadFunction[223]=__GLeeLink_GL_APPLE_client_storage;
+-    __GLeeGLLoadFunction[224]=__GLeeLink_GL_APPLE_element_array;
+-    __GLeeGLLoadFunction[225]=__GLeeLink_GL_APPLE_fence;
+-    __GLeeGLLoadFunction[226]=__GLeeLink_GL_APPLE_vertex_array_object;
+-    __GLeeGLLoadFunction[227]=__GLeeLink_GL_APPLE_vertex_array_range;
+-    __GLeeGLLoadFunction[228]=__GLeeLink_GL_APPLE_ycbcr_422;
+-    __GLeeGLLoadFunction[229]=__GLeeLink_GL_S3_s3tc;
+-    __GLeeGLLoadFunction[230]=__GLeeLink_GL_ATI_draw_buffers;
+-    __GLeeGLLoadFunction[231]=__GLeeLink_GL_ATI_pixel_format_float;
+-    __GLeeGLLoadFunction[232]=__GLeeLink_GL_ATI_texture_env_combine3;
+-    __GLeeGLLoadFunction[233]=__GLeeLink_GL_ATI_texture_float;
+-    __GLeeGLLoadFunction[234]=__GLeeLink_GL_NV_float_buffer;
+-    __GLeeGLLoadFunction[235]=__GLeeLink_GL_NV_fragment_program;
+-    __GLeeGLLoadFunction[236]=__GLeeLink_GL_NV_half_float;
+-    __GLeeGLLoadFunction[237]=__GLeeLink_GL_NV_pixel_data_range;
+-    __GLeeGLLoadFunction[238]=__GLeeLink_GL_NV_primitive_restart;
+-    __GLeeGLLoadFunction[239]=__GLeeLink_GL_NV_texture_expand_normal;
+-    __GLeeGLLoadFunction[240]=__GLeeLink_GL_NV_vertex_program2;
+-    __GLeeGLLoadFunction[241]=__GLeeLink_GL_ATI_map_object_buffer;
+-    __GLeeGLLoadFunction[242]=__GLeeLink_GL_ATI_separate_stencil;
+-    __GLeeGLLoadFunction[243]=__GLeeLink_GL_ATI_vertex_attrib_array_object;
+-    __GLeeGLLoadFunction[244]=__GLeeLink_GL_OES_read_format;
+-    __GLeeGLLoadFunction[245]=__GLeeLink_GL_EXT_depth_bounds_test;
+-    __GLeeGLLoadFunction[246]=__GLeeLink_GL_EXT_texture_mirror_clamp;
+-    __GLeeGLLoadFunction[247]=__GLeeLink_GL_EXT_blend_equation_separate;
+-    __GLeeGLLoadFunction[248]=__GLeeLink_GL_MESA_pack_invert;
+-    __GLeeGLLoadFunction[249]=__GLeeLink_GL_MESA_ycbcr_texture;
+-    __GLeeGLLoadFunction[250]=__GLeeLink_GL_EXT_pixel_buffer_object;
+-    __GLeeGLLoadFunction[251]=__GLeeLink_GL_NV_fragment_program_option;
+-    __GLeeGLLoadFunction[252]=__GLeeLink_GL_NV_fragment_program2;
+-    __GLeeGLLoadFunction[253]=__GLeeLink_GL_NV_vertex_program2_option;
+-    __GLeeGLLoadFunction[254]=__GLeeLink_GL_NV_vertex_program3;
+-    __GLeeGLLoadFunction[255]=__GLeeLink_GL_EXT_framebuffer_object;
+-    __GLeeGLLoadFunction[256]=__GLeeLink_GL_GREMEDY_string_marker;
+-    __GLeeGLLoadFunction[257]=__GLeeLink_GL_EXT_color_matrix;
+-    __GLeeGLLoadFunction[258]=__GLeeLink_GL_SGIX_texture_select;
+-    __GLeeGLLoadFunction[259]=__GLeeLink_GL_INGR_blend_func_separate;
+-    __GLeeGLLoadFunction[260]=__GLeeLink_GL_SGIX_depth_pass_instrument;
+-    __GLeeGLLoadFunction[261]=__GLeeLink_GL_SGIX_igloo_interface;
+-    __GLeeGLLoadFunction[262]=__GLeeLink_GL_EXT_fragment_lighting;
+-    __GLeeGLLoadFunction[263]=__GLeeLink_GL_EXT_framebuffer_blit;
+-    __GLeeGLLoadFunction[264]=__GLeeLink_GL_EXT_framebuffer_multisample;
+-    __GLeeGLLoadFunction[265]=__GLeeLink_GL_EXT_packed_depth_stencil;
+-    __GLeeGLLoadFunction[266]=__GLeeLink_GL_EXT_scene_marker;
+-    __GLeeGLLoadFunction[267]=__GLeeLink_GL_EXT_stencil_clear_tag;
+-    __GLeeGLLoadFunction[268]=__GLeeLink_GL_EXT_texture_compression_dxt1;
+-    __GLeeGLLoadFunction[269]=__GLeeLink_GL_EXT_texture_env;
+-    __GLeeGLLoadFunction[270]=__GLeeLink_GL_EXT_texture_sRGB;
+-    __GLeeGLLoadFunction[271]=__GLeeLink_GL_IBM_static_data;
+-    __GLeeGLLoadFunction[272]=__GLeeLink_GL_MESAX_texture_stack;
+-    __GLeeGLLoadFunction[273]=__GLeeLink_GL_OES_byte_coordinates;
+-    __GLeeGLLoadFunction[274]=__GLeeLink_GL_OES_compressed_paletted_texture;
+-    __GLeeGLLoadFunction[275]=__GLeeLink_GL_OES_single_precision;
+-    __GLeeGLLoadFunction[276]=__GLeeLink_GL_SGIX_pixel_texture_bits;
+-    __GLeeGLLoadFunction[277]=__GLeeLink_GL_SGIX_texture_range;
++    __GLeeGLLoadFunction[6]=__GLeeLink_GL_VERSION_2_1;
++    __GLeeGLLoadFunction[7]=__GLeeLink_GL_ARB_multitexture;
++    __GLeeGLLoadFunction[8]=__GLeeLink_GL_ARB_transpose_matrix;
++    __GLeeGLLoadFunction[9]=__GLeeLink_GL_ARB_multisample;
++    __GLeeGLLoadFunction[10]=__GLeeLink_GL_ARB_texture_env_add;
++    __GLeeGLLoadFunction[11]=__GLeeLink_GL_ARB_texture_cube_map;
++    __GLeeGLLoadFunction[12]=__GLeeLink_GL_ARB_texture_compression;
++    __GLeeGLLoadFunction[13]=__GLeeLink_GL_ARB_texture_border_clamp;
++    __GLeeGLLoadFunction[14]=__GLeeLink_GL_ARB_point_parameters;
++    __GLeeGLLoadFunction[15]=__GLeeLink_GL_ARB_vertex_blend;
++    __GLeeGLLoadFunction[16]=__GLeeLink_GL_ARB_matrix_palette;
++    __GLeeGLLoadFunction[17]=__GLeeLink_GL_ARB_texture_env_combine;
++    __GLeeGLLoadFunction[18]=__GLeeLink_GL_ARB_texture_env_crossbar;
++    __GLeeGLLoadFunction[19]=__GLeeLink_GL_ARB_texture_env_dot3;
++    __GLeeGLLoadFunction[20]=__GLeeLink_GL_ARB_texture_mirrored_repeat;
++    __GLeeGLLoadFunction[21]=__GLeeLink_GL_ARB_depth_texture;
++    __GLeeGLLoadFunction[22]=__GLeeLink_GL_ARB_shadow;
++    __GLeeGLLoadFunction[23]=__GLeeLink_GL_ARB_shadow_ambient;
++    __GLeeGLLoadFunction[24]=__GLeeLink_GL_ARB_window_pos;
++    __GLeeGLLoadFunction[25]=__GLeeLink_GL_ARB_vertex_program;
++    __GLeeGLLoadFunction[26]=__GLeeLink_GL_ARB_fragment_program;
++    __GLeeGLLoadFunction[27]=__GLeeLink_GL_ARB_vertex_buffer_object;
++    __GLeeGLLoadFunction[28]=__GLeeLink_GL_ARB_occlusion_query;
++    __GLeeGLLoadFunction[29]=__GLeeLink_GL_ARB_shader_objects;
++    __GLeeGLLoadFunction[30]=__GLeeLink_GL_ARB_vertex_shader;
++    __GLeeGLLoadFunction[31]=__GLeeLink_GL_ARB_fragment_shader;
++    __GLeeGLLoadFunction[32]=__GLeeLink_GL_ARB_shading_language_100;
++    __GLeeGLLoadFunction[33]=__GLeeLink_GL_ARB_texture_non_power_of_two;
++    __GLeeGLLoadFunction[34]=__GLeeLink_GL_ARB_point_sprite;
++    __GLeeGLLoadFunction[35]=__GLeeLink_GL_ARB_fragment_program_shadow;
++    __GLeeGLLoadFunction[36]=__GLeeLink_GL_ARB_draw_buffers;
++    __GLeeGLLoadFunction[37]=__GLeeLink_GL_ARB_texture_rectangle;
++    __GLeeGLLoadFunction[38]=__GLeeLink_GL_ARB_color_buffer_float;
++    __GLeeGLLoadFunction[39]=__GLeeLink_GL_ARB_half_float_pixel;
++    __GLeeGLLoadFunction[40]=__GLeeLink_GL_ARB_texture_float;
++    __GLeeGLLoadFunction[41]=__GLeeLink_GL_ARB_pixel_buffer_object;
++    __GLeeGLLoadFunction[42]=__GLeeLink_GL_EXT_abgr;
++    __GLeeGLLoadFunction[43]=__GLeeLink_GL_EXT_blend_color;
++    __GLeeGLLoadFunction[44]=__GLeeLink_GL_EXT_polygon_offset;
++    __GLeeGLLoadFunction[45]=__GLeeLink_GL_EXT_texture;
++    __GLeeGLLoadFunction[46]=__GLeeLink_GL_EXT_texture3D;
++    __GLeeGLLoadFunction[47]=__GLeeLink_GL_SGIS_texture_filter4;
++    __GLeeGLLoadFunction[48]=__GLeeLink_GL_EXT_subtexture;
++    __GLeeGLLoadFunction[49]=__GLeeLink_GL_EXT_copy_texture;
++    __GLeeGLLoadFunction[50]=__GLeeLink_GL_EXT_histogram;
++    __GLeeGLLoadFunction[51]=__GLeeLink_GL_EXT_convolution;
++    __GLeeGLLoadFunction[52]=__GLeeLink_GL_SGI_color_matrix;
++    __GLeeGLLoadFunction[53]=__GLeeLink_GL_SGI_color_table;
++    __GLeeGLLoadFunction[54]=__GLeeLink_GL_SGIS_pixel_texture;
++    __GLeeGLLoadFunction[55]=__GLeeLink_GL_SGIX_pixel_texture;
++    __GLeeGLLoadFunction[56]=__GLeeLink_GL_SGIS_texture4D;
++    __GLeeGLLoadFunction[57]=__GLeeLink_GL_SGI_texture_color_table;
++    __GLeeGLLoadFunction[58]=__GLeeLink_GL_EXT_cmyka;
++    __GLeeGLLoadFunction[59]=__GLeeLink_GL_EXT_texture_object;
++    __GLeeGLLoadFunction[60]=__GLeeLink_GL_SGIS_detail_texture;
++    __GLeeGLLoadFunction[61]=__GLeeLink_GL_SGIS_sharpen_texture;
++    __GLeeGLLoadFunction[62]=__GLeeLink_GL_EXT_packed_pixels;
++    __GLeeGLLoadFunction[63]=__GLeeLink_GL_SGIS_texture_lod;
++    __GLeeGLLoadFunction[64]=__GLeeLink_GL_SGIS_multisample;
++    __GLeeGLLoadFunction[65]=__GLeeLink_GL_EXT_rescale_normal;
++    __GLeeGLLoadFunction[66]=__GLeeLink_GL_EXT_vertex_array;
++    __GLeeGLLoadFunction[67]=__GLeeLink_GL_EXT_misc_attribute;
++    __GLeeGLLoadFunction[68]=__GLeeLink_GL_SGIS_generate_mipmap;
++    __GLeeGLLoadFunction[69]=__GLeeLink_GL_SGIX_clipmap;
++    __GLeeGLLoadFunction[70]=__GLeeLink_GL_SGIX_shadow;
++    __GLeeGLLoadFunction[71]=__GLeeLink_GL_SGIS_texture_edge_clamp;
++    __GLeeGLLoadFunction[72]=__GLeeLink_GL_SGIS_texture_border_clamp;
++    __GLeeGLLoadFunction[73]=__GLeeLink_GL_EXT_blend_minmax;
++    __GLeeGLLoadFunction[74]=__GLeeLink_GL_EXT_blend_subtract;
++    __GLeeGLLoadFunction[75]=__GLeeLink_GL_EXT_blend_logic_op;
++    __GLeeGLLoadFunction[76]=__GLeeLink_GL_SGIX_interlace;
++    __GLeeGLLoadFunction[77]=__GLeeLink_GL_SGIX_pixel_tiles;
++    __GLeeGLLoadFunction[78]=__GLeeLink_GL_SGIS_texture_select;
++    __GLeeGLLoadFunction[79]=__GLeeLink_GL_SGIX_sprite;
++    __GLeeGLLoadFunction[80]=__GLeeLink_GL_SGIX_texture_multi_buffer;
++    __GLeeGLLoadFunction[81]=__GLeeLink_GL_EXT_point_parameters;
++    __GLeeGLLoadFunction[82]=__GLeeLink_GL_SGIS_point_parameters;
++    __GLeeGLLoadFunction[83]=__GLeeLink_GL_SGIX_instruments;
++    __GLeeGLLoadFunction[84]=__GLeeLink_GL_SGIX_texture_scale_bias;
++    __GLeeGLLoadFunction[85]=__GLeeLink_GL_SGIX_framezoom;
++    __GLeeGLLoadFunction[86]=__GLeeLink_GL_SGIX_tag_sample_buffer;
++    __GLeeGLLoadFunction[87]=__GLeeLink_GL_FfdMaskSGIX;
++    __GLeeGLLoadFunction[88]=__GLeeLink_GL_SGIX_polynomial_ffd;
++    __GLeeGLLoadFunction[89]=__GLeeLink_GL_SGIX_reference_plane;
++    __GLeeGLLoadFunction[90]=__GLeeLink_GL_SGIX_flush_raster;
++    __GLeeGLLoadFunction[91]=__GLeeLink_GL_SGIX_depth_texture;
++    __GLeeGLLoadFunction[92]=__GLeeLink_GL_SGIS_fog_function;
++    __GLeeGLLoadFunction[93]=__GLeeLink_GL_SGIX_fog_offset;
++    __GLeeGLLoadFunction[94]=__GLeeLink_GL_HP_image_transform;
++    __GLeeGLLoadFunction[95]=__GLeeLink_GL_HP_convolution_border_modes;
++    __GLeeGLLoadFunction[96]=__GLeeLink_GL_INGR_palette_buffer;
++    __GLeeGLLoadFunction[97]=__GLeeLink_GL_SGIX_texture_add_env;
++    __GLeeGLLoadFunction[98]=__GLeeLink_GL_EXT_color_subtable;
++    __GLeeGLLoadFunction[99]=__GLeeLink_GL_PGI_vertex_hints;
++    __GLeeGLLoadFunction[100]=__GLeeLink_GL_PGI_misc_hints;
++    __GLeeGLLoadFunction[101]=__GLeeLink_GL_EXT_paletted_texture;
++    __GLeeGLLoadFunction[102]=__GLeeLink_GL_EXT_clip_volume_hint;
++    __GLeeGLLoadFunction[103]=__GLeeLink_GL_SGIX_list_priority;
++    __GLeeGLLoadFunction[104]=__GLeeLink_GL_SGIX_ir_instrument1;
++    __GLeeGLLoadFunction[105]=__GLeeLink_GL_SGIX_calligraphic_fragment;
++    __GLeeGLLoadFunction[106]=__GLeeLink_GL_SGIX_texture_lod_bias;
++    __GLeeGLLoadFunction[107]=__GLeeLink_GL_SGIX_shadow_ambient;
++    __GLeeGLLoadFunction[108]=__GLeeLink_GL_EXT_index_texture;
++    __GLeeGLLoadFunction[109]=__GLeeLink_GL_EXT_index_material;
++    __GLeeGLLoadFunction[110]=__GLeeLink_GL_EXT_index_func;
++    __GLeeGLLoadFunction[111]=__GLeeLink_GL_EXT_index_array_formats;
++    __GLeeGLLoadFunction[112]=__GLeeLink_GL_EXT_compiled_vertex_array;
++    __GLeeGLLoadFunction[113]=__GLeeLink_GL_EXT_cull_vertex;
++    __GLeeGLLoadFunction[114]=__GLeeLink_GL_SGIX_ycrcb;
++    __GLeeGLLoadFunction[115]=__GLeeLink_GL_SGIX_fragment_lighting;
++    __GLeeGLLoadFunction[116]=__GLeeLink_GL_IBM_rasterpos_clip;
++    __GLeeGLLoadFunction[117]=__GLeeLink_GL_HP_texture_lighting;
++    __GLeeGLLoadFunction[118]=__GLeeLink_GL_EXT_draw_range_elements;
++    __GLeeGLLoadFunction[119]=__GLeeLink_GL_WIN_phong_shading;
++    __GLeeGLLoadFunction[120]=__GLeeLink_GL_WIN_specular_fog;
++    __GLeeGLLoadFunction[121]=__GLeeLink_GL_EXT_light_texture;
++    __GLeeGLLoadFunction[122]=__GLeeLink_GL_SGIX_blend_alpha_minmax;
++    __GLeeGLLoadFunction[123]=__GLeeLink_GL_SGIX_impact_pixel_texture;
++    __GLeeGLLoadFunction[124]=__GLeeLink_GL_EXT_bgra;
++    __GLeeGLLoadFunction[125]=__GLeeLink_GL_SGIX_async;
++    __GLeeGLLoadFunction[126]=__GLeeLink_GL_SGIX_async_pixel;
++    __GLeeGLLoadFunction[127]=__GLeeLink_GL_SGIX_async_histogram;
++    __GLeeGLLoadFunction[128]=__GLeeLink_GL_INTEL_texture_scissor;
++    __GLeeGLLoadFunction[129]=__GLeeLink_GL_INTEL_parallel_arrays;
++    __GLeeGLLoadFunction[130]=__GLeeLink_GL_HP_occlusion_test;
++    __GLeeGLLoadFunction[131]=__GLeeLink_GL_EXT_pixel_transform;
++    __GLeeGLLoadFunction[132]=__GLeeLink_GL_EXT_pixel_transform_color_table;
++    __GLeeGLLoadFunction[133]=__GLeeLink_GL_EXT_shared_texture_palette;
++    __GLeeGLLoadFunction[134]=__GLeeLink_GL_EXT_separate_specular_color;
++    __GLeeGLLoadFunction[135]=__GLeeLink_GL_EXT_secondary_color;
++    __GLeeGLLoadFunction[136]=__GLeeLink_GL_EXT_texture_perturb_normal;
++    __GLeeGLLoadFunction[137]=__GLeeLink_GL_EXT_multi_draw_arrays;
++    __GLeeGLLoadFunction[138]=__GLeeLink_GL_EXT_fog_coord;
++    __GLeeGLLoadFunction[139]=__GLeeLink_GL_REND_screen_coordinates;
++    __GLeeGLLoadFunction[140]=__GLeeLink_GL_EXT_coordinate_frame;
++    __GLeeGLLoadFunction[141]=__GLeeLink_GL_EXT_texture_env_combine;
++    __GLeeGLLoadFunction[142]=__GLeeLink_GL_APPLE_specular_vector;
++    __GLeeGLLoadFunction[143]=__GLeeLink_GL_APPLE_transform_hint;
++    __GLeeGLLoadFunction[144]=__GLeeLink_GL_SGIX_fog_scale;
++    __GLeeGLLoadFunction[145]=__GLeeLink_GL_SUNX_constant_data;
++    __GLeeGLLoadFunction[146]=__GLeeLink_GL_SUN_global_alpha;
++    __GLeeGLLoadFunction[147]=__GLeeLink_GL_SUN_triangle_list;
++    __GLeeGLLoadFunction[148]=__GLeeLink_GL_SUN_vertex;
++    __GLeeGLLoadFunction[149]=__GLeeLink_GL_EXT_blend_func_separate;
++    __GLeeGLLoadFunction[150]=__GLeeLink_GL_INGR_color_clamp;
++    __GLeeGLLoadFunction[151]=__GLeeLink_GL_INGR_interlace_read;
++    __GLeeGLLoadFunction[152]=__GLeeLink_GL_EXT_stencil_wrap;
++    __GLeeGLLoadFunction[153]=__GLeeLink_GL_EXT_422_pixels;
++    __GLeeGLLoadFunction[154]=__GLeeLink_GL_NV_texgen_reflection;
++    __GLeeGLLoadFunction[155]=__GLeeLink_GL_EXT_texture_cube_map;
++    __GLeeGLLoadFunction[156]=__GLeeLink_GL_SUN_convolution_border_modes;
++    __GLeeGLLoadFunction[157]=__GLeeLink_GL_EXT_texture_env_add;
++    __GLeeGLLoadFunction[158]=__GLeeLink_GL_EXT_texture_lod_bias;
++    __GLeeGLLoadFunction[159]=__GLeeLink_GL_EXT_texture_filter_anisotropic;
++    __GLeeGLLoadFunction[160]=__GLeeLink_GL_EXT_vertex_weighting;
++    __GLeeGLLoadFunction[161]=__GLeeLink_GL_NV_light_max_exponent;
++    __GLeeGLLoadFunction[162]=__GLeeLink_GL_NV_vertex_array_range;
++    __GLeeGLLoadFunction[163]=__GLeeLink_GL_NV_register_combiners;
++    __GLeeGLLoadFunction[164]=__GLeeLink_GL_NV_fog_distance;
++    __GLeeGLLoadFunction[165]=__GLeeLink_GL_NV_texgen_emboss;
++    __GLeeGLLoadFunction[166]=__GLeeLink_GL_NV_blend_square;
++    __GLeeGLLoadFunction[167]=__GLeeLink_GL_NV_texture_env_combine4;
++    __GLeeGLLoadFunction[168]=__GLeeLink_GL_MESA_resize_buffers;
++    __GLeeGLLoadFunction[169]=__GLeeLink_GL_MESA_window_pos;
++    __GLeeGLLoadFunction[170]=__GLeeLink_GL_EXT_texture_compression_s3tc;
++    __GLeeGLLoadFunction[171]=__GLeeLink_GL_IBM_cull_vertex;
++    __GLeeGLLoadFunction[172]=__GLeeLink_GL_IBM_multimode_draw_arrays;
++    __GLeeGLLoadFunction[173]=__GLeeLink_GL_IBM_vertex_array_lists;
++    __GLeeGLLoadFunction[174]=__GLeeLink_GL_SGIX_subsample;
++    __GLeeGLLoadFunction[175]=__GLeeLink_GL_SGIX_ycrcb_subsample;
++    __GLeeGLLoadFunction[176]=__GLeeLink_GL_SGIX_ycrcba;
++    __GLeeGLLoadFunction[177]=__GLeeLink_GL_SGI_depth_pass_instrument;
++    __GLeeGLLoadFunction[178]=__GLeeLink_GL_3DFX_texture_compression_FXT1;
++    __GLeeGLLoadFunction[179]=__GLeeLink_GL_3DFX_multisample;
++    __GLeeGLLoadFunction[180]=__GLeeLink_GL_3DFX_tbuffer;
++    __GLeeGLLoadFunction[181]=__GLeeLink_GL_EXT_multisample;
++    __GLeeGLLoadFunction[182]=__GLeeLink_GL_SGIX_vertex_preclip;
++    __GLeeGLLoadFunction[183]=__GLeeLink_GL_SGIX_convolution_accuracy;
++    __GLeeGLLoadFunction[184]=__GLeeLink_GL_SGIX_resample;
++    __GLeeGLLoadFunction[185]=__GLeeLink_GL_SGIS_point_line_texgen;
++    __GLeeGLLoadFunction[186]=__GLeeLink_GL_SGIS_texture_color_mask;
++    __GLeeGLLoadFunction[187]=__GLeeLink_GL_EXT_texture_env_dot3;
++    __GLeeGLLoadFunction[188]=__GLeeLink_GL_ATI_texture_mirror_once;
++    __GLeeGLLoadFunction[189]=__GLeeLink_GL_NV_fence;
++    __GLeeGLLoadFunction[190]=__GLeeLink_GL_IBM_texture_mirrored_repeat;
++    __GLeeGLLoadFunction[191]=__GLeeLink_GL_NV_evaluators;
++    __GLeeGLLoadFunction[192]=__GLeeLink_GL_NV_packed_depth_stencil;
++    __GLeeGLLoadFunction[193]=__GLeeLink_GL_NV_register_combiners2;
++    __GLeeGLLoadFunction[194]=__GLeeLink_GL_NV_texture_compression_vtc;
++    __GLeeGLLoadFunction[195]=__GLeeLink_GL_NV_texture_rectangle;
++    __GLeeGLLoadFunction[196]=__GLeeLink_GL_NV_texture_shader;
++    __GLeeGLLoadFunction[197]=__GLeeLink_GL_NV_texture_shader2;
++    __GLeeGLLoadFunction[198]=__GLeeLink_GL_NV_vertex_array_range2;
++    __GLeeGLLoadFunction[199]=__GLeeLink_GL_NV_vertex_program;
++    __GLeeGLLoadFunction[200]=__GLeeLink_GL_SGIX_texture_coordinate_clamp;
++    __GLeeGLLoadFunction[201]=__GLeeLink_GL_SGIX_scalebias_hint;
++    __GLeeGLLoadFunction[202]=__GLeeLink_GL_OML_interlace;
++    __GLeeGLLoadFunction[203]=__GLeeLink_GL_OML_subsample;
++    __GLeeGLLoadFunction[204]=__GLeeLink_GL_OML_resample;
++    __GLeeGLLoadFunction[205]=__GLeeLink_GL_NV_copy_depth_to_color;
++    __GLeeGLLoadFunction[206]=__GLeeLink_GL_ATI_envmap_bumpmap;
++    __GLeeGLLoadFunction[207]=__GLeeLink_GL_ATI_fragment_shader;
++    __GLeeGLLoadFunction[208]=__GLeeLink_GL_ATI_pn_triangles;
++    __GLeeGLLoadFunction[209]=__GLeeLink_GL_ATI_vertex_array_object;
++    __GLeeGLLoadFunction[210]=__GLeeLink_GL_EXT_vertex_shader;
++    __GLeeGLLoadFunction[211]=__GLeeLink_GL_ATI_vertex_streams;
++    __GLeeGLLoadFunction[212]=__GLeeLink_GL_ATI_element_array;
++    __GLeeGLLoadFunction[213]=__GLeeLink_GL_SUN_mesh_array;
++    __GLeeGLLoadFunction[214]=__GLeeLink_GL_SUN_slice_accum;
++    __GLeeGLLoadFunction[215]=__GLeeLink_GL_NV_multisample_filter_hint;
++    __GLeeGLLoadFunction[216]=__GLeeLink_GL_NV_depth_clamp;
++    __GLeeGLLoadFunction[217]=__GLeeLink_GL_NV_occlusion_query;
++    __GLeeGLLoadFunction[218]=__GLeeLink_GL_NV_point_sprite;
++    __GLeeGLLoadFunction[219]=__GLeeLink_GL_NV_texture_shader3;
++    __GLeeGLLoadFunction[220]=__GLeeLink_GL_NV_vertex_program1_1;
++    __GLeeGLLoadFunction[221]=__GLeeLink_GL_EXT_shadow_funcs;
++    __GLeeGLLoadFunction[222]=__GLeeLink_GL_EXT_stencil_two_side;
++    __GLeeGLLoadFunction[223]=__GLeeLink_GL_ATI_text_fragment_shader;
++    __GLeeGLLoadFunction[224]=__GLeeLink_GL_APPLE_client_storage;
++    __GLeeGLLoadFunction[225]=__GLeeLink_GL_APPLE_element_array;
++    __GLeeGLLoadFunction[226]=__GLeeLink_GL_APPLE_fence;
++    __GLeeGLLoadFunction[227]=__GLeeLink_GL_APPLE_vertex_array_object;
++    __GLeeGLLoadFunction[228]=__GLeeLink_GL_APPLE_vertex_array_range;
++    __GLeeGLLoadFunction[229]=__GLeeLink_GL_APPLE_ycbcr_422;
++    __GLeeGLLoadFunction[230]=__GLeeLink_GL_S3_s3tc;
++    __GLeeGLLoadFunction[231]=__GLeeLink_GL_ATI_draw_buffers;
++    __GLeeGLLoadFunction[232]=__GLeeLink_GL_ATI_pixel_format_float;
++    __GLeeGLLoadFunction[233]=__GLeeLink_GL_ATI_texture_env_combine3;
++    __GLeeGLLoadFunction[234]=__GLeeLink_GL_ATI_texture_float;
++    __GLeeGLLoadFunction[235]=__GLeeLink_GL_NV_float_buffer;
++    __GLeeGLLoadFunction[236]=__GLeeLink_GL_NV_fragment_program;
++    __GLeeGLLoadFunction[237]=__GLeeLink_GL_NV_half_float;
++    __GLeeGLLoadFunction[238]=__GLeeLink_GL_NV_pixel_data_range;
++    __GLeeGLLoadFunction[239]=__GLeeLink_GL_NV_primitive_restart;
++    __GLeeGLLoadFunction[240]=__GLeeLink_GL_NV_texture_expand_normal;
++    __GLeeGLLoadFunction[241]=__GLeeLink_GL_NV_vertex_program2;
++    __GLeeGLLoadFunction[242]=__GLeeLink_GL_ATI_map_object_buffer;
++    __GLeeGLLoadFunction[243]=__GLeeLink_GL_ATI_separate_stencil;
++    __GLeeGLLoadFunction[244]=__GLeeLink_GL_ATI_vertex_attrib_array_object;
++    __GLeeGLLoadFunction[245]=__GLeeLink_GL_OES_read_format;
++    __GLeeGLLoadFunction[246]=__GLeeLink_GL_EXT_depth_bounds_test;
++    __GLeeGLLoadFunction[247]=__GLeeLink_GL_EXT_texture_mirror_clamp;
++    __GLeeGLLoadFunction[248]=__GLeeLink_GL_EXT_blend_equation_separate;
++    __GLeeGLLoadFunction[249]=__GLeeLink_GL_MESA_pack_invert;
++    __GLeeGLLoadFunction[250]=__GLeeLink_GL_MESA_ycbcr_texture;
++    __GLeeGLLoadFunction[251]=__GLeeLink_GL_EXT_pixel_buffer_object;
++    __GLeeGLLoadFunction[252]=__GLeeLink_GL_NV_fragment_program_option;
++    __GLeeGLLoadFunction[253]=__GLeeLink_GL_NV_fragment_program2;
++    __GLeeGLLoadFunction[254]=__GLeeLink_GL_NV_vertex_program2_option;
++    __GLeeGLLoadFunction[255]=__GLeeLink_GL_NV_vertex_program3;
++    __GLeeGLLoadFunction[256]=__GLeeLink_GL_EXT_framebuffer_object;
++    __GLeeGLLoadFunction[257]=__GLeeLink_GL_GREMEDY_string_marker;
++    __GLeeGLLoadFunction[258]=__GLeeLink_GL_EXT_Cg_shader;
++    __GLeeGLLoadFunction[259]=__GLeeLink_GL_EXT_timer_query;
++    __GLeeGLLoadFunction[260]=__GLeeLink_GL_EXT_texture_buffer_object;
++    __GLeeGLLoadFunction[261]=__GLeeLink_GL_EXT_gpu_shader4;
++    __GLeeGLLoadFunction[262]=__GLeeLink_GL_EXT_geometry_shader4;
++    __GLeeGLLoadFunction[263]=__GLeeLink_GL_EXT_bindable_uniform;
++    __GLeeGLLoadFunction[264]=__GLeeLink_GL_EXT_framebuffer_sRGB;
++    __GLeeGLLoadFunction[265]=__GLeeLink_GL_EXT_texture_shared_exponent;
++    __GLeeGLLoadFunction[266]=__GLeeLink_GL_EXT_packed_float;
++    __GLeeGLLoadFunction[267]=__GLeeLink_GL_EXT_texture_array;
++    __GLeeGLLoadFunction[268]=__GLeeLink_GL_EXT_texture_integer;
++    __GLeeGLLoadFunction[269]=__GLeeLink_GL_NV_depth_buffer_float;
++    __GLeeGLLoadFunction[270]=__GLeeLink_GL_EXT_texture_compression_latc;
++    __GLeeGLLoadFunction[271]=__GLeeLink_GL_NV_transform_feedback;
++    __GLeeGLLoadFunction[272]=__GLeeLink_GL_NV_geometry_program4;
++    __GLeeGLLoadFunction[273]=__GLeeLink_GL_NV_gpu_program4;
++    __GLeeGLLoadFunction[274]=__GLeeLink_GL_NV_framebuffer_multisample_coverage;
++    __GLeeGLLoadFunction[275]=__GLeeLink_GL_EXT_framebuffer_multisample;
++    __GLeeGLLoadFunction[276]=__GLeeLink_GL_EXT_framebuffer_blit;
++    __GLeeGLLoadFunction[277]=__GLeeLink_GL_EXT_texture_compression_rgtc;
++    __GLeeGLLoadFunction[278]=__GLeeLink_GL_EXT_color_matrix;
++    __GLeeGLLoadFunction[279]=__GLeeLink_GL_SGIX_texture_select;
++    __GLeeGLLoadFunction[280]=__GLeeLink_GL_INGR_blend_func_separate;
++    __GLeeGLLoadFunction[281]=__GLeeLink_GL_SGIX_depth_pass_instrument;
++    __GLeeGLLoadFunction[282]=__GLeeLink_GL_SGIX_igloo_interface;
++    __GLeeGLLoadFunction[283]=__GLeeLink_GL_EXT_draw_buffers2;
++    __GLeeGLLoadFunction[284]=__GLeeLink_GL_NV_parameter_buffer_object;
++    __GLeeGLLoadFunction[285]=__GLeeLink_GL_EXT_draw_instanced;
++    __GLeeGLLoadFunction[286]=__GLeeLink_GL_EXT_fragment_lighting;
++    __GLeeGLLoadFunction[287]=__GLeeLink_GL_EXT_packed_depth_stencil;
++    __GLeeGLLoadFunction[288]=__GLeeLink_GL_EXT_scene_marker;
++    __GLeeGLLoadFunction[289]=__GLeeLink_GL_EXT_stencil_clear_tag;
++    __GLeeGLLoadFunction[290]=__GLeeLink_GL_EXT_texture_compression_dxt1;
++    __GLeeGLLoadFunction[291]=__GLeeLink_GL_EXT_texture_env;
++    __GLeeGLLoadFunction[292]=__GLeeLink_GL_EXT_texture_sRGB;
++    __GLeeGLLoadFunction[293]=__GLeeLink_GL_IBM_static_data;
++    __GLeeGLLoadFunction[294]=__GLeeLink_GL_MESAX_texture_stack;
++    __GLeeGLLoadFunction[295]=__GLeeLink_GL_OES_byte_coordinates;
++    __GLeeGLLoadFunction[296]=__GLeeLink_GL_OES_compressed_paletted_texture;
++    __GLeeGLLoadFunction[297]=__GLeeLink_GL_OES_single_precision;
++    __GLeeGLLoadFunction[298]=__GLeeLink_GL_SGIX_pixel_texture_bits;
++    __GLeeGLLoadFunction[299]=__GLeeLink_GL_SGIX_texture_range;
+ }
+ 
+ #ifdef WIN32
+@@ -8251,7 +8911,8 @@
+     __GLeeWGLLoadFunction[29]=__GLeeLink_WGL_3DL_stereo_control;
+ }
+ 
+-#else /* end WGL */
++#elif defined(__APPLE__) || defined(__APPLE_CC__)
++#else /* Linux */
+ GLuint __GLeeLink_GLX_VERSION_1_3(void)
+ {
+     GLint nLinked=0;
+@@ -8582,7 +9243,7 @@
+     __GLeeGLXLoadFunction[31]=__GLeeLink_GLX_EXT_scene_marker;
+ }
+ 
+-#endif /* end GLX */
++#endif /* end Linux */
+ 
+ 
+ /*****************************************************************
+@@ -8655,6 +9316,7 @@
+ 
+ 	if (pwglGetExtensionsStringARB)
+ 		return (const char *)pwglGetExtensionsStringARB(wglGetCurrentDC());
++#elif defined(__APPLE__) || defined(__APPLE_CC__)
+ #else
+ 	Display *dpy=glXGetCurrentDisplay();
+ 	if(dpy)
+@@ -8773,6 +9435,7 @@
+ 		for (a=0;a&lt;__GLeeWGLNumExtensions;a++)
+ 			if (strcmp(extensionName,__GLeeWGLExtensionNames[a])==0) return a;
+ 		return -1;
++#elif defined(__APPLE__) || defined(__APPLE_CC__)
+ #else
+ 	case 2:
+ 		for (a=0;a&lt;__GLeeGLXNumExtensions;a++)
+@@ -8792,6 +9455,7 @@
+ {
+ 	return __GLeeGetExtStrPlat();
+ }
++#elif defined(__APPLE__) || defined(__APPLE_CC__)
+ #else
+ GLEE_EXTERN const char * GLeeGetExtStrGLX()	
+ {
+@@ -8823,6 +9487,7 @@
+ 		initGLLoadFunctions();
+ #ifdef WIN32
+ 		initWGLLoadFunctions();
++#elif defined(__APPLE__) || defined(__APPLE_CC__)
+ #else
+ 		initGLXLoadFunctions();
+ #endif
+@@ -8835,6 +9500,7 @@
+ 	if (type==0) return __GLeeGLLoadFunction[extNum]();
+ #ifdef WIN32
+ 	if (type==1) return __GLeeWGLLoadFunction[extNum]();
++#elif defined(__APPLE__) || defined(__APPLE_CC__)	
+ #else
+ 	if (type==2) return __GLeeGLXLoadFunction[extNum]();
+ #endif
+@@ -8903,6 +9569,11 @@
+         _GLEE_VERSION_2_0 = GL_TRUE;
+         __GLeeLink_GL_VERSION_2_0();
+     }
++    if (version&gt;=513)
++    {
++        _GLEE_VERSION_2_1 = GL_TRUE;
++        __GLeeLink_GL_VERSION_2_1();
++    }
+     if (__GLeeCheckExtension(&quot;GL_ARB_multitexture&quot;, &amp;extensionNames) )
+     {
+         _GLEE_ARB_multitexture = GL_TRUE;
+@@ -10158,6 +10829,106 @@
+         _GLEE_GREMEDY_string_marker = GL_TRUE;
+         __GLeeLink_GL_GREMEDY_string_marker();
+     }
++    if (__GLeeCheckExtension(&quot;GL_EXT_Cg_shader&quot;, &amp;extensionNames) )
++    {
++        _GLEE_EXT_Cg_shader = GL_TRUE;
++        __GLeeLink_GL_EXT_Cg_shader();
++    }
++    if (__GLeeCheckExtension(&quot;GL_EXT_timer_query&quot;, &amp;extensionNames) )
++    {
++        _GLEE_EXT_timer_query = GL_TRUE;
++        __GLeeLink_GL_EXT_timer_query();
++    }
++    if (__GLeeCheckExtension(&quot;GL_EXT_texture_buffer_object&quot;, &amp;extensionNames) )
++    {
++        _GLEE_EXT_texture_buffer_object = GL_TRUE;
++        __GLeeLink_GL_EXT_texture_buffer_object();
++    }
++    if (__GLeeCheckExtension(&quot;GL_EXT_gpu_shader4&quot;, &amp;extensionNames) )
++    {
++        _GLEE_EXT_gpu_shader4 = GL_TRUE;
++        __GLeeLink_GL_EXT_gpu_shader4();
++    }
++    if (__GLeeCheckExtension(&quot;GL_EXT_geometry_shader4&quot;, &amp;extensionNames) )
++    {
++        _GLEE_EXT_geometry_shader4 = GL_TRUE;
++        __GLeeLink_GL_EXT_geometry_shader4();
++    }
++    if (__GLeeCheckExtension(&quot;GL_EXT_bindable_uniform&quot;, &amp;extensionNames) )
++    {
++        _GLEE_EXT_bindable_uniform = GL_TRUE;
++        __GLeeLink_GL_EXT_bindable_uniform();
++    }
++    if (__GLeeCheckExtension(&quot;GL_EXT_framebuffer_sRGB&quot;, &amp;extensionNames) )
++    {
++        _GLEE_EXT_framebuffer_sRGB = GL_TRUE;
++        __GLeeLink_GL_EXT_framebuffer_sRGB();
++    }
++    if (__GLeeCheckExtension(&quot;GL_EXT_texture_shared_exponent&quot;, &amp;extensionNames) )
++    {
++        _GLEE_EXT_texture_shared_exponent = GL_TRUE;
++        __GLeeLink_GL_EXT_texture_shared_exponent();
++    }
++    if (__GLeeCheckExtension(&quot;GL_EXT_packed_float&quot;, &amp;extensionNames) )
++    {
++        _GLEE_EXT_packed_float = GL_TRUE;
++        __GLeeLink_GL_EXT_packed_float();
++    }
++    if (__GLeeCheckExtension(&quot;GL_EXT_texture_array&quot;, &amp;extensionNames) )
++    {
++        _GLEE_EXT_texture_array = GL_TRUE;
++        __GLeeLink_GL_EXT_texture_array();
++    }
++    if (__GLeeCheckExtension(&quot;GL_EXT_texture_integer&quot;, &amp;extensionNames) )
++    {
++        _GLEE_EXT_texture_integer = GL_TRUE;
++        __GLeeLink_GL_EXT_texture_integer();
++    }
++    if (__GLeeCheckExtension(&quot;GL_NV_depth_buffer_float&quot;, &amp;extensionNames) )
++    {
++        _GLEE_NV_depth_buffer_float = GL_TRUE;
++        __GLeeLink_GL_NV_depth_buffer_float();
++    }
++    if (__GLeeCheckExtension(&quot;GL_EXT_texture_compression_latc&quot;, &amp;extensionNames) )
++    {
++        _GLEE_EXT_texture_compression_latc = GL_TRUE;
++        __GLeeLink_GL_EXT_texture_compression_latc();
++    }
++    if (__GLeeCheckExtension(&quot;GL_NV_transform_feedback&quot;, &amp;extensionNames) )
++    {
++        _GLEE_NV_transform_feedback = GL_TRUE;
++        __GLeeLink_GL_NV_transform_feedback();
++    }
++    if (__GLeeCheckExtension(&quot;GL_NV_geometry_program4&quot;, &amp;extensionNames) )
++    {
++        _GLEE_NV_geometry_program4 = GL_TRUE;
++        __GLeeLink_GL_NV_geometry_program4();
++    }
++    if (__GLeeCheckExtension(&quot;GL_NV_gpu_program4&quot;, &amp;extensionNames) )
++    {
++        _GLEE_NV_gpu_program4 = GL_TRUE;
++        __GLeeLink_GL_NV_gpu_program4();
++    }
++    if (__GLeeCheckExtension(&quot;GL_NV_framebuffer_multisample_coverage&quot;, &amp;extensionNames) )
++    {
++        _GLEE_NV_framebuffer_multisample_coverage = GL_TRUE;
++        __GLeeLink_GL_NV_framebuffer_multisample_coverage();
++    }
++    if (__GLeeCheckExtension(&quot;GL_EXT_framebuffer_multisample&quot;, &amp;extensionNames) )
++    {
++        _GLEE_EXT_framebuffer_multisample = GL_TRUE;
++        __GLeeLink_GL_EXT_framebuffer_multisample();
++    }
++    if (__GLeeCheckExtension(&quot;GL_EXT_framebuffer_blit&quot;, &amp;extensionNames) )
++    {
++        _GLEE_EXT_framebuffer_blit = GL_TRUE;
++        __GLeeLink_GL_EXT_framebuffer_blit();
++    }
++    if (__GLeeCheckExtension(&quot;GL_EXT_texture_compression_rgtc&quot;, &amp;extensionNames) )
++    {
++        _GLEE_EXT_texture_compression_rgtc = GL_TRUE;
++        __GLeeLink_GL_EXT_texture_compression_rgtc();
++    }
+     if (__GLeeCheckExtension(&quot;GL_EXT_color_matrix&quot;, &amp;extensionNames) )
+     {
+         _GLEE_EXT_color_matrix = GL_TRUE;
+@@ -10183,21 +10954,26 @@
+         _GLEE_SGIX_igloo_interface = GL_TRUE;
+         __GLeeLink_GL_SGIX_igloo_interface();
+     }
+-    if (__GLeeCheckExtension(&quot;GL_EXT_fragment_lighting&quot;, &amp;extensionNames) )
++    if (__GLeeCheckExtension(&quot;GL_EXT_draw_buffers2&quot;, &amp;extensionNames) )
+     {
+-        _GLEE_EXT_fragment_lighting = GL_TRUE;
+-        __GLeeLink_GL_EXT_fragment_lighting();
++        _GLEE_EXT_draw_buffers2 = GL_TRUE;
++        __GLeeLink_GL_EXT_draw_buffers2();
+     }
+-    if (__GLeeCheckExtension(&quot;GL_EXT_framebuffer_blit&quot;, &amp;extensionNames) )
++    if (__GLeeCheckExtension(&quot;GL_NV_parameter_buffer_object&quot;, &amp;extensionNames) )
+     {
+-        _GLEE_EXT_framebuffer_blit = GL_TRUE;
+-        __GLeeLink_GL_EXT_framebuffer_blit();
++        _GLEE_NV_parameter_buffer_object = GL_TRUE;
++        __GLeeLink_GL_NV_parameter_buffer_object();
+     }
+-    if (__GLeeCheckExtension(&quot;GL_EXT_framebuffer_multisample&quot;, &amp;extensionNames) )
++    if (__GLeeCheckExtension(&quot;GL_EXT_draw_instanced&quot;, &amp;extensionNames) )
+     {
+-        _GLEE_EXT_framebuffer_multisample = GL_TRUE;
+-        __GLeeLink_GL_EXT_framebuffer_multisample();
++        _GLEE_EXT_draw_instanced = GL_TRUE;
++        __GLeeLink_GL_EXT_draw_instanced();
+     }
++    if (__GLeeCheckExtension(&quot;GL_EXT_fragment_lighting&quot;, &amp;extensionNames) )
++    {
++        _GLEE_EXT_fragment_lighting = GL_TRUE;
++        __GLeeLink_GL_EXT_fragment_lighting();
++    }
+     if (__GLeeCheckExtension(&quot;GL_EXT_packed_depth_stencil&quot;, &amp;extensionNames) )
+     {
+         _GLEE_EXT_packed_depth_stencil = GL_TRUE;
+@@ -10414,7 +11190,8 @@
+         _GLEE_WGL_3DL_stereo_control = GL_TRUE;
+         __GLeeLink_WGL_3DL_stereo_control();
+     }
+-#else /* end WGL */
++#elif defined(__APPLE__) || defined(__APPLE_CC__)
++#else /* GLX */
+     if (__GLeeCheckExtension(&quot;GLX_VERSION_1_3&quot;, &amp;extensionNames) )
+     {
+         _GLEE_GLX_VERSION_1_3 = GL_TRUE;
+
+Modified: antargis/trunk/ext/video/GLee.h
+===================================================================
+--- antargis/trunk/ext/video/GLee.h	2008-01-26 19:48:26 UTC (rev 1217)
++++ antargis/trunk/ext/video/GLee.h	2008-01-27 15:47:21 UTC (rev 1218)
+@@ -2,7 +2,7 @@
+ *
+ * GLee.h 
+ * GLee (OpenGL Easy Extension library)        
+-* Version : 5.1
++* Version : 5.21
+ *
+ * Copyright (c)2006  Ben Woodhouse  All rights reserved.
+ *
+@@ -29,7 +29,7 @@
+ 
+ * Web: <A HREF="http://elf-stone.com/glee.php">http://elf-stone.com/glee.php</A>
+ *
+-* [This file was automatically generated by GLeeGen 5.1
++* [This file was automatically generated by GLeeGen 5.21
+ *
+ ***************************************************************************/
+ 
+@@ -37,55 +37,47 @@
+ #define __glee_h_
+ 
+ #ifdef __gl_h_
+-#error gl.h included before glee.h
++	#error gl.h included before glee.h
+ #endif
+ 
+ #ifdef __glext_h_
+-#error glext.h included before glee.h
++	#error glext.h included before glee.h
+ #endif
+ 
+ #ifdef __wglext_h_
+-#error wglext.h included before glee.h
++	#error wglext.h included before glee.h
+ #endif
+ 
+ #ifdef __glxext_h_
+-#error glxext.h included before glee.h
++	#error glxext.h included before glee.h
+ #endif
+ 
+ #ifdef WIN32
+-#define WIN32_LEAN_AND_MEAN
+-#include &lt;windows.h&gt;
+-#include &lt;GL/gl.h&gt;
+-#else
+-#define __glext_h_  /* prevent glext.h from being included  */
+-#define __glxext_h_ /* prevent glxext.h from being included */
+-#define GLX_GLXEXT_PROTOTYPES
+-#include &lt;GL/gl.h&gt;
+-#include &lt;GL/glx.h&gt;
++	#define WIN32_LEAN_AND_MEAN
++	#include &lt;windows.h&gt;
++	#include &lt;GL/gl.h&gt;
++#elif defined(__APPLE__) || defined(__APPLE_CC__)
++	#include &lt;OpenGL/gl.h&gt;
++#else // GLX
++	#define __glext_h_  /* prevent glext.h from being included  */
++	#define __glxext_h_ /* prevent glxext.h from being included */
++	#define GLX_GLXEXT_PROTOTYPES
++	#include &lt;GL/gl.h&gt;
++	#include &lt;GL/glx.h&gt;
+ #endif
+ 
+ #ifndef APIENTRY
+-#define APIENTRY
++	#define APIENTRY
+ #endif
+ 
+ #ifndef APIENTRYP
+-#define APIENTRYP APIENTRY *
++	#define APIENTRYP APIENTRY *
+ #endif
+ 
+-#include &lt;ag_base.h&gt;
+-
+-#ifdef WIN32
+-#ifdef __cplusplus
+-#define GLEE_EXTERN extern 
+-#else
+-#define GLEE_EXTERN __declspec(dllexport) extern
+-#endif
+-#else
+ #define GLEE_EXTERN extern
+-#endif
+ 
+ #ifdef __cplusplus 
+-extern &quot;C&quot; {		/* begin C linkage */
++	extern &quot;C&quot; {		/* begin C linkage */
+ #endif
+ 
+ #define GLEE_LINK_FAIL 0
+@@ -100,6 +92,7 @@
+ GLEE_EXTERN GLboolean _GLEE_VERSION_1_4;
+ GLEE_EXTERN GLboolean _GLEE_VERSION_1_5;
+ GLEE_EXTERN GLboolean _GLEE_VERSION_2_0;
++GLEE_EXTERN GLboolean _GLEE_VERSION_2_1;
+ GLEE_EXTERN GLboolean _GLEE_ARB_multitexture;
+ GLEE_EXTERN GLboolean _GLEE_ARB_transpose_matrix;
+ GLEE_EXTERN GLboolean _GLEE_ARB_multisample;
+@@ -351,14 +344,35 @@
+ GLEE_EXTERN GLboolean _GLEE_NV_vertex_program3;
+ GLEE_EXTERN GLboolean _GLEE_EXT_framebuffer_object;
+ GLEE_EXTERN GLboolean _GLEE_GREMEDY_string_marker;
++GLEE_EXTERN GLboolean _GLEE_EXT_Cg_shader;
++GLEE_EXTERN GLboolean _GLEE_EXT_timer_query;
++GLEE_EXTERN GLboolean _GLEE_EXT_texture_buffer_object;
++GLEE_EXTERN GLboolean _GLEE_EXT_gpu_shader4;
++GLEE_EXTERN GLboolean _GLEE_EXT_geometry_shader4;
++GLEE_EXTERN GLboolean _GLEE_EXT_bindable_uniform;
++GLEE_EXTERN GLboolean _GLEE_EXT_framebuffer_sRGB;
++GLEE_EXTERN GLboolean _GLEE_EXT_texture_shared_exponent;
++GLEE_EXTERN GLboolean _GLEE_EXT_packed_float;
++GLEE_EXTERN GLboolean _GLEE_EXT_texture_array;
++GLEE_EXTERN GLboolean _GLEE_EXT_texture_integer;
++GLEE_EXTERN GLboolean _GLEE_NV_depth_buffer_float;
++GLEE_EXTERN GLboolean _GLEE_EXT_texture_compression_latc;
++GLEE_EXTERN GLboolean _GLEE_NV_transform_feedback;
++GLEE_EXTERN GLboolean _GLEE_NV_geometry_program4;
++GLEE_EXTERN GLboolean _GLEE_NV_gpu_program4;
++GLEE_EXTERN GLboolean _GLEE_NV_framebuffer_multisample_coverage;
++GLEE_EXTERN GLboolean _GLEE_EXT_framebuffer_multisample;
++GLEE_EXTERN GLboolean _GLEE_EXT_framebuffer_blit;
++GLEE_EXTERN GLboolean _GLEE_EXT_texture_compression_rgtc;
+ GLEE_EXTERN GLboolean _GLEE_EXT_color_matrix;
+ GLEE_EXTERN GLboolean _GLEE_SGIX_texture_select;
+ GLEE_EXTERN GLboolean _GLEE_INGR_blend_func_separate;
+ GLEE_EXTERN GLboolean _GLEE_SGIX_depth_pass_instrument;
+ GLEE_EXTERN GLboolean _GLEE_SGIX_igloo_interface;
++GLEE_EXTERN GLboolean _GLEE_EXT_draw_buffers2;
++GLEE_EXTERN GLboolean _GLEE_NV_parameter_buffer_object;
++GLEE_EXTERN GLboolean _GLEE_EXT_draw_instanced;
+ GLEE_EXTERN GLboolean _GLEE_EXT_fragment_lighting;
+-GLEE_EXTERN GLboolean _GLEE_EXT_framebuffer_blit;
+-GLEE_EXTERN GLboolean _GLEE_EXT_framebuffer_multisample;
+ GLEE_EXTERN GLboolean _GLEE_EXT_packed_depth_stencil;
+ GLEE_EXTERN GLboolean _GLEE_EXT_scene_marker;
+ GLEE_EXTERN GLboolean _GLEE_EXT_stencil_clear_tag;
+@@ -381,6 +395,7 @@
+ #define GLEE_VERSION_1_4     GLeeEnabled(&amp;_GLEE_VERSION_1_4)
+ #define GLEE_VERSION_1_5     GLeeEnabled(&amp;_GLEE_VERSION_1_5)
+ #define GLEE_VERSION_2_0     GLeeEnabled(&amp;_GLEE_VERSION_2_0)
++#define GLEE_VERSION_2_1     GLeeEnabled(&amp;_GLEE_VERSION_2_1)
+ #define GLEE_ARB_multitexture     GLeeEnabled(&amp;_GLEE_ARB_multitexture)
+ #define GLEE_ARB_transpose_matrix     GLeeEnabled(&amp;_GLEE_ARB_transpose_matrix)
+ #define GLEE_ARB_multisample     GLeeEnabled(&amp;_GLEE_ARB_multisample)
+@@ -632,14 +647,35 @@
+ #define GLEE_NV_vertex_program3     GLeeEnabled(&amp;_GLEE_NV_vertex_program3)
+ #define GLEE_EXT_framebuffer_object     GLeeEnabled(&amp;_GLEE_EXT_framebuffer_object)
+ #define GLEE_GREMEDY_string_marker     GLeeEnabled(&amp;_GLEE_GREMEDY_string_marker)
++#define GLEE_EXT_Cg_shader     GLeeEnabled(&amp;_GLEE_EXT_Cg_shader)
++#define GLEE_EXT_timer_query     GLeeEnabled(&amp;_GLEE_EXT_timer_query)
++#define GLEE_EXT_texture_buffer_object     GLeeEnabled(&amp;_GLEE_EXT_texture_buffer_object)
++#define GLEE_EXT_gpu_shader4     GLeeEnabled(&amp;_GLEE_EXT_gpu_shader4)
++#define GLEE_EXT_geometry_shader4     GLeeEnabled(&amp;_GLEE_EXT_geometry_shader4)
++#define GLEE_EXT_bindable_uniform     GLeeEnabled(&amp;_GLEE_EXT_bindable_uniform)
++#define GLEE_EXT_framebuffer_sRGB     GLeeEnabled(&amp;_GLEE_EXT_framebuffer_sRGB)
++#define GLEE_EXT_texture_shared_exponent     GLeeEnabled(&amp;_GLEE_EXT_texture_shared_exponent)
++#define GLEE_EXT_packed_float     GLeeEnabled(&amp;_GLEE_EXT_packed_float)
++#define GLEE_EXT_texture_array     GLeeEnabled(&amp;_GLEE_EXT_texture_array)
++#define GLEE_EXT_texture_integer     GLeeEnabled(&amp;_GLEE_EXT_texture_integer)
++#define GLEE_NV_depth_buffer_float     GLeeEnabled(&amp;_GLEE_NV_depth_buffer_float)
++#define GLEE_EXT_texture_compression_latc     GLeeEnabled(&amp;_GLEE_EXT_texture_compression_latc)
++#define GLEE_NV_transform_feedback     GLeeEnabled(&amp;_GLEE_NV_transform_feedback)
++#define GLEE_NV_geometry_program4     GLeeEnabled(&amp;_GLEE_NV_geometry_program4)
++#define GLEE_NV_gpu_program4     GLeeEnabled(&amp;_GLEE_NV_gpu_program4)
++#define GLEE_NV_framebuffer_multisample_coverage     GLeeEnabled(&amp;_GLEE_NV_framebuffer_multisample_coverage)
++#define GLEE_EXT_framebuffer_multisample     GLeeEnabled(&amp;_GLEE_EXT_framebuffer_multisample)
++#define GLEE_EXT_framebuffer_blit     GLeeEnabled(&amp;_GLEE_EXT_framebuffer_blit)
++#define GLEE_EXT_texture_compression_rgtc     GLeeEnabled(&amp;_GLEE_EXT_texture_compression_rgtc)
+ #define GLEE_EXT_color_matrix     GLeeEnabled(&amp;_GLEE_EXT_color_matrix)
+ #define GLEE_SGIX_texture_select     GLeeEnabled(&amp;_GLEE_SGIX_texture_select)
+ #define GLEE_INGR_blend_func_separate     GLeeEnabled(&amp;_GLEE_INGR_blend_func_separate)
+ #define GLEE_SGIX_depth_pass_instrument     GLeeEnabled(&amp;_GLEE_SGIX_depth_pass_instrument)
+ #define GLEE_SGIX_igloo_interface     GLeeEnabled(&amp;_GLEE_SGIX_igloo_interface)
++#define GLEE_EXT_draw_buffers2     GLeeEnabled(&amp;_GLEE_EXT_draw_buffers2)
++#define GLEE_NV_parameter_buffer_object     GLeeEnabled(&amp;_GLEE_NV_parameter_buffer_object)
++#define GLEE_EXT_draw_instanced     GLeeEnabled(&amp;_GLEE_EXT_draw_instanced)
+ #define GLEE_EXT_fragment_lighting     GLeeEnabled(&amp;_GLEE_EXT_fragment_lighting)
+-#define GLEE_EXT_framebuffer_blit     GLeeEnabled(&amp;_GLEE_EXT_framebuffer_blit)
+-#define GLEE_EXT_framebuffer_multisample     GLeeEnabled(&amp;_GLEE_EXT_framebuffer_multisample)
+ #define GLEE_EXT_packed_depth_stencil     GLeeEnabled(&amp;_GLEE_EXT_packed_depth_stencil)
+ #define GLEE_EXT_scene_marker     GLeeEnabled(&amp;_GLEE_EXT_scene_marker)
+ #define GLEE_EXT_stencil_clear_tag     GLeeEnabled(&amp;_GLEE_EXT_stencil_clear_tag)
+@@ -661,115 +697,125 @@
+ 
+ /* Used for GLSL shader text */
+ #ifndef GL_VERSION_2_0
+-typedef char GLchar; 
++	typedef char GLchar; 
+ #endif
+ 
+ #include &lt;stddef.h&gt;
++
+ #ifndef GL_VERSION_1_5
+-typedef ptrdiff_t GLintptr;
+-typedef ptrdiff_t GLsizeiptr;
++	typedef ptrdiff_t GLintptr;
++	typedef ptrdiff_t GLsizeiptr;
+ #endif
+ 
+ #ifndef GL_NV_half_float
+-typedef unsigned short GLhalfNV;
++	typedef unsigned short GLhalfNV;
+ #endif
+ 
+ #ifndef GL_ARB_vertex_buffer_object
+-typedef ptrdiff_t GLintptrARB;
+-typedef ptrdiff_t GLsizeiptrARB;
++	typedef ptrdiff_t GLintptrARB;
++	typedef ptrdiff_t GLsizeiptrARB;
+ #endif
+ 
+ #ifndef GL_ARB_shader_objects
+-typedef int GLhandleARB;
+-typedef char GLcharARB;
++	typedef int GLhandleARB;
++	typedef char GLcharARB;
+ #endif
+ 
++#ifndef GL_EXT_timer_query
++	typedef signed long long GLint64EXT;
++	typedef unsigned long long GLuint64EXT;
++#endif
++
+ /* Platform-specific */
+ 
+ #ifdef WIN32    
+ 
+-/* Windows */
++	/* WGL */
+ 
+-#ifndef WGL_ARB_pbuffer
+-DECLARE_HANDLE(HPBUFFERARB);
+-#endif
+-#ifndef WGL_EXT_pbuffer
+-DECLARE_HANDLE(HPBUFFEREXT);
+-#endif
++	#ifndef WGL_ARB_pbuffer
++	DECLARE_HANDLE(HPBUFFERARB);
++	#endif
++	#ifndef WGL_EXT_pbuffer
++	DECLARE_HANDLE(HPBUFFEREXT);
++	#endif
+ 
++#elif defined(__APPLE__) || defined(__APPLE_CC__)
++
++	/* Mac OS X */
++
+ #else          
+ 
+-/* Linux */
++	/* GLX */
+ 
+-typedef void (*__GLXextFuncPtr)(void);
++	typedef void (*__GLXextFuncPtr)(void);
+ 
+-#ifndef GLX_ARB_get_proc_address 
+-#define GLX_ARB_get_proc_address 1
+-extern __GLXextFuncPtr glXGetProcAddressARB (const GLubyte *);
+-extern void ( * glXGetProcAddressARB (const GLubyte *procName))(void);
+-typedef __GLXextFuncPtr ( * PFNGLXGETPROCADDRESSARBPROC) (const GLubyte *procName);
+-#endif
++	#ifndef GLX_ARB_get_proc_address 
++	#define GLX_ARB_get_proc_address 1
++	extern __GLXextFuncPtr glXGetProcAddressARB (const GLubyte *);
++	extern void ( * glXGetProcAddressARB (const GLubyte *procName))(void);
++	typedef __GLXextFuncPtr ( * PFNGLXGETPROCADDRESSARBPROC) (const GLubyte *procName);
++	#endif
+ 
+-#ifndef GLX_SGIX_fbconfig
+-typedef XID GLXFBConfigIDSGIX;
+-typedef struct __GLXFBConfigRec *GLXFBConfigSGIX;
+-#endif
++	#ifndef GLX_SGIX_fbconfig
++	typedef XID GLXFBConfigIDSGIX;
++	typedef struct __GLXFBConfigRec *GLXFBConfigSGIX;
++	#endif
+ 
+-#ifndef GLX_SGIX_pbuffer
+-typedef XID GLXPbufferSGIX;
+-typedef struct {
+-    int type;
+-    unsigned long serial;
+-    Bool send_event;
+-    Display *display;
+-    GLXDrawable drawable;
+-    int event_type;		  
+-    int draw_type;		  
+-    unsigned int mask;	  
+-    int x, y;
+-    int width, height;
+-    int count;
+-} GLXBufferClobberEventSGIX;
+-#endif
++	#ifndef GLX_SGIX_pbuffer
++	typedef XID GLXPbufferSGIX;
++	typedef struct {
++		int type;
++		unsigned long serial;
++		Bool send_event;
++		Display *display;
++		GLXDrawable drawable;
++		int event_type;		  
++		int draw_type;		  
++		unsigned int mask;	  
++		int x, y;
++		int width, height;
++		int count;
++	} GLXBufferClobberEventSGIX;
++	#endif
+ 
+-#ifndef GLX_SGIX_hyperpipe
+-	#define _GLX_HYPERPIPE_PIPE_NAME_LENGTH_SGIX 80
+-	typedef struct 
+-	{
+-		char  pipeName[_GLX_HYPERPIPE_PIPE_NAME_LENGTH_SGIX];
+-		int  networkId;
+-    } GLXHyperpipeNetworkSGIX;
++	#ifndef GLX_SGIX_hyperpipe
++		#define _GLX_HYPERPIPE_PIPE_NAME_LENGTH_SGIX 80
++		typedef struct 
++		{
++			char  pipeName[_GLX_HYPERPIPE_PIPE_NAME_LENGTH_SGIX];
++			int  networkId;
++		} GLXHyperpipeNetworkSGIX;
+ 
+-    typedef struct 
+-    {
+-		char pipeName[_GLX_HYPERPIPE_PIPE_NAME_LENGTH_SGIX];
+-		int channel;
+-		unsigned int participationType;
+-		int timeSlice;
+-    } GLXHyperpipeConfigSGIX;
++		typedef struct 
++		{
++			char pipeName[_GLX_HYPERPIPE_PIPE_NAME_LENGTH_SGIX];
++			int channel;
++			unsigned int participationType;
++			int timeSlice;
++		} GLXHyperpipeConfigSGIX;
+ 
+-    typedef struct 
+-    {
+-		char pipeName[_GLX_HYPERPIPE_PIPE_NAME_LENGTH_SGIX];
+-		int srcXOrigin;
+-		int srcYOrigin;
+-		int srcWidth;
+-		int srcHeight;
+-		int destXOrigin;
+-		int destYOrigin;
+-		int destWidth;
+-		int destHeight;
+-    } GLXPipeRect;
++		typedef struct 
++		{
++			char pipeName[_GLX_HYPERPIPE_PIPE_NAME_LENGTH_SGIX];
++			int srcXOrigin;
++			int srcYOrigin;
++			int srcWidth;
++			int srcHeight;
++			int destXOrigin;
++			int destYOrigin;
++			int destWidth;
++			int destHeight;
++		} GLXPipeRect;
+ 
+-    typedef struct 
+-    {
+-		char pipeName[_GLX_HYPERPIPE_PIPE_NAME_LENGTH_SGIX];
+-		int XOrigin; 
+-		int YOrigin;
+-		int maxHeight;
+-		int maxWidth;
+-    } GLXPipeRectLimits;
+-#endif 
++		typedef struct 
++		{
++			char pipeName[_GLX_HYPERPIPE_PIPE_NAME_LENGTH_SGIX];
++			int XOrigin; 
++			int YOrigin;
++			int maxHeight;
++			int maxWidth;
++		} GLXPipeRectLimits;
++	#endif 
+ #endif /* end platform specific */
+ 
+ 
+@@ -1930,6 +1976,55 @@
+ #define glVertexAttribPointer pglVertexAttribPointer
+ #endif 
+ 
++/* GL_VERSION_2_1 */
++
++#ifndef GL_VERSION_2_1
++#define GL_VERSION_2_1 1
++#define __GLEE_GL_VERSION_2_1 1
++/* Constants */
++#define GL_PIXEL_PACK_BUFFER                               0x88EB
++#define GL_PIXEL_UNPACK_BUFFER                             0x88EC
++#define GL_PIXEL_PACK_BUFFER_BINDING                       0x88ED
++#define GL_PIXEL_UNPACK_BUFFER_BINDING                     0x88EF
++#define GL_SRGB                                            0x8C40
++#define GL_SRGB8                                           0x8C41
++#define GL_SRGB_ALPHA                                      0x8C42
++#define GL_SRGB8_ALPHA8                                    0x8C43
++#define GL_SLUMINANCE_ALPHA                                0x8C44
++#define GL_SLUMINANCE8_ALPHA8                              0x8C45
++#define GL_SLUMINANCE                                      0x8C46
++#define GL_SLUMINANCE8                                     0x8C47
++#define GL_COMPRESSED_SRGB                                 0x8C48
++#define GL_COMPRESSED_SRGB_ALPHA                           0x8C49
++#define GL_COMPRESSED_SLUMINANCE                           0x8C4A
++#define GL_COMPRESSED_SLUMINANCE_ALPHA                     0x8C4B
++#define GL_FLOAT_MAT2x3                                    0x8B65
++#define GL_FLOAT_MAT2x4                                    0x8B66
++#define GL_FLOAT_MAT3x2                                    0x8B67
++#define GL_FLOAT_MAT3x4                                    0x8B68
++#define GL_FLOAT_MAT4x2                                    0x8B69
++#define GL_FLOAT_MAT4x3                                    0x8B6A
++#define GL_CURRENT_RASTER_SECONDARY_COLOR                  0x845F
++typedef void (APIENTRYP PFNGLUNIFORMMATRIX2X3FVPROC) (GLint location, GLsizei count, GLboolean transpose, const GLfloat * value);
++typedef void (APIENTRYP PFNGLUNIFORMMATRIX3X2FVPROC) (GLint location, GLsizei count, GLboolean transpose, const GLfloat * value);
++typedef void (APIENTRYP PFNGLUNIFORMMATRIX2X4FVPROC) (GLint location, GLsizei count, GLboolean transpose, const GLfloat * value);
++typedef void (APIENTRYP PFNGLUNIFORMMATRIX4X2FVPROC) (GLint location, GLsizei count, GLboolean transpose, const GLfloat * value);
++typedef void (APIENTRYP PFNGLUNIFORMMATRIX3X4FVPROC) (GLint location, GLsizei count, GLboolean transpose, const GLfloat * value);
++typedef void (APIENTRYP PFNGLUNIFORMMATRIX4X3FVPROC) (GLint location, GLsizei count, GLboolean transpose, const GLfloat * value);
++GLEE_EXTERN PFNGLUNIFORMMATRIX2X3FVPROC pglUniformMatrix2x3fv;
++GLEE_EXTERN PFNGLUNIFORMMATRIX3X2FVPROC pglUniformMatrix3x2fv;
++GLEE_EXTERN PFNGLUNIFORMMATRIX2X4FVPROC pglUniformMatrix2x4fv;
++GLEE_EXTERN PFNGLUNIFORMMATRIX4X2FVPROC pglUniformMatrix4x2fv;
++GLEE_EXTERN PFNGLUNIFORMMATRIX3X4FVPROC pglUniformMatrix3x4fv;
++GLEE_EXTERN PFNGLUNIFORMMATRIX4X3FVPROC pglUniformMatrix4x3fv;
++#define glUniformMatrix2x3fv pglUniformMatrix2x3fv
++#define glUniformMatrix3x2fv pglUniformMatrix3x2fv
++#define glUniformMatrix2x4fv pglUniformMatrix2x4fv
++#define glUniformMatrix4x2fv pglUniformMatrix4x2fv
++#define glUniformMatrix3x4fv pglUniformMatrix3x4fv
++#define glUniformMatrix4x3fv pglUniformMatrix4x3fv
++#endif 
++
+ /* GL_ARB_multitexture */
+ 
+ #ifndef GL_ARB_multitexture
+@@ -8209,6 +8304,7 @@
+ #define GL_RENDERBUFFER_WIDTH_EXT                          0x8D42
+ #define GL_RENDERBUFFER_HEIGHT_EXT                         0x8D43
+ #define GL_RENDERBUFFER_INTERNAL_FORMAT_EXT                0x8D44
++#define GL_STENCIL_INDEX_EXT                               0x8D45
+ #define GL_STENCIL_INDEX1_EXT                              0x8D46
+ #define GL_STENCIL_INDEX4_EXT                              0x8D47
+ #define GL_STENCIL_INDEX8_EXT                              0x8D48
+@@ -8283,6 +8379,602 @@
+ #define glStringMarkerGREMEDY pglStringMarkerGREMEDY
+ #endif 
+ 
++/* GL_EXT_Cg_shader */
++
++#ifndef GL_EXT_Cg_shader
++#define GL_EXT_Cg_shader 1
++#define __GLEE_GL_EXT_Cg_shader 1
++/* Constants */
++#define GL_CG_VERTEX_SHADER_EXT                            0x890E
++#define GL_CG_FRAGMENT_SHADER_EXT                          0x890F
++#endif 
++
++/* GL_EXT_timer_query */
++
++#ifndef GL_EXT_timer_query
++#define GL_EXT_timer_query 1
++#define __GLEE_GL_EXT_timer_query 1
++/* Constants */
++#define GL_TIME_ELAPSED_EXT                                0x88BF
++typedef void (APIENTRYP PFNGLGETQUERYOBJECTI64VEXTPROC) (GLuint id, GLenum pname, GLint64EXT * params);
++typedef void (APIENTRYP PFNGLGETQUERYOBJECTUI64VEXTPROC) (GLuint id, GLenum pname, GLuint64EXT * params);
++GLEE_EXTERN PFNGLGETQUERYOBJECTI64VEXTPROC pglGetQueryObjecti64vEXT;
++GLEE_EXTERN PFNGLGETQUERYOBJECTUI64VEXTPROC pglGetQueryObjectui64vEXT;
++#define glGetQueryObjecti64vEXT pglGetQueryObjecti64vEXT
++#define glGetQueryObjectui64vEXT pglGetQueryObjectui64vEXT
++#endif 
++
++/* GL_EXT_texture_buffer_object */
++
++#ifndef GL_EXT_texture_buffer_object
++#define GL_EXT_texture_buffer_object 1
++#define __GLEE_GL_EXT_texture_buffer_object 1
++/* Constants */
++#define GL_TEXTURE_BUFFER_EXT                              0x8C2A
++#define GL_MAX_TEXTURE_BUFFER_SIZE_EXT                     0x8C2B
++#define GL_TEXTURE_BINDING_BUFFER_EXT                      0x8C2C
++#define GL_TEXTURE_BUFFER_DATA_STORE_BINDING_EXT           0x8C2D
++#define GL_TEXTURE_BUFFER_FORMAT_EXT                       0x8C2E
++typedef void (APIENTRYP PFNGLTEXBUFFEREXTPROC) (GLenum target, GLenum internalformat, GLuint buffer);
++GLEE_EXTERN PFNGLTEXBUFFEREXTPROC pglTexBufferEXT;
++#define glTexBufferEXT pglTexBufferEXT
++#endif 
++
++/* GL_EXT_gpu_shader4 */
++
++#ifndef GL_EXT_gpu_shader4
++#define GL_EXT_gpu_shader4 1
++#define __GLEE_GL_EXT_gpu_shader4 1
++/* Constants */
++#define GL_SAMPLER_1D_ARRAY_EXT                            0x8DC0
++#define GL_SAMPLER_2D_ARRAY_EXT                            0x8DC1
++#define GL_SAMPLER_BUFFER_EXT                              0x8DC2
++#define GL_SAMPLER_1D_ARRAY_SHADOW_EXT                     0x8DC3
++#define GL_SAMPLER_2D_ARRAY_SHADOW_EXT                     0x8DC4
++#define GL_SAMPLER_CUBE_SHADOW_EXT                         0x8DC5
++#define GL_UNSIGNED_INT_VEC2_EXT                           0x8DC6
++#define GL_UNSIGNED_INT_VEC3_EXT                           0x8DC7
++#define GL_UNSIGNED_INT_VEC4_EXT                           0x8DC8
++#define GL_INT_SAMPLER_1D_EXT                              0x8DC9
++#define GL_INT_SAMPLER_2D_EXT                              0x8DCA
++#define GL_INT_SAMPLER_3D_EXT                              0x8DCB
++#define GL_INT_SAMPLER_CUBE_EXT                            0x8DCC
++#define GL_INT_SAMPLER_2D_RECT_EXT                         0x8DCD
++#define GL_INT_SAMPLER_1D_ARRAY_EXT                        0x8DCE
++#define GL_INT_SAMPLER_2D_ARRAY_EXT                        0x8DCF
++#define GL_INT_SAMPLER_BUFFER_EXT                          0x8DD0
++#define GL_UNSIGNED_INT_SAMPLER_1D_EXT                     0x8DD1
++#define GL_UNSIGNED_INT_SAMPLER_2D_EXT                     0x8DD2
++#define GL_UNSIGNED_INT_SAMPLER_3D_EXT                     0x8DD3
++#define GL_UNSIGNED_INT_SAMPLER_CUBE_EXT                   0x8DD4
++#define GL_UNSIGNED_INT_SAMPLER_2D_RECT_EXT                0x8DD5
++#define GL_UNSIGNED_INT_SAMPLER_1D_ARRAY_EXT               0x8DD6
++#define GL_UNSIGNED_INT_SAMPLER_2D_ARRAY_EXT               0x8DD7
++#define GL_UNSIGNED_INT_SAMPLER_BUFFER_EXT                 0x8DD8
++#define GL_VERTEX_ATTRIB_ARRAY_INTEGER_EXT                 0x88FD
++typedef void (APIENTRYP PFNGLGETUNIFORMUIVEXTPROC) (GLuint program, GLint location, GLuint * params);
++typedef void (APIENTRYP PFNGLBINDFRAGDATALOCATIONEXTPROC) (GLuint program, GLuint color, const GLchar * name);
++typedef GLint (APIENTRYP PFNGLGETFRAGDATALOCATIONEXTPROC) (GLuint program, const GLchar * name);
++typedef void (APIENTRYP PFNGLUNIFORM1UIEXTPROC) (GLint location, GLuint v0);
++typedef void (APIENTRYP PFNGLUNIFORM2UIEXTPROC) (GLint location, GLuint v0, GLuint v1);
++typedef void (APIENTRYP PFNGLUNIFORM3UIEXTPROC) (GLint location, GLuint v0, GLuint v1, GLuint v2);
++typedef void (APIENTRYP PFNGLUNIFORM4UIEXTPROC) (GLint location, GLuint v0, GLuint v1, GLuint v2, GLuint v3);
++typedef void (APIENTRYP PFNGLUNIFORM1UIVEXTPROC) (GLint location, GLsizei count, const GLuint * value);
++typedef void (APIENTRYP PFNGLUNIFORM2UIVEXTPROC) (GLint location, GLsizei count, const GLuint * value);
++typedef void (APIENTRYP PFNGLUNIFORM3UIVEXTPROC) (GLint location, GLsizei count, const GLuint * value);
++typedef void (APIENTRYP PFNGLUNIFORM4UIVEXTPROC) (GLint location, GLsizei count, const GLuint * value);
++typedef void (APIENTRYP PFNGLVERTEXATTRIBI1IEXTPROC) (GLuint index, GLint x);
++typedef void (APIENTRYP PFNGLVERTEXATTRIBI2IEXTPROC) (GLuint index, GLint x, GLint y);
++typedef void (APIENTRYP PFNGLVERTEXATTRIBI3IEXTPROC) (GLuint index, GLint x, GLint y, GLint z);
++typedef void (APIENTRYP PFNGLVERTEXATTRIBI4IEXTPROC) (GLuint index, GLint x, GLint y, GLint z, GLint w);
++typedef void (APIENTRYP PFNGLVERTEXATTRIBI1UIEXTPROC) (GLuint index, GLuint x);
++typedef void (APIENTRYP PFNGLVERTEXATTRIBI2UIEXTPROC) (GLuint index, GLuint x, GLuint y);
++typedef void (APIENTRYP PFNGLVERTEXATTRIBI3UIEXTPROC) (GLuint index, GLuint x, GLuint y, GLuint z);
++typedef void (APIENTRYP PFNGLVERTEXATTRIBI4UIEXTPROC) (GLuint index, GLuint x, GLuint y, GLuint z, GLuint w);
++typedef void (APIENTRYP PFNGLVERTEXATTRIBI1IVEXTPROC) (GLuint index, const GLint * v);
++typedef void (APIENTRYP PFNGLVERTEXATTRIBI2IVEXTPROC) (GLuint index, const GLint * v);
++typedef void (APIENTRYP PFNGLVERTEXATTRIBI3IVEXTPROC) (GLuint index, const GLint * v);
++typedef void (APIENTRYP PFNGLVERTEXATTRIBI4IVEXTPROC) (GLuint index, const GLint * v);
++typedef void (APIENTRYP PFNGLVERTEXATTRIBI1UIVEXTPROC) (GLuint index, const GLuint * v);
++typedef void (APIENTRYP PFNGLVERTEXATTRIBI2UIVEXTPROC) (GLuint index, const GLuint * v);
++typedef void (APIENTRYP PFNGLVERTEXATTRIBI3UIVEXTPROC) (GLuint index, const GLuint * v);
++typedef void (APIENTRYP PFNGLVERTEXATTRIBI4UIVEXTPROC) (GLuint index, const GLuint * v);
++typedef void (APIENTRYP PFNGLVERTEXATTRIBI4BVEXTPROC) (GLuint index, const GLbyte * v);
++typedef void (APIENTRYP PFNGLVERTEXATTRIBI4SVEXTPROC) (GLuint index, const GLshort * v);
++typedef void (APIENTRYP PFNGLVERTEXATTRIBI4UBVEXTPROC) (GLuint index, const GLubyte * v);
++typedef void (APIENTRYP PFNGLVERTEXATTRIBI4USVEXTPROC) (GLuint index, const GLushort * v);
++typedef void (APIENTRYP PFNGLVERTEXATTRIBIPOINTEREXTPROC) (GLuint index, GLint size, GLenum type, GLsizei stride, const GLvoid * pointer);
++typedef void (APIENTRYP PFNGLGETVERTEXATTRIBIIVEXTPROC) (GLuint index, GLenum pname, GLint * params);
++typedef void (APIENTRYP PFNGLGETVERTEXATTRIBIUIVEXTPROC) (GLuint index, GLenum pname, GLuint * params);
++GLEE_EXTERN PFNGLGETUNIFORMUIVEXTPROC pglGetUniformuivEXT;
++GLEE_EXTERN PFNGLBINDFRAGDATALOCATIONEXTPROC pglBindFragDataLocationEXT;
++GLEE_EXTERN PFNGLGETFRAGDATALOCATIONEXTPROC pglGetFragDataLocationEXT;
++GLEE_EXTERN PFNGLUNIFORM1UIEXTPROC pglUniform1uiEXT;
++GLEE_EXTERN PFNGLUNIFORM2UIEXTPROC pglUniform2uiEXT;
++GLEE_EXTERN PFNGLUNIFORM3UIEXTPROC pglUniform3uiEXT;
++GLEE_EXTERN PFNGLUNIFORM4UIEXTPROC pglUniform4uiEXT;
++GLEE_EXTERN PFNGLUNIFORM1UIVEXTPROC pglUniform1uivEXT;
++GLEE_EXTERN PFNGLUNIFORM2UIVEXTPROC pglUniform2uivEXT;
++GLEE_EXTERN PFNGLUNIFORM3UIVEXTPROC pglUniform3uivEXT;
++GLEE_EXTERN PFNGLUNIFORM4UIVEXTPROC pglUniform4uivEXT;
++GLEE_EXTERN PFNGLVERTEXATTRIBI1IEXTPROC pglVertexAttribI1iEXT;
++GLEE_EXTERN PFNGLVERTEXATTRIBI2IEXTPROC pglVertexAttribI2iEXT;
++GLEE_EXTERN PFNGLVERTEXATTRIBI3IEXTPROC pglVertexAttribI3iEXT;
++GLEE_EXTERN PFNGLVERTEXATTRIBI4IEXTPROC pglVertexAttribI4iEXT;
++GLEE_EXTERN PFNGLVERTEXATTRIBI1UIEXTPROC pglVertexAttribI1uiEXT;
++GLEE_EXTERN PFNGLVERTEXATTRIBI2UIEXTPROC pglVertexAttribI2uiEXT;
++GLEE_EXTERN PFNGLVERTEXATTRIBI3UIEXTPROC pglVertexAttribI3uiEXT;
++GLEE_EXTERN PFNGLVERTEXATTRIBI4UIEXTPROC pglVertexAttribI4uiEXT;
++GLEE_EXTERN PFNGLVERTEXATTRIBI1IVEXTPROC pglVertexAttribI1ivEXT;
++GLEE_EXTERN PFNGLVERTEXATTRIBI2IVEXTPROC pglVertexAttribI2ivEXT;
++GLEE_EXTERN PFNGLVERTEXATTRIBI3IVEXTPROC pglVertexAttribI3ivEXT;
++GLEE_EXTERN PFNGLVERTEXATTRIBI4IVEXTPROC pglVertexAttribI4ivEXT;
++GLEE_EXTERN PFNGLVERTEXATTRIBI1UIVEXTPROC pglVertexAttribI1uivEXT;
++GLEE_EXTERN PFNGLVERTEXATTRIBI2UIVEXTPROC pglVertexAttribI2uivEXT;
++GLEE_EXTERN PFNGLVERTEXATTRIBI3UIVEXTPROC pglVertexAttribI3uivEXT;
++GLEE_EXTERN PFNGLVERTEXATTRIBI4UIVEXTPROC pglVertexAttribI4uivEXT;
++GLEE_EXTERN PFNGLVERTEXATTRIBI4BVEXTPROC pglVertexAttribI4bvEXT;
++GLEE_EXTERN PFNGLVERTEXATTRIBI4SVEXTPROC pglVertexAttribI4svEXT;
++GLEE_EXTERN PFNGLVERTEXATTRIBI4UBVEXTPROC pglVertexAttribI4ubvEXT;
++GLEE_EXTERN PFNGLVERTEXATTRIBI4USVEXTPROC pglVertexAttribI4usvEXT;
++GLEE_EXTERN PFNGLVERTEXATTRIBIPOINTEREXTPROC pglVertexAttribIPointerEXT;
++GLEE_EXTERN PFNGLGETVERTEXATTRIBIIVEXTPROC pglGetVertexAttribIivEXT;
++GLEE_EXTERN PFNGLGETVERTEXATTRIBIUIVEXTPROC pglGetVertexAttribIuivEXT;
++#define glGetUniformuivEXT pglGetUniformuivEXT
++#define glBindFragDataLocationEXT pglBindFragDataLocationEXT
++#define glGetFragDataLocationEXT pglGetFragDataLocationEXT
++#define glUniform1uiEXT pglUniform1uiEXT
++#define glUniform2uiEXT pglUniform2uiEXT
++#define glUniform3uiEXT pglUniform3uiEXT
++#define glUniform4uiEXT pglUniform4uiEXT
++#define glUniform1uivEXT pglUniform1uivEXT
++#define glUniform2uivEXT pglUniform2uivEXT
++#define glUniform3uivEXT pglUniform3uivEXT
++#define glUniform4uivEXT pglUniform4uivEXT
++#define glVertexAttribI1iEXT pglVertexAttribI1iEXT
++#define glVertexAttribI2iEXT pglVertexAttribI2iEXT
++#define glVertexAttribI3iEXT pglVertexAttribI3iEXT
++#define glVertexAttribI4iEXT pglVertexAttribI4iEXT
++#define glVertexAttribI1uiEXT pglVertexAttribI1uiEXT
++#define glVertexAttribI2uiEXT pglVertexAttribI2uiEXT
++#define glVertexAttribI3uiEXT pglVertexAttribI3uiEXT
++#define glVertexAttribI4uiEXT pglVertexAttribI4uiEXT
++#define glVertexAttribI1ivEXT pglVertexAttribI1ivEXT
++#define glVertexAttribI2ivEXT pglVertexAttribI2ivEXT
++#define glVertexAttribI3ivEXT pglVertexAttribI3ivEXT
++#define glVertexAttribI4ivEXT pglVertexAttribI4ivEXT
++#define glVertexAttribI1uivEXT pglVertexAttribI1uivEXT
++#define glVertexAttribI2uivEXT pglVertexAttribI2uivEXT
++#define glVertexAttribI3uivEXT pglVertexAttribI3uivEXT
++#define glVertexAttribI4uivEXT pglVertexAttribI4uivEXT
++#define glVertexAttribI4bvEXT pglVertexAttribI4bvEXT
++#define glVertexAttribI4svEXT pglVertexAttribI4svEXT
++#define glVertexAttribI4ubvEXT pglVertexAttribI4ubvEXT
++#define glVertexAttribI4usvEXT pglVertexAttribI4usvEXT
++#define glVertexAttribIPointerEXT pglVertexAttribIPointerEXT
++#define glGetVertexAttribIivEXT pglGetVertexAttribIivEXT
++#define glGetVertexAttribIuivEXT pglGetVertexAttribIuivEXT
++#endif 
++
++/* GL_EXT_geometry_shader4 */
++
++#ifndef GL_EXT_geometry_shader4
++#define GL_EXT_geometry_shader4 1
++#define __GLEE_GL_EXT_geometry_shader4 1
++/* Constants */
++#define GL_GEOMETRY_SHADER_EXT                             0x8DD9
++#define GL_MAX_GEOMETRY_VARYING_COMPONENTS_EXT             0x8DDD
++#define GL_MAX_VERTEX_VARYING_COMPONENTS_EXT               0x8DDE
++#define GL_MAX_VARYING_COMPONENTS_EXT                      0x8B4B
++#define GL_MAX_GEOMETRY_UNIFORM_COMPONENTS_EXT             0x8DDF
++#define GL_MAX_GEOMETRY_OUTPUT_VERTICES_EXT                0x8DE0
++#define GL_MAX_GEOMETRY_TOTAL_OUTPUT_COMPONENTS_EXT        0x8DE1
++#define GL_GEOMETRY_VERTICES_OUT_EXT                       0x8DDA
++#define GL_GEOMETRY_INPUT_TYPE_EXT                         0x8DDB
++#define GL_GEOMETRY_OUTPUT_TYPE_EXT                        0x8DDC
++#define GL_MAX_GEOMETRY_TEXTURE_IMAGE_UNITS_EXT            0x8C29
++#define GL_LINES_ADJACENCY_EXT                             0xA
++#define GL_LINE_STRIP_ADJACENCY_EXT                        0xB
++#define GL_TRIANGLES_ADJACENCY_EXT                         0xC
++#define GL_TRIANGLE_STRIP_ADJACENCY_EXT                    0xD
++#define GL_FRAMEBUFFER_ATTACHMENT_LAYERED_EXT              0x8DA7
++#define GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS_EXT        0x8DA8
++#define GL_FRAMEBUFFER_INCOMPLETE_LAYER_COUNT_EXT          0x8DA9
++#define GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LAYER_EXT        0x8CD4
++#define GL_PROGRAM_POINT_SIZE_EXT                          0x8642
++typedef void (APIENTRYP PFNGLPROGRAMPARAMETERIEXTPROC) (GLuint program, GLenum pname, GLint value);
++typedef void (APIENTRYP PFNGLFRAMEBUFFERTEXTUREEXTPROC) (GLenum target, GLenum attachment, GLuint texture, GLint level);
++typedef void (APIENTRYP PFNGLFRAMEBUFFERTEXTURELAYEREXTPROC) (GLenum target, GLenum attachment, GLuint texture, GLint level, GLint layer);
++typedef void (APIENTRYP PFNGLFRAMEBUFFERTEXTUREFACEEXTPROC) (GLenum target, GLenum attachment, GLuint texture, GLint level, GLenum face);
++GLEE_EXTERN PFNGLPROGRAMPARAMETERIEXTPROC pglProgramParameteriEXT;
++GLEE_EXTERN PFNGLFRAMEBUFFERTEXTUREEXTPROC pglFramebufferTextureEXT;
++GLEE_EXTERN PFNGLFRAMEBUFFERTEXTURELAYEREXTPROC pglFramebufferTextureLayerEXT;
++GLEE_EXTERN PFNGLFRAMEBUFFERTEXTUREFACEEXTPROC pglFramebufferTextureFaceEXT;
++#define glProgramParameteriEXT pglProgramParameteriEXT
++#define glFramebufferTextureEXT pglFramebufferTextureEXT
++#define glFramebufferTextureLayerEXT pglFramebufferTextureLayerEXT
++#define glFramebufferTextureFaceEXT pglFramebufferTextureFaceEXT
++#endif 
++
++/* GL_EXT_bindable_uniform */
++
++#ifndef GL_EXT_bindable_uniform
++#define GL_EXT_bindable_uniform 1
++#define __GLEE_GL_EXT_bindable_uniform 1
++/* Constants */
++#define GL_MAX_VERTEX_BINDABLE_UNIFORMS_EXT                0x8DE2
++#define GL_MAX_FRAGMENT_BINDABLE_UNIFORMS_EXT              0x8DE3
++#define GL_MAX_GEOMETRY_BINDABLE_UNIFORMS_EXT              0x8DE4
++#define GL_MAX_BINDABLE_UNIFORM_SIZE_EXT                   0x8DED
++#define GL_UNIFORM_BUFFER_EXT                              0x8DEE
++#define GL_UNIFORM_BUFFER_BINDING_EXT                      0x8DEF
++typedef void (APIENTRYP PFNGLUNIFORMBUFFEREXTPROC) (GLuint program, GLint location, GLuint buffer);
++typedef GLint (APIENTRYP PFNGLGETUNIFORMBUFFERSIZEEXTPROC) (GLuint program, GLint location);
++typedef GLintptr (APIENTRYP PFNGLGETUNIFORMOFFSETEXTPROC) (GLuint program, GLint location);
++GLEE_EXTERN PFNGLUNIFORMBUFFEREXTPROC pglUniformBufferEXT;
++GLEE_EXTERN PFNGLGETUNIFORMBUFFERSIZEEXTPROC pglGetUniformBufferSizeEXT;
++GLEE_EXTERN PFNGLGETUNIFORMOFFSETEXTPROC pglGetUniformOffsetEXT;
++#define glUniformBufferEXT pglUniformBufferEXT
++#define glGetUniformBufferSizeEXT pglGetUniformBufferSizeEXT
++#define glGetUniformOffsetEXT pglGetUniformOffsetEXT
++#endif 
++
++/* GL_EXT_framebuffer_sRGB */
++
++#ifndef GL_EXT_framebuffer_sRGB
++#define GL_EXT_framebuffer_sRGB 1
++#define __GLEE_GL_EXT_framebuffer_sRGB 1
++/* Constants */
++#define GL_FRAMEBUFFER_SRGB_EXT                            0x8DB9
++#define GL_FRAMEBUFFER_SRGB_CAPABLE_EXT                    0x8DBA
++#endif 
++
++/* GL_EXT_texture_shared_exponent */
++
++#ifndef GL_EXT_texture_shared_exponent
++#define GL_EXT_texture_shared_exponent 1
++#define __GLEE_GL_EXT_texture_shared_exponent 1
++/* Constants */
++#define GL_RGB9_E5_EXT                                     0x8C3D
++#define GL_UNSIGNED_INT_5_9_9_9_REV_EXT                    0x8C3E
++#define GL_TEXTURE_SHARED_SIZE_EXT                         0x8C3F
++#endif 
++
++/* GL_EXT_packed_float */
++
++#ifndef GL_EXT_packed_float
++#define GL_EXT_packed_float 1
++#define __GLEE_GL_EXT_packed_float 1
++/* Constants */
++#define GL_R11F_G11F_B10F_EXT                              0x8C3A
++#define GL_UNSIGNED_INT_10F_11F_11F_REV_EXT                0x8C3B
++#define GL_RGBA_SIGNED_COMPONENTS_EXT                      0x8C3C
++#endif 
++
++/* GL_EXT_texture_array */
++
++#ifndef GL_EXT_texture_array
++#define GL_EXT_texture_array 1
++#define __GLEE_GL_EXT_texture_array 1
++/* Constants */
++#define GL_TEXTURE_1D_ARRAY_EXT                            0x8C18
++#define GL_PROXY_TEXTURE_1D_ARRAY_EXT                      0x8C19
++#define GL_TEXTURE_2D_ARRAY_EXT                            0x8C1A
++#define GL_PROXY_TEXTURE_2D_ARRAY_EXT                      0x8C1B
++#define GL_TEXTURE_BINDING_1D_ARRAY_EXT                    0x8C1C
++#define GL_TEXTURE_BINDING_2D_ARRAY_EXT                    0x8C1D
++#define GL_MAX_ARRAY_TEXTURE_LAYERS_EXT                    0x88FF
++#define GL_COMPARE_REF_DEPTH_TO_TEXTURE_EXT                0x884E
++#endif 
++
++/* GL_EXT_texture_integer */
++
++#ifndef GL_EXT_texture_integer
++#define GL_EXT_texture_integer 1
++#define __GLEE_GL_EXT_texture_integer 1
++/* Constants */
++#define GL_RGBA32UI_EXT                                    0x8D70
++#define GL_RGB32UI_EXT                                     0x8D71
++#define GL_ALPHA32UI_EXT                                   0x8D72
++#define GL_INTENSITY32UI_EXT                               0x8D73
++#define GL_LUMINANCE32UI_EXT                               0x8D74
++#define GL_LUMINANCE_ALPHA32UI_EXT                         0x8D75
++#define GL_RGBA16UI_EXT                                    0x8D76
++#define GL_RGB16UI_EXT                                     0x8D77
++#define GL_ALPHA16UI_EXT                                   0x8D78
++#define GL_INTENSITY16UI_EXT                               0x8D79
++#define GL_LUMINANCE16UI_EXT                               0x8D7A
++#define GL_LUMINANCE_ALPHA16UI_EXT                         0x8D7B
++#define GL_RGBA8UI_EXT                                     0x8D7C
++#define GL_RGB8UI_EXT                                      0x8D7D
++#define GL_ALPHA8UI_EXT                                    0x8D7E
++#define GL_INTENSITY8UI_EXT                                0x8D7F
++#define GL_LUMINANCE8UI_EXT                                0x8D80
++#define GL_LUMINANCE_ALPHA8UI_EXT                          0x8D81
++#define GL_RGBA32I_EXT                                     0x8D82
++#define GL_RGB32I_EXT                                      0x8D83
++#define GL_ALPHA32I_EXT                                    0x8D84
++#define GL_INTENSITY32I_EXT                                0x8D85
++#define GL_LUMINANCE32I_EXT                                0x8D86
++#define GL_LUMINANCE_ALPHA32I_EXT                          0x8D87
++#define GL_RGBA16I_EXT                                     0x8D88
++#define GL_RGB16I_EXT                                      0x8D89
++#define GL_ALPHA16I_EXT                                    0x8D8A
++#define GL_INTENSITY16I_EXT                                0x8D8B
++#define GL_LUMINANCE16I_EXT                                0x8D8C
++#define GL_LUMINANCE_ALPHA16I_EXT                          0x8D8D
++#define GL_RGBA8I_EXT                                      0x8D8E
++#define GL_RGB8I_EXT                                       0x8D8F
++#define GL_ALPHA8I_EXT                                     0x8D90
++#define GL_INTENSITY8I_EXT                                 0x8D91
++#define GL_LUMINANCE8I_EXT                                 0x8D92
++#define GL_LUMINANCE_ALPHA8I_EXT                           0x8D93
++#define GL_RED_INTEGER_EXT                                 0x8D94
++#define GL_GREEN_INTEGER_EXT                               0x8D95
++#define GL_BLUE_INTEGER_EXT                                0x8D96
++#define GL_ALPHA_INTEGER_EXT                               0x8D97
++#define GL_RGB_INTEGER_EXT                                 0x8D98
++#define GL_RGBA_INTEGER_EXT                                0x8D99
++#define GL_BGR_INTEGER_EXT                                 0x8D9A
++#define GL_BGRA_INTEGER_EXT                                0x8D9B
++#define GL_LUMINANCE_INTEGER_EXT                           0x8D9C
++#define GL_LUMINANCE_ALPHA_INTEGER_EXT                     0x8D9D
++#define GL_RGBA_INTEGER_MODE_EXT                           0x8D9E
++typedef void (APIENTRYP PFNGLTEXPARAMETERIIVEXTPROC) (GLenum target, GLenum pname, const GLint * params);
++typedef void (APIENTRYP PFNGLTEXPARAMETERIUIVEXTPROC) (GLenum target, GLenum pname, const GLuint * params);
++typedef void (APIENTRYP PFNGLGETTEXPARAMETERIIVEXTPROC) (GLenum target, GLenum pname, GLint * params);
++typedef void (APIENTRYP PFNGLGETTEXPARAMETERIUIVEXTPROC) (GLenum target, GLenum pname, GLuint * params);
++typedef void (APIENTRYP PFNGLCLEARCOLORIIEXTPROC) (GLint red, GLint green, GLint blue, GLint alpha);
++typedef void (APIENTRYP PFNGLCLEARCOLORIUIEXTPROC) (GLuint red, GLuint green, GLuint blue, GLuint alpha);
++GLEE_EXTERN PFNGLTEXPARAMETERIIVEXTPROC pglTexParameterIivEXT;
++GLEE_EXTERN PFNGLTEXPARAMETERIUIVEXTPROC pglTexParameterIuivEXT;
++GLEE_EXTERN PFNGLGETTEXPARAMETERIIVEXTPROC pglGetTexParameterIivEXT;
++GLEE_EXTERN PFNGLGETTEXPARAMETERIUIVEXTPROC pglGetTexParameterIuivEXT;
++GLEE_EXTERN PFNGLCLEARCOLORIIEXTPROC pglClearColorIiEXT;
++GLEE_EXTERN PFNGLCLEARCOLORIUIEXTPROC pglClearColorIuiEXT;
++#define glTexParameterIivEXT pglTexParameterIivEXT
++#define glTexParameterIuivEXT pglTexParameterIuivEXT
++#define glGetTexParameterIivEXT pglGetTexParameterIivEXT
++#define glGetTexParameterIuivEXT pglGetTexParameterIuivEXT
++#define glClearColorIiEXT pglClearColorIiEXT
++#define glClearColorIuiEXT pglClearColorIuiEXT
++#endif 
++
++/* GL_NV_depth_buffer_float */
++
++#ifndef GL_NV_depth_buffer_float
++#define GL_NV_depth_buffer_float 1
++#define __GLEE_GL_NV_depth_buffer_float 1
++/* Constants */
++#define GL_DEPTH_COMPONENT32F_NV                           0x8DAB
++#define GL_DEPTH32F_STENCIL8_NV                            0x8DAC
++#define GL_FLOAT_32_UNSIGNED_INT_24_8_REV_NV               0x8DAD
++#define GL_DEPTH_BUFFER_FLOAT_MODE_NV                      0x8DAF
++typedef void (APIENTRYP PFNGLDEPTHRANGEDNVPROC) (GLdouble zNear, GLdouble zFar);
++typedef void (APIENTRYP PFNGLCLEARDEPTHDNVPROC) (GLdouble depth);
++typedef void (APIENTRYP PFNGLDEPTHBOUNDSDNVPROC) (GLdouble zmin, GLdouble zmax);
++GLEE_EXTERN PFNGLDEPTHRANGEDNVPROC pglDepthRangedNV;
++GLEE_EXTERN PFNGLCLEARDEPTHDNVPROC pglClearDepthdNV;
++GLEE_EXTERN PFNGLDEPTHBOUNDSDNVPROC pglDepthBoundsdNV;
++#define glDepthRangedNV pglDepthRangedNV
++#define glClearDepthdNV pglClearDepthdNV
++#define glDepthBoundsdNV pglDepthBoundsdNV
++#endif 
++
++/* GL_EXT_texture_compression_latc */
++
++#ifndef GL_EXT_texture_compression_latc
++#define GL_EXT_texture_compression_latc 1
++#define __GLEE_GL_EXT_texture_compression_latc 1
++/* Constants */
++#define GL_COMPRESSED_LUMINANCE_LATC1_EXT                  0x8C70
++#define GL_COMPRESSED_SIGNED_LUMINANCE_LATC1_EXT           0x8C71
++#define GL_COMPRESSED_LUMINANCE_ALPHA_LATC2_EXT            0x8C72
++#define GL_COMPRESSED_SIGNED_LUMINANCE_ALPHA_LATC2_EXT     0x8C73
++#endif 
++
++/* GL_NV_transform_feedback */
++
++#ifndef GL_NV_transform_feedback
++#define GL_NV_transform_feedback 1
++#define __GLEE_GL_NV_transform_feedback 1
++/* Constants */
++#define GL_BACK_PRIMARY_COLOR_NV                           0x8C77
++#define GL_BACK_SECONDARY_COLOR_NV                         0x8C78
++#define GL_TEXTURE_COORD_NV                                0x8C79
++#define GL_CLIP_DISTANCE_NV                                0x8C7A
++#define GL_VERTEX_ID_NV                                    0x8C7B
++#define GL_PRIMITIVE_ID_NV                                 0x8C7C
++#define GL_GENERIC_ATTRIB_NV                               0x8C7D
++#define GL_TRANSFORM_FEEDBACK_ATTRIBS_NV                   0x8C7E
++#define GL_TRANSFORM_FEEDBACK_BUFFER_MODE_NV               0x8C7F
++#define GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_COMPONENTS_NV   0x8C80
++#define GL_ACTIVE_VARYINGS_NV                              0x8C81
++#define GL_ACTIVE_VARYING_MAX_LENGTH_NV                    0x8C82
++#define GL_TRANSFORM_FEEDBACK_VARYINGS_NV                  0x8C83
++#define GL_TRANSFORM_FEEDBACK_BUFFER_START_NV              0x8C84
++#define GL_TRANSFORM_FEEDBACK_BUFFER_SIZE_NV               0x8C85
++#define GL_TRANSFORM_FEEDBACK_RECORD_NV                    0x8C86
++#define GL_PRIMITIVES_GENERATED_NV                         0x8C87
++#define GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN_NV        0x8C88
++#define GL_RASTERIZER_DISCARD_NV                           0x8C89
++#define GL_MAX_TRANSFORM_FEEDBACK_INTERLEAVED_ATTRIBS_NV   0x8C8A
++#define GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS_NV      0x8C8B
++#define GL_INTERLEAVED_ATTRIBS_NV                          0x8C8C
++#define GL_SEPARATE_ATTRIBS_NV                             0x8C8D
++#define GL_TRANSFORM_FEEDBACK_BUFFER_NV                    0x8C8E
++#define GL_TRANSFORM_FEEDBACK_BUFFER_BINDING_NV            0x8C8F
++typedef void (APIENTRYP PFNGLBEGINTRANSFORMFEEDBACKNVPROC) (GLenum primitiveMode);
++typedef void (APIENTRYP PFNGLENDTRANSFORMFEEDBACKNVPROC) ();
++typedef void (APIENTRYP PFNGLTRANSFORMFEEDBACKATTRIBSNVPROC) (GLuint count, const GLint * attribs, GLenum bufferMode);
++typedef void (APIENTRYP PFNGLBINDBUFFERRANGENVPROC) (GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size);
++typedef void (APIENTRYP PFNGLBINDBUFFEROFFSETNVPROC) (GLenum target, GLuint index, GLuint buffer, GLintptr offset);
++typedef void (APIENTRYP PFNGLBINDBUFFERBASENVPROC) (GLenum target, GLuint index, GLuint buffer);
++typedef void (APIENTRYP PFNGLTRANSFORMFEEDBACKVARYINGSNVPROC) (GLuint program, GLsizei count, const GLint * locations, GLenum bufferMode);
++typedef void (APIENTRYP PFNGLACTIVEVARYINGNVPROC) (GLuint program, const GLchar * name);
++typedef GLint (APIENTRYP PFNGLGETVARYINGLOCATIONNVPROC) (GLuint program, const GLchar * name);
++typedef void (APIENTRYP PFNGLGETACTIVEVARYINGNVPROC) (GLuint program, GLuint index, GLsizei bufSize, GLsizei * length, GLsizei * size, GLenum * type, GLchar * name);
++typedef void (APIENTRYP PFNGLGETTRANSFORMFEEDBACKVARYINGNVPROC) (GLuint program, GLuint index, GLint * location);
++GLEE_EXTERN PFNGLBEGINTRANSFORMFEEDBACKNVPROC pglBeginTransformFeedbackNV;
++GLEE_EXTERN PFNGLENDTRANSFORMFEEDBACKNVPROC pglEndTransformFeedbackNV;
++GLEE_EXTERN PFNGLTRANSFORMFEEDBACKATTRIBSNVPROC pglTransformFeedbackAttribsNV;
++GLEE_EXTERN PFNGLBINDBUFFERRANGENVPROC pglBindBufferRangeNV;
++GLEE_EXTERN PFNGLBINDBUFFEROFFSETNVPROC pglBindBufferOffsetNV;
++GLEE_EXTERN PFNGLBINDBUFFERBASENVPROC pglBindBufferBaseNV;
++GLEE_EXTERN PFNGLTRANSFORMFEEDBACKVARYINGSNVPROC pglTransformFeedbackVaryingsNV;
++GLEE_EXTERN PFNGLACTIVEVARYINGNVPROC pglActiveVaryingNV;
++GLEE_EXTERN PFNGLGETVARYINGLOCATIONNVPROC pglGetVaryingLocationNV;
++GLEE_EXTERN PFNGLGETACTIVEVARYINGNVPROC pglGetActiveVaryingNV;
++GLEE_EXTERN PFNGLGETTRANSFORMFEEDBACKVARYINGNVPROC pglGetTransformFeedbackVaryingNV;
++#define glBeginTransformFeedbackNV pglBeginTransformFeedbackNV
++#define glEndTransformFeedbackNV pglEndTransformFeedbackNV
++#define glTransformFeedbackAttribsNV pglTransformFeedbackAttribsNV
++#define glBindBufferRangeNV pglBindBufferRangeNV
++#define glBindBufferOffsetNV pglBindBufferOffsetNV
++#define glBindBufferBaseNV pglBindBufferBaseNV
++#define glTransformFeedbackVaryingsNV pglTransformFeedbackVaryingsNV
++#define glActiveVaryingNV pglActiveVaryingNV
++#define glGetVaryingLocationNV pglGetVaryingLocationNV
++#define glGetActiveVaryingNV pglGetActiveVaryingNV
++#define glGetTransformFeedbackVaryingNV pglGetTransformFeedbackVaryingNV
++#endif 
++
++/* GL_NV_geometry_program4 */
++
++#ifndef GL_NV_geometry_program4
++#define GL_NV_geometry_program4 1
++#define __GLEE_GL_NV_geometry_program4 1
++/* Constants */
++#define GL_GEOMETRY_PROGRAM_NV                             0x8C26
++#define GL_MAX_PROGRAM_OUTPUT_VERTICES_NV                  0x8C27
++#define GL_MAX_PROGRAM_TOTAL_OUTPUT_COMPONENTS_NV          0x8C28
++typedef void (APIENTRYP PFNGLPROGRAMVERTEXLIMITNVPROC) (GLenum target, GLint limit);
++GLEE_EXTERN PFNGLPROGRAMVERTEXLIMITNVPROC pglProgramVertexLimitNV;
++#define glProgramVertexLimitNV pglProgramVertexLimitNV
++#endif 
++
++/* GL_NV_gpu_program4 */
++
++#ifndef GL_NV_gpu_program4
++#define GL_NV_gpu_program4 1
++#define __GLEE_GL_NV_gpu_program4 1
++/* Constants */
++#define GL_MIN_PROGRAM_TEXEL_OFFSET_NV                     0x8904
++#define GL_MAX_PROGRAM_TEXEL_OFFSET_NV                     0x8905
++#define GL_PROGRAM_ATTRIB_COMPONENTS_NV                    0x8906
++#define GL_PROGRAM_RESULT_COMPONENTS_NV                    0x8907
++#define GL_MAX_PROGRAM_ATTRIB_COMPONENTS_NV                0x8908
++#define GL_MAX_PROGRAM_RESULT_COMPONENTS_NV                0x8909
++#define GL_MAX_PROGRAM_GENERIC_ATTRIBS_NV                  0x8DA5
++#define GL_MAX_PROGRAM_GENERIC_RESULTS_NV                  0x8DA6
++typedef void (APIENTRYP PFNGLPROGRAMLOCALPARAMETERI4INVPROC) (GLenum target, GLuint index, GLint x, GLint y, GLint z, GLint w);
++typedef void (APIENTRYP PFNGLPROGRAMLOCALPARAMETERI4IVNVPROC) (GLenum target, GLuint index, const GLint * params);
++typedef void (APIENTRYP PFNGLPROGRAMLOCALPARAMETERSI4IVNVPROC) (GLenum target, GLuint index, GLsizei count, const GLint * params);
++typedef void (APIENTRYP PFNGLPROGRAMLOCALPARAMETERI4UINVPROC) (GLenum target, GLuint index, GLuint x, GLuint y, GLuint z, GLuint w);
++typedef void (APIENTRYP PFNGLPROGRAMLOCALPARAMETERI4UIVNVPROC) (GLenum target, GLuint index, const GLuint * params);
++typedef void (APIENTRYP PFNGLPROGRAMLOCALPARAMETERSI4UIVNVPROC) (GLenum target, GLuint index, GLsizei count, const GLuint * params);
++typedef void (APIENTRYP PFNGLPROGRAMENVPARAMETERI4INVPROC) (GLenum target, GLuint index, GLint x, GLint y, GLint z, GLint w);
++typedef void (APIENTRYP PFNGLPROGRAMENVPARAMETERI4IVNVPROC) (GLenum target, GLuint index, const GLint * params);
++typedef void (APIENTRYP PFNGLPROGRAMENVPARAMETERSI4IVNVPROC) (GLenum target, GLuint index, GLsizei count, const GLint * params);
++typedef void (APIENTRYP PFNGLPROGRAMENVPARAMETERI4UINVPROC) (GLenum target, GLuint index, GLuint x, GLuint y, GLuint z, GLuint w);
++typedef void (APIENTRYP PFNGLPROGRAMENVPARAMETERI4UIVNVPROC) (GLenum target, GLuint index, const GLuint * params);
++typedef void (APIENTRYP PFNGLPROGRAMENVPARAMETERSI4UIVNVPROC) (GLenum target, GLuint index, GLsizei count, const GLuint * params);
++typedef void (APIENTRYP PFNGLGETPROGRAMLOCALPARAMETERIIVNVPROC) (GLenum target, GLuint index, GLint * params);
++typedef void (APIENTRYP PFNGLGETPROGRAMLOCALPARAMETERIUIVNVPROC) (GLenum target, GLuint index, GLuint * params);
++typedef void (APIENTRYP PFNGLGETPROGRAMENVPARAMETERIIVNVPROC) (GLenum target, GLuint index, GLint * params);
++typedef void (APIENTRYP PFNGLGETPROGRAMENVPARAMETERIUIVNVPROC) (GLenum target, GLuint index, GLuint * params);
++GLEE_EXTERN PFNGLPROGRAMLOCALPARAMETERI4INVPROC pglProgramLocalParameterI4iNV;
++GLEE_EXTERN PFNGLPROGRAMLOCALPARAMETERI4IVNVPROC pglProgramLocalParameterI4ivNV;
++GLEE_EXTERN PFNGLPROGRAMLOCALPARAMETERSI4IVNVPROC pglProgramLocalParametersI4ivNV;
++GLEE_EXTERN PFNGLPROGRAMLOCALPARAMETERI4UINVPROC pglProgramLocalParameterI4uiNV;
++GLEE_EXTERN PFNGLPROGRAMLOCALPARAMETERI4UIVNVPROC pglProgramLocalParameterI4uivNV;
++GLEE_EXTERN PFNGLPROGRAMLOCALPARAMETERSI4UIVNVPROC pglProgramLocalParametersI4uivNV;
++GLEE_EXTERN PFNGLPROGRAMENVPARAMETERI4INVPROC pglProgramEnvParameterI4iNV;
++GLEE_EXTERN PFNGLPROGRAMENVPARAMETERI4IVNVPROC pglProgramEnvParameterI4ivNV;
++GLEE_EXTERN PFNGLPROGRAMENVPARAMETERSI4IVNVPROC pglProgramEnvParametersI4ivNV;
++GLEE_EXTERN PFNGLPROGRAMENVPARAMETERI4UINVPROC pglProgramEnvParameterI4uiNV;
++GLEE_EXTERN PFNGLPROGRAMENVPARAMETERI4UIVNVPROC pglProgramEnvParameterI4uivNV;
++GLEE_EXTERN PFNGLPROGRAMENVPARAMETERSI4UIVNVPROC pglProgramEnvParametersI4uivNV;
++GLEE_EXTERN PFNGLGETPROGRAMLOCALPARAMETERIIVNVPROC pglGetProgramLocalParameterIivNV;
++GLEE_EXTERN PFNGLGETPROGRAMLOCALPARAMETERIUIVNVPROC pglGetProgramLocalParameterIuivNV;
++GLEE_EXTERN PFNGLGETPROGRAMENVPARAMETERIIVNVPROC pglGetProgramEnvParameterIivNV;
++GLEE_EXTERN PFNGLGETPROGRAMENVPARAMETERIUIVNVPROC pglGetProgramEnvParameterIuivNV;
++#define glProgramLocalParameterI4iNV pglProgramLocalParameterI4iNV
++#define glProgramLocalParameterI4ivNV pglProgramLocalParameterI4ivNV
++#define glProgramLocalParametersI4ivNV pglProgramLocalParametersI4ivNV
++#define glProgramLocalParameterI4uiNV pglProgramLocalParameterI4uiNV
++#define glProgramLocalParameterI4uivNV pglProgramLocalParameterI4uivNV
++#define glProgramLocalParametersI4uivNV pglProgramLocalParametersI4uivNV
++#define glProgramEnvParameterI4iNV pglProgramEnvParameterI4iNV
++#define glProgramEnvParameterI4ivNV pglProgramEnvParameterI4ivNV
++#define glProgramEnvParametersI4ivNV pglProgramEnvParametersI4ivNV
++#define glProgramEnvParameterI4uiNV pglProgramEnvParameterI4uiNV
++#define glProgramEnvParameterI4uivNV pglProgramEnvParameterI4uivNV
++#define glProgramEnvParametersI4uivNV pglProgramEnvParametersI4uivNV
++#define glGetProgramLocalParameterIivNV pglGetProgramLocalParameterIivNV
++#define glGetProgramLocalParameterIuivNV pglGetProgramLocalParameterIuivNV
++#define glGetProgramEnvParameterIivNV pglGetProgramEnvParameterIivNV
++#define glGetProgramEnvParameterIuivNV pglGetProgramEnvParameterIuivNV
++#endif 
++
++/* GL_NV_framebuffer_multisample_coverage */
++
++#ifndef GL_NV_framebuffer_multisample_coverage
++#define GL_NV_framebuffer_multisample_coverage 1
++#define __GLEE_GL_NV_framebuffer_multisample_coverage 1
++/* Constants */
++#define GL_RENDERBUFFER_COVERAGE_SAMPLES_NV                0x8CAB
++#define GL_RENDERBUFFER_COLOR_SAMPLES_NV                   0x8E10
++#define GL_MAX_RENDERBUFFER_COVERAGE_SAMPLES_NV            0x8D57
++#define GL_MAX_RENDERBUFFER_COLOR_SAMPLES_NV               0x8E11
++#define GL_MAX_MULTISAMPLE_COVERAGE_MODES_NV               0x8E12
++#define GL_MULTISAMPLE_COVERAGE_MODES_NV                   0x8E13
++typedef void (APIENTRYP PFNGLRENDERBUFFERSTORAGEMULTISAMPLECOVERAGENVPROC) (GLenum target, GLsizei coverageSamples, GLsizei colorSamples, GLenum internalformat, GLsizei width, GLsizei height);
++GLEE_EXTERN PFNGLRENDERBUFFERSTORAGEMULTISAMPLECOVERAGENVPROC pglRenderbufferStorageMultisampleCoverageNV;
++#define glRenderbufferStorageMultisampleCoverageNV pglRenderbufferStorageMultisampleCoverageNV
++#endif 
++
++/* GL_EXT_framebuffer_multisample */
++
++#ifndef GL_EXT_framebuffer_multisample
++#define GL_EXT_framebuffer_multisample 1
++#define __GLEE_GL_EXT_framebuffer_multisample 1
++/* Constants */
++#define GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE_EXT          0x8D56
++#define GL_MAX_SAMPLES_EXT                                 0x8D57
++#define GL_RENDERBUFFER_SAMPLES_EXT                        0x8CAB
++typedef void (APIENTRYP PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC) (GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height);
++GLEE_EXTERN PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC pglRenderbufferStorageMultisampleEXT;
++#define glRenderbufferStorageMultisampleEXT pglRenderbufferStorageMultisampleEXT
++#endif 
++
++/* GL_EXT_framebuffer_blit */
++
++#ifndef GL_EXT_framebuffer_blit
++#define GL_EXT_framebuffer_blit 1
++#define __GLEE_GL_EXT_framebuffer_blit 1
++/* Constants */
++#define GL_READ_FRAMEBUFFER_EXT                            0x8CA8
++#define GL_DRAW_FRAMEBUFFER_EXT                            0x8CA9
++#define GL_DRAW_FRAMEBUFFER_BINDING_EXT                    0x8CA6
++#define GL_READ_FRAMEBUFFER_BINDING_EXT                    0x8CAA
++typedef void (APIENTRYP PFNGLBLITFRAMEBUFFEREXTPROC) (GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter);
++GLEE_EXTERN PFNGLBLITFRAMEBUFFEREXTPROC pglBlitFramebufferEXT;
++#define glBlitFramebufferEXT pglBlitFramebufferEXT
++#endif 
++
++/* GL_EXT_texture_compression_rgtc */
++
++#ifndef GL_EXT_texture_compression_rgtc
++#define GL_EXT_texture_compression_rgtc 1
++#define __GLEE_GL_EXT_texture_compression_rgtc 1
++/* Constants */
++#define GL_COMPRESSED_RED_RGTC1_EXT                        0x8DBB
++#define GL_COMPRESSED_SIGNED_RED_RGTC1_EXT                 0x8DBC
++#define GL_COMPRESSED_RED_GREEN_RGTC2_EXT                  0x8DBD
++#define GL_COMPRESSED_SIGNED_RED_GREEN_RGTC2_EXT           0x8DBE
++#endif 
++
+ /* GL_EXT_color_matrix */
+ 
+ #ifndef GL_EXT_color_matrix
+@@ -8329,6 +9021,63 @@
+ #define glIglooInterfaceSGIX pglIglooInterfaceSGIX
+ #endif 
+ 
++/* GL_EXT_draw_buffers2 */
++
++#ifndef GL_EXT_draw_buffers2
++#define GL_EXT_draw_buffers2 1
++#define __GLEE_GL_EXT_draw_buffers2 1
++/* Constants */
++typedef void (APIENTRYP PFNGLCOLORMASKINDEXEDEXTPROC) (GLuint index, GLboolean r, GLboolean g, GLboolean b, GLboolean a);
++typedef void (APIENTRYP PFNGLGETBOOLEANINDEXEDVEXTPROC) (GLenum target, GLuint index, GLboolean * data);
++typedef void (APIENTRYP PFNGLGETINTEGERINDEXEDVEXTPROC) (GLenum target, GLuint index, GLint * data);
++typedef void (APIENTRYP PFNGLENABLEINDEXEDEXTPROC) (GLenum target, GLuint index);
++typedef void (APIENTRYP PFNGLDISABLEINDEXEDEXTPROC) (GLenum target, GLuint index);
++typedef GLboolean (APIENTRYP PFNGLISENABLEDINDEXEDEXTPROC) (GLenum target, GLuint index);
++GLEE_EXTERN PFNGLCOLORMASKINDEXEDEXTPROC pglColorMaskIndexedEXT;
++GLEE_EXTERN PFNGLGETBOOLEANINDEXEDVEXTPROC pglGetBooleanIndexedvEXT;
++GLEE_EXTERN PFNGLGETINTEGERINDEXEDVEXTPROC pglGetIntegerIndexedvEXT;
++GLEE_EXTERN PFNGLENABLEINDEXEDEXTPROC pglEnableIndexedEXT;
++GLEE_EXTERN PFNGLDISABLEINDEXEDEXTPROC pglDisableIndexedEXT;
++GLEE_EXTERN PFNGLISENABLEDINDEXEDEXTPROC pglIsEnabledIndexedEXT;
++#define glColorMaskIndexedEXT pglColorMaskIndexedEXT
++#define glGetBooleanIndexedvEXT pglGetBooleanIndexedvEXT
++#define glGetIntegerIndexedvEXT pglGetIntegerIndexedvEXT
++#define glEnableIndexedEXT pglEnableIndexedEXT
++#define glDisableIndexedEXT pglDisableIndexedEXT
++#define glIsEnabledIndexedEXT pglIsEnabledIndexedEXT
++#endif 
++
++/* GL_NV_parameter_buffer_object */
++
++#ifndef GL_NV_parameter_buffer_object
++#define GL_NV_parameter_buffer_object 1
++#define __GLEE_GL_NV_parameter_buffer_object 1
++/* Constants */
++typedef void (APIENTRYP PFNGLPROGRAMBUFFERPARAMETERSFVNVPROC) (GLenum target, GLuint buffer, GLuint index, GLsizei count, const GLfloat * params);
++typedef void (APIENTRYP PFNGLPROGRAMBUFFERPARAMETERSIIVNVPROC) (GLenum target, GLuint buffer, GLuint index, GLsizei count, const GLint * params);
++typedef void (APIENTRYP PFNGLPROGRAMBUFFERPARAMETERSIUIVNVPROC) (GLenum target, GLuint buffer, GLuint index, GLsizei count, const GLuint * params);
++GLEE_EXTERN PFNGLPROGRAMBUFFERPARAMETERSFVNVPROC pglProgramBufferParametersfvNV;
++GLEE_EXTERN PFNGLPROGRAMBUFFERPARAMETERSIIVNVPROC pglProgramBufferParametersIivNV;
++GLEE_EXTERN PFNGLPROGRAMBUFFERPARAMETERSIUIVNVPROC pglProgramBufferParametersIuivNV;
++#define glProgramBufferParametersfvNV pglProgramBufferParametersfvNV
++#define glProgramBufferParametersIivNV pglProgramBufferParametersIivNV
++#define glProgramBufferParametersIuivNV pglProgramBufferParametersIuivNV
++#endif 
++
++/* GL_EXT_draw_instanced */
++
++#ifndef GL_EXT_draw_instanced
++#define GL_EXT_draw_instanced 1
++#define __GLEE_GL_EXT_draw_instanced 1
++/* Constants */
++typedef void (APIENTRYP PFNGLDRAWARRAYSINSTANCEDEXTPROC) (GLenum mode, GLint start, GLsizei count, GLsizei primcount);
++typedef void (APIENTRYP PFNGLDRAWELEMENTSINSTANCEDEXTPROC) (GLenum mode, GLsizei count, GLenum type, const GLvoid * indices, GLsizei primcount);
++GLEE_EXTERN PFNGLDRAWARRAYSINSTANCEDEXTPROC pglDrawArraysInstancedEXT;
++GLEE_EXTERN PFNGLDRAWELEMENTSINSTANCEDEXTPROC pglDrawElementsInstancedEXT;
++#define glDrawArraysInstancedEXT pglDrawArraysInstancedEXT
++#define glDrawElementsInstancedEXT pglDrawElementsInstancedEXT
++#endif 
++
+ /* GL_EXT_fragment_lighting */
+ 
+ #ifndef GL_EXT_fragment_lighting
+@@ -8405,33 +9154,6 @@
+ #define glLightEnviEXT pglLightEnviEXT
+ #endif 
+ 
+-/* GL_EXT_framebuffer_blit */
+-
+-#ifndef GL_EXT_framebuffer_blit
+-#define GL_EXT_framebuffer_blit 1
+-#define __GLEE_GL_EXT_framebuffer_blit 1
+-/* Constants */
+-#define GL_READ_FRAMEBUFFER_EXT                            0x8CA8
+-#define GL_DRAW_FRAMEBUFFER_EXT                            0x8CA9
+-#define GL_DRAW_FRAMEBUFFER_BINDING_EXT                    0x8CA6
+-#define GL_READ_FRAMEBUFFER_BINDING_EXT                    0x8CAA
+-typedef GLvoid (APIENTRYP PFNGLBLITFRAMEBUFFEREXTPROC) (GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter);
+-GLEE_EXTERN PFNGLBLITFRAMEBUFFEREXTPROC pglBlitFramebufferEXT;
+-#define glBlitFramebufferEXT pglBlitFramebufferEXT
+-#endif 
+-
+-/* GL_EXT_framebuffer_multisample */
+-
+-#ifndef GL_EXT_framebuffer_multisample
+-#define GL_EXT_framebuffer_multisample 1
+-#define __GLEE_GL_EXT_framebuffer_multisample 1
+-/* Constants */
+-#define GL_RENDERBUFFER_SAMPLES_EXT                        0x8CAB
+-typedef GLvoid (APIENTRYP PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC) (GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height);
+-GLEE_EXTERN PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC pglRenderbufferStorageMultisampleEXT;
+-#define glRenderbufferStorageMultisampleEXT pglRenderbufferStorageMultisampleEXT
+-#endif 
+-
+ /* GL_EXT_packed_depth_stencil */
+ 
+ #ifndef GL_EXT_packed_depth_stencil
+@@ -8642,7 +9364,7 @@
+ #define GL_MAX_INTENSITY_SGIS                              0x85FB
+ #endif 
+ 
+-/* WIN32 SPECIFIC */
++/* WGL  */
+ 
+ #ifdef WIN32
+ 
+@@ -9371,7 +10093,8 @@
+ GLEE_EXTERN PFNWGLSETSTEREOEMITTERSTATE3DLPROC pwglSetStereoEmitterState3DL;
+ #define wglSetStereoEmitterState3DL pwglSetStereoEmitterState3DL
+ #endif 
+-#else /* WIN32 defined */
++#elif defined(__APPLE__) || defined(__APPLE_CC__)
++#else /* GLX */
+ 
+ /* Extension querying variables */
+ 
+@@ -10048,7 +10771,7 @@
+ #define __GLEE_GLX_EXT_scene_marker 1
+ /* Constants */
+ #endif 
+-#endif /*end linux */
++#endif /*end GLX */
+ 
+ /*****************************************************************
+  * GLee functions
+@@ -10062,6 +10785,7 @@
+ 
+ #ifdef WIN32
+ GLEE_EXTERN const char * GLeeGetExtStrWGL();
++#elif defined(__APPLE__) || defined(__APPLE_CC__)
+ #else 
+ GLEE_EXTERN const char * GLeeGetExtStrGLX();
+ #endif
+
+Modified: antargis/trunk/ext/video/headers.hh
+===================================================================
+--- antargis/trunk/ext/video/headers.hh	2008-01-26 19:48:26 UTC (rev 1217)
++++ antargis/trunk/ext/video/headers.hh	2008-01-27 15:47:21 UTC (rev 1218)
+@@ -1,22 +1,22 @@
+ #ifndef __ANTARGIS_H__
+ #define __ANTARGIS_H__
++#include &quot;ext/basic/ag_config.h&quot;
++#include &quot;ext/basic/ag_fs.h&quot;
++#include &quot;ext/basic/ag_geometry.h&quot;
+ #include &quot;ext/basic/ag_main.h&quot;
+-#include &quot;ext/basic/ag_utf8.h&quot;
++#include &quot;ext/basic/ag_messageobject.h&quot;
++#include &quot;ext/basic/ag_rand_base.h&quot;
++#include &quot;ext/basic/ag_rubyobj.h&quot;
++#include &quot;ext/basic/ag_serial.h&quot;
+ #include &quot;ext/basic/ag_singleton.h&quot;
+-#include &quot;ext/basic/ag_config.h&quot;
+ #include &quot;ext/basic/ag_string_utf8.h&quot;
+-#include &quot;ext/basic/ag_rand_base.h&quot;
+-#include &quot;ext/basic/ag_serial.h&quot;
+ #include &quot;ext/basic/ag_stringstream.h&quot;
+-#include &quot;ext/basic/ag_geometry.h&quot;
++#include &quot;ext/basic/ag_utf8.h&quot;
+ #include &quot;ext/basic/ag_video_base.h&quot;
+ #include &quot;ext/basic/ag_xml.h&quot;
+-#include &quot;ext/basic/ag_fs.h&quot;
+-#include &quot;ext/basic/ag_messageobject.h&quot;
+-#include &quot;ext/basic/ag_rubyobj.h&quot;
+ #include &quot;ext/sound/ag_mixer.h&quot;
++#include &quot;ext/math/ag_algebra.h&quot;
+ #include &quot;ext/math/ag_rand.h&quot;
+-#include &quot;ext/math/ag_algebra.h&quot;
+ #include &quot;ext/math/ant_frustum.h&quot;
+ #include &quot;ext/video/ag_painttarget.h&quot;
+ #include &quot;ext/video/ag_surface.h&quot;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000174.html">[Antargis-svn] r1217 - antargis/trunk/build/swig
+</A></li>
+	<LI>Next message: <A HREF="000176.html">[Antargis-svn] r1219 - in antargis/trunk/ruby: . spec
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#175">[ date ]</a>
+              <a href="thread.html#175">[ thread ]</a>
+              <a href="subject.html#175">[ subject ]</a>
+              <a href="author.html#175">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

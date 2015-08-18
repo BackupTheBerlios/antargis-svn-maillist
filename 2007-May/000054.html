@@ -1,0 +1,527 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1096 - in antargis/branches/branch_2d: gui/src ruby	ruby/tests
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-May/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1096%20-%20in%20antargis/branches/branch_2d%3A%20gui/src%20ruby%0A%09ruby/tests&In-Reply-To=%3C200705130843.l4D8hcid012087%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000053.html">
+   <LINK REL="Next"  HREF="000055.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1096 - in antargis/branches/branch_2d: gui/src ruby	ruby/tests</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1096%20-%20in%20antargis/branches/branch_2d%3A%20gui/src%20ruby%0A%09ruby/tests&In-Reply-To=%3C200705130843.l4D8hcid012087%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1096 - in antargis/branches/branch_2d: gui/src ruby	ruby/tests">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sun May 13 10:43:38 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000053.html">[Antargis-svn] r1095 - in antargis/branches/branch_2d: ruby/tests	src
+</A></li>
+        <LI>Next message: <A HREF="000055.html">[Antargis-svn] r1097 - antargis/branches/branch_2d/ruby/tests
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#54">[ date ]</a>
+              <a href="thread.html#54">[ thread ]</a>
+              <a href="subject.html#54">[ subject ]</a>
+              <a href="author.html#54">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-05-13 10:43:36 +0200 (Sun, 13 May 2007)
+New Revision: 1096
+
+Modified:
+   antargis/branches/branch_2d/gui/src/ag_application.cc
+   antargis/branches/branch_2d/gui/src/ag_debug.cc
+   antargis/branches/branch_2d/gui/src/ag_screen.cc
+   antargis/branches/branch_2d/gui/src/ag_screen.h
+   antargis/branches/branch_2d/gui/src/ag_sdlsurface.cc
+   antargis/branches/branch_2d/gui/src/ag_sdlsurface.h
+   antargis/branches/branch_2d/gui/src/ag_surface.cc
+   antargis/branches/branch_2d/gui/src/ag_surface.h
+   antargis/branches/branch_2d/gui/src/ag_texture.cc
+   antargis/branches/branch_2d/gui/src/ag_widget.cc
+   antargis/branches/branch_2d/gui/src/ag_widget.h
+   antargis/branches/branch_2d/ruby/tests/sdl_texture.rb
+   antargis/branches/branch_2d/ruby/two_d_app.rb
+Log:
+* sdl-improvements
+* started new dirty-rects method
+
+
+Modified: antargis/branches/branch_2d/gui/src/ag_application.cc
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_application.cc	2007-05-09 18:37:14 UTC (rev 1095)
++++ antargis/branches/branch_2d/gui/src/ag_application.cc	2007-05-13 08:43:36 UTC (rev 1096)
+@@ -353,6 +353,7 @@
+   if(!videoInited())
+     return;
+ 
++  bool oldClippingTechnique=false;
+ 
+   STACKTRACE;
+   beginRender();
+@@ -362,11 +363,18 @@
+       AGPainter p;
+       if(pLastDrawn==mainWidget &amp;&amp; !opengl())
+ 	{
+-	  AGRect2 r=mainWidget-&gt;getChangeRect();
+-	  if(mCursor)
+-	    r+=mCursorOld;
+-
+-	  p.clip(r);
++	  if(oldClippingTechnique)
++	    {
++	      AGRect2 r=mainWidget-&gt;getChangeRect();
++	      if(mCursor)
++		r+=mCursorOld;
++	      
++	      p.clip(r);
++	    }
++	  else
++	    {
++	      // FIXME: do some advanced clipping
++	    }
+ 	}
+       mainWidget-&gt;drawAll(p);
+ 
+@@ -384,8 +392,19 @@
+       pLastDrawn=mainWidget;
+     }
+   drawCursor();
+-  getScreen().flip();
++
++  std::list&lt;AGRect2&gt; changeList;
++  if(mainWidget)
++    {
++      changeList=mainWidget-&gt;aquireChanges();
++      mainWidget-&gt;clearChangeRects();
++    }
++  if(changeList.size())
++    getScreen().update(changeList);
++  else
++    getScreen().flip();
+   endRender();
++  cdebug(&quot;end render&quot;);
+ }
+ 
+ /**
+
+Modified: antargis/branches/branch_2d/gui/src/ag_debug.cc
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_debug.cc	2007-05-09 18:37:14 UTC (rev 1095)
++++ antargis/branches/branch_2d/gui/src/ag_debug.cc	2007-05-13 08:43:36 UTC (rev 1096)
+@@ -36,7 +36,7 @@
+   quietLog=true;
+ }
+ 
+-static bool gRubyRaising=true;
++static bool gRubyRaising=false;
+ void agRaise(const std::string &amp;s)
+ {
+   cdebug(&quot;assertion failed:&quot;&lt;&lt;s);
+
+Modified: antargis/branches/branch_2d/gui/src/ag_screen.cc
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_screen.cc	2007-05-09 18:37:14 UTC (rev 1095)
++++ antargis/branches/branch_2d/gui/src/ag_screen.cc	2007-05-13 08:43:36 UTC (rev 1096)
+@@ -33,6 +33,11 @@
+ void AGScreen::flip()
+ {
+ }
++void AGScreen::update(const std::list&lt;AGRect2&gt; &amp;rs)
++{
++}
++
++
+ size_t AGScreen::getWidth() const
+ {
+   return 0;
+
+Modified: antargis/branches/branch_2d/gui/src/ag_screen.h
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_screen.h	2007-05-09 18:37:14 UTC (rev 1095)
++++ antargis/branches/branch_2d/gui/src/ag_screen.h	2007-05-13 08:43:36 UTC (rev 1096)
+@@ -33,6 +33,7 @@
+  public:
+   virtual void begin(); // call before start drawing
+   virtual void flip();
++  virtual void update(const std::list&lt;AGRect2&gt; &amp;rs); // call this instead of flip, if you want
+ 
+   virtual size_t getWidth() const;
+   virtual size_t getHeight() const;
+
+Modified: antargis/branches/branch_2d/gui/src/ag_sdlsurface.cc
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_sdlsurface.cc	2007-05-09 18:37:14 UTC (rev 1095)
++++ antargis/branches/branch_2d/gui/src/ag_sdlsurface.cc	2007-05-13 08:43:36 UTC (rev 1096)
+@@ -40,9 +40,37 @@
+ 
+ void AGSDLScreen::flip()
+ {
++  CTRACE;
+   SDL_Flip(s);
+ }
+ 
++void AGSDLScreen::update(const std::list&lt;AGRect2&gt; &amp;rs)
++{
++  CTRACE;
++  SDL_Rect *nrs=new SDL_Rect[rs.size()];
++
++  cdebug(&quot;RS:&quot;&lt;&lt;rs.size());
++
++  AGRect2 scr=getRect();
++  size_t j=0;
++  for(std::list&lt;AGRect2&gt;::const_iterator i=rs.begin();i!=rs.end();i++,j++)
++    {
++      AGRect2 n=scr.intersect(*i);
++      //      #warning &quot;FIXME: 
++      nrs[j].x=n.x();
++      nrs[j].y=n.y();
++      nrs[j].w=n.w();
++      nrs[j].h=n.h();
++      cdebug(*i);
++      ///      #error FIXME
++    }
++
++  SDL_UpdateRects(s,rs.size(),nrs);
++
++  delete [] nrs;
++}
++
++
+ AGRect2 AGSDLScreen::getRect() const
+ {
+   return AGRect2(0,0,s-&gt;w,s-&gt;h);
+@@ -52,6 +80,13 @@
+ {
+   if(c.a&lt;0xFF)
+     {
++  sge_FilledRectAlpha(s,
++		      (int)pRect.x(),
++		      (int)pRect.y(),
++		      (int)(pRect.x()+pRect.w()-1),
++		      (int)(pRect.y()+pRect.h()-1),
++		      c.mapRGB(s-&gt;format),c.a);
++  return;
+       for(int x=(int)pRect.x0();x&lt;(int)pRect.x1();x++)
+ 	for(int y=(int)pRect.y0();y&lt;(int)pRect.y1();y++)
+ 	  {
+@@ -60,6 +95,9 @@
+     }
+   else
+     {
++      SDL_Rect r=pRect.sdl();
++      SDL_FillRect(s,&amp;r,c.mapRGB(s-&gt;format));
++      return;
+       for(int x=(int)pRect.x0();x&lt;(int)pRect.x1();x++)
+ 	for(int y=(int)pRect.y0();y&lt;(int)pRect.y1();y++)
+ 	  putPixel(x,y,c);
+
+Modified: antargis/branches/branch_2d/gui/src/ag_sdlsurface.h
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_sdlsurface.h	2007-05-09 18:37:14 UTC (rev 1095)
++++ antargis/branches/branch_2d/gui/src/ag_sdlsurface.h	2007-05-13 08:43:36 UTC (rev 1096)
+@@ -31,6 +31,7 @@
+   virtual void blit(const AGTexture &amp;pSource,const AGRect2 &amp;pDest,const AGRect2 &amp;pSrc);
+ 
+   virtual void flip();
++  virtual void update(const std::list&lt;AGRect2&gt; &amp;rs);
+ 
+   virtual AGRect2 getRect() const;
+ 
+
+Modified: antargis/branches/branch_2d/gui/src/ag_surface.cc
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_surface.cc	2007-05-09 18:37:14 UTC (rev 1095)
++++ antargis/branches/branch_2d/gui/src/ag_surface.cc	2007-05-13 08:43:36 UTC (rev 1096)
+@@ -602,3 +602,50 @@
+ {
+   return (AGDecryptor*)(p);
+ }
++
++std::ostream &amp;operator&lt;&lt;(std::ostream &amp;o,SDL_PixelFormat *f)
++{
++  o&lt;&lt;&quot;(&quot;;
++    //    SDL_Palette *palette;
++  o&lt;&lt;(int)f-&gt;BitsPerPixel&lt;&lt;&quot;;&quot;;
++  o&lt;&lt;(int)f-&gt;BytesPerPixel&lt;&lt;&quot;;&quot;;
++  o&lt;&lt;(int)f-&gt;Rloss&lt;&lt;&quot;;&quot;;
++  o&lt;&lt;(int)f-&gt;Gloss&lt;&lt;&quot;;&quot;;
++  o&lt;&lt;(int)f-&gt;Bloss&lt;&lt;&quot;;&quot;;
++  o&lt;&lt;(int)f-&gt;Aloss&lt;&lt;&quot;;&quot;;
++  o&lt;&lt;(int)f-&gt;Rshift&lt;&lt;&quot;;&quot;;
++  o&lt;&lt;(int)f-&gt;Gshift&lt;&lt;&quot;;&quot;;
++  o&lt;&lt;(int)f-&gt;Bshift&lt;&lt;&quot;;&quot;;
++  o&lt;&lt;(int)f-&gt;Ashift&lt;&lt;&quot;;&quot;;
++  o&lt;&lt;(int)f-&gt;Rmask&lt;&lt;&quot;;&quot;;
++  o&lt;&lt;(int)f-&gt;Gmask&lt;&lt;&quot;;&quot;;
++  o&lt;&lt;(int)f-&gt;Bmask&lt;&lt;&quot;;&quot;;
++  o&lt;&lt;(int)f-&gt;Amask&lt;&lt;&quot;;&quot;;
++  o&lt;&lt;(int)f-&gt;colorkey&lt;&lt;&quot;;&quot;;
++  o&lt;&lt;(int)f-&gt;alpha&lt;&lt;&quot;)&quot;;
++  o&lt;&lt;&quot;\n&quot;;
++
++
++  return o;
++}
++
++std::ostream &amp;operator&lt;&lt;(std::ostream &amp;o,SDL_Surface *f)
++{
++  o&lt;&lt;&quot;(&quot;;
++  o&lt;&lt;f-&gt;flags&lt;&lt;&quot;,&quot;;
++  o&lt;&lt;f-&gt;format&lt;&lt;&quot;,&quot;;                /* Read-only */
++  o&lt;&lt;f-&gt;w&lt;&lt;&quot;,&quot;&lt;&lt;f-&gt;h&lt;&lt;&quot;,&quot;;
++  o&lt;&lt;f-&gt;pitch&lt;&lt;&quot;;&quot;;                           /* Read-only */
++  o&lt;&lt;f-&gt;offset&lt;&lt;&quot;;&quot;;                             /* Private */
++
++  o&lt;&lt;f-&gt;clip_rect&lt;&lt;&quot;;&quot;;                     /* Read-only */
++
++  o&lt;&lt;f-&gt;locked&lt;&lt;&quot;;&quot;;                          /* Private */
++
++  o&lt;&lt;f-&gt;format_version&lt;&lt;&quot;;&quot;;            /* Private */
++
++        /* Reference count -- used when freeing surface */
++  o&lt;&lt;f-&gt;refcount&lt;&lt;&quot;)\n&quot;;
++
++  return o;
++}
+
+Modified: antargis/branches/branch_2d/gui/src/ag_surface.h
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_surface.h	2007-05-09 18:37:14 UTC (rev 1095)
++++ antargis/branches/branch_2d/gui/src/ag_surface.h	2007-05-13 08:43:36 UTC (rev 1096)
+@@ -144,4 +144,6 @@
+ void AGFreeSurface(SDL_Surface *s);
+ 
+ std::ostream &amp;operator&lt;&lt;(std::ostream &amp;o,SDL_PixelFormat *f);
++std::ostream &amp;operator&lt;&lt;(std::ostream &amp;o,SDL_Surface *f);
++
+ #endif
+
+Modified: antargis/branches/branch_2d/gui/src/ag_texture.cc
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_texture.cc	2007-05-09 18:37:14 UTC (rev 1095)
++++ antargis/branches/branch_2d/gui/src/ag_texture.cc	2007-05-13 08:43:36 UTC (rev 1096)
+@@ -186,9 +186,20 @@
+     {
+       mSDLTexture=new AGInternalSurface;
+       assert(s);
++      bool sempty=false;
+       if(!s)
+-	s=AGSurface(w,h).surface();
++	{
++	  s=AGSurface(w,h).surface();
++	  //SDL_SetColorKey(s-&gt;surface,0,0);
++	  //	  SDL_SetAlpha(s-&gt;surface,0,0);
++	  sempty=true;
++	}
++      
+       mSDLTexture-&gt;surface=SDL_DisplayFormatAlpha(s-&gt;surface);
++      //      if(!sempty)
++      //      	SDL_SetAlpha(mSDLTexture-&gt;surface,0,0);
++	//SDL_SetColorKey(mSDLTexture-&gt;surface,0,0);
++
+       s-&gt;sdlTexture=mSDLTexture;
+     }
+   return mSDLTexture;
+@@ -407,41 +418,37 @@
+     }
+   else
+     {
+-      SDL_Rect clip;
+-
+-      //      throw std::runtime_error(&quot;my blitting&quot;);
+       SDL_Rect sr,dr;
+       sr=pSrc.sdl();
+       dr=pDest.sdl();
+ 
+       const_cast&lt;AGTexture&amp;&gt;(pSource).sdlTexture();
+-      cdebug(&quot;sr:&quot;&lt;&lt;sr&lt;&lt;&quot; dr:&quot;&lt;&lt;dr);
+-      cdebug(pSource.mSDLTexture);
+-      cdebug(pSource.mSDLTexture-&gt;surface);
+-      cdebug(sdlTexture()-&gt;surface);
+ 
+-      AGSurface(pSource.s).save(&quot;source.s.png&quot;);
+-      AGSurface(pSource.mSDLTexture).save(&quot;source.tex.png&quot;);
+-      SDL_GetClipRect(s-&gt;surface,&amp;clip);
+-      cdebug(&quot;clip:&quot;&lt;&lt;clip);
+-      cdebug(&quot;format:&quot;&lt;&lt;*s-&gt;surface-&gt;format);
+-      AGRect2 my(0,0,64,64);
+-      SDL_SetClipRect(s-&gt;surface,&amp;my.sdl());
+-      SDL_UnlockSurface(s-&gt;surface);
+       if(SDL_BlitSurface(pSource.s-&gt;surface,&amp;sr,s-&gt;surface,&amp;dr))
+ 	cdebug(&quot;ERROR&quot;);
+-      /*
+-      for(int x=0;x&lt;64;x++)
+-	for(int y=0;y&lt;64;y++)
+-	  putPixel(x,y,pSource.getPixel(x,y));
+-      */
+-      AGSurface(s).save(&quot;dest.s.png&quot;);
+ 
++      Uint32 saved_flags;
++      Uint8  saved_alpha;
+ 
++      SDL_Surface *sourceSurface;
++
+       if(pSource.mSDLTexture)
+-	SDL_BlitSurface(pSource.mSDLTexture-&gt;surface,&amp;sr,sdlTexture()-&gt;surface,&amp;dr);
++	sourceSurface=pSource.mSDLTexture-&gt;surface;
+       else
+-	SDL_BlitSurface(pSource.s-&gt;surface,&amp;sr,sdlTexture()-&gt;surface,&amp;dr);
++	sourceSurface=pSource.s-&gt;surface;
++      
++      // save alpha-settings
++      saved_flags = sourceSurface-&gt;flags&amp;(SDL_SRCALPHA|SDL_RLEACCELOK);
++      saved_alpha = sourceSurface-&gt;format-&gt;alpha;
++      
++      // clear alpha-settings, so that rgba is copied completely
++      SDL_SetAlpha(sourceSurface,0,0);
++	    
++      if(SDL_BlitSurface(sourceSurface,&amp;sr,sdlTexture()-&gt;surface,&amp;dr))
++	cdebug(&quot;ERROR Blitting&quot;);
++
++      // restore settings
++      SDL_SetAlpha(sourceSurface,saved_flags,saved_alpha);
+     }
+ }
+ void AGTexture::blit(const AGTexture &amp;pSource,const AGRect2 &amp;pDest,const AGRect2 &amp;pSrc,const AGColor &amp;pColor)
+
+Modified: antargis/branches/branch_2d/gui/src/ag_widget.cc
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_widget.cc	2007-05-09 18:37:14 UTC (rev 1095)
++++ antargis/branches/branch_2d/gui/src/ag_widget.cc	2007-05-13 08:43:36 UTC (rev 1096)
+@@ -878,7 +878,7 @@
+ 
+ 	  setDrawn();
+ 
+-
++	  /*
+ 	  {
+ 	    static int i=0;
+ 	    i++;
+@@ -888,8 +888,8 @@
+ 	    ms.save(os.str());
+ 	    
+ 	  }
++	  */
+ 
+-
+ 	  if(mParent)
+ 	    {
+ 	      //CTRACE;
+@@ -1033,3 +1033,27 @@
+     return mParent-&gt;isParent(pParent);
+   return false;
+ }
++
++
++std::list&lt;AGRect2&gt; AGWidget::aquireChanges()
++{
++  std::list&lt;AGRect2&gt; l;
++
++  for(std::list&lt;AGWidget*&gt;::iterator i=mChildren.begin();i!=mChildren.end();i++)
++    {
++      std::list&lt;AGRect2&gt; t=(*i)-&gt;aquireChanges();
++      // FIXME: check, if opaque and truncates rectangles
++      std::copy(t.begin(),t.end(),std::back_inserter(l));
++    }
++  std::copy(mMyChanges.begin(),mMyChanges.end(),std::back_inserter(l));
++  
++  return l;
++}
++void AGWidget::pushChangeRect(const AGRect2 &amp;pRect)
++{
++  mMyChanges.push_back(pRect);
++}
++void AGWidget::clearChangeRects()
++{
++  mMyChanges.clear();
++}
+
+Modified: antargis/branches/branch_2d/gui/src/ag_widget.h
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_widget.h	2007-05-09 18:37:14 UTC (rev 1095)
++++ antargis/branches/branch_2d/gui/src/ag_widget.h	2007-05-13 08:43:36 UTC (rev 1096)
+@@ -199,7 +199,12 @@
+ 
+   void setTooltip(const AGStringUtf8 &amp;pTooltip);
+ 
++  std::list&lt;AGRect2&gt; aquireChanges();
++  void pushChangeRect(const AGRect2 &amp;pRect);
++  void clearChangeRects();
++
+  private:
++  std::list&lt;AGRect2&gt; mMyChanges;
+ 
+   void regChange();
+ 
+
+Modified: antargis/branches/branch_2d/ruby/tests/sdl_texture.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/tests/sdl_texture.rb	2007-05-09 18:37:14 UTC (rev 1095)
++++ antargis/branches/branch_2d/ruby/tests/sdl_texture.rb	2007-05-13 08:43:36 UTC (rev 1096)
+@@ -40,6 +40,7 @@
+ 	end
+ 	def draw(p)
+ 		#p.
++		p.fillRect(AGRect2.new(0,0,256,256),AGColor.new(0,0xFF,0))
+ 		p.blit(@t1,AGRect2.new(0,0,64,64))
+ 		p.blit(@t2,AGRect2.new(64,0,64,64))
+ 		p.blit(@t3,AGRect2.new(128,0,64,64))
+
+Modified: antargis/branches/branch_2d/ruby/two_d_app.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/two_d_app.rb	2007-05-09 18:37:14 UTC (rev 1095)
++++ antargis/branches/branch_2d/ruby/two_d_app.rb	2007-05-13 08:43:36 UTC (rev 1096)
+@@ -23,14 +23,14 @@
+ 		@frame||=0
+ 		@frame+=1
+ 
+-		if (@frame%2)==0
++		#if (@frame%2)==0
+ 			p=AGPainter.new
+ 			@scene.setPainter(p)
+ 			@scene.draw
+ 			@scene.discardPainter
+ 			p=nil
+ 			GC.start
+-		end
++		#end
+ 		super
+ 	end
+ 	def getScene
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000053.html">[Antargis-svn] r1095 - in antargis/branches/branch_2d: ruby/tests	src
+</A></li>
+	<LI>Next message: <A HREF="000055.html">[Antargis-svn] r1097 - antargis/branches/branch_2d/ruby/tests
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#54">[ date ]</a>
+              <a href="thread.html#54">[ thread ]</a>
+              <a href="subject.html#54">[ subject ]</a>
+              <a href="author.html#54">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

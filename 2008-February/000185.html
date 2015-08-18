@@ -1,0 +1,873 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1228 - in antargis/trunk: ext/3dengine ext/basic	ext/game ext/gui ext/math ext/sound ext/test ext/video ruby	ruby/entities ruby/gui ruby/spec
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2008-February/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1228%20-%20in%20antargis/trunk%3A%20ext/3dengine%20ext/basic%0A%09ext/game%20ext/gui%20ext/math%20ext/sound%20ext/test%20ext/video%20ruby%0A%09ruby/entities%20ruby/gui%20ruby/spec&In-Reply-To=%3C200802062002.m16K2j9k022477%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000184.html">
+   <LINK REL="Next"  HREF="000186.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1228 - in antargis/trunk: ext/3dengine ext/basic	ext/game ext/gui ext/math ext/sound ext/test ext/video ruby	ruby/entities ruby/gui ruby/spec</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1228%20-%20in%20antargis/trunk%3A%20ext/3dengine%20ext/basic%0A%09ext/game%20ext/gui%20ext/math%20ext/sound%20ext/test%20ext/video%20ruby%0A%09ruby/entities%20ruby/gui%20ruby/spec&In-Reply-To=%3C200802062002.m16K2j9k022477%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1228 - in antargis/trunk: ext/3dengine ext/basic	ext/game ext/gui ext/math ext/sound ext/test ext/video ruby	ruby/entities ruby/gui ruby/spec">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Wed Feb  6 21:02:45 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000184.html">[Antargis-svn] r1227 - in antargis/trunk: . ext/video ruby
+</A></li>
+        <LI>Next message: <A HREF="000186.html">[Antargis-svn] r1229 - in antargis/trunk: . ext ext/3dengine	ext/game ext/video main ruby ruby/entities ruby/gui ruby/jobs	ruby/spec ruby/widgets
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#185">[ date ]</a>
+              <a href="thread.html#185">[ thread ]</a>
+              <a href="subject.html#185">[ subject ]</a>
+              <a href="author.html#185">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2008-02-06 21:02:44 +0100 (Wed, 06 Feb 2008)
+New Revision: 1228
+
+Added:
+   antargis/trunk/ext/test/Rakefile
+   antargis/trunk/ext/test/gl_text_3d.cc
+   antargis/trunk/ruby/spec/spec_run_tutorial.rb
+Modified:
+   antargis/trunk/ext/3dengine/headers.hh
+   antargis/trunk/ext/basic/headers.hh
+   antargis/trunk/ext/game/headers.hh
+   antargis/trunk/ext/gui/ag_widget.cc
+   antargis/trunk/ext/gui/headers.hh
+   antargis/trunk/ext/math/headers.hh
+   antargis/trunk/ext/sound/headers.hh
+   antargis/trunk/ext/test/
+   antargis/trunk/ext/video/headers.hh
+   antargis/trunk/ruby/ant_application.rb
+   antargis/trunk/ruby/entities/ant_boss.rb
+   antargis/trunk/ruby/gui/testing.rb
+Log:
+* some new tests
+
+Modified: antargis/trunk/ext/3dengine/headers.hh
+===================================================================
+--- antargis/trunk/ext/3dengine/headers.hh	2008-02-05 20:13:13 UTC (rev 1227)
++++ antargis/trunk/ext/3dengine/headers.hh	2008-02-06 20:02:44 UTC (rev 1228)
+@@ -1,62 +1,62 @@
+ #ifndef __ANTARGIS_H__
+ #define __ANTARGIS_H__
++#include &quot;ext/basic/ag_config.h&quot;
++#include &quot;ext/basic/ag_fs.h&quot;
++#include &quot;ext/basic/ag_geometry.h&quot;
+ #include &quot;ext/basic/ag_main.h&quot;
+-#include &quot;ext/basic/ag_utf8.h&quot;
++#include &quot;ext/basic/ag_messageobject.h&quot;
++#include &quot;ext/basic/ag_rand_base.h&quot;
++#include &quot;ext/basic/ag_rubyobj.h&quot;
++#include &quot;ext/basic/ag_serial.h&quot;
+ #include &quot;ext/basic/ag_singleton.h&quot;
+-#include &quot;ext/basic/ag_config.h&quot;
+ #include &quot;ext/basic/ag_string_utf8.h&quot;
+-#include &quot;ext/basic/ag_rand_base.h&quot;
+-#include &quot;ext/basic/ag_serial.h&quot;
+ #include &quot;ext/basic/ag_stringstream.h&quot;
+-#include &quot;ext/basic/ag_geometry.h&quot;
++#include &quot;ext/basic/ag_utf8.h&quot;
+ #include &quot;ext/basic/ag_video_base.h&quot;
+ #include &quot;ext/basic/ag_xml.h&quot;
+-#include &quot;ext/basic/ag_fs.h&quot;
+-#include &quot;ext/basic/ag_messageobject.h&quot;
+-#include &quot;ext/basic/ag_rubyobj.h&quot;
+ #include &quot;ext/sound/ag_mixer.h&quot;
++#include &quot;ext/math/ag_algebra.h&quot;
+ #include &quot;ext/math/ag_rand.h&quot;
+-#include &quot;ext/math/ag_algebra.h&quot;
+ #include &quot;ext/math/ant_frustum.h&quot;
+-#include &quot;ext/video/ag_rendercontext.h&quot;
+-#include &quot;ext/video/ag_texturecache.h&quot;
+ #include &quot;ext/video/ag_clip.h&quot;
++#include &quot;ext/video/ag_color.h&quot;
++#include &quot;ext/video/ag_font.h&quot;
+ #include &quot;ext/video/ag_fontengine.h&quot;
+-#include &quot;ext/video/ag_font.h&quot;
+-#include &quot;ext/video/ag_video.h&quot;
+-#include &quot;ext/video/ag_color.h&quot;
++#include &quot;ext/video/ag_painter.h&quot;
++#include &quot;ext/video/ag_painttarget.h&quot;
++#include &quot;ext/video/ag_rendercontext.h&quot;
+ #include &quot;ext/video/ag_screen.h&quot;
+-#include &quot;ext/video/ag_painttarget.h&quot;
+ #include &quot;ext/video/ag_surface.h&quot;
+ #include &quot;ext/video/ag_texture.h&quot;
+-#include &quot;ext/video/ag_painter.h&quot;
++#include &quot;ext/video/ag_texturecache.h&quot;
++#include &quot;ext/video/ag_video.h&quot;
++#include &quot;ext/gui/ag_application.h&quot;
++#include &quot;ext/gui/ag_background.h&quot;
++#include &quot;ext/gui/ag_border.h&quot;
++#include &quot;ext/gui/ag_button.h&quot;
++#include &quot;ext/gui/ag_caption.h&quot;
++#include &quot;ext/gui/ag_checkbox.h&quot;
++#include &quot;ext/gui/ag_colorbutton.h&quot;
++#include &quot;ext/gui/ag_combo.h&quot;
++#include &quot;ext/gui/ag_edit.h&quot;
++#include &quot;ext/gui/ag_frame.h&quot;
+ #include &quot;ext/gui/ag_image.h&quot;
++#include &quot;ext/gui/ag_layout.h&quot;
++#include &quot;ext/gui/ag_layoutfactory.h&quot;
+ #include &quot;ext/gui/ag_listbox.h&quot;
+-#include &quot;ext/gui/ag_edit.h&quot;
+-#include &quot;ext/gui/ag_scroller.h&quot;
+ #include &quot;ext/gui/ag_local.h&quot;
+-#include &quot;ext/gui/ag_tooltip.h&quot;
++#include &quot;ext/gui/ag_menu.h&quot;
++#include &quot;ext/gui/ag_menuitem.h&quot;
+ #include &quot;ext/gui/ag_radio.h&quot;
+-#include &quot;ext/gui/ag_application.h&quot;
+-#include &quot;ext/gui/ag_colorbutton.h&quot;
+-#include &quot;ext/gui/ag_button.h&quot;
+ #include &quot;ext/gui/ag_radiogroup.h&quot;
+-#include &quot;ext/gui/ag_background.h&quot;
+-#include &quot;ext/gui/ag_menuitem.h&quot;
+ #include &quot;ext/gui/ag_screenwidget.h&quot;
+-#include &quot;ext/gui/ag_widget.h&quot;
++#include &quot;ext/gui/ag_scroller.h&quot;
++#include &quot;ext/gui/ag_table.h&quot;
+ #include &quot;ext/gui/ag_text.h&quot;
+-#include &quot;ext/gui/ag_checkbox.h&quot;
+-#include &quot;ext/gui/ag_table.h&quot;
+-#include &quot;ext/gui/ag_frame.h&quot;
+-#include &quot;ext/gui/ag_caption.h&quot;
+-#include &quot;ext/gui/ag_combo.h&quot;
+ #include &quot;ext/gui/ag_theme.h&quot;
+-#include &quot;ext/gui/ag_menu.h&quot;
+-#include &quot;ext/gui/ag_layoutfactory.h&quot;
++#include &quot;ext/gui/ag_tooltip.h&quot;
++#include &quot;ext/gui/ag_widget.h&quot;
+ #include &quot;ext/gui/ag_window.h&quot;
+-#include &quot;ext/gui/ag_layout.h&quot;
+-#include &quot;ext/gui/ag_border.h&quot;
+ #include &quot;ext/3dengine/mesh_data.h&quot;
+ #include &quot;ext/3dengine/scene_base.h&quot;
+ #include &quot;ext/3dengine/scenenode.h&quot;
+
+Modified: antargis/trunk/ext/basic/headers.hh
+===================================================================
+--- antargis/trunk/ext/basic/headers.hh	2008-02-05 20:13:13 UTC (rev 1227)
++++ antargis/trunk/ext/basic/headers.hh	2008-02-06 20:02:44 UTC (rev 1228)
+@@ -13,8 +13,8 @@
+ #include &quot;ext/basic/ag_xml.h&quot;
+ #include &quot;ext/basic/ag_string_utf8.h&quot;
+ #include &quot;ext/basic/ag_stringstream.h&quot;
++#include &quot;ext/basic/ag_fs.h&quot;
+ #include &quot;ext/basic/ag_utf8.h&quot;
+-#include &quot;ext/basic/ag_fs.h&quot;
+ #ifdef SWIG
+ %include &quot;ext/basic/ag_rubyobj.h&quot;
+ %include &quot;ext/basic/ag_messageobject.h&quot;
+@@ -28,7 +28,7 @@
+ %include &quot;ext/basic/ag_xml.h&quot;
+ %include &quot;ext/basic/ag_string_utf8.h&quot;
+ %include &quot;ext/basic/ag_stringstream.h&quot;
++%include &quot;ext/basic/ag_fs.h&quot;
+ %include &quot;ext/basic/ag_utf8.h&quot;
+-%include &quot;ext/basic/ag_fs.h&quot;
+ #endif
+ #endif
+
+Modified: antargis/trunk/ext/game/headers.hh
+===================================================================
+--- antargis/trunk/ext/game/headers.hh	2008-02-05 20:13:13 UTC (rev 1227)
++++ antargis/trunk/ext/game/headers.hh	2008-02-06 20:02:44 UTC (rev 1228)
+@@ -1,78 +1,78 @@
+ #ifndef __ANTARGIS_H__
+ #define __ANTARGIS_H__
++#include &quot;ext/basic/ag_config.h&quot;
++#include &quot;ext/basic/ag_fs.h&quot;
++#include &quot;ext/basic/ag_geometry.h&quot;
+ #include &quot;ext/basic/ag_main.h&quot;
+-#include &quot;ext/basic/ag_utf8.h&quot;
++#include &quot;ext/basic/ag_messageobject.h&quot;
++#include &quot;ext/basic/ag_rand_base.h&quot;
++#include &quot;ext/basic/ag_rubyobj.h&quot;
++#include &quot;ext/basic/ag_serial.h&quot;
+ #include &quot;ext/basic/ag_singleton.h&quot;
+-#include &quot;ext/basic/ag_config.h&quot;
+ #include &quot;ext/basic/ag_string_utf8.h&quot;
+-#include &quot;ext/basic/ag_rand_base.h&quot;
+-#include &quot;ext/basic/ag_serial.h&quot;
+ #include &quot;ext/basic/ag_stringstream.h&quot;
+-#include &quot;ext/basic/ag_geometry.h&quot;
++#include &quot;ext/basic/ag_utf8.h&quot;
+ #include &quot;ext/basic/ag_video_base.h&quot;
+ #include &quot;ext/basic/ag_xml.h&quot;
+-#include &quot;ext/basic/ag_fs.h&quot;
+-#include &quot;ext/basic/ag_messageobject.h&quot;
+-#include &quot;ext/basic/ag_rubyobj.h&quot;
+ #include &quot;ext/sound/ag_mixer.h&quot;
++#include &quot;ext/math/ag_algebra.h&quot;
+ #include &quot;ext/math/ag_rand.h&quot;
+-#include &quot;ext/math/ag_algebra.h&quot;
+ #include &quot;ext/math/ant_frustum.h&quot;
+-#include &quot;ext/video/ag_rendercontext.h&quot;
+-#include &quot;ext/video/ag_texturecache.h&quot;
+ #include &quot;ext/video/ag_clip.h&quot;
++#include &quot;ext/video/ag_color.h&quot;
++#include &quot;ext/video/ag_font.h&quot;
+ #include &quot;ext/video/ag_fontengine.h&quot;
+-#include &quot;ext/video/ag_font.h&quot;
+-#include &quot;ext/video/ag_video.h&quot;
+-#include &quot;ext/video/ag_color.h&quot;
++#include &quot;ext/video/ag_painter.h&quot;
++#include &quot;ext/video/ag_painttarget.h&quot;
++#include &quot;ext/video/ag_rendercontext.h&quot;
+ #include &quot;ext/video/ag_screen.h&quot;
+-#include &quot;ext/video/ag_painttarget.h&quot;
+ #include &quot;ext/video/ag_surface.h&quot;
+ #include &quot;ext/video/ag_texture.h&quot;
+-#include &quot;ext/video/ag_painter.h&quot;
++#include &quot;ext/video/ag_texturecache.h&quot;
++#include &quot;ext/video/ag_video.h&quot;
++#include &quot;ext/gui/ag_application.h&quot;
++#include &quot;ext/gui/ag_background.h&quot;
++#include &quot;ext/gui/ag_border.h&quot;
++#include &quot;ext/gui/ag_button.h&quot;
++#include &quot;ext/gui/ag_caption.h&quot;
++#include &quot;ext/gui/ag_checkbox.h&quot;
++#include &quot;ext/gui/ag_colorbutton.h&quot;
++#include &quot;ext/gui/ag_combo.h&quot;
++#include &quot;ext/gui/ag_edit.h&quot;
++#include &quot;ext/gui/ag_frame.h&quot;
+ #include &quot;ext/gui/ag_image.h&quot;
++#include &quot;ext/gui/ag_layout.h&quot;
++#include &quot;ext/gui/ag_layoutfactory.h&quot;
+ #include &quot;ext/gui/ag_listbox.h&quot;
+-#include &quot;ext/gui/ag_edit.h&quot;
+-#include &quot;ext/gui/ag_scroller.h&quot;
+ #include &quot;ext/gui/ag_local.h&quot;
+-#include &quot;ext/gui/ag_tooltip.h&quot;
++#include &quot;ext/gui/ag_menu.h&quot;
++#include &quot;ext/gui/ag_menuitem.h&quot;
+ #include &quot;ext/gui/ag_radio.h&quot;
+-#include &quot;ext/gui/ag_application.h&quot;
+-#include &quot;ext/gui/ag_colorbutton.h&quot;
+-#include &quot;ext/gui/ag_button.h&quot;
+ #include &quot;ext/gui/ag_radiogroup.h&quot;
+-#include &quot;ext/gui/ag_background.h&quot;
+-#include &quot;ext/gui/ag_menuitem.h&quot;
+ #include &quot;ext/gui/ag_screenwidget.h&quot;
+-#include &quot;ext/gui/ag_widget.h&quot;
++#include &quot;ext/gui/ag_scroller.h&quot;
++#include &quot;ext/gui/ag_table.h&quot;
+ #include &quot;ext/gui/ag_text.h&quot;
+-#include &quot;ext/gui/ag_checkbox.h&quot;
+-#include &quot;ext/gui/ag_table.h&quot;
+-#include &quot;ext/gui/ag_frame.h&quot;
+-#include &quot;ext/gui/ag_caption.h&quot;
+-#include &quot;ext/gui/ag_combo.h&quot;
+ #include &quot;ext/gui/ag_theme.h&quot;
+-#include &quot;ext/gui/ag_menu.h&quot;
+-#include &quot;ext/gui/ag_layoutfactory.h&quot;
++#include &quot;ext/gui/ag_tooltip.h&quot;
++#include &quot;ext/gui/ag_widget.h&quot;
+ #include &quot;ext/gui/ag_window.h&quot;
+-#include &quot;ext/gui/ag_layout.h&quot;
+-#include &quot;ext/gui/ag_border.h&quot;
++#include &quot;ext/3dengine/ag_glwidget.h&quot;
++#include &quot;ext/3dengine/anim_mesh.h&quot;
+ #include &quot;ext/3dengine/anim_mesh_data.h&quot;
+ #include &quot;ext/3dengine/ant_camera.h&quot;
++#include &quot;ext/3dengine/ant_particle.h&quot;
++#include &quot;ext/3dengine/ant_projection.h&quot;
++#include &quot;ext/3dengine/boa_3d_wireframe.h&quot;
+ #include &quot;ext/3dengine/mesh.h&quot;
+-#include &quot;ext/3dengine/scene.h&quot;
+-#include &quot;ext/3dengine/mesh_optimizer.h&quot;
+-#include &quot;ext/3dengine/ant_particle.h&quot;
++#include &quot;ext/3dengine/mesh_2d.h&quot;
+ #include &quot;ext/3dengine/mesh_2d_data.h&quot;
+-#include &quot;ext/3dengine/ag_glwidget.h&quot;
+-#include &quot;ext/3dengine/mesh_2d.h&quot;
++#include &quot;ext/3dengine/mesh_base.h&quot;
+ #include &quot;ext/3dengine/mesh_data.h&quot;
++#include &quot;ext/3dengine/mesh_optimizer.h&quot;
++#include &quot;ext/3dengine/scene.h&quot;
+ #include &quot;ext/3dengine/scene_base.h&quot;
+-#include &quot;ext/3dengine/boa_3d_wireframe.h&quot;
+-#include &quot;ext/3dengine/anim_mesh.h&quot;
+ #include &quot;ext/3dengine/scenenode.h&quot;
+-#include &quot;ext/3dengine/ant_projection.h&quot;
+-#include &quot;ext/3dengine/mesh_base.h&quot;
+ #include &quot;ext/game/path.h&quot;
+ #include &quot;ext/game/terrain.h&quot;
+ #include &quot;ext/game/entity.h&quot;
+
+Modified: antargis/trunk/ext/gui/ag_widget.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_widget.cc	2008-02-05 20:13:13 UTC (rev 1227)
++++ antargis/trunk/ext/gui/ag_widget.cc	2008-02-06 20:02:44 UTC (rev 1228)
+@@ -925,7 +925,7 @@
+ 	  if(mParent)
+ 	    {
+ 	      //CTRACE;
+-	      cdebug(&quot;parent-&gt;queryRedraw::&quot;&lt;&lt;typeid(*this).name()&lt;&lt;&quot;:&quot;&lt;&lt;getName());
++	      // cdebug(&quot;parent-&gt;queryRedraw::&quot;&lt;&lt;typeid(*this).name()&lt;&lt;&quot;:&quot;&lt;&lt;getName());
+ 	      mParent-&gt;queryRedraw();
+ 	    }
+ 
+
+Modified: antargis/trunk/ext/gui/headers.hh
+===================================================================
+--- antargis/trunk/ext/gui/headers.hh	2008-02-05 20:13:13 UTC (rev 1227)
++++ antargis/trunk/ext/gui/headers.hh	2008-02-06 20:02:44 UTC (rev 1228)
+@@ -1,35 +1,35 @@
+ #ifndef __ANTARGIS_H__
+ #define __ANTARGIS_H__
++#include &quot;ext/basic/ag_config.h&quot;
++#include &quot;ext/basic/ag_fs.h&quot;
++#include &quot;ext/basic/ag_geometry.h&quot;
+ #include &quot;ext/basic/ag_main.h&quot;
+-#include &quot;ext/basic/ag_utf8.h&quot;
++#include &quot;ext/basic/ag_messageobject.h&quot;
++#include &quot;ext/basic/ag_rand_base.h&quot;
++#include &quot;ext/basic/ag_rubyobj.h&quot;
++#include &quot;ext/basic/ag_serial.h&quot;
+ #include &quot;ext/basic/ag_singleton.h&quot;
+-#include &quot;ext/basic/ag_config.h&quot;
+ #include &quot;ext/basic/ag_string_utf8.h&quot;
+-#include &quot;ext/basic/ag_rand_base.h&quot;
+-#include &quot;ext/basic/ag_serial.h&quot;
+ #include &quot;ext/basic/ag_stringstream.h&quot;
+-#include &quot;ext/basic/ag_geometry.h&quot;
++#include &quot;ext/basic/ag_utf8.h&quot;
+ #include &quot;ext/basic/ag_video_base.h&quot;
+ #include &quot;ext/basic/ag_xml.h&quot;
+-#include &quot;ext/basic/ag_fs.h&quot;
+-#include &quot;ext/basic/ag_messageobject.h&quot;
+-#include &quot;ext/basic/ag_rubyobj.h&quot;
+ #include &quot;ext/sound/ag_mixer.h&quot;
++#include &quot;ext/math/ag_algebra.h&quot;
+ #include &quot;ext/math/ag_rand.h&quot;
+-#include &quot;ext/math/ag_algebra.h&quot;
+ #include &quot;ext/math/ant_frustum.h&quot;
+-#include &quot;ext/video/ag_rendercontext.h&quot;
+-#include &quot;ext/video/ag_texturecache.h&quot;
+ #include &quot;ext/video/ag_clip.h&quot;
++#include &quot;ext/video/ag_color.h&quot;
++#include &quot;ext/video/ag_font.h&quot;
+ #include &quot;ext/video/ag_fontengine.h&quot;
+-#include &quot;ext/video/ag_font.h&quot;
+-#include &quot;ext/video/ag_video.h&quot;
+-#include &quot;ext/video/ag_color.h&quot;
++#include &quot;ext/video/ag_painter.h&quot;
++#include &quot;ext/video/ag_painttarget.h&quot;
++#include &quot;ext/video/ag_rendercontext.h&quot;
+ #include &quot;ext/video/ag_screen.h&quot;
+-#include &quot;ext/video/ag_painttarget.h&quot;
+ #include &quot;ext/video/ag_surface.h&quot;
+ #include &quot;ext/video/ag_texture.h&quot;
+-#include &quot;ext/video/ag_painter.h&quot;
++#include &quot;ext/video/ag_texturecache.h&quot;
++#include &quot;ext/video/ag_video.h&quot;
+ #include &quot;ext/gui/ag_layoutfactory.h&quot;
+ #include &quot;ext/gui/ag_widget.h&quot;
+ #include &quot;ext/gui/ag_application.h&quot;
+
+Modified: antargis/trunk/ext/math/headers.hh
+===================================================================
+--- antargis/trunk/ext/math/headers.hh	2008-02-05 20:13:13 UTC (rev 1227)
++++ antargis/trunk/ext/math/headers.hh	2008-02-06 20:02:44 UTC (rev 1228)
+@@ -1,19 +1,19 @@
+ #ifndef __ANTARGIS_H__
+ #define __ANTARGIS_H__
++#include &quot;ext/basic/ag_config.h&quot;
++#include &quot;ext/basic/ag_fs.h&quot;
++#include &quot;ext/basic/ag_geometry.h&quot;
+ #include &quot;ext/basic/ag_main.h&quot;
+-#include &quot;ext/basic/ag_utf8.h&quot;
++#include &quot;ext/basic/ag_messageobject.h&quot;
++#include &quot;ext/basic/ag_rand_base.h&quot;
++#include &quot;ext/basic/ag_rubyobj.h&quot;
++#include &quot;ext/basic/ag_serial.h&quot;
+ #include &quot;ext/basic/ag_singleton.h&quot;
+-#include &quot;ext/basic/ag_config.h&quot;
+ #include &quot;ext/basic/ag_string_utf8.h&quot;
+-#include &quot;ext/basic/ag_rand_base.h&quot;
+-#include &quot;ext/basic/ag_serial.h&quot;
+ #include &quot;ext/basic/ag_stringstream.h&quot;
+-#include &quot;ext/basic/ag_geometry.h&quot;
++#include &quot;ext/basic/ag_utf8.h&quot;
+ #include &quot;ext/basic/ag_video_base.h&quot;
+ #include &quot;ext/basic/ag_xml.h&quot;
+-#include &quot;ext/basic/ag_fs.h&quot;
+-#include &quot;ext/basic/ag_messageobject.h&quot;
+-#include &quot;ext/basic/ag_rubyobj.h&quot;
+ #include &quot;ext/sound/ag_mixer.h&quot;
+ #include &quot;ext/math/ag_rand.h&quot;
+ #include &quot;ext/math/ant_frustum.h&quot;
+
+Modified: antargis/trunk/ext/sound/headers.hh
+===================================================================
+--- antargis/trunk/ext/sound/headers.hh	2008-02-05 20:13:13 UTC (rev 1227)
++++ antargis/trunk/ext/sound/headers.hh	2008-02-06 20:02:44 UTC (rev 1228)
+@@ -1,19 +1,19 @@
+ #ifndef __ANTARGIS_H__
+ #define __ANTARGIS_H__
++#include &quot;ext/basic/ag_config.h&quot;
++#include &quot;ext/basic/ag_fs.h&quot;
++#include &quot;ext/basic/ag_geometry.h&quot;
+ #include &quot;ext/basic/ag_main.h&quot;
+-#include &quot;ext/basic/ag_utf8.h&quot;
++#include &quot;ext/basic/ag_messageobject.h&quot;
++#include &quot;ext/basic/ag_rand_base.h&quot;
++#include &quot;ext/basic/ag_rubyobj.h&quot;
++#include &quot;ext/basic/ag_serial.h&quot;
+ #include &quot;ext/basic/ag_singleton.h&quot;
+-#include &quot;ext/basic/ag_config.h&quot;
+ #include &quot;ext/basic/ag_string_utf8.h&quot;
+-#include &quot;ext/basic/ag_rand_base.h&quot;
+-#include &quot;ext/basic/ag_serial.h&quot;
+ #include &quot;ext/basic/ag_stringstream.h&quot;
+-#include &quot;ext/basic/ag_geometry.h&quot;
++#include &quot;ext/basic/ag_utf8.h&quot;
+ #include &quot;ext/basic/ag_video_base.h&quot;
+ #include &quot;ext/basic/ag_xml.h&quot;
+-#include &quot;ext/basic/ag_fs.h&quot;
+-#include &quot;ext/basic/ag_messageobject.h&quot;
+-#include &quot;ext/basic/ag_rubyobj.h&quot;
+ #include &quot;ext/sound/ag_mixer.h&quot;
+ #ifdef SWIG
+ %include &quot;ext/sound/ag_mixer.h&quot;
+
+
+Property changes on: antargis/trunk/ext/test
+___________________________________________________________________
+Name: svn:ignore
+   + gl_text_3d.oo
+gl_text_3d
+
+
+Added: antargis/trunk/ext/test/Rakefile
+===================================================================
+--- antargis/trunk/ext/test/Rakefile	2008-02-05 20:13:13 UTC (rev 1227)
++++ antargis/trunk/ext/test/Rakefile	2008-02-06 20:02:44 UTC (rev 1228)
+@@ -0,0 +1,11 @@
++#!/usr/bin/env ruby
++
++task 'gl_text_3d' =&gt; 'gl_text_3d.cc' do
++  cflags=`sdl-config --cflags`.chomp
++  ldflags=`sdl-config --libs`.chomp
++  cmd=&quot;g++ -o gl_text_3d gl_text_3d.cc -framework OpenGL &quot;+cflags+&quot; &quot;+ldflags+&quot; -lSDL_image&quot;
++  sh cmd 
++end
++
++
++task :default=&gt;[&quot;gl_text_3d&quot;]
+\ No newline at end of file
+
+Added: antargis/trunk/ext/test/gl_text_3d.cc
+===================================================================
+--- antargis/trunk/ext/test/gl_text_3d.cc	2008-02-05 20:13:13 UTC (rev 1227)
++++ antargis/trunk/ext/test/gl_text_3d.cc	2008-02-06 20:02:44 UTC (rev 1228)
+@@ -0,0 +1,131 @@
++#include &lt;SDL.h&gt;
++#include &lt;SDL_opengl.h&gt;
++#include &lt;stdexcept&gt;
++#include &lt;iostream&gt;
++#include &lt;sstream&gt; 
++
++
++void assertGL(std::string s)
++{
++	{
++		GLenum error = glGetError();
++		if(error != GL_NO_ERROR) {
++			std::ostringstream msg;
++			msg &lt;&lt;s&lt;&lt; &quot;: OpenGLError &quot;
++			&lt;&lt; gluErrorString(error);
++
++			std::cerr&lt;&lt;msg.str()&lt;&lt;std::endl;
++			throw std::runtime_error(msg.str());
++		}
++	}
++}
++
++int main(int argc,char *argv[])
++{
++	SDL_Init(SDL_INIT_VIDEO);
++
++	int w=1024;
++	int h=768;
++
++	SDL_SetVideoMode(w,h,32,SDL_OPENGL);
++
++	// load file
++	//SDL_Surface *surface=IMG_Load(IMAGE_FILE);
++
++	GLuint tex;
++	// generate texture
++	glGenTextures(1,&amp;tex);
++	glBindTexture(GL_TEXTURE_3D,tex);
++	glEnable(GL_TEXTURE_3D);
++
++	size_t redSize=128*128*4096*4;
++	char *red=new char[redSize];
++	for(size_t i=0;i&lt;redSize;i++)
++		red[i]=(((i%4)==0 || (i%4)==3)?255:0);
++	char *blue=new char[redSize];
++	for(size_t i=0;i&lt;redSize;i++)
++		blue[i]=(((i%4)==2 || (i%4)==3)?255:0);
++
++
++	glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA, 128, 128, 4096/128, 0, GL_RGBA,
++			GL_UNSIGNED_BYTE,red);
++
++	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
++	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
++
++
++	  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
++	  assertGL(&quot;&quot;);
++	  glPixelStorei(GL_UNPACK_ROW_LENGTH,
++	                128); //blue-&gt;pitch / blue-&gt;format-&gt;BytesPerPixel);
++		 
++	
++	glTexSubImage3D(GL_TEXTURE_3D,0,0,0,0,
++			128,128,32,GL_RGBA,GL_UNSIGNED_BYTE,blue);
++
++
++	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
++
++	glBindTexture(GL_TEXTURE_3D,tex);
++	glEnable(GL_TEXTURE_3D);
++
++	glDisable(GL_TEXTURE_2D);
++
++	glViewport( 0, 0, w, h );
++	glMatrixMode( GL_PROJECTION );
++	glLoadIdentity( );
++
++	GLfloat ratio;
++
++	ratio = ( float )w / ( float )h;
++
++	gluOrtho2D(0,w,0,h);
++	glMatrixMode(GL_MODELVIEW);
++	glLoadIdentity();
++
++	glColor4f(1,1,1,1);
++	glBegin(GL_QUADS);
++
++	for(int i=0;i&lt;32;i++)
++	{
++		float x=int(i%6);
++		float y=int(i/6);
++
++		float d=float(i)/32.0;
++
++		x*=110;
++		y*=110;
++
++		float w=100;
++		float x2=x+w;
++		float y2=y+w;
++
++
++
++		glTexCoord3f(0,0,d);
++		glVertex2f(x,y);
++
++		glTexCoord3f(1,0,d);
++		glVertex2f(x2,y);
++
++		glTexCoord3f(1,1,d);
++		glVertex2f(x2,y2);
++
++		glTexCoord3f(0,1,d);
++		glVertex2f(x,y2);
++
++	}
++
++	glEnd();
++
++	SDL_GL_SwapBuffers();
++
++
++
++
++	assertGL(&quot;&quot;);
++
++	SDL_Delay(10000);
++
++	return 0;
++}
+
+Modified: antargis/trunk/ext/video/headers.hh
+===================================================================
+--- antargis/trunk/ext/video/headers.hh	2008-02-05 20:13:13 UTC (rev 1227)
++++ antargis/trunk/ext/video/headers.hh	2008-02-06 20:02:44 UTC (rev 1228)
+@@ -1,22 +1,22 @@
+ #ifndef __ANTARGIS_H__
+ #define __ANTARGIS_H__
++#include &quot;ext/basic/ag_config.h&quot;
++#include &quot;ext/basic/ag_fs.h&quot;
++#include &quot;ext/basic/ag_geometry.h&quot;
+ #include &quot;ext/basic/ag_main.h&quot;
+-#include &quot;ext/basic/ag_utf8.h&quot;
++#include &quot;ext/basic/ag_messageobject.h&quot;
++#include &quot;ext/basic/ag_rand_base.h&quot;
++#include &quot;ext/basic/ag_rubyobj.h&quot;
++#include &quot;ext/basic/ag_serial.h&quot;
+ #include &quot;ext/basic/ag_singleton.h&quot;
+-#include &quot;ext/basic/ag_config.h&quot;
+ #include &quot;ext/basic/ag_string_utf8.h&quot;
+-#include &quot;ext/basic/ag_rand_base.h&quot;
+-#include &quot;ext/basic/ag_serial.h&quot;
+ #include &quot;ext/basic/ag_stringstream.h&quot;
+-#include &quot;ext/basic/ag_geometry.h&quot;
++#include &quot;ext/basic/ag_utf8.h&quot;
+ #include &quot;ext/basic/ag_video_base.h&quot;
+ #include &quot;ext/basic/ag_xml.h&quot;
+-#include &quot;ext/basic/ag_fs.h&quot;
+-#include &quot;ext/basic/ag_messageobject.h&quot;
+-#include &quot;ext/basic/ag_rubyobj.h&quot;
+ #include &quot;ext/sound/ag_mixer.h&quot;
++#include &quot;ext/math/ag_algebra.h&quot;
+ #include &quot;ext/math/ag_rand.h&quot;
+-#include &quot;ext/math/ag_algebra.h&quot;
+ #include &quot;ext/math/ant_frustum.h&quot;
+ #include &quot;ext/video/ag_painttarget.h&quot;
+ #include &quot;ext/video/ag_surface.h&quot;
+
+Modified: antargis/trunk/ruby/ant_application.rb
+===================================================================
+--- antargis/trunk/ruby/ant_application.rb	2008-02-05 20:13:13 UTC (rev 1227)
++++ antargis/trunk/ruby/ant_application.rb	2008-02-06 20:02:44 UTC (rev 1228)
+@@ -329,7 +329,7 @@
+ 			delay(20)
+ 		end
+ 
+-		if @fps&gt;25
++		if @fps&gt;25 and isRunning
+ 			delay(5)
+ 		end
+ 		return true
+
+Modified: antargis/trunk/ruby/entities/ant_boss.rb
+===================================================================
+--- antargis/trunk/ruby/entities/ant_boss.rb	2008-02-05 20:13:13 UTC (rev 1227)
++++ antargis/trunk/ruby/entities/ant_boss.rb	2008-02-06 20:02:44 UTC (rev 1228)
+@@ -86,6 +86,10 @@
+ 		@job
+ 	end
+ 	
++	def hasHLJob
++		@job and (not @job.is_a?(AntHeroRestJob))
++	end
++	
+ 	def menCount
+ 		@men=@men.uniq
+ 		return @men.length
+
+Modified: antargis/trunk/ruby/gui/testing.rb
+===================================================================
+--- antargis/trunk/ruby/gui/testing.rb	2008-02-05 20:13:13 UTC (rev 1227)
++++ antargis/trunk/ruby/gui/testing.rb	2008-02-06 20:02:44 UTC (rev 1228)
+@@ -4,7 +4,6 @@
+ 		run
+ 	end
+ 	def eventFrame(t)
+-		puts &quot;FRAME&quot;
+ 		super
+ 		tryQuit
+ 		true
+
+Added: antargis/trunk/ruby/spec/spec_run_tutorial.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_run_tutorial.rb	2008-02-05 20:13:13 UTC (rev 1227)
++++ antargis/trunk/ruby/spec/spec_run_tutorial.rb	2008-02-06 20:02:44 UTC (rev 1228)
+@@ -0,0 +1,148 @@
++#Dir.chdir(File.split(__FILE__)[0])
++
++require 'ruby/spec_helper.rb'
++require 'ruby/gui/testing.rb'
++require 'ruby/ant_application.rb'
++
++describe 'Tutorial campaign' do
++	describe '- First level' do
++		include GuiTest
++		before(:all) do
++			# FIXME
++			file=&quot;data/levels/tutorial/tutorial0.antlvl&quot;
++			clientConnection=nil
++			@app=makeTestAppClass(AntGameApp).new(loadFile(file),getVideo.width,getVideo.height,nil,clientConnection)
++		    @app.step
++			
++		end
++		it &quot;should start off with a story telling dialog&quot; do
++			telltaleWidget=widget(&quot;TellTale&quot;)
++			telltaleWidget.should_not be_nil
++			telltaleWidget.should be_visible
++			textWidget=telltaleWidget.child(&quot;text&quot;)
++			textWidget.should_not be_nil
++			text=textWidget.getText.to_s
++			okButton=telltaleWidget.child(&quot;ok&quot;)
++			okButton.should_not be_nil
++			okButton.click
++			text.should_not ==(textWidget.getText.to_s)
++			@app.step
++			clickAwayStory
++			
++		end
++		describe '- State at the beginning' do
++		  before(:each) do
++			  @map=@app.getMap
++			  @map.should be_a_kind_of(AntRubyMap)
++			  clickAwayStory
++			  @enemy=nil
++			  @hero=nil
++		  end
++          it &quot;should display no story-telling anymore at this time&quot; do
++          	widget(&quot;TellTale&quot;).should be_nil
++          end
++
++			            	
++		  it &quot;should include Rowen and an enemy&quot; do
++		    heroes=@map.getOwnHeroes
++			enemies=@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">map.getHeroes- at map.getOwnHeroes</A>
++			heroes.length.should == 1
++			enemies.length.should == 1
++			@hero=heroes[0]
++			@enemy=enemies[0]
++		  end
++		  it &quot;should have a single enemy with a few troopers&quot; do
++		  	getEnemy.getMen.length.should &gt;2
++		  end
++
++		  it &quot;should have Rowen with no followers yet&quot; do
++		  	getHero.getMen.length ==1
++		  end
++
++		  it &quot;should have a tower with a few men&quot; do
++		  	towers=@map.getBuildings
++			towers.length.should == 1
++			@tower=towers[0]
++			@tower.should be_a_kind_of(AntTower)
++			@tower.getMen.length&gt;2
++		  end
++		  it &quot;should include more men in tower than enemy has&quot; do
++		  	tower=@map.getBuildings[0]
++			tower.getMen.length.should &gt; getEnemy.getMen.length
++		  end
++		  
++		end
++		it &quot;should be possible to recruit some men&quot; do
++			# do a recruit job
++			@map=@app.getMap
++			hero=getHero
++			building=getBuilding
++			hero.newHLRecruitJob(building)
++			while hero.hasHLJob
++				advance
++			end
++			hero.getJob.should_not be_a_kind_of(AntHeroRecruitJob)
++			widget(&quot;TellTale&quot;).should be_visible
++			building.getMen.length.should == 0
++			hero.getMen.length.should &gt; 2
++			hero.getMen.length.should &gt; getEnemy.getMen.length
++			
++
++		end
++		it &quot;should be possible to defeat enemy&quot; do
++	       clickAwayStory
++					hero=getHero
++			enemy=getEnemy
++			hero.newHLFightJob(enemy)
++			hero.getJob.should be_a_kind_of(AntHeroFightJob)
++			enemy.hasHLJob.should be_false
++			while hero.hasHLJob
++				puts hero.getJob
++					advance
++			end
++			clickAwayStory
++		    @app.result.won.should == &quot;won&quot;
++            map.getOwnHeroes.length.should == 2
++		end
++	
++		def getEnemies
++			enemies=map.getHeroes-map.getOwnHeroes
++			enemies
++		end
++		def getEnemy
++		  getEnemies[0]
++		end
++		def getHero
++		  @app.getMap.getOwnHeroes[0]
++		end
++		def getBuilding
++			@app.getMap.getBuildings[0]
++		end
++	    def advance
++	    	@app.getMap.move(0.3)
++			@app.step
++	    end
++		def map
++		  @app.getMap
++		end
++	end
++	
++	def clickAwayStory
++		telltaleWidget=widget(&quot;TellTale&quot;)
++		return if telltaleWidget.nil?
++
++		telltaleWidget.should_not be_nil
++		telltaleWidget.should be_visible
++		okButton=telltaleWidget.child(&quot;ok&quot;)
++		okButton.should_not be_nil
++		okButton.click
++		trials=0
++		while telltaleWidget.visible?
++			okButton.click
++			@app.step
++			trials+=1
++			trials.should &lt;10
++		end
++
++	end
++end
+\ No newline at end of file
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000184.html">[Antargis-svn] r1227 - in antargis/trunk: . ext/video ruby
+</A></li>
+	<LI>Next message: <A HREF="000186.html">[Antargis-svn] r1229 - in antargis/trunk: . ext ext/3dengine	ext/game ext/video main ruby ruby/entities ruby/gui ruby/jobs	ruby/spec ruby/widgets
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#185">[ date ]</a>
+              <a href="thread.html#185">[ thread ]</a>
+              <a href="subject.html#185">[ subject ]</a>
+              <a href="author.html#185">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,696 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1100 - in antargis/branches/branch_2d: gui/src	ruby/tests src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-May/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1100%20-%20in%20antargis/branches/branch_2d%3A%20gui/src%0A%09ruby/tests%20src&In-Reply-To=%3C200705271436.l4REajvu020639%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000057.html">
+   <LINK REL="Next"  HREF="000059.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1100 - in antargis/branches/branch_2d: gui/src	ruby/tests src</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1100%20-%20in%20antargis/branches/branch_2d%3A%20gui/src%0A%09ruby/tests%20src&In-Reply-To=%3C200705271436.l4REajvu020639%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1100 - in antargis/branches/branch_2d: gui/src	ruby/tests src">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sun May 27 16:36:45 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000057.html">[Antargis-svn] r1099 - in antargis/branches/branch_2d: gui/src ruby	ruby/tests src
+</A></li>
+        <LI>Next message: <A HREF="000059.html">[Antargis-svn] r1101 - in antargis/branches/branch_2d: . ruby src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#58">[ date ]</a>
+              <a href="thread.html#58">[ thread ]</a>
+              <a href="subject.html#58">[ subject ]</a>
+              <a href="author.html#58">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-05-27 16:36:45 +0200 (Sun, 27 May 2007)
+New Revision: 1100
+
+Added:
+   antargis/branches/branch_2d/gui/src/ag_sdlpainter.cc
+   antargis/branches/branch_2d/gui/src/ag_sdlpainter.h
+   antargis/branches/branch_2d/ruby/tests/clip_gradient_test.rb
+   antargis/branches/branch_2d/ruby/tests/swig_derivation_test.rb
+   antargis/branches/branch_2d/src/std_list.i
+Log:
+* added missing files
+
+
+Added: antargis/branches/branch_2d/gui/src/ag_sdlpainter.cc
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_sdlpainter.cc	2007-05-27 14:35:54 UTC (rev 1099)
++++ antargis/branches/branch_2d/gui/src/ag_sdlpainter.cc	2007-05-27 14:36:45 UTC (rev 1100)
+@@ -0,0 +1,80 @@
++#include &quot;ag_sdlpainter.h&quot;
++#include &lt;math.h&gt;
++#include &quot;ag_sgeexport.h&quot;
++
++namespace AGSDLPainter
++{
++void drawLine(SDL_Surface *s,const AGVector2 &amp;pp0,const AGVector2 &amp;pp1,const AGColor &amp;c)
++{
++  AGVector2 p0,p1;
++
++  p0=pp0;
++  p1=pp1;
++
++  float dx=p1[0]-p0[0];
++  float dy=p1[1]-p0[1];
++
++  if(fabs(dx)&gt;fabs(dy))
++    {
++      if(dx&lt;0)
++	{
++	  p0=pp1;
++	  p1=pp0;
++	}
++
++      dx=p1[0]-p0[0];
++      dy=p1[1]-p0[1];
++
++      float y=p0[1];
++      float e=0;
++      float de=((float)dy)/dx;
++      for(float x=p0[0];x&lt;=p1[0];x++)
++	{
++	  sge_PutPixel(s,int(x),int(y),c.mapRGB(s-&gt;format));
++	  e+=de;
++	  if(e&gt;0.5)
++	    {
++	      e-=1.0;
++	      y++;
++	    }
++	  else if(e&lt;-0.5)
++	    {
++	      e+=1.0;
++	      y--;
++	    }
++	}
++    }
++  else
++    {
++      if(dy&lt;0)
++	{
++	  p0=pp1;
++	  p1=pp0;
++	}
++
++      dx=p1[0]-p0[0];
++      dy=p1[1]-p0[1];
++
++      float x=p0[0];
++      float e=0;
++      float de=((float)dx)/dy;
++      for(float y=p0[1];y&lt;=p1[1];y++)
++	{
++	  sge_PutPixel(s,int(x),int(y),c.mapRGB(s-&gt;format));
++	  e+=de;
++	  if(e&gt;0.5)
++	    {
++	      e-=1.0;
++	      x++;
++	    }
++	  else if(e&lt;-0.5)
++	    {
++	      e+=1.0;
++	      x--;
++	    }
++	}
++    }
++}
++
++
++}
+
+Added: antargis/branches/branch_2d/gui/src/ag_sdlpainter.h
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_sdlpainter.h	2007-05-27 14:35:54 UTC (rev 1099)
++++ antargis/branches/branch_2d/gui/src/ag_sdlpainter.h	2007-05-27 14:36:45 UTC (rev 1100)
+@@ -0,0 +1,17 @@
++#ifndef AG_SDLPAINTER_H
++#define AG_SDLPAINTER_H
++
++#include &lt;ag_surface.h&gt;
++
++namespace AGSDLPainter
++{
++  void drawGradient(SDL_Surface *surface, const AGRect2&amp; prect, const AGColor&amp; ul, const AGColor&amp; ur, const AGColor&amp; dl, const AGColor&amp; dr);
++  void drawGradientAlpha(SDL_Surface *surface, const AGRect2&amp; prect, const AGColor&amp; ul, const AGColor&amp; ur, const AGColor&amp; dl, const AGColor&amp; dr);
++  void drawBorder(SDL_Surface *surface, const AGRect2&amp; rect,int width, const AGColor&amp; c1, const AGColor&amp; c2);
++
++  void drawLine(SDL_Surface *s,const AGVector2 &amp;pp0,const AGVector2 &amp;pp1,const AGColor &amp;c);
++}
++
++
++#endif
++
+
+Added: antargis/branches/branch_2d/ruby/tests/clip_gradient_test.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/tests/clip_gradient_test.rb	2007-05-27 14:35:54 UTC (rev 1099)
++++ antargis/branches/branch_2d/ruby/tests/clip_gradient_test.rb	2007-05-27 14:36:45 UTC (rev 1100)
+@@ -0,0 +1,6 @@
++#!/usr/bin/env ruby
++
++require 'ruby/antargislib.rb'
++
++initVideo(640,480,32,false,false)
++
+
+Added: antargis/branches/branch_2d/ruby/tests/swig_derivation_test.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/tests/swig_derivation_test.rb	2007-05-27 14:35:54 UTC (rev 1099)
++++ antargis/branches/branch_2d/ruby/tests/swig_derivation_test.rb	2007-05-27 14:36:45 UTC (rev 1100)
+@@ -0,0 +1,40 @@
++#!/usr/bin/env ruby
++
++require 'libantargis.so'
++
++include Libantargis
++s=Scene2D.new(32,32)
++
++m=Mesh2D.new(s)
++
++puts m,m.object_id
++l=s.getCurrentNodes
++puts &quot;C:&quot;
++puts l,l.object_id,l.class
++l.each{|i|
++	puts i,i.object_id,i.class
++}
++
++l=s.getCurrentNodes
++
++l.each{|i|
++	puts i,i.object_id
++}
++
++l.each{|i|
++	puts i,i.object_id
++}
++
++l.each{|i|
++	puts i,i.object_id
++}
++
++l.each{|i|
++	puts i,i.object_id
++}
++
++l=s.getCurrentNodes
++
++l.each{|i|
++	puts i,i.object_id
++}
+
+Added: antargis/branches/branch_2d/src/std_list.i
+===================================================================
+--- antargis/branches/branch_2d/src/std_list.i	2007-05-27 14:35:54 UTC (rev 1099)
++++ antargis/branches/branch_2d/src/std_list.i	2007-05-27 14:36:45 UTC (rev 1100)
+@@ -0,0 +1,448 @@
++/* -----------------------------------------------------------------------------
++ * See the LICENSE file for information on copyright, usage and redistribution
++ * of SWIG, and the README file for authors - <A HREF="http://www.swig.org/release.html.">http://www.swig.org/release.html.</A>
++ *
++ * std_vector.i
++ *
++ * SWIG typemaps for std::vector
++ * ----------------------------------------------------------------------------- */
++
++%include &lt;std_common.i&gt;
++
++// ------------------------------------------------------------------------
++// std::list
++// 
++// The aim of all that follows would be to integrate std::list with 
++// Ruby as much as possible, namely, to allow the user to pass and 
++// be returned Ruby arrays
++// const declarations are used to guess the intent of the function being
++// exported; therefore, the following rationale is applied:
++// 
++//   -- f(std::list&lt;T&gt;), f(const std::list&lt;T&gt;&amp;), f(const std::list&lt;T&gt;*):
++//      the parameter being read-only, either a Ruby array or a
++//      previously wrapped std::list&lt;T&gt; can be passed.
++//   -- f(std::list&lt;T&gt;&amp;), f(std::list&lt;T&gt;*):
++//      the parameter must be modified; therefore, only a wrapped std::list
++//      can be passed.
++//   -- std::list&lt;T&gt; f():
++//      the list is returned by copy; therefore, a Ruby array of T:s 
++//      is returned which is most easily used in other Ruby functions
++//   -- std::list&lt;T&gt;&amp; f(), std::list&lt;T&gt;* f(), const std::list&lt;T&gt;&amp; f(),
++//      const std::list&lt;T&gt;* f():
++//      the list is returned by reference; therefore, a wrapped std::list
++//      is returned
++// ------------------------------------------------------------------------
++
++%{
++#include &lt;list&gt;
++#include &lt;algorithm&gt;
++#include &lt;stdexcept&gt;
++%}
++
++// exported class
++
++namespace std {
++
++    %mixin list &quot;Enumerable&quot;;
++
++    template&lt;class T&gt; class list {
++        %typemap(in) list&lt;T&gt; {
++            if (rb_obj_is_kind_of($input,rb_cArray)) {
++                unsigned int size = RARRAY_LEN($input);
++                $1;
++                for (unsigned int i=0; i&lt;size; i++) {
++                    VALUE o = RARRAY_PTR($input)[i];
++                    T* x;
++		    SWIG_ConvertPtr(o, (void **) &amp;x, $descriptor(T *), 1);
++                    $1.push_back(*x);
++                }
++            } else {
++	        void *ptr;
++                SWIG_ConvertPtr($input, &amp;ptr, $&amp;1_descriptor, 1);
++                $1 = *(($&amp;1_type) ptr);
++            }
++        }
++        %typemap(in) const list&lt;T&gt;&amp; (std::list&lt;T&gt; temp),
++                     const list&lt;T&gt;* (std::list&lt;T&gt; temp) {
++            if (rb_obj_is_kind_of($input,rb_cArray)) {
++                unsigned int size = RARRAY_LEN($input);
++                $1 = &temp;
++                for (unsigned int i=0; i&lt;size; i++) {
++                    VALUE o = RARRAY_PTR($input)[i];
++                    T* x;
++                    SWIG_ConvertPtr(o, (void **) &amp;x, $descriptor(T *), 1);
++                    temp.push_back(*x);
++                }
++            } else {
++                SWIG_ConvertPtr($input, (void **) &amp;$1, $1_descriptor, 1);
++            }
++        }
++        %typemap(out) list&lt;T&gt; {
++            $result = rb_ary_new2($1.size());
++	    size_t j=0;
++	    for($1_type::iterator i=$1.begin();i!=$1.end();i++,j++)
++	    {
++                T* x = new T(*i);
++		rb_ary_store($result,j,AG_NewPointerObj((void*)x,$descriptor(T*),1));
++            }
++        }
++        %typecheck(SWIG_TYPECHECK_LIST) list&lt;T&gt; {
++            /* native sequence? */
++            if (rb_obj_is_kind_of($input,rb_cArray)) {
++                unsigned int size = RARRAY_LEN($input);
++                if (size == 0) {
++                    /* an empty sequence can be of any type */
++                    $1 = 1;
++                } else {
++                    /* check the first element only */
++                    T* x;
++                    VALUE o = RARRAY_PTR($input)[0];
++                    if ((SWIG_ConvertPtr(o,(void **) &amp;x, 
++                                         $descriptor(T *),0)) != -1)
++                        $1 = 1;
++                    else
++                        $1 = 0;
++                }
++            } else {
++                /* wrapped list? */
++                std::list&lt;T &gt;* v;
++                if (SWIG_ConvertPtr($input,(void **) &amp;v, 
++                                    $&amp;1_descriptor,0) != -1)
++                    $1 = 1;
++                else
++                    $1 = 0;
++            }
++        }
++        %typecheck(SWIG_TYPECHECK_LIST) const list&lt;T&gt;&amp;,
++                                          const list&lt;T&gt;* {
++            /* native sequence? */
++            if (rb_obj_is_kind_of($input,rb_cArray)) {
++                unsigned int size = RARRAY_LEN($input);
++                if (size == 0) {
++                    /* an empty sequence can be of any type */
++                    $1 = 1;
++                } else {
++                    /* check the first element only */
++                    T* x;
++                    VALUE o = RARRAY_PTR($input)[0];
++                    if ((SWIG_ConvertPtr(o,(void **) &amp;x, 
++                                         $descriptor(T *),0)) != -1)
++                        $1 = 1;
++                    else
++                        $1 = 0;
++                }
++            } else {
++                /* wrapped list? */
++                std::list&lt;T &gt;* v;
++                if (SWIG_ConvertPtr($input,(void **) &amp;v, 
++                                    $1_descriptor,0) != -1)
++                    $1 = 1;
++                else
++                    $1 = 0;
++            }
++        }
++      public:
++        list();
++        list(unsigned int size);
++        list(unsigned int size, const T&amp; value);
++        list(const list&lt;T&gt; &amp;);
++
++        %rename(__len__) size;
++        unsigned int size() const;
++        %rename(&quot;empty?&quot;) empty;
++        bool empty() const;
++        void clear();
++        %rename(push) push_back;
++        void push_back(const T&amp; x);
++        %extend {
++            T pop() throw (std::out_of_range) {
++                if (self-&gt;size() == 0)
++                    throw std::out_of_range(&quot;pop from empty list&quot;);
++                T x = self-&gt;back();
++                self-&gt;pop_back();
++                return x;
++            }
++
++            void each() {
++	        for(std::list&lt;T&gt;::iterator i=self-&gt;begin();i!=self-&gt;end();i++) // without ptr
++                {
++		    rb_yield(AG_NewPointerObj((void*)&amp;(*i),$descriptor(T*),0));
++                }
++            }
++        }
++    };
++
++    // Partial specialization for lists of pointers.  [ beazley ]
++
++    %mixin list&lt;T*&gt; &quot;Enumerable&quot;;
++    template&lt;class T&gt; class list&lt;T*&gt; {
++        %typemap(in) list&lt;T*&gt; {
++            if (rb_obj_is_kind_of($input,rb_cArray)) {
++                unsigned int size = RARRAY_LEN($input);
++                $1 = std::list&lt;T* &gt;();//(size);
++                for (unsigned int i=0; i&lt;size; i++) {
++                    VALUE o = RARRAY_PTR($input)[i];
++                    T* x;
++                    SWIG_ConvertPtr(o, (void **) &amp;x, $descriptor(T *), 1);
++		    $1.push_back(x);
++                }
++            } else {
++                void *ptr;
++                SWIG_ConvertPtr($input, &amp;ptr, $&amp;1_descriptor, 1);
++                $1 = *(($&amp;1_type) ptr);
++            }
++        }
++        %typemap(in) const list&lt;T*&gt;&amp; (std::list&lt;T*&gt; temp),
++                     const list&lt;T*&gt;* (std::list&lt;T*&gt; temp) {
++            if (rb_obj_is_kind_of($input,rb_cArray)) {
++                unsigned int size = RARRAY_LEN($input);
++                temp = std::list&lt;T* &gt;();//(size);
++                $1 = &temp;
++                for (unsigned int i=0; i&lt;size; i++) {
++                    VALUE o = RARRAY_PTR($input)[i];
++                    T* x;
++                    SWIG_ConvertPtr(o, (void **) &amp;x, $descriptor(T *), 1);
++                    temp.push_back(x);
++                }
++            } else {
++                SWIG_ConvertPtr($input, (void **) &amp;$1, $1_descriptor, 1);
++            }
++        }
++        %typemap(out) list&lt;T*&gt; {
++            $result = rb_ary_new2($1.size());
++            size_t j=0;
++             for($1_type::iterator i=$1.begin();i!=$1.end();i++) {
++		rb_ary_store($result,j,AG_NewPointerObj(*i,$descriptor(T*),1));
++            }
++        }
++        %typecheck(SWIG_TYPECHECK_LIST) list&lt;T*&gt; {
++            /* native sequence? */
++            if (rb_obj_is_kind_of($input,rb_cArray)) {
++                unsigned int size = RARRAY_LEN($input);
++                if (size == 0) {
++                    /* an empty sequence can be of any type */
++                    $1 = 1;
++                } else {
++                    /* check the first element only */
++                    T* x;
++                    VALUE o = RARRAY_PTR($input)[0];
++                    if ((SWIG_ConvertPtr(o,(void **) &amp;x, 
++                                         $descriptor(T *),0)) != -1)
++                        $1 = 1;
++                    else
++                        $1 = 0;
++                }
++            } else {
++                /* wrapped list? */
++                std::list&lt;T* &gt;* v;
++                if (SWIG_ConvertPtr($input,(void **) &amp;v, 
++                                    $&amp;1_descriptor,0) != -1)
++                    $1 = 1;
++                else
++                    $1 = 0;
++            }
++        }
++        %typecheck(SWIG_TYPECHECK_LIST) const list&lt;T*&gt;&amp;,
++                                          const list&lt;T*&gt;* {
++            /* native sequence? */
++            if (rb_obj_is_kind_of($input,rb_cArray)) {
++                unsigned int size = RARRAY_LEN($input);
++                if (size == 0) {
++                    /* an empty sequence can be of any type */
++                    $1 = 1;
++                } else {
++                    /* check the first element only */
++                    T* x;
++                    VALUE o = RARRAY_PTR($input)[0];
++                    if ((SWIG_ConvertPtr(o,(void **) &amp;x, 
++                                         $descriptor(T *),0)) != -1)
++                        $1 = 1;
++                    else
++                        $1 = 0;
++                }
++            } else {
++                /* wrapped list? */
++                std::list&lt;T* &gt;* v;
++                if (SWIG_ConvertPtr($input,(void **) &amp;v, 
++                                    $1_descriptor,0) != -1)
++                    $1 = 1;
++                else
++                    $1 = 0;
++            }
++        }
++      public:
++        list();
++        list(unsigned int size);
++        list(unsigned int size, T * &amp;value);
++        list(const list&lt;T*&gt; &amp;);
++
++        %rename(__len__) size;
++        unsigned int size() const;
++        %rename(&quot;empty?&quot;) empty;
++        bool empty() const;
++        void clear();
++        %rename(push) push_back;
++        void push_back(T* x);
++        %extend {
++            T* pop() throw (std::out_of_range) {
++                if (self-&gt;size() == 0)
++                    throw std::out_of_range(&quot;pop from empty list&quot;);
++                T* x = self-&gt;back();
++                self-&gt;pop_back();
++                return x;
++            }
++
++            void each() {
++                for(std::list&lt;T*&gt;::iterator i=self-&gt;begin();i!=self-&gt;end();i++) // with ptr
++                {
++                    rb_yield(AG_NewPointerObj(*i,$descriptor(T*),0));
++		}
++            }
++        }
++    };
++        
++
++    // specializations for built-ins
++
++    %define specialize_std_list(T,CHECK,CONVERT_FROM,CONVERT_TO)
++    %mixin list&lt;T&gt; &quot;Enumerable&quot;;
++    template&lt;&gt; class list&lt;T&gt; {
++        %typemap(in) list&lt;T&gt; {
++            if (rb_obj_is_kind_of($input,rb_cArray)) {
++                unsigned int size = RARRAY_LEN($input);
++                $1 = std::list&lt;T &gt;();//(size);
++                for (unsigned int i=0; i&lt;size; i++) {
++                    VALUE o = RARRAY_PTR($input)[i];
++                    if (CHECK(o))
++                        (($1_type &amp;)$1)[i] = (T)(CONVERT_FROM(o));
++                    else
++                        rb_raise(rb_eTypeError,
++                                 &quot;wrong argument type&quot;
++                                 &quot; (expected list&lt;&quot; #T &quot;&gt;)&quot;);
++                }
++            } else {
++	        void *ptr;
++                SWIG_ConvertPtr($input, &amp;ptr, $&amp;1_descriptor, 1);
++                $1 = *(($&amp;1_type) ptr);
++            }
++        }
++        %typemap(in) const list&lt;T&gt;&amp; (std::list&lt;T&gt; temp),
++                     const list&lt;T&gt;* (std::list&lt;T&gt; temp) {
++            if (rb_obj_is_kind_of($input,rb_cArray)) {
++                unsigned int size = RARRAY_LEN($input);
++                temp = std::list&lt;T &gt;();//(size);
++                $1 = &temp;
++                for (unsigned int i=0; i&lt;size; i++) {
++                    VALUE o = RARRAY_PTR($input)[i];
++                    if (CHECK(o))
++                        temp.push_back((T)(CONVERT_FROM(o)));
++                    else
++                        rb_raise(rb_eTypeError,
++                                 &quot;wrong argument type&quot;
++                                 &quot; (expected list&lt;&quot; #T &quot;&gt;)&quot;);
++                }
++            } else {
++                SWIG_ConvertPtr($input, (void **) &amp;$1, $1_descriptor, 1);
++            }
++        }
++        %typemap(out) list&lt;T&gt; {
++            $result = rb_ary_new2($1.size());
++            for (($1_type)::iterator i=$1.begin();i!=$1.end();i++) //unsigned int i=0; i&lt;$1.size(); i++)
++                rb_ary_store($result,i,CONVERT_TO(*i));
++        }
++        %typecheck(SWIG_TYPECHECK_LIST) list&lt;T&gt; {
++            /* native sequence? */
++            if (rb_obj_is_kind_of($input,rb_cArray)) {
++                unsigned int size = RARRAY_LEN($input);
++                if (size == 0) {
++                    /* an empty sequence can be of any type */
++                    $1 = 1;
++                } else {
++                    /* check the first element only */
++                    VALUE o = RARRAY_PTR($input)[0];
++                    if (CHECK(o))
++                        $1 = 1;
++                    else
++                        $1 = 0;
++                }
++            } else {
++                /* wrapped list? */
++                std::list&lt;T &gt;* v;
++                if (SWIG_ConvertPtr($input,(void **) &amp;v, 
++                                    $&amp;1_descriptor,0) != -1)
++                    $1 = 1;
++                else
++                    $1 = 0;
++            }
++        }
++        %typecheck(SWIG_TYPECHECK_LIST) const list&lt;T&gt;&amp;,
++                                          const list&lt;T&gt;* {
++            /* native sequence? */
++            if (rb_obj_is_kind_of($input,rb_cArray)) {
++                unsigned int size = RARRAY_LEN($input);
++                if (size == 0) {
++                    /* an empty sequence can be of any type */
++                    $1 = 1;
++                } else {
++                    /* check the first element only */
++                    VALUE o = RARRAY_PTR($input)[0];
++                    if (CHECK(o))
++                        $1 = 1;
++                    else
++                        $1 = 0;
++                }
++            } else {
++                /* wrapped list? */
++                std::list&lt;T &gt;* v;
++                if (SWIG_ConvertPtr($input,(void **) &amp;v, 
++                                    $1_descriptor,0) != -1)
++                    $1 = 1;
++                else
++                    $1 = 0;
++            }
++        }
++      public:
++        list();
++        list(unsigned int size);
++        list(unsigned int size, const T&amp; value);
++        list(const list&lt;T&gt; &amp;);
++
++        %rename(__len__) size;
++        unsigned int size() const;
++        %rename(&quot;empty?&quot;) empty;
++        bool empty() const;
++        void clear();
++        %rename(push) push_back;
++        void push_back(T x);
++        %extend {
++            T pop() throw (std::out_of_range) {
++                if (self-&gt;size() == 0)
++                    throw std::out_of_range(&quot;pop from empty list&quot;);
++                T x = self-&gt;back();
++                self-&gt;pop_back();
++                return x;
++            }
++		
++            void each() {
++		for(std::list&lt;T*&gt;::iterator i=self-&gt;begin();i!=self-&gt;end();i++) // with ptr2
++                    rb_yield(CONVERT_TO(&amp;(*i));
++            }
++        }
++    };
++    %enddef
++
++    specialize_std_list(bool,SWIG_BOOL_P,SWIG_RB2BOOL,SWIG_BOOL2RB);
++    specialize_std_list(char,FIXNUM_P,FIX2INT,INT2NUM);
++    specialize_std_list(int,FIXNUM_P,FIX2INT,INT2NUM);
++    specialize_std_list(short,FIXNUM_P,FIX2INT,INT2NUM);
++    specialize_std_list(long,FIXNUM_P,FIX2INT,INT2NUM);
++    specialize_std_list(unsigned char,FIXNUM_P,FIX2INT,INT2NUM);
++    specialize_std_list(unsigned int,FIXNUM_P,FIX2INT,INT2NUM);
++    specialize_std_list(unsigned short,FIXNUM_P,FIX2INT,INT2NUM);
++    specialize_std_list(unsigned long,FIXNUM_P,FIX2INT,INT2NUM);
++    specialize_std_list(double,SWIG_FLOAT_P,SWIG_NUM2DBL,rb_float_new);
++    specialize_std_list(float,SWIG_FLOAT_P,SWIG_NUM2DBL,rb_float_new);
++    specialize_std_list(std::string,SWIG_STRING_P,SWIG_RB2STR,SWIG_STR2RB);
++
++}
++
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000057.html">[Antargis-svn] r1099 - in antargis/branches/branch_2d: gui/src ruby	ruby/tests src
+</A></li>
+	<LI>Next message: <A HREF="000059.html">[Antargis-svn] r1101 - in antargis/branches/branch_2d: . ruby src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#58">[ date ]</a>
+              <a href="thread.html#58">[ thread ]</a>
+              <a href="subject.html#58">[ subject ]</a>
+              <a href="author.html#58">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

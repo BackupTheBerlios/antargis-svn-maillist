@@ -1,0 +1,650 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1273 - in antargis/trunk: . rookey rookey/configs	rookey/externals rookey/externals/swig rookey/externals/zlib
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2008-July/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1273%20-%20in%20antargis/trunk%3A%20.%20rookey%20rookey/configs%0A%09rookey/externals%20rookey/externals/swig%20rookey/externals/zlib&In-Reply-To=%3C200807111552.m6BFqGt1016980%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000228.html">
+   <LINK REL="Next"  HREF="000230.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1273 - in antargis/trunk: . rookey rookey/configs	rookey/externals rookey/externals/swig rookey/externals/zlib</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1273%20-%20in%20antargis/trunk%3A%20.%20rookey%20rookey/configs%0A%09rookey/externals%20rookey/externals/swig%20rookey/externals/zlib&In-Reply-To=%3C200807111552.m6BFqGt1016980%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1273 - in antargis/trunk: . rookey rookey/configs	rookey/externals rookey/externals/swig rookey/externals/zlib">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Fri Jul 11 17:52:16 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000228.html">[Antargis-svn] r1272 - in antargis/trunk: .	data/gui/layout/editor/campaign ext/basic ext/gui ruby	ruby/editor/campaign ruby/gui ruby/spec ruby/spec/story
+</A></li>
+        <LI>Next message: <A HREF="000230.html">[Antargis-svn] r1274 - in antargis/trunk/ext: 3dengine video
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#229">[ date ]</a>
+              <a href="thread.html#229">[ thread ]</a>
+              <a href="subject.html#229">[ subject ]</a>
+              <a href="author.html#229">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2008-07-11 17:52:14 +0200 (Fri, 11 Jul 2008)
+New Revision: 1273
+
+Added:
+   antargis/trunk/rookey/configs/mingw.rb
+   antargis/trunk/rookey/externals/tools.rb
+   antargis/trunk/rookey/externals/zlib/
+   antargis/trunk/rookey/externals/zlib/build.rb
+Modified:
+   antargis/trunk/Rakefile
+   antargis/trunk/rookey/compile.rb
+   antargis/trunk/rookey/config_generator.rb
+   antargis/trunk/rookey/configs/gl.rb
+   antargis/trunk/rookey/configs/png.rb
+   antargis/trunk/rookey/configs/ruby.rb
+   antargis/trunk/rookey/configs/swig.rb
+   antargis/trunk/rookey/configs/z.rb
+   antargis/trunk/rookey/externals/ext_config.rb
+   antargis/trunk/rookey/externals/swig/build.rb
+Log:
+Incomplete - task 18: MinGW on MacOSX 
+<A HREF="http://localhost:3000/issues/show/18">http://localhost:3000/issues/show/18</A>
+
+Modified: antargis/trunk/Rakefile
+===================================================================
+--- antargis/trunk/Rakefile	2008-07-10 19:16:05 UTC (rev 1272)
++++ antargis/trunk/Rakefile	2008-07-11 15:52:14 UTC (rev 1273)
+@@ -2,6 +2,8 @@
+ 
+ $rspec=Rookey.checkedRequire('spec/rake/spectask')
+ 
++require 'rake/rdoctask.rb'
++
+ # basic version
+ 
+ inits=[
+@@ -81,3 +83,14 @@
+     sh &quot;#{spec_cmd} #{run_file_name} --format html:spec_output.html --colour #{example}&quot;
+   end
+ end
++
++
++Rake::RDocTask.new do |rd|
++   rd.main = &quot;README&quot;
++   rd.title=&quot;Battles of Antargis&quot;
++   #rd.options &lt;&lt; &quot;--diagram&quot;
++   rd.rdoc_dir=&quot;docs/ruby&quot;
++   a=Dir[&quot;**/README&quot;]+Dir[&quot;ruby/**/*.rb&quot;]
++   a=a.select{|f|not (f=~/_test/ or f=~/spec/)}
++   rd.rdoc_files.include(a)
++end
+
+Modified: antargis/trunk/rookey/compile.rb
+===================================================================
+--- antargis/trunk/rookey/compile.rb	2008-07-10 19:16:05 UTC (rev 1272)
++++ antargis/trunk/rookey/compile.rb	2008-07-11 15:52:14 UTC (rev 1273)
+@@ -134,11 +134,11 @@
+     private
+     def getCompiler(type)
+        #FiXME
+-       compiler= case type
++      compiler= case type
+         when :cpp
+-          &quot;g++&quot;
++          @config[&quot;CPP&quot;]
+         when :c
+-          &quot;gcc&quot;
++          @config[&quot;CC&quot;]
+         else
+           raise &quot;Unknown compiler type #{type}&quot;
+       end
+@@ -147,6 +147,10 @@
+       compiler
+     end
+     
++    def findProgram(pattern)
++      
++    end
++    
+     @@deps=nil
+     def Compiler.parseDepsFiles
+       return @@deps if @@deps
+
+Modified: antargis/trunk/rookey/config_generator.rb
+===================================================================
+--- antargis/trunk/rookey/config_generator.rb	2008-07-10 19:16:05 UTC (rev 1272)
++++ antargis/trunk/rookey/config_generator.rb	2008-07-11 15:52:14 UTC (rev 1273)
+@@ -76,7 +76,9 @@
+ 	      getPath.map{|dir|
+ 	        
+ 	        p=File.join(dir,program)
++          list=Dir[p]
+ 	        p=nil unless File.exists?(p)
++          p||=list[0]
+           p
+ 	      }
+       }.flatten.uniq-[nil]
+@@ -96,11 +98,16 @@
+       compiler.compile(target,testSource)
+       libadd=&quot;-l#{lib}&quot;
+       exeName=compiler.exeName(&quot;test&quot;)
+-      compiler.linkEXE(exeName,[target,libadd])
+-      `#{exeName}`
+-      if $?
+-        config.add(&quot;LDFLAGS&quot;,libadd)
++      begin
++        compiler.linkEXE(exeName,[target,libadd])
++        `#{exeName}`
++        if $?
++          config.add(&quot;LDFLAGS&quot;,libadd)
++        end
++      rescue RuntimeError =&gt; e
++        return false
+       end
++      true
+     end
+     private
+     def getPath
+@@ -115,6 +122,11 @@
+         p.split(&quot;:&quot;)
+       end
+     end
++    
++    def install(package)
++      #raise 1
++      ruby(File.join(File.split(__FILE__)[0],&quot;externals&quot;,&quot;tools.rb&quot;),package)
++    end    
+   end
+   
+   Dir[File.join(File.split(__FILE__)[0],&quot;configs&quot;,&quot;*.rb&quot;)].each{|file|
+@@ -143,6 +155,7 @@
+ 	      unless run.member?(c)
+ 		      if c.needs.select{|s|not ok.member?(s)}.length == 0
+ 		        log &quot;Running configurator #{c}&quot;
++            #pp config
+ 		        c.new.run(config)
+ 		        ok+=c.provides
+ 		        ok.uniq!
+
+Modified: antargis/trunk/rookey/configs/gl.rb
+===================================================================
+--- antargis/trunk/rookey/configs/gl.rb	2008-07-10 19:16:05 UTC (rev 1272)
++++ antargis/trunk/rookey/configs/gl.rb	2008-07-11 15:52:14 UTC (rev 1273)
+@@ -2,11 +2,12 @@
+ require File.join(File.split(__FILE__)[0],&quot;ruby.rb&quot;)
+ 
+ module Rookey
+-  class GLConfig&lt;RubyConfig
++  class GLConfig&lt;Configurator
+     provides :opengl
++    needs :compiler
+     
+     def run(config)
+-      case get(&quot;host_os&quot;)
++      case config[&quot;host_os&quot;]
+         when /darwin/
+           config.add(&quot;INCLUDEDIRS&quot;,&quot;/usr/X11/include&quot;)        
+           config.add(&quot;LDFLAGS&quot;,&quot;-Wl,-framework,OpenGL&quot;)
+
+Added: antargis/trunk/rookey/configs/mingw.rb
+===================================================================
+--- antargis/trunk/rookey/configs/mingw.rb	2008-07-10 19:16:05 UTC (rev 1272)
++++ antargis/trunk/rookey/configs/mingw.rb	2008-07-11 15:52:14 UTC (rev 1273)
+@@ -0,0 +1,25 @@
++require 'mkmf'
++
++module Rookey
++  class MinGWConfig&lt;Configurator
++    provides :compiler
++    
++    def run(config)
++      if ROOKEY_CONFIG[:extconfig]=='mingw32'
++	      #config.add(&quot;INCLUDEDIRS&quot;,get(&quot;archdir&quot;)+&quot; &quot;+get(&quot;includedir&quot;))
++	      #config.add(&quot;CFLAGS&quot;,get(&quot;CFLAGS&quot;))
++	      #config.add(&quot;LDFLAGS&quot;,get(&quot;LIBS&quot;))
++	      #config.add(&quot;LDFLAGS&quot;,get(&quot;LIBRUBYARG&quot;))
++	      #config.add(&quot;LDSHAREDFLAGS&quot;,get(&quot;LDSHARED&quot;).sub(/^[^ ]+ /,&quot;&quot;))
++	      config[&quot;DLEXT&quot;]=&quot;dll&quot;
++	      config[&quot;host_os&quot;]=&quot;win32&quot;      
++	      config[&quot;GPP_BASE&quot;]=&quot;i*mingw*g++&quot;
++	      config[&quot;GCC_BASE&quot;]=&quot;i*mingw*gcc&quot;
++	
++	      {&quot;CPP&quot;=&gt;&quot;GPP_BASE&quot;,&quot;CC&quot;=&gt;&quot;GCC_BASE&quot;}.each{|name,base|      
++	        config[name]=searchProgram(config[base])
++	      }
++      end
++    end
++  end    
++end
+\ No newline at end of file
+
+Modified: antargis/trunk/rookey/configs/png.rb
+===================================================================
+--- antargis/trunk/rookey/configs/png.rb	2008-07-10 19:16:05 UTC (rev 1272)
++++ antargis/trunk/rookey/configs/png.rb	2008-07-11 15:52:14 UTC (rev 1273)
+@@ -2,7 +2,7 @@
+ require File.join(File.split(__FILE__)[0],&quot;ruby.rb&quot;)
+ 
+ module Rookey
+-  class PNGConfig&lt;RubyConfig
++  class PNGConfig&lt;Configurator
+     provides :png
+     needs :compiler
+     needs :z
+
+Modified: antargis/trunk/rookey/configs/ruby.rb
+===================================================================
+--- antargis/trunk/rookey/configs/ruby.rb	2008-07-10 19:16:05 UTC (rev 1272)
++++ antargis/trunk/rookey/configs/ruby.rb	2008-07-11 15:52:14 UTC (rev 1273)
+@@ -1,30 +1,38 @@
+ require 'mkmf'
+ 
+ module Rookey
+-  class RubyConfig&lt;Configurator
+-    provides :compiler
+-    
+-    def run(config)
+-      config.add(&quot;INCLUDEDIRS&quot;,get(&quot;archdir&quot;)+&quot; &quot;+get(&quot;includedir&quot;))
+-      config.add(&quot;CFLAGS&quot;,get(&quot;CFLAGS&quot;))
+-      config.add(&quot;LDFLAGS&quot;,get(&quot;LIBS&quot;))
+-      config.add(&quot;LDFLAGS&quot;,get(&quot;LIBRUBYARG&quot;))
+-      config.add(&quot;LDSHAREDFLAGS&quot;,get(&quot;LDSHARED&quot;).sub(/^[^ ]+ /,&quot;&quot;))
+-      config[&quot;DLEXT&quot;]=get(&quot;DLEXT&quot;)
+-      config[&quot;host_os&quot;]=get(&quot;host_os&quot;)      
+-    end
+-    
+-  private
+-    # recurse through ruby's CONFIG structure 
+-    def get(n)
+-      return &quot;&quot; if n.nil?
+-      v=CONFIG[n]
+-      return &quot;&quot; if v.nil?
+-      v.gsub(/\$\(([^)]*\))/) {|a|
+-        f=a[2..-2]
+-        get(f)
+-      }      
+-    end
+-    
+-  end
++  if ROOKEY_CONFIG[:use_mkmf]==true or ROOKEY_CONFIG[:use_mkmf].nil? 
++	  class RubyConfig&lt;Configurator
++	    provides :compiler
++	    
++	    def run(config)
++		      config.add(&quot;INCLUDEDIRS&quot;,get(&quot;archdir&quot;)+&quot; &quot;+get(&quot;includedir&quot;))
++		      config.add(&quot;CFLAGS&quot;,get(&quot;CFLAGS&quot;))
++		      config.add(&quot;LDFLAGS&quot;,get(&quot;LIBS&quot;))
++		      config.add(&quot;LDFLAGS&quot;,get(&quot;LIBRUBYARG&quot;))
++		      config.add(&quot;LDSHAREDFLAGS&quot;,get(&quot;LDSHARED&quot;).sub(/^[^ ]+ /,&quot;&quot;))
++		      config[&quot;DLEXT&quot;]=get(&quot;DLEXT&quot;)
++		      config[&quot;host_os&quot;]=get(&quot;host_os&quot;)      
++		      config[&quot;GPP_BASE&quot;]=&quot;g++&quot;
++		      config[&quot;GCC_BASE&quot;]=&quot;gcc&quot;
++		
++		      {&quot;CPP&quot;=&gt;&quot;GPP_BASE&quot;,&quot;CC&quot;=&gt;&quot;GCC_BASE&quot;}.each{|name,base|      
++		        config[name]=searchProgram(config[base])
++		      }
++	    end
++	    
++	  private
++	    # recurse through ruby's CONFIG structure 
++	    def get(n)
++	      return &quot;&quot; if n.nil?
++	      v=CONFIG[n]
++	      return &quot;&quot; if v.nil?
++	      v.gsub(/\$\(([^)]*\))/) {|a|
++	        f=a[2..-2]
++	        get(f)
++	      }      
++	    end
++	    
++	  end
++	end
+ end
+\ No newline at end of file
+
+Modified: antargis/trunk/rookey/configs/swig.rb
+===================================================================
+--- antargis/trunk/rookey/configs/swig.rb	2008-07-10 19:16:05 UTC (rev 1272)
++++ antargis/trunk/rookey/configs/swig.rb	2008-07-11 15:52:14 UTC (rev 1273)
+@@ -8,7 +8,8 @@
+       if swigs.length==0
+         puts &quot;ERROR: no SWIG with version in #{VERSIONS.join(&quot;, &quot;)} not found!&quot;
+         if firstrun
+-	        buildSwig
++	        #buildSwig
++          install(&quot;swig&quot;)
+ 	        run(config,false)
+         end
+       else
+@@ -25,9 +26,9 @@
+       output=`#{run}`
+       VERSIONS.select{|v|output=~/#{v}/}.length&gt;0
+     end
+-    def buildSwig
+-      ruby File.join(File.split(__FILE__)[0],&quot;..&quot;,&quot;externals&quot;,&quot;swig&quot;,&quot;build.rb&quot;)
+-    end
++    #def buildSwig
++    #  ruby File.join(File.split(__FILE__)[0],&quot;..&quot;,&quot;externals&quot;,&quot;swig&quot;,&quot;build.rb&quot;)
++    #end
+     
+   end
+ end
+\ No newline at end of file
+
+Modified: antargis/trunk/rookey/configs/z.rb
+===================================================================
+--- antargis/trunk/rookey/configs/z.rb	2008-07-10 19:16:05 UTC (rev 1272)
++++ antargis/trunk/rookey/configs/z.rb	2008-07-11 15:52:14 UTC (rev 1273)
+@@ -2,12 +2,14 @@
+ require File.join(File.split(__FILE__)[0],&quot;ruby.rb&quot;)
+ 
+ module Rookey
+-  class ZConfig&lt;RubyConfig
++  class ZConfig&lt;Configurator
+     provides :z
+     needs :compiler
+     
+     def run(config)
+-      checkLibrary(config,&quot;z&quot;,&quot;compress&quot;)
++      unless checkLibrary(config,&quot;z&quot;,&quot;compress&quot;)
++        install(&quot;zlib&quot;)
++      end
+     end   
+   end 
+ end
+\ No newline at end of file
+
+Modified: antargis/trunk/rookey/externals/ext_config.rb
+===================================================================
+--- antargis/trunk/rookey/externals/ext_config.rb	2008-07-10 19:16:05 UTC (rev 1272)
++++ antargis/trunk/rookey/externals/ext_config.rb	2008-07-11 15:52:14 UTC (rev 1273)
+@@ -1,7 +1,96 @@
+-$swigVersion=&quot;1.3.34&quot;
+-$swigDir=File.expand_path(File.join(File.split(__FILE__)[0],&quot;swig&quot;,&quot;swig-#{$swigVersion}&quot;))
+-#$swigTarGz=&quot;#{$swigDir}.tar.gz&quot;
+-$swigTarGz=&quot;swig-#{$swigVersion}.tar.gz&quot;
+-$swigUrl=&quot;<A HREF="http://downloads.sourceforge.net/swig/">http://downloads.sourceforge.net/swig/</A>&quot;+$swigTarGz
++def getInstallTarget(name)
++  File.expand_path(File.join(File.split(__FILE__)[0],&quot;built&quot;,name))
++end
+ 
+-$swigTarget=File.expand_path(File.join(File.split(__FILE__)[0],&quot;built&quot;,&quot;swig&quot;))
++module PackageBase
++  def urlToFile(url)
++    url.gsub(/.*\//,&quot;&quot;)
++  end
++  def fileToDir(file)
++    f=file
++    case f
++      when /zip$/i, /\.tgz$/i 
++        f[0..-5]
++      when /\.tar.gz$/i
++        f[0..-8]
++      when /\.tar.bz2$/i
++        f[0..-9]
++    end
++  end
++end
++
++$zliburl=&quot;<A HREF="http://somezliburl">http://somezliburl</A>&quot;
++class Package
++  attr_reader :url
++  attr_accessor :configureOptions
++  def initialize(url)
++    @url=url
++  end
++  def file
++    @url.gsub(/.*\//,&quot;&quot;)
++  end
++  def dir
++    f=file
++    case f
++	    when /zip$/i, /\.tgz$/i 
++	      f[0..-5]
++      when /\.tar.gz$/i
++        f[0..-8]
++      when /\.tar.bz2$/i
++        f[0..-9]
++    end
++  end
++  def type
++    case file
++      when /zip$/i 
++        :zip
++      when /\.tar.gz$/i, /\.tgz$/i
++        :tarGZ
++      when /\.tar.bz2$/i
++        :tarBZ2
++    end
++  end
++  def install
++    download(url)
++    unzipTar(file)
++    build(dir,configureOptions)
++  end    
++end
++
++class BinPackage
++  include PackageBase
++  def initialize(binurl,devurl)
++    @binurl=binurl
++    @devurl=devurl
++  end
++  def install
++    odir=Dir.pwd
++    begin
++      Dir.mkdir(&quot;build&quot;)
++    rescue
++    end
++    Dir.chdir(&quot;build&quot;)
++    [@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">binurl, at devurl</A>].each{|url|
++      download(url)
++      file=urlToFile(url)
++      unzipTar(file)
++      dir=fileToDir(file)
++      puts dir
++    }
++    Dir.chdir(odir)
++  end
++end
++
++def externalPackages
++	pkgs={
++	  &quot;swig&quot;=&gt;Package.new(&quot;<A HREF="http://downloads.sourceforge.net/swig/swig-1.3.36.tar.gz">http://downloads.sourceforge.net/swig/swig-1.3.36.tar.gz</A>&quot;),
++	  #&quot;zlib&quot;=&gt;Package.new(&quot;<A HREF="http://downloads.sourceforge.net/swig/swig-1.3.34.tar.gz">http://downloads.sourceforge.net/swig/swig-1.3.34.tar.gz</A>&quot;),
++    &quot;zlib&quot;=&gt;BinPackage.new(&quot;<A HREF="http://prdownloads.sourceforge.net/gnuwin32/zlib-1.2.3-bin.zip">http://prdownloads.sourceforge.net/gnuwin32/zlib-1.2.3-bin.zip</A>&quot;,&quot;<A HREF="http://prdownloads.sourceforge.net/gnuwin32/zlib-1.2.3-lib.zip">http://prdownloads.sourceforge.net/gnuwin32/zlib-1.2.3-lib.zip</A>&quot;)
++	}
++  # exclude other scripting langs for swig
++  pkgs[&quot;swig&quot;].configureOptions=[&quot;python&quot;,&quot;ocaml&quot;,&quot;php4&quot;,&quot;chicken&quot;,&quot;csharp&quot;,&quot;csharp&quot;,
++    &quot;guilescm&quot;,&quot;java&quot;,&quot;mzscheme&quot;,&quot;perl5&quot;,&quot;pike&quot;,&quot;tcl&quot;,&quot;lua&quot;,&quot;allegrocl&quot;,&quot;clisp&quot;,&quot;r&quot;].map{|f|&quot;--without-#{f}&quot;}.join(&quot; &quot;)
++  pkgs
++end
++
++
+
+Modified: antargis/trunk/rookey/externals/swig/build.rb
+===================================================================
+--- antargis/trunk/rookey/externals/swig/build.rb	2008-07-10 19:16:05 UTC (rev 1272)
++++ antargis/trunk/rookey/externals/swig/build.rb	2008-07-11 15:52:14 UTC (rev 1273)
+@@ -1,40 +1,8 @@
+ require 'ftools'
+ require File.join(File.split(__FILE__)[0],&quot;..&quot;,&quot;ext_config.rb&quot;)
++require File.join(File.split(__FILE__)[0],&quot;..&quot;,&quot;tools.rb&quot;)
+ 
+-alias :oldSystem :system 
+-def system(x)
+-  puts x
+-  oldSystem(x)
+-end
+-  
+ 
+-def getFilenameFromUrl(url)
+-  url.gsub(/.*\//,&quot;&quot;)
+-end
+-
+-def download(url)
+-  filename=getFilenameFromUrl(url)
+-  if File.exists?(filename)
+-    puts &quot;File #{filename} already exists - so not downloading!&quot;
+-    return
+-  end
+-  puts &quot;Downloading from #{url}...&quot;
+-  call=&quot;wget -O '#{filename}.tmp' '#{url}'&quot;
+-  system call
+-  File.move(filename+&quot;.tmp&quot;,filename)
+-  return
+-end
+-
+-def unzipTar(file)
+-  puts &quot;Unzipping #{file}&quot;
+-  if file=~/tar.gz$/
+-    system(&quot;tar xvfz #{file} &gt;/dev/null&quot;)
+-  else
+-    system(&quot;unzip #{file}&quot;)
+-  end
+-  puts &quot;Ready.&quot;
+-end
+-
+ def buildSwig(dir,swigTarget)
+   curDir=Dir.pwd
+   Dir.chdir(dir)
+@@ -47,4 +15,4 @@
+ 
+ download($swigUrl)
+ unzipTar($swigTarGz)
+-buildSwig($swigDir,$swigTarget)
++buildSwig($swigDir,getBuildTarget(&quot;swig&quot;))
+
+Added: antargis/trunk/rookey/externals/tools.rb
+===================================================================
+--- antargis/trunk/rookey/externals/tools.rb	2008-07-10 19:16:05 UTC (rev 1272)
++++ antargis/trunk/rookey/externals/tools.rb	2008-07-11 15:52:14 UTC (rev 1273)
+@@ -0,0 +1,68 @@
++require File.join(File.split(__FILE__)[0],&quot;ext_config.rb&quot;)
++require 'ftools'
++
++alias :oldSystem :system 
++def system(x)
++  puts x
++  oldSystem(x)
++end
++  
++
++def getFilenameFromUrl(url)
++  url.gsub(/.*\//,&quot;&quot;)
++end
++
++def download(url)
++  filename=getFilenameFromUrl(url)
++  if File.exists?(filename)
++    puts &quot;File #{filename} already exists - so not downloading!&quot;
++    return
++  end
++  puts &quot;Downloading from #{url}...&quot;
++  call=&quot;wget -O '#{filename}.tmp' '#{url}'&quot;
++  system call
++  File.move(filename+&quot;.tmp&quot;,filename)
++  return
++end
++
++def unzipTar(file)
++  puts &quot;Unzipping #{file}&quot;
++  if file=~/tar.gz$/
++    system(&quot;tar xvfz #{file} &gt;/dev/null&quot;)
++  elsif file=~/tar.bz2$/
++    system(&quot;tar xvfj #{file} &gt;/dev/null&quot;)
++  else
++    system(&quot;unzip #{file}&quot;)
++  end
++  puts &quot;Ready.&quot;
++end
++
++def setEnv
++  pp $tempConfig
++end
++
++def msh(a)
++  puts a
++  system a
++end
++
++def build(dir,configureOptions)
++  olddir=Dir.pwd
++
++  Dir.chdir(dir)
++  
++  msh &quot;./configure --prefix=#{File.join(olddir,&quot;build&quot;)} #{configureOptions}&quot;
++  msh &quot;make&quot;
++  msh &quot;make install&quot;
++
++  Dir.chdir(olddir)
++end
++
++def buildExternal(name)
++  Dir.chdir(File.split(__FILE__)[0])
++  puts name
++  pkg=externalPackages[name]
++  pkg.install
++end
++
++buildExternal(ARGV[0])
+\ No newline at end of file
+
+Added: antargis/trunk/rookey/externals/zlib/build.rb
+===================================================================
+--- antargis/trunk/rookey/externals/zlib/build.rb	2008-07-10 19:16:05 UTC (rev 1272)
++++ antargis/trunk/rookey/externals/zlib/build.rb	2008-07-11 15:52:14 UTC (rev 1273)
+@@ -0,0 +1,17 @@
++require 'ftools'
++require File.join(File.split(__FILE__)[0],&quot;..&quot;,&quot;ext_config.rb&quot;)
++require File.join(File.split(__FILE__)[0],&quot;..&quot;,&quot;tools.rb&quot;)
++
++def buildZ(dir,swigTarget)
++  curDir=Dir.pwd
++  Dir.chdir(dir)
++  setEnv
++  system &quot;./configure --prefix=#{target}&quot;
++  system &quot;make&quot;
++  system &quot;make install&quot;
++end
++
++
++download($zlibUrl)
++unzipTar($zlibTGZ)
++buildZ($zlibDir,getBuildDir(&quot;zlib&quot;))
+\ No newline at end of file
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000228.html">[Antargis-svn] r1272 - in antargis/trunk: .	data/gui/layout/editor/campaign ext/basic ext/gui ruby	ruby/editor/campaign ruby/gui ruby/spec ruby/spec/story
+</A></li>
+	<LI>Next message: <A HREF="000230.html">[Antargis-svn] r1274 - in antargis/trunk/ext: 3dengine video
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#229">[ date ]</a>
+              <a href="thread.html#229">[ thread ]</a>
+              <a href="subject.html#229">[ subject ]</a>
+              <a href="author.html#229">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

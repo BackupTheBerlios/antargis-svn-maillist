@@ -1,0 +1,1530 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1298 - in antargis/trunk: ext/video	rookey/lib/rookey/cpp ruby ruby/editor/campaign ruby/gui ruby/tools
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2009-March/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1298%20-%20in%20antargis/trunk%3A%20ext/video%0A%09rookey/lib/rookey/cpp%20ruby%20ruby/editor/campaign%20ruby/gui%20ruby/tools&In-Reply-To=%3C200903041646.n24GkF7L006524%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000253.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1298 - in antargis/trunk: ext/video	rookey/lib/rookey/cpp ruby ruby/editor/campaign ruby/gui ruby/tools</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1298%20-%20in%20antargis/trunk%3A%20ext/video%0A%09rookey/lib/rookey/cpp%20ruby%20ruby/editor/campaign%20ruby/gui%20ruby/tools&In-Reply-To=%3C200903041646.n24GkF7L006524%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1298 - in antargis/trunk: ext/video	rookey/lib/rookey/cpp ruby ruby/editor/campaign ruby/gui ruby/tools">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Wed Mar  4 17:46:15 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000253.html">[Antargis-svn] r1297 - antargis/trunk/rookey/lib/rookey/cpp
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#254">[ date ]</a>
+              <a href="thread.html#254">[ thread ]</a>
+              <a href="subject.html#254">[ subject ]</a>
+              <a href="author.html#254">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2009-03-04 17:46:14 +0100 (Wed, 04 Mar 2009)
+New Revision: 1298
+
+Added:
+   antargis/trunk/ruby/tools/logging.rb
+Modified:
+   antargis/trunk/ext/video/ag_painter.cc
+   antargis/trunk/ext/video/ag_painter.h
+   antargis/trunk/rookey/lib/rookey/cpp/rk_logging.cc
+   antargis/trunk/rookey/lib/rookey/cpp/rk_logging.h
+   antargis/trunk/ruby/ant_tools.rb
+   antargis/trunk/ruby/antargislib.rb
+   antargis/trunk/ruby/editor/campaign/app.rb
+   antargis/trunk/ruby/editor/campaign/drag_grid.rb
+   antargis/trunk/ruby/editor/campaign/effect.rb
+   antargis/trunk/ruby/editor/campaign/image_list.rb
+   antargis/trunk/ruby/editor/campaign/image_list_2d.rb
+   antargis/trunk/ruby/editor/campaign/ruby_layouts.rb
+   antargis/trunk/ruby/editor/campaign/spec_campaign_editor.rb
+   antargis/trunk/ruby/editor/campaign/toolbar.rb
+   antargis/trunk/ruby/gui/testing.rb
+   antargis/trunk/ruby/spec_helper.rb
+Log:
+logging improved and fixed hidden button in campaign editor
+
+Modified: antargis/trunk/ext/video/ag_painter.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_painter.cc	2009-03-03 19:55:17 UTC (rev 1297)
++++ antargis/trunk/ext/video/ag_painter.cc	2009-03-04 16:46:14 UTC (rev 1298)
+@@ -38,176 +38,153 @@
+ // AGProjection
+ /////////////////////////////////////////////////////////////////////////////////
+ 
++AGPaintProjection::AGPaintProjection(const AGRect2 &amp;pClip) : clip(pClip) {
++  a.set(0, 0, 1);
++  a.set(0, 1, 0);
++  a.set(0, 2, 0);
++  a.set(1, 0, 0);
++  a.set(1, 1, 1);
++  a.set(1, 2, 0);
++  a.set(2, 0, 0);
++  a.set(2, 1, 0);
++  a.set(2, 2, 0);
++}
+ 
+-AGPaintProjection::AGPaintProjection(const AGRect2 &amp;pClip):clip(pClip)
+-    {
+-      a.set(0,0,1);
+-      a.set(0,1,0);
+-      a.set(0,2,0);
+-      a.set(1,0,0);
+-      a.set(1,1,1);
+-      a.set(1,2,0);
+-      a.set(2,0,0);
+-      a.set(2,1,0);
+-      a.set(2,2,0);
+-    }
++AGPaintProjection::AGPaintProjection(const AGClipping &amp;pClip) : advancedClipping(pClip) {
++  a.set(0, 0, 1);
++  a.set(0, 1, 0);
++  a.set(0, 2, 0);
++  a.set(1, 0, 0);
++  a.set(1, 1, 1);
++  a.set(1, 2, 0);
++  a.set(2, 0, 0);
++  a.set(2, 1, 0);
++  a.set(2, 2, 0);
++}
+ 
+-AGPaintProjection::AGPaintProjection(const AGClipping &amp;pClip):advancedClipping(pClip)
+-    {
+-      a.set(0,0,1);
+-      a.set(0,1,0);
+-      a.set(0,2,0);
+-      a.set(1,0,0);
+-      a.set(1,1,1);
+-      a.set(1,2,0);
+-      a.set(2,0,0);
+-      a.set(2,1,0);
+-      a.set(2,2,0);
+-    }
++AGVector2 AGPaintProjection::project(const AGVector2 &amp;p) const {
++  AGVector2 r = (a * AGVector3(p[0], p[1], 1)).dim2();
+ 
+-
+-AGVector2 AGPaintProjection::project(const AGVector2 &amp;p) const
+-{
+-  AGVector2 r=(a*AGVector3(p[0],p[1],1)).dim2();
+-
+   return r;
+ }
+-bool AGPaintProjection::pointOk(const AGVector2 &amp;p) const
+-{
++
++bool AGPaintProjection::pointOk(const AGVector2 &amp;p) const {
+   return clip.contains(p);
+ }
+ 
+-AGRect2 AGPaintProjection::project(const AGRect2 &amp;p) const
+-{
+-  AGRect2 r((a*AGVector3(p[0],1)).dim2(),
+-      (a*AGVector3(p[1],1)).dim2());
++AGRect2 AGPaintProjection::project(const AGRect2 &amp;p) const {
++  AGRect2 r((a * AGVector3(p[0], 1)).dim2(),
++          (a * AGVector3(p[1], 1)).dim2());
+   return r;
+ }
+-AGRect2 AGPaintProjection::clipRect(AGRect2 target) const
+-{
++
++AGRect2 AGPaintProjection::clipRect(AGRect2 target) const {
+   return clip.intersect(target);
+ }
+ 
++std::pair&lt;AGRect2, AGRect2&gt; AGPaintProjection::clipRect(AGRect2 target, AGRect2 src) const {
++  AGRect2 i = clip.intersect(target);
++  if (i.width() &lt;= 0 || i.height() &lt;= 0)
++    return std::make_pair(AGRect2(0, 0, 0, 0), AGRect2(0, 0, 0, 0));
+ 
+-std::pair&lt;AGRect2,AGRect2&gt; AGPaintProjection::clipRect(AGRect2 target,AGRect2 src) const
+-{
+-  AGRect2 i=clip.intersect(target);
+-  if(i.width()&lt;=0 || i.height()&lt;=0)
+-    return std::make_pair(AGRect2(0,0,0,0),AGRect2(0,0,0,0));
++  assert(target.x0() &lt; clip.x1());
+ 
+-  assert(target.x0()&lt;clip.x1());
+ 
+-
+   // clip left
+-  if(target.x0()&lt;clip.x0())
+-    {
+-      float a=(clip.x0()-target.x0())/target.w();
+-      float nw=target.x1()-clip.x0();
+-      target.setLeft(clip.x0());
+-      target.setWidth(nw);
+-      nw=src.w()*(1.0f-a);
+-      src.setLeft(src.x0()+src.w()*a);
+-      src.setWidth(nw);
+-    }
++  if (target.x0() &lt; clip.x0()) {
++    float a = (clip.x0() - target.x0()) / target.w();
++    float nw = target.x1() - clip.x0();
++    target.setLeft(clip.x0());
++    target.setWidth(nw);
++    nw = src.w()*(1.0f - a);
++    src.setLeft(src.x0() + src.w() * a);
++    src.setWidth(nw);
++  }
+ 
+   // clip top
+-  if(target.y0()&lt;clip.y0())
+-    {
+-      float a=(clip.y0()-target.y0())/target.h();
+-      float nh=target.y1()-clip.y0();
+-      target.setTop(clip.y0());
+-      target.setHeight(nh);
+-      nh=src.h()*(1.0f-a);
+-      src.setTop(src.y0()+src.h()*a);
+-      src.setHeight(nh);
+-    }
++  if (target.y0() &lt; clip.y0()) {
++    float a = (clip.y0() - target.y0()) / target.h();
++    float nh = target.y1() - clip.y0();
++    target.setTop(clip.y0());
++    target.setHeight(nh);
++    nh = src.h()*(1.0f - a);
++    src.setTop(src.y0() + src.h() * a);
++    src.setHeight(nh);
++  }
+ 
+   // clip right
+-  if(target.x1()&gt;clip.x1())
+-    {
+-      float a=(target.x1()-clip.x1())/target.w();
+-      target.setRight(clip.x1());
+-      src.setRight(src.x1()-src.w()*a);
+-    }
++  if (target.x1() &gt; clip.x1()) {
++    float a = (target.x1() - clip.x1()) / target.w();
++    target.setRight(clip.x1());
++    src.setRight(src.x1() - src.w() * a);
++  }
+ 
+   // clip bottom
+-  if(target.y1()&gt;clip.y1())
+-    {
+-      float a=(target.y1()-clip.y1())/target.h();
+-      target.setBottom(clip.y1());
+-      src.setBottom(src.y1()-src.h()*a);
+-    }
++  if (target.y1() &gt; clip.y1()) {
++    float a = (target.y1() - clip.y1()) / target.h();
++    target.setBottom(clip.y1());
++    src.setBottom(src.y1() - src.h() * a);
++  }
+ 
+-  return std::make_pair(target,src);
++  return std::make_pair(target, src);
+ }
+ 
+-void AGPaintProjection::translate(const AGVector2 &amp;v)
+-  {
+-    a.get(2,0)+=v[0];
+-    a.get(2,1)+=v[1];
+-  }
++void AGPaintProjection::translate(const AGVector2 &amp;v) {
++  a.get(2, 0) += v[0];
++  a.get(2, 1) += v[1];
++}
+ 
+-void AGPaintProjection::transform(const AGMatrix3 &amp;pMatrix)
+-  {
+-    a*=pMatrix;
+-  }
++void AGPaintProjection::transform(const AGMatrix3 &amp;pMatrix) {
++  a *= pMatrix;
++}
+ 
+-void AGPaintProjection::setClip(const AGRect2&amp;p)
+-  {
+-    clip=clip.intersect(p);
+-  }
++void AGPaintProjection::setClip(const AGRect2&amp;p) {
++  clip = clip.intersect(p);
++}
+ 
++AGRect2 AGPaintProjection::getRect() const {
++  AGRect2 r = clip;
+ 
+-AGRect2 AGPaintProjection::getRect() const
+-{
+-  AGRect2 r=clip;
+-
+-  r-=AGVector2(a.get(2,0),a.get(2,1));
++  r -= AGVector2(a.get(2, 0), a.get(2, 1));
+   return r;
+ }
+ 
+-AGLine2 AGPaintProjection::clipLine(AGLine2 l) const
+-{
++AGLine2 AGPaintProjection::clipLine(AGLine2 l) const {
+   AGLine2 d;
+ 
+-  AGRect2 r=clip;
++  AGRect2 r = clip;
+ 
+-  if((l[0][0]&lt;r.x0() &amp;&amp; l[1][0]&lt;r.x0()) ||
+-      (l[0][0]&gt;r.x1() &amp;&amp; l[1][0]&gt;r.x1()) ||
+-      (l[0][1]&lt;r.y0() &amp;&amp; l[1][1]&lt;r.y0()) ||
+-      (l[0][1]&gt;r.y1() &amp;&amp; l[1][1]&gt;r.y1()))
++  if ((l[0][0] &lt; r.x0() &amp;&amp; l[1][0] &lt; r.x0()) ||
++          (l[0][0] &gt; r.x1() &amp;&amp; l[1][0] &gt; r.x1()) ||
++          (l[0][1] &lt; r.y0() &amp;&amp; l[1][1] &lt; r.y0()) ||
++          (l[0][1] &gt; r.y1() &amp;&amp; l[1][1] &gt; r.y1()))
+     return d; // hidden
+ 
+   float a;
+   // clip
+-  for(size_t i=0;i&lt;1;i++)
+-    {
+-      if(l[i][0]&lt;r.x0())
+-        {
+-          a=(r.x0()-l[i][0])/(l[1-i][0]-l[i][0]);
+-          l[i][0]=r.x0();
+-          l[i][1]=l[i][1]+(l[1-i][1]-l[i][1])*a;
+-        }
+-      if(l[i][1]&lt;r.y0())
+-        {
+-          a=(r.y0()-l[i][1])/(l[1-i][1]-l[i][1]);
+-          l[i][1]=r.y0();
+-          l[i][0]=l[i][0]+(l[1-i][0]-l[i][0])*a;
+-        }
+-      if(l[i][0]&gt;r.x1())
+-        {
+-          a=(l[i][0]-r.x1())/(l[i][0]-l[1-i][0]);
+-          l[i][0]=r.x1();
+-          l[i][1]=l[i][1]+(l[1-i][1]-l[i][1])*a;
+-        }
+-      if(l[i][1]&gt;r.y1())
+-        {
+-          a=(l[i][1]-r.y1())/(l[i][1]-l[1-i][1]);
+-          l[i][1]=r.y1();
+-          l[i][0]=l[i][0]+(l[1-i][0]-l[i][0])*a;
+-        }
+-
++  for (size_t i = 0; i &lt; 1; i++) {
++    if (l[i][0] &lt; r.x0()) {
++      a = (r.x0() - l[i][0]) / (l[1 - i][0] - l[i][0]);
++      l[i][0] = r.x0();
++      l[i][1] = l[i][1]+(l[1 - i][1] - l[i][1]) * a;
+     }
++    if (l[i][1] &lt; r.y0()) {
++      a = (r.y0() - l[i][1]) / (l[1 - i][1] - l[i][1]);
++      l[i][1] = r.y0();
++      l[i][0] = l[i][0]+(l[1 - i][0] - l[i][0]) * a;
++    }
++    if (l[i][0] &gt; r.x1()) {
++      a = (l[i][0] - r.x1()) / (l[i][0] - l[1 - i][0]);
++      l[i][0] = r.x1();
++      l[i][1] = l[i][1]+(l[1 - i][1] - l[i][1]) * a;
++    }
++    if (l[i][1] &gt; r.y1()) {
++      a = (l[i][1] - r.y1()) / (l[i][1] - l[1 - i][1]);
++      l[i][1] = r.y1();
++      l[i][0] = l[i][0]+(l[1 - i][0] - l[i][0]) * a;
++    }
++
++  }
+   return l;
+ 
+ }
+@@ -218,425 +195,373 @@
+ // AGPainter
+ /////////////////////////////////////////////////////////////////////////////////
+ 
+-AGPainter::AGPainter():mCurrent(getScreen().getRect()),mTarget(&amp;getScreen())
+-    {
+-      CTRACE;
+-      mTarget-&gt;beginPaint();
+-    }
++AGPainter::AGPainter() : mCurrent(getScreen().getRect()), mTarget(&amp;getScreen()) {
++  CTRACE;
++  mTarget-&gt;beginPaint();
++}
+ 
+-AGPainter::AGPainter(const AGPainter &amp;p):ps(p.ps),mCurrent(p.mCurrent),mTarget(p.mTarget)
+-    {
+-      CTRACE;
+-      mTarget-&gt;beginPaint();
+-    }
++AGPainter::AGPainter(const AGPainter &amp;p) : ps(p.ps), mCurrent(p.mCurrent), mTarget(p.mTarget) {
++  CTRACE;
++  mTarget-&gt;beginPaint();
++}
+ 
+-AGPainter::AGPainter(AGPaintTarget &amp;pTarget):mCurrent(pTarget.getRect()),mTarget(&amp;pTarget)
+-    {
+-      CTRACE;
+-      mTarget-&gt;beginPaint();
+-    }
++AGPainter::AGPainter(AGPaintTarget &amp;pTarget) : mCurrent(pTarget.getRect()), mTarget(&amp;pTarget) {
++  CTRACE;
++  mTarget-&gt;beginPaint();
++}
+ 
+-
+-AGPainter::~AGPainter() throw()
+-  {
+-    CTRACE;
+-    if(mTarget.valid())
+-      {
+-        mTarget-&gt;unclip();
+-        mTarget-&gt;endPaint();
+-      }
++AGPainter::~AGPainter() throw () {
++  CTRACE;
++  if (mTarget.valid()) {
++    mTarget-&gt;unclip();
++    mTarget-&gt;endPaint();
+   }
++}
+ 
+-void AGPainter::putPixel(const AGVector2 &amp;p,const AGColor &amp;c)
+-  {
+-    AGVector2 n=project(p);
+-    if(pointOk(n))
+-      {
+-        mTarget-&gt;putPixel((int)n[0],(int)n[1],c);
+-      }
++void AGPainter::putPixel(const AGVector2 &amp;p, const AGColor &amp;c) {
++  AGVector2 n = project(p);
++  if (pointOk(n)) {
++    mTarget-&gt;putPixel((int) n[0], (int) n[1], c);
+   }
++}
+ 
+-void AGPainter::blit(const AGTexture &amp;pSource,const AGRect2 &amp;pDest)
+-  {
+-    AGRect2 s=pSource.getRect();
+-    // ASSUME: we don't want to scale
+-    blit(pSource,AGRect2(pDest.x(),pDest.y(),s.w(),s.h()),s);
+-  }
++void AGPainter::blit(const AGTexture &amp;pSource, const AGRect2 &amp;pDest) {
++  AGRect2 s = pSource.getRect();
++  // ASSUME: we don't want to scale
++  blit(pSource, AGRect2(pDest.x(), pDest.y(), s.w(), s.h()), s);
++}
+ 
+-AGVector2 AGPainter::project(const AGVector2 &amp;p) const
+-{
++AGVector2 AGPainter::project(const AGVector2 &amp;p) const {
+   return mCurrent.project(p);
+ }
+-bool AGPainter::pointOk(const AGVector2 &amp;p) const
+-{
++
++bool AGPainter::pointOk(const AGVector2 &amp;p) const {
+   return mCurrent.pointOk(p);
+ }
+ 
++void AGPainter::blit(const AGTexture &amp;pSource, const AGRect2 &amp;pDest, const AGRect2 &amp;pSrc) {
++  STACKTRACE;
++  AGRect2 d;
++  d = mCurrent.project(pDest);
+ 
+-void AGPainter::blit(const AGTexture &amp;pSource,const AGRect2 &amp;pDest,const AGRect2 &amp;pSrc)
+-  {
+-    STACKTRACE;
+-    AGRect2 d;
+-    d=mCurrent.project(pDest);
+-
+ #ifdef OLDCLIP
+ 
+-    std::pair&lt;AGRect2,AGRect2&gt; p=mCurrent.clipRect(d,pSrc);
++  std::pair&lt;AGRect2, AGRect2&gt; p = mCurrent.clipRect(d, pSrc);
+ 
+-    //  cdebug(p.first&lt;&lt;&quot;   &quot;&lt;&lt;p.second);
+-    if(p.first.w()&gt;0 &amp;&amp; p.first.h()&gt;0 &amp;&amp; p.second.w()&gt;0 &amp;&amp; p.second.h()&gt;0)
+-      mTarget-&gt;blit(pSource,p.first,p.second);
++  //  cdebug(p.first&lt;&lt;&quot;   &quot;&lt;&lt;p.second);
++  if (p.first.w() &gt; 0 &amp;&amp; p.first.h() &gt; 0 &amp;&amp; p.second.w() &gt; 0 &amp;&amp; p.second.h() &gt; 0)
++    mTarget-&gt;blit(pSource, p.first, p.second);
+ 
+ 
+ #else
+ #warning &quot;add clipping!&quot;
+ 
+-    mTarget-&gt;blit(pSource,d,pSrc);//pSource.getRect());
++  mTarget-&gt;blit(pSource, d, pSrc); //pSource.getRect());
+ #endif
+-  }
++}
+ 
+-void AGPainter::blit(const AGTexture &amp;pSource,const AGRect2 &amp;pDest,const AGColor &amp;pColor)
+-  {
+-    AGRect2 s=pSource.getRect();
+-    // ASSUME: we don't want to scale
+-    blit(pSource,AGRect2(pDest.x(),pDest.y(),s.w(),s.h()),s,pColor);
+-  }
++void AGPainter::blit(const AGTexture &amp;pSource, const AGRect2 &amp;pDest, const AGColor &amp;pColor) {
++  AGRect2 s = pSource.getRect();
++  // ASSUME: we don't want to scale
++  blit(pSource, AGRect2(pDest.x(), pDest.y(), s.w(), s.h()), s, pColor);
++}
+ 
+-void AGPainter::blit(const AGTexture &amp;pSource,const AGRect2 &amp;pDest,const AGRect2 &amp;pSrc,const AGColor &amp;pColor)
+-  {
+-    STACKTRACE;
++void AGPainter::blit(const AGTexture &amp;pSource, const AGRect2 &amp;pDest, const AGRect2 &amp;pSrc, const AGColor &amp;pColor) {
++  STACKTRACE;
+ #ifdef SPEED_TEST
+-    mTarget-&gt;blit(pSource,pDest,pSrc,pColor);
+-    return;
++  mTarget-&gt;blit(pSource, pDest, pSrc, pColor);
++  return;
+ #endif
+ 
+-    AGRect2 d;
+-    d=mCurrent.project(pDest);
+-    std::pair&lt;AGRect2,AGRect2&gt; p=mCurrent.clipRect(d,pSrc);
++  AGRect2 d;
++  d = mCurrent.project(pDest);
++  std::pair&lt;AGRect2, AGRect2&gt; p = mCurrent.clipRect(d, pSrc);
+ 
+-    if(p.first.w()&gt;0 &amp;&amp; p.first.h()&gt;0 &amp;&amp; p.second.w()&gt;0 &amp;&amp; p.second.h()&gt;0)
+-      mTarget-&gt;blit(pSource,p.first,p.second,pColor);
+-  }
++  if (p.first.w() &gt; 0 &amp;&amp; p.first.h() &gt; 0 &amp;&amp; p.second.w() &gt; 0 &amp;&amp; p.second.h() &gt; 0)
++    mTarget-&gt;blit(pSource, p.first, p.second, pColor);
++}
+ 
++void AGPainter::tile(const AGTexture &amp;pSource) {
++  tile(pSource, mTarget-&gt;getRect());
++}
+ 
+-void AGPainter::tile(const AGTexture &amp;pSource)
+-  {
+-    tile(pSource,mTarget-&gt;getRect());
+-  }
+-void AGPainter::tile(const AGTexture &amp;pSource,const AGRect2 &amp;pDest)
+-  {
+-    AGRect2 sourceRect=pSource.getRect();
++void AGPainter::tile(const AGTexture &amp;pSource, const AGRect2 &amp;pDest) {
++  AGRect2 sourceRect = pSource.getRect();
+ 
+-    tile(pSource,pDest,sourceRect);
+-  }
+-void AGPainter::tile(const AGTexture &amp;pSource,const AGRect2 &amp;pDest,const AGRect2 &amp;pSrc)
+-  {
+-    STACKTRACE;
+-    float x,y;
+-    if(!dynamic_cast&lt;AGGLScreen*&gt;(mTarget.getPtr()))
+-      {
++  tile(pSource, pDest, sourceRect);
++}
++
++void AGPainter::tile(const AGTexture &amp;pSource, const AGRect2 &amp;pDest, const AGRect2 &amp;pSrc) {
++  STACKTRACE;
++  float x, y;
++  if (!dynamic_cast&lt;AGGLScreen*&gt; (mTarget.getPtr())) {
+ #warning &quot;remove this and implement in agtexture*&quot;
+-        for(y=pDest.y0();y&lt;pDest.y1();y+=pSrc.h())
+-          for(x=pDest.x0();x&lt;pDest.x1();x+=pSrc.w())
+-            {
+-              float w=std::min(pSrc.w(),pDest.x1()-x);
+-              float h=std::min(pSrc.h(),pDest.y1()-y);
+-              blit(pSource,AGRect2(x,y,w,h),AGRect2(pSrc.x0(),pSrc.y0(),w,h));
+-            }
++    for (y = pDest.y0(); y &lt; pDest.y1(); y += pSrc.h())
++      for (x = pDest.x0(); x &lt; pDest.x1(); x += pSrc.w()) {
++        float w = std::min(pSrc.w(), pDest.x1() - x);
++        float h = std::min(pSrc.h(), pDest.y1() - y);
++        blit(pSource, AGRect2(x, y, w, h), AGRect2(pSrc.x0(), pSrc.y0(), w, h));
+       }
+-    else
+-      {
+-        mTarget-&gt;tile(pSource,mCurrent.project(pDest),AGColor(0xff,0xff,0xff,0xff));
+-      }
++  } else {
++    mTarget-&gt;tile(pSource, mCurrent.project(pDest), AGColor(0xff, 0xff, 0xff, 0xff));
++  }
+ 
+ 
+-  }
++}
+ 
+ 
+ // AGSurface-painting
+-void AGPainter::blit(const AGSurface &amp;pSource,const AGRect2 &amp;pDest)
+-  {
+-    AGRect2 s=pSource.getRect();
+-    // ASSUME: we don't want to scale
+-    blit(pSource,AGRect2(pDest.x(),pDest.y(),s.w(),s.h()),s);
+-  }
+-void AGPainter::blit(const AGSurface &amp;pSource,const AGRect2 &amp;pDest,const AGRect2 &amp;pSrc)
+-  {
+-    STACKTRACE;
+-    AGRect2 d;
+-    d=mCurrent.project(pDest);
+-    std::pair&lt;AGRect2,AGRect2&gt; p=mCurrent.clipRect(d,pSrc);
+ 
+-    if(p.first.w()&gt;0 &amp;&amp; p.first.h()&gt;0 &amp;&amp; p.second.w()&gt;0 &amp;&amp; p.second.h()&gt;0)
+-      mTarget-&gt;blit(pSource,p.first,p.second);
+-  }
+-void AGPainter::tile(const AGSurface &amp;pSource)
+-  {
+-    tile(pSource,mTarget-&gt;getRect());
+-  }
+-void AGPainter::tile(const AGSurface &amp;pSource,const AGRect2 &amp;pDest)
+-  {
+-    tile(pSource,pDest,pSource.getRect());
++void AGPainter::blit(const AGSurface &amp;pSource, const AGRect2 &amp;pDest) {
++  AGRect2 s = pSource.getRect();
++  // ASSUME: we don't want to scale
++  blit(pSource, AGRect2(pDest.x(), pDest.y(), s.w(), s.h()), s);
++}
+ 
+-  }
+-void AGPainter::tile(const AGSurface &amp;pSource,const AGRect2 &amp;pDest,const AGRect2 &amp;pSrc)
+-  {
+-    STACKTRACE;
+-    float x,y;
++void AGPainter::blit(const AGSurface &amp;pSource, const AGRect2 &amp;pDest, const AGRect2 &amp;pSrc) {
++  STACKTRACE;
++  AGRect2 d;
++  d = mCurrent.project(pDest);
++  std::pair&lt;AGRect2, AGRect2&gt; p = mCurrent.clipRect(d, pSrc);
+ 
+-    std::vector&lt;std::pair&lt;AGRect2,AGRect2&gt; &gt; rects;
+-    for(y=pDest.y0();y&lt;pDest.y1();y+=pSrc.h())
+-      for(x=pDest.x0();x&lt;pDest.x1();x+=pSrc.w())
+-        {
+-          float w=std::min(pSrc.w(),pDest.x1()-x);
+-          float h=std::min(pSrc.h(),pDest.y1()-y);
++  if (p.first.w() &gt; 0 &amp;&amp; p.first.h() &gt; 0 &amp;&amp; p.second.w() &gt; 0 &amp;&amp; p.second.h() &gt; 0)
++    mTarget-&gt;blit(pSource, p.first, p.second);
++}
+ 
+-          rects.push_back(std::make_pair(AGRect2(pSrc.x0(),pSrc.y0(),w,h),AGRect2(x,y,w,h)));
+-        }
+-    mTarget-&gt;blit(pSource,rects,AGColor(0xff,0xff,0xff,0xff));
+-  }
++void AGPainter::tile(const AGSurface &amp;pSource) {
++  tile(pSource, mTarget-&gt;getRect());
++}
+ 
+-AGColor calcColor(AGVector2 p,const AGColor &amp;pc0,const AGColor &amp;pc1,const AGColor &amp;pc2,const AGColor &amp;pc3)
+-  {
+-    return (pc0*(1-p[0]) + pc1*p[0])*(1-p[1]) + (pc2*(1-p[0]) + pc3*p[0])*p[1];
+-  }
++void AGPainter::tile(const AGSurface &amp;pSource, const AGRect2 &amp;pDest) {
++  tile(pSource, pDest, pSource.getRect());
+ 
+-void AGPainter::drawGradient(const AGRect2 &amp;pr,const AGColor &amp;pc0,const AGColor &amp;pc1,const AGColor &amp;pc2,const AGColor &amp;pc3)
+-  {
+-    STACKTRACE;
+-    AGGLScreen *glScreen=dynamic_cast&lt;AGGLScreen*&gt;(mTarget.getPtr());
++}
+ 
+-    AGRect2 src(0,0,1,1);
++void AGPainter::tile(const AGSurface &amp;pSource, const AGRect2 &amp;pDest, const AGRect2 &amp;pSrc) {
++  STACKTRACE;
++  float x, y;
+ 
+-    AGRect2 d=mCurrent.project(pr);
+-    std::pair&lt;AGRect2,AGRect2&gt; p=mCurrent.clipRect(d,src);
++  std::vector&lt;std::pair&lt;AGRect2, AGRect2&gt; &gt; rects;
++  for (y = pDest.y0(); y &lt; pDest.y1(); y += pSrc.h())
++    for (x = pDest.x0(); x &lt; pDest.x1(); x += pSrc.w()) {
++      float w = std::min(pSrc.w(), pDest.x1() - x);
++      float h = std::min(pSrc.h(), pDest.y1() - y);
+ 
+-    AGColor c0=calcColor(p.second.getV0(),pc0,pc1,pc2,pc3);
+-    AGColor c1=calcColor(p.second.getV10(),pc0,pc1,pc2,pc3);
+-    AGColor c2=calcColor(p.second.getV01(),pc0,pc1,pc2,pc3);
+-    AGColor c3=calcColor(p.second.getV1(),pc0,pc1,pc2,pc3);
++      rects.push_back(std::make_pair(AGRect2(pSrc.x0(), pSrc.y0(), w, h), AGRect2(x, y, w, h)));
++    }
++  mTarget-&gt;blit(pSource, rects, AGColor(0xff, 0xff, 0xff, 0xff));
++}
+ 
+-    AGRect2 r=p.first;
++AGColor calcColor(AGVector2 p, const AGColor &amp;pc0, const AGColor &amp;pc1, const AGColor &amp;pc2, const AGColor &amp;pc3) {
++  return (pc0 * (1 - p[0]) + pc1 * p[0])*(1 - p[1]) + (pc2 * (1 - p[0]) + pc3 * p[0]) * p[1];
++}
+ 
+-    if(p.first.w()&gt;0 &amp;&amp; p.first.h()&gt;0 &amp;&amp; p.second.w()&gt;0 &amp;&amp; p.second.h()&gt;0)
+-      {
+-        mTarget-&gt;drawGradient(r,c0,c1,c2,c3);
+-      }
+-  }
+-void AGPainter::renderText(const AGStringUtf8 &amp;pText,const AGVector2 &amp;p,const AGFont &amp;f)
+-  {
+-    STACKTRACE;
+-    AGTexture *t=getFontEngine()-&gt;renderText(0,0,pText,f);
+-    if(t)
+-      blit(*t,AGRect2(p[0],p[1],t-&gt;getSurfaceWidth(),t-&gt;getSurfaceHeight()));
++void AGPainter::drawGradient(const AGRect2 &amp;pr, const AGColor &amp;pc0, const AGColor &amp;pc1, const AGColor &amp;pc2, const AGColor &amp;pc3) {
++  STACKTRACE;
++  AGGLScreen *glScreen = dynamic_cast&lt;AGGLScreen*&gt; (mTarget.getPtr());
+ 
+-  }
+-void AGPainter::drawBorder(const AGRect2&amp; pRect,int width, const AGColor&amp; c1, const AGColor&amp; c2)
+-  {
+-    STACKTRACE;
+-    // GL-screen has its own implementation
+-    AGGLScreen *glScreen=dynamic_cast&lt;AGGLScreen*&gt;(mTarget.getPtr());
+-    if(glScreen)
+-      {
+-        glScreen-&gt;clip(mCurrent.clip);
+-        glScreen-&gt;drawBorder(mCurrent.project(pRect),width,c1,c2);
+-        glScreen-&gt;unclip();
+-        return;
+-      }
+-    AGRect2 d=pRect;
++  AGRect2 src(0, 0, 1, 1);
+ 
+-    for(int t=0;t&lt;width;t++)
+-      {
+-        drawLine(d.getV0(),d.getV01(),c1);
+-        drawLine(d.getV0(),d.getV10(),c1);
++  AGRect2 d = mCurrent.project(pr);
++  std::pair&lt;AGRect2, AGRect2&gt; p = mCurrent.clipRect(d, src);
+ 
+-        drawLine(d.getV01(),d.getV1(),c2);
+-        drawLine(d.getV10(),d.getV1(),c2);
+-        d=d.shrink(1);
+-      }
++  AGColor c0 = calcColor(p.second.getV0(), pc0, pc1, pc2, pc3);
++  AGColor c1 = calcColor(p.second.getV10(), pc0, pc1, pc2, pc3);
++  AGColor c2 = calcColor(p.second.getV01(), pc0, pc1, pc2, pc3);
++  AGColor c3 = calcColor(p.second.getV1(), pc0, pc1, pc2, pc3);
++
++  AGRect2 r = p.first;
++
++  if (p.first.w() &gt; 0 &amp;&amp; p.first.h() &gt; 0 &amp;&amp; p.second.w() &gt; 0 &amp;&amp; p.second.h() &gt; 0) {
++    mTarget-&gt;drawGradient(r, c0, c1, c2, c3);
+   }
++}
+ 
+-void AGPainter::drawRect(const AGRect2&amp; rect,const AGColor&amp; c)
+-  {
+-    drawLine(rect.getV0(),rect.getV01(),c);
+-    drawLine(rect.getV0(),rect.getV10(),c);
++void AGPainter::renderText(const AGStringUtf8 &amp;pText, const AGVector2 &amp;p, const AGFont &amp;f) {
++  STACKTRACE;
++  AGTexture *t = getFontEngine()-&gt;renderText(0, 0, pText, f);
++  if (t)
++    blit(*t, AGRect2(p[0], p[1], t-&gt;getSurfaceWidth(), t-&gt;getSurfaceHeight()));
+ 
+-    drawLine(rect.getV01(),rect.getV1(),c);
+-    drawLine(rect.getV10(),rect.getV1(),c);
++}
++
++void AGPainter::drawBorder(const AGRect2&amp; pRect, int width, const AGColor&amp; c1, const AGColor&amp; c2) {
++  STACKTRACE;
++  // GL-screen has its own implementation
++  AGGLScreen *glScreen = dynamic_cast&lt;AGGLScreen*&gt; (mTarget.getPtr());
++  if (glScreen) {
++    glScreen-&gt;clip(mCurrent.clip);
++    glScreen-&gt;drawBorder(mCurrent.project(pRect), width, c1, c2);
++    glScreen-&gt;unclip();
++    return;
+   }
++  AGRect2 d = pRect;
+ 
++  for (int t = 0; t &lt; width; t++) {
++    drawLine(d.getV0(), d.getV01(), c1);
++    drawLine(d.getV0(), d.getV10(), c1);
+ 
+-void AGPainter::fillRect(const AGRect2 &amp;pDest,const AGColor &amp;c)
+-  {
+-    STACKTRACE;
+-    AGRect2 d,pSrc;
+-    d=mCurrent.project(pDest);
+-    // FIXME: remove clipRect !!
+-    AGRect2 p=mCurrent.clipRect(d);
+-    if(p.w()&gt;0 &amp;&amp; p.h()&gt;0)
+-      {
+-        //      cdebug(p);
+-        mTarget-&gt;fillRect(p,c);
+-      }
++    drawLine(d.getV01(), d.getV1(), c2);
++    drawLine(d.getV10(), d.getV1(), c2);
++    d = d.shrink(1);
+   }
++}
+ 
++void AGPainter::drawRect(const AGRect2&amp; rect, const AGColor&amp; c) {
++  drawLine(rect.getV0(), rect.getV01(), c);
++  drawLine(rect.getV0(), rect.getV10(), c);
+ 
+-void AGPainter::fillPoly(const std::vector&lt;AGVector2&gt; &amp;pPoly,const AGColor &amp;c)
+-  {
+-    //FIXME: add clipping for none-GL (?) - for performance ?
++  drawLine(rect.getV01(), rect.getV1(), c);
++  drawLine(rect.getV10(), rect.getV1(), c);
++}
+ 
+-    std::vector&lt;AGVector2&gt; projected;
+-    for(std::vector&lt;AGVector2&gt;::const_iterator i=pPoly.begin();i!=pPoly.end();i++)
+-      projected.push_back(mCurrent.project(*i));
++AGPaintProjection AGPainter::getCurrentProjection() const {
++  return mCurrent;
++}
+ 
+-    mTarget-&gt;fillPoly(projected,c);
++void AGPainter::fillRect(const AGRect2 &amp;pDest, const AGColor &amp;c) {
++  STACKTRACE;
++  AGRect2 d, pSrc;
++  d = mCurrent.project(pDest);
++  // FIXME: remove clipRect !!
++  AGRect2 p = mCurrent.clipRect(d);
++  if (p.w() &gt; 0 &amp;&amp; p.h() &gt; 0) {
++    //      cdebug(p);
++    mTarget-&gt;fillRect(p, c);
+   }
++}
+ 
+-void AGPainter::drawPoly(const std::vector&lt;AGVector2&gt; &amp;pPoly,const AGColor &amp;c)
+-  {
+-    //FIXME: add clipping for none-GL (?) - for performance ?
++void AGPainter::fillPoly(const std::vector&lt;AGVector2&gt; &amp;pPoly, const AGColor &amp;c) {
++  //FIXME: add clipping for none-GL (?) - for performance ?
+ 
+-    std::vector&lt;AGVector2&gt; projected;
+-    for(std::vector&lt;AGVector2&gt;::const_iterator i=pPoly.begin();i!=pPoly.end();i++)
+-      projected.push_back(mCurrent.project(*i));
++  std::vector&lt;AGVector2&gt; projected;
++  for (std::vector&lt;AGVector2&gt;::const_iterator i = pPoly.begin(); i != pPoly.end(); i++)
++    projected.push_back(mCurrent.project(*i));
+ 
+-    mTarget-&gt;drawPoly(projected,c);
+-  }
++  mTarget-&gt;fillPoly(projected, c);
++}
+ 
++void AGPainter::drawPoly(const std::vector&lt;AGVector2&gt; &amp;pPoly, const AGColor &amp;c) {
++  //FIXME: add clipping for none-GL (?) - for performance ?
+ 
+-void AGPainter::fillRects(const std::vector&lt;std::pair&lt;AGRect2,AGVector4&gt; &gt; &amp;pRects)
+-  {
+-    STACKTRACE;
+-    std::vector&lt;std::pair&lt;AGRect2,AGVector4&gt; &gt; rs;
++  std::vector&lt;AGVector2&gt; projected;
++  for (std::vector&lt;AGVector2&gt;::const_iterator i = pPoly.begin(); i != pPoly.end(); i++)
++    projected.push_back(mCurrent.project(*i));
+ 
+-    for(std::vector&lt;std::pair&lt;AGRect2,AGVector4&gt; &gt;::const_iterator i=pRects.begin();i!=pRects.end();++i)
+-      {
+-        AGRect2 d=mCurrent.project(i-&gt;first);
+-        if(!opengl())
+-          d=mCurrent.clipRect(d);
+-        if(d.w()&gt;0 &amp;&amp; d.h()&gt;0)
+-          rs.push_back(std::make_pair(d,i-&gt;second));
+-      }
++  mTarget-&gt;drawPoly(projected, c);
++}
+ 
+-    if(rs.size())
+-      mTarget-&gt;fillRects(rs);
+-  }
++void AGPainter::fillRects(const std::vector&lt;std::pair&lt;AGRect2, AGVector4&gt; &gt; &amp;pRects) {
++  STACKTRACE;
++  std::vector&lt;std::pair&lt;AGRect2, AGVector4&gt; &gt; rs;
+ 
+-
+-void AGPainter::drawPoint(const AGVector2 &amp;p,const AGColor &amp;c,float size)
+-  {
+-    STACKTRACE;
+-    AGVector2 d=mCurrent.project(p);
+-    if(mCurrent.pointOk(p))
+-      {
+-        mTarget-&gt;putPixel((int)d[0],(int)d[1],c);
+-      }
++  for (std::vector&lt;std::pair&lt;AGRect2, AGVector4&gt; &gt;::const_iterator i = pRects.begin(); i != pRects.end(); ++i) {
++    AGRect2 d = mCurrent.project(i-&gt;first);
++    if (!opengl())
++      d = mCurrent.clipRect(d);
++    if (d.w() &gt; 0 &amp;&amp; d.h() &gt; 0)
++      rs.push_back(std::make_pair(d, i-&gt;second));
+   }
+ 
++  if (rs.size())
++    mTarget-&gt;fillRects(rs);
++}
+ 
+-AGColor AGPainter::getPixel(int x,int y)
+-  {
+-    AGVector2 p=mCurrent.project(AGVector2(x,y));
+-    if(!mCurrent.pointOk(p))
+-      throw std::string(&quot;pixel out of clipping!&quot;);
+-    return mTarget-&gt;getPixel((int)p[0],(int)p[1]);
++void AGPainter::drawPoint(const AGVector2 &amp;p, const AGColor &amp;c, float size) {
++  STACKTRACE;
++  AGVector2 d = mCurrent.project(p);
++  if (mCurrent.pointOk(p)) {
++    mTarget-&gt;putPixel((int) d[0], (int) d[1], c);
+   }
++}
+ 
+-void AGPainter::drawLine(const AGVector2 &amp;p0,const AGVector2 &amp;p1,const AGColor &amp;c)
+-  {
++AGColor AGPainter::getPixel(int x, int y) {
++  AGVector2 p = mCurrent.project(AGVector2(x, y));
++  if (!mCurrent.pointOk(p))
++    throw std::string(&quot;pixel out of clipping!&quot;);
++  return mTarget-&gt;getPixel((int) p[0], (int) p[1]);
++}
++
++void AGPainter::drawLine(const AGVector2 &amp;p0, const AGVector2 &amp;p1, const AGColor &amp;c) {
+ #warning &quot;Add line clipping&quot;
+-    AGVector2 m0=mCurrent.project(p0);
+-    AGVector2 m1=mCurrent.project(p1);
+-    mTarget-&gt;drawLine(m0,m1,c);
+-  }
++  AGVector2 m0 = mCurrent.project(p0);
++  AGVector2 m1 = mCurrent.project(p1);
++  mTarget-&gt;drawLine(m0, m1, c);
++}
+ 
+-void AGPainter::blitTri(const AGTexture &amp;pSource,const AGTriangle2 &amp;pSrc,const AGTriangle2 &amp;pDest)
+-  {
+-    mTarget-&gt;blitTri(pSource,pSrc,pDest);
+-  }
++void AGPainter::blitTri(const AGTexture &amp;pSource, const AGTriangle2 &amp;pSrc, const AGTriangle2 &amp;pDest) {
++  mTarget-&gt;blitTri(pSource, pSrc, pDest);
++}
+ 
+-void AGPainter::drawCircle(const AGVector2 &amp;p,float rad,const AGColor &amp;color)
+-  {
+-    // clipping done in putPixel
++void AGPainter::drawCircle(const AGVector2 &amp;p, float rad, const AGColor &amp;color) {
++  // clipping done in putPixel
+ 
+-    int x,y;
+-    float r2=rad*rad;
+-    for(x=((int)(p[0]-rad-1));x&lt;=p[0]+rad+1;x++)
+-      for(y=((int)(p[1]-rad-1));y&lt;=p[1]+rad+1;y++)
+-        {
+-          float dx=x-p[0];
+-          float dy=y-p[1];
+-          float d2=dx*dx+dy*dy;
++  int x, y;
++  float r2 = rad*rad;
++  for (x = ((int) (p[0] - rad - 1)); x &lt;= p[0] + rad + 1; x++)
++    for (y = ((int) (p[1] - rad - 1)); y &lt;= p[1] + rad + 1; y++) {
++      float dx = x - p[0];
++      float dy = y - p[1];
++      float d2 = dx * dx + dy*dy;
+ 
+-          if(d2&lt;r2)
+-            {
+-              AGVector2 c(x,y);
+-              putPixel(c,color);
+-            }
+-        }
+-  }
++      if (d2 &lt; r2) {
++        AGVector2 c(x, y);
++        putPixel(c, color);
++      }
++    }
++}
+ 
+-void AGPainter::setLineWidth(float w)
+-  {
+-    mTarget-&gt;setLineWidth(w);
+-  }
++void AGPainter::setLineWidth(float w) {
++  mTarget-&gt;setLineWidth(w);
++}
+ 
+-void AGPainter::pushMatrix()
+-  {
+-    ps.push_back(mCurrent);
+-  }
+-void AGPainter::popMatrix()
+-  {
+-    mCurrent=ps.back();
+-    ps.pop_back();
+-    mTarget-&gt;clip(mCurrent.clip);
+-  }
+-void AGPainter::translate(const AGVector2 &amp;v)
+-  {
+-    mCurrent.translate(v);
+-  }
+-void AGPainter::scale(const AGVector2 &amp;v)
+-  {
+-    throw std::string(&quot;not implemented!&quot;);
+-  }
+-void AGPainter::clip(const AGRect2 &amp;r)
+-  {
+-    AGRect2 p=mCurrent.project(r);
+-    mCurrent.setClip(p);
+-    mTarget-&gt;clip(mCurrent.clip);
+-  }
++void AGPainter::pushMatrix() {
++  ps.push_back(mCurrent);
++}
+ 
+-void AGPainter::transform(const AGMatrix3 &amp;m)
+-  {
+-    mCurrent.transform(m);
+-  }
++void AGPainter::popMatrix() {
++  mCurrent = ps.back();
++  ps.pop_back();
++  mTarget-&gt;clip(mCurrent.clip);
++}
+ 
+-void AGPainter::transform(const AGRect2 &amp;r)
+-  {
+-    translate(r[0]);
+-    clip(r.origin());
+-  }
++void AGPainter::translate(const AGVector2 &amp;v) {
++  mCurrent.translate(v);
++}
+ 
+-AGRect2 AGPainter::getRect() const
+-{
+-  return mCurrent.getRect();
++void AGPainter::scale(const AGVector2 &amp;v) {
++  throw std::string(&quot;not implemented!&quot;);
+ }
+ 
+-void AGPainter::clip(const AGClipping &amp;clip)
+-  {
+-    CTRACE;
+-    throw std::runtime_error(&quot;NOT IMPLEMENTED !&quot;);
+-  }
++void AGPainter::clip(const AGRect2 &amp;r) {
++  AGRect2 p = mCurrent.project(r);
++  mCurrent.setClip(p);
++  mTarget-&gt;clip(mCurrent.clip);
++}
+ 
++void AGPainter::transform(const AGMatrix3 &amp;m) {
++  mCurrent.transform(m);
++}
+ 
+-AGPaintTarget *AGPainter::getTarget()
+-  {
+-    return mTarget.getPtr();
+-  }
++void AGPainter::transform(const AGRect2 &amp;r) {
++  translate(r[0]);
++  clip(r.origin());
++}
+ 
++AGRect2 AGPainter::getRect() const {
++  return mCurrent.getRect();
++}
+ 
+-void AGPainter::debugOutput()
+-  {
+-    cdebug(mCurrent.a);
+-    cdebug(mCurrent.clip);
+-  }
++void AGPainter::clip(const AGClipping &amp;clip) {
++  CTRACE;
++  throw std::runtime_error(&quot;NOT IMPLEMENTED !&quot;);
++}
++
++AGPaintTarget *AGPainter::getTarget() {
++  return mTarget.getPtr();
++}
++
++void AGPainter::debugOutput() {
++  cdebug(mCurrent.a);
++  cdebug(mCurrent.clip);
++}
+
+Modified: antargis/trunk/ext/video/ag_painter.h
+===================================================================
+--- antargis/trunk/ext/video/ag_painter.h	2009-03-03 19:55:17 UTC (rev 1297)
++++ antargis/trunk/ext/video/ag_painter.h	2009-03-04 16:46:14 UTC (rev 1298)
+@@ -135,6 +135,8 @@
+ 
+   void debugOutput();
+ 
++  AGPaintProjection getCurrentProjection() const;
++
+  private:
+   std::list&lt;AGPaintProjection&gt; ps;
+ 
+
+Modified: antargis/trunk/rookey/lib/rookey/cpp/rk_logging.cc
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_logging.cc	2009-03-03 19:55:17 UTC (rev 1297)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_logging.cc	2009-03-04 16:46:14 UTC (rev 1298)
+@@ -41,6 +41,8 @@
+ void RKLogging::log(const std::string &amp;s, const std::string &amp;pLevel) {
+ 
+   // FIXME: do not start a new line each time !!
++  if(allDestroyed())
++    return;
+ 
+   if(mLastLevel!=pLevel)
+     startLine(pLevel);
+@@ -112,10 +114,12 @@
+ 
+ namespace logger {
+ 
+-  Channel out(Channel::OUT);
+-  Channel debug(Channel::DEBUG);
+-  Channel warn(Channel::WARN);
+-  Channel err(Channel::ERR);
++  Channel out(Channel::T_OUT);
++  Channel debug(Channel::T_DEBUG);
++  Channel warn(Channel::T_WARN);
++  Channel err(Channel::T_ERR);
++  Channel trace(Channel::T_TRACE);
++  Channel info(Channel::T_INFO);
+ 
+   Special endl(Special::ENDL);
+ 
+@@ -162,10 +166,12 @@
+ 
+   std::string Channel::getType(const Type &amp;pType) {
+     switch (pType) {
+-      case OUT:return &quot;out  &quot;;
+-      case ERR:return &quot;error&quot;;
+-      case DEBUG:return &quot;debug&quot;;
+-      case WARN:return &quot;warn &quot;;
++      case T_OUT:return &quot;out  &quot;;
++      case T_ERR:return &quot;error&quot;;
++      case T_DEBUG:return &quot;debug&quot;;
++      case T_WARN:return &quot;warn &quot;;
++      case T_TRACE:return &quot;trace&quot;;
++      case T_INFO:return &quot;info &quot;;
+       default: return &quot;CRITICAL&quot;;
+     }
+   }
+
+Modified: antargis/trunk/rookey/lib/rookey/cpp/rk_logging.h
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_logging.h	2009-03-03 19:55:17 UTC (rev 1297)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_logging.h	2009-03-04 16:46:14 UTC (rev 1298)
+@@ -63,7 +63,7 @@
+   public:
+ 
+     enum Type {
+-      OUT, ERR, DEBUG, WARN
++      T_OUT, T_ERR, T_DEBUG, T_WARN, T_TRACE, T_INFO
+     };
+ 
+     Channel(const Type &amp;pType);
+@@ -95,6 +95,8 @@
+   extern AGEXPORT Channel debug;
+   extern AGEXPORT Channel warn;
+   extern AGEXPORT Channel err;
++  extern AGEXPORT Channel trace;
++  extern AGEXPORT Channel info;
+ 
+   extern AGEXPORT Special endl;
+ }
+
+Modified: antargis/trunk/ruby/ant_tools.rb
+===================================================================
+--- antargis/trunk/ruby/ant_tools.rb	2009-03-03 19:55:17 UTC (rev 1297)
++++ antargis/trunk/ruby/ant_tools.rb	2009-03-04 16:46:14 UTC (rev 1298)
+@@ -1,4 +1,5 @@
+ require &quot;ruby/ant_sound.rb&quot;
++require 'ruby/tools/logging.rb'
+ 
+ def getMeshData(file,zoom,texture=&quot;&quot;,shadow=true)
+   id=file+&quot;:&quot;+texture
+@@ -51,9 +52,9 @@
+   end
+ end
+ 
+-def trace
+-  puts &quot;TRACE #{caller[0]}&quot;
+-end
++#def trace
++#  puts &quot;TRACE #{caller[0]}&quot;
++#end
+ 
+ class AntargisException&lt;Exception
+   attr_accessor :text
+
+Modified: antargis/trunk/ruby/antargislib.rb
+===================================================================
+--- antargis/trunk/ruby/antargislib.rb	2009-03-03 19:55:17 UTC (rev 1297)
++++ antargis/trunk/ruby/antargislib.rb	2009-03-04 16:46:14 UTC (rev 1298)
+@@ -299,21 +299,10 @@
+   end
+ end
+ 
+-class Logger
+-  filename=File.join(getWriteDir,&quot;log.txt&quot;)
+-  @@log=File.open(filename,&quot;w&quot;)
+-  def self.log(*s)
+-    @@log.print(&quot;[&quot;)
+-    @@log.print(Time.new)
+-    @@log.print(&quot;] &quot;)
+-    @@log.puts(*s)
+-  end
+-end
+ 
+-def log(*s)
+-  Logger.log(*s)
+-end
++require 'ruby/tools/logging.rb'
+ 
++
+ class AntApplication&lt;AGApplication
+   include AntMyEventHandler
+ 
+
+Modified: antargis/trunk/ruby/editor/campaign/app.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/app.rb	2009-03-03 19:55:17 UTC (rev 1297)
++++ antargis/trunk/ruby/editor/campaign/app.rb	2009-03-04 16:46:14 UTC (rev 1298)
+@@ -117,8 +117,6 @@
+     }
+     
+     campaign.edges.each{|edge|
+-      pp edge.from,edge.to
+-      puts boxes[edge.from].getRect,boxes[edge.to].getRect
+       line=DragLine.new(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">grid, at grid.getRect</A>,boxes[edge.from])
+       line.endObject=boxes[edge.to]
+       @grid.addChild(line)
+
+Modified: antargis/trunk/ruby/editor/campaign/drag_grid.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/drag_grid.rb	2009-03-03 19:55:17 UTC (rev 1297)
++++ antargis/trunk/ruby/editor/campaign/drag_grid.rb	2009-03-04 16:46:14 UTC (rev 1298)
+@@ -109,7 +109,6 @@
+       getChildren.map{|child|[child]+child.getAllDescendants}.flatten
+     end
+     def moveToContext(to)
+-      pp &quot;moveToContext&quot;
+       o=getScreenRect
+       p=getParent
+       p.removeChild(self)
+@@ -119,6 +118,17 @@
+     def getChildByType(type)
+       getAllDescendants.select{|c|c.is_a?(type)}[0]
+     end
++
++    def getWidgetTree
++      [self,getChildren.map{|c|c.getWidgetTree}]
++    end
++    def focused?
++      if getParent
++        getParent.hasFocus(self)
++      else
++        true
++      end
++    end
+   end
+ end
+ 
+@@ -237,7 +247,8 @@
+         startLine(e)
+         r=true
+       end
+-      dragGrid.select(self) if dragGrid
++      
++      #dragGrid.select(self) if dragGrid
+     end
+     r
+   end
+@@ -276,7 +287,8 @@
+     else
+       hide
+     end
+-    
++      dragGrid=getDragGrid
++    dragGrid.select(self) if dragGrid
+     @dragging=false
+     true
+   end
+@@ -289,7 +301,6 @@
+     @lastCell=cell
+     
+     moveToContext(getDragGrid)
+-    pp cell
+     setRect(cell.rect.shrink(5))
+   end
+   def centerObject
+@@ -516,7 +527,6 @@
+       edit=getRoot.getAllDescendants.select{|w|w.getName==@edit}[0]
+       unless edit.nil?
+         @edit=edit
+-        pp @edit
+         addHandler(@edit,:sigModified,:textModified)
+       end
+     end
+
+Modified: antargis/trunk/ruby/editor/campaign/effect.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/effect.rb	2009-03-03 19:55:17 UTC (rev 1297)
++++ antargis/trunk/ruby/editor/campaign/effect.rb	2009-03-04 16:46:14 UTC (rev 1298)
+@@ -19,7 +19,6 @@
+     if @running
+       @time+=t
+       @running=false if @time&gt;=@duration
+-      pp @running
+       @time=@duration if @time&gt;@duration 
+       step(@time/@duration)
+     end
+@@ -28,7 +27,7 @@
+     @running=false
+   end
+   def step(per)
+-    pp per
++    pp &quot;PER&quot;,per
+     exit
+   end
+   private
+@@ -50,7 +49,6 @@
+     
+   end
+   def step(amount)
+-    pp &quot;AMOUNT:&quot;,amount
+     table=getApp.getMainWidget.getChild(@target)
+     table.modifyRow(@row,amount*@size)
+   end
+@@ -66,7 +64,6 @@
+     @size=nil
+   end
+   def step(amount)
+-    pp &quot;AMOUNT HIDE:&quot;,amount
+     @size||=table.getRow(@row)
+     table.modifyRow(@row,(1-amount)*@size)
+   end
+
+Modified: antargis/trunk/ruby/editor/campaign/image_list.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/image_list.rb	2009-03-03 19:55:17 UTC (rev 1297)
++++ antargis/trunk/ruby/editor/campaign/image_list.rb	2009-03-04 16:46:14 UTC (rev 1298)
+@@ -3,7 +3,6 @@
+     super(p,r)
+     dir=&quot;data/gui/campaign&quot;
+     files=getDirectory(dir).select{|f|f=~/\.png$/}.uniq
+-    pp files
+     #exit
+     @images=files.map{|file|[file,AGTexture.new(AGSurface::load(File.join(dir,file)))]}
+     assert{@images.length&gt;0}
+@@ -12,14 +11,8 @@
+     @pos=0
+   end
+   
+-  def eventMouseButtonDown(e)
+-    pp e.getButton
+-    super
+-  end
+-  
+   def eventMouseMotion(e)
+     @pos=1-e.getMousePosition.x/width
+-    pp @pos
+     super
+   end
+   
+@@ -32,7 +25,6 @@
+       r=rs[i]+getScreenRect.getV0
+       f=t.getRect
+       pos=i.to_f/(rs.length)*<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">0.5+ at pos-1</A>
+-      #pp pos
+       trisFrom=makeTriangles(f,AGTriangle2)
+       #trisTo=makeTriangles(r,AGTriangle3)
+       trisTo=makeTriangle(getScreenRect,pos,f)
+@@ -62,7 +54,6 @@
+     
+     d1=[0,[y1,-height*(pos)*f].min].max
+     d0=[0,[y0,height*(pos)*f].min].max
+-    pp d0,d1
+     
+     y1-=d1
+     y0-=d0
+
+Modified: antargis/trunk/ruby/editor/campaign/image_list_2d.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/image_list_2d.rb	2009-03-03 19:55:17 UTC (rev 1297)
++++ antargis/trunk/ruby/editor/campaign/image_list_2d.rb	2009-03-04 16:46:14 UTC (rev 1298)
+@@ -6,7 +6,6 @@
+     createSignal :sigSelected
+     dir=&quot;data/gui/campaign&quot;
+     files=getDirectory(dir).select{|f|f=~/\.png$/}.uniq
+-    pp files
+     #exit
+     @images=files.map{|file|[file,AGTexture.new(AGSurface::load(File.join(dir,file)))]}*3
+     assert{@images.length&gt;0}
+
+Modified: antargis/trunk/ruby/editor/campaign/ruby_layouts.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/ruby_layouts.rb	2009-03-03 19:55:17 UTC (rev 1297)
++++ antargis/trunk/ruby/editor/campaign/ruby_layouts.rb	2009-03-04 16:46:14 UTC (rev 1298)
+@@ -5,7 +5,6 @@
+   end
+   def create(p,r,node)
+     options=node.getAttributes
+-    pp @c
+     setResult @c.new(p,r,options)
+   end
+ end
+
+Modified: antargis/trunk/ruby/editor/campaign/spec_campaign_editor.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/spec_campaign_editor.rb	2009-03-03 19:55:17 UTC (rev 1297)
++++ antargis/trunk/ruby/editor/campaign/spec_campaign_editor.rb	2009-03-04 16:46:14 UTC (rev 1298)
+@@ -1,6 +1,6 @@
+ require File.join(File.split(__FILE__)[0],&quot;..&quot;,&quot;..&quot;,&quot;spec_helper.rb&quot;)
+-require File.join(File.split(__FILE__)[0],&quot;..&quot;,&quot;..&quot;,&quot;gui&quot;,&quot;testing.rb&quot;)
+-require File.join(File.split(__FILE__)[0],&quot;app.rb&quot;)
++require File.expand_path(&quot;../../../gui/testing.rb&quot;,__FILE__)
++require File.expand_path(&quot;../app.rb&quot;,__FILE__)
+ 
+ describe &quot;Campaign editor&quot; do
+   include GuiTest
+@@ -14,6 +14,19 @@
+     level.should be_a_kind_of(DragBoxLevel)
+     level.getParent.should_not be_nil
+   end
++
++  it &quot;should be possible to move nodes and they should be visible at all times&quot; do
++    level=grid.getChildren[0]
++    sr=level.getScreenRect
++    dr=sr+AGVector2.new(100,0)
++
++    drag(sr.getMiddle,dr.getMiddle,10) {|event|
++      level.should be_visible
++      level.should be_focused if event==:mouseMotion
++    }
++    drag(dr.getMiddle,sr.getMiddle,10)
++  end
++
+   #if false
+   it &quot;should be possible to move the grid&quot; do
+     level=grid.getChildren[0]
+@@ -51,6 +64,7 @@
+       observe(@app.getEffect(&quot;showEdit&quot;),:run) {
+         observe(grid.widget,:select) {
+           mouseDown(pos)
++          mouseUp(pos)
+         }.should be_called
+       }.should be_called
+     }.should_not be_called
+@@ -90,6 +104,7 @@
+     block.call(:mouseUp) if block
+     #@app.step while true
+   end
++
+   
+   def getSourceMiddle(name)
+     getWidget(name).getScreenRect.getMiddle
+
+Modified: antargis/trunk/ruby/editor/campaign/toolbar.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/toolbar.rb	2009-03-03 19:55:17 UTC (rev 1297)
++++ antargis/trunk/ruby/editor/campaign/toolbar.rb	2009-03-04 16:46:14 UTC (rev 1298)
+@@ -33,9 +33,7 @@
+     @children.each{|child|
+       many=1
+       many=child.boxWidth if child.respond_to?(:boxWidth)
+-      pp count,many
+       r=getChildRect(count,many)
+-      p r
+       child.setRect(r)
+       count+=many
+       child.queryRedraw
+
+Modified: antargis/trunk/ruby/gui/testing.rb
+===================================================================
+--- antargis/trunk/ruby/gui/testing.rb	2009-03-03 19:55:17 UTC (rev 1297)
++++ antargis/trunk/ruby/gui/testing.rb	2009-03-04 16:46:14 UTC (rev 1298)
+@@ -3,11 +3,11 @@
+   attr_reader :quitCounter
+   def step
+     run
+-    puts &quot;step end&quot;
++    trace &quot;step end&quot;
+   end
+   def eventFrame(t)
+     super(0.05)
+-    puts &quot;FRAME - try Quit...&quot;
++    trace &quot;FRAME - try Quit...&quot;
+     tryQuit
+     delay(20)
+     true
+
+Modified: antargis/trunk/ruby/spec_helper.rb
+===================================================================
+--- antargis/trunk/ruby/spec_helper.rb	2009-03-03 19:55:17 UTC (rev 1297)
++++ antargis/trunk/ruby/spec_helper.rb	2009-03-04 16:46:14 UTC (rev 1298)
+@@ -99,7 +99,6 @@
+       if self==object
+         #this.ok=true
+         this.count+=1
+-        puts &quot;MUH&quot;
+       end
+       method.call(*s)
+     } 
+
+Added: antargis/trunk/ruby/tools/logging.rb
+===================================================================
+--- antargis/trunk/ruby/tools/logging.rb	2009-03-03 19:55:17 UTC (rev 1297)
++++ antargis/trunk/ruby/tools/logging.rb	2009-03-04 16:46:14 UTC (rev 1298)
+@@ -0,0 +1,24 @@
++def logTo(outputChannel,*ar)
++  outputChannel &lt;&lt; &quot;[&quot; &lt;&lt; caller[1].to_s &lt;&lt; &quot;] &quot;
++  ar.each{|a|
++    Antargis::out&lt;&lt;a.to_s
++
++    }
++  outputChannel&lt;&lt;Antargis::endl
++end
++
++def log(*ar)
++  logTo(Antargis::out,*ar)
++end
++
++def err(*ar)
++  logTo(Antargis::err,*ar)
++end
++
++def trace(*ar)
++  logTo(Antargis::trace,*ar)
++end
++
++def logpp(*ar)
++  logTo(Antargis::out,ar.inspect)
++end
+\ No newline at end of file
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000253.html">[Antargis-svn] r1297 - antargis/trunk/rookey/lib/rookey/cpp
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#254">[ date ]</a>
+              <a href="thread.html#254">[ thread ]</a>
+              <a href="subject.html#254">[ subject ]</a>
+              <a href="author.html#254">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

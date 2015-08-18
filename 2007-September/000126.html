@@ -1,0 +1,1894 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1169 - in antargis/branches/rant/ruby: . jobs	state_machine state_machine/spec state_machine/tests
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-September/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1169%20-%20in%20antargis/branches/rant/ruby%3A%20.%20jobs%0A%09state_machine%20state_machine/spec%20state_machine/tests&In-Reply-To=%3C200709021722.l82HMQfC017358%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000125.html">
+   <LINK REL="Next"  HREF="000127.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1169 - in antargis/branches/rant/ruby: . jobs	state_machine state_machine/spec state_machine/tests</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1169%20-%20in%20antargis/branches/rant/ruby%3A%20.%20jobs%0A%09state_machine%20state_machine/spec%20state_machine/tests&In-Reply-To=%3C200709021722.l82HMQfC017358%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1169 - in antargis/branches/rant/ruby: . jobs	state_machine state_machine/spec state_machine/tests">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sun Sep  2 19:22:26 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000125.html">[Antargis-svn] r1168 - in antargis/branches/rant/ruby: . entities	tests
+</A></li>
+        <LI>Next message: <A HREF="000127.html">[Antargis-svn] r1170 - antargis/branches/rant/ruby
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#126">[ date ]</a>
+              <a href="thread.html#126">[ thread ]</a>
+              <a href="subject.html#126">[ subject ]</a>
+              <a href="author.html#126">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-09-02 19:22:26 +0200 (Sun, 02 Sep 2007)
+New Revision: 1169
+
+Added:
+   antargis/branches/rant/ruby/jobs/README
+   antargis/branches/rant/ruby/jobs/ant_hljob_base.rb
+   antargis/branches/rant/ruby/jobs/ant_hljob_states.rb
+   antargis/branches/rant/ruby/jobs/ant_new_hljobs.rb
+   antargis/branches/rant/ruby/jobs/ant_state_machine.rb
+   antargis/branches/rant/ruby/state_machine/
+   antargis/branches/rant/ruby/state_machine/spec/
+   antargis/branches/rant/ruby/state_machine/spec/state_machine.rb
+   antargis/branches/rant/ruby/state_machine/state_machine.rb
+   antargis/branches/rant/ruby/state_machine/tests/
+   antargis/branches/rant/ruby/state_machine/tests/state_machine_test.rb
+Log:
+* missing files
+
+
+Added: antargis/branches/rant/ruby/jobs/README
+===================================================================
+--- antargis/branches/rant/ruby/jobs/README	2007-09-02 17:22:00 UTC (rev 1168)
++++ antargis/branches/rant/ruby/jobs/README	2007-09-02 17:22:26 UTC (rev 1169)
+@@ -0,0 +1,10 @@
++== High level jobs
++What high level jobs (further named as HLJobs) are or do:
++* assigned to AntBoss objects only (heroes and buildings (or maybe Villages in future ?))
++* organize all men that are assigned to this with low-level-jobs (LLJobs)
++* each AntBoss can have only one HLJob at a time.
++
++High level jobs are organized as state-machines. These state-machines are handled by BaseMachine.
++A job-base-class (AntNewHLJob) is derived from that. 
++
++
+
+Added: antargis/branches/rant/ruby/jobs/ant_hljob_base.rb
+===================================================================
+--- antargis/branches/rant/ruby/jobs/ant_hljob_base.rb	2007-09-02 17:22:00 UTC (rev 1168)
++++ antargis/branches/rant/ruby/jobs/ant_hljob_base.rb	2007-09-02 17:22:26 UTC (rev 1169)
+@@ -0,0 +1,71 @@
++require 'jobs/ant_state_machine.rb'
++
++class AntNewHLJob&lt;BaseMachine
++	attr_reader :finished, :stopped
++	# some magic here
++	def initialize(hero,startState=nil)
++		super(startState)
++		@hero=hero
++		assert{not @hero.nil?}
++
++		@finished=false
++
++		firstCall
++	end
++
++	def getTime
++		puts &quot;getTime&quot;
++		@hero.getMap.getTime
++	end
++
++	def allMen
++		if @hero.is_a?(AntHero)
++			@hero.getMen
++		else
++			@hero.getMen-[@hero]
++		end
++	end
++
++	def hero
++		@hero
++	end
++
++	def stopJob
++		@stopped=true
++		stateCall(&quot;leave&quot;)
++	end
++
++	def check(man)
++		#raise 1
++		if @state.nil?
++			@finished=true
++			return
++		end
++		#raise 1
++		stateCall(&quot;assign&quot;,man)
++		advance
++		@finished=ready
++	end
++
++	def delete(man)
++		puts &quot;IGNORING AntNewHLJob::delete(#{man})&quot;
++		if man==@hero
++			puts &quot;STOPPING JOB - because hero died&quot;
++			@finished=true
++			@state=nil
++		end
++	end
++
++
++	def trace
++		if @hero.nil?
++			puts &quot;TRACE #{caller[0]} #{self}&quot;
++		else
++			puts &quot;TRACE #{caller[0]} #{self} #{hero} #{getTime}&quot;
++		end
++	end
++
++	def kill
++		stateCall(&quot;kill&quot;)
++	end		
++end
+
+Added: antargis/branches/rant/ruby/jobs/ant_hljob_states.rb
+===================================================================
+--- antargis/branches/rant/ruby/jobs/ant_hljob_states.rb	2007-09-02 17:22:00 UTC (rev 1168)
++++ antargis/branches/rant/ruby/jobs/ant_hljob_states.rb	2007-09-02 17:22:26 UTC (rev 1169)
+@@ -0,0 +1,736 @@
++# Does the walk-formation
++# 
++#
++require 'jobs/ant_state_machine.rb'
++
++class Module
++	def wrap(objectName,methodName,objectMethodName=nil)
++		objectMethodName||=methodName
++		ts=&quot;*s&quot;
++		ts=&quot;s&quot; if methodName=~/.*=$/
++		s=&quot;def #{methodName}(#{ts})\n#{objectName}.#{objectMethodName}(#{ts})\nend\n&quot;
++		puts s
++		module_eval s
++	end
++end
++
++
++module HLJob_Additions
++	attr_accessor :machine
++	[&quot;hero&quot;,&quot;allMen&quot;,&quot;getTime&quot;,&quot;targetPos&quot;,&quot;targetPos=&quot;,&quot;formatDir&quot;,&quot;formatDir=&quot;,&quot;target&quot;].each{|n|wrap &quot;machine&quot;,n}
++end
++
++class HLJob_BaseState
++	include HLJob_Additions
++
++	def trace
++		if @hero.nil?
++			puts &quot;TRACE #{caller[0]} #{self}&quot;
++		else
++			puts &quot;TRACE #{caller[0]} #{self} #{hero} #{getTime}&quot;
++		end
++	end
++end
++
++class HLJob_DummyState&lt;HLJob_BaseState
++end
++
++class HLJob_FormatWalk&lt;HLJob_BaseState
++	# needed: getTime
++
++	# wait 5 seconds at max for formatting
++	FORMAT_MAX_TIME=5
++
++	def enter
++		puts &quot;#{self}:enter&quot;
++		trace
++		hero.formation=AntFormationBlock.new(hero,formatDir)
++		heroPos=hero.getPos2D
++		allMen.each{|man|
++			pos=hero.getFormation(man,heroPos)
++			man.walkTo(pos)
++			man.hlJobMode[:formatting]=true
++		}
++		@formatStart=getTime
++	end
++
++	def assign(man)
++		#raise 1
++		man.setDirection(180-(targetPos-hero.getPos2D).normalized.getAngle.angle*180.0/Math::PI)
++		man.standStill
++		man.hlJobMode.delete(:formatting)
++	end
++
++	def ready
++		if <A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">getTime- at formatStart</A>&gt;FORMAT_MAX_TIME
++			puts &quot;MUST BE READY&quot;
++			return true
++		end
++		allMen.each{|man|
++			puts &quot;formatting:#{man}:#{man.hlJobMode[:formatting]}&quot;
++			if man.hlJobMode[:formatting]
++				return false
++			end
++		}
++		return true
++	end
++
++private
++
++end
++
++class HLJob_FormatSit&lt;HLJob_BaseState
++	# needed: getTime
++
++	# wait 5 seconds at max for formatting
++	FORMAT_MAX_TIME=15
++
++	def enter
++		#raise 1
++		trace
++		hero.formation=AntFormationRest.new(hero)
++		heroPos=hero.getPos2D
++		allMen.each{|man|
++			pos=hero.getFormation(man,heroPos)
++			man.walkTo(pos)
++			man.hlJobMode[:formatting]=true
++		}
++		@formatStart=getTime
++	end
++
++	def assign(man)
++		man.setDirection(180-(hero.getPos2D-man.getPos2D).normalized.getAngle.angle*180.0/Math::PI)
++		man.standStill
++		man.hlJobMode.delete(:formatting)
++	end
++
++	def ready
++		puts &quot;#{self}:ready&quot;
++		if <A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">getTime- at formatStart</A>&gt;FORMAT_MAX_TIME
++			# FIXME:rest deserts
++			return true
++		end
++		allMen.each{|man|
++			if man.hlJobMode[:formatting]
++				return false
++			end
++		}
++		return true
++	end
++end
++
++class HLJob_MoveToNextWayPoint&lt;HLJob_BaseState
++	# needed: hero,allMen,targetPos, near
++
++	attr_accessor :near
++
++	def initialize
++		super
++		@near=0
++	end
++
++	def enter
++		puts &quot;#{self}:enter&quot;
++		hero.formation=AntFormationBlock.new(hero,formatDir)
++		allMen.each{|man|
++			pos=hero.getFormation(man,targetPos)
++			man.newMoveJob(0,pos,near)
++			man.hlJobMode[:walking]=true
++		}
++	end
++
++	def assign(man)
++		man.standStill
++		man.hlJobMode.delete(:walking)
++
++		# FIXME: maybe let him desert if this is called too often ?
++	end
++
++	def ready
++		allMen.each{|man|
++			if man.hlJobMode[:walking]
++				return false
++			end
++		}
++		return true
++	end
++
++end
++
++class HLJob_MoveComplete&lt;BaseState
++	include HLJob_Additions
++	state :moveToNextPoint=&gt;HLJob_MoveToNextWayPoint
++	state :formatWalk=&gt;HLJob_FormatWalk
++	state :endState=&gt;HLJob_DummyState
++
++	startState :formatWalk
++	endState :endState
++	
++	edge :moveToNextPoint, :formatWalk, :stillHasWaypoints
++	edge :formatWalk, :moveToNextPoint
++	edge :moveToNextPoint, :endState, :noMoreWaypoints
++
++	def enter
++		puts &quot;#{self}:enter&quot;
++		if @waypoints.nil?
++			initWaypoints
++		end
++	end
++
++	def stillHasWaypoints
++		puts state
++		if @waypoints.length&gt;0
++			self.targetPos=@waypoints.shift
++			puts &quot;targetPos:#{targetPos}&quot;
++			return true
++		end
++		false
++	end
++
++	def near=(n)
++		@states[:moveToNextPoint].near=n
++	end
++
++	def noMoreWaypoints
++		@waypoints.length==0
++	end
++
++	def moveDirectly
++		@state=:moveToNextPoint
++	end
++
++	def assign(man)
++		#raise 1
++		state.assign(man)
++	end
++
++	def hero
++		machine.hero
++	end
++	def formatDir
++		(targetPos-hero.getPos2D).normalized
++	end
++
++	private
++
++	def initWaypoints
++		if getMap.path
++			@waypoints=[hero.getPos2D]+getMap.path.computePath(hero.getPos2D,targetPos,hero)+[targetPos]
++			# remove waypoints in between - if they're not necessary - origin must be given, too
++			@waypoints=getMap.path.refinePath(@waypoints,hero)
++			# remove origin for waypoint-list
++			assert{@waypoints.length&gt;=2}
++			@waypoints.shift
++			
++			@waypoints+=[targetPos]
++
++		else
++			@waypoints=[targetPos]
++		end
++		@completeTargetPos=targetPos
++		self.targetPos=@waypoints.shift
++	end
++end
++
++class HLJob_SitDown&lt;HLJob_BaseState
++	def enter
++		allMen.each{|man|
++			man.setDirection(180-(hero.getPos2D-man.getPos2D).normalized.getAngle.angle*180.0/Math::PI)
++			man.sitDown
++			man.hlJobMode[:sitting]=true
++		}
++	end
++
++	def assign(man)
++		man.sitStill
++		man.hlJobMode.delete(:sitting)
++	end
++
++	def ready
++		allMen.each{|man|
++			if man.hlJobMode[:sitting]
++				return false
++			end
++		}
++		return true
++	end
++end
++
++class HLJob_JustSit&lt;HLJob_BaseState
++	def enter
++		allMen.each{|man|
++			man.sitStill
++		}
++	end
++	def assign(man)
++		man.sitStill # and rest
++	end
++
++	def ready
++		return false
++	end
++end
++
++class HLJob_JustSitOnce&lt;HLJob_BaseState
++	def enter
++		allMen.each{|man|
++			man.sitStill
++			man.hlJobMode[:justSitting]=true
++		}
++	end
++	def assign(man)
++		man.hlJobMode.delete(:justSitting)
++	end
++	def ready
++		allMen.each{|man|
++			if man.hlJobMode[:justSitting]
++				return false
++			else
++				return true
++			end
++		}
++	end
++end
++	
++
++class HLJob_FetchStart&lt;HLJob_BaseState
++	# needed a target-entity
++	def enter
++		trace
++		fetchPoint=machine.target.getPos2D
++		puts &quot;fetchPoint:#{fetchPoint}  heroPos:#{hero.getPos2D}&quot;
++		allMen.each{|man|
++			man.walkTo(fetchPoint)
++			man.hlJobMode[:fetching]=true
++			puts &quot;set to fetching: #{man}&quot;
++		}
++		
++	end
++
++	def assign(man)
++		trace
++		man.standStill
++		man.hlJobMode.delete(:fetching)
++	end
++
++	def ready
++		trace
++		allMen.each{|man|
++			puts &quot;fetchStart_ready check: #{man} : #{man.hlJobMode[:fetching]}&quot;
++			if man.hlJobMode[:fetching]
++				return false
++			end
++			puts &quot;false&quot;
++		}
++		puts &quot;return true ??&quot;
++		return true
++	end
++end
++
++class HLJob_GetResource&lt;HLJob_BaseState
++	# needed: resources return array of resource-strings
++	attr_accessor :resources
++
++	def initialize
++		@resources=[]
++	end
++
++	def enter
++		for i in 1..hero.getAggression
++			allMen.each{|man|
++				resources.each{|r|
++					a=machine.target.resource.get(r)
++					if a&gt;1
++						man.resource.add(r,1)
++						target.resource.sub(r,1)
++					end
++				}
++			}
++		end
++		allMen.each{|m|m.resourceChanged}
++	end
++	def ready
++		return true
++	end
++end
++
++class HLJob_KillAnimal&lt;HLJob_BaseState
++	def enter
++		target.eventDie
++		hero.resource.takeAll(target.resource)
++		allMen.each{|m|m.resourceChanged}
++	end
++end
++
++# spread things among team-members
++class HLJob_SpreadThings&lt;HLJob_BaseState
++	RESOURCES_TO_SPREAD=[&quot;sword&quot;,&quot;shield&quot;,&quot;bow&quot;,&quot;boat&quot;]
++
++	def enter
++		allMen.each{|man|
++			man.walkTo(hero.getPos2D)
++			man.hlJobMode[:gatherToSpread]=true
++		}
++		@alreadySpread=false
++	end
++
++	def assign(man)
++		man.standStillShort
++		if man.hlJobMode[:gatherToSpread]
++			man.hlJobMode.delete(:gatherToSpread)
++			man.hlJobMode[:waitForSpread]=true
++		elsif man.hlJobMode[:waitForSpread]
++			man.hlJobMode.delete(:waitForSpread)
++		else
++			# nothing for now
++		end
++	end
++
++	def ready
++		return true if @alreadySpread		
++		allMen.each{|man|
++			return false if man.hlJobMode[:gatherToSpread] or man.hlJobMode[:waitForSpread]
++		}
++		# we can spread now
++		doSpreading
++		@alreadySpread=true
++		return true
++	end
++	private
++	
++	def doSpreading
++		# FIXME: maybe this can be done more easily ???
++		trace
++	
++		all={}
++		RESOURCES_TO_SPREAD.each{|r|	
++			all=0
++			allMen.each{|m|
++				c=m.resource.get(r)
++				all+=c
++			}
++			if all&gt;=allMen.length
++				# give everyone 1 of these and put the rest on the hero
++				allMen.each{|m|
++					m.resource.set(r,1)
++				}
++				hero.resource.add(r,all-allMen.length)
++			else
++				men=allMen.sort {|b,a|a.resource.get(r)&lt;=&gt;b.resource.get(r)} # sort descending
++				# put hero at first
++				men.delete(hero)
++				men=[hero]+men
++				men.each{|m|m.resource.set(r,0)} # reset
++				for i in 1..all # now give to those who had a weapon and to hero (at first)
++					men[i-1].resource.set(r,1)
++				end
++			end
++		}
++		# spread food equally
++		food=0
++		allMen.each{|m|food+=m.resource.get(&quot;food&quot;)}
++		min=(food/allMen.length).to_i
++		allMen.each{|m|m.resource.set(&quot;food&quot;,min)}
++		# spread rest on first
++		food-=min*allMen.length
++		for i in 1..food
++			allMen[i-1].resource.add(&quot;food&quot;,1)
++		end
++
++		allMen.each{|m|m.resourceChanged}
++	end
++	
++end
++
++class HLJob_FightData&lt;HLJob_BaseState
++
++	attr_reader :inited
++	# only attacker creates fightData
++	def initialize(fightJob)
++		@parties={:attacker=&gt;[fightJob],:defender=&gt;[]}
++		@oldparties=@parties.dup
++	end
++	def add(fightJob)
++		@parties[getFightType(fightJob)].push(fightJob)
++		@oldparties[getFightType(fightJob)].push(fightJob)
++		reshuffle
++	end
++
++	# this called if (and only if) the hero has won or is fleeing (and thus aborting the fight)
++	def remove(fightJob)
++		@parties[fightJob.fightType].delete(fightJob)
++		@oldparties[fightJob.fightType].delete(fightJob)
++		reshuffle
++	end
++
++	# this called if (and only if) the hero has lost
++	def removeLost(fightJob)
++		@parties[fightJob.fightType].delete(fightJob)
++		reshuffle
++	end
++
++	def getFightType(fightJob)
++		target=fightJob.target
++		[:attacker,:defender].each{|t| 
++			return otherType(t) if @parties[t].collect{|a|a.hero}.member?(target)
++		}
++		raise &quot;Target #{fightJob} (target:#{target}) not found in getFightType!&quot;
++	end
++
++	def getNewOpponent(man,fightJob)
++		assert{man.canFight}
++		assert{man.is_a?(AntHero) or man.is_a?(AntMan)}
++		assert{man.getHero==fightJob.hero}
++	
++		checkForUpdate
++
++		# for a start: get next opponent
++		# (maybe take next free opponent ??)
++		# (maybe: find weakest friend and help him ???)
++
++		myType=fightJob.fightType
++		oType=otherType(myType)
++
++		opponent=@parties[oType].collect{|job|job.undefeatedMen}.flatten.uniq.shuffle[0]
++		if opponent.nil?
++			# we won ???
++			#eventWon(myType)
++			return nil
++		else
++			assert{opponent.canFight}
++			return opponent
++		end
++	end
++
++	def checkForUpdate
++
++		#raise &quot;FIXME&quot;
++		# check, if heroes are still able to fight, else reshuffle - let hero lose or sth else
++
++		nparties={}
++		oldparties=@parties
++		@parties.each{|type,jobs|
++			njobs=jobs.select{|job|job.hero.canFight}
++			nparties[type]=njobs
++		}
++		@parties=nparties
++
++		if @parties!=oldparties
++			reshuffle
++		end
++
++	end
++
++	private
++
++	def otherType(my)
++		{:attacker=&gt;:defender,:defender=&gt;:attacker}[my]
++	end
++
++	def getAllJobs
++		@parties.collect{|type,jobs|jobs}.flatten
++	end
++	def getAllHeroes
++		getAllJobs.collect{|job|job.hero}
++	end
++
++	def reshuffle
++		trace
++		# reinit and assign
++
++		menGroup={}
++		leave=false
++		@parties.each{|type,jobs|
++			puts &quot;parties: #{type}:#{jobs}&quot;
++			menGroup[type]=jobs.collect{|job|job.undefeatedMen}.flatten.uniq
++			menGroup[type].each{|man|man.delJob}
++			leave=true if @inited and menGroup[type].length==0 # a fightjob is leaving
++		}
++		return if leave
++	
++		# check that each group has more than 0 members
++		assert{menGroup.select{|k,v|v.length==0}.length==0}
++
++		defenders=menGroup[:defender].dup
++
++		defenders.each{|d|d.hlJobMode.delete(:fightTarget)}
++		
++		assert{defenders.length&gt;0}
++
++		# each attacker gets an opponent - if all defenders are used - restart them agaim
++		menGroup[:attacker].each{|attacker|
++			defender=defenders.min{|a,b|(a.getPos2D-attacker.getPos2D).length&lt;=&gt;(b.getPos2D-attacker.getPos2D).length}
++
++			assert{not defender.nil?}
++
++			attacker.hlJobMode[:fightTarget]=defender
++			if not defender.hlJobMode.member?(:fightTarget)
++				defender.hlJobMode[:fightTarget]=attacker
++			end
++
++			defenders.delete(defender)
++
++			defenders=menGroup[:defender].dup if defenders.length==0
++		}
++		menGroup[:defender].each{|defender|
++			if not defender.hlJobMode.member?(:fightTarget)
++				# assign remaining defenders to attackers
++				attacker=menGroup[:attacker].min{|a,b|(a.getPos2D-defender.getPos2D).length&lt;=&gt;(b.getPos2D-defender.getPos2D).length}
++				defender.hlJobMode[:fightTarget]=attacker
++			end
++		}
++		@inited=true
++	end
++
++
++end
++
++class HLJob_Fight&lt;HLJob_BaseState
++	# needed: hero,target, undefeatedMen
++
++	attr_reader :fightType, :fightData, :won
++
++	def enter
++		@oldHeroPosition=hero.getPos2D
++		trace
++
++		targetHadFightData=target.hlJobMode[:fightData].nil?
++		
++		puts &quot;fightData: #{target.hlJobMode[:fightData]}&quot;
++		checkForFightData
++		if targetHadFightData
++			puts &quot;NOT YET INITED #{self} hero:#{hero} target:#{target}&quot;
++			target.newHLDefendJob(hero)
++		end
++		trace
++		assignAllJobs
++	end
++
++	def assign(man)
++		if man.is_a?(AntHouse)
++			man.newRestJob(20)
++			return
++		end
++
++		if not man.canFight	
++			# it's possible that man is defeated is the same time that another is defeated ?
++			# this way his morale is low - but eventDefeated wasn't called yet
++			man.hlJobMode[:defeated]=true
++		end
++
++		if man.hlJobMode[:defeated]
++			# FIXME:send away
++			# FIXME: maybe flee ?
++			if hero.is_a?(AntHouse)
++				if man.hlJobMode[:homing]
++					man.standStill
++				else
++					man.hlJobMode[:homing]
++					man.walkTo(@oldHeroPosition+AGVector2.new(getRand*2-1,getRand*2-1))
++				end
++			else
++				# FIXME
++			end
++			man.hlJobMode[:defeated]=true
++			man.hlJobMode.delete(:fighting)
++		else
++			puts &quot;.canFight:#{man.canFight} #{man.getEnergy} #{man.getMorale}&quot;
++			assert{man.canFight}
++
++			opponent=@fightData.getNewOpponent(man,self)
++			if opponent.nil?
++				# won
++				@won=true
++			else
++				assert{man.canFight and opponent.canFight}
++				man.hlJobMode[:fightTarget]=opponent
++				man.newFightJob(0,man.hlJobMode[:fightTarget])
++			end
++		end
++	end
++
++	def leave
++		if lost
++			@fightData.removeLost(self)
++		else
++			@fightData.remove(self)
++		end
++		@fightData=nil
++		@fightType=nil
++		hero.hlJobMode.delete(:fightType)
++		hero.hlJobMode.delete(:fightData)
++
++		allMen.each{|man|
++			man.hlJobMode.delete(:defeated)
++			man.hlJobMode.delete(:fighting)
++			man.hlJobMode.delete(:homing)
++		}
++	end
++
++	def ready
++		return true if @ready
++		if won 
++			@won=true
++			machine.eventWon(target)
++			@ready=true
++		elsif lost
++			@lost=true
++			machine.eventLost(target)
++			@ready=true
++		end
++			
++		return @ready
++	end
++
++	def lost
++		((not @won) and undefeatedMen.length==0) or (not hero.canFight)
++	end
++
++	def undefeatedMen
++		allMen.select{|man|man.hlJobMode[:defeated].nil? &amp;&amp; man.canFight}
++	end
++
++	private
++	# return true if fightData already exists
++	def checkForFightData
++		trace
++		puts &quot;TARGET #{target}&quot;
++		if target.hlJobMode[:fightData]
++			trace
++			@fightData=target.hlJobMode[:fightData]
++			@fightData.add(self)
++			@fightType=@fightData.getFightType(self)
++			return true
++		else
++			trace
++			@fightData=HLJob_FightData.new(self)
++			@fightType=:attacker
++		end
++		puts &quot;assigned fightData!&quot;
++		hero.hlJobMode[:fightData]=@fightData # store so that it's avaiable above
++	end
++	def assignAllJobs
++		# FIXME:assign a fight-job to every member (undefeatedMen)
++		trace
++
++		undefeatedMen.each{|man|
++			assert{not man.hlJobMode[:fightTarget].nil?}
++			man.newFightJob(0,man.hlJobMode[:fightTarget])
++			# FIXME: check if morale is high enough
++			man.hlJobMode.delete(:defeated)
++			man.hlJobMode[:fighting]=true
++		}
++	end
++end
++
++
++class HLJob_Recruit&lt;HLJob_BaseState
++	def enter
++	end
++	
++	private
++	def recruitGetMen
++		
++	end
++end
++
+
+Added: antargis/branches/rant/ruby/jobs/ant_new_hljobs.rb
+===================================================================
+--- antargis/branches/rant/ruby/jobs/ant_new_hljobs.rb	2007-09-02 17:22:00 UTC (rev 1168)
++++ antargis/branches/rant/ruby/jobs/ant_new_hljobs.rb	2007-09-02 17:22:26 UTC (rev 1169)
+@@ -0,0 +1,277 @@
++#
++# This is a new implementation of the high-level jobs.
++# They're now state-based. Each job consists of several
++# states. Each of these states has (or can have) an &quot;enter&quot;,
++# &quot;assign&quot;,&quot;ready&quot; and a &quot;leave&quot;-function.
++# &quot;enter&quot; is called each time the current job switches into
++# this state. &quot;leave&quot; is called when the state is left
++# &quot;ready&quot; will be called to check, if the task of this state is 
++# finished and the job can be transfered into a new state.
++# &quot;assign&quot; is called whenever a man has no low-level-job anymore
++# and wants to get a new task. You should always assign low-level-jobs
++# to waiting men, because otherwise this function gets called for
++# each waiting man in each frame, which can have impact on the performance.
++#
++# 
++
++def newHLJobs
++	return true
++end
++
++module HLJob
++	def hero
++		@hero
++	end
++	def allMen
++		@hero.getMen
++	end
++end
++
++require 'jobs/ant_hljob_states.rb'
++require 'jobs/ant_hljob_base.rb'
++
++
++class AntNewHLRestJob&lt;AntNewHLJob
++	state :formatSit=&gt;HLJob_FormatSit
++	state :sitDown=&gt;HLJob_SitDown
++	state :justSitOnce=&gt;HLJob_JustSitOnce
++	state :spreadThings=&gt;HLJob_SpreadThings
++
++	startState :formatSit
++	edge :formatSit, :sitDown
++	edge :sitDown,:justSitOnce
++	edge :justSitOnce,:spreadThings,:checkSpread
++	edge :justSitOnce,:justSitOnce,:notCheckSpread
++	edge :spreadThings,:formatSit,:lastSpread
++
++	SPREAD_CHECK_TIME=10 # all 10 seconds spread things
++
++	def initialize(hero,time)
++		super(hero)
++	end
++	def image
++		&quot;data/gui/bed.png&quot;
++	end
++	# fixme: discard this
++	def makeMessage(boss)
++		RestMessage.new(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">boss, at time</A>)
++	end
++
++	def lastSpread
++		@spreadTime=getTime
++		true
++	end
++
++	def checkSpread
++		curTime=getTime
++		puts &quot;SPREADTIME: #{@spreadTime}   getTime:#{curTime}&quot;
++		return true if @spreadTime.nil?
++		puts &quot;#{<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">curTime- at spreadTime</A>}&gt;#{SPREAD_CHECK_TIME}&quot;
++		return <A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">curTime- at spreadTime</A>&gt;SPREAD_CHECK_TIME
++	end
++
++	def notCheckSpread
++		not checkSpread
++	end
++		
++end
++
++begin
++AntHeroRestJobOld=AntHeroRestJob
++rescue
++end
++AntHeroRestJob=AntNewHLRestJob
++
++
++
++class AntNewHLMoveJob&lt;AntNewHLJob
++	state :moveComplete=&gt;	HLJob_MoveComplete
++	state :endState =&gt; HLJob_DummyState
++
++	startState :moveComplete
++	endState :endState
++
++	edge :moveComplete,:endState
++
++	attr_accessor :targetPos
++	attr_accessor :formatDir
++
++	def initialize(hero,prio,pos,dist,doFormat=true)
++		@targetPos=pos.dim2
++		super(hero)
++		if not doFormat
++			state.moveDirectly			
++		end
++	end
++	# FIXME: move this to a config-file !
++	def image
++		&quot;data/gui/move.png&quot;
++	end
++	# FIXME: discard this
++	def makeMessage(boss)
++		MoveMessage.new(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">boss,targetPos, at dist</A>)
++	end
++
++end
++begin
++AntHeroMoveJobOld=AntHeroMoveJob
++rescue ; end
++AntHeroMoveJob=AntNewHLMoveJob
++
++
++
++
++
++class AntNewHLTakeJob&lt;AntNewHLJob
++	state :fetchStart =&gt; HLJob_FetchStart
++	state :getResource =&gt; HLJob_GetResource
++	state :move =&gt;HLJob_MoveComplete
++	state :moveBack =&gt; HLJob_MoveComplete
++	state :endState =&gt; HLJob_DummyState
++
++	startState :move
++	endState :endState
++
++	edge :move,:fetchStart,:fetchStart
++	edge :fetchStart,:getResource,:gettingResource
++	edge :getResource, :moveBack
++	edge :moveBack, :endState
++
++	attr_accessor :targetPos, :near, :target
++
++	def initialize(phero,target,what=&quot;food&quot;)
++
++		@targetPos=target.getPos2D
++		@target=target
++		super(phero)
++		@states[:move].near=4
++		@states[:getResource].resources={&quot;food&quot;=&gt;[&quot;food&quot;],&quot;weapon&quot;=&gt;[&quot;sword&quot;,&quot;bow&quot;,&quot;boat&quot;,&quot;shield&quot;]}[what]
++	end
++
++	def image
++		if @what==&quot;food&quot;
++			&quot;data/gui/take_apple.png&quot;
++		else
++			&quot;data/gui/take_weapon.png&quot;
++		end
++	end
++
++	def fetchStart
++		@targetPos=hero.getPos2D
++		true
++	end
++	def gettingResource
++		true
++	end
++end
++
++begin
++AntHeroTakeJobOld=AntHeroTakeJob
++rescue; end
++AntHeroTakeJob=AntNewHLTakeJob
++
++
++
++
++class AntNewHLKillAnimal&lt;AntNewHLTakeJob
++	inheritMachine
++
++	def gettingResource
++		# kill animal
++		playSound
++		killAnimal
++		super
++	end
++
++	
++	private
++	def playSound
++		# FIXME: play eat sound
++	end
++	def killAnimal
++		@target.eventDie
++		hero.resource.takeAll(target.resource)
++	end
++end
++begin
++AntHeroFightAnimalJobOld=AntHeroFightAnimalJob
++rescue;end
++AntHeroFightAnimalJob=AntNewHLKillAnimal
++
++
++
++class AntNewHLFight&lt;AntNewHLJob
++	state :move=&gt;HLJob_MoveComplete
++	state :fight=&gt;HLJob_Fight
++	state :endState=&gt;HLJob_DummyState
++
++	edge :move,:fight
++	edge :fight,:endState
++
++	startState :move
++	endState :endState
++
++	attr_accessor :targetPos,:near,:target
++
++	def initialize(hero,target,defend=false)
++		@targetPos=target.getPos2D
++		@target=target
++		puts &quot;DEFEND #{defend}&quot;
++		if defend
++			trace
++			super(hero,:fight)
++			trace
++		else
++			trace
++			super(hero)
++			trace
++		end
++		assert{@state==:fight || defend==false}
++		@states[:move].near=10
++
++		puts &quot;STATE #{state}&quot;
++	end
++
++	def image
++		&quot;data/gui/sword.png&quot;
++	end
++
++	def eventWon(opponent)
++
++# 		trace
++# 		puts hero,hero.getName
++# 		raise 1
++	end
++	def eventLost(opponent)
++# 		trace
++# 		puts hero,hero.getName
++# 		raise 1
++		hero.setOwner(opponent)
++	end
++
++
++end
++
++# rename and replace old hl-jobs
++
++
++
++
++# AntHeroFightAnimalJobOld=AntHeroFightAnimalJob
++# AntHeroFightAnimalJob=AntNewHLKillAnimal
++# 
++begin
++AntHeroFightJobOld=AntHeroFightJob
++rescue;end
++AntHeroFightJob=AntNewHLFight
++
++if false
++
++end
++
++
++# FIXME:
++# 1) recruiting
++# 2) constructing
++# 3) build houses
++
+
+Added: antargis/branches/rant/ruby/jobs/ant_state_machine.rb
+===================================================================
+--- antargis/branches/rant/ruby/jobs/ant_state_machine.rb	2007-09-02 17:22:00 UTC (rev 1168)
++++ antargis/branches/rant/ruby/jobs/ant_state_machine.rb	2007-09-02 17:22:26 UTC (rev 1169)
+@@ -0,0 +1,174 @@
++class BaseState
++	@@states={}
++	@@edges={}
++	@@endstates={}
++	@@startstate={}
++	def BaseState.state(p)
++		s=@@states[self]
++		s||={}
++		p.each{|k,v|s[k]=v}
++		@@states[self]=s
++	end
++	def BaseState.edge(v0,v1,f=nil)
++		@@edges[self]||=[]
++		@@edges[self]&lt;&lt;[v0,v1,f]
++	end
++	def BaseState.startState(s)
++		puts &quot;setting startstate for #{self}:#{s}&quot;
++		@@startstate[self]=s
++	end
++	def BaseState.endState(s)
++		@@endstates[self]||=[]
++		@@endstates[self].push(s)
++	end
++
++	def BaseState.inheritMachine
++		me=ancestors[0]
++		anc=ancestors[1]
++		@@states[me]=@@states[anc].dup
++		@@edges[me]=@@edges[anc].dup
++		@@endstates[me]=@@endstates[anc].dup
++		@@startstate[me]=@@startstate[anc]
++	end
++	
++	def initialize(startState=nil)
++		@states={}
++		@@states[self.class].each{|k,v|@states[k]=v.new;@states[k].machine=self}
++		@state=startState
++		@state||=@@startstate[self.class]
++		@firstRun=false
++	end
++	
++	def ready
++		return true if @state.nil?
++		if @@endstates[self.class]
++			if @@endstates[self.class].length&gt;0
++				return true if @@endstates[self.class].member?(@state)
++			end
++		end
++		return false
++	end		
++
++	def advance
++		if @states.length==0
++			puts &quot;no states here&quot;
++			return
++		end
++		if hasState
++			stepState
++		end
++	end
++
++	def firstCall
++		enterRecursive
++	end
++
++	def hasState
++		if @state
++			return (not @states[@state].nil?)
++		end
++		false
++	end
++
++	def state
++		if @state
++			if @states[@state]
++				return @states[@state]
++			end
++		end
++		raise &quot;no state defined!&quot;
++	end
++
++	def stateCall(*s)
++		if @state
++			if @states[@state]
++				puts &quot;(#{s})(#{s[0]})&quot;
++				if @states[@state].respond_to?(s[0])
++					@states[@state].send(*s) #(s[1..-1]))
++				end
++			end
++		end
++	end
++
++protected
++	def enterRecursive(selftoo=true)
++		puts &quot;#{self}:enterRecursive&quot;
++
++		if self.respond_to?(&quot;enter&quot;) and selftoo
++			puts &quot;#{self}:enterRecursive - enter...&quot;
++			enter
++			puts &quot;#{self}:enterRecursive - enter.ok&quot;
++		end
++
++		puts &quot;#{self}:enterRecursive - hasState:#{hasState}&quot;
++		if hasState
++			puts &quot;#{self}:enterRecursive - respond_to(enterRec):#{state.respond_to?(&quot;enterRecursive&quot;)}&quot;
++			puts &quot;#{self}:enterRecursive - state:#{state}&quot;
++			if state.respond_to?(&quot;enterRecursive&quot;)
++				state.enterRecursive
++			else
++				puts &quot;#{self}:enterRecursive - statecall-enter...&quot;
++				stateCall(&quot;enter&quot;)
++			end
++		end
++	end
++
++private
++	def stepState
++		assert {hasState}
++		stateCall(&quot;advance&quot;)
++		if state.ready
++			toNextState
++		else
++			true
++		end
++	end
++	
++	def toNextState
++		puts &quot;#{self} toNextState:#{@state}:#{state}&quot;
++		nstate=nil
++		@@edges[self.class].each{|e|
++			if e[0]==@state
++				ok=true
++				if not e[2].nil?
++					ok=self.send(e[2]) #.call
++				end
++				if ok
++					nstate=e[1]
++				end
++			end
++		}
++		if nstate
++			switch2(nstate)
++			return true
++		elsif @@endstates[self.class].member?(@state)
++			switch2(nil)
++		end
++		false
++	end
++	
++	def left
++		@firstRun=false
++	end
++		
++	def switch2(s)
++		stateCall(&quot;leave&quot;)
++		stateCall(&quot;left&quot;)
++		@state=s
++		#stateCall(&quot;enterRecursive&quot;)
++		enterRecursive(false)
++	end
++end
++
++class BaseMachine&lt;BaseState
++# 	def initialize(start=nil)
++# 		super(start)
++# 		if start.nil?
++# 			@state=@@startstate[self.class]
++# 			puts &quot;startstate: #{@@startstate[self.class]}&quot;
++# 		else
++# 			@state=start
++# 		end
++# 	end
++end
++
+
+Added: antargis/branches/rant/ruby/state_machine/spec/state_machine.rb
+===================================================================
+--- antargis/branches/rant/ruby/state_machine/spec/state_machine.rb	2007-09-02 17:22:00 UTC (rev 1168)
++++ antargis/branches/rant/ruby/state_machine/spec/state_machine.rb	2007-09-02 17:22:26 UTC (rev 1169)
+@@ -0,0 +1,236 @@
++# bowling_spec.rb
++require 'ruby/state_machine/state_machine.rb'
++
++describe StateMachineNode do
++	before(:each) do
++    @node = StateMachineNode.new(:id)
++  end
++
++	it &quot;should have id :id&quot; do
++		@node.id.should == :id
++	end
++
++	it &quot;should have a function dict, which is the state-machines dictionary&quot; do
++		@node.methods.member?(&quot;dict&quot;).should == true
++	end
++
++	it &quot;accessing the dictionary when the node is not attached to a machine will raise an exception&quot; do
++		lambda {@node.dict}.should raise_error(AntargisException)
++	end
++end
++
++describe StateMachineEdge do
++  before(:each) do
++		@e = StateMachineEdge.new(:a,:b,:name)
++  end
++
++	it &quot;should have from node :a&quot; do
++		@e.from.should == :a
++	end
++	it &quot;should have to node :b&quot; do
++		@e.to.should == :b
++	end
++	it &quot;should have name :name&quot; do
++		@e.name.should == :name
++	end
++end
++
++describe StateMachineDefinition, &quot;with no node&quot; do
++	before(:each) do
++		@d=StateMachineDefinition.new
++	end
++	it &quot;creating a machine should raise an error&quot; do
++		lambda {@d.createMachine}.should raise_error(AntargisException) #(&quot;startnode not set&quot;)
++	end
++end
++
++describe StateMachineDefinition, &quot;with a single node&quot; do
++  before(:each) do
++		@d = StateMachineDefinition.new
++		@d.addNode(StateMachineNode,:startNode)
++		@d.startNode=:startNode
++  end
++	it &quot;should have node count 1&quot; do
++		@d.nodeCount.should == 1
++	end
++
++	it &quot;should be finished when run&quot; do
++		m=@d.createMachine
++		m.tick(1)
++		m.finished.should == true
++	end
++
++end
++
++# a mockstate that can be set to finished externally
++class MockState&lt;StateMachineNode
++	attr_accessor :dummyVar
++
++	def initialize(pid)
++		super(pid)	
++		@finished=true
++
++	end
++	def finished=(f)
++		@finished=f
++	end
++	def isFinished?
++		@finished
++	end
++
++	def eventEnter
++		logEvent(&quot;eventEnter&quot;)
++	end
++	def eventLeave
++		logEvent(&quot;eventLeave&quot;)
++	end
++	def eventFrame(t)
++		logEvent(&quot;eventFrame&quot;)
++		t
++	end
++
++private
++	def logEvent(name)
++		dict[&quot;events&quot;]||=[]
++		dict[&quot;events&quot;] &lt;&lt; id.to_s+&quot; &quot;+name
++	end
++	
++end
++
++describe StateMachine, &quot; with 2 mock-states &quot; do
++	before(:all) do 
++		@d=StateMachineDefinition.new
++		@n1=@d.startNode=@d.addNode(MockState,:start)
++		@n2=@d.addNode(MockState,:end)
++		@d.addEdge(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">n1, at n2</A>)
++	end
++	it &quot;should not touch another machine with same definition in their states&quot; do
++		m1=@d.createMachine
++		m2=@d.createMachine
++
++		m1.state.dummyVar=20
++		m2.state.dummyVar.should == nil
++	end
++
++	before(:each) do
++		@m=@d.createMachine
++	end
++	
++	it &quot;should call eventEnter on startNode before calling eventFrame&quot; do
++		@m.tick(1)
++		events=@m.dict[&quot;events&quot;]
++		events.length.should == 5
++		events[0].should == &quot;start eventEnter&quot;
++		events[1].should == &quot;start eventFrame&quot;
++		events[2].should == &quot;start eventLeave&quot;
++		events[3].should == &quot;end eventEnter&quot;
++		events[4].should == &quot;end eventFrame&quot;
++	end
++
++	it &quot;should not be finished without being started/tick called&quot; do
++		@m.finished.should == false
++	end
++	it &quot;should be finished when tick was called&quot; do
++		@m.tick(1)
++		@m.finished.should == true
++	end
++	it &quot;- rest-time should be equal to initial time when calling tick&quot; do
++		time=1
++		restTime=@m.tick(time)
++		time.should restTime
++	end
++	it &quot;should only process first node and stay there, when tick-time is 0&quot; do
++		@m.tick(0)
++		@m.state.id.should == @n1
++	end
++	it &quot;should end in @n2 and be finished, when tick-time is 1&quot; do
++		@m.tick(1)
++		@m.state.id.should == @n2
++		@m.finished.should == true
++	end
++	it &quot;should return a node when calling state&quot; do
++		@m.state.should is_a?(StateMachineNode)
++	end
++
++	it &quot;should have a dictionary&quot; do
++		@m.dict.should is_a?(Hash)
++	end
++
++	it &quot;should be able to pass on information from one state to another&quot; do	
++		@m.dict[&quot;test&quot;]=10
++		@m.tick(1)
++		@m.state.id.should == @n2
++		@m.dict[&quot;test&quot;].should == 10
++	end
++
++	it &quot;should be able to pass on information from one state to another - saved and restored within state&quot; do	
++		@m.state.dict[&quot;test&quot;]=10
++		@m.tick(1)
++		@m.state.id.should == @n2
++		@m.state.dict[&quot;test&quot;].should == 10
++	end
++
++	it &quot;- states have link up to machine&quot; do
++		@m.state.machine.should == @m
++	end	
++
++	it &quot;should return the state, when giving the correct name&quot; do
++		s1=@m.getState(:start)
++		s1.should is_a?(StateMachineNode)
++		s1.id.should == @n1
++		s2=@m.getState(:end)
++		s2.should is_a?(StateMachineNode)
++		s2.id.should == @n2
++	end
++end
++
++class DelayState&lt;StateMachineNode
++	def eventEnter
++		@time=1
++	end
++	def eventFrame(t)
++		d=[1,t].min
++		@time-=d
++		t-=d
++		t
++	end
++	def isFinished?
++		@time&lt;=0
++	end
++end
++
++describe StateMachine, &quot; with 2 mock-states and a decision-node&quot; do
++	before(:all) do
++		@d=StateMachineDefinition.new
++		@n1=@d.addNode(DelayState,:start)
++		@n2=@d.addNode(DecisionNode, :decision) do |node|(node.dict[:continue] ? :continue : :return) end
++		@n3=@d.addNode(DelayState,:end)
++		@d.addEdge(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">n1, at n2</A>)
++		@d.addEdge(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">n2, at n3</A>,:continue)
++		@d.addEdge(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">n2, at n1</A>,:return)
++		@d.startNode=@n1
++	end
++	before(:each) do
++		@m=@d.createMachine
++	end
++	it &quot;should return again and again when continue is false&quot; do
++		@m.state.id.should == @n1
++		@m.tick(0.5)
++		@m.state.id.should == @n1
++		@m.tick(0.5)
++		@m.state.id.should == @n2
++		@m.tick(0.5)
++		@m.state.id.should == @n1
++	end
++	it &quot;should finish when continue is true&quot; do
++		@m.dict[:continue]=true
++		@m.state.id.should == @n1
++		@m.tick(0.5)
++		@m.state.id.should == @n1
++		@m.tick(0.5)
++		@m.state.id.should == @n2
++		@m.tick(0.5)
++		@m.state.id.should == @n3
++	end
++end
++
+
+Added: antargis/branches/rant/ruby/state_machine/state_machine.rb
+===================================================================
+--- antargis/branches/rant/ruby/state_machine/state_machine.rb	2007-09-02 17:22:00 UTC (rev 1168)
++++ antargis/branches/rant/ruby/state_machine/state_machine.rb	2007-09-02 17:22:26 UTC (rev 1169)
+@@ -0,0 +1,203 @@
++require 'ruby/ant_tools.rb'
++
++class StateMachineBase
++	attr_accessor :dict
++end
++
++class StateMachineNode
++	attr_reader :id
++	attr_accessor :machine
++
++	def initialize(pid)
++		assert{pid.is_a?(Symbol)}
++
++		@id=pid
++	end
++
++	def eventEnter
++	end
++	def eventLeave
++	end
++	def eventFrame(t)
++		t	
++	end
++
++	def isFinished?
++		true
++	end
++
++	def output
++		nil
++	end
++
++	def dict
++		assert{@machine.is_a?(StateMachine)}
++		@machine.dict
++	end
++end
++
++class StateMachineEdge
++	attr_reader :from, :to, :name
++	def initialize(from,to,name)
++		assert{from.is_a?(Symbol)}
++		assert{to.is_a?(Symbol)}
++		assert{name.is_a?(Symbol)}
++		@from=from
++		@to=to
++		@name=name
++	end
++end
++
++class StateMachineDefinition
++	attr_reader :startNode
++	def initialize
++		@nodes={}
++		@edges={}
++		@blocks={}
++		@startNode=nil
++	end
++
++	def startNode=(name)
++		assert(&quot;startNode is already a member node&quot;) {not @nodes[name].nil?}
++		@startNode=name
++	end
++
++	def addNode(nodeClass,name,&amp;block)
++		assert {nodeClass.ancestors.member?(StateMachineNode)}
++		assert {@nodes[name].nil?}
++		@nodes[name]=nodeClass
++		@blocks[name]=block
++		name
++	end
++	def addEdge(node1,node2,name=nil)
++		assert {hasNode(node1)}
++		assert {hasNode(node2)}
++		assert {name.is_a?(Symbol) || name.nil?}
++		name||=:default
++		edge=StateMachineEdge.new(node1,node2,name)
++		@edges[edge.from]||=[]
++		@edges[edge.from] &lt;&lt; edge
++	end
++
++	def nodeCount
++		@nodes.length
++	end
++
++	def ready?
++		(not @startNode.nil?)
++	end
++
++	def getNextNode(nodeName,output)
++		output||=:default
++		return nil if @edges[nodeName].nil?
++		#puts &quot;ok&quot;
++		@edges[nodeName].each{|edge|
++			#puts &quot;#{edge.name} #{output}&quot;
++			if edge.name==output
++				return edge.to
++			end
++		}
++		nil
++	end
++	def hasNode(nodeName)
++		(not @nodes[nodeName].nil?)
++	end
++	
++
++	def getNodeClass(nodeName)
++		assert(&quot;getNodeClass checks if has node '#{nodeName}'&quot;) {hasNode(nodeName)}
++		@nodes[nodeName]
++	end
++
++	def createMachine
++		StateMachine.new(self)
++	end
++
++	def getBlock(nodeName)
++		@blocks[nodeName]
++	end
++end
++
++
++class StateMachine
++	MAX_LOOPS=20
++	attr_reader :finished
++	attr_accessor :dict
++
++	def initialize(definition)
++		assert{definition.is_a?(StateMachineDefinition)}
++		assert(&quot;startnode not set!&quot;) {definition.ready?}
++		@definition=definition
++		@nodes={}
++		@dict={}
++		@currentNode=getNode(@definition.startNode)
++		@finished=false
++		@started=false
++	end
++
++	def tick(timeFrame)
++		restTime=timeFrame
++		loops=0
++		while restTime&gt;0 and loops&lt;MAX_LOOPS
++			if not @started
++				@started=true
++				@currentNode.eventEnter
++			end
++			restTime=@currentNode.eventFrame(restTime)
++			assert{restTime.is_a?(Numeric)}
++			if @currentNode.isFinished?
++				output=@currentNode.output
++				nextNodeName=@definition.getNextNode(@currentNode.id,output)
++				#sputs &quot;FROM #{@currentNode.id} TO #{nextNodeName}&quot;
++				if nextNodeName.nil?
++					setFinished
++					return eventFinished
++				end
++				nextNode=getNode(nextNodeName)
++				@currentNode.eventLeave
++				@currentNode=nextNode
++				nextNode.eventEnter
++			end
++			loops+=1
++		end
++		raise &quot;Too many loops in StateMachine.tick(.) restFrame:#{restTime}&quot; if loops&gt;=MAX_LOOPS
++	end
++
++	def eventFinished
++	end
++
++	def state
++		@currentNode
++	end
++
++	def getState(state)
++		getNode(state)
++	end
++
++	private
++	def setFinished
++		@finished=true
++	end
++
++	def getNode(nodeName)
++		block=@definition.getBlock(nodeName)
++		if block
++			@nodes[nodeName]||=@definition.getNodeClass(nodeName).new(nodeName,block)
++		else
++			@nodes[nodeName]||=@definition.getNodeClass(nodeName).new(nodeName)
++		end
++		@nodes[nodeName].machine=self
++		@nodes[nodeName]
++	end
++end
++
++class DecisionNode &lt; StateMachineNode
++	def initialize(id,block)
++		super(id)
++		@block=block
++	end
++	def output
++		@block.call(self)
++	end	
++end
++
+
+Added: antargis/branches/rant/ruby/state_machine/tests/state_machine_test.rb
+===================================================================
+--- antargis/branches/rant/ruby/state_machine/tests/state_machine_test.rb	2007-09-02 17:22:00 UTC (rev 1168)
++++ antargis/branches/rant/ruby/state_machine/tests/state_machine_test.rb	2007-09-02 17:22:26 UTC (rev 1169)
+@@ -0,0 +1,58 @@
++require 'ruby/state_machine/state_machine.rb'
++require 'test/unit'
++
++class MockState&lt;StateMachineNode
++	attr_accessor :dummyVar
++	def initialize(pid)
++		super(pid)	
++		@finished=true
++	end
++	def finished=(f)
++		@finished=f
++	end
++	def isFinished?
++		@finished
++	end
++	
++end
++
++
++class SinglNodeTest &lt; Test::Unit::TestCase
++	def setup
++		d=StateMachineDefinition.new
++		
++		n=StateMachineNode.new(:start)
++
++		d.addNode(n)
++
++		d.startNode=(n)
++
++		@m=StateMachine.new(d)
++	end
++
++	def test_notFinishedWhenNotStarted
++		assert((not @m.finished),&quot;@m should not be finished when not yet started!&quot;)
++	end
++
++	def test_simplerun
++		@m.tick(10)
++		assert(@m.finished,&quot;@m should be finished!&quot;)
++	end
++end
++
++class TwoMachinesSeparate &lt; Test::Unit::TestCase
++	def setup
++		d=StateMachineDefinition.new
++		n=MockState.new(:p0)
++		d &lt;&lt; (n)
++		d.startNode=n
++		@m1=StateMachine.new(d)
++		@m2=StateMachine.new(d)
++	end
++
++	def test_notSync
++		@m1.state.dummyVar=10
++		assert(@m2.state.dummyVar.nil?,&quot;@m2.state.dummyVar shouldn't be influenced by @m1.state.dummyVar&quot;)
++	end
++end
++
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000125.html">[Antargis-svn] r1168 - in antargis/branches/rant/ruby: . entities	tests
+</A></li>
+	<LI>Next message: <A HREF="000127.html">[Antargis-svn] r1170 - antargis/branches/rant/ruby
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#126">[ date ]</a>
+              <a href="thread.html#126">[ thread ]</a>
+              <a href="subject.html#126">[ subject ]</a>
+              <a href="author.html#126">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

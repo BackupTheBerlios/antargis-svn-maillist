@@ -1,0 +1,3060 @@
+From davidkamphausen at mail.berlios.de  Tue Nov  6 20:39:51 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Tue, 6 Nov 2007 20:39:51 +0100
+Subject: [Antargis-svn] r1185 - in antargis/trunk: . build build/configs
+	data/levels/dev ext/3dengine ext/basic ext/game ruby
+	ruby/entities ruby/jobs
+Message-ID: <200711061939.lA6JdpXH027181@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-11-06 20:39:46 +0100 (Tue, 06 Nov 2007)
+New Revision: 1185
+
+Added:
+   antargis/trunk/ruby/ai/
+   antargis/trunk/ruby/entities/ant_animal.rb
+Modified:
+   antargis/trunk/INSTALL
+   antargis/trunk/TODO
+   antargis/trunk/build/configs/unix.rb
+   antargis/trunk/build/std_list.i
+   antargis/trunk/data/levels/dev/level1.antlvl
+   antargis/trunk/data/levels/dev/level1.rb
+   antargis/trunk/data/levels/dev/testai.antlvl
+   antargis/trunk/ext/3dengine/boa_3d_wireframe.cc
+   antargis/trunk/ext/basic/ag_geometry.cc
+   antargis/trunk/ext/basic/ag_geometry.h
+   antargis/trunk/ext/basic/templates.i
+   antargis/trunk/ext/game/jobs.cc
+   antargis/trunk/ext/game/jobs.h
+   antargis/trunk/ext/game/map.cc
+   antargis/trunk/ext/game/path.cc
+   antargis/trunk/ruby/ant_ai.rb
+   antargis/trunk/ruby/ant_ai_interface.rb
+   antargis/trunk/ruby/ant_ai_player.rb
+   antargis/trunk/ruby/ant_ai_rules.rb
+   antargis/trunk/ruby/ant_path.rb
+   antargis/trunk/ruby/ant_trigger.rb
+   antargis/trunk/ruby/entities/ant_fish.rb
+   antargis/trunk/ruby/entities/ant_manbase.rb
+   antargis/trunk/ruby/entities/ant_sheep.rb
+   antargis/trunk/ruby/entities/ant_tower.rb
+   antargis/trunk/ruby/jobs/ant_hljob_states.rb
+   antargis/trunk/ruby/jobs/ant_new_hljobs.rb
+   antargis/trunk/ruby/map.rb
+Log:
+* many fixes
+* some changes
+
+
+Modified: antargis/trunk/INSTALL
+===================================================================
+--- antargis/trunk/INSTALL	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/INSTALL	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -7,10 +7,12 @@
+ 
+ 3) After this step no root-privileges are needed.
+ 
+-4) If you have installed rant in step 1: Run "rant" in this directory. Otherwise: Run "ruby build.rb" in the current directory
++4) Run "ruby configure" or just "./configure" to configure the building. You may want to give additional options, which will be explained if you give the parameter "-h" - so run "./configure -h"
+ 
+-5) Run "./antargis" in this directory
++5) If you have installed rant in step 1: Run "rant" in this directory. Otherwise: Run "ruby build.rb" in the current directory
+ 
++6) Run "./antargis" in this directory
++
+ Essentials: Ruby, (Rant)
+ This game is mostly written in Ruby (www.ruby-lang.org) and C++. It uses Rant (Rant - Flexible, Ruby based make) as build system.
+ 
+
+Modified: antargis/trunk/TODO
+===================================================================
+--- antargis/trunk/TODO	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/TODO	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -1,3 +1,6 @@
++
++* Spreading should be done only for men who need it!
++
+ * why is the story-telling dialog taking so much time ??
+ * why is the story-telling dialog eating up clicks ?
+ * improve settings-dialog!
+
+Modified: antargis/trunk/build/configs/unix.rb
+===================================================================
+--- antargis/trunk/build/configs/unix.rb	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/build/configs/unix.rb	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -19,13 +19,13 @@
+ 	"INCLUDES"=>"",
+   "LIBGL"=>"-lGL -lGLU",
+   # call the compiler using the standard unix-style mechanism <CC> -c -o <outputname> <input0> [<input1> ...]
+-	"COMPILE_PARAMS"=>" -Wp,-MD,$(DEP) -c -o $(OUTPUT) $(INPUT)",
++	"COMPILE_PARAMS"=>" -dH -Wp,-MD,$(DEP) -c -o $(OUTPUT) $(INPUT)",
+ 	# an ansi-c compiler call with parameters (using ccache if available)
+ 	"CC_CALL"=>"$(CCACHE) $(CC) $(COMPILE_PARAMS)",
+ 	# a c++ compiler call with parameters (using ccache if available)
+ 	"CXX_CALL"=>"$(CCACHE) $(CXX) $(COMPILE_PARAMS)",
+ 	# build a shared library (.so or .dll)
+-	"LINK_SHARED"=>"$(CCACHE) $(LINK) -shared -o $(OUTPUT) -Lext $(INPUT)",
++	"LINK_SHARED"=>"$(CCACHE) $(LINK) -dH -shared -o $(OUTPUT) -Lext $(INPUT)",
+ 	# build a program (.exe)
+ 	"LINK_EXE"=>"$(LINK) -o $(OUTPUT) -Lext $(INPUT)",
+ 
+
+Modified: antargis/trunk/build/std_list.i
+===================================================================
+--- antargis/trunk/build/std_list.i	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/build/std_list.i	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -79,12 +79,15 @@
+         }
+         %typemap(out) list<T> {
+             $result = rb_ary_new2($1.size());
+-	    size_t j=0;
+-	    for($1_type::iterator i=$1.begin();i!=$1.end();i++,j++)
+-	    {
++            size_t j=0;
++            for($1_type::iterator i=$1.begin();i!=$1.end();i++,j++)
++            {
+                 T* x = new T(*i);
+-		rb_ary_store($result,j,AG_NewPointerObj((void*)x,$descriptor(T*),1));
++                assert(x);
++                // no AG_NewPointerObj needed, because object is definitely created above and thus has no mRubyObject defined
++                rb_ary_store($result,j,SWIG_NewPointerObj((void*)x,$descriptor(T*),1));
+             }
++            assert(j==$1.size());
+         }
+         %typecheck(SWIG_TYPECHECK_LIST) list<T> {
+             /* native sequence? */
+@@ -212,8 +215,9 @@
+             $result = rb_ary_new2($1.size());
+             size_t j=0;
+              for($1_type::iterator i=$1.begin();i!=$1.end();i++,j++) {
+-		rb_ary_store($result,j,AG_NewPointerObj(*i,$descriptor(T*),1));
+-            }
++               rb_ary_store($result,j,AG_NewPointerObj(*i,$descriptor(T*),1));
++             }
++            assert(j==$1.size());
+         }
+         %typecheck(SWIG_TYPECHECK_LIST) list<T*> {
+             /* native sequence? */
+
+Modified: antargis/trunk/data/levels/dev/level1.antlvl
+===================================================================
+--- antargis/trunk/data/levels/dev/level1.antlvl	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/data/levels/dev/level1.antlvl	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -178,13 +178,5 @@
+ 	<!--<conqueringPlayer name="Bantor">
+ 		<hero name="Bantor"/>
+ 	</conqueringPlayer>-->
+-	<!--
+ 	<trigger name="attack" x="15" y="0"  radius="2" player="Bantor"/>
+-	<story>
+-		<start>
+-			<window>
+-				<text>You awaken.</text>
+-			</window>
+-		</start>
+-	</story>-->
+ </antargisLevel>
+
+Modified: antargis/trunk/data/levels/dev/level1.rb
+===================================================================
+--- antargis/trunk/data/levels/dev/level1.rb	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/data/levels/dev/level1.rb	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -1,8 +1,6 @@
+-class Level1<Level
+-	def initialize
++class Level1<AntLevelScript
++	def eventLevelStarted
+ 		puts "Level inited"
+-		#tellStory("title","Level started")
+-		#exit
+ 	end
+ 	def eventTrigger(hero,t)
+ 		puts "TRIGGER"
+
+Modified: antargis/trunk/data/levels/dev/testai.antlvl
+===================================================================
+--- antargis/trunk/data/levels/dev/testai.antlvl	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/data/levels/dev/testai.antlvl	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -75024,6 +75024,7 @@
+   <antHero aggression="1" appearance="hero" birthday="-2350.80895017123" energy="1" exp="0" food="1" healSpeed="0.07" id="0" learnAmount="0.05" men="5" mode="" morale="1" name="Stoner" onGround="true" onWater="false">
+     <position x="48.6047" y="75.8722" z="1.77092"/>
+     <!--<resource boat="10"/>-->
++    <resource food="40"/>
+   </antHero>
+   <antTree aggression="1" birthday="0.0" energy="1" exp="0" food="1" healSpeed="0.07" id="0" learnAmount="0.05" mode="" morale="1" name="" onGround="true" onWater="false" typeID="2">
+     <position x="177.967" y="180.255" z="1"/>
+
+Modified: antargis/trunk/ext/3dengine/boa_3d_wireframe.cc
+===================================================================
+--- antargis/trunk/ext/3dengine/boa_3d_wireframe.cc	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ext/3dengine/boa_3d_wireframe.cc	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -54,6 +54,12 @@
+   line.b=b;
+   mLines.push_back(line);
+   mChanged=true;
++
++  AGBox3 bb=bbox();
++
++  bb.include(a);
++  bb.include(b);
++  setBBox(bb);
+ }
+ 
+ bool Boa3dWireframe::transparent()
+
+Modified: antargis/trunk/ext/basic/ag_geometry.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_geometry.cc	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ext/basic/ag_geometry.cc	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -1049,15 +1049,42 @@
+ // AGCircle2
+ /////////////////////////////////////////////////////////////////////////////
+ 
+-AGCircle2::AGCircle2(const AGVector3 &v,float rad):p(v),radius(rad)
++AGCircle2::AGCircle2(const AGVector2 &v,float rad):p(v),radius(rad)
+ {
+ }
+ 
+-bool AGCircle2::inCircle(const AGVector3 &v) const
++std::list<AGVector2> AGCircle2::collide(const AGLine2 &pLine) const
+ {
++  std::list<AGVector2> l;
++
++  AGVector2 normal=pLine.normal();
++  AGVector2 mp(p.dim2());
++
++  float dist=(mp-pLine[0])*normal;
++
++  if(radius>fabs(dist))
++    {
++      AGVector2 dir=pLine.direction().normalized();
++      // ground-point
++      float alpha=dir*(mp-pLine[0]);
++      AGVector2 g=pLine[0]+dir*alpha;
++
++      float dist=(g-mp).length();
++      assert(radius>dist);
++      float rest=sqrt(radius*radius-dist*dist);
++      l.push_back(g+dir*rest);
++      l.push_back(g+dir*(-rest));
++    }
++
++  return l;
++}
++
++
++bool AGCircle2::inCircle(const AGVector2 &v) const
++{
+   return (v-p).length2()<radius*radius;
+ }
+-bool AGCircle2::outCircle(const AGVector3 &v) const
++bool AGCircle2::outCircle(const AGVector2 &v) const
+ {
+   return (v-p).length2()>radius*radius;
+ }
+@@ -1071,7 +1098,7 @@
+   return outCircle(t.get(0)) && outCircle(t.get(1)) && outCircle(t.get(2));
+ }
+ 
+-AGVector3 AGCircle2::getPos() const
++AGVector2 AGCircle2::getPos() const
+ {
+   return p;
+ }
+
+Modified: antargis/trunk/ext/basic/ag_geometry.h
+===================================================================
+--- antargis/trunk/ext/basic/ag_geometry.h	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ext/basic/ag_geometry.h	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -376,19 +376,20 @@
+ 
+ class AGEXPORT AGCircle2
+ {
+-  AGVector3 p;
++  AGVector2 p;
+   float radius;
+  public:
+-  AGCircle2(const AGVector3 &v,float rad);
++  AGCircle2(const AGVector2 &v,float rad);
+ 
+   bool inCircle(const AGTriangle2 &t) const;
+   bool outCircle(const AGTriangle2 &t) const;
+-  bool inCircle(const AGVector3 &v) const;
+-  bool outCircle(const AGVector3 &v) const;
++  bool inCircle(const AGVector2 &v) const;
++  bool outCircle(const AGVector2 &v) const;
+ 
+-  AGVector3 getPos() const;
++  AGVector2 getPos() const;
+   float getRadius() const;
+ 
++  std::list<AGVector2> collide(const AGLine2 &pLine) const;
+ };
+ 
+ class AGVector4;
+
+Modified: antargis/trunk/ext/basic/templates.i
+===================================================================
+--- antargis/trunk/ext/basic/templates.i	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ext/basic/templates.i	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -9,5 +9,6 @@
+ %template(StringVector) std::vector<std::string>;
+ %template(AGStringVector) std::vector<AGString>;
+ %template(AGFilenameVector) std::vector<AGFilename>;
++%template(AGVector2List) std::list<AGVector2>;
+ 
+ 
+
+Modified: antargis/trunk/ext/game/jobs.cc
+===================================================================
+--- antargis/trunk/ext/game/jobs.cc	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ext/game/jobs.cc	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -94,7 +94,7 @@
+   //  runSpeed=100;
+ }
+ 
+-MoveJob::MoveJob(int p,const AGVector2 &pTarget,float pNear,bool pRun):Job(p),mTarget(pTarget),mTargetEntity(0),mNear(pNear),mRun(pRun)
++MoveJob::MoveJob(int p,const AGVector2 &pTarget,float pNear,bool pRun):Job(p),mTarget(pTarget),mNearTarget(pTarget),mTargetEntity(0),mNear(pNear),mRun(pRun)
+ {
+   m3d=false;
+   // speed=70; // pixels per second
+@@ -108,7 +108,6 @@
+   //  runSpeed=100;
+ }
+ 
+-
+ MoveJob::~MoveJob()
+ {
+ }
+@@ -194,8 +193,10 @@
+     {
+       AGVector2 diff=e->getPos2D()-mTarget;
+       float norm=diff.length();
++
++      float nearDist=(e->getPos2D()-mNearTarget).length();
+       
+-      if(norm-mNear>ptime*aspeed)
++      if(norm-mNear>ptime*aspeed && nearDist-mNear>ptime*aspeed)
+ 	{
+ 	  diff=diff.normalized();
+ 	  e->setDirection(-diff.getAngle().angle*180.0/M_PI);
+
+Modified: antargis/trunk/ext/game/jobs.h
+===================================================================
+--- antargis/trunk/ext/game/jobs.h	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ext/game/jobs.h	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -72,6 +72,7 @@
+ {
+   AGVector2 mTarget;
+   AGVector3 mTarget3;
++  AGVector2 mNearTarget;
+   AntEntity *mTargetEntity;
+   float mNear;
+   bool mRun;
+@@ -82,6 +83,7 @@
+   MoveJob(int p,AntEntity *pTarget,float pnear=0,bool pRun=false);
+   MoveJob(int p,const AGVector2 &pTarget,float pnear=0,bool pRun=false);
+   MoveJob(int p,const AGVector3 &pTarget,float pnear=0,bool pRun=false);
++
+   virtual ~MoveJob();
+   void move(AntEntity *e,float ptime);
+   AGVector2 getDirection(const AntEntity *e) const;
+
+Modified: antargis/trunk/ext/game/map.cc
+===================================================================
+--- antargis/trunk/ext/game/map.cc	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ext/game/map.cc	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -299,7 +299,7 @@
+ 	        norm=(*mHeuristicFunction)(std::make_pair((*i)->getPos2D(),p));
+ 	      else
+ 		norm=((*i)->getPos2D()-p).length2();
+-	      cdebug("norm:"<<norm<<" i:"<<*i<<" name:"<<(*i)->getName());
++//	      cdebug("norm:"<<norm<<" i:"<<*i<<" name:"<<(*i)->getName());
+ 	      //              float norm=p2.length2();
+               ents.insert(std::make_pair(norm,*i));
+             }
+
+Modified: antargis/trunk/ext/game/path.cc
+===================================================================
+--- antargis/trunk/ext/game/path.cc	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ext/game/path.cc	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -219,6 +219,8 @@
+ 
+ bool MapPathWeighter::accessible(const AGVector2 &a)
+ {
++  float thres=0;
++
+   // FIXME: maybe make some terrain impassable
+ 
+   if(isWaterPassable())
+@@ -233,7 +235,12 @@
+ 	py=std::max(0.0f,std::min(py,mMap->getH()-1.0f));
+ 	hmin=std::min(hmin,mMap->getHeight(px,py));
+       }
+-  return hmin>0;
++  if(hmin<=thres)
++    {
++      cdebug("not accessible:"<<a<<":"<<hmin);
++    }
++
++  return hmin>thres;
+ }
+ 
+ 
+@@ -572,6 +579,9 @@
+ 
+   m=std::max((unsigned int)m,2U);
+ 
++  assert(mNodes.size()>0);
++  assert(mEdges.size()>0);
++
+   while(mNodes.size()>m)
+     {
+       Edge *e=*mEdges.begin();
+@@ -676,18 +686,18 @@
+ }
+ 
+ 
+-std::list<std::pair<size_t,size_t> > getPossibleNeighbors(size_t w,size_t h,const std::pair<size_t,size_t> &curPos)
++std::list<std::pair<size_t,size_t> > getPossibleNeighbors(size_t w,size_t h,const std::pair<size_t,size_t> &curPos,size_t res)
+ {
+   std::list<std::pair<size_t,size_t> > result;
+   int x,y,dx,dy;
+-  int r=5;
++  int r=2;
+   for(x=-r+1;x<r;x++)
+     for(y=0;y<r;y++)
+       if(x>0 || y>0)
+ 	//	if(x!=y) // FIXME
+ 	  {
+-	    dx=x+curPos.first;
+-	    dy=y+curPos.second;
++	    dx=x*res+curPos.first;
++	    dy=y*res+curPos.second;
+ 
+ 	    if(dx<w-1 && dy<h-1 && dx>=0 && dy>=0)
+ 	      result.push_back(std::make_pair(dx,dy));
+@@ -745,7 +755,7 @@
+ 	  }
+ #else
+ 	std::pair<size_t,size_t> p(x,y);
+-	std::list<std::pair<size_t,size_t> > l=getPossibleNeighbors(w,h,std::make_pair(x,y));
++	std::list<std::pair<size_t,size_t> > l=getPossibleNeighbors(w,h,std::make_pair(x,y),res);
+ 	SimpleGraph::Node *a=nodes[p];
+ 	for(std::list<std::pair<size_t,size_t> >::iterator i=l.begin();i!=l.end();i++)
+ 	  {
+@@ -1172,7 +1182,7 @@
+ 
+       cdebug("WEIGHTS:"<<w0<<"  "<<w1<<"  "<<w2);
+ 
+-      if(w0+w1>w2)
++      if(w0+w1>w2 && w2<16)
+ 	i=result.erase(i);
+       else
+ 	i++;
+
+Modified: antargis/trunk/ruby/ant_ai.rb
+===================================================================
+--- antargis/trunk/ruby/ant_ai.rb	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ruby/ant_ai.rb	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -52,7 +52,7 @@
+ 	def eventTriggerHit(hero,triggerName)
+ 	end
+ 	# in each frame this function is called with the time that's passed. Don't use this function if you
+-	# don't need to, because this hits performance!
++	# don't need to, because this hits performance rather badly!
+ 	def eventFrame(time)
+ 	end
+ end
+
+Modified: antargis/trunk/ruby/ant_ai_interface.rb
+===================================================================
+--- antargis/trunk/ruby/ant_ai_interface.rb	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ruby/ant_ai_interface.rb	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -109,6 +109,9 @@
+ 	def getPos
+ 		@ent.getPos2D
+ 	end
++	def getMap
++		@map
++	end
+ 	private
+ 	def getRef(t)
+ 		@map.getByUID(t.uid)
+
+Modified: antargis/trunk/ruby/ant_ai_player.rb
+===================================================================
+--- antargis/trunk/ruby/ant_ai_player.rb	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ruby/ant_ai_player.rb	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -7,6 +7,11 @@
+ 		@map=map
+ 		#@name=@ai.interface.myPlayer.getName
+ 	end
++
++	def getMap
++		@map
++	end
++
+ 	def saveXML(n)
+ 		n.set("name",name)
+ 		@heroes.each{|hero|
+
+Modified: antargis/trunk/ruby/ant_ai_rules.rb
+===================================================================
+--- antargis/trunk/ruby/ant_ai_rules.rb	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ruby/ant_ai_rules.rb	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -85,7 +85,7 @@
+ # rest for a second
+ class AIRestAction<AIAction
+ 	def execute(hero)
+-		hero.rest(1)
++		hero.rest(10)
+ 	end
+ end
+ 
+
+Modified: antargis/trunk/ruby/ant_path.rb
+===================================================================
+--- antargis/trunk/ruby/ant_path.rb	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ruby/ant_path.rb	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -15,6 +15,7 @@
+ # * Pathfinder
+ #
+ class CombinedPathFinder
++	attr_accessor :scene
+ 
+ 	# the current available modes, in which pathes will be computed. You can add some more here
+   # but you'll have to modify the functions getPathWeighter, getMode, displayPathfindingGraph
+@@ -46,15 +47,20 @@
+ 	end
+ 
+ 	def computePath(p0,p1,entity)
+-		@path[getMode(entity)].computePath(p0,p1)
++		path=@path[getMode(entity)].computePath(p0,p1)
++		#displayPath(path)
++		path
+ 	end
+ 	def refinePath(waypoints,entity)
+ 		mode=getMode(entity)
+-		@path[mode].refinePath(waypoints,getPathWeighter(@map,mode))
++		path=@path[mode].refinePath(waypoints,getPathWeighter(@map,mode))
++		#displayPath(path,AGVector4.new(1,0,0,1))
++		path
+ 	end
+ 
+ 
+ 	def displayPathfindingGraph(map,scene)
++		return
+ 		colors={:normal=>AGVector4.new(1,0,0,1),:overWater=>AGVector4.new(1,1,0,1)}
+ 		width=2
+ 		MODES.each{|mode|
+@@ -63,8 +69,8 @@
+ 				edge=@graph[mode].getEdgePosition(i)
+ 				a=edge[0]
+ 				b=edge[1]
+-				a=AGVector3.new(a.x,a.y,map.getHeight(a.x,a.y)+0.05)
+-				b=AGVector3.new(b.x,b.y,map.getHeight(b.x,b.y)+0.05)
++				a=AGVector3.new(a.x,a.y,map.getHeight(a.x,a.y)+0.15)
++				b=AGVector3.new(b.x,b.y,map.getHeight(b.x,b.y)+0.15)
+ 				wireframe.addLine(a,b)
+ 			}
+ 			scene.addNode(wireframe)
+@@ -72,6 +78,24 @@
+ 		}
+ 	end
+ 
++	def displayPath(path,color=AGVector4.new(1,1,0,1))
++		if path.length>2
++			width=5
++			node=Boa3dWireframe.new(@scene,color,width)
++			on=nil
++			path.each{|n|
++				if on
++					a=AGVector3.new(n.x,n.y, at map.getHeight(n.x,n.y)+0.15)
++					b=AGVector3.new(on.x,on.y, at map.getHeight(on.x,on.y)+0.15)
++					node.addLine(a,b)
++					pp a,b
++				end
++				on=n
++			}
++			@scene.addNode(node)
++		end
++	end
++
+ private
+ 	# get path-finding mode for the given +entity+
+ 	def getMode(entity)
+@@ -117,14 +141,20 @@
+ 		weighter=getPathWeighter(map,mode)
+ 
+ 		# set initial distance of waypoints	
+-		minDist=2
++		minDist=4
+ 
+ 		begin
+ 			# make a path-finding graph
+ 			sgraph=makeGraph(map,weighter,minDist)
+ 			minDist*=2
++			puts "---"
++			pp minDist
++			pp sgraph.size,sgraph.edges
+ 		end while(sgraph.size>2000) # use a smaller resolution, if there are too many nodes in graph
+ 
++		assert {sgraph.size>0}
++		assert {sgraph.edges>0}
++
+ 		# copy to a decimating graph
+ 		graph=DecimatedGraph.new(sgraph)
+ 
+
+Modified: antargis/trunk/ruby/ant_trigger.rb
+===================================================================
+--- antargis/trunk/ruby/ant_trigger.rb	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ruby/ant_trigger.rb	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -6,7 +6,7 @@
+ 			@pos.loadXML(node)
+ 			@radius=node.get("radius").to_f
+ 			@name=node.get("name")
+-			@circle=AGCircle2.new(AGVector3.new(@pos.x, at pos.y,1), at radius)
++			@circle=AGCircle2.new(AGVector2.new(@pos.x, at pos.y), at radius)
+ 			@triggerTime=AntRubyMap.getSystemTime
+ 			@player=node.get("player")
+ 			@text=node.get("text")
+@@ -25,7 +25,7 @@
+ 	def check(hero)
+ 		if AntRubyMap.getSystemTime- at triggerTime>1 # wait at least a second for repeating trigger
+ 			p2=hero.getPos2D
+-			p3=AGVector3.new(p2.x,p2.y,1)
++			p3=AGVector2.new(p2.x,p2.y)
+ 			#dputs name," ",p3, at pos, at radius, at circle.inCircle(p3), (p2- at pos).length
+ 			if @circle.inCircle(p3)
+ 				getMap.trigger(hero,self)
+
+Added: antargis/trunk/ruby/entities/ant_animal.rb
+===================================================================
+--- antargis/trunk/ruby/entities/ant_animal.rb	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ruby/entities/ant_animal.rb	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -0,0 +1,35 @@
++# some very simple base-class for animals. contains really nothing.
++class AntAnimal<AntRubyEntity
++	def initialize(map)
++		super
++	end
++	def AntAnimal.xmlName
++		""
++	end
++protected
++	# give Birth every 40th call
++	# returns true, if birth given
++	# at most 50 entities of a special type will be created
++	def giveBirth
++		@lastBirth||=getRand*40
++
++		@lastBirth+=1
++		# BIRTHRATE is here:
++		if @lastBirth>40 then
++			fishList=getMap.getAllByType(self.class)
++			return if fishList.length>50
++			# make child
++			#puts "A FISH IS BORN"
++			fish=self.class.new(getMap)
++			fish.setPos(getPos2D)
++			getMap.insertEntity(fish)
++			getMap.endChange
++			newRestJob(2)
++			@lastBirth=-getRand()*10
++			puts "GIVE BIRTH"
++			return true
++		end
++		false
++	end
++end
++
+
+Modified: antargis/trunk/ruby/entities/ant_fish.rb
+===================================================================
+--- antargis/trunk/ruby/entities/ant_fish.rb	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ruby/entities/ant_fish.rb	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -27,7 +27,6 @@
+ 		super
+ 		setProvide("fish",true)
+ 		setSpeed 0.6
+-		@lastBirth=0
+ 		@foodAdd=0
+ 
+ 		setOnGround(false)
+@@ -59,7 +58,11 @@
+ 			return
+ 		end
+ 
+-		giveBirth
++		if (not giveBirth)
++			setPos(AGVector3.new(getPos2D,-0.3))
++			newMoveJob(0,getTargetPos,0)
++			setMeshState("go")
++		end
+ 
+ 		@foodAdd+=1
+ 		#puts "FOOOOOD #{@foodAdd}"
+@@ -68,7 +71,6 @@
+ 			@foodAdd=0
+ 		end
+ 
+-		@lastBirth+=1
+ 	end
+ 	
+ 	def getTargetPos
+@@ -93,23 +95,4 @@
+ 		"Fish"
+ 	end
+ private
+-	def giveBirth
+-		# BIRTHRATE is here:
+-		if @lastBirth>40 then
+-			fishList=getMap.getAllByType(self.class)
+-			return if fishList.length>50
+-			# make child
+-			#puts "A FISH IS BORN"
+-			fish=AntFish.new(getMap)
+-			fish.setPos(getPos2D)
+-			getMap.insertEntity(fish)
+-			getMap.endChange
+-			newRestJob(2)
+-			@lastBirth=-getRand()*10
+-		else
+-			setPos(AGVector3.new(getPos2D,-0.3))
+-			newMoveJob(0,getTargetPos,0)
+-			setMeshState("go")
+-		end
+-	end
+ end
+
+Modified: antargis/trunk/ruby/entities/ant_manbase.rb
+===================================================================
+--- antargis/trunk/ruby/entities/ant_manbase.rb	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ruby/entities/ant_manbase.rb	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -115,7 +115,13 @@
+ 	end
+ 	def eventNoJob
+ 		if @meshState=="dead"
+-			getMap.removeEntity(self)
++			if @mdead
++				getMap.removeEntity(self)
++			else
++				newRestJob(20)
++				@mdead=true
++				return
++			end
+ 		end
+ 		super
+ 	end
+
+Modified: antargis/trunk/ruby/entities/ant_sheep.rb
+===================================================================
+--- antargis/trunk/ruby/entities/ant_sheep.rb	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ruby/entities/ant_sheep.rb	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -18,27 +18,16 @@
+ # License along with this program.
+ #
+ 
+-# some very simple base-class for animals. contains really nothing.
+-class AntAnimal<AntRubyEntity
+-	def initialize(map)
+-		super
+-	end
+-	def AntAnimal.xmlName
+-		""
+-	end
+-end
++require 'ant_animal.rb'
+ 
+ class AntSheep<AntAnimal
+ 	def initialize(map)
+ 		super
+ 		setProvide("sheep",true)
+ 		setSpeed 0.4
+-		@lastBirth=0
+ 		@foodAdd=0
+ 		
+ 		setMesh
+-# 		data=getAnimMeshData("data/models/sheep.anim")
+-# 		setMesh(AnimMesh.new(getMap.getScene,data))
+ 
+ 		resource.set("food",1)
+ 	end
+@@ -58,23 +47,25 @@
+ 			return
+ 		end
+ 
+-		# BIRTHRATE is here:
+-		if @lastBirth>40 then
+-			# make child
+-			puts "A SHEEP IS BORN"
+-			sheep=AntSheep.new
+-			sheep.setPos(getPos2D)
+-			getMap.insertEntity(sheep)
+-			#getMap.endChange
+-			newRestJob(2)
+-			@lastBirth=-getRand*10
+-		elsif getRand<0.5 then
+-			newMoveJob(0,getTargetPos,0)
+-			setMeshState("go")
+-		else
+-			newRestJob(3)
+-			setMeshState("eat")
+-			playSound("sheep")
++		if (not giveBirth)
++# 		# BIRTHRATE is here:
++# 		if @lastBirth>40 then
++# 			# make child
++# 			puts "A SHEEP IS BORN"
++# 			sheep=AntSheep.new
++# 			sheep.setPos(getPos2D)
++# 			getMap.insertEntity(sheep)
++# 			#getMap.endChange
++# 			newRestJob(2)
++# 			@lastBirth=-getRand*10
++			if getRand<0.5 then
++				newMoveJob(0,getTargetPos,0)
++				setMeshState("go")
++			else
++				newRestJob(3)
++				setMeshState("eat")
++				playSound("sheep")
++			end
+ 		end
+ 
+ 		@foodAdd+=1
+@@ -85,8 +76,6 @@
+ 			#puts "RESOURCE: #{resource.get("food")}"
+ 			@foodAdd=0
+ 		end
+-
+-		@lastBirth+=1
+ 	end
+ 	
+ 	def getTargetPos
+
+Modified: antargis/trunk/ruby/entities/ant_tower.rb
+===================================================================
+--- antargis/trunk/ruby/entities/ant_tower.rb	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ruby/entities/ant_tower.rb	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -42,7 +42,7 @@
+ 	end
+ 	
+ 	def addFlag(owner)
+-		@flag=AntFlag.new
++		@flag=AntFlag.new(getMap)
+ 		setPos(getPos2D) # reset flag position
+ 		getMap.insertEntity(@flag)
+ 	end
+
+Modified: antargis/trunk/ruby/jobs/ant_hljob_states.rb
+===================================================================
+--- antargis/trunk/ruby/jobs/ant_hljob_states.rb	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ruby/jobs/ant_hljob_states.rb	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -64,11 +64,11 @@
+ 
+ 	def ready
+ 		if getTime- at formatStart>FORMAT_MAX_TIME
+-			puts "MUST BE READY"
++			#log "MUST BE READY"
+ 			return true
+ 		end
+ 		allMen.each{|man|
+-			puts "formatting:#{man}:#{man.hlJobMode[:formatting]}"
++			#log "formatting:#{man}:#{man.hlJobMode[:formatting]}"
+ 			if man.hlJobMode[:formatting]
+ 				return false
+ 			end
+@@ -170,6 +170,7 @@
+ 	edge :moveToNextPoint, :endState, :noMoreWaypoints
+ 
+ 	def enter
++		@near=0
+ 		puts "#{self}:enter"
+ 		if @waypoints.nil?
+ 			initWaypoints
+@@ -180,14 +181,20 @@
+ 		puts state
+ 		if @waypoints.length>0
+ 			self.targetPos=@waypoints.shift
+-			puts "targetPos:#{targetPos}"
++
++			if @waypoints.length==0
++				self.targetPos=checkPosNear(self.targetPos)
++				@states[:moveToNextPoint].near=@near 
++			end
++			
+ 			return true
+ 		end
+ 		false
+ 	end
+ 
+ 	def near=(n)
+-		@states[:moveToNextPoint].near=n
++		@near=n
++		#@states[:moveToNextPoint].near=n
+ 	end
+ 
+ 	def noMoreWaypoints
+@@ -213,6 +220,7 @@
+ 	private
+ 
+ 	def initWaypoints
++		@finalPos=targetPos
+ 		if getMap.path
+ 			@waypoints=[hero.getPos2D]+getMap.path.computePath(hero.getPos2D,targetPos,hero)+[targetPos]
+ 			# remove waypoints in between - if they're not necessary - origin must be given, too
+@@ -221,14 +229,27 @@
+ 			assert{@waypoints.length>=2}
+ 			@waypoints.shift
+ 			
+-			@waypoints+=[targetPos]
++			#@waypoints+=[targetPos]
+ 
+ 		else
+ 			@waypoints=[targetPos]
+ 		end
+ 		@completeTargetPos=targetPos
+ 		self.targetPos=@waypoints.shift
++		self.targetPos=checkPosNear(self.targetPos)
+ 	end
++
++	def checkPosNear(to)
++		from=hero.getPos2D
++		line=AGLine2.new(from,to)
++		circle=AGCircle2.new(@finalPos, at near)
++		list=circle.collide(line)
++		if list.length>0
++			to=list.min{|a,b|(a-from).length<=>(b-from).length}
++		end
++
++		to
++	end
+ end
+ 
+ class HLJob_SitDown<HLJob_BaseState
+@@ -545,9 +566,17 @@
+ 			puts "parties: #{type}:#{jobs}"
+ 			menGroup[type]=jobs.collect{|job|job.undefeatedMen}.flatten.uniq
+ 			menGroup[type].each{|man|man.delJob}
+-			leave=true if @inited and menGroup[type].length==0 # a fightjob is leaving
++			if menGroup[type].length==0
++				if @inited
++					leave=true # a fightjob is leaving
++				else
++					# party is still defeated, but job is not yet finished ?
++					leave=true 
++				end
++			end
+ 		}
+ 		return if leave
++		assert{@parties.length>0}
+ 	
+ 		# check that each group has more than 0 members
+ 		assert{menGroup.select{|k,v|v.length==0}.length==0}
+@@ -715,11 +744,16 @@
+ 		trace
+ 
+ 		undefeatedMen.each{|man|
+-			assert{not man.hlJobMode[:fightTarget].nil?}
+-			man.newFightJob(0,man.hlJobMode[:fightTarget])
+-			# FIXME: check if morale is high enough
+-			man.hlJobMode.delete(:defeated)
+-			man.hlJobMode[:fighting]=true
++			if man.hlJobMode[:fightTarget]
++				assert{not man.hlJobMode[:fightTarget].nil?}
++				man.newFightJob(0,man.hlJobMode[:fightTarget])
++				# FIXME: check if morale is high enough
++				man.hlJobMode.delete(:defeated)
++				man.hlJobMode[:fighting]=true
++			else
++				# this the case, when an already defeated party is attacked
++				puts "POSSIBLE ERROR: #{man} has no opponent ?"
++			end
+ 		}
+ 	end
+ end
+
+Modified: antargis/trunk/ruby/jobs/ant_new_hljobs.rb
+===================================================================
+--- antargis/trunk/ruby/jobs/ant_new_hljobs.rb	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ruby/jobs/ant_new_hljobs.rb	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -35,10 +35,15 @@
+ 	state :sitDown=>HLJob_SitDown
+ 	state :justSitOnce=>HLJob_JustSitOnce
+ 	state :spreadThings=>HLJob_SpreadThings
++	state :endState=>HLJob_DummyState
+ 
+ 	startState :formatSit
++	endState :endState
++
+ 	edge :formatSit, :sitDown
+-	edge :sitDown,:justSitOnce
++	edge :sitDown,:justSitOnce,:notRestFinished
++	edge :sitDown,:endState,:restFinished
++
+ 	edge :justSitOnce,:spreadThings,:checkSpread
+ 	edge :justSitOnce,:justSitOnce,:notCheckSpread
+ 	edge :spreadThings,:formatSit,:lastSpread
+@@ -47,6 +52,8 @@
+ 
+ 	def initialize(hero,time)
+ 		super(hero)
++		@restTime=time
++		@startTime=getTime
+ 	end
+ 	def image
+ 		"data/gui/bed.png"
+@@ -73,6 +80,14 @@
+ 		not checkSpread
+ 	end
+ 		
++	def restFinished
++		finished=(getTime- at startTime)>@restTime
++		#log "RESTJOB FINISHED: #{finished} ((#{getTime}-#{@startTime})>#{@restTime})"
++		finished
++	end
++	def notRestFinished
++		not restFinished
++	end
+ end
+ 
+ 
+
+Modified: antargis/trunk/ruby/map.rb
+===================================================================
+--- antargis/trunk/ruby/map.rb	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ruby/map.rb	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -116,7 +116,8 @@
+ 		@uidstart=[i, at uidstart].max
+ 	end
+ 	def getByUID(id)
+-		ents=getAllEntitiesV
++		puts "WARNING: THIS function is slow!"
++		ents=getAllEntities
+ 		id=id.to_i
+ 		ents.each{|e|
+ 			r=e.get
+@@ -496,7 +497,8 @@
+ 
+ 	def createPathfinder
+ 		@path=CombinedPathFinder.new(self)
+-		#@path.displayPathfindingGraph(self,getScene)
++		@path.scene=getScene
++		@path.displayPathfindingGraph(self,getScene)
+ 	end
+ 
+ 	def createPathfinderOLD
+
+
+
+From davidkamphausen at mail.berlios.de  Tue Nov  6 20:40:25 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Tue, 6 Nov 2007 20:40:25 +0100
+Subject: [Antargis-svn] r1186 - in antargis/trunk/ruby: ai spec
+Message-ID: <200711061940.lA6JePrL027276@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-11-06 20:40:22 +0100 (Tue, 06 Nov 2007)
+New Revision: 1186
+
+Added:
+   antargis/trunk/ruby/ai/sensors.rb
+   antargis/trunk/ruby/spec/geometry.rb
+Log:
+* added missing files
+
+
+Added: antargis/trunk/ruby/ai/sensors.rb
+===================================================================
+--- antargis/trunk/ruby/ai/sensors.rb	2007-11-06 19:39:46 UTC (rev 1185)
++++ antargis/trunk/ruby/ai/sensors.rb	2007-11-06 19:40:22 UTC (rev 1186)
+@@ -0,0 +1,78 @@
++module AI
++	class Sensor
++		attr_reader :player
++
++		def initialize(player)
++			@player=player
++		end
++
++		def logValue
++			Math.log(value)
++		end
++	end
++
++	class HeroFoodSensor<Sensor
++		def value
++			heroFood=player.getHeroes.map{|h|h.resources.get("food")}
++
++			heroFood.inject(0){|a,b|a+b}
++		end
++	end
++
++	class StrengthSensor<Sensor
++		def value
++			heroStrengths=player.getHeroes.map{|h|h.menCount}
++			heroStrengths.inject(0){|a,b|a+b}
++		end
++	end
++
++	class BuildingCountSensor<Sensor
++		def value
++			player.getBuildings.length
++		end
++	end
++
++	class CompletenessOfProdChainSensor<Sensor
++		MAX_DIST=20
++
++		def value
++			blocks=createBlocks(player.getBuildings.map{|b|[b]})
++			blocks.map{|block|
++				completenessOfChain(block)
++			}
++
++		end
++	private
++		def completenessOfChain(block)
++			
++		end
++		def createBlocks(blocks)
++			nblocks=blocks.inject([]){|blocklist,newBuilding|
++				added=false
++				blocklist.each{|group|
++					group.each{|currentBuilding|
++						if (currentBuilding.getPos2D-newBuilding.getPos2D).length<MAX_DIST
++							blocklist=blocklist-[group]+[group+newBuilding]
++							added=true
++							break
++						end
++					}
++				}
++				blocklist+=[newBuilding] unless added
++			}
++			nblocks=createBlocks(nblocks) if nblocks.length!=blocks.length
++			nblocks
++		end
++
++	end
++
++	SENSORS=[
++		HeroFoodSensor,
++		StrengthSensor,
++		BuildingCountSensor,
++		CompletenessOfProdChainSensor
++	]	
++
++	
++
++end
+\ No newline at end of file
+
+Added: antargis/trunk/ruby/spec/geometry.rb
+===================================================================
+--- antargis/trunk/ruby/spec/geometry.rb	2007-11-06 19:39:46 UTC (rev 1185)
++++ antargis/trunk/ruby/spec/geometry.rb	2007-11-06 19:40:22 UTC (rev 1186)
+@@ -0,0 +1,27 @@
++require 'ruby/antargislib.rb'
++require 'pp'
++
++describe AGCircle2,"a radius 2 circle around (10,10)" do
++	before(:each) do
++		@circleMiddle=AGVector2.new(10,10)
++		@radius=2
++		@circle=AGCircle2.new(@circleMiddle, at radius)
++	end
++
++	it "should hit an intersection line (9,0)-(9,20)" do
++		line=AGLine2.new(AGVector2.new(9,0),AGVector2.new(9,20))
++		list=@circle.collide(line)
++		list.length.should == 2
++		list.each{|p|(p- at circleMiddle).length.should == @radius}
++
++		# should lie on line
++		list.each{|p|p.x.should ==9}
++
++	end
++	it "should not hit an line at (9,0)-(119,0)" do
++		l2=AGLine2.new(AGVector2.new(9,0),AGVector2.new(119,0))
++		list=@circle.collide(l2)
++		list.length.should ==0
++
++	end
++end
+\ No newline at end of file
+
+
+
+From davidkamphausen at mail.berlios.de  Tue Nov 20 20:14:31 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Tue, 20 Nov 2007 20:14:31 +0100
+Subject: [Antargis-svn] r1187 - in antargis/trunk: . data/levels/dev
+	ext/basic ext/game ruby ruby/ai ruby/ai/spec ruby/entities ruby/jobs
+Message-ID: <200711201914.lAKJEVo9010489@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-11-20 20:14:27 +0100 (Tue, 20 Nov 2007)
+New Revision: 1187
+
+Added:
+   antargis/trunk/ruby/ai/README
+   antargis/trunk/ruby/ai/actions.rb
+   antargis/trunk/ruby/ai/dyn_map.rb
+   antargis/trunk/ruby/ai/spec/
+   antargis/trunk/ruby/ai/spec/valueMapping.rb
+   antargis/trunk/ruby/ai/value_map.rb
+Modified:
+   antargis/trunk/Rantfile
+   antargis/trunk/TODO
+   antargis/trunk/data/levels/dev/testai.antlvl
+   antargis/trunk/ext/basic/ag_config.cc
+   antargis/trunk/ext/game/path.h
+   antargis/trunk/ruby/ai/sensors.rb
+   antargis/trunk/ruby/ant_ai.rb
+   antargis/trunk/ruby/ant_ai_interface.rb
+   antargis/trunk/ruby/ant_ai_player.rb
+   antargis/trunk/ruby/ant_level.rb
+   antargis/trunk/ruby/ant_models.rb
+   antargis/trunk/ruby/ant_player.rb
+   antargis/trunk/ruby/antargis.rb
+   antargis/trunk/ruby/entities/ant_fire.rb
+   antargis/trunk/ruby/entities/ant_hero.rb
+   antargis/trunk/ruby/entities/ant_man.rb
+   antargis/trunk/ruby/entities/ant_manbase.rb
+   antargis/trunk/ruby/entities/entities.rb
+   antargis/trunk/ruby/entities/entity.rb
+   antargis/trunk/ruby/jobs/ant_hljob_states.rb
+   antargis/trunk/ruby/jobs/ant_new_hljobs.rb
+   antargis/trunk/ruby/map.rb
+Log:
+* many bugfixes
+
+
+Modified: antargis/trunk/Rantfile
+===================================================================
+--- antargis/trunk/Rantfile	2007-11-06 19:40:22 UTC (rev 1186)
++++ antargis/trunk/Rantfile	2007-11-20 19:14:27 UTC (rev 1187)
+@@ -7,11 +7,16 @@
+ require 'pp'
+ 
+ puts "ERROR: Please run ./configure before building!" unless File.exists?("config.rb")
+-require 'build/base_tools.rb'
+ 
++begin
++system 'echo "doing this for you now...";ruby configure' unless File.exists?("config.rb")
++rescue;end
++
+ require 'config.rb'                   # include build-options
++require 'build/base_tools.rb'
+ 
+ 
++
+ # get library-dependencies for libSDL
+ sdlLibs=$config['LIBS'].split(" ")
+ 
+@@ -63,6 +68,10 @@
+ cflags+=" -O0 -g"       unless $config["debug"] # enable optimizations
+ #cflags+=" -O2"       unless $config["debug"] # enable optimizations
+ cflags+=" -DMPROFILE" if $config["profile"]  # enable profiling
++
++
++# FIXME: discard this before submiting to SVN
++cflags+=" -g -O0"
+ 	
+ 
+ var :CFLAGS => var[:INCLUDESTR]+cflags          # store cflags in "var" for later read-out while compiling
+
+Modified: antargis/trunk/TODO
+===================================================================
+--- antargis/trunk/TODO	2007-11-06 19:40:22 UTC (rev 1186)
++++ antargis/trunk/TODO	2007-11-20 19:14:27 UTC (rev 1187)
+@@ -1,4 +1,22 @@
++* check how many times AG_NewPointer is called !!!!
++* check if it's any good to switch over to standard-swig ???
+ 
++!!! AGTexture - not wrapped correctly in bliTri etc ???
++
++
++* check swig-wrapping of: 
++	AGCollector *getCollector (basic/ag_collector.h)
++	AGEXPORT AGConfig *getConfig();
++ std::Vector<SceneNode*>
++ std::vector<AntEntity*> (game)
++path.h - don't export path-internals to ruby
++
++* moveto doesn't really work with "near" (hljob)
++* heroes don't die in reasonable fashion - starving men too
++* add seasons
++* remove -O0 -g out of Rantfile !
++* take food - near doesn't work - same for attack (in some cases?)
++
+ * Spreading should be done only for men who need it!
+ 
+ * why is the story-telling dialog taking so much time ??
+
+Modified: antargis/trunk/data/levels/dev/testai.antlvl
+===================================================================
+--- antargis/trunk/data/levels/dev/testai.antlvl	2007-11-06 19:40:22 UTC (rev 1186)
++++ antargis/trunk/data/levels/dev/testai.antlvl	2007-11-20 19:14:27 UTC (rev 1187)
+@@ -74899,7 +74899,7 @@
+   </antTower>
+   <antTower aggression="1" birthday="0.0" energy="1" exp="0" food="1" healSpeed="0.07" id="0" learnAmount="0.05" men="7" mode="" morale="1" name="Keep Hindar" onGround="true" onWater="false" village="Hindar">
+     <position x="158.01" y="46.8895" z="1"/>
+-    <resource/>
++    <resource sword="5"/>
+   </antTower>
+   <antTower aggression="1" birthday="0.0" energy="1" exp="0" food="1" healSpeed="0.07" id="0" learnAmount="0.05" men="6" mode="" morale="1" name="Keep Stoner" onGround="true" onWater="false" village="Stoner">
+     <position x="48.0344" y="80.039" z="1"/>
+@@ -75024,7 +75024,7 @@
+   <antHero aggression="1" appearance="hero" birthday="-2350.80895017123" energy="1" exp="0" food="1" healSpeed="0.07" id="0" learnAmount="0.05" men="5" mode="" morale="1" name="Stoner" onGround="true" onWater="false">
+     <position x="48.6047" y="75.8722" z="1.77092"/>
+     <!--<resource boat="10"/>-->
+-    <resource food="40"/>
++    <!--<resource food="40"/>-->
+   </antHero>
+   <antTree aggression="1" birthday="0.0" energy="1" exp="0" food="1" healSpeed="0.07" id="0" learnAmount="0.05" mode="" morale="1" name="" onGround="true" onWater="false" typeID="2">
+     <position x="177.967" y="180.255" z="1"/>
+@@ -75754,8 +75754,24 @@
+     <hero name="Keep Stoner"/>
+     <hero name="Stoner"/>
+   </conqueringPlayer>-->
+-  <newAI name="Stoner">
++<!--  <newAI name="Stoner">
+     <hero name="Keep Stoner"/>
+     <hero name="Stoner"/>
+-  </newAI>
++  </newAI>-->
++<!--
++  <antAttackAI name="Stoner">
++    <hero name="Keep Stoner"/>
++    <hero name="Stoner"/>
++  </antAttackAI>
++-->
++  <antFuzzyAI name="Stoner">
++    <hero name="Keep Stoner"/>
++    <hero name="Stoner"/>
++  </antFuzzyAI>
++  <antFuzzyAI name="Hindar">
++    <hero name="Keep Hindar"/>
++    <hero name="Hindar"/>
++  </antFuzzyAI>
++
++
+ </antargisLevel>
+
+Modified: antargis/trunk/ext/basic/ag_config.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_config.cc	2007-11-06 19:40:22 UTC (rev 1186)
++++ antargis/trunk/ext/basic/ag_config.cc	2007-11-20 19:14:27 UTC (rev 1187)
+@@ -63,8 +63,12 @@
+ 
+ void AGConfig::set(const AGString &pName,const AGString &pValue)
+ {
+-  singleValue[pName]=pValue;
+-  writeToDisc();
++	AGString old=singleValue[pName];
++	if(old!=pValue)
++	{
++		singleValue[pName]=pValue;
++		writeToDisc();
++	}
+ }
+ 
+ void AGConfig::writeToDisc()
+
+Modified: antargis/trunk/ext/game/path.h
+===================================================================
+--- antargis/trunk/ext/game/path.h	2007-11-06 19:40:22 UTC (rev 1186)
++++ antargis/trunk/ext/game/path.h	2007-11-20 19:14:27 UTC (rev 1187)
+@@ -161,13 +161,15 @@
+   SimpleGraph(const SimpleGraph &g);
+   SimpleGraph(BinaryIn &pIn);
+ 
++
++  #ifndef SWIG
+   Node *addNode(const AGVector2 &p);
+   /**
+      @param w0 is weight of going from a to b
+      @param w1 is weight of goinf from b to a
+   */
+   Edge *addEdge(Node *a,Node *b,float w0,float w1);
+-
++#endif
+   void removeEdge(Edge *e);
+   void removeNode(Node *n);
+   void print();
+
+Added: antargis/trunk/ruby/ai/README
+===================================================================
+--- antargis/trunk/ruby/ai/README	2007-11-06 19:40:22 UTC (rev 1186)
++++ antargis/trunk/ruby/ai/README	2007-11-20 19:14:27 UTC (rev 1187)
+@@ -0,0 +1,12 @@
++== AI in BoA
++The AI consists of several bigger components:
++* world-interface
++* sensor-bank
++* action-generator
++
++Currently there are two approaches, that may be reasonable in BoA:
++* heuristic-based - using the sensor bank fuzzy-rules are defined that call the actions
++* min/max-tree - using the actions a game-tree is built. The actual game world is copied and represented in simplified state. Thus many game-world-states can be stored at once. The weighing for the min/max-computation is done using the sensor-bank and some weighted sum on its results.
++
++So... for the heuristic-based approach, we need a rules-list, too.
++On the other hand the min/max-tree needs the game-world to be copied and made modifyable (without changing the actual game-state).
+
+Added: antargis/trunk/ruby/ai/actions.rb
+===================================================================
+--- antargis/trunk/ruby/ai/actions.rb	2007-11-06 19:40:22 UTC (rev 1186)
++++ antargis/trunk/ruby/ai/actions.rb	2007-11-20 19:14:27 UTC (rev 1187)
+@@ -0,0 +1,33 @@
++module AI
++	class Action
++		
++	end
++
++	class GetFoodAction
++		def start
++			@hero.newHLTakeFoodJob(@target)
++		end
++		def estimate(time)
++			@time+=time
++			
++		end
++
++		def self.generate(player)
++			actions=player.getHeroes.map{|hero|
++				action=nil
++				target=hero.findNearResource("food") # FIXME: list of possible resources ???
++				if target
++					action=self.new(hero,target)
++				end
++				action
++			}
++			actions.flatten.uniq-[nil]
++		end
++		private
++		def initialize(hero,target)
++			@hero=hero
++			@target=target
++			@time=0
++		end
++	end
++end
+\ No newline at end of file
+
+Added: antargis/trunk/ruby/ai/dyn_map.rb
+===================================================================
+--- antargis/trunk/ruby/ai/dyn_map.rb	2007-11-06 19:40:22 UTC (rev 1186)
++++ antargis/trunk/ruby/ai/dyn_map.rb	2007-11-20 19:14:27 UTC (rev 1187)
+@@ -0,0 +1,62 @@
++module AI
++# This file contains a dynamic and simplified representation of the gaming world.
++# This is needed for computing the max/min-tree within the AI.
++#
++# The representation holds the following information (roughly spoken):
++# * players
++# * heroes incl. position/health/man-count/resource(from all men summed up)
++# * trees/resources
++# * buildings with resources/man-count
++#
++# These information must be sufficient for:
++# * estimating actions
++# * estimating value of the current situation
++#
++# Furthermore this complete representation must be copyable, so that
++# in each node of the max/min-tree, a complete world can take place.
++# Thus it must be pretty small, easy to compute and right detailed enough
++# to let the AI be a little decent
++#
++# TODO:
++# * check if trees can be combined to forests as an object ?
++#
++#
++	class DynPlayer
++		attr_accessor :player
++		attr_reader :realPlayer
++		def initialize(player)
++			@realPlayer=player
++		end
++	end
++
++	class DynHero
++		def initialize(hero)
++			@realHero=hero
++			@pos=hero.getPos2D
++			allResources=hero.getMen.map{|man|man.resource.getAll}
++
++			@resource=allResources.inject({})
++			{|a,new|
++				new.each{|k,v|
++					a[k]||=0
++					a[k]+=v
++				}
++				a
++			}
++			@health=hero.getStrength
++			@men=hero.getMen.length
++		end
++	end
++
++	class DynMap
++		def initialize(map)
++			@players=map.getPlayers.map{|p|DynPlayer.new(p)}
++			@heroes=map.getHeroes.map{|h|DynHero.new(h)}
++			@buildings=map.getBuildings.map{|b|DynBuilding(b)}
++			@myplayer=@players.select{|p|p.realPlayer==map.getPlayer}[0]
++			assert{@myplayer}
++			@sources=[AntTree,AntFir,AntStone,AntMine].map{|type|map.getByType(type)}.flatten.uniq.map{|e|DynSource.new(e)}
++		end
++	end
++end
++
+
+Modified: antargis/trunk/ruby/ai/sensors.rb
+===================================================================
+--- antargis/trunk/ruby/ai/sensors.rb	2007-11-06 19:40:22 UTC (rev 1186)
++++ antargis/trunk/ruby/ai/sensors.rb	2007-11-20 19:14:27 UTC (rev 1187)
+@@ -1,3 +1,5 @@
++require 'value_map.rb'
++
+ module AI
+ 	class Sensor
+ 		attr_reader :player
+@@ -5,10 +7,6 @@
+ 		def initialize(player)
+ 			@player=player
+ 		end
+-
+-		def logValue
+-			Math.log(value)
+-		end
+ 	end
+ 
+ 	class HeroFoodSensor<Sensor
+@@ -32,6 +30,30 @@
+ 		end
+ 	end
+ 
++	class InDangerSensor<Sensor
++	end
++
++	# the opposite of InDangerSensor
++	class GoodAttackPosSensor<Sensor
++	end
++
++	# enough resources in vicinity of buildings
++	class GoodResourceSensor<Sensor
++		RESOURCES=[:wood,:stone,:ore]
++		MAX_DIST=50
++		MIN_RESOURCE=5
++		def value
++			
++			player.getBuildings.map{|building|
++				RESOURCES.map{|resource|
++					map.getNext(building,resource,MIN_RESOURCE).map{|r|
++						mapValue01(MIN_RESOURCE,r.resource.get(resource))
++					}.min
++				}
++			}
++		end
++	end
++
+ 	class CompletenessOfProdChainSensor<Sensor
+ 		MAX_DIST=20
+ 
+@@ -44,7 +66,7 @@
+ 		end
+ 	private
+ 		def completenessOfChain(block)
+-			
++			#FIXME
+ 		end
+ 		def createBlocks(blocks)
+ 			nblocks=blocks.inject([]){|blocklist,newBuilding|
+
+Added: antargis/trunk/ruby/ai/spec/valueMapping.rb
+===================================================================
+--- antargis/trunk/ruby/ai/spec/valueMapping.rb	2007-11-06 19:40:22 UTC (rev 1186)
++++ antargis/trunk/ruby/ai/spec/valueMapping.rb	2007-11-20 19:14:27 UTC (rev 1187)
+@@ -0,0 +1,58 @@
++require 'pp'
++require 'ruby/ai/value_map.rb'
++
++describe "mapValue01 - mapping with min=5" do
++	before(:all) do
++		@min=5
++	end
++	it "should map to 0 when parameter is below min" do
++		mapValue01(0, at min).should == 0
++		mapValue01(3, at min).should == 0
++		mapValue01(4.5, at min).should == 0
++	end
++
++	it "5 in interval (0,5) should be above 0.99" do
++		mapValue01(5,0,5).should > 0.99
++	end
++
++	it "should map to a value above 0.99 when parameter is really big (1000) in standard scale" do
++		mapValue01(1000, at min).should > 0.99
++	end
++
++	it "should be ascending whatsoever" do
++		arr=[5,10,20,100,200,250,1000,20000]
++		last=0
++		arr.each{|v|
++			new=mapValue01(v, at min)
++			new.should > last
++			last=new
++		}
++	end
++
++	it "should not map above 1 - even with 1000000000000" do
++		v=mapValue01(1000000000000, at min).should <= 1
++	end
++	
++end
++
++
++describe "mapMinValues - mapping array to min" do
++	it "should map [1,4,5] to the same value regardless of the order" do
++		as=[[1,4,5],[1,5,4],[5,4,1],[5,1,4],[4,1,5],[4,5,1]]
++		a=as[0]
++		v=mapMinValues(a)
++		as.each{|ca|
++			mapMinValues(ca).should == v
++		}
++	end
++
++	it "should map [1,5,5] below [2,5,5] (ascension)" do
++		mapMinValues([1,5,5]).should < mapMinValues([2,5,5])
++	end
++	it "should map [5,5,5] same as [5,5] (regardless the count)" do
++		mapMinValues([5,5,5]).should == mapMinValues([5,5])
++	end
++	it "should map [2,3,5] below [2,4,4] (no averaging - bad min worthens the result)" do
++		mapMinValues([2,3,5]).should < mapMinValues([2,4,4])
++	end
++end
+\ No newline at end of file
+
+Added: antargis/trunk/ruby/ai/value_map.rb
+===================================================================
+--- antargis/trunk/ruby/ai/value_map.rb	2007-11-06 19:40:22 UTC (rev 1186)
++++ antargis/trunk/ruby/ai/value_map.rb	2007-11-20 19:14:27 UTC (rev 1187)
+@@ -0,0 +1,22 @@
++def mapValue01(v,min,max=1000.0)
++	factor=1000
++	n=Math.atan((v-min)/(max-min)*factor+0.0000001)/(Math::PI/2)
++	n=[0,n].max
++	#puts "#{v}:#{n}"
++	n
++end
++
++def mapValueLinear(v,min,max)
++	n=((v-min).to_f)/(max-min)
++	puts "linearmPa:#{v} #{n} (#{min} #{max}"
++	[0,n,1].sort[1]
++end
++
++
++def mapMinValues(values)
++	count=values.length
++	values2=values.map{|v|mapValue01(v,0)}
++	r=values2.map{|v|v}.inject(0){|a,b|a+b*b}
++	res=Math.sqrt(r)/Math.sqrt(count)
++	res
++end
+\ No newline at end of file
+
+Modified: antargis/trunk/ruby/ant_ai.rb
+===================================================================
+--- antargis/trunk/ruby/ant_ai.rb	2007-11-06 19:40:22 UTC (rev 1186)
++++ antargis/trunk/ruby/ant_ai.rb	2007-11-20 19:14:27 UTC (rev 1187)
+@@ -29,6 +29,8 @@
+ require 'ant_ai_rules.rb'
+ require 'ant_ai_player.rb'
+ 
++require 'ruby/ai/rules.rb'
++
+ class AntBasicAI
+ 	attr_reader :interface
+ 
+@@ -79,3 +81,34 @@
+ 	end
+ end
+ 
++class AntFuzzyAI<AntBasicAI
++	def initialize(interface)
++		super
++
++		classes=[
++			[AI::Rule::AttackHero,1.5],
++			[AI::Rule::GetFood,1],
++			[AI::Rule::Rest,1],
++			[AI::Rule::RecruitFromBuilding,1],
++			[AI::Rule::Construct,1],
++			[AI::Rule::GetWeapon,1],
++		]
++		@rules=classes.map{|pair|[pair[0].new(interface),pair[1]]}
++	end
++
++	def eventHeroWithoutJob(hero)
++		puts "eventHeroWithoutJob(hero) #{hero.getName}"
++		process(hero)
++	end
++
++	private
++	def process(hero)
++		bestRules=@rules.map{|r|[r,r[0].value(hero)*r[1]]}
++		puts "-------"
++		bestRules.each{|r|puts "RULE #{r[0]} - value:#{r[1]}"}
++		puts "-------"
++		bestRule=bestRules.max{|a,b|a[1]<=>b[1]}[0]
++		bestRule[0].start(hero)
++	end
++end
++
+
+Modified: antargis/trunk/ruby/ant_ai_interface.rb
+===================================================================
+--- antargis/trunk/ruby/ant_ai_interface.rb	2007-11-06 19:40:22 UTC (rev 1186)
++++ antargis/trunk/ruby/ant_ai_interface.rb	2007-11-20 19:14:27 UTC (rev 1187)
+@@ -57,6 +57,13 @@
+ 		@player=player
+ 	end
+ 	def myPlayer
++# 		puts "myPlayer:"
++# 		puts @player,"--"
++# 		puts @map.players
++# 		puts "_-"
++# 		puts @player.getHeroes
++# 		puts @player.getBuildings
++# 		raise 1
+ 		AIMyPlayer.new(@player)
+ 	end
+ 	def enemyPlayers
+@@ -69,11 +76,14 @@
+ 		@player=player
+ 	end
+ 	def getHeroes
+-		@player.getHeroes.select{|p|p.is_a?(AntHero)}.collect{|p|AIMyHero.new(p, at player)}
++		@player.getHeroes.map{|p|AIMyHero.new(p, at player, at player.getMap)}
+ 	end
+ 	def getBuildings
+-		@player.getHeroes.select{|p|p.is_a?(AntHouse)}.collect{|p|AIMyBuilding.new(p, at player)}
++		@player.getBuildings.map{|p|AIMyBuilding.new(p, at player, at player.getMap)}
+ 	end
++	def getBosses
++		getBuildings+getHeroes
++	end
+ 	def getName
+ 		@player.getName
+ 	end
+@@ -97,6 +107,10 @@
+ 			return {}
+ 		end
+ 	end
++	def ==(other)
++		@ent==getRef(other)
++	end
++
+ 	def uid
+ 		@ent.uid
+ 	end
+@@ -141,6 +155,13 @@
+ end
+ 
+ class AIMyBuilding<AIMyEntity
++	def menCount
++		@ent.getMen.length
++	end
++	def isBuildingType(type)
++		@ent.class.ancestors.select{|c|c.to_s==type}.length>0
++	end
++
+ end
+ 
+ class AIMyHero<AIMyEntity
+@@ -189,13 +210,27 @@
+ 	
+ 	# recruit from target
+ 	def recruit(target)
+-		return unless target.is_a?(AIMyBuilding)
++		puts "RECRUITING from #{target} #{target.class}"
++		assert{getRef(target)!=@ent}
++		return unless target.is_a?(AIMyBuilding) or target.is_a?(AIMyHero)
+ 		if valid and target.valid
+ 			r=getRef(target)
++			puts "ref:#{r}"
+ 			@ent.newHLRecruitJob(r) if r
++		else
++			raise "sth invalid"
+ 		end
+ 	end
+ 
++	def construct(target)
++		puts "construct: #{target}"
++		return unless target.is_a?(AIMyBuilding)
++		if valid and target.valid
++			r=getRef(target)
++			@ent.newHLConstructJob(r) if r
++		end
++	end
++
+ 	def takeFood(target)
+ 		puts "takeFood: #{target}"
+ 		return unless target.is_a?(AIMyBuilding)
+@@ -250,6 +285,17 @@
+ 			@ent.newHLRestJob(time)
+ 		end
+ 	end
++
++	def getMorale
++		@ent.getMorale
++	end
++
++	def getEnergy
++		@ent.getEnergy
++	end
++	def getFood
++		@ent.getFood
++	end
+ end
+ 
+ class AIEnemyPlayer
+@@ -257,10 +303,10 @@
+ 		@player=player
+ 	end
+ 	def getHeroes
+-		@player.getHeroes.select{|p|p.is_a?(AntHero)}.collect{|p|AIEnemyHero.new(p, at player)}
++		@player.getHeroes.map{|p|AIEnemyHero.new(p, at player)}
+ 	end
+ 	def getBuildings
+-		@player.getHeroes.select{|p|p.is_a?(AntHouse)}.collect{|p|AIEnemyBuilding.new(p, at player)}
++		@player.getBuildings.map{|p|AIEnemyBuilding.new(p, at player)}
+ 	end
+ 	def getName
+ 		@player.getName
+
+Modified: antargis/trunk/ruby/ant_ai_player.rb
+===================================================================
+--- antargis/trunk/ruby/ant_ai_player.rb	2007-11-06 19:40:22 UTC (rev 1186)
++++ antargis/trunk/ruby/ant_ai_player.rb	2007-11-20 19:14:27 UTC (rev 1187)
+@@ -59,15 +59,24 @@
+ 		@heroes.uniq!
+ 	end
+ 	def getHeroes
++		getBosses.select{|b|b.is_a?(AntHero)}
++	end
++	def getBuildings
++		getBosses.select{|b|b.is_a?(AntHouse)}
++	end
++
++	def getBosses
+ 		@heroes.uniq!
+ 		@heroes.clone
+ 	end
+ 
+ 
+ 	def eventJobFinished(hero,lastJob)
+-		h=AIMyHero.new(hero,self, at map)
+-		raise "Hero is not valid" unless h.valid
+-		@ai.eventHeroWithoutJob(h)
++		if hero.is_a?(AntHero)
++			h=AIMyHero.new(hero,self, at map)
++			raise "Hero is not valid" unless h.valid
++			@ai.eventHeroWithoutJob(h)
++		end
+ 	end
+ 
+ end
+\ No newline at end of file
+
+Modified: antargis/trunk/ruby/ant_level.rb
+===================================================================
+--- antargis/trunk/ruby/ant_level.rb	2007-11-06 19:40:22 UTC (rev 1186)
++++ antargis/trunk/ruby/ant_level.rb	2007-11-20 19:14:27 UTC (rev 1187)
+@@ -95,10 +95,10 @@
+ 		@player=player
+ 	end
+ 	def getHeroes
+-		@player.getHeroes.select{|p|p.is_a?(AntHero)}.collect{|p|AIMyHero.new(p, at player)}
++		@player.getHeroes.map{|p|AIMyHero.new(p, at player)}
+ 	end
+ 	def getBuildings
+-		@player.getHeroes.select{|p|p.is_a?(AntHouse)}.collect{|p|AIMyBuilding.new(p, at player)}
++		@player.getBuildings.map{|p|AIMyBuilding.new(p, at player)}
+ 	end
+ 	def getName
+ 		@player.getName
+
+Modified: antargis/trunk/ruby/ant_models.rb
+===================================================================
+--- antargis/trunk/ruby/ant_models.rb	2007-11-06 19:40:22 UTC (rev 1186)
++++ antargis/trunk/ruby/ant_models.rb	2007-11-20 19:14:27 UTC (rev 1187)
+@@ -84,6 +84,10 @@
+ 				["axe"]=>"data/models/man_axe.anim",
+ 				[:grave]=>"grave",
+ 			},
++			:grave=>{
++				[:normal]=>"grave",
++				[:hero]=>["data/models/grave.ant2",0.2,"data/textures/models/grave3.png"],
++			},
+ 			:hero=>{
+ 				[]=>"hero_lp",
+ 				[:grave_hero]=>["data/models/grave.ant2",0.2,"data/textures/models/grave3.png"],
+
+Modified: antargis/trunk/ruby/ant_player.rb
+===================================================================
+--- antargis/trunk/ruby/ant_player.rb	2007-11-06 19:40:22 UTC (rev 1186)
++++ antargis/trunk/ruby/ant_player.rb	2007-11-20 19:14:27 UTC (rev 1187)
+@@ -73,7 +73,13 @@
+ 		@heroes.push(hero)
+ 		@heroes.uniq!
+ 	end
++	def getBuildings
++		getBosses.select{|boss|boss.is_a?(AntHouse)}
++	end
+ 	def getHeroes
++		getBosses.select{|boss|boss.is_a?(AntHero)}
++	end
++	def getBosses
+ 		@heroes.uniq!
+ 		@heroes.clone
+ 	end
+
+Modified: antargis/trunk/ruby/antargis.rb
+===================================================================
+--- antargis/trunk/ruby/antargis.rb	2007-11-06 19:40:22 UTC (rev 1186)
++++ antargis/trunk/ruby/antargis.rb	2007-11-20 19:14:27 UTC (rev 1187)
+@@ -231,6 +231,8 @@
+ 	end
+ 
+ 	def eventKeyDown(e)
++
++		# hero-selection by pressing F1 to F7
+ 		hero={	SDLK_F1=>0,
+ 			SDLK_F2=>1,
+ 			SDLK_F3=>2,
+@@ -248,8 +250,10 @@
+ 				return super(e)
+ 			end
+ 		end
++
++		
+ 		case e.getKey
+-			when SDLK_F9
++			when SDLK_F9 # F9 toggles panel on the right
+ 				if not panelVisible
+ 					showPanel
+ 				else
+@@ -265,9 +269,9 @@
+ 					@hero.newHLRestJob(10)
+ 				end
+ 			when SDLK_PLUS
+-				@speed=[@speed+1,5].min
++				@speed=[@speed+1,10].min
+ 			when SDLK_MINUS
+-				@speed=[@speed-1,1].max
++				@speed=[@speed-1,0.2].max
+ 			
+ 			when SDLK_p
+ 				eventPause(nil)
+@@ -280,6 +284,15 @@
+ 		getMap.trigger(nil,Trigger.new("storyFinished"))
+ 	end
+ 
++	def moveMap(time)
++		granularity=0.2
++		while time>granularity
++			getMap().move(granularity)
++			time-=granularity
++		end
++		getMap().move(time)
++	end
++
+ 	def eventFrame(time)
+ 		super(time)
+ 
+@@ -301,8 +314,10 @@
+ 		@elapsTime+=time
+ 
+ 
+-		# move entities in game-engine
+-		getMap().move(time*@speed)
++# 		# move entities in game-engine
++		#getMap().move(time*@speed)
++		moveMap(time*@speed)
++
+ 		# advance animations
+ 		getScene.advance(time)
+ 		checkHeroEnergy
+@@ -481,7 +496,7 @@
+ 	def setupHeroDisplay(first=false)
+ 		#super
+ 		# setup Hero buttons
+-		hs=getMap.getPlayer.getHeroes.select{|h|h.class==AntHero}
++		hs=getMap.getPlayer.getHeroes
+ 		for i in 0..5
+ 			if hs.length>i
+ 				setHero(true,i)
+@@ -517,16 +532,15 @@
+ 	# updates the energy displays of the heroes (if needed)
+ 	def checkHeroEnergy
+ 		name=nil
+-		getMap.getPlayer.getHeroes.select{|h|
+-			if h.class==AntHero
+-				if h.getEnergy<0.3
+-					name=h.getName
+-				end
++		# FIXME: support more than 1 hero !
++		getMap.getPlayer.getHeroes.each{|h|
++			if h.getEnergy<0.3
++				name=h.getName
+ 			end
+ 		}
+-		if @infobox==nil and name!=nil
++		if @infobox.nil? and name
+ 			@layout.addChild(@infobox=AntInfoBox.new(@layout,_("Your hero {1} suffers.",name)))
+-		elsif @infobox!=nil and name==nil
++		elsif @infobox and name.nil?
+ 			@infobox.close
+ 			@infobox=nil
+ 		end
+
+Modified: antargis/trunk/ruby/entities/ant_fire.rb
+===================================================================
+--- antargis/trunk/ruby/entities/ant_fire.rb	2007-11-06 19:40:22 UTC (rev 1186)
++++ antargis/trunk/ruby/entities/ant_fire.rb	2007-11-20 19:14:27 UTC (rev 1187)
+@@ -36,7 +36,7 @@
+ 				getMap.removeEntity(self)
+ 			else
+ 				@dead=true
+-				newRestJob(10)
++				newRestJob(30)
+ 			end
+ 		end
+ 	end
+
+Modified: antargis/trunk/ruby/entities/ant_hero.rb
+===================================================================
+--- antargis/trunk/ruby/entities/ant_hero.rb	2007-11-06 19:40:22 UTC (rev 1186)
++++ antargis/trunk/ruby/entities/ant_hero.rb	2007-11-20 19:14:27 UTC (rev 1187)
+@@ -130,6 +130,7 @@
+ 		assignJob2All
+ 	end
+ 	def newHLRecruitJob(target)
++		assert{target!=self}
+ 		@job.stopJob if @job
+ 		@job=AntHeroRecruitJob.new(self,target)
+ 		assignJob2All
+@@ -332,6 +333,7 @@
+ 
+ 	def eventDie
+ 		super
++		setFire(false)
+ 		@job=nil
+ 		if @player
+ 			@player.remove(self)
+
+Modified: antargis/trunk/ruby/entities/ant_man.rb
+===================================================================
+--- antargis/trunk/ruby/entities/ant_man.rb	2007-11-06 19:40:22 UTC (rev 1186)
++++ antargis/trunk/ruby/entities/ant_man.rb	2007-11-20 19:14:27 UTC (rev 1187)
+@@ -142,6 +142,7 @@
+ 	end
+ 	
+ 	def setBoss(hero)
++		return if @boss==hero
+ 		if @boss
+ 			@boss.removeMan(self)
+ 			@boss=nil
+
+Modified: antargis/trunk/ruby/entities/ant_manbase.rb
+===================================================================
+--- antargis/trunk/ruby/entities/ant_manbase.rb	2007-11-06 19:40:22 UTC (rev 1186)
++++ antargis/trunk/ruby/entities/ant_manbase.rb	2007-11-20 19:14:27 UTC (rev 1187)
+@@ -117,6 +117,7 @@
+ 		if @meshState=="dead"
+ 			if @mdead
+ 				getMap.removeEntity(self)
++				return
+ 			else
+ 				newRestJob(20)
+ 				@mdead=true
+@@ -127,15 +128,30 @@
+ 	end
+ 
+ 	def eventDie
++		super
+ 		simDeath
+-		#eventDefeated
+-		newRestJob(20)
+-		setMeshState("dead")
+-		playSound("die")
++	end
+ 
++
++	# simulate death:
++	#   - transfer appearance to gravestone
++	#   - start angel
++	def simDeath
++		playSound("die")
+ 		if @boss
+ 			@boss.removeMan(self)
+ 		end
++
++		# add grave
++		grave=AntGrave.new(getMap)
++		grave.type=:hero if self.is_a?(AntHero)
++		grave.setPos(getPos2D)
++		getMap.insertEntity(grave)
++
++		# remove myself
++		getMap.removeEntity(self)
++
++		# add sack if resources not empty
+ 		if not self.resource.empty
+ 			sack=AntSack.new(getMap)
+ 			sack.setPos(getPos2D+AGVector2.new(0.3,-0.3))
+@@ -143,21 +159,7 @@
+ 			sack.resource.takeAll(self.resource)
+ 			sack.resourceChanged
+ 		end
+-	end
+ 
+-
+-	# simulate death:
+-	#   - transfer appearance to gravestone
+-	#   - start angel
+-	def simDeath
+-		if @dead
+-			return
+-		else
+-			@dead=true
+-			#setMesh(Mesh.new(getMeshData("data/models/grave.ant2",1.0),AGVector4.new(0,0,0,0),40))
+-			#updateSurface
+-			sendAngel
+-		end
+ 	end
+ 
+ 
+@@ -231,7 +233,7 @@
+ 	def animationEvent(name)
+ 		case name
+ 			when "bow"
+-				arrow=AntArrow.new
++				arrow=AntArrow.new(getMap)
+ 				arrow.setPos(getPos3D+AGVector3.new(0,0,1))
+ 				pos=@fightTarget.getPos3D+AGVector3.new(0,0,1)
+ 				arrow.newMoveJob(0,pos,0) #@target.getPos2D,0)
+@@ -261,8 +263,4 @@
+ 		getMap.insertEntity(e)
+ 		#getMap.endChange
+ 	end
+-
+-
+-	
+-
+ end
+\ No newline at end of file
+
+Modified: antargis/trunk/ruby/entities/entities.rb
+===================================================================
+--- antargis/trunk/ruby/entities/entities.rb	2007-11-06 19:40:22 UTC (rev 1186)
++++ antargis/trunk/ruby/entities/entities.rb	2007-11-20 19:14:27 UTC (rev 1187)
+@@ -49,5 +49,6 @@
+ require 'ant_wolf.rb'
+ require 'ant_buildingsite.rb'
+ require 'ant_fishing_hut.rb'
++require 'ant_grave.rb'
+ 
+ 
+
+Modified: antargis/trunk/ruby/entities/entity.rb
+===================================================================
+--- antargis/trunk/ruby/entities/entity.rb	2007-11-06 19:40:22 UTC (rev 1186)
++++ antargis/trunk/ruby/entities/entity.rb	2007-11-20 19:14:27 UTC (rev 1187)
+@@ -154,6 +154,10 @@
+ 		if (not p)
+ 			p=getPos2D
+ 		end
++		if (not p.is_a?(AGVector2))
++			p=p.getPos2D
++		end
++		assert{p.is_a?(AGVector2)}
+ 		getMap.getPos(p).z<-0.2
+ 	end
+ 	def isOnWater
+
+Modified: antargis/trunk/ruby/jobs/ant_hljob_states.rb
+===================================================================
+--- antargis/trunk/ruby/jobs/ant_hljob_states.rb	2007-11-06 19:40:22 UTC (rev 1186)
++++ antargis/trunk/ruby/jobs/ant_hljob_states.rb	2007-11-20 19:14:27 UTC (rev 1187)
+@@ -34,6 +34,9 @@
+ end
+ 
+ class HLJob_DummyState<HLJob_BaseState
++	def ready
++		true
++	end
+ end
+ 
+ class HLJob_FormatWalk<HLJob_BaseState
+@@ -170,7 +173,8 @@
+ 	edge :moveToNextPoint, :endState, :noMoreWaypoints
+ 
+ 	def enter
+-		@near=0
++		@near=machine.near
++		@near||=0
+ 		puts "#{self}:enter"
+ 		if @waypoints.nil?
+ 			initWaypoints
+@@ -237,17 +241,20 @@
+ 		@completeTargetPos=targetPos
+ 		self.targetPos=@waypoints.shift
+ 		self.targetPos=checkPosNear(self.targetPos)
++ 		#puts "--"
++ 		#pp self.targetPos,hero.getPos2D, at near,(hero.getPos2D-self.targetPos).length
++ 		#raise 1
+ 	end
+ 
+ 	def checkPosNear(to)
+ 		from=hero.getPos2D
++		return from if (from-to).length<@near
+ 		line=AGLine2.new(from,to)
+ 		circle=AGCircle2.new(@finalPos, at near)
+ 		list=circle.collide(line)
+ 		if list.length>0
+ 			to=list.min{|a,b|(a-from).length<=>(b-from).length}
+ 		end
+-
+ 		to
+ 	end
+ end
+@@ -360,7 +367,7 @@
+ 			allMen.each{|man|
+ 				resources.each{|r|
+ 					a=machine.target.resource.get(r)
+-					if a>1
++					if a>0
+ 						man.resource.add(r,1)
+ 						target.resource.sub(r,1)
+ 					end
+@@ -777,6 +784,13 @@
+ 	end
+ 
+ 	def assign(man)
++		if hero.getMen.length>0
++			if man.is_a?(AntHero)
++				man.newRestJob(10)
++				return
++			end
++		end
++
+ 		if checkRecruited(man)
+ 			returnToStart(man)
+ 			return
+@@ -823,7 +837,8 @@
+ 	end
+ 
+ 	def getAssignableTargets
+-		target.getMen-hero.getMen.map{|man|man.getTarget}		
++		# all target's men without already assigned and target(hero) itself
++		target.getMen-hero.getMen.map{|man|man.getTarget}-[target]
+ 	end
+ 
+ 	def nonToRecruitLeft
+@@ -847,8 +862,10 @@
+ 
+ 	def initRecruiting
+ 		hero.getMen.each{|man|man.hlJobMode[:recruitTarget]=nil}
+-		# hero at last
+-		hero.getMen.reverse.each{|man|
++		# exclude hero, if there are other men
++		menList=hero.getMen
++		menList=menList-[hero] if menList.length>1
++		menList.reverse.each{|man|
+ 			letRecruit(man)
+ 			break if @countRecruiting>=howManyToRecruit
+ 		}
+
+Modified: antargis/trunk/ruby/jobs/ant_new_hljobs.rb
+===================================================================
+--- antargis/trunk/ruby/jobs/ant_new_hljobs.rb	2007-11-06 19:40:22 UTC (rev 1186)
++++ antargis/trunk/ruby/jobs/ant_new_hljobs.rb	2007-11-20 19:14:27 UTC (rev 1187)
+@@ -103,9 +103,11 @@
+ 
+ 	attr_accessor :targetPos
+ 	attr_accessor :formatDir
++	attr_accessor :near
+ 
+ 	def initialize(hero,prio,pos,dist,doFormat=true)
+ 		@targetPos=pos.dim2
++		@near=0
+ 		super(hero)
+ 		if not doFormat
+ 			state.moveDirectly			
+@@ -125,9 +127,9 @@
+ 
+ 
+ class AntHeroTakeJob<AntNewHLJob
++	state :move =>HLJob_MoveComplete
+ 	state :fetchStart => HLJob_FetchStart
+ 	state :getResource => HLJob_GetResource
+-	state :move =>HLJob_MoveComplete
+ 	state :moveBack => HLJob_MoveComplete
+ 	state :endState => HLJob_DummyState
+ 
+@@ -145,6 +147,7 @@
+ 
+ 		@targetPos=target.getPos2D
+ 		@target=target
++		@near=4
+ 		super(phero)
+ 		@states[:move].near=4
+ 		@states[:getResource].resources={"food"=>["food"],"weapon"=>["sword","bow","boat","shield"]}[what]
+@@ -160,6 +163,7 @@
+ 
+ 	def fetchStart
+ 		@targetPos=hero.getPos2D
++		@near=0
+ 		true
+ 	end
+ 	def gettingResource
+@@ -206,6 +210,7 @@
+ 	def initialize(hero,target,defend=false)
+ 		@targetPos=target.getPos2D
+ 		@target=target
++		@near=10
+ 		#puts "DEFEND #{defend}"
+ 		if defend
+ 			trace
+@@ -217,7 +222,6 @@
+ 			trace
+ 		end
+ 		assert{@state==:fight || defend==false}
+-		@states[:move].near=10
+ 
+ 		#puts "STATE #{state}"
+ 	end
+@@ -252,10 +256,12 @@
+ 	attr_accessor :targetPos
+ 	attr_accessor :formatDir
+ 	attr_accessor :target
++	attr_accessor :near
+ 
+ 	def initialize(hero,target)
+ 		@targetPos=target.getPos2D
+ 		@target=target
++		@near=4
+ 		super(hero)
+ 		@states[:moveComplete].near=4
+ 		
+
+Modified: antargis/trunk/ruby/map.rb
+===================================================================
+--- antargis/trunk/ruby/map.rb	2007-11-06 19:40:22 UTC (rev 1186)
++++ antargis/trunk/ruby/map.rb	2007-11-20 19:14:27 UTC (rev 1187)
+@@ -26,6 +26,8 @@
+ require 'ant_ai.rb'
+ require 'ant_path.rb'
+ 
++require 'benchmark.rb'
++
+ # This class prodives support for defining target-positions in a level-file.
+ # These positions can be used for scripting. This way code and level-data is
+ # devided (MVC)
+@@ -85,19 +87,8 @@
+ 
+ 		@targets={}
+ 
+-		# gather all entity types and map them to their xmlNames
+-		@entTypes=getDescendantsOfClass(AntRubyEntity)
+-		@entTypeMap={}
+-		@entTypes.each{|t|
+-			xml=t.to_s
+-			xml=xml[0..0].downcase+xml[1..1000]
+-			@entTypeMap[xml]=t
+-		}
+-
+ 		@filename="dummy"  # a dummy filename - used for level scripting
+ 		@uidstart=0
+-
+-#		AntRubyEntity.setMap(self)
+ 	end
+ 
+ 	def disableScript
+@@ -187,35 +178,16 @@
+ 	def getVillages
+ 		getBuildings.collect{|e|e.village}.sort.uniq
+ 	end
+-	#def getVillages(name)
+-	#	getBuildings.collect{|e|e.village}.sort.uniq
+-	#end
+ 
+-	def getHeroes()
+-		ents=getAllEntities
+-		ret=[]
+-		ents.each{|eptr|
+-			ent=eptr
+-			#dputs ent
+-			if ent.class==AntHero
+-				ret.push(ent)
+-			end
+-		}
+-		return ret
++	def getHeroes
++		getByType(AntHero)
+ 	end
+-
+ 	def getBuildings
+-		ents=getAllEntitiesV
+-		ret=[]
+-		ents.each{|eptr|
+-			ent=eptr.get
+-			#dputs ent
+-			if ent.is_a?(AntHouse)
+-				ret.push(ent)
+-			end
+-		}
+-		return ret
++		getByType(AntHouse)
+ 	end
++	def getByType(type)
++		getAllEntities.select{|e|e.is_a?(type)}
++	end
+ 
+ 	# returns AGSurfaces of the given hero for portraits
+ 	def getPortrait(hero)
+@@ -227,25 +199,9 @@
+ 		end
+ 	end
+ 
+-	# FIXME:rewrite this!!!!
+ 	# take heroes from AntPlayer object
+ 	def getOwnHeroes()
+-		ents=getAllEntitiesV
+-		ret=[]
+-		ents.each{|eptr|
+-			ent=eptr.get
+-			#dputs ent
+-			if ent.class==AntHero
+-				p=ent.getPlayer
+-				#dputs "player:",p,p.class
+-				if p
+-					if p.class==AntHumanPlayer
+-						ret.push(ent)
+-					end
+-				end
+-			end
+-		}
+-		return ret
++		getPlayer.getHeroes if getPlayer
+ 	end
+ 
+ 	################################
+@@ -256,8 +212,11 @@
+ 		nodeName=node.getName
+ 		nodeName.gsub!("New","")  # remove New out of old antNew.. Names
+ 
+-		if @entTypeMap.keys.member?(nodeName)
+-			e=@entTypeMap[nodeName].new(self)
++		return if nodeName.length<1
++
++		entTypeMap=xmlName2ClassMap
++		if entTypeMap.keys.member?(nodeName)
++			e=entTypeMap[nodeName].new(self)
+ 			@loadedEntsNum+=1
+ 			if e.is_a?(AntHero)
+ 				@heroes.push(e)
+@@ -286,7 +245,11 @@
+ 			@targets[t.name]=t
+ 		end
+ 		
++		# FIXME: deprecated - remove this list!
+ 		playerTypes={"computerPlayer"=>AntComputerPlayer, "lazyPlayer"=>AntLazyPlayer, "conqueringPlayer"=>AntConqueringPlayer,"newAI"=>AntAttackAI}
++
++		playerTypes.update(getPlayerTypeMap)
++
+ 		if playerTypes.keys.member?(node.getName) then
+ 			type=playerTypes[node.getName]
+ 			if type.ancestors.member?(AntPlayer)
+@@ -308,9 +271,11 @@
+ 	end
+ 	
+ 	def loadXML(n)
++		puts "loadXML(n)"
+ 		@loadedEntsNum=1
+ 		@loadedEntities=[]
+ 		super(n)
++		puts "loadXML(n) -1 "
+ 		@loadedEntities.each{|pair|
+ 			node,entity=pair
+ 			insertEntity(entity)
+@@ -322,10 +287,8 @@
+ 			entity.eventMapChanged
+ 		}
+ 		
+-
+ 		createPathfinder
+ 
+-
+ 		@players.each{|p|p.move(0)}
+ 		
+ 		if n.get("scriptfile").length>0 and n.get("scriptclass").length>0
+@@ -496,62 +459,42 @@
+ 
+ 
+ 	def createPathfinder
++		puts "createPathfinder"
+ 		@path=CombinedPathFinder.new(self)
+ 		@path.scene=getScene
+ 		@path.displayPathfindingGraph(self,getScene)
++		puts "createPathfinder ready"
+ 	end
+ 
+-	def createPathfinderOLD
++	# returns a map of possible xmlNames to their classes like {"antMan"=>AntMan}
++	def xmlName2ClassMap
++		return @classMapCache if @classMapCache
+ 
+-		levelHash=self.hash # build a hash out of the height-map
+-		cacheFilename=levelHash+".cache"
++		# gather all entity types and map them to their xmlNames
++		entTypes=getDescendantsOfClass(AntRubyEntity)
++		entTypeMap={}
++		entTypes.each{|t|
++			entTypeMap[makeXmlName(t.to_s)]=t
++		}
++		@classMapCache=entTypeMap
++	end
+ 
+-		# cache the whole path-finding graph and heuristic computations
+-		if fileExists(findFile(cacheFilename))
+-			puts "LOAD PATHFINDING FROM CACHE....."
+-			content=loadFile(cacheFilename)
+-			stream=BinaryStringIn.new(content)
+-			@dgraph=SimpleGraph.new(stream)
+-			@heuristic=StoredHeuristicFunction.new(stream)
+-			puts "LOAD PATHFINDING FROM CACHE-READY."
+-		else
+-			# build a map-height/distance weighter
+-			@mweighter=MapPathWeighter.new(self)
++	def getPlayerTypeMap
++		return @playerTypeMap if @playerTypeMap
+ 
+-			# set initial distance of waypoints	
+-			minDist=2
+-			if getW*getH>128*128
+-				minDist=4
+-			end
+-	
+-			# make a path-finding graph
+-			@sgraph=makeGraph(self, at mweighter,minDist)
+-			# copy to a decimating graph
+-			@dgraph=DecimatedGraph.new(@sgraph)
+-	
+-			# compute a decimation-factor
+-			factor=1.0-800.0/@dgraph.size
+-	
+-			# debugging settings
+-			#factor=0.4
+-			#factor=1.0-220.0/@dgraph.size
+-	
+-			@dgraph.decimate(factor, at mweighter)
+-	
+-			# compute a distance-field and use this as a pre-computed heuristic
+-			@heuristic=computeHeuristic(@dgraph)
+-	
+-			# save everything to the cachefile
+-			stream=BinaryStringOut.new
+-			@dgraph.printTo(stream)
+-			@heuristic.printTo(stream)
+-		
+-			saveFile(cacheFilename,stream.getString)
+-		end	
+-		@path=Pathfinder.new(@dgraph, at heuristic)
+-		
+-		#displayPathfindingGraph
++
++		types=getDescendantsOfClass(AntBasicAI)
++		typeMap={}
++		types.each{|t|
++			typeMap[makeXmlName(t.to_s)]=t
++		}
++		@playerTypeMap = typeMap
+ 	end
++	def makeXmlName(str)
++		xml=str.to_s
++		xml[0..0].downcase+xml[1..-1]
++	end
++
+ end
+ 
+ 
+
+
+
+From davidkamphausen at mail.berlios.de  Tue Nov 20 20:15:12 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Tue, 20 Nov 2007 20:15:12 +0100
+Subject: [Antargis-svn] r1188 - in antargis/trunk/ruby: ai entities
+Message-ID: <200711201915.lAKJFCHb010569@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-11-20 20:15:12 +0100 (Tue, 20 Nov 2007)
+New Revision: 1188
+
+Added:
+   antargis/trunk/ruby/ai/approach.txt
+   antargis/trunk/ruby/ai/hero_actions.rb
+   antargis/trunk/ruby/ai/hero_sensors.rb
+   antargis/trunk/ruby/ai/heuristic.rb
+   antargis/trunk/ruby/ai/rules.rb
+   antargis/trunk/ruby/entities/ant_grave.rb
+Log:
+* missing files...
+
+
+Added: antargis/trunk/ruby/ai/approach.txt
+===================================================================
+--- antargis/trunk/ruby/ai/approach.txt	2007-11-20 19:14:27 UTC (rev 1187)
++++ antargis/trunk/ruby/ai/approach.txt	2007-11-20 19:15:12 UTC (rev 1188)
+@@ -0,0 +1,10 @@
++Approaches:
++* Script-based
++* heuristic-based (without prediction)
++* min-max-tree (with prediction)
++** needs estimation of current state
++** current state must be editable/saveable
++** copy real-world to est-world
++*** heroes incl. position/health/man-count/resource
++*** trees/resources
++*** buildings with resources/man-count
+\ No newline at end of file
+
+Added: antargis/trunk/ruby/ai/hero_actions.rb
+===================================================================
+--- antargis/trunk/ruby/ai/hero_actions.rb	2007-11-20 19:14:27 UTC (rev 1187)
++++ antargis/trunk/ruby/ai/hero_actions.rb	2007-11-20 19:15:12 UTC (rev 1188)
+@@ -0,0 +1,53 @@
++module AI
++	module HeroAction
++		class Base
++			attr_reader :interface
++			def initialize(interface)
++				@interface=interface
++			end
++		end
++
++		class GetFood<Base
++			def start(hero,target)
++				puts target,target.class
++				#raise 1
++				hero.takeFood(target)
++			end
++		end
++
++		class AttackHero<Base
++			def start(hero,target)
++				assert{hero!=target}
++				hero.attack(target)
++			end
++		end
++
++		class Rest<Base
++			def start(hero)
++				hero.rest(20)
++			end
++		end
++
++		class Recruit<Base
++			def start(hero,target)
++				assert{hero!=target}
++				hero.recruit(target)
++			end
++		end
++
++		class ConstructEquipment<Base
++			def start(hero,target)
++				assert{hero!=target}
++				hero.recruit(target)
++			end
++		end
++
++		class GetEquipment<Base	
++			def start(hero,target)
++				assert{hero!=target}
++				hero.takeWeapon(target)
++			end
++		end
++
++	end
++end
+\ No newline at end of file
+
+Added: antargis/trunk/ruby/ai/hero_sensors.rb
+===================================================================
+--- antargis/trunk/ruby/ai/hero_sensors.rb	2007-11-20 19:14:27 UTC (rev 1187)
++++ antargis/trunk/ruby/ai/hero_sensors.rb	2007-11-20 19:15:12 UTC (rev 1188)
+@@ -0,0 +1,159 @@
++require 'ruby/ai/value_map.rb'
++
++module AI
++	module HeroSensor
++		NEEDED_EQUIPMENT={"sword"=>2,
++			"shield"=>2,
++			"bow"=>1,
++			"boat"=>1
++		}
++
++		class Base
++			attr_reader :interface
++			def initialize(interface)
++				@interface=interface
++			end
++
++			def value(hero)
++				0
++			end
++		end
++
++		class FoodOk<Base
++			def value(hero)
++				puts "FOODLOW:#{hero.resources["food"]}"
++				mapValue01(hero.resources["food"]||0,1,5)
++			end
++		end
++
++		class FoodLow<Base
++			def value(hero)
++				puts "FOODLOW:#{hero.resources["food"]}"
++				1-mapValue01(hero.resources["food"]||0,1,5)
++			end
++		end
++
++		class FoodNear<Base
++			# BEWARE: Do not use this variable after several calls of value!
++			attr_reader :target
++			def value(hero)
++				@target=hero.findNearResource("food")
++				return 0 unless @target
++				distance=(@target.getPos-hero.getPos).length
++				puts "FOODNEAR: dist:#{distance}"
++				mapValue01(40-distance,0,40)
++			end
++		end
++
++		# FIXME: is building reachable ??
++		class EquipmentNear<Base
++			attr_reader :target
++			def value(hero)
++				assert{hero.menCount>0}
++				puts "--EquipmentNear--"
++				needed=NEEDED_EQUIPMENT.map{|res|[res[0],[0,hero.menCount-(hero.resources[res[0]]||0)].max]}
++				howMuchIsMissing=needed.inject(0){|result,nextPair|result+nextPair[1]}
++
++				houses=interface.myPlayer.getBuildings
++				return if houses.length==0
++				houseValues=houses.map{|house|[house,getResourceValue(needed,house)]}
++				selHouse=houseValues.min{|a,b|a[1]<=>b[1]}
++
++				puts selHouse,howMuchIsMissing
++				puts "--"
++				return 0 if selHouse[1]>=howMuchIsMissing
++
++				@target=selHouse[0]
++				
++
++				puts needed
++				puts howMuchIsMissing
++				puts hero.menCount
++				value=howMuchIsMissing.to_f / (hero.menCount*NEEDED_EQUIPMENT.length)
++				puts value
++				puts "--EquipmentNear--"
++				value
++			end
++
++			# return what's missing from that house
++			def getResourceValue(needed,house)
++				puts "HOUSE:#{house.getName} #{house}"
++				result=needed.inject(0){|result,nextPair|
++					res,value=nextPair
++					found=house.resources[res]||0
++					puts "#{res} #{res.class} #{value} #{found}"
++					result+=[value-found,0].max
++				}
++					#raise 1
++				result
++			end
++		end
++
++
++		class Strength<Base
++			def value(hero)
++				strength=hero.menCount
++				puts "STRENGTH #{strength}"
++				val=mapValueLinear(strength,0,40) # not 0, so value is never 0
++				puts "val #{val}"
++				val
++			end
++		end
++
++		class WeakEnemy<Strength # !!
++			attr_reader :enemy
++			def value(hero)
++				# search weakest enemy - FIXME: ensure that it's reachable
++				@enemy=interface.enemyPlayers.map{|p|p.getHeroes+p.getBuildings}.flatten.min{|a,b|a.menCount<=>b.menCount}
++	
++				return 0 if @enemy.nil?
++				quot=super(hero) / (super(@enemy)*1.2) # expect enemy to be stronger by 20%
++				log=Math.log(quot)
++				val=mapValue01(log,-1,2)
++				puts "weak: quot:#{quot} log:#{log} val:#{val}"
++				val
++			end
++		end
++
++		class StrongBuilding<Strength
++			attr_reader :target
++			def value(hero)
++				# search strongest building - FIXME: ensure that it's reachable
++				targetArray=[interface.myPlayer].map{|p|p.getHeroes+p.getBuildings}.flatten.select{|h|h!=hero}
++				@target=targetArray.max{|a,b|a.menCount<=>b.menCount}
++				return 0 if @target.nil?
++				strength=@target.menCount/(hero.menCount+0.001)
++				return mapValueLinear(strength,0,3)
++			end
++		end
++
++		class Tired<Base
++			def value(hero)
++				1-[hero.getMorale,hero.getEnergy**2].min
++			end
++		end
++		class Hungry<Base
++			def value(hero)
++				1-[hero.getFood**2].min
++			end
++		end
++
++		class BadEquipment<Base
++			SCALE=NEEDED_EQUIPMENT.values.inject(0){|a,b|a+b}.to_f
++			def value(hero)
++				hero.resources.map{|r,v|(NEEDED_EQUIPMENT[r]||0)*(v>0?1:0)}.inject(0){|a,b|a+b}/SCALE
++			end
++		end
++
++		class WorkshopNear<Base
++			attr_reader :target
++			def value(hero)
++				targetArray=interface.myPlayer.getBuildings.select{|b|b.isBuildingType("AntWorkshop")}
++				@target=targetArray.max{|a,b|(a.getPos2D-hero.getPos2D).length<=>(b.getPos2D-hero.getPos2D).length}
++				return 0 unless @target
++				1-mapValueLinear((@target.getPos2D-hero.getPos2D).length,0,30)
++			end
++		end
++
++	end
++end
+\ No newline at end of file
+
+Added: antargis/trunk/ruby/ai/heuristic.rb
+===================================================================
+--- antargis/trunk/ruby/ai/heuristic.rb	2007-11-20 19:14:27 UTC (rev 1187)
++++ antargis/trunk/ruby/ai/heuristic.rb	2007-11-20 19:15:12 UTC (rev 1188)
+@@ -0,0 +1,24 @@
++
++# DELETE THIS ONE!
++
++
++module AI
++	class Heuristic
++		def initialize
++			classes=[
++				[AI::Rule::AttackHero,1],
++				[AI::Rule::GetFood,1]
++			]
++			@rules=classes.map{|pair|[pair[0].new,scale]}
++		end
++
++
++		def process(hero)
++			bestRule=@rules.max{|pair|
++				rule,scale=pair
++				rule.value(hero)*scale
++			}
++			bestRule.start(hero)
++		end
++	end
++end
+\ No newline at end of file
+
+Added: antargis/trunk/ruby/ai/rules.rb
+===================================================================
+--- antargis/trunk/ruby/ai/rules.rb	2007-11-20 19:14:27 UTC (rev 1187)
++++ antargis/trunk/ruby/ai/rules.rb	2007-11-20 19:15:12 UTC (rev 1188)
+@@ -0,0 +1,121 @@
++require 'ruby/ai/hero_sensors.rb'
++require 'ruby/ai/hero_actions.rb'
++
++module AI
++	module Rule
++		class Base
++			attr_reader :interface
++			def initialize(interface)
++				@interface=interface
++			end
++			def start(hero)
++			end
++			def value(hero)
++			end
++		end
++
++		class GetWeapon<Base
++			def initialize(interface)
++				super
++				@eqNear=HeroSensor::EquipmentNear.new(interface)
++				@getEq=HeroAction::GetEquipment.new(interface)
++			end
++			def value(hero)
++				eqNear=@eqNear.value(hero)
++			end
++			def start(hero)
++				puts "START WEAPONS"
++				@getEq.start(hero, at eqNear.target)
++			end
++		end
++
++	
++		class GetFood<Base
++			def initialize(interface)
++				super
++				@foodLow=HeroSensor::FoodLow.new(interface)
++				@foodNear=HeroSensor::FoodNear.new(interface)
++				@getFood=HeroAction::GetFood.new(interface)
++			end
++			def value(hero)
++				foodLow=@foodLow.value(hero)
++				foodNear=@foodNear.value(hero)
++				puts "FOODLOW:#{foodLow} FOODNEAR:#{foodNear}"
++				foodLow*foodNear
++			end
++			def start(hero)
++				puts "START GETFOOD"
++				@getFood.start(hero, at foodNear.target) #.getSource(hero))
++			end
++		end
++	
++		class AttackHero<Base
++			def initialize(interface)
++				super
++				@strength=HeroSensor::Strength.new(interface)
++				@weakEnemy=HeroSensor::WeakEnemy.new(interface)
++				@attackHero=HeroAction::AttackHero.new(interface)
++			end
++			def value(hero)
++				# FIXME: include sensor for multiple heroes at same place
++				@weakEnemy.value(hero)*@strength.value(hero)
++			end
++			def start(hero)
++				puts "START ATTACK"
++				@attackHero.start(hero, at weakEnemy.enemy)
++			end
++		end
++
++		class RecruitFromBuilding<Base
++			def initialize(interface)
++				@weakEnemy=HeroSensor::WeakEnemy.new(interface)
++				@strongBuilding=HeroSensor::StrongBuilding.new(interface)
++				@recruit=HeroAction::Recruit.new(interface)
++			end
++			def value(hero)
++				# FIXME: include sensor for multiple heroes at same place
++				# FIXME: switch to strong_building AND not_insecure (attackable)
++				#Math.sqrt((1- at weakEnemy.value(hero))*@strongBuilding.value(hero))
++				@strongBuilding.value(hero)
++			end
++			def start(hero)
++				puts "TRY RECRUIT"
++				@recruit.start(hero, at strongBuilding.target)
++			end
++		end
++
++		class Rest<Base
++			def initialize(interface)
++				super
++				@foodok=HeroSensor::FoodOk.new(interface)
++				@tired=HeroSensor::Tired.new(interface)
++				@hungry=HeroSensor::Hungry.new(interface)
++				@rest=HeroAction::Rest.new(interface)
++			end
++			def value(hero)
++				[@hungry.value(hero), at tired.value(hero),0.2].max
++				#0.2
++				#@foodok.value(hero)
++			end
++			def start(hero)
++				@rest.start(hero)
++			end
++		end
++
++		class Construct<Base
++			def initialize(interface)
++				super
++				@badEquipment=HeroSensor::BadEquipment.new(interface)
++				@workshopNear=HeroSensor::WorkshopNear.new(interface)
++				@construct=HeroAction::ConstructEquipment.new(interface)
++			end
++			def value(hero)
++				Math.sqrt(@badEquipment.value(hero)*@workshopNear.value(hero))
++			end
++			def start(hero)
++				@construct.start(hero, at workshopNear.target)
++			end
++		end
++
++	end
++end
+\ No newline at end of file
+
+Added: antargis/trunk/ruby/entities/ant_grave.rb
+===================================================================
+--- antargis/trunk/ruby/entities/ant_grave.rb	2007-11-20 19:14:27 UTC (rev 1187)
++++ antargis/trunk/ruby/entities/ant_grave.rb	2007-11-20 19:15:12 UTC (rev 1188)
+@@ -0,0 +1,25 @@
++class AntGrave<AntRubyEntity
++	TYPES=[:normal,:hero]
++
++	def initialize(map)
++		super
++		@type=:normal
++		setMesh(@type)
++		@waited=false
++	end
++	def type=(type)
++		if TYPES.member?(type)
++			@type=type
++			setMesh(@type)
++		end
++	end
++	def eventNoJob
++		if @waited
++			getMap.removeEntity(self)
++			return
++		else
++			newRestJob(40)
++			@waited=true
++		end
++	end
++end
+\ No newline at end of file
+
+
+

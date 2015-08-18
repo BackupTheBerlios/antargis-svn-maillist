@@ -1,0 +1,5878 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1285 - in antargis/trunk/rookey: . configs cpp lib	lib/rookey lib/rookey/configs lib/rookey/cpp lib/rookey/swig	maintainenance nbproject nbproject/private swig
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2009-February/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1285%20-%20in%20antargis/trunk/rookey%3A%20.%20configs%20cpp%20lib%0A%09lib/rookey%20lib/rookey/configs%20lib/rookey/cpp%20lib/rookey/swig%0A%09maintainenance%20nbproject%20nbproject/private%20swig&In-Reply-To=%3C200902162013.n1GKD1r1006853%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000240.html">
+   <LINK REL="Next"  HREF="000242.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1285 - in antargis/trunk/rookey: . configs cpp lib	lib/rookey lib/rookey/configs lib/rookey/cpp lib/rookey/swig	maintainenance nbproject nbproject/private swig</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1285%20-%20in%20antargis/trunk/rookey%3A%20.%20configs%20cpp%20lib%0A%09lib/rookey%20lib/rookey/configs%20lib/rookey/cpp%20lib/rookey/swig%0A%09maintainenance%20nbproject%20nbproject/private%20swig&In-Reply-To=%3C200902162013.n1GKD1r1006853%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1285 - in antargis/trunk/rookey: . configs cpp lib	lib/rookey lib/rookey/configs lib/rookey/cpp lib/rookey/swig	maintainenance nbproject nbproject/private swig">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Mon Feb 16 21:13:01 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000240.html">[Antargis-svn] r1284 - in antargis/trunk/rookey: . examples	examples/noruby examples/noruby/.deps examples/simplistic	examples/templates examples/virtual
+</A></li>
+        <LI>Next message: <A HREF="000242.html">[Antargis-svn] r1286 - in antargis/trunk: . ext/3dengine ext/basic	ext/external ext/game ext/gui ext/math ext/sound ext/test	ext/video main ruby ruby/editor/campaign ruby/entities
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#241">[ date ]</a>
+              <a href="thread.html#241">[ thread ]</a>
+              <a href="subject.html#241">[ subject ]</a>
+              <a href="author.html#241">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2009-02-16 21:12:59 +0100 (Mon, 16 Feb 2009)
+New Revision: 1285
+
+Added:
+   antargis/trunk/rookey/TODO
+   antargis/trunk/rookey/lib/
+   antargis/trunk/rookey/lib/rookey.rb
+   antargis/trunk/rookey/lib/rookey/
+   antargis/trunk/rookey/lib/rookey/compile.rb
+   antargis/trunk/rookey/lib/rookey/config_class.rb
+   antargis/trunk/rookey/lib/rookey/config_generator.rb
+   antargis/trunk/rookey/lib/rookey/configs/
+   antargis/trunk/rookey/lib/rookey/configs/ccache.rb
+   antargis/trunk/rookey/lib/rookey/configs/compiler.rb
+   antargis/trunk/rookey/lib/rookey/configs/debug.rb
+   antargis/trunk/rookey/lib/rookey/configs/gl.rb
+   antargis/trunk/rookey/lib/rookey/configs/mingw.rb
+   antargis/trunk/rookey/lib/rookey/configs/png.rb
+   antargis/trunk/rookey/lib/rookey/configs/ruby.rb
+   antargis/trunk/rookey/lib/rookey/configs/sdl.rb
+   antargis/trunk/rookey/lib/rookey/configs/swig.rb
+   antargis/trunk/rookey/lib/rookey/configs/z.rb
+   antargis/trunk/rookey/lib/rookey/cpp/
+   antargis/trunk/rookey/lib/rookey/cpp/rk_base.h
+   antargis/trunk/rookey/lib/rookey/cpp/rk_debug.cc
+   antargis/trunk/rookey/lib/rookey/cpp/rk_debug.h
+   antargis/trunk/rookey/lib/rookey/cpp/rk_exception.h
+   antargis/trunk/rookey/lib/rookey/cpp/rk_rtools.cc
+   antargis/trunk/rookey/lib/rookey/cpp/rk_rtools.h
+   antargis/trunk/rookey/lib/rookey/cpp/rk_rubyobj.cc
+   antargis/trunk/rookey/lib/rookey/cpp/rk_rubyobj.h
+   antargis/trunk/rookey/lib/rookey/cpp/rk_string.cc
+   antargis/trunk/rookey/lib/rookey/cpp/rk_string.h
+   antargis/trunk/rookey/lib/rookey/cpp/rk_tools.cc
+   antargis/trunk/rookey/lib/rookey/cpp/rk_tools.h
+   antargis/trunk/rookey/lib/rookey/cpp/rk_utf8.cc
+   antargis/trunk/rookey/lib/rookey/cpp/rk_utf8.h
+   antargis/trunk/rookey/lib/rookey/cpp/swig_dummy.cc
+   antargis/trunk/rookey/lib/rookey/cpp_hierarchy_parser.rb
+   antargis/trunk/rookey/lib/rookey/rookey_config.rb
+   antargis/trunk/rookey/lib/rookey/rookey_rspec.rb
+   antargis/trunk/rookey/lib/rookey/swig.rb
+   antargis/trunk/rookey/lib/rookey/swig/
+   antargis/trunk/rookey/lib/rookey/swig/swig_dyn_cast_containers.i
+   antargis/trunk/rookey/lib/rookey/swig_ext.rb
+   antargis/trunk/rookey/lib/rookey/swig_interface_builder.rb
+   antargis/trunk/rookey/lib/rookey/tasks.rb
+   antargis/trunk/rookey/lib/rookey/tools.rb
+   antargis/trunk/rookey/maintainenance/antargis.iss
+   antargis/trunk/rookey/maintainenance/tmp.iss
+   antargis/trunk/rookey/nbproject/
+   antargis/trunk/rookey/nbproject/private/
+   antargis/trunk/rookey/nbproject/private/config.properties
+   antargis/trunk/rookey/nbproject/private/private.properties
+   antargis/trunk/rookey/nbproject/private/rake-d.txt
+   antargis/trunk/rookey/nbproject/project.properties
+   antargis/trunk/rookey/nbproject/project.xml
+Removed:
+   antargis/trunk/rookey/compile.rb
+   antargis/trunk/rookey/config_class.rb
+   antargis/trunk/rookey/config_generator.rb
+   antargis/trunk/rookey/configs/ccache.rb
+   antargis/trunk/rookey/configs/compiler.rb
+   antargis/trunk/rookey/configs/debug.rb
+   antargis/trunk/rookey/configs/gl.rb
+   antargis/trunk/rookey/configs/mingw.rb
+   antargis/trunk/rookey/configs/png.rb
+   antargis/trunk/rookey/configs/ruby.rb
+   antargis/trunk/rookey/configs/sdl.rb
+   antargis/trunk/rookey/configs/swig.rb
+   antargis/trunk/rookey/configs/z.rb
+   antargis/trunk/rookey/cpp/ag_base.h
+   antargis/trunk/rookey/cpp/ag_rubyobj.cc
+   antargis/trunk/rookey/cpp/ag_rubyobj.h
+   antargis/trunk/rookey/cpp/swig_dummy.cc
+   antargis/trunk/rookey/cpp_hierarchy_parser.rb
+   antargis/trunk/rookey/rookey.rb
+   antargis/trunk/rookey/rookey_config.rb
+   antargis/trunk/rookey/rookey_rspec.rb
+   antargis/trunk/rookey/swig.rb
+   antargis/trunk/rookey/swig/swig_dyn_cast_containers.i
+   antargis/trunk/rookey/swig_ext.rb
+   antargis/trunk/rookey/swig_interface_builder.rb
+   antargis/trunk/rookey/tasks.rb
+   antargis/trunk/rookey/tools.rb
+Modified:
+   antargis/trunk/rookey/README
+   antargis/trunk/rookey/Rakefile
+   antargis/trunk/rookey/maintainenance/Rakefile
+Log:
+rookey update
+
+Modified: antargis/trunk/rookey/README
+===================================================================
+--- antargis/trunk/rookey/README	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/README	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -1,6 +1,7 @@
+ == Overview
+ Rookey is a simplified build-system in the manner of the autotools based on rake.
+-It should make things much easier for c++-developers wanting to create ruby-extensions.
++It should make things much easier for c/++-developers wanting to create ruby-extensions.
++But it can build your plain-C/C++ projects, too.
+ 
+ It uses swig for creation of the wrapping-code, but tries to handle the complicated
+ configuration itself, so you shouldn't have to care about it too much.
+@@ -14,5 +15,10 @@
+ * directors and dynamic_casts are created automatically for children of AGRubyObject
+ * marking is simplified, so that you only have to override the &quot;mark()&quot;-method and call markObject(.) for each object that you want to mark (for all AGRubyObject-derived classes)
+ * Rookey takes care of the class-hierarchy and includes header-files in the correct order
++* cross-platform compilation
++* bundling packages/installers for different platforms
++* (in future cross-compiler configuration)
+ 
+-Rookey is handled by a rake-alike syntax. Module Rookey describes how to use it.
+\ No newline at end of file
++Rookey is handled by a rake-alike syntax. Module Rookey describes how to use it.
++
++link:files/examples/README.html contains several examples on how to use rookey. Apart from that have a look at the Antargis sources to get an impression of Rookey At Work.
+\ No newline at end of file
+
+Modified: antargis/trunk/rookey/Rakefile
+===================================================================
+--- antargis/trunk/rookey/Rakefile	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/Rakefile	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -1,18 +1,101 @@
+ require 'rake/rdoctask.rb'
+ require 'spec/rake/spectask'
+-require 'rake/cleantask.rb'
++require 'rake/clean.rb'
++require 'rake/gempackagetask.rb'
++require 'pp'
+ 
++class MDir
++  def initialize(path)
++    @path=path
++    @files=[]
++    @dirs=[]
++  end
++  def file(f)
++    @files &lt;&lt; f
++  end
++  def files(*f)
++    @files += f
++  end
++  def dir(name,&amp;p)
++    dir = MDir.new(name)
++    dir.instance_eval(&amp;p)
++    @dirs &lt;&lt; dir
++  end
++  def dirs(*names,&amp;p)
++    names.each{|name|
++      dir=MDir.new(name)
++      dir.instance_eval(&amp;p)
++      @dirs &lt;&lt; dir
++    }
++  end
++  def gather(base=&quot;&quot;)
++    a=[]
++    @files.each{|f|
++      a+=Dir[File.join(@path,f)]
++    }
++    @dirs.each{|dir|
++      a+=dir.gather(@path)
++    }
++    a
++  end
++end
++
++def dir(path,&amp;p)
++  d=MDir.new(path)
++  d.instance_eval(&amp;p)
++  d.gather
++end
++
++PKG_VERSION=&quot;0.1&quot;
++PKG_FILES=dir(&quot;.&quot;) do
++  files &quot;README&quot;,&quot;Rakefile&quot;
++  dirs(&quot;spec&quot;,&quot;lib&quot;,&quot;maintenance&quot;,&quot;examples&quot;) do
++    files(&quot;**/*&quot;)
+  end 
++  dir(&quot;externals&quot;) do
++    files(&quot;ext_config.rb&quot;,&quot;tools.rb&quot;)
+  end
+end
++
+ Rake::RDocTask.new do |rd|
+ 	 rd.main = &quot;README&quot;
+ 	 rd.title=&quot;Rookey (Part of Battles of Antargis)&quot;
+ 	 #rd.options &lt;&lt; &quot;--diagram&quot;
+ 	 rd.rdoc_dir=&quot;docs/ruby&quot;
+ 	 a=Dir[&quot;**/README&quot;]+Dir[&quot;**/*.rb&quot;]
+-	 a=a.select{|f|not (f=~/_test/ or f=~/spec/)}
++	 a=a.select{|f|not (f=~/_test/ or f=~/spec/ or f=~/externals/ or f=~/maintainenance/)}
+ 	 rd.rdoc_files.include(a)
++	 
++	 # TODO: run examples
+ end
+- 
+ 
++# TODO: create gem
++spec = Gem::Specification.new do |s|
++    s.platform = Gem::Platform::RUBY
++    s.summary = &quot;Ruby based make-like utility.&quot;
++    s.name = 'rookey'
++    s.author='David Kamphausen'
++    s.email='<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">david.kamphausen at web.de</A>'
++    s.homepage='<A HREF="http://antargis.berlios.de">http://antargis.berlios.de</A>'
++    s.version = PKG_VERSION
++    s.requirements &lt;&lt; 'rake'
++    s.require_path = 'lib'
++    #s.autorequire = 'rake'
++    s.files = PKG_FILES
++    s.has_rdoc=true
++    s.description = &lt;&lt;EOF
++  Rookey is an autotools-like tool to help you build c/c++ programs and extensions for ruby.
++  It contains some extra features for dependencies and packaging.
++EOF
++end
++
++Rake::GemPackageTask.new(spec) do |pkg|
++  pkg.need_zip = true
++  pkg.need_tar = true
++end
++
++
++
++# TODO: upload gem
++
++
+ # rspec
+ Spec::Rake::SpecTask.new(:spec) do |t|
+ 	t.spec_files = FileList['**/spec_*.rb']
+@@ -23,5 +106,6 @@
+ 
+ CLEAN &lt;&lt; &quot;spec_output.html&quot;
+ CLEAN &lt;&lt; Dir[&quot;docs/ruby&quot;]
++CLEAN &lt;&lt; Dir[&quot;pkg&quot;]
+ 
+ task :default=&gt;:spec
+\ No newline at end of file
+
+Added: antargis/trunk/rookey/TODO
+===================================================================
+--- antargis/trunk/rookey/TODO	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/TODO	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,9 @@
++TODOs
++* document public methods
++* improve interface so that it's more like rake's
++* complete examples
++* create gem
++* publish
++* run configures only when needed
++* make output more readable, store debug-info in file
++* store configuration in .dotfiles
+\ No newline at end of file
+
+Deleted: antargis/trunk/rookey/compile.rb
+===================================================================
+--- antargis/trunk/rookey/compile.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/compile.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -1,174 +0,0 @@
+-module Rookey
+-  class Compiler
+-    def initialize(config)
+-      @config=config
+-    end
+-  
+-	  def Compiler.getDeps(t)
+-	    # FIXME
+-	    
+-	    parseDepsFiles
+-      
+-      return t unless @@deps
+-      p=File.join(Compiler.getDepsDir,t)
+-	    return @@deps[p] if @@deps[p]
+-      t
+-	  end
+-  
+-	  def compile(target,sources)
+-	    source=makeSource(target)
+-	    
+-      # FIXME check for c/c++
+-      
+-	    program=getCompiler(:cpp)
+-
+-	    
+-	    options=[]
+-	
+-      pp @config
+-      
+-	    options &lt;&lt; @config[&quot;CFLAGS&quot;]
+-	    
+-	    includeDirs = @config[&quot;INCLUDEDIRS&quot;].split(&quot; &quot;)
+-	    includes=includeDirs.map{|d|&quot;-I&quot;+d}
+-	    options+=includes
+-	    
+-      expanded_path=File.expand_path(source)
+-      sourcepath=source
+-      sourcepath=expanded_path if File.exists?(expanded_path) and not File.exists?(source)
+-      sourcepath=&quot;/&quot;+sourcepath if File.exists?(&quot;/&quot;+sourcepath) and not File.exists?(sourcepath)
+-      #pp sourcepath,source
+-      #exit
+-	    options &lt;&lt; &quot;-c &quot;+sourcepath
+-	    options &lt;&lt; &quot;-o &quot;+target
+-      
+-      
+-      depfile=File.join(Compiler.getDepsDir,source)
+-      depdir=File.split(depfile)[0]
+-      Rookey.mkdir(depdir)
+-      
+-      outdir=File.split(target)[0]      
+-      Rookey.mkdir(outdir)
+-
+-      options &lt;&lt; &quot;-Wp,-MD,#{depfile}&quot;
+-	            
+-	    call=program+&quot; &quot;+options.join(&quot; &quot;)
+-	    sh call
+-      puts
+-	  
+-	  end
+-    
+-    def linkEXE(name,objects)
+-      program=getCompiler(:cpp)
+-      options=[]
+-      options &lt;&lt; &quot;-o &quot;+name
+-      options += objects.uniq
+-      options &lt;&lt; @config[&quot;LDFLAGS&quot;] 
+-      call=program+&quot; &quot;+options.join(&quot; &quot;)
+-      sh call
+-      puts
+-    end
+-      
+-	  
+-	  def linkDLL(t)
+-	    programcall=getCompiler(:cpp)+&quot; &quot; <A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">+ at config</A>[&quot;LDSHAREDFLAGS&quot;]
+-      
+-      options=[]
+-      pp t.methods.sort
+-      pp t.prerequisites
+-      
+-      options &lt;&lt; &quot;-o &quot;+t.name
+-      options += t.prerequisites
+-      options &lt;&lt; @config[&quot;LDFLAGS&quot;] 
+-      options &lt;&lt; @config[&quot;LIBS&quot;]
+-      options &lt;&lt; @config[&quot;LIBRUBYARG&quot;] 
+-      call=programcall+&quot; &quot;+options.join(&quot; &quot;)
+-      sh call
+-      puts
+-	  end
+-	  def linkSO(t)
+-	  end
+-	  def linkA(t)
+-	  end
+-	  
+-	  def dllName(base)
+-	    base+&quot;.&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">+ at config</A>[&quot;DLEXT&quot;]
+-	  end
+-	  
+-    def exeName(base)
+-      if @config[&quot;host_os&quot;]=~/win/ and not @config[&quot;host_os&quot;]=~/darwin/
+-        base+&quot;.exe&quot;
+-      else
+-        base
+-      end
+-    end
+-    
+-    # FIXME: include build-dirs
+-	  def makeObject(sourceName)
+-	    file=File.join(getBuildDir,sourceName+&quot;.o&quot;)
+-      dir=File.split(file)[0]
+-      begin
+-#        pp @config
+-#        pp &quot;DIR:&quot;,dir
+-        #if dir
+-        Rookey.mkdir(dir) if dir.length&gt;0
+-      rescue Object
+-        pp $!
+-      end
+-      file
+-	  end
+-	  
+-	  def makeSource(objectName)
+-	    objectName.sub(/\.o$/,&quot;&quot;).sub(/^#{getBuildDir}[\/\\]/,&quot;&quot;)
+-	  end
+-	  
+-    def getPlainBuildDir
+-      &quot;.build_&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">+ at config</A>[&quot;host_os&quot;]
+-    end
+-    
+-	  def getBuildDir
+-	    File.join(Dir.pwd,getPlainBuildDir)
+-	  end
+-    def Compiler.getDepsDir
+-      File.join(Dir.pwd,&quot;.deps&quot;)
+-    end
+-        
+-    private
+-    def getCompiler(type)
+-       #FiXME
+-      compiler= case type
+-        when :cpp
+-          @config[&quot;CPP&quot;]
+-        when :c
+-          @config[&quot;CC&quot;]
+-        else
+-          raise &quot;Unknown compiler type #{type}&quot;
+-      end
+-      ccache=@config[&quot;CCACHE&quot;]
+-      compiler=ccache+&quot; &quot;+compiler if ccache
+-      compiler
+-    end
+-    
+-    def findProgram(pattern)
+-      
+-    end
+-    
+-    @@deps=nil
+-    def Compiler.parseDepsFiles
+-      return @@deps if @@deps
+-            
+-      files=Dir[File.join(getDepsDir,&quot;**&quot;,&quot;*&quot;)]
+-      @@deps={}
+-      files.each{|file|
+-        unless File.directory?(file)
+-	        fd=File.open(file)
+-	        
+-	        @@deps[file]=fd.read.gsub(&quot;\\\n&quot;,&quot;&quot;).split(&quot; &quot;)[1..-1]
+-	        fd.close
+-        end
+-      }
+-    end
+-  end
+-  
+-  
+-end
+\ No newline at end of file
+
+Deleted: antargis/trunk/rookey/config_class.rb
+===================================================================
+--- antargis/trunk/rookey/config_class.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/config_class.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -1,33 +0,0 @@
+-module Rookey
+-  
+-  # Rookeys Config-hash. 
+-  class Config
+-    def initialize(hash={})
+-      @hash=hash
+-    end
+-    def [](name)
+-      @hash[name]||&quot;&quot;
+-    end
+-    def []=(name,value)
+-      @hash[name]=value
+-    end
+-    def add(name,value)
+-      @hash[name]||=&quot;&quot;
+-      @hash[name]+=&quot; &quot;+value
+-    end
+-  end
+-  @@config=nil
+-  
+-  def Rookey.getConfig
+-    if @@config.nil?
+-      if File.exists?(Rookey::CONFIG_FILENAME)
+-        load Rookey::CONFIG_FILENAME
+-      else 
+-        runConfigure
+-        hibe(@@config,Rookey::CONFIG_FILENAME)
+-      end
+-      CLEAN &lt;&lt; Rookey::CONFIG_FILENAME
+-    end
+-    @@config
+-  end 
+-end
+\ No newline at end of file
+
+Deleted: antargis/trunk/rookey/config_generator.rb
+===================================================================
+--- antargis/trunk/rookey/config_generator.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/config_generator.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -1,159 +0,0 @@
+-
+-require File.join(File.split(__FILE__)[0],'config_class.rb')
+-
+-class Class
+-  def provides(s=nil)
+-    @provides||=[]
+-    @provides &lt;&lt; s if s
+-    @provides
+-  end
+-  def needs(s=nil)
+-    @needs||=[]
+-    @needs &lt;&lt; s if s
+-    @needs
+-  end     
+-end
+-
+-module Rookey
+-  
+-  
+-  CONFIG_FILENAME=&quot;config_cache.rb&quot;
+-  @@configured=[]
+-  
+-  # stores a dumpable ruby-object *what* into a file named *filename*
+-  def Rookey.hibe(what,filename)
+-    content=Marshal.dump(what).gsub(&quot;\&quot;&quot;,&quot;\\\&quot;&quot;)
+-    File.open(filename,&quot;w&quot;) do |f|
+-      f.puts &lt;&lt;EOT
+-module Rookey
+-  @@config=Marshal.load(&quot;#{content}&quot;)
+-end
+-EOT
+-    end
+-  end
+-  
+-  class Configurator
+-    def initialize
+-    end
+-    def run(config)
+-    end
+-    
+-    def installLibDir
+-      File.join(File.split(__FILE__)[0],&quot;externals&quot;,&quot;build&quot;,&quot;lib&quot;)
+-    end
+-    def installIncludeDir
+-      File.join(File.split(__FILE__)[0],&quot;externals&quot;,&quot;build&quot;,&quot;include&quot;)
+-    end
+-    
+-    def searchProgram(program)
+-      searchPrograms(program)[0]
+-    end
+-    
+-    def searchPrograms(program)
+-      programs=[program].flatten
+-      result=programs.map{|program|
+-	      getPath.map{|dir|
+-	        
+-	        p=File.join(dir,program)
+-          list=Dir[p]
+-	        p=nil unless File.exists?(p)
+-          p||=list[0]
+-          p
+-	      }
+-      }.flatten.uniq-[nil]
+-      pp result
+-      result
+-    end
+-    def checkProgram(program)      
+-    end
+-    def checkLibrary(config,lib,funcname)
+-      source=&quot;extern \&quot;C\&quot; void #{funcname}();int main(){return 0;}&quot;
+-      testSource=&quot;test.c&quot;
+-      fd=File.open(testSource,&quot;w&quot;)
+-      fd.puts source
+-      fd.close
+-      compiler=Compiler.new(config)
+-      target=compiler.makeObject(testSource)
+-      compiler.compile(target,testSource)
+-      libadd=&quot;-l#{lib}&quot;
+-      exeName=compiler.exeName(&quot;test&quot;)
+-      begin
+-        compiler.linkEXE(exeName,[target,libadd])
+-        `#{exeName}`
+-        if $?
+-          config.add(&quot;LDFLAGS&quot;,libadd)
+-        end
+-      rescue RuntimeError =&gt; e
+-        return false
+-      end
+-      true
+-    end
+-    private
+-    def getPath
+-      # add paths in externals/build/*/bin
+-      getEnvPath+Dir[File.expand_path(File.join(File.split(__FILE__)[0],&quot;externals&quot;,&quot;built&quot;,&quot;*&quot;))].map{|d|File.join(d,&quot;bin&quot;)}
+-    end
+-    def getEnvPath
+-      p=ENV[&quot;PATH&quot;]
+-      if File.join(&quot;a&quot;,&quot;b&quot;)=~/\\/
+-        p.split(&quot;;&quot;)
+-      else
+-        p.split(&quot;:&quot;)
+-      end
+-    end
+-    
+-    def install(package)
+-      #raise 1
+-      ruby(File.join(File.split(__FILE__)[0],&quot;externals&quot;,&quot;tools.rb&quot;),package)
+-    end    
+-  end
+-  
+-  Dir[File.join(File.split(__FILE__)[0],&quot;configs&quot;,&quot;*.rb&quot;)].each{|file|
+-    require file
+-  }
+-  
+-  def Rookey.log(*s)
+-    puts(*s)
+-  end
+-  
+- 
+-  def Rookey.getDescendantsOfClass(p)
+-    c=[]
+-    ObjectSpace.each_object(Class){|a|c.push(a) if a.ancestors.member?(p)}
+-    return c
+-  end
+-  
+-  
+-  def self.checkConfig(pClass)
+-    
+-  end
+-  
+-  def Rookey.runConfigure
+-    configurators=getDescendantsOfClass(Configurator)
+-    ok=[]
+-    run=[]
+-    config=Config.new
+-    while run.length&lt;configurators.length
+-	    configurators.each{|c|
+-	      unless run.member?(c)
+-		      if c.needs.select{|s|not ok.member?(s)}.length == 0
+-		        log &quot;Running configurator #{c}&quot;
+-            #pp config
+-            begin
+-		          c.new.run(config)
+-              @@configured &lt;&lt; c
+-            rescue
+-              puts &quot;Configuration of #{c} failed !&quot;
+-            end
+-		        ok+=c.provides
+-		        ok.uniq!
+-		        run &lt;&lt; c
+-		      end
+-	      end
+-	    }
+-    end
+-    pp config
+-    puts
+-    @@config=config
+-  end
+-end
+\ No newline at end of file
+
+Deleted: antargis/trunk/rookey/configs/ccache.rb
+===================================================================
+--- antargis/trunk/rookey/configs/ccache.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/configs/ccache.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -1,13 +0,0 @@
+-module Rookey
+-  class CcacheConfig&lt;Configurator
+-    provides :compilerAddon
+-    needs :compiler
+-    
+-    def run(config)
+-      ccache=searchProgram(&quot;ccache&quot;)
+-      if ccache
+-        config[&quot;CCACHE&quot;]=ccache
+-      end
+-    end
+-  end
+-end
+\ No newline at end of file
+
+Deleted: antargis/trunk/rookey/configs/compiler.rb
+===================================================================
+--- antargis/trunk/rookey/configs/compiler.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/configs/compiler.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -1,9 +0,0 @@
+-module Rookey
+-  class CompilerConfig&lt;Configurator
+-    needs :compiler
+-    
+-    def run(config)
+-      config.add(&quot;INCLUDEDIRS&quot;,File.join(File.split(File.split(__FILE__)[0])[0],&quot;cpp&quot;))
+-    end
+-  end
+-end
+\ No newline at end of file
+
+Deleted: antargis/trunk/rookey/configs/debug.rb
+===================================================================
+--- antargis/trunk/rookey/configs/debug.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/configs/debug.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -1,13 +0,0 @@
+-module Rookey
+-  class DebugConfig&lt;Configurator
+-    needs :compiler
+-    
+-    def run(config)
+-      pp ROOKEY_CONFIG
+-      if ROOKEY_CONFIG[:debug]
+-	      config.add(&quot;CFLAGS&quot;,&quot;-O0 -g&quot;)
+-	      config.add(&quot;LDFLAGS&quot;,&quot;-g&quot;)
+-      end
+-    end
+-  end
+-end
+\ No newline at end of file
+
+Deleted: antargis/trunk/rookey/configs/gl.rb
+===================================================================
+--- antargis/trunk/rookey/configs/gl.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/configs/gl.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -1,22 +0,0 @@
+-require 'mkmf'
+-require File.join(File.split(__FILE__)[0],&quot;ruby.rb&quot;)
+-
+-module Rookey
+-  class GLConfig&lt;Configurator
+-    provides :opengl
+-    needs :compiler
+-    
+-    def run(config)
+-      case config[&quot;host_os&quot;]
+-        when /darwin/
+-          config.add(&quot;INCLUDEDIRS&quot;,&quot;/usr/X11/include&quot;)        
+-          config.add(&quot;LDFLAGS&quot;,&quot;-Wl,-framework,OpenGL&quot;)
+-        when /win32/
+-          #config.add(&quot;INCLUDEDIRS&quot;,&quot;/usr/X11/include&quot;)        
+-          config.add(&quot;LDFLAGS&quot;,&quot;-lopengl32 -lglu32&quot;)
+-        else
+-          config.add(&quot;LDFLAGS&quot;,&quot;-lGL -lGLU&quot;)
+-      end      
+-    end   
+-  end 
+-end
+
+Deleted: antargis/trunk/rookey/configs/mingw.rb
+===================================================================
+--- antargis/trunk/rookey/configs/mingw.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/configs/mingw.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -1,35 +0,0 @@
+-require 'mkmf'
+-
+-module Rookey
+-  class MinGWConfig&lt;Configurator
+-    provides :compiler
+-    
+-    def run(config)
+-      if ROOKEY_CONFIG[:extconfig]=='mingw32'
+-	      #config.add(&quot;INCLUDEDIRS&quot;,get(&quot;archdir&quot;)+&quot; &quot;+get(&quot;includedir&quot;))
+-	      #config.add(&quot;CFLAGS&quot;,get(&quot;CFLAGS&quot;))
+-	      #config.add(&quot;LDFLAGS&quot;,get(&quot;LIBS&quot;))
+-	      #config.add(&quot;LDFLAGS&quot;,get(&quot;LIBRUBYARG&quot;))
+-	      #config.add(&quot;LDSHAREDFLAGS&quot;,get(&quot;LDSHARED&quot;).sub(/^[^ ]+ /,&quot;&quot;))
+-	      config[&quot;DLEXT&quot;]=&quot;dll&quot;
+-	      config[&quot;host_os&quot;]=&quot;win32&quot;      
+-	      config[&quot;GPP_BASE&quot;]=&quot;i*mingw*g++&quot;
+-	      config[&quot;GCC_BASE&quot;]=&quot;i*mingw*gcc&quot;
+-	
+-	      {&quot;CPP&quot;=&gt;&quot;GPP_BASE&quot;,&quot;CC&quot;=&gt;&quot;GCC_BASE&quot;}.each{|name,base|      
+-	        config[name]=searchProgram(config[base])
+-	      }
+-        base=config[&quot;CPP&quot;].gsub(/bin\/[^\/]+/,&quot;&quot;)
+-        baseMingw=Dir[base+&quot;i*mingw*&quot;]
+-        config.add(&quot;LDFLAGS&quot;,&quot;-L&quot;+File.join(baseMingw,&quot;lib&quot;))
+-        config.add(&quot;LDFLAGS&quot;,&quot;-L&quot;+installLibDir)
+-        config.add(&quot;INCLUDEDIRS&quot;,File.join(baseMingw,&quot;include&quot;))
+-        config.add(&quot;INCLUDEDIRS&quot;,installIncludeDir)
+-        
+-        
+-        #pp config
+-        #exit
+-      end
+-    end
+-  end    
+-end
+\ No newline at end of file
+
+Deleted: antargis/trunk/rookey/configs/png.rb
+===================================================================
+--- antargis/trunk/rookey/configs/png.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/configs/png.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -1,17 +0,0 @@
+-require 'mkmf'
+-require File.join(File.split(__FILE__)[0],&quot;ruby.rb&quot;)
+-
+-module Rookey
+-  class PNGConfig&lt;Configurator
+-    provides :png
+-    needs :compiler
+-    needs :z
+-        
+-    def run(config)
+-      unless checkLibrary(config,&quot;png&quot;,&quot;png_get_io_ptr&quot;)
+-        install(&quot;png&quot;)
+-        checkLibrary(config,&quot;png&quot;,&quot;png_get_io_ptr&quot;)
+-      end
+-    end   
+-  end 
+-end
+\ No newline at end of file
+
+Deleted: antargis/trunk/rookey/configs/ruby.rb
+===================================================================
+--- antargis/trunk/rookey/configs/ruby.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/configs/ruby.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -1,57 +0,0 @@
+-require 'mkmf'
+-
+-module Rookey
+-	  class RubyConfig&lt;Configurator
+-      if ROOKEY_CONFIG[:use_mkmf]==true or ROOKEY_CONFIG[:use_mkmf].nil? 
+-		    provides :compiler
+-		    
+-		    def run(config)
+-			      config.add(&quot;INCLUDEDIRS&quot;,get(&quot;archdir&quot;)+&quot; &quot;+get(&quot;includedir&quot;))
+-			      config.add(&quot;CFLAGS&quot;,get(&quot;CFLAGS&quot;))
+-			      config.add(&quot;LDFLAGS&quot;,get(&quot;LIBS&quot;))
+-			      config.add(&quot;LDFLAGS&quot;,get(&quot;LIBRUBYARG&quot;))
+-			      config.add(&quot;LDSHAREDFLAGS&quot;,get(&quot;LDSHARED&quot;).sub(/^[^ ]+ /,&quot;&quot;))
+-			      config[&quot;DLEXT&quot;]=get(&quot;DLEXT&quot;)
+-			      config[&quot;host_os&quot;]=get(&quot;host_os&quot;)      
+-			      config[&quot;GPP_BASE&quot;]=&quot;g++&quot;
+-			      config[&quot;GCC_BASE&quot;]=&quot;gcc&quot;
+-			
+-			      {&quot;CPP&quot;=&gt;&quot;GPP_BASE&quot;,&quot;CC&quot;=&gt;&quot;GCC_BASE&quot;}.each{|name,base|      
+-			        config[name]=searchProgram(config[base])
+-			      }
+-	          
+-	          if config[&quot;host_os&quot;]=~/darwin.*/ and false
+-	            pgc=&quot;-finstrument-functions&quot;
+-	            pgl=&quot;-finstrument-functions -lSaturn&quot;
+-	          else
+-	            pgc=&quot;-pg&quot;
+-	            pgl=&quot;-pg&quot;
+-	          end 
+-	          config.add(&quot;CFLAGS&quot;,pgc) if ROOKEY_CONFIG[:profile]
+-	          config.add(&quot;LDFLAGS&quot;,pgl) if ROOKEY_CONFIG[:profile]
+-	          
+-	          [&quot;CFLAGS&quot;,&quot;CPPFLAGS&quot;,&quot;LDFLAGS&quot;].each{|name|
+-	            config.add(name,ENV[name]) if ENV[name]
+-	          }
+-	          
+-		    end
+-		    
+-		  private
+-		    # recurse through ruby's CONFIG structure 
+-		    def get(n)
+-		      return &quot;&quot; if n.nil?
+-		      v=CONFIG[n]
+-		      return &quot;&quot; if v.nil?
+-		      v.gsub(/\$\(([^)]*\))/) {|a|
+-		        f=a[2..-2]
+-		        get(f)
+-		      }      
+-		    end
+-		    
+-      elsif ROOKEY_CONFIG[:extconfig]=='mingw32'
+-        def run(config)
+-          install(&quot;ruby&quot;)
+-        end
+-	  end
+-	end
+-end
+\ No newline at end of file
+
+Deleted: antargis/trunk/rookey/configs/sdl.rb
+===================================================================
+--- antargis/trunk/rookey/configs/sdl.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/configs/sdl.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -1,27 +0,0 @@
+-module Rookey
+-  class SDLConfig&lt;Configurator
+-    provides :sdl
+-    needs :compiler
+-    
+-    def run(config)
+-      # FIXME
+-      sdlconfig=&quot;sdl-config&quot;
+-      
+-      pp config
+-      if config[&quot;host_os&quot;]!=&quot;win32&quot;
+-	      cflags=`#{sdlconfig} --cflags`.chomp
+-	      config.add(&quot;CFLAGS&quot;,cflags.split(&quot; &quot;).select{|f|not f=~/^-I/}.join(&quot; &quot;))
+-	      config.add(&quot;INCLUDEDIRS&quot;,cflags.split(&quot; &quot;).select{|f|f=~/^-I/}.map{|f|f[2..-1]}.join(&quot; &quot;))
+-	      config.add(&quot;LDFLAGS&quot;,`sdl-config --libs`.chomp)
+-      else
+-        [&quot;sdl&quot;,&quot;sdl_image&quot;,&quot;sdl_ttf&quot;,&quot;sdl_mixer&quot;].each{|lib|install(lib)}
+-        config.add(&quot;INCLUDEDIRS&quot;,File.join(installIncludeDir,&quot;SDL&quot;))
+-        
+-      end      
+-      
+-      checkLibrary(config,&quot;SDL_image&quot;,&quot;IMG_Load&quot;)
+-      checkLibrary(config,&quot;SDL_ttf&quot;,&quot;TTF_Quit&quot;)
+-      checkLibrary(config,&quot;SDL_mixer&quot;,&quot;Mix_LoadMus&quot;)
+-    end
+-  end
+-end
+\ No newline at end of file
+
+Deleted: antargis/trunk/rookey/configs/swig.rb
+===================================================================
+--- antargis/trunk/rookey/configs/swig.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/configs/swig.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -1,34 +0,0 @@
+-module Rookey
+-  class SwigConfig&lt;Configurator
+-    provides :swig
+-    VERSIONS=[&quot;1.3.33&quot;,&quot;1.3.34&quot;,&quot;1.3.35&quot;]
+-    
+-    def run(config,firstrun=true)
+-      swigs=searchPrograms(&quot;swig&quot;).select{|swig|checkVersion(swig)}
+-      if swigs.length==0
+-        puts &quot;ERROR: no SWIG with version in #{VERSIONS.join(&quot;, &quot;)} not found!&quot;
+-        if firstrun
+-	        #buildSwig
+-          install(&quot;swig&quot;)
+-	        run(config,false)
+-        end
+-      else
+-	      swig=swigs[0]
+-	      # FIXME: search program
+-	      config.add(&quot;SWIG_OPTIONS&quot;,&quot;-Wall -DAGEXPORT&quot;)
+-	      config.add(&quot;SWIG&quot;,swig)
+-      end
+-    end
+-    
+-    private
+-    def checkVersion(swig)
+-      run=&quot;#{swig} -version&quot;
+-      output=`#{run}`
+-      VERSIONS.select{|v|output=~/#{v}/}.length&gt;0
+-    end
+-    #def buildSwig
+-    #  ruby File.join(File.split(__FILE__)[0],&quot;..&quot;,&quot;externals&quot;,&quot;swig&quot;,&quot;build.rb&quot;)
+-    #end
+-    
+-  end
+-end
+\ No newline at end of file
+
+Deleted: antargis/trunk/rookey/configs/z.rb
+===================================================================
+--- antargis/trunk/rookey/configs/z.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/configs/z.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -1,18 +0,0 @@
+-require 'mkmf'
+-require File.join(File.split(__FILE__)[0],&quot;ruby.rb&quot;)
+-
+-module Rookey
+-  class ZConfig&lt;Configurator
+-    provides :z
+-    needs :compiler
+-    
+-    def run(config)
+-      unless checkLibrary(config,&quot;z&quot;,&quot;compress&quot;)
+-        install(&quot;zlib&quot;)
+-        puts &quot;ARG&quot;
+-        config.add(&quot;LDFLAGS&quot;,&quot;-L&quot;+installLibDir)
+-        checkLibrary(config,&quot;z&quot;,&quot;compress&quot;)
+-      end
+-    end   
+-  end 
+-end
+\ No newline at end of file
+
+Deleted: antargis/trunk/rookey/cpp/ag_base.h
+===================================================================
+--- antargis/trunk/rookey/cpp/ag_base.h	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/cpp/ag_base.h	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -1,39 +0,0 @@
+-/**
+- * This file provides a define &quot;AGEXPORT&quot; to be used for exporting functions and classes
+- * out of DLLs on Windows.
+- * For this to function you'll just insert it:
+- * 1) before a function declaration:
+- *    AGEXPORT void myFunction();
+- * 2) or inbetween a class-definition:
+- *    class AGEXPORT MyClass {
+- *    .....
+- *    };
+- * No additional configuration should be needed.
+- * including within swig is taken care of. 
+- *  
+- * */
+-
+-#ifndef AG_BASE_H
+-#define AG_BASE_H
+-
+-#ifdef WIN32
+-#ifdef AGIMPORT
+-#define AGEXPORT __declspec(dllimport)
+-#else
+-#undef AGEXPORT
+-#define AGEXPORT __declspec(dllexport)
+-#endif // AGIMPORT
+-#else
+-
+-#undef AGEXPORT
+-#define AGEXPORT
+-
+-#endif // WIN32
+-
+-#ifdef SWIG
+-#undef AGEXPORT
+-#define AGEXPORT
+-#endif
+-
+-
+-#endif
+
+Deleted: antargis/trunk/rookey/cpp/ag_rubyobj.cc
+===================================================================
+--- antargis/trunk/rookey/cpp/ag_rubyobj.cc	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/cpp/ag_rubyobj.cc	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -1,188 +0,0 @@
+-#include &quot;ag_base.h&quot;
+-#include &quot;ag_rubyobj.h&quot;
+-#include &lt;assert.h&gt;
+-#include &lt;typeinfo&gt;
+-#include &lt;set&gt;
+-#include &lt;map&gt;
+-#include &lt;iostream&gt;
+-
+-
+-#ifdef __WIN32__
+-#include &lt;winsock2.h&gt; // fix problem with fd_set
+-#endif
+-#include &lt;ruby.h&gt;
+-
+-bool mRubyQuitting=false;
+-
+-// this set keeps track of all valid instances of AGRubyObject
+-std::set&lt;AGRubyObject*&gt; mRubyObjects;
+-std::set&lt;AGRubyObject*&gt; mRemovedRubyObjects;
+-
+-void setQuitting()
+-  {
+-    mRubyQuitting=true;
+-  }
+-
+-// swig-function for handling &quot;tracked&quot; objects
+-// BEWARE: this does not support multiple libraries yet (FIXME)
+-VALUE convertCpp2Ruby(AGRubyObject *cObject);
+-
+-AGEXPORT void *getAddressOfRubyObject(AGRubyObject *o)
+-  {
+-    return o;
+-  }
+-
+-AGEXPORT bool rubyObjectExists(void *po)
+-  {
+-    VALUE v=convertCpp2Ruby((AGRubyObject*)po);
+-    return(v!=Qnil);
+-  }
+-
+-AGRubyObject::AGRubyObject()
+-  {
+-    //std::cerr&lt;&lt;&quot;AGRubyObject::new:&quot;&lt;&lt;this&lt;&lt;std::endl;
+-    assert(mRubyObjects.find(this)==mRubyObjects.end());
+-    mRubyObjects.insert(this);
+-    size_t oSize=mRemovedRubyObjects.size();
+-
+-    mRemovedRubyObjects.erase(this);
+-    if(oSize!=mRemovedRubyObjects.size())
+-      std::cerr&lt;&lt;&quot;Collision - removed rubyobject's address is overwritten!&quot;&lt;&lt;std::endl;
+-    
+-    std::cerr&lt;&lt;&quot;current ruby#:&quot;&lt;&lt;mRubyObjects.size()&lt;&lt;&quot; removed:&quot;&lt;&lt;mRemovedRubyObjects.size()&lt;&lt;std::endl;
+-  }
+-AGRubyObject::~AGRubyObject()
+-  {
+-    assert(mRubyObjects.find(this)!=mRubyObjects.end());
+-    assert(mRemovedRubyObjects.find(this)==mRemovedRubyObjects.end());
+-    //std::cerr&lt;&lt;&quot;AGRubyObject::Removed:&quot;&lt;&lt;this&lt;&lt;std::endl;
+-    for(std::set&lt;AGBaseObject*&gt;::iterator i=mReferences.begin();i!=mReferences.end();i++)
+-      (*i)-&gt;baseClear();
+-    mRubyObjects.erase(this);
+-    mRemovedRubyObjects.insert(this);
+-  }
+-
+-
+-/// override this function to mark your children
+-void AGRubyObject::mark()
+-  {
+-  }
+-
+-
+-// call this function with any object you want to mark.
+-// recursive should be set true only in one direction, otherwise you'll generate endless-loops (!!)
+-void AGRubyObject::markObject(AGRubyObject *o, bool recursive)
+-  {
+-    //std::cerr&lt;&lt;&quot;markObject:&quot;&lt;&lt;o&lt;&lt;std::endl;
+-    // o must be a valid ruby-object
+-    assert(mRubyObjects.find(o)!=mRubyObjects.end());
+-
+-    // look up, if it's registered within ruby
+-    VALUE v=convertCpp2Ruby(o);
+-    if(v!=Qnil)
+-      {
+-        assert(DATA_PTR(v)==o);
+-        //std::cout&lt;&lt;&quot;V:&quot;&lt;&lt;v&lt;&lt;std::endl;
+-        // then mark it
+-        rb_gc_mark(v);
+-        
+-      }
+-
+-    assert(o);
+-    // recurse through hierarchy
+-    if(recursive)
+-      o-&gt;mark(); // call this directly
+-  }
+-
+-void AGRubyObject::clear()
+-  {
+-  }
+-
+-void AGRubyObject::addRef(AGBaseObject *o)
+-  {
+-    mReferences.insert(o);
+-  }
+-
+-void AGRubyObject::deleteRef(AGBaseObject *o)
+-  {
+-    mReferences.erase(o);
+-  }
+-
+-
+-
+-/// this is the marking function, that gets called by ruby
+-/// it handles all the AGRubyObjects
+-void general_markfunc(void *ptr)
+-  {
+-    if(!ptr)
+-      {
+-        std::cerr&lt;&lt;(&quot;WARNING: a ptr==0 was given in general_markfunc!&quot;)&lt;&lt;std::endl;
+-        return; // ignore this !
+-      }
+-    assert(ptr);
+-    // the given object must be a AGRubyObject and it must be valid (it's in mRubyObjects)
+-    AGRubyObject *o=static_cast&lt;AGRubyObject*&gt;(ptr);
+-    if(mRubyObjects.find(o)==mRubyObjects.end())
+-      std::cerr&lt;&lt;&quot;OLD RUBYOBJ:&quot;&lt;&lt;(mRemovedRubyObjects.find(o)!=mRemovedRubyObjects.end())&lt;&lt;&quot;:&quot;&lt;&lt;o&lt;&lt;std::endl;
+-    assert(mRubyObjects.find(o)!=mRubyObjects.end());
+-
+-#ifdef GCDEBUG
+-    printf(&quot;mark: 0x%lx\n&quot;,o-&gt;mRUBY);
+-#endif
+-
+-    assert(o);
+-    o-&gt;mark();
+-  }
+-
+-
+-/**
+-   saveDelete is used to delete AGRubyObjects savely.
+- */
+-bool saveDelete(AGRubyObject *o)
+-  {
+-    if(mRubyQuitting)
+-      return false; // we are quitting - so memory is discarded anyway - hopefully ;-)
+-
+-    // check, if this object is existant any longer
+-    // in case we're quitting this the deletion order is not defined for ruby-objects !!
+-    if(mRubyObjects.find(o)==mRubyObjects.end())
+-      {
+-#ifdef GC_DEBUG
+-        std::cerr&lt;&lt;&quot;RubyObject &quot;&lt;&lt;o&lt;&lt;&quot; no longer existant - maybe we're quitting ?!&quot;&lt;&lt;std::endl;
+-#endif
+-        return false;
+-      }
+-
+-    assert(o);
+-    // send object a message, that it will be deleted. This can help with detachin connections
+-    // between objects.
+-    o-&gt;clear();
+-    
+-    VALUE v=convertCpp2Ruby(o);
+-    if(v!=Qnil)
+-      return false; // do not delete - it's under ruby's control!
+-    
+-    
+-    delete o;
+-    return true;
+-  }
+-
+-
+-
+-AGBaseObject::AGBaseObject(AGRubyObject *p)
+-:mp(p)
+-    {
+-      if(p)
+-        p-&gt;addRef(this);
+-    }
+-
+-AGBaseObject::~AGBaseObject()
+-  {
+-    if(mp)
+-      mp-&gt;deleteRef(this);
+-  }
+-
+-void AGBaseObject::baseClear()
+-  {
+-    mp=0;
+-  }
+
+Deleted: antargis/trunk/rookey/cpp/ag_rubyobj.h
+===================================================================
+--- antargis/trunk/rookey/cpp/ag_rubyobj.h	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/cpp/ag_rubyobj.h	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -1,132 +0,0 @@
+-#ifndef RUBY_OBJ_H
+-#define RUBY_OBJ_H
+-
+-// INCLUDE_SWIG - used to filter, which files are included in swig-interfacing
+-
+-#ifdef WIN32
+-#undef connect
+-#undef close
+-#endif
+-
+-/**
+-   AGRubyObject does handling between ruby and c++ memory management.
+-   Ruby has a garbage collector (GC) which is not really to be influenced.
+-   Every object that is created in ruby is handled by the GC.
+-   So we have to take care of that.
+-
+-   Ruby's GC has no reference counting whatsoever but it uses a mark-and-sweep
+-   algorithm. When the GC is run the algorithm marks any known object and then calls
+-   all the objects' mark-functions which therefore call mark-functions all the objects it
+-   knowns. When anything known is marked, the algorithm kills any object that isn't marked.
+-
+-   So all we have to do is to mark any object that is connected to the current object in any way.
+-   Normally you would mark any object that is a children of the current one.
+-
+-   To make things easier AGRubyObject takes care of objects which are not handled by ruby. They get called
+-   recursively anyways. So all you have to do is overriding the mark() function and then calling 
+-   markObject(AGRubyObject *o) for any object you want to mark.
+-
+-   If you need an explicit destructor-call at a specified time you must be content with a call to clear(), which
+-   you can override. For deletion of any AGRubyObject you should use saveDelete. This calls clear() and deletes the
+-   object, if it's not a ruby-managed one.
+-
+-   @see saveDelete(AGRubyObject *o)
+- */
+-
+-// INCLUDE_SWIG - used to filter, which files are included in swig-interfacing
+-
+-#include &lt;string&gt;
+-#include &lt;set&gt;
+-#include &lt;ag_base.h&gt;
+-#include &lt;stdexcept&gt;
+-
+-class AGRubyObject;
+-
+-class AGEXPORT AGBaseObject
+-{
+-protected:
+-  AGRubyObject *mp;
+-public:
+-  AGBaseObject(AGRubyObject *p) throw ();
+-
+-  ~AGBaseObject() throw ();
+-  void baseClear() throw ();
+-
+-  bool valid() throw ()
+-    {
+-      return mp;
+-    }
+-};
+-
+-
+-/**
+- * gc_ptr&lt;T&gt; is a managed ptr to a (possibly) garbage-collected object
+- * it will be redirected to 0, if the targeted object is destroyed. So
+- * you'll get a null-pointer exception when the object is not longer
+- * present. This prevents you from accessing random memory. 
+- */
+-template&lt;class T&gt;
+-class AGEXPORT gc_ptr:public AGBaseObject
+-{
+-public:
+-  gc_ptr(T*t):AGBaseObject(t)
+-  {
+-  }
+-
+-  T*operator-&gt;()
+-    {
+-      return (T*)mp;
+-    }
+-  T* getPtr()
+-  {
+-    if(!mp)
+-      throw std::runtime_error(&quot;mp not defined!&quot;);
+-    return (T*)mp;
+-  }
+-};
+-
+-/**
+- * 
+- * */
+-class AGEXPORT AGRubyObject
+-{
+-public:
+-  /**
+-     This is copied from ruby.h, so that this header-file is not included all over the place.
+-     FIXME: this must eventually be changed - when the ruby implementation changes
+-   */
+-  typedef unsigned long VALUE;
+-
+-  AGRubyObject() throw();
+-  virtual ~AGRubyObject() throw();
+-
+-protected:
+-#ifndef SWIG
+-  // functions shouldn't be exported and NEVER be used in ruby!
+-  virtual void clear() throw();
+-  virtual void mark() throw();
+-  void markObject(AGRubyObject *o,bool recursive=true) throw();
+-
+-#endif
+-public:
+-#ifndef SWIG
+-
+-#endif
+-  friend void general_markfunc(void *ptr);
+-  friend bool saveDelete(AGRubyObject *o);
+-
+-  void addRef(AGBaseObject *o);
+-  void deleteRef(AGBaseObject *o);
+-private:
+-  std::set&lt;AGBaseObject*&gt; mReferences;
+-};
+-
+-AGEXPORT void general_markfunc(void *ptr);
+-AGEXPORT bool saveDelete(AGRubyObject *o);
+-
+-AGEXPORT void *getAddressOfRubyObject(AGRubyObject *object);
+-AGEXPORT bool rubyObjectExists(void *o);
+-
+-AGEXPORT void setQuitting();
+-
+-#endif
+
+Deleted: antargis/trunk/rookey/cpp/swig_dummy.cc
+===================================================================
+--- antargis/trunk/rookey/cpp/swig_dummy.cc	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/cpp/swig_dummy.cc	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -1,11 +0,0 @@
+-#include &quot;ag_rubyobj.h&quot;
+-
+-#ifdef __WIN32__
+-#include &lt;winsock2.h&gt; // fix problem with fd_set
+-#endif
+-#include &lt;ruby.h&gt;
+-
+-VALUE convertCpp2Ruby(AGRubyObject *cObject)
+-  {
+-    return Qnil;
+-  }
+
+Deleted: antargis/trunk/rookey/cpp_hierarchy_parser.rb
+===================================================================
+--- antargis/trunk/rookey/cpp_hierarchy_parser.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/cpp_hierarchy_parser.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -1,154 +0,0 @@
+-require 'ostruct'
+-
+-module Rookey
+-  
+-  def Rookey.getRubyClasses(classes)
+-    cs=[classes.select{|c|c.name==&quot;AGRubyObject&quot;}[0]]
+-    begin
+-      s=cs.length
+-      cs=[cs+cs.map{|c|c.children}].flatten.uniq
+-    end while s!=cs.length
+-    cs
+-  end
+-  
+-  def Rookey.getOrderedCppHeaders(classes)
+-    map={}
+-    order={}
+-    
+-    pp classes
+-    
+-    allClasses=classes.dup
+-    classes=getRubyClasses(classes)
+-    
+-    classes.each{|c|
+-      map[c.name.to_s]=c
+-    }
+-    classes.each{|c|
+-      order[c.name]=0 if map[c.parent.to_s].nil? 
+-    }
+-    oneNotSet=false
+-    maxNumber=0
+-    begin
+-      oneNotSet=false
+-      classes.each{|c|
+-        if order[c.name].nil?
+-          if order[c.parent].nil?
+-            oneNotSet=true
+-          else
+-            order[c.name]=order[c.parent]+1
+-            maxNumber=[maxNumber,order[c.name]].max
+-          end
+-        end
+-      }
+-    end while oneNotSet
+-    #puts &quot;MAX:&quot;,maxNumber
+-    cs=[]
+-    (0..maxNumber).each{|i|
+-      order.each{|k,v|
+-        if v==i
+-          cs &lt;&lt; map[k]
+-        end
+-      }
+-    }
+-    pp order
+-    allFiles=allClasses.map{|c|c.header_file}.uniq
+-    result=classes.sort{|a,b|order[a.name]&lt;=&gt;order[b.name]}.map{|c|c.header_file}.uniq
+-    result=result+(allFiles-result)
+-    pp result
+-    result
+-    #cs.map{|c|c.header_file}.uniq
+-  end
+-  
+-  
+-  class CppHierarchyParser
+-    CppClass=Struct.new(:name,:parent,:header_file,:children)
+-	  
+-    
+-    def initialize(files)
+-      @cppClasses=[]
+-      parseFiles(files)
+-      processDerivations
+-    end
+-	
+-	  def getAllClasses
+-	    @cppClasses
+-	  end
+-    
+-    def getAllRubyClasses
+-      clist=[&quot;AGRubyObject&quot;]
+-      while true
+-        oldLength=clist.length
+-        @cppClasses.each{|c|
+-          if clist.member?(c.parent)
+-            clist=(clist+[c]).uniq
+-          end
+-        }
+-        break unless oldLength!=clist.length
+-      end
+-      clist
+-    end
+-    
+-    # returns array of (subclass,superclass)
+-    def getAllDerivations
+-      @cppClasses.select{|c|c.parent}.map{|c|[c.name,c.parent]}
+-    end
+-    
+-	  
+-  private
+-    
+-    
+-    def processDerivations
+-      m={}
+-      @cppClasses.each{|c|m[c.name]=c}
+-      @cppClasses.each{|c|
+-        if c.parent
+-          if m[c.parent].nil? 
+-            puts &quot;parent unknown #{c.parent}&quot;
+-          else 
+-	          m[c.parent].children &lt;&lt; c
+-          end
+-        end
+-      }
+-    end
+-    
+-	  def parseFiles(files)	    
+-		  class2File={}
+-		  deriveList={} # x=&gt;y :x is child of y
+-		  allClasses=[]
+-		
+-		  files.each{|fn|
+-		    file=File.open(fn)
+-		    cn=&quot;&quot;
+-		    content=file.read.gsub(/\/\*([^*]|\*[^\/])*\*\//,&quot;&quot;) # /*...*/ delete comments - FIXME: // comments will be ignored!!!
+-		
+-		    content.split(&quot;\n&quot;).each{|a|
+-		      abak=a
+-		      a.gsub!(&quot;AGEXPORT&quot;,&quot;&quot;)
+-		      a.gsub!(&quot;EXPORT&quot;,&quot;&quot;)
+-		      
+-		      if a =~ /^ *class.*/ then
+-		        cn=a.gsub(/ *class /,&quot;&quot;).gsub(/:.*/,&quot;&quot;).gsub(&quot;\n&quot;,&quot;&quot;).gsub(&quot; &quot;,&quot;&quot;)
+-		        allClasses &lt;&lt; cn.gsub(&quot;;&quot;,&quot;&quot;)
+-		        if cn=~/^[A-Z].*/
+-		          if a=~ /.*public.*/ then
+-		            pn=a.gsub(/.*public /,&quot;&quot;).gsub(&quot;\n&quot;,&quot;&quot;)
+-	              @cppClasses &lt;&lt; CppClass.new(cn,pn,fn,[])
+-		            allClasses &lt;&lt; pn
+-		            deriveList[cn]=pn
+-		            class2File[cn]=fn
+-		          elsif not a=~/;/ then
+-		            @cppClasses &lt;&lt; CppClass.new(cn,nil,fn,[])
+-		            deriveList[cn]=nil
+-		            class2File[cn]=fn
+-		          end
+-		        end
+-		      end
+-		    
+-		    }
+-		  }
+-		  classList = class2File.keys
+-		  allClasses = allClasses.sort.uniq
+-		end  
+-  end
+-
+-end
+\ No newline at end of file
+
+Added: antargis/trunk/rookey/lib/rookey/compile.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/compile.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/lib/rookey/compile.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,170 @@
++module Rookey
++  class Compiler
++    def initialize(config)
++      @config=config
++    end
++  
++	  def Compiler.getDeps(t)
++	    # FIXME
++	    
++	    parseDepsFiles
++      
++      return t unless @@deps
++      p=File.join(Compiler.getDepsDir,t)
++	    return @@deps[p] if @@deps[p]
++      t
++	  end
++  
++	  def compile(target,sources)
++	    source=makeSource(target)
++	    
++      
++	    program=getCompiler(:cpp)
++
++	    
++	    options=[]
++	
++      #pp @config
++      
++	    options &lt;&lt; @config[&quot;CFLAGS&quot;]
++	    
++	    includeDirs = @config[&quot;INCLUDEDIRS&quot;].split(&quot; &quot;)
++	    includes=includeDirs.map{|d|&quot;-I&quot;+d}
++	    options+=includes
++	    
++      expanded_path=File.expand_path(source)
++      sourcepath=source
++      sourcepath=expanded_path if File.exists?(expanded_path) and not File.exists?(source)
++      sourcepath=&quot;/&quot;+sourcepath if File.exists?(&quot;/&quot;+sourcepath) and not File.exists?(sourcepath)
++
++	    options &lt;&lt; &quot;-c &quot;+sourcepath
++	    options &lt;&lt; &quot;-o &quot;+target
++      
++      
++      depfile=File.join(Compiler.getDepsDir,source)
++      depdir=File.split(depfile)[0]
++      Rookey.mkdir(depdir)
++      
++      outdir=File.split(target)[0]      
++      Rookey.mkdir(outdir)
++
++      options &lt;&lt; &quot;-Wp,-MD,#{depfile}&quot;
++	            
++	    call=program+&quot; &quot;+options.join(&quot; &quot;)
++	    sh call
++      puts
++	  
++	  end
++    
++    def linkEXE(name,objects)
++      program=getCompiler(:cpp)
++      options=[]
++      options &lt;&lt; &quot;-o &quot;+name
++      options += objects.uniq
++      options &lt;&lt; @config[&quot;LDFLAGS&quot;] 
++      call=program+&quot; &quot;+options.join(&quot; &quot;)
++      sh call
++      puts
++    end
++      
++	  
++	  def linkDLL(t)
++	    programcall=getCompiler(:cpp)+&quot; &quot; <A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">+ at config</A>[&quot;LDSHAREDFLAGS&quot;]
++      
++      options=[]
++      
++      options &lt;&lt; &quot;-o &quot;+t.name
++      options += t.prerequisites
++      options &lt;&lt; @config[&quot;LDFLAGS&quot;] 
++      options &lt;&lt; @config[&quot;LIBS&quot;]
++      options &lt;&lt; @config[&quot;LIBRUBYARG&quot;] 
++      call=programcall+&quot; &quot;+options.join(&quot; &quot;)
++      sh call
++      puts
++	  end
++	  def linkSO(t)
++	  end
++	  def linkA(t)
++	  end
++	  
++	  def dllName(base)
++	    base+&quot;.&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">+ at config</A>[&quot;DLEXT&quot;]
++	  end
++	  
++    def exeName(base)
++      if @config[&quot;host_os&quot;]=~/win/ and not @config[&quot;host_os&quot;]=~/darwin/
++        base+&quot;.exe&quot;
++      else
++        base
++      end
++    end
++    
++    # FIXME: include build-dirs
++	  def makeObject(sourceName)
++	    file=File.join(getBuildDir,sourceName+&quot;.o&quot;)
++      dir=File.split(file)[0]
++      begin
++#        pp @config
++#        pp &quot;DIR:&quot;,dir
++        #if dir
++        Rookey.mkdir(dir) if dir.length&gt;0
++      rescue Object
++        pp $!
++      end
++      file
++	  end
++	  
++	  def makeSource(objectName)
++	    objectName.sub(/\.o$/,&quot;&quot;).sub(/^#{getBuildDir}[\/\\]/,&quot;&quot;)
++	  end
++	  
++    def getPlainBuildDir
++      &quot;.build_&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">+ at config</A>[&quot;host_os&quot;]
++    end
++    
++	  def getBuildDir
++	    File.join(Dir.pwd,getPlainBuildDir)
++	  end
++    def Compiler.getDepsDir
++      File.join(Dir.pwd,&quot;.deps&quot;)
++    end
++        
++    private
++    def getCompiler(type)
++       #FiXME
++      compiler= case type
++        when :cpp
++          @config[&quot;CPP&quot;]
++        when :c
++          @config[&quot;CC&quot;]
++        else
++          raise &quot;Unknown compiler type #{type}&quot;
++      end
++      ccache=@config[&quot;CCACHE&quot;]
++      compiler=ccache+&quot; &quot;+compiler if ccache
++      compiler
++    end
++    
++    def findProgram(pattern)
++      
++    end
++    
++    @@deps=nil
++    def Compiler.parseDepsFiles
++      return @@deps if @@deps
++            
++      files=Dir[File.join(getDepsDir,&quot;**&quot;,&quot;*&quot;)]
++      @@deps={}
++      files.each{|file|
++        unless File.directory?(file)
++	        fd=File.open(file)
++	        
++	        @@deps[file]=fd.read.gsub(&quot;\\\n&quot;,&quot;&quot;).split(&quot; &quot;)[1..-1]
++	        fd.close
++        end
++      }
++    end
++  end
++  
++  
++end
+\ No newline at end of file
+
+Added: antargis/trunk/rookey/lib/rookey/config_class.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/config_class.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/lib/rookey/config_class.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,33 @@
++module Rookey
++  
++  # Rookeys Config-hash. 
++  class Config
++    def initialize(hash={})
++      @hash=hash
++    end
++    def [](name)
++      @hash[name]||&quot;&quot;
++    end
++    def []=(name,value)
++      @hash[name]=value
++    end
++    def add(name,value)
++      @hash[name]||=&quot;&quot;
++      @hash[name]+=&quot; &quot;+value
++    end
++  end
++  @@config=nil
++  
++  def Rookey.getConfig
++    if @@config.nil?
++      if File.exists?(Rookey::CONFIG_FILENAME)
++        load Rookey::CONFIG_FILENAME
++      else 
++        runConfigure
++        hibe(@@config,Rookey::CONFIG_FILENAME)
++      end
++      CLEAN &lt;&lt; Rookey::CONFIG_FILENAME
++    end
++    @@config
++  end 
++end
+\ No newline at end of file
+
+Added: antargis/trunk/rookey/lib/rookey/config_generator.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/config_generator.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/lib/rookey/config_generator.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,163 @@
++
++require File.join(File.split(__FILE__)[0],'config_class.rb')
++
++class Class
++  def provides(s=nil)
++    @provides||=[]
++    @provides &lt;&lt; s if s
++    @provides
++  end
++  def needs(s=nil)
++    @needs||=[]
++    @needs &lt;&lt; s if s
++    @needs
++  end     
++end
++
++module Rookey
++  
++  
++  CONFIG_FILENAME=&quot;config_cache.rb&quot;
++  @@configured=[]
++  
++  # stores a dumpable ruby-object *what* into a file named *filename*
++  def Rookey.hibe(what,filename)
++    content=Marshal.dump(what).gsub(&quot;\&quot;&quot;,&quot;\\\&quot;&quot;)
++    File.open(filename,&quot;w&quot;) do |f|
++      f.puts &lt;&lt;EOT
++module Rookey
++  @@config=Marshal.load(&quot;#{content}&quot;)
++end
++EOT
++    end
++  end
++  
++  class Configurator
++    def initialize
++    end
++    def run(config)
++    end
++    
++    def installLibDir
++      File.join(File.split(__FILE__)[0],&quot;externals&quot;,&quot;build&quot;,&quot;lib&quot;)
++    end
++    def installIncludeDir
++      File.join(File.split(__FILE__)[0],&quot;externals&quot;,&quot;build&quot;,&quot;include&quot;)
++    end
++    
++    def searchProgram(program)
++      searchPrograms(program)[0]
++    end
++    
++    def searchPrograms(program)
++      programs=[program].flatten
++      result=programs.map{|program|
++	      getPath.map{|dir|
++	        
++	        p=File.join(dir,program)
++          list=Dir[p]
++	        p=nil unless File.exists?(p)
++          p||=list[0]
++          p
++	      }
++      }.flatten.uniq-[nil]
++      pp result
++      result
++    end
++    def checkProgram(program)      
++    end
++    def checkLibrary(config,lib,funcname,includes=[])
++      includes+=config[&quot;NEEDED_INCLUDES&quot;].split(&quot; &quot;)
++      includes=includes.map{|i|&quot;#include &lt;#{i}&gt;&quot;}.join(&quot;\n&quot;)
++      source=&quot;#{includes}\nextern \&quot;C\&quot; void #{funcname}();int main(int argc,char*argv[]){return 0;}&quot;
++      pp source
++      testSource=&quot;test.c&quot;
++      fd=File.open(testSource,&quot;w&quot;)
++      fd.puts source
++      fd.close
++      compiler=Compiler.new(config)
++      target=compiler.makeObject(testSource)
++      compiler.compile(target,testSource)
++      libadd=&quot;-l#{lib}&quot;
++      exeName=compiler.exeName(&quot;test&quot;)
++      begin
++        compiler.linkEXE(exeName,[target,libadd])
++        `#{exeName}`
++        if $?
++          config.add(&quot;LDFLAGS&quot;,libadd)
++        end
++      rescue RuntimeError =&gt; e
++        return false
++      end
++      true
++    end
++    private
++    def getPath
++      # add paths in externals/build/*/bin
++      getEnvPath+Dir[File.expand_path(File.join(File.split(__FILE__)[0],&quot;externals&quot;,&quot;built&quot;,&quot;*&quot;))].map{|d|File.join(d,&quot;bin&quot;)}
++    end
++    def getEnvPath
++      p=ENV[&quot;PATH&quot;]
++      if File.join(&quot;a&quot;,&quot;b&quot;)=~/\\/
++        p.split(&quot;;&quot;)
++      else
++        p.split(&quot;:&quot;)
++      end
++    end
++    
++    def install(package)
++      #raise 1
++      ruby(File.join(File.split(__FILE__)[0],&quot;externals&quot;,&quot;tools.rb&quot;),package)
++    end    
++  end
++  
++  Dir[File.join(File.split(__FILE__)[0],&quot;configs&quot;,&quot;*.rb&quot;)].each{|file|
++    require file
++  }
++  
++  def Rookey.log(*s)
++    @@logFile||=File.open(&quot;rookey.log&quot;,&quot;w&quot;)
++    @@logFile.puts(*s)
++  end
++  
++ 
++  def Rookey.getDescendantsOfClass(p)
++    c=[]
++    ObjectSpace.each_object(Class){|a|c.push(a) if a.ancestors.member?(p)}
++    return c
++  end
++  
++  
++  def self.checkConfig(pClass)
++    
++  end
++  
++  def Rookey.runConfigure
++    log caller
++    configurators=getDescendantsOfClass(Configurator)
++    ok=[]
++    run=[]
++    config=Config.new
++    while run.length&lt;configurators.length
++	    configurators.each{|c|
++	      unless run.member?(c)
++		      if c.needs.select{|s|not ok.member?(s)}.length == 0
++		        log &quot;Running configurator #{c}&quot;
++            #pp config
++            begin
++		          c.new.run(config)
++		          log config.inspect
++              @@configured &lt;&lt; c
++            rescue
++              log &quot;Configuration of #{c} failed !&quot;
++            end
++		        ok+=c.provides
++		        ok.uniq!
++		        run &lt;&lt; c
++		      end
++	      end
++	    }
++    end
++    @@config=config
++  end
++end
+\ No newline at end of file
+
+Added: antargis/trunk/rookey/lib/rookey/configs/ccache.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/configs/ccache.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/lib/rookey/configs/ccache.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,13 @@
++module Rookey
++  class CcacheConfig&lt;Configurator
++    provides :compilerAddon
++    needs :compiler
++    
++    def run(config)
++      ccache=searchProgram(&quot;ccache&quot;)
++      if ccache
++        config[&quot;CCACHE&quot;]=ccache
++      end
++    end
++  end
++end
+\ No newline at end of file
+
+Added: antargis/trunk/rookey/lib/rookey/configs/compiler.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/configs/compiler.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/lib/rookey/configs/compiler.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,10 @@
++module Rookey
++  class CompilerConfig&lt;Configurator
++    needs :compiler
++    
++    def run(config)
++      config.add(&quot;INCLUDEDIRS&quot;,File.join(File.split(File.split(__FILE__)[0])[0],&quot;cpp&quot;))
++      config.add(&quot;LDFLAGS&quot;,&quot;-lMallocDebug&quot;) if ROOKEY_CONFIG[:malloc_debug]
++    end
++  end
++end
+\ No newline at end of file
+
+Added: antargis/trunk/rookey/lib/rookey/configs/debug.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/configs/debug.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/lib/rookey/configs/debug.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,13 @@
++module Rookey
++  class DebugConfig&lt;Configurator
++    needs :compiler
++    
++    def run(config)
++      pp ROOKEY_CONFIG
++      if ROOKEY_CONFIG[:debug]==&quot;true&quot;
++	      config.add(&quot;CFLAGS&quot;,&quot;-O0 -g&quot;)
++	      config.add(&quot;LDFLAGS&quot;,&quot;-g&quot;)
++      end
++    end
++  end
++end
+\ No newline at end of file
+
+Added: antargis/trunk/rookey/lib/rookey/configs/gl.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/configs/gl.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/lib/rookey/configs/gl.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,22 @@
++require 'mkmf'
++require File.join(File.split(__FILE__)[0],&quot;ruby.rb&quot;)
++
++module Rookey
++  class GLConfig&lt;Configurator
++    provides :opengl
++    needs :compiler
++    
++    def run(config)
++      case config[&quot;host_os&quot;]
++        when /darwin/
++          config.add(&quot;INCLUDEDIRS&quot;,&quot;/usr/X11/include&quot;)        
++          config.add(&quot;LDFLAGS&quot;,&quot;-Wl,-framework,OpenGL&quot;)
++        when /win32/
++          #config.add(&quot;INCLUDEDIRS&quot;,&quot;/usr/X11/include&quot;)        
++          config.add(&quot;LDFLAGS&quot;,&quot;-lopengl32 -lglu32&quot;)
++        else
++          config.add(&quot;LDFLAGS&quot;,&quot;-lGL -lGLU&quot;)
++      end      
++    end   
++  end 
++end
+
+Added: antargis/trunk/rookey/lib/rookey/configs/mingw.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/configs/mingw.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/lib/rookey/configs/mingw.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,35 @@
++require 'mkmf'
++
++module Rookey
++  class MinGWConfig&lt;Configurator
++    provides :compiler
++    
++    def run(config)
++      if ROOKEY_CONFIG[:extconfig]=='mingw32'
++	      #config.add(&quot;INCLUDEDIRS&quot;,get(&quot;archdir&quot;)+&quot; &quot;+get(&quot;includedir&quot;))
++	      #config.add(&quot;CFLAGS&quot;,get(&quot;CFLAGS&quot;))
++	      #config.add(&quot;LDFLAGS&quot;,get(&quot;LIBS&quot;))
++	      #config.add(&quot;LDFLAGS&quot;,get(&quot;LIBRUBYARG&quot;))
++	      #config.add(&quot;LDSHAREDFLAGS&quot;,get(&quot;LDSHARED&quot;).sub(/^[^ ]+ /,&quot;&quot;))
++	      config[&quot;DLEXT&quot;]=&quot;dll&quot;
++	      config[&quot;host_os&quot;]=&quot;win32&quot;      
++	      config[&quot;GPP_BASE&quot;]=&quot;i*mingw*g++&quot;
++	      config[&quot;GCC_BASE&quot;]=&quot;i*mingw*gcc&quot;
++	
++	      {&quot;CPP&quot;=&gt;&quot;GPP_BASE&quot;,&quot;CC&quot;=&gt;&quot;GCC_BASE&quot;}.each{|name,base|      
++	        config[name]=searchProgram(config[base])
++	      }
++        base=config[&quot;CPP&quot;].gsub(/bin\/[^\/]+/,&quot;&quot;)
++        baseMingw=Dir[base+&quot;i*mingw*&quot;]
++        config.add(&quot;LDFLAGS&quot;,&quot;-L&quot;+File.join(baseMingw,&quot;lib&quot;))
++        config.add(&quot;LDFLAGS&quot;,&quot;-L&quot;+installLibDir)
++        config.add(&quot;INCLUDEDIRS&quot;,File.join(baseMingw,&quot;include&quot;))
++        config.add(&quot;INCLUDEDIRS&quot;,installIncludeDir)
++        config.add(&quot;CFLAGS&quot;,&quot;-mthreads&quot;)        
++        
++        #pp config
++        #exit
++      end
++    end
++  end    
++end
+
+Added: antargis/trunk/rookey/lib/rookey/configs/png.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/configs/png.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/lib/rookey/configs/png.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,17 @@
++require 'mkmf'
++require File.join(File.split(__FILE__)[0],&quot;ruby.rb&quot;)
++
++module Rookey
++  class PNGConfig&lt;Configurator
++    provides :png
++    needs :compiler
++    needs :z
++        
++    def run(config)
++      unless checkLibrary(config,&quot;png&quot;,&quot;png_get_io_ptr&quot;)
++        install(&quot;png&quot;)
++        checkLibrary(config,&quot;png&quot;,&quot;png_get_io_ptr&quot;)
++      end
++    end   
++  end 
++end
+\ No newline at end of file
+
+Added: antargis/trunk/rookey/lib/rookey/configs/ruby.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/configs/ruby.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/lib/rookey/configs/ruby.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,96 @@
++
++module Rookey
++	  class RubyConfig&lt;Configurator
++      provides :ruby
++      if ROOKEY_CONFIG[:use_mkmf]==true or ROOKEY_CONFIG[:use_mkmf].nil? 
++        #require 'mkmf'
++        provides :compiler
++		    
++		    def run(config)
++		      
++		      
++		      require 'mkmf'
++          
++          @config=CONFIG
++		      
++			      config.add(&quot;INCLUDEDIRS&quot;,get(&quot;archdir&quot;)+&quot; &quot;+get(&quot;includedir&quot;))
++			      config.add(&quot;CFLAGS&quot;,get(&quot;CFLAGS&quot;))
++			      config.add(&quot;LDFLAGS&quot;,get(&quot;LIBS&quot;))
++			      config.add(&quot;LDFLAGS&quot;,get(&quot;LIBRUBYARG&quot;))
++			      config.add(&quot;LDSHAREDFLAGS&quot;,get(&quot;LDSHARED&quot;).sub(/^[^ ]+ /,&quot;&quot;))
++			      config[&quot;DLEXT&quot;]=get(&quot;DLEXT&quot;)
++			      config[&quot;host_os&quot;]=get(&quot;host_os&quot;)      
++			      config[&quot;GPP_BASE&quot;]=&quot;g++&quot;
++			      config[&quot;GCC_BASE&quot;]=&quot;gcc&quot;
++			
++			      {&quot;CPP&quot;=&gt;&quot;GPP_BASE&quot;,&quot;CC&quot;=&gt;&quot;GCC_BASE&quot;}.each{|name,base|      
++			        config[name]=searchProgram(config[base])
++			      }
++	          
++	          if config[&quot;host_os&quot;]=~/darwin.*/ and false
++	            pgc=&quot;-finstrument-functions&quot;
++	            pgl=&quot;-finstrument-functions -lSaturn&quot;
++	          else
++	            pgc=&quot;-pg&quot;
++	            pgl=&quot;-pg&quot;
++	          end 
++	          config.add(&quot;CFLAGS&quot;,pgc) if ROOKEY_CONFIG[:profile]
++	          config.add(&quot;LDFLAGS&quot;,pgl) if ROOKEY_CONFIG[:profile]
++	          
++	          [&quot;CFLAGS&quot;,&quot;CPPFLAGS&quot;,&quot;LDFLAGS&quot;].each{|name|
++	            config.add(name,ENV[name]) if ENV[name]
++	          }
++	          
++		    end
++		    
++		    
++      elsif ROOKEY_CONFIG[:extconfig]=='mingw32'
++        def run(config)
++          puts &quot;OK&quot;
++          #install(&quot;ruby&quot;)
++          #exit
++          prefix=File.join(File.split(File.split(__FILE__)[0])[0],&quot;externals&quot;,&quot;build&quot;)
++          @config=readConfig(File.join(prefix,&quot;lib&quot;,&quot;ruby&quot;,&quot;1.8&quot;,&quot;i386-mingw32&quot;,&quot;rbconfig.rb&quot;))
++          @config[&quot;prefix&quot;]=prefix
++          puts &quot;OK&quot;
++          pp @config
++          
++          config.add(&quot;INCLUDEDIRS&quot;,get(&quot;archdir&quot;)+&quot; &quot;+get(&quot;includedir&quot;))
++          puts &quot;OK&quot;
++          pp config
++          config.add(&quot;CFLAGS&quot;,get(&quot;CFLAGS&quot;).gsub(&quot;-g&quot;,&quot;&quot;))
++          config.add(&quot;LDFLAGS&quot;,get(&quot;LIBS&quot;))
++          config.add(&quot;LDFLAGS&quot;,get(&quot;LIBRUBYARG&quot;))
++          config.add(&quot;LDSHAREDFLAGS&quot;,get(&quot;LDSHARED&quot;).sub(/^[^ ]+ /,&quot;&quot;))
++          
++          pp config
++          puts &quot;OK&quot;
++          config
++          #exit
++        end
++        
++        def readConfig(filename)
++          config={}
++          File.open(filename).read.split(&quot;\n&quot;).each{|line|
++            if line=~/.*CONFIG\[.*\].*/
++              k,v=line.scan(/.*CONFIG\[&quot;(.*)&quot;\] = &quot;(.*)&quot;.*/)[0]
++              config[k]=v if v and k
++            end
++          }
++          config
++        end
++	  end
++    private
++      # recurse through ruby's CONFIG structure 
++      def get(n)
++        return &quot;&quot; if n.nil?
++        v=@config[n]
++        return &quot;&quot; if v.nil?
++        v.gsub(/\$\(([^)]*\))/) {|a|
++          f=a[2..-2]
++          get(f)
++        }      
++      end
++    
++	end
++end
+\ No newline at end of file
+
+Added: antargis/trunk/rookey/lib/rookey/configs/sdl.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/configs/sdl.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/lib/rookey/configs/sdl.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,33 @@
++module Rookey
++  class SDLConfig&lt;Configurator
++    provides :sdl
++    needs :compiler
++    
++    def run(config)
++      # FIXME
++      sdlconfig=&quot;sdl-config&quot;
++      
++      pp config
++      if config[&quot;host_os&quot;]!=&quot;win32&quot;
++	      cflags=`#{sdlconfig} --cflags`.chomp
++	      config.add(&quot;CFLAGS&quot;,cflags.split(&quot; &quot;).select{|f|not f=~/^-I/}.join(&quot; &quot;))
++	      config.add(&quot;INCLUDEDIRS&quot;,cflags.split(&quot; &quot;).select{|f|f=~/^-I/}.map{|f|f[2..-1]}.join(&quot; &quot;))
++	      config.add(&quot;LDFLAGS&quot;,`sdl-config --libs`.chomp)
++      else
++        [&quot;sdl&quot;,&quot;sdl_image&quot;,&quot;sdl_ttf&quot;,&quot;sdl_mixer&quot;].each{|lib|install(lib)}
++        config.add(&quot;INCLUDEDIRS&quot;,File.join(installIncludeDir,&quot;SDL&quot;))
++        sdlconfig=File.join(File.split(__FILE__)[0],&quot;..&quot;,&quot;externals&quot;,&quot;build&quot;,&quot;bin&quot;,&quot;sdl-config&quot;)
++        config.add(&quot;LDFLAGS&quot;,`#{sdlconfig} --libs`.chomp)
++        config.add(&quot;CFLAGS&quot;,`#{sdlconfig} --cflags`.chomp)
++         
++        config.add(&quot;NEEDED_INCLUDES&quot;,&quot;SDL.h&quot;)
++      end      
++      pp config
++      
++      checkLibrary(config,&quot;SDL_image&quot;,&quot;IMG_Load&quot;)
++      checkLibrary(config,&quot;SDL_ttf&quot;,&quot;TTF_Quit&quot;)
++      checkLibrary(config,&quot;SDL_mixer&quot;,&quot;Mix_LoadMus&quot;)
++      pp config
++    end
++  end
++end
+\ No newline at end of file
+
+Added: antargis/trunk/rookey/lib/rookey/configs/swig.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/configs/swig.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/lib/rookey/configs/swig.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,29 @@
++module Rookey
++  class SwigConfig&lt;Configurator
++    provides :swig
++    VERSIONS=[&quot;1.3.33&quot;,&quot;1.3.34&quot;,&quot;1.3.35&quot;]
++    
++    def run(config,firstrun=true)
++      swigs=searchPrograms(&quot;swig&quot;).select{|swig|checkVersion(swig)}
++      if swigs.length==0
++        puts &quot;ERROR: no SWIG with version in #{VERSIONS.join(&quot;, &quot;)} not found!&quot;
++        if firstrun
++          install(&quot;swig&quot;)
++	        run(config,false)
++        end
++      else
++	      swig=swigs[0]
++	      # FIXME: search program
++	      config.add(&quot;SWIG_OPTIONS&quot;,&quot;-Wall -DAGEXPORT&quot;)
++	      config.add(&quot;SWIG&quot;,swig)
++      end
++    end
++    
++    private
++    def checkVersion(swig)
++      run=&quot;#{swig} -version&quot;
++      output=`#{run}`
++      VERSIONS.select{|v|output=~/#{v}/}.length&gt;0
++    end
++  end
++end
+\ No newline at end of file
+
+Added: antargis/trunk/rookey/lib/rookey/configs/z.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/configs/z.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/lib/rookey/configs/z.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,18 @@
++require 'mkmf'
++require File.join(File.split(__FILE__)[0],&quot;ruby.rb&quot;)
++
++module Rookey
++  class ZConfig&lt;Configurator
++    provides :z
++    needs :compiler
++    
++    def run(config)
++      unless checkLibrary(config,&quot;z&quot;,&quot;compress&quot;)
++        install(&quot;zlib&quot;)
++        puts &quot;ARG&quot;
++        config.add(&quot;LDFLAGS&quot;,&quot;-L&quot;+installLibDir)
++        checkLibrary(config,&quot;z&quot;,&quot;compress&quot;)
++      end
++    end   
++  end 
++end
+\ No newline at end of file
+
+Added: antargis/trunk/rookey/lib/rookey/cpp/rk_base.h
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_base.h	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_base.h	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,39 @@
++/**
++ * This file provides a define &quot;AGEXPORT&quot; to be used for exporting functions and classes
++ * out of DLLs on Windows.
++ * For this to function you'll just insert it:
++ * 1) before a function declaration:
++ *    AGEXPORT void myFunction();
++ * 2) or inbetween a class-definition:
++ *    class AGEXPORT MyClass {
++ *    .....
++ *    };
++ * No additional configuration should be needed.
++ * including within swig is taken care of. 
++ *  
++ * */
++
++#ifndef AG_BASE_H
++#define AG_BASE_H
++
++#ifdef WIN32
++#ifdef AGIMPORT
++#define AGEXPORT __declspec(dllimport)
++#else
++#undef AGEXPORT
++#define AGEXPORT __declspec(dllexport)
++#endif // AGIMPORT
++#else
++
++#undef AGEXPORT
++#define AGEXPORT
++
++#endif // WIN32
++
++#ifdef SWIG
++#undef AGEXPORT
++#define AGEXPORT
++#endif
++
++
++#endif
+
+Added: antargis/trunk/rookey/lib/rookey/cpp/rk_debug.cc
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_debug.cc	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_debug.cc	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,141 @@
++/*
++ * Copyright (c) 2005 by David Kamphausen. All rights reserved.
++ *
++ * ag_debug.cc
++ * by David Kamphausen (<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">david.kamphausen at web.de</A>)
++ *
++ * The &quot;Antargis&quot; project, including all files needed to compile it,
++ * is free software; you can redistribute it and/or use it and/or modify it
++ * under the terms of the GNU General Public License as published
++ * by the Free Software Foundation; either version 2 of the License,
++ * or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
++ *
++ * You should have received a copy of the GNU General Public
++ * License along with this program.
++ */
++
++#include &quot;rk_debug.h&quot;
++#include &quot;ag_main.h&quot;
++
++#include &lt;fstream&gt;
++#include &lt;iostream&gt;
++
++#ifdef __WIN32__
++#include &lt;winsock2.h&gt;
++#endif
++#include &lt;ruby.h&gt;
++#include &lt;SDL.h&gt;
++
++bool quietLog=false;
++void setQuiet()
++  {
++    quietLog=true;
++  }
++
++static bool gRubyRaising=false;
++void agRaise(const std::string &amp;s)
++  {
++    cdebug(&quot;assertion failed:&quot;&lt;&lt;s);
++    if(gRubyRaising)
++      rb_raise(rb_eRuntimeError,s.c_str(),&quot;&quot;);
++    else
++      throw std::runtime_error(s);
++  }
++
++void setRubyRaising(bool flag)
++  {
++    gRubyRaising=flag;
++  }
++
++size_t gDebugLevel=0;
++
++size_t getDebugLevel()
++  {
++    return gDebugLevel;
++  }
++void setDebugLevel(size_t t)
++  {
++    gDebugLevel=t;
++  }
++
++
++#ifndef MNDEBUG
++int D::d=0;
++
++std::ofstream debugOFS(&quot;debug.txt&quot;);
++
++std::ostream &amp;getDebug()
++  {
++    if(quietLog)
++      return debugOFS;
++    else
++      return std::cout;
++  }
++
++size_t gDebugIndex=0;
++
++size_t getDebugIndex()
++  {
++    return gDebugIndex;
++  }
++
++
++
++D::D(std::string c):
++  m(c)
++  {
++    indent();
++    gDebugIndex++;
++
++    debugout_checked(2,&quot;start of:&quot;&lt;&lt;c&lt;&lt;&quot;(&quot;&lt;&lt;gDebugIndex&lt;&lt;&quot;)&quot;&lt;&lt;std::endl);
++    d++;
++  }
++AGEXPORT D::~D()
++  {
++    d--;
++    indent();
++    debugout_checked(2,&quot;end   of:&quot;&lt;&lt;m&lt;&lt;std::endl);
++  }
++void D::indent()
++  {
++    for(int i=0;i&lt;d;i++)
++      debugout_checked(2,&quot;  &quot;);
++  }
++
++
++#endif
++
++#ifdef __APPLE__
++
++//#include &lt;mach-o/nlist.h&gt;
++
++#include &quot;execinfo.h&quot;
++void printStacktrace()
++  {
++    void* callstack[128];
++    int i, frames = backtrace(callstack, 128);
++    char** strs = backtrace_symbols(callstack, frames);
++    printf(&quot;FRAMES:%d\n&quot;,frames);
++    for (i = 0; i &lt; frames; ++i) {
++      printf(&quot;%s\n&quot;, strs[i]);
++    }
++    free(strs);
++    /*
++    struct nlist *nl;
++    int result=nlist(&quot;antargis.bundle&quot;,nl);
++    std::cout&lt;&lt;&quot;RESULT:&quot;&lt;&lt;result&lt;&lt;std::endl;
++*/
++  }
++
++#else
++
++void printStacktrace()
++  {
++  }
++
++#endif
++
+
+Added: antargis/trunk/rookey/lib/rookey/cpp/rk_debug.h
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_debug.h	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_debug.h	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,110 @@
++/*
++ * Copyright (c) 2005 by David Kamphausen. All rights reserved.
++ *
++ * ag_debug.h
++ * by David Kamphausen (<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">david.kamphausen at web.de</A>)
++ *
++ * The &quot;Antargis&quot; project, including all files needed to compile it,
++ * is free software; you can redistribute it and/or use it and/or modify it
++ * under the terms of the GNU General Public License as published
++ * by the Free Software Foundation; either version 2 of the License,
++ * or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
++ *
++ * You should have received a copy of the GNU General Public
++ * License along with this program.
++ */
++
++#ifndef AG_DEBUG_h
++#define AG_DEBUG_h
++#include &lt;stdexcept&gt;
++#include &lt;iostream&gt;
++#include &lt;fstream&gt;
++#include &lt;assert.h&gt;
++#include &lt;sstream&gt;
++#include &lt;string&gt;
++#include &lt;vector&gt;
++
++#include &quot;rk_exception.h&quot;
++#include &quot;rk_tools.h&quot;
++#include &quot;rk_base.h&quot;
++
++
++AGEXPORT void setQuiet();
++
++#ifdef MNDEBUG
++#define dbout(x,l)
++#define cdebug(x)
++#define ccdebug(x)
++#define debug(x)
++#define TRACE
++#define CTRACE
++#define CHECK_ZERO(x)
++#define STUB
++
++#else
++
++std::ostream &amp; AGEXPORT getDebug();
++
++#define debug(c) mydebug(::toString(__FILE__),::toString(__LINE__),c)
++
++template&lt;class T&gt;
++inline void mydebug(std::string f,std::string l,const T&amp;t)
++{
++  getDebug()&lt;&lt;&quot;File &quot;&lt;&lt;f&lt;&lt;&quot; Line &quot;&lt;&lt;l&lt;&lt;&quot; : &quot;&lt;&lt;t&lt;&lt;std::endl;
++}
++
++using std::endl;
++
++#define debugout(x) getDebug()&lt;&lt;x
++
++#define cdebug(x) debugout(&quot;(&quot;&lt;&lt;__FILE__&lt;&lt;&quot;:&quot;&lt;&lt;__LINE__&lt;&lt;&quot;:&quot;&lt;&lt;__PRETTY_FUNCTION__&lt;&lt;&quot;):&quot;&lt;&lt;x&lt;&lt;endl)
++#define ccdebug(x) debugout(&quot;(&quot;&lt;&lt;__FILE__&lt;&lt;&quot;:&quot;&lt;&lt;__LINE__&lt;&lt;&quot;:&quot;&lt;&lt;__PRETTY_FUNCTION__&lt;&lt;&quot;:&quot;&lt;&lt;((void*)this)&lt;&lt;&quot;):&quot;&lt;&lt;x&lt;&lt;endl)
++
++AGEXPORT size_t getDebugIndex();
++AGEXPORT size_t getDebugLevel();
++AGEXPORT void setDebugLevel(size_t t);
++
++#define debugout_checked(level,x) { if(level&gt;getDebugLevel()) { getDebug()&lt;&lt;x; }}
++#define dbout(level,x) {if(level&gt;getDebugLevel()) { cdebug(x); }}
++
++/** A helper class for tracing the program's flow
++    Use it by instantiating it with a proper name, or simply use TRACE; (or CTRACE for classes) in your functions */
++class AGEXPORT D
++{
++  std::string m;
++  static int d;
++
++ public:
++  /// the given text will be output on creation and deletion of this object
++  D(std::string text);
++  ~D();
++private:
++  void indent();
++};
++
++#define LINEINFO(x) (::toString(__FILE__)+::toString(&quot; &quot;)+::toString(__LINE__)+::toString(&quot; &quot;)+::toString( __PRETTY_FUNCTION__)+::toString(&quot; &quot;)+::toString(x)).c_str()
++
++#define TRACE D test__LINE__(::toString(__FILE__)+::toString(&quot; &quot;)+::toString(__LINE__)+::toString(&quot; &quot;)+::toString( __PRETTY_FUNCTION__))
++#define CTRACE D test__LINE__(::toString(__FILE__)+::toString(&quot; &quot;)+::toString(__LINE__)+::toString(&quot; &quot;)+::toString( __PRETTY_FUNCTION__)+::toString(&quot; &quot;)+::toString(((void*)this))+::toString(&quot; &quot;)+typeid(*this).name())
++
++AGEXPORT void agRaise(const std::string &amp;s);
++
++#ifndef __WIN32__
++#undef assert
++#define assert(x) {if(!(x)) agRaise((::toString(&quot;assert failed &quot;)+LINEINFO(__STRING(x))).c_str()); }
++#endif
++
++#define STUB cdebug(&quot;STUB in File &quot;&lt;&lt;__FILE__&lt;&lt;&quot; line:&quot;&lt;&lt;__LINE__&lt;&lt;&quot; function:&quot;&lt;&lt;__PRETTY_FUNCTION__)
++
++
++#endif
++
++void setRubyRaising(bool flag);
++void printStacktrace();
++
++
++#endif
+
+Added: antargis/trunk/rookey/lib/rookey/cpp/rk_exception.h
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_exception.h	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_exception.h	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,47 @@
++/*
++ * Copyright (c) 2005 by David Kamphausen. All rights reserved.
++ *
++ * ag_exception.h
++ * by David Kamphausen (<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">david.kamphausen at web.de</A>)
++ *
++ * The &quot;Antargis&quot; project, including all files needed to compile it,
++ * is free software; you can redistribute it and/or use it and/or modify it
++ * under the terms of the GNU General Public License as published
++ * by the Free Software Foundation; either version 2 of the License,
++ * or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
++ *
++ * You should have received a copy of the GNU General Public
++ * License along with this program.
++ */
++
++#ifndef __ANTARGISGUI_EXCEPTION_H__
++#define __ANTARGISGUI_EXCEPTION_H__
++
++#include &lt;rk_base.h&gt;
++#include &lt;stdexcept&gt;
++
++class AGEXPORT AGException:public std::exception
++{
++public:
++  AGException(const std::string &amp;e):s(e)
++  {
++  }
++
++  virtual ~AGException() throw ()
++  {
++  }
++
++  const char*what() const throw()
++  {
++    return s.c_str();
++  }
++
++private:
++  std::string s;
++};
++
++#endif
+
+Added: antargis/trunk/rookey/lib/rookey/cpp/rk_rtools.cc
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_rtools.cc	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_rtools.cc	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,145 @@
++#include &lt;rk_rtools.h&gt;
++
++#include &lt;ruby.h&gt;
++
++#include &lt;iostream&gt;
++#include &lt;sstream&gt;
++#include &lt;stdexcept&gt;
++
++std::string rubyHash(const std::string &amp;p)
++{
++  rb_eval_string(&quot;require 'digest/md5'&quot;);
++  VALUE l=rb_eval_string(&quot;Digest::MD5&quot;);
++  VALUE r=rb_funcall(l,rb_intern(&quot;digest&quot;),1,rb_str_new(p.c_str(),p.length()));
++
++  std::string s(RSTRING_PTR(r), RSTRING_LEN(r));
++
++  return binaryToHex(s,false);
++  
++}
++
++std::string rubyHashOld(const std::string &amp;p)
++{
++  // FIXME: TRY USING ruby's Digest::MD5::digest(&quot;xy&quot;)
++  rb_eval_string(&quot;require 'digest/md5'&quot;);
++
++  //  VALUE l=rb_gv_get(&quot;Digest::MD5&quot;);
++  //  VALUE r=rb_funcall(l,rb_intern(&quot;digest&quot;),1,rb_str_new2(p.c_str()));
++
++  std::ostringstream os;
++  os&lt;&lt;&quot;s=''; Digest::MD5::digest('&quot;&lt;&lt;p&lt;&lt;&quot;').each_byte{|b|s+=sprintf('%X',b)};s&quot;;
++
++  VALUE r=rb_eval_string(os.str().c_str());
++
++  std::string s;
++
++  s=STR2CSTR(r);
++
++  return s;
++}
++
++
++
++
++
++bool rubyMatchRegex(const std::string &amp;p,const std::string &amp;pregex)
++  {
++    VALUE rp=rb_str_new(p.c_str(),p.length());
++    VALUE rregex=rb_str_new(pregex.c_str(),pregex.length());
++    
++    VALUE ret=rb_reg_match(rp,rregex);
++    return ret==Qtrue;
++  }
++
++
++
++
++unsigned char fromHexBS(unsigned char c) //throws(std::runtime_error)
++  {
++    if(c&gt;='a' &amp;&amp; c&lt;='f')
++      return c-'a'+0xA;
++    if(c&gt;='A' &amp;&amp; c&lt;='F')
++      return c-'A'+0xA;
++
++    if(c&gt;='0' &amp;&amp; c&lt;='9')
++      return c-'0';
++    throw std::runtime_error(&quot;wrong input in fromHex()&quot;);
++  }
++
++void toHexBS(char c,std::ostream &amp;os)
++  {
++    unsigned char c0=(c&amp;0xF);
++    unsigned char c1=((c&gt;&gt;4)&amp;0xF);
++
++    char a,b;
++    //  std::ostringstream os;
++    if(c0&lt;10)
++      a=(c0+'0');
++    else
++      a=((c0-10)+'A');
++
++    if(c1&lt;10)
++      b=(c1+'0');
++    else
++      b=((c1-10)+'A');
++
++    //  cdebug(&quot;a:&quot;&lt;&lt;(int)a);
++    //  cdebug(&quot;b:&quot;&lt;&lt;(int)b);
++    os&lt;&lt;b&lt;&lt;a;
++
++    //  return os.str();
++  }
++
++
++std::string binaryToHex(const std::string &amp;s,bool separators)
++  {
++    std::ostringstream os;
++
++    for(size_t i=0;i&lt;s.length();i++)
++      {
++        //      cdebug(i&lt;&lt;&quot;:&quot;&lt;&lt;(int)s[i]);
++        toHexBS(s[i],os);
++        if(i&gt;0 &amp;&amp; separators)
++          {
++            if((i%32)==0)
++              os&lt;&lt;std::endl;
++            else if((i%4)==0)
++              os&lt;&lt;&quot; &quot;;
++          }
++      }
++    //  cdebug(os.getString());
++
++    return os.str();//getString();
++  }
++
++
++std::string hexToBinary(const std::string &amp;s)
++  {
++    std::ostringstream os;
++    bool complete=false;
++    char current=0;
++
++    for(size_t i=0;i&lt;s.length();i++)
++      {
++        char c=s[i];
++        if((c&gt;='a' &amp;&amp; c&lt;='f') || (c&gt;='A' &amp;&amp; c&lt;='F') || (c&gt;='0' &amp;&amp; c&lt;='9'))
++          {
++            if(complete)
++              {
++                current&lt;&lt;=4;
++                current|=fromHexBS(c);
++                os&lt;&lt;current;
++                complete=false;
++              }
++            else
++              {
++                current=fromHexBS(c);
++                complete=true;
++              }
++          }
++
++      }
++
++
++    return os.str();
++  }
+
+Added: antargis/trunk/rookey/lib/rookey/cpp/rk_rtools.h
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_rtools.h	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_rtools.h	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,14 @@
++#ifndef AG_RTOOLS_H
++#define AG_RTOOLS_H
++
++#include &lt;rk_base.h&gt;
++#include &lt;string&gt;
++
++AGEXPORT std::string rubyHash(const std::string &amp;p);
++AGEXPORT bool rubyMatchRegex(const std::string &amp;p,const std::string &amp;pregex);
++std::string rubySub(const std::string &amp;p,const std::string &amp;search,const std::string &amp;repl);
++
++AGEXPORT std::string binaryToHex(const std::string &amp;s,bool separators=true);
++AGEXPORT std::string hexToBinary(const std::string &amp;s);
++
++#endif
+
+Added: antargis/trunk/rookey/lib/rookey/cpp/rk_rubyobj.cc
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_rubyobj.cc	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_rubyobj.cc	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,188 @@
++#include &quot;rk_base.h&quot;
++#include &quot;rk_rubyobj.h&quot;
++#include &lt;assert.h&gt;
++#include &lt;typeinfo&gt;
++#include &lt;set&gt;
++#include &lt;map&gt;
++#include &lt;iostream&gt;
++
++
++#ifdef __WIN32__
++#include &lt;winsock2.h&gt; // fix problem with fd_set
++#endif
++#include &lt;ruby.h&gt;
++
++bool mRubyQuitting=false;
++
++// this set keeps track of all valid instances of AGRubyObject
++std::set&lt;AGRubyObject*&gt; mRubyObjects;
++std::set&lt;AGRubyObject*&gt; mRemovedRubyObjects;
++
++void setQuitting()
++  {
++    mRubyQuitting=true;
++  }
++
++// swig-function for handling &quot;tracked&quot; objects
++// BEWARE: this does not support multiple libraries yet (FIXME)
++VALUE convertCpp2Ruby(AGRubyObject *cObject);
++
++AGEXPORT void *getAddressOfRubyObject(AGRubyObject *o)
++  {
++    return o;
++  }
++
++AGEXPORT bool rubyObjectExists(void *po)
++  {
++    VALUE v=convertCpp2Ruby((AGRubyObject*)po);
++    return(v!=Qnil);
++  }
++
++AGRubyObject::AGRubyObject() throw()
++  {
++    //std::cerr&lt;&lt;&quot;AGRubyObject::new:&quot;&lt;&lt;this&lt;&lt;std::endl;
++    assert(mRubyObjects.find(this)==mRubyObjects.end());
++    mRubyObjects.insert(this);
++    size_t oSize=mRemovedRubyObjects.size();
++
++    mRemovedRubyObjects.erase(this);
++    if(oSize!=mRemovedRubyObjects.size())
++      std::cerr&lt;&lt;&quot;Collision - removed rubyobject's address is overwritten!&quot;&lt;&lt;std::endl;
++
++    std::cerr&lt;&lt;&quot;current ruby#:&quot;&lt;&lt;mRubyObjects.size()&lt;&lt;&quot; removed:&quot;&lt;&lt;mRemovedRubyObjects.size()&lt;&lt;std::endl;
++  }
++AGRubyObject::~AGRubyObject() throw()
++  {
++    assert(mRubyObjects.find(this)!=mRubyObjects.end());
++    assert(mRemovedRubyObjects.find(this)==mRemovedRubyObjects.end());
++    //std::cerr&lt;&lt;&quot;AGRubyObject::Removed:&quot;&lt;&lt;this&lt;&lt;std::endl;
++    for(std::set&lt;AGBaseObject*&gt;::iterator i=mReferences.begin();i!=mReferences.end();i++)
++      (*i)-&gt;baseClear();
++    mRubyObjects.erase(this);
++    mRemovedRubyObjects.insert(this);
++  }
++
++
++/// override this function to mark your children
++void AGRubyObject::mark() throw()
++  {
++  }
++
++
++// call this function with any object you want to mark.
++// recursive should be set true only in one direction, otherwise you'll generate endless-loops (!!)
++void AGRubyObject::markObject(AGRubyObject *o, bool recursive) throw()
++  {
++    //std::cerr&lt;&lt;&quot;markObject:&quot;&lt;&lt;o&lt;&lt;std::endl;
++    // o must be a valid ruby-object
++    assert(mRubyObjects.find(o)!=mRubyObjects.end());
++
++    // look up, if it's registered within ruby
++    VALUE v=convertCpp2Ruby(o);
++    if(v!=Qnil)
++      {
++        assert(DATA_PTR(v)==o);
++        //std::cout&lt;&lt;&quot;V:&quot;&lt;&lt;v&lt;&lt;std::endl;
++        // then mark it
++        rb_gc_mark(v);
++
++      }
++
++    assert(o);
++    // recurse through hierarchy
++    if(recursive)
++      o-&gt;mark(); // call this directly
++  }
++
++void AGRubyObject::clear() throw()
++  {
++  }
++
++void AGRubyObject::addRef(AGBaseObject *o)
++  {
++    mReferences.insert(o);
++  }
++
++void AGRubyObject::deleteRef(AGBaseObject *o)
++  {
++    mReferences.erase(o);
++  }
++
++
++
++/// this is the marking function, that gets called by ruby
++/// it handles all the AGRubyObjects
++void general_markfunc(void *ptr)
++  {
++    if(!ptr)
++      {
++        std::cerr&lt;&lt;(&quot;WARNING: a ptr==0 was given in general_markfunc!&quot;)&lt;&lt;std::endl;
++        return; // ignore this !
++      }
++    assert(ptr);
++    // the given object must be a AGRubyObject and it must be valid (it's in mRubyObjects)
++    AGRubyObject *o=static_cast&lt;AGRubyObject*&gt;(ptr);
++    if(mRubyObjects.find(o)==mRubyObjects.end())
++      std::cerr&lt;&lt;&quot;OLD RUBYOBJ:&quot;&lt;&lt;(mRemovedRubyObjects.find(o)!=mRemovedRubyObjects.end())&lt;&lt;&quot;:&quot;&lt;&lt;o&lt;&lt;std::endl;
++    assert(mRubyObjects.find(o)!=mRubyObjects.end());
++
++#ifdef GCDEBUG
++    printf(&quot;mark: 0x%lx\n&quot;,o-&gt;mRUBY);
++#endif
++
++    assert(o);
++    o-&gt;mark();
++  }
++
++
++/**
++   saveDelete is used to delete AGRubyObjects savely.
++ */
++bool saveDelete(AGRubyObject *o)
++  {
++    if(mRubyQuitting)
++      return false; // we are quitting - so memory is discarded anyway - hopefully ;-)
++
++    // check, if this object is existant any longer
++    // in case we're quitting this the deletion order is not defined for ruby-objects !!
++    if(mRubyObjects.find(o)==mRubyObjects.end())
++      {
++#ifdef GC_DEBUG
++        std::cerr&lt;&lt;&quot;RubyObject &quot;&lt;&lt;o&lt;&lt;&quot; no longer existant - maybe we're quitting ?!&quot;&lt;&lt;std::endl;
++#endif
++        return false;
++      }
++
++    assert(o);
++    // send object a message, that it will be deleted. This can help with detachin connections
++    // between objects.
++    o-&gt;clear();
++
++    VALUE v=convertCpp2Ruby(o);
++    if(v!=Qnil)
++      return false; // do not delete - it's under ruby's control!
++
++
++    delete o;
++    return true;
++  }
++
++
++
++AGBaseObject::AGBaseObject(AGRubyObject *p) throw()
++:mp(p)
++    {
++      if(p)
++        p-&gt;addRef(this);
++    }
++
++AGBaseObject::~AGBaseObject() throw()
++  {
++    if(mp)
++      mp-&gt;deleteRef(this);
++  }
++
++void AGBaseObject::baseClear() throw()
++  {
++    mp=0;
++  }
+
+Added: antargis/trunk/rookey/lib/rookey/cpp/rk_rubyobj.h
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_rubyobj.h	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_rubyobj.h	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,134 @@
++#ifndef RUBY_OBJ_H
++#define RUBY_OBJ_H
++
++// INCLUDE_SWIG - used to filter, which files are included in swig-interfacing
++
++#ifdef WIN32
++#undef connect
++#undef close
++#endif
++
++/**
++   AGRubyObject does handling between ruby and c++ memory management.
++   Ruby has a garbage collector (GC) which is not really to be influenced.
++   Every object that is created in ruby is handled by the GC.
++   So we have to take care of that.
++
++   Ruby's GC has no reference counting whatsoever but it uses a mark-and-sweep
++   algorithm. When the GC is run the algorithm marks any known object and then calls
++   all the objects' mark-functions which therefore call mark-functions all the objects it
++   knowns. When anything known is marked, the algorithm kills any object that isn't marked.
++
++   So all we have to do is to mark any object that is connected to the current object in any way.
++   Normally you would mark any object that is a children of the current one.
++
++   To make things easier AGRubyObject takes care of objects which are not handled by ruby. They get called
++   recursively anyways. So all you have to do is overriding the mark() function and then calling
++   markObject(AGRubyObject *o) for any object you want to mark.
++
++   If you need an explicit destructor-call at a specified time you must be content with a call to clear(), which
++   you can override. For deletion of any AGRubyObject you should use saveDelete. This calls clear() and deletes the
++   object, if it's not a ruby-managed one.
++
++   @see saveDelete(AGRubyObject *o)
++ */
++
++// INCLUDE_SWIG - used to filter, which files are included in swig-interfacing
++
++#include &lt;string&gt;
++#include &lt;set&gt;
++#include &lt;rk_base.h&gt;
++#include &lt;stdexcept&gt;
++
++class AGRubyObject;
++
++class AGEXPORT AGBaseObject
++{
++protected:
++  AGRubyObject *mp;
++public:
++  // AGBaseObject(.) should never throw an exception, because it may be called from ruby-functions not expection it to do so
++  AGBaseObject(AGRubyObject *p) throw ();
++
++  // ~AGBaseObject should never throw an exception, because it may be called by ruby's garbage collector
++  ~AGBaseObject() throw ();
++  void baseClear() throw ();
++
++  bool valid() throw ()
++    {
++      return mp;
++    }
++};
++
++
++/**
++ * gc_ptr&lt;T&gt; is a managed ptr to a (possibly) garbage-collected object
++ * it will be redirected to 0, if the targeted object is destroyed. So
++ * you'll get a null-pointer exception when the object is not longer
++ * present. This prevents you from accessing random memory.
++ */
++template&lt;class T&gt;
++class AGEXPORT gc_ptr:public AGBaseObject
++{
++public:
++  gc_ptr(T*t):AGBaseObject(t)
++  {
++  }
++
++  T*operator-&gt;()
++    {
++      return (T*)mp;
++    }
++  T* getPtr()
++  {
++    if(!mp)
++      throw std::runtime_error(&quot;mp not defined!&quot;);
++    return (T*)mp;
++  }
++};
++
++/**
++ *
++ * */
++class AGEXPORT AGRubyObject
++{
++public:
++  /**
++     This is copied from ruby.h, so that this header-file is not included all over the place.
++     FIXME: this must eventually be changed - when the ruby implementation changes
++   */
++  typedef unsigned long VALUE;
++
++  AGRubyObject() throw();
++  virtual ~AGRubyObject() throw();
++
++protected:
++#ifndef SWIG
++  // functions shouldn't be exported and NEVER be used in ruby!
++  virtual void clear() throw();
++  virtual void mark() throw();
++  void markObject(AGRubyObject *o,bool recursive=true) throw();
++
++#endif
++public:
++#ifndef SWIG
++
++#endif
++  friend void general_markfunc(void *ptr);
++  friend bool saveDelete(AGRubyObject *o);
++
++  void addRef(AGBaseObject *o);
++  void deleteRef(AGBaseObject *o);
++private:
++  std::set&lt;AGBaseObject*&gt; mReferences;
++};
++
++AGEXPORT void general_markfunc(void *ptr);
++AGEXPORT bool saveDelete(AGRubyObject *o);
++
++AGEXPORT void *getAddressOfRubyObject(AGRubyObject *object);
++AGEXPORT bool rubyObjectExists(void *o);
++
++AGEXPORT void setQuitting();
++
++#endif
+
+Added: antargis/trunk/rookey/lib/rookey/cpp/rk_string.cc
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_string.cc	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_string.cc	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,230 @@
++#include &lt;rk_string.h&gt;
++#include &lt;rk_debug.h&gt;
++#include &lt;rk_utf8.h&gt;
++#include &lt;rk_rtools.h&gt;
++
++///////////
++// AGString
++///////////
++
++AGString::AGString(int i)
++  {
++    std::ostringstream os;
++    os&lt;&lt;i;
++    *this=os.str();
++  }
++AGString::AGString(long i)
++  {
++    std::ostringstream os;
++    os&lt;&lt;i;
++    *this=os.str();
++  }
++AGString::AGString(size_t i)
++  {
++    std::ostringstream os;
++    os&lt;&lt;i;
++    *this=os.str();
++  }
++AGString::AGString(float f)
++  {
++    std::ostringstream os;
++    os&lt;&lt;f;
++    *this=os.str();
++  }
++
++
++AGString::AGString()
++  {
++  }
++
++AGString::AGString(const char*c):
++  std::string(c)
++  {
++  }
++
++AGString::AGString(const char*c,size_t size):
++  std::string(c,size)
++  {
++  }
++
++AGString::AGString(const std::string &amp;p):
++  std::string(p)
++  {
++  }
++AGString::AGString(const std::string &amp;p,size_t many):
++  std::string(p,many)
++  {
++  }
++AGString::AGString(const AGString &amp;p):
++  std::string(p)
++  {
++  }
++
++AGString::AGString(const char c,size_t many):
++  std::string(c,many)
++  {
++  }
++
++AGString &amp;AGString::operator=(const AGString &amp;p)
++  {
++    std::string::operator=(p);
++    return *this;
++  }
++
++AGString &amp;AGString::operator+=(const AGString &amp;p)
++{
++  std::string::operator+=(p);
++  return *this;
++}
++
++size_t AGString::memory() const
++{
++  return length();
++}
++
++AGString AGString::substr(size_t from,size_t len) const
++{
++  return AGString(std::string::substr(from,len));
++}
++
++
++std::vector&lt;AGString&gt; AGString::split(const AGString &amp;p) const
++{
++  std::vector&lt;AGString&gt; a;
++  size_t oi=0;
++  size_t i=find(p);
++  for(;;)
++    {
++      i=find(p,oi);
++      a.push_back(substr(oi,i-oi));
++      if(i==std::string::npos)
++        break;
++      oi=i+1;
++    }
++  return a;
++}
++
++AGString AGString::operator+(const AGString &amp;p) const
++{
++  AGString n(*this);
++  n+=p;
++  return n;
++}
++AGString AGString::operator+(const char* p) const
++{
++  AGString n(*this);
++  n+=p;
++  return n;
++}
++AGString AGString::operator+(const std::string &amp;p) const
++{
++  AGString n(*this);
++  n+=p;
++  return n;
++}
++
++
++AGString AGString::replace(const AGString &amp;what, const AGString &amp;by) const
++{
++  size_t i=0;
++  size_t oi=0;
++  AGString n;
++
++  while(i!=npos)
++    {
++      i=find(what,oi);
++      n+=substr(oi,i-oi);
++      if(i==npos)
++        break;
++      n+=by;
++      oi=i+1;
++    }
++  return n;
++}
++
++
++int AGString::toInt() const
++{
++  return atoi(c_str());
++}
++long AGString::toLong() const
++{
++  return atol(c_str());
++}
++float AGString::toFloat() const
++{
++  return atof(c_str());
++}
++
++Uint8 AGString::toUint8() const
++{
++  return toInt();
++}
++Sint16 AGString::toSint16() const
++{
++  return toInt();
++}
++
++
++int AGString::parseHex() const
++{
++  int i=0;
++  for(size_t j=0;j&lt;length();j++)
++    {
++      int k=0;
++      i&lt;&lt;=4;
++      char c=operator[](j);
++      if(c&gt;='A'&amp;&amp;c&lt;='F')
++        k=c-'A'+10;
++      else if(c&gt;='a' &amp;&amp; c&lt;='f')
++        k=c-'a'+10;
++      else if(c&gt;='0' &amp;&amp; c&lt;='9')
++        k=c-'0';
++      i+=k;
++    }
++  return i;
++}
++
++AGString AGString::toHex(int i)
++  {
++    std::string s;
++    std::string c=&quot;0&quot;;
++    while(i!=0)
++      {
++        int k=i&amp;0xF;
++
++        if(k&gt;9)
++          c[0]='A'+k-10;
++        else
++          c[0]='0'+k;
++
++        s=c+s;
++        i&gt;&gt;=4;
++      }
++
++    while(s.length()&lt;2)
++      s=std::string(&quot;0&quot;)+s;
++    return AGString(s);
++  }
++
++bool AGString::toBool() const
++{
++  if(length()==0)
++    return false;
++  if(operator[](0)=='1')
++    return true;
++  if(substr(0,4)==&quot;true&quot;)
++    return true;
++  return false;
++}
++
++
++bool AGString::matches(const std::string &amp;regex) const
++{
++  return rubyMatchRegex(*this,regex);
++}
++
++AGString AGString::last(size_t n) const
++{
++
++}
+
+Added: antargis/trunk/rookey/lib/rookey/cpp/rk_string.h
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_string.h	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_string.h	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,64 @@
++#ifndef AG_STRING
++#define AG_STRING
++
++#include &lt;rk_base.h&gt;
++#include &lt;string&gt;
++#include &lt;vector&gt;
++#include &lt;SDL.h&gt;
++
++
++/** A string class that natively supports UTF-8 */
++class AGEXPORT AGString:public std::string
++{
++public:
++  static const size_t npos = static_cast&lt;size_t&gt;(-1);
++
++  AGString();
++  AGString(const std::string &amp;p);
++  AGString(const std::string &amp;p,size_t many);
++  AGString(const AGString &amp;p);
++  explicit AGString(int i);
++  explicit AGString(size_t i);
++  explicit AGString(long i);
++  explicit AGString(float f);
++  AGString(const char c,size_t many=1);
++  AGString(const char*c);
++  AGString(const char*c,size_t size);
++
++#ifndef SWIiG
++  AGString &amp;operator=(const AGString &amp;s);
++
++  AGString &amp;operator+=(const AGString &amp;p);
++#endif
++
++  // size in bytes
++  size_t memory() const;
++
++  AGString substr(size_t from,size_t len) const;
++
++  std::vector&lt;AGString&gt; split(const AGString &amp;p) const;
++
++  AGString replace(const AGString &amp;what, const AGString &amp;by) const;
++
++  AGString last(size_t n) const;
++
++  AGString operator+(const AGString &amp;s) const;
++  AGString operator+(const char *s) const;
++  AGString operator+(const std::string &amp;s) const;
++
++  int toInt() const;
++  long toLong() const;
++  float toFloat() const;
++  bool toBool() const;
++
++  Uint8 toUint8() const;
++  Sint16 toSint16() const;
++
++  int parseHex() const;
++
++  static AGString toHex(int i);
++
++  bool matches(const std::string &amp;regex) const;
++};
++
++#endif
+
+Added: antargis/trunk/rookey/lib/rookey/cpp/rk_tools.cc
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_tools.cc	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_tools.cc	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,108 @@
++/*
++ * Copyright (c) 2005 by David Kamphausen. All rights reserved.
++ *
++ * ag_tools.cc
++ * by David Kamphausen (<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">david.kamphausen at web.de</A>)
++ *
++ * The &quot;Antargis&quot; project, including all files needed to compile it,
++ * is free software; you can redistribute it and/or use it and/or modify it
++ * under the terms of the GNU General Public License as published
++ * by the Free Software Foundation; either version 2 of the License,
++ * or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
++ *
++ * You should have received a copy of the GNU General Public
++ * License along with this program.
++ */
++
++#include &quot;rk_tools.h&quot;
++#include &quot;rk_debug.h&quot;
++
++#include &lt;sstream&gt;
++
++int toInt(const std::string &amp;s)
++  {
++    return atoi(s.c_str());
++  }
++long toLong(const std::string &amp;s)
++  {
++    return atol(s.c_str());
++  }
++float toFloat(const std::string &amp;s)
++  {
++    float f=atof(s.c_str());
++    return f;
++  }
++
++int fromHex(const std::string &amp;s)
++  {
++    int i=0;
++    for(size_t j=0;j&lt;s.length();j++)
++      {
++        int k=0;
++        i&lt;&lt;=4;
++        char c=s[j];
++        if(c&gt;='A'&amp;&amp;c&lt;='F')
++          k=c-'A'+10;
++        else if(c&gt;='a' &amp;&amp; c&lt;='f')
++          k=c-'a'+10;
++        else if(c&gt;='0' &amp;&amp; c&lt;='9')
++          k=c-'0';
++        i+=k;
++      }
++    return i;
++  }
++std::string toHex(int i)
++  {
++    std::string s;
++    std::string c=&quot;0&quot;;
++    while(i!=0)
++      {
++        int k=i&amp;0xF;
++
++        if(k&gt;9)
++          c[0]='A'+k-10;
++        else
++          c[0]='0'+k;
++
++        s=c+s;
++        i&gt;&gt;=4;
++      }
++
++
++    while(s.length()&lt;2)
++      s=std::string(&quot;0&quot;)+s;
++    return s;
++  }
++
++
++std::vector&lt;std::string&gt; split(const std::string &amp;needle,const std::string &amp;haystack)
++{
++  std::vector&lt;std::string&gt; d;
++  size_t i,last=0;
++  for(i=haystack.find(needle);i!=std::string::npos;i=haystack.find(needle,i+1))
++    {
++      d.push_back(haystack.substr(last,i-last));
++      last=i+needle.length();
++    }
++  i=haystack.length();
++  d.push_back(haystack.substr(last,i-last));
++  return d;
++}
++
++
++
++std::string replace(const std::string &amp;s,const std::string &amp;a,const std::string &amp;b)
++  {
++    std::string str=s;
++    size_t i=str.find(a);
++    while(i!=str.npos)
++      {
++        str=str.substr(0,i)+b+str.substr(i+a.length(),str.length()-i-a.length());
++        i=str.find(a,i+b.length());
++      }
++    return str;
++  }
+
+Added: antargis/trunk/rookey/lib/rookey/cpp/rk_tools.h
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_tools.h	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_tools.h	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,87 @@
++/*
++ * Copyright (c) 2005 by David Kamphausen. All rights reserved.
++ *
++ * ag_tools.h
++ * by David Kamphausen (<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">david.kamphausen at web.de</A>)
++ *
++ * The &quot;Antargis&quot; project, including all files needed to compile it,
++ * is free software; you can redistribute it and/or use it and/or modify it
++ * under the terms of the GNU General Public License as published
++ * by the Free Software Foundation; either version 2 of the License,
++ * or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
++ *
++ * You should have received a copy of the GNU General Public
++ * License along with this program.
++ */
++
++#ifndef AG_TOOLS_H
++#define AG_TOOLS_H
++
++#include &lt;string&gt;
++#include &lt;list&gt;
++#include &lt;sstream&gt;
++#include &lt;vector&gt;
++
++#ifdef WIN32
++#include &lt;windows.h&gt;
++#include &lt;winsock.h&gt;
++#endif
++
++#include &lt;rk_base.h&gt;
++
++std::vector&lt;std::string&gt; AGEXPORT split(const std::string &amp;n,const std::string &amp;h);
++
++
++std::string AGEXPORT replace(const std::string &amp;s,const std::string &amp;a,const std::string &amp;b);
++
++template&lt;class T&gt;
++inline std::string toString(const T&amp;t)
++{
++  std::ostringstream os;
++  os&lt;&lt;t;
++  return os.str();
++}
++
++template&lt;&gt;
++inline std::string toString(const bool&amp;b)
++{
++  if(b)
++    return &quot;true&quot;;
++  else
++    return &quot;false&quot;;
++}
++
++inline bool toBool(const std::string &amp;s)
++{
++  return(s==&quot;true&quot;);
++}
++
++AGEXPORT int toInt(const std::string &amp;s);
++AGEXPORT long toLong(const std::string &amp;s);
++AGEXPORT float toFloat(const std::string &amp;s);
++AGEXPORT int fromHex(const std::string &amp;s);
++AGEXPORT std::string toHex(int i);
++
++template&lt;class T&gt;
++void append(std::list&lt;T&gt; &amp;l1,const std::list&lt;T&gt; &amp;l2)
++{
++  typename std::list&lt;T&gt;::const_iterator i=l2.begin();
++  for(;i!=l2.end();i++)
++    l1.push_back(*i);
++}
++
++template&lt;class T&gt;
++void append(std::vector&lt;T&gt; &amp;l1,const std::vector&lt;T&gt; &amp;l2)
++{
++  typename std::vector&lt;T&gt;::const_iterator i=l2.begin();
++  for(;i!=l2.end();i++)
++    l1.push_back(*i);
++}
++
++#define AGsign(x) ((x)&lt;0?-1:(x)&gt;0?1:0)
++
++#endif
+
+Added: antargis/trunk/rookey/lib/rookey/cpp/rk_utf8.cc
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_utf8.cc	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_utf8.cc	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,78 @@
++#include &quot;rk_utf8.h&quot;
++#include &quot;rk_debug.h&quot;
++#include &lt;string&gt;
++
++#include &lt;SDL.h&gt;
++
++size_t agFirstCharSize(const std::string &amp;s,size_t pos)
++{
++  unsigned char c=s[pos];
++  size_t l=1;
++  if((c&amp;0xF0)==0xF0)
++    l=4;
++  else if((c&amp;0xE0)==0xE0)
++    l=3;
++  else if((c&amp;0xC0)==0xC0)
++    l=2;
++  assert(l+pos&lt;=s.length());
++  return l;
++    
++}
++size_t agStringLength(const std::string &amp;s)
++{
++  size_t c=0;
++  size_t l=0;
++  //  cdebug(&quot;in:&quot;&lt;&lt;s);
++  while(c&lt;s.length())
++    {
++      size_t cl=agFirstCharSize(s,c);
++      //      cdebug(cl&lt;&lt;&quot;::&quot;&lt;&lt;c&lt;&lt;&quot;  &quot;&lt;&lt;s.length());
++      c+=cl;
++      l++;
++    }
++  //  cdebug(&quot;len:&quot;&lt;&lt;l);
++  return l;
++}
++
++std::string agSubStr(const std::string &amp;s,size_t from,size_t len)
++{
++  size_t i=0;
++  size_t c=0;
++  while(i&lt;from &amp;&amp; c&lt;s.length())
++    {
++      c+=agFirstCharSize(s,c);
++      i++;
++    }
++  if(i&lt;from)
++    return &quot;&quot;;
++
++  std::string r;
++  size_t d;
++  for(i=0;i&lt;len &amp;&amp; c&lt;s.length();i++)
++    {
++      d=agFirstCharSize(s,c);
++      r+=s.substr(c,d);
++      c+=d;
++    }
++  return r;
++}
++
++std::string unicode2Utf8(Uint16 unicode)
++{
++  std::ostringstream os;
++
++  if(unicode &lt; 0x80)
++    os&lt;&lt;char(unicode &amp; 0x7f);
++  else if(unicode &lt; 0x800)
++    os&lt;&lt;char((unicode &gt;&gt;6)|0xc0)&lt;&lt;char((unicode &amp; 0x3f)|0x80);
++#ifdef BIGGER_UNICODE
++  else if(unicode &lt; 0x10000)
++    os&lt;&lt;char((unicode &gt;&gt;12)|0xe0)&lt;&lt;char(((unicode &gt;&gt; 6)&amp;0x3f)|0x80)&lt;&lt;char((unicode&amp;0x3f)|0x80);
++  else if(unicode &lt;= 0x0010 FFFF)
++    os&lt;&lt;char((unicode &gt;&gt;18)|0xF0)&lt;&lt;char(((unicode &gt;&gt;12)&amp;0x3f)|0x80)&lt;&lt;char(((unicode&gt;&gt;6)0x3f)|0x80)&lt;&lt;char((unicode&amp;0x3f)|0x80);
++#else
++  else
++    os&lt;&lt;char((unicode &gt;&gt;12)|0xe0)&lt;&lt;char(((unicode &gt;&gt; 6)&amp;0x3f)|0x80)&lt;&lt;char((unicode&amp;0x3f)|0x80);
++#endif
++  return os.str();
++}
+
+Added: antargis/trunk/rookey/lib/rookey/cpp/rk_utf8.h
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_utf8.h	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_utf8.h	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,16 @@
++#ifndef AG_UTF8_H
++#define AG_UTF8_H
++
++// INCLUDE_SWIG - used to filter, which files are included in swig-interfacing
++
++#include &lt;rk_base.h&gt;
++#include &lt;string&gt;
++#include &lt;vector&gt;
++#include &lt;SDL.h&gt;
++
++AGEXPORT size_t agFirstCharSize(const std::string &amp;s,size_t pos=0);
++AGEXPORT size_t agStringLength(const std::string &amp;s);
++AGEXPORT std::string agSubStr(const std::string &amp;s,size_t from,size_t len);
++AGEXPORT std::string unicode2Utf8(Uint16 unicode);
++
++#endif
+
+Added: antargis/trunk/rookey/lib/rookey/cpp/swig_dummy.cc
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/swig_dummy.cc	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/lib/rookey/cpp/swig_dummy.cc	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,11 @@
++#include &quot;rk_rubyobj.h&quot;
++
++#ifdef __WIN32__
++#include &lt;winsock2.h&gt; // fix problem with fd_set
++#endif
++#include &lt;ruby.h&gt;
++
++VALUE convertCpp2Ruby(AGRubyObject *cObject)
++  {
++    return Qnil;
++  }
+
+Added: antargis/trunk/rookey/lib/rookey/cpp_hierarchy_parser.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp_hierarchy_parser.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/lib/rookey/cpp_hierarchy_parser.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,152 @@
++require 'ostruct'
++
++module Rookey
++  
++  # gather all classes that are derived from AGRubyObject 
++  def Rookey.getRubyClasses(classes)
++    cs=[classes.select{|c|c.name==&quot;AGRubyObject&quot;}[0]]
++    begin
++      s=cs.length
++      cs=[cs+cs.map{|c|c.children}].flatten.uniq
++    end while s!=cs.length
++    cs
++  end
++  
++  
++  # sort cpp-header files in the correct order, so that swig will have the classes in the
++  # order that usage of classes comes after definition (as long as this is possible)
++  def Rookey.getOrderedCppHeaders(classes)
++    map={}
++    order={}
++    
++    allClasses=classes.dup
++    classes=getRubyClasses(classes)
++    
++    classes.each{|c|
++      map[c.name.to_s]=c
++    }
++    classes.each{|c|
++      order[c.name]=0 if map[c.parent.to_s].nil? 
++    }
++    oneNotSet=false
++    maxNumber=0
++    begin
++      oneNotSet=false
++      classes.each{|c|
++        if order[c.name].nil?
++          if order[c.parent].nil?
++            oneNotSet=true
++          else
++            order[c.name]=order[c.parent]+1
++            maxNumber=[maxNumber,order[c.name]].max
++          end
++        end
++      }
++    end while oneNotSet
++    cs=[]
++    (0..maxNumber).each{|i|
++      order.each{|k,v|
++        if v==i
++          cs &lt;&lt; map[k]
++        end
++      }
++    }
++    allFiles=allClasses.map{|c|c.header_file}.uniq
++    result=classes.sort{|a,b|order[a.name]&lt;=&gt;order[b.name]}.map{|c|c.header_file}.uniq
++    result=result+(allFiles-result)
++    result
++  end
++  
++  
++  class CppHierarchyParser
++    CppClass=Struct.new(:name,:parent,:header_file,:children)
++	  
++    
++    def initialize(files)
++      @cppClasses=[]
++      parseFiles(files)
++      processDerivations
++    end
++	
++	  def getAllClasses
++	    @cppClasses
++	  end
++    
++    def getAllRubyClasses
++      clist=[&quot;AGRubyObject&quot;]
++      while true
++        oldLength=clist.length
++        @cppClasses.each{|c|
++          if clist.member?(c.parent)
++            clist=(clist+[c]).uniq
++          end
++        }
++        break unless oldLength!=clist.length
++      end
++      clist
++    end
++    
++    # returns array of (subclass,superclass)
++    def getAllDerivations
++      @cppClasses.select{|c|c.parent}.map{|c|[c.name,c.parent]}
++    end
++    
++	  
++  private
++    
++    
++    def processDerivations
++      m={}
++      @cppClasses.each{|c|m[c.name]=c}
++      @cppClasses.each{|c|
++        if c.parent
++          if m[c.parent].nil? 
++            puts &quot;parent unknown #{c.parent}&quot;
++          else 
++	          m[c.parent].children &lt;&lt; c
++          end
++        end
++      }
++    end
++    
++	  def parseFiles(files)	    
++		  class2File={}
++		  deriveList={} # x=&gt;y :x is child of y
++		  allClasses=[]
++		
++		  files.each{|fn|
++		    file=File.open(fn)
++		    cn=&quot;&quot;
++		    content=file.read.gsub(/\/\*([^*]|\*[^\/])*\*\//,&quot;&quot;) # /*...*/ delete comments - FIXME: // comments will be ignored!!!
++		
++		    content.split(&quot;\n&quot;).each{|a|
++		      abak=a
++		      a.gsub!(&quot;AGEXPORT&quot;,&quot;&quot;)
++		      a.gsub!(&quot;EXPORT&quot;,&quot;&quot;)
++		      
++		      if a =~ /^ *class.*/ then
++		        cn=a.gsub(/ *class /,&quot;&quot;).gsub(/:.*/,&quot;&quot;).gsub(&quot;\n&quot;,&quot;&quot;).gsub(&quot; &quot;,&quot;&quot;)
++		        allClasses &lt;&lt; cn.gsub(&quot;;&quot;,&quot;&quot;)
++		        if cn=~/^[A-Z].*/
++		          if a=~ /.*public.*/ then
++		            pn=a.gsub(/.*public /,&quot;&quot;).gsub(&quot;\n&quot;,&quot;&quot;)
++	              @cppClasses &lt;&lt; CppClass.new(cn,pn,fn,[])
++		            allClasses &lt;&lt; pn
++		            deriveList[cn]=pn
++		            class2File[cn]=fn
++		          elsif not a=~/;/ then
++		            @cppClasses &lt;&lt; CppClass.new(cn,nil,fn,[])
++		            deriveList[cn]=nil
++		            class2File[cn]=fn
++		          end
++		        end
++		      end
++		    
++		    }
++		  }
++		  classList = class2File.keys
++		  allClasses = allClasses.sort.uniq
++		end  
++  end
++
++end
+\ No newline at end of file
+
+Added: antargis/trunk/rookey/lib/rookey/rookey_config.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/rookey_config.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/lib/rookey/rookey_config.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,127 @@
++require 'pp'
++require 'optparse'
++
++module Rookey
++  class Configure
++    attr_accessor :programs, :input, :filename
++    
++    FILENAME=&quot;rookey_configuration.rb&quot;
++    
++    attr_reader :options
++    
++    def self.load(filename=nil)
++      filename||=FILENAME
++      unless File.exists?(filename)
++        if File.exists?(&quot;configure&quot;)
++          ruby(&quot;configure&quot;)
++        end
++        unless File.exists?(filename)
++          self.new.run
++        end
++      end 
++      Kernel.load(filename)
++    end
++    def self.cleanTask
++      ALLCLEAN &lt;&lt; FILENAME
++    end
++    
++    def initialize
++      @programs=[]
++      @input=nil
++      @ons=[]
++      @options={}
++      @filename=FILENAME
++    end
++        
++    def set(k,v)
++      @options[k]=v
++    end
++    
++	  def run
++	    @input||=ARGV
++	    options={}
++	    opts=OptionParser.new do |opts|
++	      opts.banner = &quot;Usage: configure [options]&quot;
++	
++	      opts.separator &quot;&quot;
++	      opts.separator &quot;Specific options:&quot;
++	
++	      opts.on(&quot;-d&quot;, &quot;--enable-debug&quot;,
++	              &quot;enable debugging&quot;) do 
++	        @options[:debug]=true
++	      end
++	      opts.on(&quot;-g&quot;,&quot;--enable-gc-debug&quot;,
++	              &quot;enable debugging of garbage collector&quot;) do
++	        @options[:gcdebug]=true
++	      end
++	
++	      opts.on(&quot;-p&quot;,&quot;--enable-profile&quot;,
++	              &quot;enable c++ profiling&quot;) do 
++	        @options[:profile]=true
++	      end
++	
++	      opts.on(&quot;--disable-sdlconfig&quot;,
++	              &quot;do not use sdl-config for configuration&quot;) do 
++	        @options[:use_sdlconfig]=false
++	      end
++	      opts.on(&quot;--disable-fallbacks&quot;,
++	              &quot;do not use fallback dirs for X11 and GL&quot;) do 
++	        @options[:use_fallbacks]=false
++	      end
++
++        opts.on(&quot;--enable-malloc-debug&quot;,
++                &quot;enable memory debugging&quot;) do 
++          @options[:malloc_debug]=true
++        end
++        
++        	
++	      opts.on(&quot;--prefix PREFIXDIR&quot;,
++	              &quot;set prefix directory PREFIXDIR&quot;) do |dir|
++	        @options[:prefix]=dir
++	      end
++
++	      
++	      opts.on(&quot;-v&quot;,&quot;--version&quot;,
++	        &quot;set release version of BoA&quot;) do |v|
++	          @options[:version]=v
++	      end
++	
++	      opts.on(&quot;--ext-config CONFIG&quot;,
++	        &quot;use user-defined config instead of ruby's mkmf&quot;,&quot;CONFIG maybe in mingw32 or unix&quot;) do |extconfig|
++	          @options[:extconfig]=extconfig
++	          @options[:use_mkmf]=false
++	      end
++        
++	
++	      @programs.each{|program|
++	        opts.on(&quot;--path-&quot;+program+&quot; PATH&quot;,
++	          &quot;set path to program '#{program}'&quot;) do |d|
++	          @options[program]=d
++	        end
++	      }
++        if block_given?
++        yield opts
++        end
++
++	    
++		  end	        
++      opts.parse!(@input)
++      save
++      @options
++	  end
++    private
++    def save
++      fd=File.open(@filename,&quot;w&quot;)
++      fd.puts &quot;ROOKEY_CONFIG={&quot;
++      fd.puts @options.map{|k,v|
++        &quot;:#{k}=&gt;'#{v}'&quot;
++      }.join(&quot;,\n&quot;)
++      fd.puts &quot;}&quot;
++      fd.close
++      begin
++        File.delete(&quot;config_cache.rb&quot;)
++      rescue
++      end
++    end
++  end
++end
+\ No newline at end of file
+
+Added: antargis/trunk/rookey/lib/rookey/rookey_rspec.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/rookey_rspec.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/lib/rookey/rookey_rspec.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,4 @@
++
++rule 'spec_*.rb'=&gt;:default do |t|
++  p t
++end
+\ No newline at end of file
+
+Added: antargis/trunk/rookey/lib/rookey/swig/swig_dyn_cast_containers.i
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/swig/swig_dyn_cast_containers.i	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/lib/rookey/swig/swig_dyn_cast_containers.i	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,20 @@
++%{
++namespace swig
++{
++  /*
++    Traits that provides the from method for an unknown type
++  */
++  template &lt;int flags, class Type&gt; struct traits_from_ptr {
++    static SWIG_Object from SWIG_FROM_DECL_ARGS(Type *val) {
++    
++      // insert Dynamic_cast(...)
++      swig_type_info *info=type_info&lt;Type&gt;();
++      swig_type_info *ninfo=SWIG_TypeDynamicCast(info,val);
++      if(ninfo==0)
++        ninfo=info;
++    
++      return SWIG_NewPointerObj(val, ninfo, flags);
++    }
++  };
++}
++%}
+\ No newline at end of file
+
+
+Property changes on: antargis/trunk/rookey/lib/rookey/swig/swig_dyn_cast_containers.i
+___________________________________________________________________
+Name: svn:executable
+   + *
+
+Added: antargis/trunk/rookey/lib/rookey/swig.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/swig.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/lib/rookey/swig.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,71 @@
++require 'ftools'
++
++module Rookey
++  class Swig
++    def initialize(config,target=:ruby,cpp=true)
++      @config=config
++      @target=target
++      @cpp=cpp
++    end
++    def swig(t,interface)
++      options=[]
++      program=@config[&quot;SWIG&quot;]
++      if program==&quot;&quot; or program.nil?
++        # check if a prepared file is in vicinity
++        puts t.name
++        filename=File.split(t.name)[1]
++        if File.exists?(filename)
++          File.copy(filename,t.name)
++          return
++        end
++        #exit
++        program=&quot;swig&quot;
++      end
++      #program||=&quot;swig&quot;
++      
++      #program=&quot;swig&quot; if program==&quot;&quot;
++      #if program
++      
++      options &lt;&lt; &quot;-#{@target}&quot;
++      options &lt;&lt; &quot;-c++&quot; if @cpp
++      swigOptions = @config[&quot;SWIG_OPTIONS&quot;].split(&quot; &quot;)
++      swigOptions||=[]
++      includeDirs = @config[&quot;INCLUDEDIRS&quot;].split(&quot; &quot;)
++      includeDirs||=[]
++      includes=includeDirs.map{|d|&quot;-I&quot;+d}
++      options+=swigOptions+includes
++      options &lt;&lt; &quot;-o &quot;+t.name
++      options &lt;&lt; interface
++      call=program+&quot; &quot;+options.join(&quot; &quot;)
++      begin
++        sh call
++      rescue
++        begin
++          File.delete(t.name)
++        rescue
++        end
++        raise
++      end
++      
++      # write deps
++      # rmove -o
++      options=options.select{|op|not op=~/^-o/}
++      depsfile=File.join(&quot;.deps&quot;,interface)
++      depsdir=File.split(depsfile)[0]
++      begin
++        Dir.mkdir(depsdir)
++      rescue
++      end
++      options=options[0..2]+[&quot;-o &quot;+depsfile,&quot;-M&quot;]+options[3..-1]
++      call=program+&quot; &quot;+options.join(&quot; &quot;)
++      sh call
++      
++      puts    
++    end
++    
++    def Swig.getDeps(interface)
++      interface=[interface].flatten[0]
++      Compiler.getDeps(interface.sub(/\.d$/,&quot;.i&quot;))
++    end
++  end
++end
+\ No newline at end of file
+
+Added: antargis/trunk/rookey/lib/rookey/swig_ext.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/swig_ext.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/lib/rookey/swig_ext.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,4 @@
++module Rookey
++  
++  
++end
+\ No newline at end of file
+
+Added: antargis/trunk/rookey/lib/rookey/swig_interface_builder.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/swig_interface_builder.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/lib/rookey/swig_interface_builder.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,245 @@
++module Rookey
++  class SwigInterfaceBuilder
++    def initialize(file,moduleName,classes,files,interfaces,inits,templates)
++      @file=file
++      @moduleName=moduleName
++      @classes=classes
++      @files=files
++      @interfaces=interfaces
++      @inits=inits
++      @templates=templates
++      #@information=information
++    end
++    
++    
++    def create(classes)
++      fd=File.open(@file,&quot;w&quot;)
++      fd.puts generate()
++      fd.close
++    end
++    
++    def getFiles
++      @files
++    end
++    
++    def getClasses
++      Rookey.getRubyClasses(@classes)
++    end
++    
++    private
++    
++    def initDefs
++      @inits.map{|i|&quot;void &quot;+i+&quot;();&quot;}.join(&quot;\n&quot;)    
++    end
++    
++    def initCalls
++      @inits.map{|i|i+&quot;();&quot;}.join(&quot;\n&quot;)    
++    end
++    
++    def directors
++      getClasses.map{|c|&quot;%feature(\&quot;director\&quot;) #{c.name};&quot;}.join(&quot;\n&quot;)
++    end
++    
++    def templates
++      @templates.map{|t|&quot;%include \&quot;#{t}\&quot;&quot;}.join(&quot;\n&quot;)
++      #&quot;&quot;
++    end
++    
++    def cpp2RubyFunctions
++#      r=&quot;template&lt;class T&gt;
++#VALUE convertCpp2Ruby(T *cObject)
++#{
++#  return Qnil;
++#}&quot;
++#
++# r2=getClasses.map{|c| a=&quot;template&lt;&gt;
++#VALUE convertCpp2Ruby(#{c.name} *cObject)
++#{
++#  return SWIG_RubyInstanceFor(cObject);
++#}&quot; }.join(&quot;\n&quot;)
++#     
++#     &quot;%{&quot;+r+r2+&quot;%}&quot;
++      
++      &lt;&lt;EOT
++      /*
++template&lt;class T&gt;
++VALUE convertCpp2Ruby(T *cObject)
++{
++  return SWIG_RubyInstanceFor(cObject);
++}
++template&lt;AGRubyObject&gt;*/ 
++VALUE convertCpp2Ruby(AGRubyObject *cObject)
++{
++  return SWIG_RubyInstanceFor(cObject);
++}
++  
++EOT
++      
++    end
++    
++    # include dyn-casts for template-containers like std::vector&lt;SceneNode*&gt;
++    # this is missing in the dyncast-implementation of swig (at the time of 1.3.34)
++    def dynFroms
++      str=&quot;&quot;
++      str&lt;&lt;&quot;%wrapper %{&quot;
++      str&lt;&lt; &quot;namespace swig{&quot;
++      getClasses.each{|c|
++        name=c.name
++        str &lt;&lt; &quot;
++        template &lt;&gt; struct traits_from_ptr&lt;#{name}&gt; {
++          static VALUE from (#{name} *val,int owner=0) {
++          
++            // insert Dynamic_cast(...)
++            swig_type_info *info=SWIGTYPE_p_#{name}; //type_info&lt;#{name}&gt;();
++            swig_type_info *ninfo=SWIG_TypeDynamicCast(info,(void**)&amp;val);
++            if(ninfo==0)
++              ninfo=info;
++          
++            return SWIG_NewPointerObj(val, ninfo, owner);
++          }
++        };        
++        &quot;
++      }
++      str&lt;&lt;&quot;}&quot;
++      str&lt;&lt;&quot;%}&quot;
++      str
++    end
++    
++    def generate
++
++&quot;%module(directors=\&quot;1\&quot;) #{@moduleName}
++%feature(\&quot;autodoc\&quot;,\&quot;1\&quot;);
++
++/*
++%feature(\&quot;director:except\&quot;) {
++ throw Swig::DirectorMethodException($error);
++}
++*/
++
++      %include &lt;std_vector.i&gt;
++      %include &lt;std_list.i&gt;
++      
++#{importInterfaces}
++
++#{stlIncludes}
++%{
++#include \&quot;rk_string.h\&quot;
++#{headerIncludes}
++%}
++
++#{dynFroms}
++
++#{directors}
++#{markers}
++%{
++#{cpp2RubyFunctions}
++%}
++
++%{
++#{initDefs}
++%}
++%insert(\&quot;init\&quot;) %{
++#{initCalls}
++%}
++
++
++%typemaps_std_string(AGString, char, SWIG_AsCharPtrAndSize, SWIG_FromCharPtrAndSize, %checkcode(STDSTRING));
++
++/*
++template &lt;&gt;
++ inline VALUE from&lt;AGString&gt;(const AGString&amp; val) {
++   return SWIG_FromCharPtrAndSize(val.c_str(),val.length());
++   //return traits_from&lt;Type&gt;::from(val);
++ }
++ */
++ // oder
++ %wrapper %{
++ namespace swig
++ {
++ template&lt;&gt; struct traits_from&lt;AGString&gt;
++ {
++	 inline static VALUE from(const AGString &amp;val)
++	 {
++     return SWIG_FromCharPtrAndSize(val.c_str(),val.length());
++	 }
++};
++}
++%}
++
++
++#{dynamicCasts}
++%template(StringVector) std::vector&lt;std::string&gt;;
++%template(PStringVector) std::vector&lt;std::string*&gt;;
++#{templates}
++
++%feature(\&quot;trackobjects\&quot;);
++
++#{headerSwigIncludes}      
++
++&quot;
++    end
++    def importInterfaces
++      @interfaces.map{|i|
++        &quot;%import \&quot;#{i}\&quot;&quot;
++      }.join(&quot;\n&quot;)
++    end
++    def stlIncludes
++      &quot;%include \&quot;stl.i\&quot;\n%include \&quot;std_list.i\&quot;&quot;
++    end
++    def headerIncludes
++      getFiles.map{|file|&quot;#include \&quot;#{file}\&quot;&quot;}.join(&quot;\n&quot;)
++    end
++    def headerSwigIncludes
++      getFiles.map{|file|&quot;%include \&quot;#{file}\&quot;&quot;}.join(&quot;\n&quot;)
++    end
++    def markers
++      getClasses.map{|c|
++        &quot;%markfunc #{c.name} \&quot;general_markfunc\&quot;&quot;
++      }.join(&quot;\n&quot;)
++    end
++    def dynamicCasts
++      getClasses.map{|c|
++        next if c.children.length ==0
++        
++        &quot;        
++        %typemap(out) #{c.name} *, #{c.name} &amp; {
++          swig_type_info *ty = SWIG_TypeDynamicCast($1_descriptor,(void **) &amp;$1);
++          $result = SWIG_NewPointerObj($1, ty, $owner);
++        }        
++        %typemap(directorin) #{c.name} *, #{c.name} &amp; {
++          if($1)
++          {
++          swig_type_info *ty = SWIG_TypeDynamicCast($1_descriptor,(void **) &amp;$1);
++          $input = SWIG_NewPointerObj($1, ty, $owner);
++          }
++        }        
++        %{
++        
++        swig_type_info* #{c.name}_dynamic_cast(void **p)
++        {
++                #{c.name} *a=(#{c.name}*)(*p);
++        
++                &quot;+
++
++                c.children.map{|child|
++                &quot;
++                {
++	                #{child.name}*b=dynamic_cast&lt;#{child.name}*&gt;(a);
++	                if(b)
++	                {
++	                        *p=(void*)b;
++	                        return SWIGTYPE_p_#{child.name};
++	                }
++                }
++&quot;                  
++                }.join(&quot;\n&quot;)+
++                &quot;
++                return 0;
++        }
++        
++        %}
++        DYNAMIC_CAST(SWIGTYPE_p_#{c.name}, #{c.name}_dynamic_cast);&quot;
++      }.join(&quot;\n&quot;)
++    end
++  end  
++end
+
+Added: antargis/trunk/rookey/lib/rookey/tasks.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/tasks.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/lib/rookey/tasks.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,201 @@
++require 'rake/clean.rb'
++#require '../rookey.rb'
++require './swig.rb'
++require './compile.rb'
++
++
++require './rookey_config.rb'
++Rookey::Configure.load
++Rookey::Configure.cleanTask
++
++require './config_generator.rb'
++require './cpp_hierarchy_parser.rb'
++require './swig_interface_builder.rb'
++
++require 'rake/clean.rb'
++require 'pp'
++
++# For using Rookey you'll create a Rakefile and include rookey, e.g. like this:
++#  require 'rookey/rookey.rb'
++# After this you're free to use the public methods of the Rookey module to define your
++# projects libraries, sources and so forth.
++#
++# All tasks are designed so that you can take their output as a new target, e.g.:
++#
++module Rookey
++
++  # call like this
++  #  swig_interface &quot;antargis_gui&quot;=&gt;Dir[&quot;ext/gui/*.h&quot;]+additionalInterfaces,&quot;initalizers&quot;=&gt;[&quot;func1&quot;,&quot;func2&quot;,...]
++  # will generate an interface-file named &quot;antargis_gui_interface.i&quot; for module &quot;antargis_gui&quot;
++  def Rookey.swig_interface(ops)
++    target=&quot;&quot;
++    source=&quot;&quot;
++    inits=[]
++    ops.each{|n,v|
++      case n
++        when :initializers
++          inits=v
++        else
++		      target=n
++		      source=v
++      end
++    }
++    file=target+&quot;_interface.i&quot;
++    templates=[source].flatten.select{|f|f=~/i$/}
++    source=source.grep(/INCLUDE_SWIG/)+getAGRubyObjectHeader
++    
++    rule file=&gt;source do
++	    parser=CppHierarchyParser.new([source].flatten.select{|f|f=~/h$/})
++	    classes=parser.getAllClasses
++	    
++	    files=(getOrderedCppHeaders(classes)+source).uniq
++	    interfaceBuilder=SwigInterfaceBuilder.new(file,target,classes,files,source.select{|f|f=~/i$/},inits,templates)
++	    interfaceBuilder.create(parser)
++    end
++    CLEAN &lt;&lt; file
++    [file]
++  end
++  
++  def Rookey.swig(ops,config=nil)
++	  target=&quot;&quot;
++	  source=&quot;&quot;
++	  ops.each{|n,v|
++	    target=n
++	    source=v
++	  }
++	  swigDirect(target,source,config)
++	end
++	
++	def Rookey.swigDirect(output,interface,config=nil)
++	  config||=Rookey::getConfig
++	  swigCompiler=Rookey::Swig.new(config)
++	  
++	  
++	  # FIXME: handle deps
++	  
++	  rule output=&gt;Swig.getDeps(interface) do |t|
++	    swigCompiler.swig(t,interface)
++	  end
++	  CLEAN &lt;&lt; output &lt;&lt; output.gsub(/\.cc?/,&quot;.h&quot;)
++	  getRookeyCPPSources+[output] #getAGRubyObjectSource
++	end
++
++  def Rookey.getRookeyCPPSources
++    Dir[File.join(File.split(__FILE__)[0],&quot;cpp&quot;,&quot;*.cc&quot;)].select{|f|not f=~/.*dummy.*/}
++
++  end
++
++  def Rookey.getAGRubyObjectSource
++    [File.join(File.split(__FILE__)[0],&quot;cpp&quot;,&quot;rk_rubyobj.cc&quot;)]
++  end
++  def Rookey.getAGRubyObjectHeader
++    [File.join(File.split(__FILE__)[0],&quot;cpp&quot;,&quot;rk_rubyobj.h&quot;)]
++  end
++	
++	def Rookey.compile(files,config=nil)
++	  files=[files].flatten
++	  config||=Rookey::getConfig
++	  compiler=Rookey::Compiler.new(config)
++	  files.each{|file|
++	    t=compiler.makeObject(file)
++      s=Compiler.getDeps(file)
++	    rule t=&gt;s do |t|
++	      compiler.compile(t.name,t.prerequisites)
++	    end
++	  }
++	  targets=files.map{|file|compiler.makeObject(file)}
++	  CLEAN &lt;&lt; targets &lt;&lt; compiler.getBuildDir &lt;&lt; Compiler.getDepsDir
++	  targets
++	end
++	
++	# links a DLL named *name* out of the given *files* 
++	def Rookey.link_dll(name,files)
++    files.flatten!
++    files.uniq!
++	  config=Rookey::getConfig
++	  
++    linker=Rookey::Compiler.new(config)
++    
++    target=linker.dllName(name)
++    #pp target
++    desc &quot;Link DLL #{name}&quot;
++    task target=&gt;files do |t|
++      linker.linkDLL(t)
++    end
++    CLEAN &lt;&lt; target
++    
++    target
++	end
++
++	
++	# links an executable with name *name* out of the given *files*, you can give a config which should be of type RookeyConfig (or hash)
++  def Rookey.link_exe(name,files,config=nil)
++    files.flatten!
++    if files.select{|file|file=~/swig_.*/}.length&gt;0
++      [&quot;rk_rubyobj.cc&quot;,&quot;rk_string.cc&quot;].each{|f|
++        files &lt;&lt; compile(File.join(File.split(__FILE__)[0],&quot;cpp&quot;,f),config)
++      }
++      files &lt;&lt; compile(File.join(File.split(__FILE__)[0],&quot;cpp&quot;,&quot;swig_dummy.cc&quot;),config) if files.select{|f|f=~/swig/}.length==0
++    end
++    files.uniq!
++    config||=Rookey::getConfig
++    
++    linker=Rookey::Compiler.new(config)
++    
++    target=linker.exeName(name)
++    desc &quot;Link EXE #{name}&quot;
++    
++    task target=&gt;files do |t|
++      linker.linkEXE(t.name,t.prerequisites)
++    end
++    CLEAN &lt;&lt; target
++    
++    target    
++  end 
++
++  
++  # simple creation of ruby-extensions following the principle of antargis structure
++  # * name is the name of the resulting extension
++  # * files are the .h, .c and .cc (or .cpp) source-files 
++  def Rookey.ruby_ext(name,files,inits=[],fallbackInterface=nil)
++    headerFiles=files.select{|f|f=~/h$/}
++    libs=files.select{|f|f=~/so$/ or f=~/bundle/}
++
++    cppFiles=files.select{|f|f=~/c$/}
++
++    sourceDirs=files.map{|file|File.split(file)[0]}.sort.uniq
++
++    Rookey::checkConfig(SwigConfig)
++    
++    config=Rookey::getConfig
++    sourceDirs &lt;&lt; &quot;.&quot;
++    config.add(&quot;INCLUDEDIRS&quot;,sourceDirs.join(&quot; &quot;))
++    
++    compiler=Rookey::Compiler.new(config)
++            
++    #FIXME: check if swig is present
++    
++    swigInterfaces=libs.map{|f|f.sub(/\.[a-zA-Z]+$/,&quot;.i&quot;)}
++    swigInterfaces=files.select{|f|f=~/i$/}
++    swigInterface = Rookey::swig_interface(name=&gt;headerFiles+swigInterfaces,:initializers=&gt;inits)
++    swigTarget = Rookey::swig({File.join(compiler.getPlainBuildDir,name+&quot;_swig.cc&quot;)=&gt;swigInterface},config)
++    
++    
++    targets = Rookey::compile(cppFiles+[swigTarget],config)
++    alllibs=libs
++    
++    lib=Rookey::link_dll(name,targets+alllibs)
++  end
++  
++  # tries to require &lt;name&gt; and returns if this has succeeded
++  def Rookey.checkedRequire(name)
++    begin
++    require name
++    rescue LoadError =&gt; load_error
++      puts &quot;Library #{name} not found!&quot;
++      return false
++    end
++    return true
++  end
++  
++end
+\ No newline at end of file
+
+Added: antargis/trunk/rookey/lib/rookey/tools.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/tools.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/lib/rookey/tools.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,76 @@
++require 'pp'
++
++class Array
++  
++  # *grep* goes through all files given by the filenames that should be contained in *self*
++  # and checks for a given RegEx
++  # example:
++  #
++  #  pp Dir[&quot;*.h&quot;].grep(/INCLUDE_SWIG/)
++  #
++  # outputs all filenames of header-files containing the string INCLUDE_SWIG
++  def grep(s)
++    s=/#{s}/ if s.is_a?(String)
++    self.select{|f|
++      fd=File.open(f)
++      result=(s===fd.read)
++      fd.close
++      result
++    }
++  end
++end
++
++module Rookey
++  # creates a directory *dir* and parent-dirs if they don't exist
++  def Rookey.mkdir(dir)
++	  return if File.exists?(dir)
++	  begin
++	    Dir.mkdir(dir.to_s)
++	  rescue
++	    p=File.split(dir)[0]
++	    return if p==dir
++	    Rookey.mkdir(p)
++	    begin
++	      Dir.mkdir(dir)
++	    rescue
++	    end
++	  end
++	end
++end
++
++
++alias :requireRookeyOld :require
++
++def require(file)
++  if file[0..0]==&quot;.&quot;
++    rel=caller[0].gsub(/:[0-9]+/,&quot;&quot;)
++    rel=File.expand_path(rel)
++    dir=File.split(rel)[0]
++    file=File.join(dir,file)
++    #pp file
++  end
++  requireRookeyOld(file)
++end
++def requireRelative(f)
++  require f
++end
++
++class FalseClass
++  def &lt;=&gt;(o)
++    if o==true
++      -1
++    else
++      0
++    end
++  end
++end
++class TrueClass
++  def &lt;=&gt;(o)
++    if o==false
++      1
++    else
++      0
++    end
++  end
++end
++
+
+Added: antargis/trunk/rookey/lib/rookey.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/lib/rookey.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,13 @@
++ALLCLEAN=[]
++
++require File.join(File.split(File.expand_path(__FILE__))[0],'rookey','tools.rb')
++require './rookey/tasks.rb'
++
++task :allclean=&gt;:clean do
++  ALLCLEAN.each{|f|
++    begin
++      File.delete(f)
++    rescue
++    end
++  }
++end
+
+Modified: antargis/trunk/rookey/maintainenance/Rakefile
+===================================================================
+--- antargis/trunk/rookey/maintainenance/Rakefile	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/maintainenance/Rakefile	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -98,17 +98,61 @@
+       cp(&quot;../../&quot;+f,sDir)
+     }
+     
+-    #system &quot;tar cfz #{sDir}.tar.gz #{sDir}&quot;
+-    #system &quot;tar cfj #{sDir}.tar.bz2 #{sDir}&quot;
+-    #system &quot;zip -r #{sDir}.zip #{sDir}&quot;
++    system &quot;tar cfz #{sDir}.tar.gz #{sDir}&quot;
++    system &quot;tar cfj #{sDir}.tar.bz2 #{sDir}&quot;
++    system &quot;zip -r #{sDir}.zip #{sDir}&quot;
+     checkSource(sDir)
+   end
+   
++  def distWin32
++    system(&quot;cd ../.. &amp;&amp; ./configure --ext-config=mingw32 &amp;&amp; rake&quot;)
++    sDir=sourceDir
++    system(&quot;rm -rf #{sDir}&quot;)
++    copyMainTo(sDir)
++    cp(&quot;../../antargis.exe&quot;,sDir)
++    cp(&quot;../../antargis.dll&quot;,sDir)
++    puts &quot;--&quot;
++    Dir[&quot;../externals/build/bin/*.dll&quot;].each{|dll|
++      puts dll
++      cp(dll,sDir)
++    }
++    puts &quot;--&quot;
++    Dir[&quot;../externals/build/**/*.dll&quot;].each{|dll|
++      puts dll
++      cp(dll,sDir)
++    }
++    filename=updateISS
++    system(&quot;wine \&quot;c:\\Programme\\Inno Setup 5\\ISCC.exe\&quot; /O. #{filename}&quot;)
++    
++  end
++  
++  
+   def prepareDistribution
+   end
+   
+   private
+   
++  def updateISS
++    content=File.open(File.join(File.split(__FILE__)[0],&quot;antargis.iss&quot;)).read
++      
++    vars={
++      &quot;APPNAME&quot;=&gt;&quot;Antargis&quot;,
++        &quot;URL&quot;=&gt;&quot;antargis.berlios.de&quot;,
++        &quot;VERSION&quot;=&gt;@config.version,
++        &quot;PUBLISHER&quot;=&gt;&quot;The Antargis-team&quot;,
++        &quot;SOURCEDIR&quot;=&gt;sourceDir,
++        &quot;PROGNAME&quot;=&gt;&quot;antargis&quot;
++    }
++    vars.each{|n,v|
++      content.gsub!(&quot;${#{n}}&quot;,v)
++    }
++    filename=&quot;tmp.iss&quot;
++    f=File.open(filename,&quot;w&quot;)
++    f.puts content
++    f.close
++    filename
++  end
++  
+   def checkSource(dir)
+     system &quot;cd #{dir} &amp;&amp; export PATH=/usr/bin export LDFLAGS=-L/opt/local/lib &amp;&amp; export CFLAGS='-I/opt/local/include -I/opt/local/include/SDL' &amp;&amp; ./configure &amp;&amp; rake --trace &amp;&amp; rake spec&quot;
+     raise &quot;Did not work&quot; if $?!=0
+@@ -182,15 +226,18 @@
+ 
+ DistConfig=Struct.new(:name,:version)
+ 
++task :default=&gt;:dist do
++  
+end
++
+ task :dist do
+   config=DistConfig.new(&quot;antargis&quot;,&quot;0.3&quot;)
+   d=RookeyDist.new(config)
+   #d.distDarwin
+-  d.distSource
+-  #dist(:win32)
++  #d.distSource
++  d.distWin32
+   #dist(:source)
+ end
+ 
+ task :clean do
+-  system &quot;rm -rf Antargis* antargis*&quot;
++  system &quot;rm -rf Antargis* antargis-* tmp.iss&quot;
+ end
+\ No newline at end of file
+
+Added: antargis/trunk/rookey/maintainenance/antargis.iss
+===================================================================
+--- antargis/trunk/rookey/maintainenance/antargis.iss	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/maintainenance/antargis.iss	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,65 @@
++; -- Example1.iss --
++; Demonstrates copying 3 files and creating an icon.
++
++; SEE THE DOCUMENTATION FOR DETAILS ON CREATING .ISS SCRIPT FILES!
++
++[Setup]
++AppName=${APPNAME}
++AppVerName=${APPNAME} ${VERSION}
++DefaultDirName={pf}\${APPNAME}
++DefaultGroupName=${APPNAME}
++UninstallDisplayIcon={app}\${APPNAME}.exe
++Compression=lzma/fast
++SolidCompression=yes
++OutputBaseFilename=${APPNAME}-${VERSION}-setup
++AppPublisher=Antargis-Team
++AppPublisherURL=${URL}
++AppVersion=${VERSION}
++
++
++[Files]
++Source: &quot;${SOURCEDIR}\*&quot;; DestDir: &quot;{app}&quot;; Flags:recursesubdirs
++
++[Icons]
++Name: &quot;{group}\${APPNAME}&quot;; Filename: &quot;{app}\${APPNAME}.lnk&quot; ; WorkingDir: &quot;{app}&quot;
++
++[Languages]
++Name: en; MessagesFile: &quot;compiler:Default.isl&quot;
++;Name: es; MessagesFile: &quot;compiler:Languages\Spanish.isl&quot;
++Name: de; MessagesFile: &quot;compiler:Languages\German.isl&quot;
++
++[UninstallDelete]
++Type: files; Name: &quot;{app}\${APPNAME}.lnk&quot;
++Type: files; Name: &quot;{app}\error.txt&quot;
++Type: dirifempty; Name: &quot;{app}&quot;
++
++[Code]
++function NextButtonClick(CurPageID: Integer): Boolean;
++var
++  ResultCode: Integer;
++begin
++  case CurPageID of
++    wpSelectDir:
++      begin
++        CreateDir(ExpandConstant('{app}'));
++        CreateShellLink(
++        ExpandConstant('{app}\${APPNAME}.lnk'),
++        '${APPNAME} ${VERSION}',
++        ExpandConstant('{app}\${PROGNAME}.exe'),
++        ExpandConstant('&quot;{app}\${APPNAME}&quot;'),
++        ExpandConstant('{app}'),
++          '',
++          0,
++          SW_SHOWNORMAL);
++      end;
++  end;
++
++  Result := True;
++end;
++
++
++procedure AfterMyProgInstall(S: String);
++begin
++  MsgBox('AfterMyProgInstall:' #13#13 'Setup just installed ' + S + ' as ' + CurrentFileName + '.', mbInformation, MB_OK);
++end;
++
+
+Added: antargis/trunk/rookey/maintainenance/tmp.iss
+===================================================================
+--- antargis/trunk/rookey/maintainenance/tmp.iss	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/maintainenance/tmp.iss	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,65 @@
++; -- Example1.iss --
++; Demonstrates copying 3 files and creating an icon.
++
++; SEE THE DOCUMENTATION FOR DETAILS ON CREATING .ISS SCRIPT FILES!
++
++[Setup]
++AppName=Antargis
++AppVerName=Antargis 0.3
++DefaultDirName={pf}\Antargis
++DefaultGroupName=Antargis
++UninstallDisplayIcon={app}\Antargis.exe
++Compression=lzma/fast
++SolidCompression=yes
++OutputBaseFilename=Antargis-0.3-setup
++AppPublisher=Antargis-Team
++AppPublisherURL=antargis.berlios.de
++AppVersion=0.3
++
++
++[Files]
++Source: &quot;antargis-0.3\*&quot;; DestDir: &quot;{app}&quot;; Flags:recursesubdirs
++
++[Icons]
++Name: &quot;{group}\Antargis&quot;; Filename: &quot;{app}\Antargis.lnk&quot; ; WorkingDir: &quot;{app}&quot;
++
++[Languages]
++Name: en; MessagesFile: &quot;compiler:Default.isl&quot;
++;Name: es; MessagesFile: &quot;compiler:Languages\Spanish.isl&quot;
++Name: de; MessagesFile: &quot;compiler:Languages\German.isl&quot;
++
++[UninstallDelete]
++Type: files; Name: &quot;{app}\Antargis.lnk&quot;
++Type: files; Name: &quot;{app}\error.txt&quot;
++Type: dirifempty; Name: &quot;{app}&quot;
++
++[Code]
++function NextButtonClick(CurPageID: Integer): Boolean;
++var
++  ResultCode: Integer;
++begin
++  case CurPageID of
++    wpSelectDir:
++      begin
++        CreateDir(ExpandConstant('{app}'));
++        CreateShellLink(
++        ExpandConstant('{app}\Antargis.lnk'),
++        'Antargis 0.3',
++        ExpandConstant('{app}\antargis.exe'),
++        ExpandConstant('&quot;{app}\Antargis&quot;'),
++        ExpandConstant('{app}'),
++          '',
++          0,
++          SW_SHOWNORMAL);
++      end;
++  end;
++
++  Result := True;
++end;
++
++
++procedure AfterMyProgInstall(S: String);
++begin
++  MsgBox('AfterMyProgInstall:' #13#13 'Setup just installed ' + S + ' as ' + CurrentFileName + '.', mbInformation, MB_OK);
++end;
++
+
+Added: antargis/trunk/rookey/nbproject/private/config.properties
+===================================================================
+
+Added: antargis/trunk/rookey/nbproject/private/private.properties
+===================================================================
+--- antargis/trunk/rookey/nbproject/private/private.properties	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/nbproject/private/private.properties	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1 @@
++platform.active=default
+
+Added: antargis/trunk/rookey/nbproject/private/rake-d.txt
+===================================================================
+--- antargis/trunk/rookey/nbproject/private/rake-d.txt	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/nbproject/private/rake-d.txt	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,19 @@
++clean=Remove any temporary products.
++clobber=Remove any generated file.
++clobber_package=Remove package products
++clobber_rdoc=Remove rdoc products
++default=
++docs=
++docs/ruby=
++docs/ruby/index.html=
++gem=Build the gem file rookey-0.1.gem
++package=Build all the packages
++pkg=
++pkg/rookey-0.1=
++pkg/rookey-0.1.gem=
++pkg/rookey-0.1.tgz=
++pkg/rookey-0.1.zip=
++rdoc=Build the rdoc HTML Files
++repackage=Force a rebuild of the package files
++rerdoc=Force a rebuild of the RDOC files
++spec=Run specs
+
+Added: antargis/trunk/rookey/nbproject/project.properties
+===================================================================
+--- antargis/trunk/rookey/nbproject/project.properties	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/nbproject/project.properties	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,15 @@
++javac.classpath=
++main.file=
++platform.active=default
++source.encoding=UTF-8
++src.configs.dir=configs
++src.cpp.dir=cpp
++src.docs.dir=docs
++src.examples.dir=examples
++src.externals.dir=externals
++src.lib.dir=lib
++src.maintainenance.dir=maintainenance
++src.nbproject.dir=nbproject
++src.pkg.dir=pkg
++src.spec.dir=spec
++src.swig.dir=swig
+
+Added: antargis/trunk/rookey/nbproject/project.xml
+===================================================================
+--- antargis/trunk/rookey/nbproject/project.xml	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/nbproject/project.xml	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -0,0 +1,23 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
++&lt;project xmlns=&quot;<A HREF="http://www.netbeans.org/ns/project/1">http://www.netbeans.org/ns/project/1</A>&quot;&gt;
++    &lt;type&gt;org.netbeans.modules.ruby.rubyproject&lt;/type&gt;
++    &lt;configuration&gt;
++        &lt;data xmlns=&quot;<A HREF="http://www.netbeans.org/ns/ruby-project/1">http://www.netbeans.org/ns/ruby-project/1</A>&quot;&gt;
++            &lt;name&gt;Rookey&lt;/name&gt;
++            &lt;source-roots&gt;
++                &lt;root id=&quot;src.configs.dir&quot;/&gt;
++                &lt;root id=&quot;src.cpp.dir&quot;/&gt;
++                &lt;root id=&quot;src.docs.dir&quot;/&gt;
++                &lt;root id=&quot;src.examples.dir&quot;/&gt;
++                &lt;root id=&quot;src.externals.dir&quot;/&gt;
++                &lt;root id=&quot;src.lib.dir&quot;/&gt;
++                &lt;root id=&quot;src.maintainenance.dir&quot;/&gt;
++                &lt;root id=&quot;src.nbproject.dir&quot;/&gt;
++                &lt;root id=&quot;src.pkg.dir&quot;/&gt;
++                &lt;root id=&quot;src.spec.dir&quot;/&gt;
++                &lt;root id=&quot;src.swig.dir&quot;/&gt;
++            &lt;/source-roots&gt;
++            &lt;test-roots/&gt;
++        &lt;/data&gt;
++    &lt;/configuration&gt;
++&lt;/project&gt;
+
+Deleted: antargis/trunk/rookey/rookey.rb
+===================================================================
+--- antargis/trunk/rookey/rookey.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/rookey.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -1,12 +0,0 @@
+-ALLCLEAN=[]
+-
+-require File.join(File.split(__FILE__)[0],'tools.rb')
+-
+-task :allclean=&gt;:clean do
+-  ALLCLEAN.each{|f|
+-    begin
+-      File.delete(f)
+-    rescue
+-    end
+-  }
+-end
+
+Deleted: antargis/trunk/rookey/rookey_config.rb
+===================================================================
+--- antargis/trunk/rookey/rookey_config.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/rookey_config.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -1,121 +0,0 @@
+-require 'pp'
+-require 'optparse'
+-
+-module Rookey
+-  class Configure
+-    attr_accessor :programs, :input, :filename
+-    
+-    FILENAME=&quot;rookey_configuration.rb&quot;
+-    
+-    attr_reader :options
+-    
+-    def self.load(filename=nil)
+-      filename||=FILENAME
+-      unless File.exists?(filename)
+-        if File.exists?(&quot;configure&quot;)
+-          ruby(&quot;configure&quot;)
+-        end
+-        unless File.exists?(filename)
+-          self.new.run
+-        end
+-      end 
+-      Kernel.load(filename)
+-    end
+-    def self.cleanTask
+-      ALLCLEAN &lt;&lt; FILENAME
+-    end
+-    
+-    def initialize
+-      @programs=[]
+-      @input=nil
+-      @ons=[]
+-      @options={}
+-      @filename=FILENAME
+-    end
+-        
+-    def set(k,v)
+-      @options[k]=v
+-    end
+-    
+-	  def run
+-	    @input||=ARGV
+-	    options={}
+-	    opts=OptionParser.new do |opts|
+-	      opts.banner = &quot;Usage: configure [options]&quot;
+-	
+-	      opts.separator &quot;&quot;
+-	      opts.separator &quot;Specific options:&quot;
+-	
+-	      opts.on(&quot;-d&quot;, &quot;--enable-debug&quot;,
+-	              &quot;enable debugging&quot;) do 
+-	        @options[:debug]=true
+-	      end
+-	      opts.on(&quot;-g&quot;,&quot;--enable-gc-debug&quot;,
+-	              &quot;enable debugging of garbage collector&quot;) do
+-	        @options[:gcdebug]=true
+-	      end
+-	
+-	      opts.on(&quot;-p&quot;,&quot;--enable-profile&quot;,
+-	              &quot;enable c++ profiling&quot;) do 
+-	        @options[:profile]=true
+-	      end
+-	
+-	      opts.on(&quot;--disable-sdlconfig&quot;,
+-	              &quot;do not use sdl-config for configuration&quot;) do 
+-	        @options[:use_sdlconfig]=false
+-	      end
+-	      opts.on(&quot;--disable-fallbacks&quot;,
+-	              &quot;do not use fallback dirs for X11 and GL&quot;) do 
+-	        @options[:use_fallbacks]=false
+-	      end
+-	
+-	      opts.on(&quot;--prefix PREFIXDIR&quot;,
+-	              &quot;set prefix directory PREFIXDIR&quot;) do |dir|
+-	        @options[:prefix]=dir
+-	      end
+-
+-	      
+-	      opts.on(&quot;-v&quot;,&quot;--version&quot;,
+-	        &quot;set release version of BoA&quot;) do |v|
+-	          @options[:version]=v
+-	      end
+-	
+-	      opts.on(&quot;--ext-config CONFIG&quot;,
+-	        &quot;use user-defined config instead of ruby's mkmf&quot;,&quot;CONFIG maybe in mingw32 or unix&quot;) do |extconfig|
+-	          @options[:extconfig]=extconfig
+-	          @options[:use_mkmf]=false
+-	      end
+-        
+-	
+-	      @programs.each{|program|
+-	        opts.on(&quot;--path-&quot;+program+&quot; PATH&quot;,
+-	          &quot;set path to program '#{program}'&quot;) do |d|
+-	          @options[program]=d
+-	        end
+-	      }
+-        if block_given?
+-        yield opts
+-        end
+-
+-	    
+-		  end	        
+-      opts.parse!(@input)
+-      save
+-      @options
+-	  end
+-    private
+-    def save
+-      fd=File.open(@filename,&quot;w&quot;)
+-      fd.puts &quot;ROOKEY_CONFIG={&quot;
+-      fd.puts @options.map{|k,v|
+-        &quot;:#{k}=&gt;'#{v}'&quot;
+-      }.join(&quot;,\n&quot;)
+-      fd.puts &quot;}&quot;
+-      fd.close
+-      begin
+-        File.delete(&quot;config_cache.rb&quot;)
+-      rescue
+-      end
+-    end
+-  end
+-end
+\ No newline at end of file
+
+Deleted: antargis/trunk/rookey/rookey_rspec.rb
+===================================================================
+--- antargis/trunk/rookey/rookey_rspec.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/rookey_rspec.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -1,4 +0,0 @@
+-
+-rule 'spec_*.rb'=&gt;:default do |t|
+-  p t
+-end
+\ No newline at end of file
+
+Deleted: antargis/trunk/rookey/swig/swig_dyn_cast_containers.i
+===================================================================
+--- antargis/trunk/rookey/swig/swig_dyn_cast_containers.i	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/swig/swig_dyn_cast_containers.i	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -1,20 +0,0 @@
+-%{
+-namespace swig
+-{
+-  /*
+-    Traits that provides the from method for an unknown type
+-  */
+-  template &lt;int flags, class Type&gt; struct traits_from_ptr {
+-    static SWIG_Object from SWIG_FROM_DECL_ARGS(Type *val) {
+-    
+-      // insert Dynamic_cast(...)
+-      swig_type_info *info=type_info&lt;Type&gt;();
+-      swig_type_info *ninfo=SWIG_TypeDynamicCast(info,val);
+-      if(ninfo==0)
+-        ninfo=info;
+-    
+-      return SWIG_NewPointerObj(val, ninfo, flags);
+-    }
+-  };
+-}
+-%}
+\ No newline at end of file
+
+Deleted: antargis/trunk/rookey/swig.rb
+===================================================================
+--- antargis/trunk/rookey/swig.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/swig.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -1,71 +0,0 @@
+-require 'ftools'
+-
+-module Rookey
+-  class Swig
+-    def initialize(config,target=:ruby,cpp=true)
+-      @config=config
+-      @target=target
+-      @cpp=cpp
+-    end
+-    def swig(t,interface)
+-      options=[]
+-      program=@config[&quot;SWIG&quot;]
+-      if program==&quot;&quot; or program.nil?
+-        # check if a prepared file is in vicinity
+-        puts t.name
+-        filename=File.split(t.name)[1]
+-        if File.exists?(filename)
+-          File.copy(filename,t.name)
+-          return
+-        end
+-        #exit
+-        program=&quot;swig&quot;
+-      end
+-      #program||=&quot;swig&quot;
+-      
+-      #program=&quot;swig&quot; if program==&quot;&quot;
+-      #if program
+-      
+-      options &lt;&lt; &quot;-#{@target}&quot;
+-      options &lt;&lt; &quot;-c++&quot; if @cpp
+-      swigOptions = @config[&quot;SWIG_OPTIONS&quot;].split(&quot; &quot;)
+-      swigOptions||=[]
+-      includeDirs = @config[&quot;INCLUDEDIRS&quot;].split(&quot; &quot;)
+-      includeDirs||=[]
+-      includes=includeDirs.map{|d|&quot;-I&quot;+d}
+-      options+=swigOptions+includes
+-      options &lt;&lt; &quot;-o &quot;+t.name
+-      options &lt;&lt; interface
+-      call=program+&quot; &quot;+options.join(&quot; &quot;)
+-      begin
+-        sh call
+-      rescue
+-        begin
+-          File.delete(t.name)
+-        rescue
+-        end
+-        raise
+-      end
+-      
+-      # write deps
+-      # rmove -o
+-      options=options.select{|op|not op=~/^-o/}
+-      depsfile=File.join(&quot;.deps&quot;,interface)
+-      depsdir=File.split(depsfile)[0]
+-      begin
+-        Dir.mkdir(depsdir)
+-      rescue
+-      end
+-      options=options[0..2]+[&quot;-o &quot;+depsfile,&quot;-M&quot;]+options[3..-1]
+-      call=program+&quot; &quot;+options.join(&quot; &quot;)
+-      sh call
+-      
+-      puts    
+-    end
+-    
+-    def Swig.getDeps(interface)
+-      interface=[interface].flatten[0]
+-      Compiler.getDeps(interface.sub(/\.d$/,&quot;.i&quot;))
+-    end
+-  end
+-end
+\ No newline at end of file
+
+Deleted: antargis/trunk/rookey/swig_ext.rb
+===================================================================
+--- antargis/trunk/rookey/swig_ext.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/swig_ext.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -1,4 +0,0 @@
+-module Rookey
+-  
+-  
+-end
+\ No newline at end of file
+
+Deleted: antargis/trunk/rookey/swig_interface_builder.rb
+===================================================================
+--- antargis/trunk/rookey/swig_interface_builder.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/swig_interface_builder.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -1,240 +0,0 @@
+-module Rookey
+-  class SwigInterfaceBuilder
+-    def initialize(file,moduleName,classes,files,interfaces,inits,templates)
+-      @file=file
+-      @moduleName=moduleName
+-      @classes=classes
+-      @files=files
+-      @interfaces=interfaces
+-      @inits=inits
+-      @templates=templates
+-      #@information=information
+-    end
+-    
+-    
+-    def create(classes)
+-      fd=File.open(@file,&quot;w&quot;)
+-      fd.puts generate()
+-      fd.close
+-    end
+-    
+-    def getFiles
+-      @files
+-    end
+-    
+-    def getClasses
+-      Rookey.getRubyClasses(@classes)
+-    end
+-    
+-    private
+-    
+-    def initDefs
+-      @inits.map{|i|&quot;void &quot;+i+&quot;();&quot;}.join(&quot;\n&quot;)    
+-    end
+-    
+-    def initCalls
+-      @inits.map{|i|i+&quot;();&quot;}.join(&quot;\n&quot;)    
+-    end
+-    
+-    def directors
+-      getClasses.map{|c|&quot;%feature(\&quot;director\&quot;) #{c.name};&quot;}.join(&quot;\n&quot;)
+-    end
+-    
+-    def templates
+-      @templates.map{|t|&quot;%include \&quot;#{t}\&quot;&quot;}.join(&quot;\n&quot;)
+-      #&quot;&quot;
+-    end
+-    
+-    def cpp2RubyFunctions
+-#      r=&quot;template&lt;class T&gt;
+-#VALUE convertCpp2Ruby(T *cObject)
+-#{
+-#  return Qnil;
+-#}&quot;
+-#
+-# r2=getClasses.map{|c| a=&quot;template&lt;&gt;
+-#VALUE convertCpp2Ruby(#{c.name} *cObject)
+-#{
+-#  return SWIG_RubyInstanceFor(cObject);
+-#}&quot; }.join(&quot;\n&quot;)
+-#     
+-#     &quot;%{&quot;+r+r2+&quot;%}&quot;
+-      
+-      &lt;&lt;EOT
+-      /*
+-template&lt;class T&gt;
+-VALUE convertCpp2Ruby(T *cObject)
+-{
+-  return SWIG_RubyInstanceFor(cObject);
+-}
+-template&lt;AGRubyObject&gt;*/ 
+-VALUE convertCpp2Ruby(AGRubyObject *cObject)
+-{
+-  return SWIG_RubyInstanceFor(cObject);
+-}
+-  
+-EOT
+-      
+-    end
+-    
+-    # include dyn-casts for template-containers like std::vector&lt;SceneNode*&gt;
+-    # this is missing in the dyncast-implementation of swig (at the time of 1.3.34)
+-    def dynFroms
+-      str=&quot;&quot;
+-      str&lt;&lt;&quot;%wrapper %{&quot;
+-      str&lt;&lt; &quot;namespace swig{&quot;
+-      getClasses.each{|c|
+-        name=c.name
+-        str &lt;&lt; &quot;
+-        template &lt;&gt; struct traits_from_ptr&lt;#{name}&gt; {
+-          static VALUE from (#{name} *val,int owner=0) {
+-          
+-            // insert Dynamic_cast(...)
+-            swig_type_info *info=SWIGTYPE_p_#{name}; //type_info&lt;#{name}&gt;();
+-            swig_type_info *ninfo=SWIG_TypeDynamicCast(info,(void**)&amp;val);
+-            if(ninfo==0)
+-              ninfo=info;
+-          
+-            return SWIG_NewPointerObj(val, ninfo, owner);
+-          }
+-        };        
+-        &quot;
+-      }
+-      str&lt;&lt;&quot;}&quot;
+-      str&lt;&lt;&quot;%}&quot;
+-      str
+-    end
+-    
+-    def generate
+-
+-&quot;%module(directors=\&quot;1\&quot;) #{@moduleName}
+-%feature(\&quot;autodoc\&quot;,\&quot;1\&quot;);
+-
+-/*
+-%feature(\&quot;director:except\&quot;) {
+- throw Swig::DirectorMethodException($error);
+-}
+-*/
+-
+-#{importInterfaces}
+-
+-#{stlIncludes}
+-%{
+-#{headerIncludes}
+-%}
+-
+-#{dynFroms}
+-
+-#{directors}
+-#{markers}
+-%{
+-#{cpp2RubyFunctions}
+-%}
+-
+-%{
+-#{initDefs}
+-%}
+-%insert(\&quot;init\&quot;) %{
+-#{initCalls}
+-%}
+-
+-
+-%typemaps_std_string(AGString, char, SWIG_AsCharPtrAndSize, SWIG_FromCharPtrAndSize, %checkcode(STDSTRING));
+-
+-/*
+-template &lt;&gt;
+- inline VALUE from&lt;AGString&gt;(const AGString&amp; val) {
+-   return SWIG_FromCharPtrAndSize(val.c_str(),val.length());
+-   //return traits_from&lt;Type&gt;::from(val);
+- }
+- */
+- // oder
+- %wrapper %{
+- namespace swig
+- {
+- template&lt;&gt; struct traits_from&lt;AGString&gt;
+- {
+-	 inline static VALUE from(const AGString &amp;val)
+-	 {
+-     return SWIG_FromCharPtrAndSize(val.c_str(),val.length());
+-	 }
+-};
+-}
+-%}
+-
+-
+-#{dynamicCasts}
+-
+-#{templates}
+-
+-%feature(\&quot;trackobjects\&quot;);
+-
+-#{headerSwigIncludes}      
+-
+-&quot;
+-    end
+-    def importInterfaces
+-      @interfaces.map{|i|
+-        &quot;%import \&quot;#{i}\&quot;&quot;
+-      }.join(&quot;\n&quot;)
+-    end
+-    def stlIncludes
+-      &quot;%include \&quot;stl.i\&quot;\n%include \&quot;std_list.i\&quot;&quot;
+-    end
+-    def headerIncludes
+-      getFiles.map{|file|&quot;#include \&quot;#{file}\&quot;&quot;}.join(&quot;\n&quot;)
+-    end
+-    def headerSwigIncludes
+-      getFiles.map{|file|&quot;%include \&quot;#{file}\&quot;&quot;}.join(&quot;\n&quot;)
+-    end
+-    def markers
+-      getClasses.map{|c|
+-        &quot;%markfunc #{c.name} \&quot;general_markfunc\&quot;&quot;
+-      }.join(&quot;\n&quot;)
+-    end
+-    def dynamicCasts
+-      getClasses.map{|c|
+-        next if c.children.length ==0
+-        
+-        &quot;        
+-        %typemap(out) #{c.name} *, #{c.name} &amp; {
+-          swig_type_info *ty = SWIG_TypeDynamicCast($1_descriptor,(void **) &amp;$1);
+-          $result = SWIG_NewPointerObj($1, ty, $owner);
+-        }        
+-        %typemap(directorin) #{c.name} *, #{c.name} &amp; {
+-          if($1)
+-          {
+-          swig_type_info *ty = SWIG_TypeDynamicCast($1_descriptor,(void **) &amp;$1);
+-          $input = SWIG_NewPointerObj($1, ty, $owner);
+-          }
+-        }        
+-        %{
+-        
+-        swig_type_info* #{c.name}_dynamic_cast(void **p)
+-        {
+-                #{c.name} *a=(#{c.name}*)(*p);
+-        
+-                &quot;+
+-
+-                c.children.map{|child|
+-                &quot;
+-                {
+-	                #{child.name}*b=dynamic_cast&lt;#{child.name}*&gt;(a);
+-	                if(b)
+-	                {
+-	                        *p=(void*)b;
+-	                        return SWIGTYPE_p_#{child.name};
+-	                }
+-                }
+-&quot;                  
+-                }.join(&quot;\n&quot;)+
+-                &quot;
+-                return 0;
+-        }
+-        
+-        %}
+-        DYNAMIC_CAST(SWIGTYPE_p_#{c.name}, #{c.name}_dynamic_cast);&quot;
+-      }.join(&quot;\n&quot;)
+-    end
+-  end  
+-end
+
+Deleted: antargis/trunk/rookey/tasks.rb
+===================================================================
+--- antargis/trunk/rookey/tasks.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/tasks.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -1,183 +0,0 @@
+-require 'rake/clean.rb'
+-require File.join(File.split(__FILE__)[0],'rookey.rb')
+-require File.join(File.split(__FILE__)[0],'swig.rb')
+-require File.join(File.split(__FILE__)[0],'compile.rb')
+-
+-
+-require File.join(File.split(__FILE__)[0],'rookey_config.rb')
+-Rookey::Configure.load
+-Rookey::Configure.cleanTask
+-
+-require File.join(File.split(__FILE__)[0],'config_generator.rb')
+-require File.join(File.split(__FILE__)[0],'cpp_hierarchy_parser.rb')
+-require File.join(File.split(__FILE__)[0],'swig_interface_builder.rb')
+-
+-require 'rake/clean.rb'
+-require 'pp'
+-
+-# For using Rookey you'll create a Rakefile and include rookey, e.g. like this:
+-#  require 'rookey/rookey.rb'
+-# After this you're free to use the public methods of the Rookey module to define your
+-# projects libraries, sources and so forth.
+-#
+-# All tasks are designed so that you can take their output as a new target, e.g.:
+-#
+-module Rookey
+-
+-  # call like this
+-  # swig_interface &quot;antargis_gui&quot;=&gt;Dir[&quot;ext/gui/*.h&quot;]+additionalInterfaces,&quot;initalizers&quot;=&gt;[&quot;func1&quot;,&quot;func2&quot;,...]
+-  # will generate an interface-file named &quot;antargis_gui_interface.i&quot; for module &quot;antargis_gui&quot;
+-  def Rookey.swig_interface(ops)
+-    target=&quot;&quot;
+-    source=&quot;&quot;
+-    inits=[]
+-    ops.each{|n,v|
+-      case n
+-        when :initializers
+-          inits=v
+-        else
+-		      target=n
+-		      source=v
+-      end
+-    }
+-    file=target+&quot;_interface.i&quot;
+-    templates=[source].flatten.select{|f|f=~/i$/}
+-    source=source.grep(/INCLUDE_SWIG/)+[getAGRubyObjectHeader]
+-    
+-    rule file=&gt;source do
+-	    parser=CppHierarchyParser.new([source].flatten.select{|f|f=~/h$/})
+-	    classes=parser.getAllClasses
+-	    
+-	    files=(getOrderedCppHeaders(classes)+source).uniq
+-	    interfaceBuilder=SwigInterfaceBuilder.new(file,target,classes,files,source.select{|f|f=~/i$/},inits,templates)
+-	    interfaceBuilder.create(parser)
+-    end
+-    CLEAN &lt;&lt; file
+-    [file]
+-  end
+-  
+-  def Rookey.swig(ops,config=nil)
+-	  target=&quot;&quot;
+-	  source=&quot;&quot;
+-	  ops.each{|n,v|
+-	    target=n
+-	    source=v
+-	  }
+-	  swigDirect(target,source,config)
+-	end
+-	
+-	def Rookey.swigDirect(output,interface,config=nil)
+-	  config||=Rookey::getConfig
+-	  swigCompiler=Rookey::Swig.new(config)
+-	  
+-	  
+-	  # FIXME: handle deps
+-	  
+-	  rule output=&gt;Swig.getDeps(interface) do |t|
+-	    swigCompiler.swig(t,interface)
+-	  end
+-	  CLEAN &lt;&lt; output &lt;&lt; output.gsub(/\.cc?/,&quot;.h&quot;)
+-	  [output,getAGRubyObjectSource]
+-	end
+-  def Rookey.getAGRubyObjectSource
+-    File.join(File.split(__FILE__)[0],&quot;cpp&quot;,&quot;ag_rubyobj.cc&quot;)
+-  end
+-  def Rookey.getAGRubyObjectHeader
+-    File.join(File.split(__FILE__)[0],&quot;cpp&quot;,&quot;ag_rubyobj.h&quot;)
+-  end
+-	
+-	def Rookey.compile(files,config=nil)
+-	  files=[files].flatten
+-	  config||=Rookey::getConfig
+-	  compiler=Rookey::Compiler.new(config)
+-	  files.each{|file|
+-	    t=compiler.makeObject(file)
+-      s=Compiler.getDeps(file)
+-	    rule t=&gt;s do |t|
+-	      compiler.compile(t.name,t.prerequisites)
+-	    end
+-	  }
+-	  targets=files.map{|file|compiler.makeObject(file)}
+-	  CLEAN &lt;&lt; targets &lt;&lt; compiler.getBuildDir &lt;&lt; Compiler.getDepsDir
+-	  targets
+-	end
+-	
+-	def Rookey.link_dll(name,files)
+-    files.flatten!
+-    files.uniq!
+-	  config=Rookey::getConfig
+-	  
+-    linker=Rookey::Compiler.new(config)
+-    
+-    target=linker.dllName(name)
+-    #pp target
+-    desc &quot;Link DLL #{name}&quot;
+-    task target=&gt;files do |t|
+-      linker.linkDLL(t)
+-    end
+-    CLEAN &lt;&lt; target
+-    
+-    target
+-	end
+-
+-  def Rookey.link_exe(name,files,config=nil)
+-    files.flatten!
+-    files &lt;&lt; compile(File.join(File.split(__FILE__)[0],&quot;cpp&quot;,&quot;ag_rubyobj.cc&quot;),config)
+-    files &lt;&lt; compile(File.join(File.split(__FILE__)[0],&quot;cpp&quot;,&quot;swig_dummy.cc&quot;),config) if files.select{|f|f=~/swig/}.length==0
+-    files.uniq!
+-    config||=Rookey::getConfig
+-    
+-    linker=Rookey::Compiler.new(config)
+-    
+-    target=linker.exeName(name)
+-    desc &quot;Link EXE #{name}&quot;
+-    task target=&gt;files do |t|
+-      linker.linkEXE(t.name,t.prerequisites)
+-    end
+-    CLEAN &lt;&lt; target
+-    
+-    target    
+-  end 
+-
+-  
+-  def Rookey.ruby_ext(name,files,inits,fallbackInterface=nil)
+-    headerFiles=files.select{|f|f=~/h$/}
+-    libs=files.select{|f|f=~/so$/ or f=~/bundle/}
+-
+-    cppFiles=files.select{|f|f=~/c$/}
+-
+-    sourceDirs=files.map{|file|File.split(file)[0]}.sort.uniq
+-
+-    Rookey::checkConfig(SwigConfig)
+-    
+-    config=Rookey::getConfig
+-    sourceDirs &lt;&lt; &quot;.&quot;
+-    config.add(&quot;INCLUDEDIRS&quot;,sourceDirs.join(&quot; &quot;))
+-    
+-    compiler=Rookey::Compiler.new(config)
+-            
+-    #FIXME: check if swig is present
+-    
+-    swigInterfaces=libs.map{|f|f.sub(/\.[a-zA-Z]+$/,&quot;.i&quot;)}
+-    swigInterfaces=files.select{|f|f=~/i$/}
+-    swigInterface = Rookey::swig_interface(name=&gt;headerFiles+swigInterfaces,:initializers=&gt;inits)
+-    swigTarget = Rookey::swig({File.join(compiler.getPlainBuildDir,name+&quot;_swig.cc&quot;)=&gt;swigInterface},config)
+-    
+-    
+-    targets = Rookey::compile(cppFiles+[swigTarget],config)
+-    alllibs=libs
+-    
+-    lib=Rookey::link_dll(name,targets+alllibs)
+-  end
+-  
+-  def Rookey.checkedRequire(name)
+-    begin
+-    require name
+-    rescue LoadError =&gt; load_error
+-      puts &quot;Library #{name} not found!&quot;
+-      return false
+-    end
+-    return true
+-  end
+-  
+-end
+\ No newline at end of file
+
+Deleted: antargis/trunk/rookey/tools.rb
+===================================================================
+--- antargis/trunk/rookey/tools.rb	2009-02-16 20:01:55 UTC (rev 1284)
++++ antargis/trunk/rookey/tools.rb	2009-02-16 20:12:59 UTC (rev 1285)
+@@ -1,37 +0,0 @@
+-class Array
+-  
+-  # *grep* goes through all files given by the filenames that should be contained in *self*
+-  # and checks for a given RegEx
+-  # example:
+-  #
+-  #  pp Dir[&quot;*.h&quot;].grep(/INCLUDE_SWIG/)
+-  #
+-  # outputs all filenames of header-files containing the string INCLUDE_SWIG
+-  def grep(s)
+-    s=/#{s}/ if s.is_a?(String)
+-    self.select{|f|
+-      fd=File.open(f)
+-      result=(s===fd.read)
+-      fd.close
+-      result
+-    }
+-  end
+-end
+-
+-module Rookey
+-  # creates a directory *dir* and parent-dirs if they don't exist
+-  def Rookey.mkdir(dir)
+-	  return if File.exists?(dir)
+-	  begin
+-	    Dir.mkdir(dir.to_s)
+-	  rescue
+-	    p=File.split(dir)[0]
+-	    return if p==dir
+-	    Rookey.mkdir(p)
+-	    begin
+-	      Dir.mkdir(dir)
+-	    rescue
+-	    end
+-	  end
+-	end
+-end
+\ No newline at end of file
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000240.html">[Antargis-svn] r1284 - in antargis/trunk/rookey: . examples	examples/noruby examples/noruby/.deps examples/simplistic	examples/templates examples/virtual
+</A></li>
+	<LI>Next message: <A HREF="000242.html">[Antargis-svn] r1286 - in antargis/trunk: . ext/3dengine ext/basic	ext/external ext/game ext/gui ext/math ext/sound ext/test	ext/video main ruby ruby/editor/campaign ruby/entities
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#241">[ date ]</a>
+              <a href="thread.html#241">[ thread ]</a>
+              <a href="subject.html#241">[ subject ]</a>
+              <a href="author.html#241">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

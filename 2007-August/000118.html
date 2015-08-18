@@ -1,0 +1,316 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1161 - in antargis/branches/rant: . build	ext/game/tests
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1161%20-%20in%20antargis/branches/rant%3A%20.%20build%0A%09ext/game/tests&In-Reply-To=%3C200708221749.l7MHnvYw010066%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000117.html">
+   <LINK REL="Next"  HREF="000119.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1161 - in antargis/branches/rant: . build	ext/game/tests</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1161%20-%20in%20antargis/branches/rant%3A%20.%20build%0A%09ext/game/tests&In-Reply-To=%3C200708221749.l7MHnvYw010066%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1161 - in antargis/branches/rant: . build	ext/game/tests">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Wed Aug 22 19:49:57 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000117.html">[Antargis-svn] r1160 - antargis/branches/rant
+</A></li>
+        <LI>Next message: <A HREF="000119.html">[Antargis-svn] r1162 - in antargis/branches/rant: . build/configs	ext/3dengine ext/game ruby
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#118">[ date ]</a>
+              <a href="thread.html#118">[ thread ]</a>
+              <a href="subject.html#118">[ subject ]</a>
+              <a href="author.html#118">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-08-22 19:49:56 +0200 (Wed, 22 Aug 2007)
+New Revision: 1161
+
+Modified:
+   antargis/branches/rant/Rantfile
+   antargis/branches/rant/build/base_tools.rb
+   antargis/branches/rant/build/test_suite_c.rb
+   antargis/branches/rant/ext/game/tests/test_vector_sort.cc
+   antargis/branches/rant/mytest.rb
+Log:
+* added c-testing
+
+
+Modified: antargis/branches/rant/Rantfile
+===================================================================
+--- antargis/branches/rant/Rantfile	2007-08-21 19:11:17 UTC (rev 1160)
++++ antargis/branches/rant/Rantfile	2007-08-22 17:49:56 UTC (rev 1161)
+@@ -348,4 +348,19 @@
+ #var[:clean].include &quot;.deps/*&quot;
+ ###########################################
+ 
++task :check_c_prgs do
++	require 'build/testing.rb'
++	
++	Cmd.setQuiet(true)
++	
++	testFiles=Dir[File.join(&quot;ext/**/tests/*.cc&quot;)]
++	
++	testFiles.each{|file|
++		Testing.runCTest(file)
++	}
++	puts Testing.getStats
+ 
++end
++
++task :check=&gt; [:check_c_prgs] do
++end
+
+Modified: antargis/branches/rant/build/base_tools.rb
+===================================================================
+--- antargis/branches/rant/build/base_tools.rb	2007-08-21 19:11:17 UTC (rev 1160)
++++ antargis/branches/rant/build/base_tools.rb	2007-08-22 17:49:56 UTC (rev 1161)
+@@ -56,8 +56,10 @@
+ end
+ 
+ module Cmd
++	@@quiet=false 
+ 	def Cmd.sys(cmd)
+-		puts cmd
++		
++		puts cmd if not @@quiet
+ 		#as=`#{cmd}`
+ 		
+ 		#puts &quot;-#{cmd}-&quot;,cmd.class
+@@ -66,6 +68,10 @@
+ 		raise 1 unless res
+ 		
+ 	end
++
++	def Cmd.setQuiet(flag)
++		@@quiet=flag
++	end
+ end
+ 
+ 
+
+Modified: antargis/branches/rant/build/test_suite_c.rb
+===================================================================
+--- antargis/branches/rant/build/test_suite_c.rb	2007-08-21 19:11:17 UTC (rev 1160)
++++ antargis/branches/rant/build/test_suite_c.rb	2007-08-22 17:49:56 UTC (rev 1161)
+@@ -1,9 +1,10 @@
+ require 'build/base_tools.rb'
+ module Testing
++	@@stats={}
++	def Testing.runCTest(file)
++		@@stats={}
+ 
+-
+-	def Testing.runCTest(file)
+-		puts file
++		puts &quot;testing #{file}&quot;
+ 		functions=extractFunctions(file)
+ 
+ 		writeInterfaceFile(functions)
+@@ -11,25 +12,79 @@
+ 		files.each{|f|Build.compile(f)}
+ 		objs=files.collect{|f|Build.cFileToObj(f)}
+ 
+-		Build.linkToLib(libName,objs,[])
++		Build.linkToLib(libName,objs,extLibs)
++		runTest(functions)
+ 
+ 	end
++
++	def Testing.getStats
++		@@stats
++	end
++
+ private
++
++	def Testing.initRunEnvironment
++		if ENV[&quot;WINDIR&quot;] and false
++      ENV[&quot;PATH&quot;]+=&quot;;.\\ext&quot;
++    else
++      ENV[&quot;PATH&quot;]+=&quot;:./ext&quot;
++		end
++		$:.push(&quot;ext&quot;)
++		ENV[&quot;LD_LIBRARY_PATH&quot;]||=&quot;&quot;
++		ENV[&quot;LD_LIBRARY_PATH&quot;]+=&quot;./ext/&quot;
++	end
++	def Testing.runTest(functions)
++		initRunEnvironment
++
++		funcCalls=functions.map{|f|&quot;result[\&quot;#{f}\&quot;]=#{f}&quot;}.join(&quot;\n&quot;)
++
++		script=&lt;&lt;EOT
++require '#{libName}'
++include #{moduleName}
++result={}
++#{funcCalls}
++result.each{|k,v|
++	puts &quot;TESTING:&quot;+k.to_s+&quot;:&quot;+v.to_s
++}
++EOT
++		f=File.open(&quot;curtest.rb&quot;,&quot;w&quot;)
++		f.puts script
++		f.close
++		output=`ruby curtest.rb`
++
++		result=output.split(&quot;\n&quot;).select{|l|l=~/^TESTING/}.map{|l|l.gsub(&quot;TESTING:&quot;,&quot;&quot;).split(&quot;:&quot;)}
++
++		result.each{|a|
++			puts a[0]+&quot;:::&quot;+a[1]
++			k=a[0]
++			v=a[1]==&quot;true&quot;
++	
++			@@stats[v]||=0
++			@@stats[v]+=1
++		}
++		
++		puts output
++	end
++
+ 	def Testing.extractFunctions(file)
+ 		content=File.open(file,&quot;r&quot;).read
+ 
+-		lines=content.split(&quot;\n&quot;).select{|line|line=~/int test_[a-zA-Z_0-9]+\(\)/}
++		lines=content.split(&quot;\n&quot;).select{|line|line=~/bool +test_[a-zA-Z_0-9]+\(\)/}
+ 		functions=lines.collect{|line|line.gsub(/.* test/,&quot;test&quot;).gsub(/\(.*/,&quot;&quot;)}
+-		puts functions.join(&quot;\n&quot;)
+ 		functions
+ 	end
+ 
++	def Testing.extLibs
++		#return []
++		Dir[&quot;ext/*.so&quot;].select{|f|not f=~/lib/}.collect{|f|f.gsub(/^ext\/(.*)\.so/,'-l\1')}-[&quot;-lanttesting&quot;]
++	end
++
+ 	def Testing.libName
+-		&quot;anttesting.so&quot;
++		&quot;ext/anttesting.so&quot;
+ 	end
+ 
+ 	def Testing.moduleName
+-		&quot;anttesting&quot;
++		&quot;Anttesting&quot;
+ 	end
+ 
+ 	def Testing.interfaceFile
+@@ -43,24 +98,26 @@
+ 	end
+ 
+ 	def Testing.writeInterface(functions,fileHandle)
+-		funcDeclarations=functions.collect{|f|&quot;int #{f}();&quot;}.join(&quot;\n&quot;)
+-		wrappers=functions.collect{|f|&quot;VALUE wrap#{f}(ANYARGS)\n{\n  VALUE r=rb_intern(\&quot;\&quot;);\n  #{f}();\n  return r;\n}&quot;}.join(&quot;\n&quot;)
++		funcDeclarations=functions.collect{|f|&quot;bool #{f}();&quot;}.join(&quot;\n&quot;)
++		wrappers=functions.collect{|f|&quot;VALUE wrap#{f}(ANYARGS)\n{\n  bool r=#{f}();\n  return (r?Qtrue:Qfalse);\n}&quot;}.join(&quot;\n&quot;)
+ 		funcDefinitions=functions.collect{|f|&quot;rb_define_module_function(mModule,\&quot;#{f}\&quot;,&amp;wrap#{f},0);&quot;}.join(&quot;\n&quot;)
+ 
+ 		fileHandle.puts &lt;&lt;EOT
+ 
+ #include &lt;ruby.h&gt;
++#include &lt;stdio.h&gt;
+ 
+ #{funcDeclarations}
+ 
+ #{wrappers}
+-
+-void Init_#{moduleName}()
++extern &quot;C&quot; {
++void Init_#{moduleName.downcase}()
+ {
+ 	VALUE mModule = rb_define_module(&quot;#{moduleName}&quot;);
+ 
+ 	#{funcDefinitions}
+ }
++}
+ EOT
+ 	
+ 	end
+
+Modified: antargis/branches/rant/ext/game/tests/test_vector_sort.cc
+===================================================================
+--- antargis/branches/rant/ext/game/tests/test_vector_sort.cc	2007-08-21 19:11:17 UTC (rev 1160)
++++ antargis/branches/rant/ext/game/tests/test_vector_sort.cc	2007-08-22 17:49:56 UTC (rev 1161)
+@@ -3,7 +3,7 @@
+ #include &lt;set&gt;
+ #include &lt;ag_debug.h&gt;
+ 
+-int test_vector_sort()
++bool test_vector_sort()
+ {
+   AGVector2 m(2,2);
+   DistanceOrder order(m);
+@@ -33,11 +33,17 @@
+   cdebug(&quot;2:&quot;&lt;&lt;v[2]&lt;&lt;&quot;  &quot;&lt;&lt;b&lt;&lt;&quot;  &quot;&lt;&lt;(b-m).length());
+   cdebug(&quot;3:&quot;&lt;&lt;v[3]&lt;&lt;&quot;  &quot;&lt;&lt;c&lt;&lt;&quot;  &quot;&lt;&lt;(c-m).length());
+   */
+-
++return false;
+   assert(v[0]==d);
+   assert(v[1]==a);
+   assert(v[2]==b);
+   assert(v[3]==c);
+ 
+-  return 0;
++  return true;
+ }
++
++
++bool test_my_test()
++{
++	return true;
++}
+
+Modified: antargis/branches/rant/mytest.rb
+===================================================================
+--- antargis/branches/rant/mytest.rb	2007-08-21 19:11:17 UTC (rev 1160)
++++ antargis/branches/rant/mytest.rb	2007-08-22 17:49:56 UTC (rev 1161)
+@@ -2,12 +2,11 @@
+ 
+ require 'build/testing.rb'
+ 
++Cmd.setQuiet(true)
+ 
+ testFiles=Dir[File.join(&quot;ext/**/tests/*.cc&quot;)]
+ 
+-
+ testFiles.each{|file|
+-	puts &quot;TEST: #{file}&quot;
+ 	Testing.runCTest(file)
+ }
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000117.html">[Antargis-svn] r1160 - antargis/branches/rant
+</A></li>
+	<LI>Next message: <A HREF="000119.html">[Antargis-svn] r1162 - in antargis/branches/rant: . build/configs	ext/3dengine ext/game ruby
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#118">[ date ]</a>
+              <a href="thread.html#118">[ thread ]</a>
+              <a href="subject.html#118">[ subject ]</a>
+              <a href="author.html#118">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

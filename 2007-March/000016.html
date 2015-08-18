@@ -1,0 +1,4160 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1058 - in antargis/trunk: . gui/src gui/src/mtwist	ruby/tests src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-March/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1058%20-%20in%20antargis/trunk%3A%20.%20gui/src%20gui/src/mtwist%0A%09ruby/tests%20src&In-Reply-To=%3C200703112040.l2BKeUBZ015101%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000015.html">
+   <LINK REL="Next"  HREF="000017.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1058 - in antargis/trunk: . gui/src gui/src/mtwist	ruby/tests src</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1058%20-%20in%20antargis/trunk%3A%20.%20gui/src%20gui/src/mtwist%0A%09ruby/tests%20src&In-Reply-To=%3C200703112040.l2BKeUBZ015101%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1058 - in antargis/trunk: . gui/src gui/src/mtwist	ruby/tests src">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sun Mar 11 21:40:30 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000015.html">[Antargis-svn] r1057 - antargis/trunk/ruby/tests
+</A></li>
+        <LI>Next message: <A HREF="000017.html">[Antargis-svn] r1059 - in antargis/trunk: gui/src ruby ruby/tests	src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#16">[ date ]</a>
+              <a href="thread.html#16">[ thread ]</a>
+              <a href="subject.html#16">[ subject ]</a>
+              <a href="author.html#16">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-03-11 21:40:28 +0100 (Sun, 11 Mar 2007)
+New Revision: 1058
+
+Added:
+   antargis/trunk/gui/src/ag_rand.cc
+   antargis/trunk/gui/src/ag_rand.h
+   antargis/trunk/gui/src/mtwist/
+   antargis/trunk/gui/src/mtwist/README
+   antargis/trunk/gui/src/mtwist/mtwist.3
+   antargis/trunk/gui/src/mtwist/mtwist.c
+   antargis/trunk/gui/src/mtwist/mtwist.h
+   antargis/trunk/gui/src/mtwist/randistrs.3
+   antargis/trunk/gui/src/mtwist/randistrs.c
+   antargis/trunk/gui/src/mtwist/randistrs.h
+   antargis/trunk/ruby/tests/rand_test.rb
+Modified:
+   antargis/trunk/AUTHORS
+   antargis/trunk/Rakefile
+   antargis/trunk/src/antargisgui.h
+   antargis/trunk/src/nantmarker.hh
+Log:
+* added mt-randomizer
+
+
+Modified: antargis/trunk/AUTHORS
+===================================================================
+--- antargis/trunk/AUTHORS	2007-03-08 20:12:12 UTC (rev 1057)
++++ antargis/trunk/AUTHORS	2007-03-11 20:40:28 UTC (rev 1058)
+@@ -37,4 +37,6 @@
+ For more authors of images please have a look at their website.
+ 
+ The gui/src/sge* files were taken from libSGE. Have a look at these files or at <A HREF="http://www.etek.chalmers.se/~e8cal1/sge/">http://www.etek.chalmers.se/~e8cal1/sge/</A> for AUTHOR's information.
+-LibSGE is published under LGPL, which corresponds to AntargisGUILib.
+\ No newline at end of file
++LibSGE is published under LGPL, which corresponds to AntargisGUILib.
++
++The files under gui/src/mtwist are licensed under LGPL and are copyrighted to Geoff Kuenning. Download the sources from <A HREF="http://lasr.cs.ucla.edu/geoff/mtwist.html#downloading.">http://lasr.cs.ucla.edu/geoff/mtwist.html#downloading.</A>
+\ No newline at end of file
+
+Modified: antargis/trunk/Rakefile
+===================================================================
+--- antargis/trunk/Rakefile	2007-03-08 20:12:12 UTC (rev 1057)
++++ antargis/trunk/Rakefile	2007-03-11 20:40:28 UTC (rev 1058)
+@@ -38,7 +38,7 @@
+ &quot;ag_rubyobj.h&quot;,&quot;ag_messageobject.h&quot;,&quot;ag_serial.h&quot;,&quot;ag_aes.h&quot;,&quot;ag_singleton.h&quot;,
+  &quot;ag_geometry.h&quot;,&quot;ag_font.h&quot;,&quot;ag_color.h&quot;,&quot;ag_local.h&quot;,&quot;ag_config.h&quot;,&quot;ag_string.h&quot;,&quot;ag_string_utf8.h&quot;,
+  &quot;ag_widget.h&quot;,&quot;ag_colorbutton.h&quot;,&quot;ag_glwidget.h&quot;,&quot;ag_xml.h&quot;,&quot;ag_layout.h&quot;,&quot;ag_dialog.h&quot;,&quot;ag_mutex.h&quot;,
+- &quot;ag_application.h&quot;,&quot;ag_background.h&quot;,&quot;ag_border.h&quot;,&quot;ag_button.h&quot;,&quot;ag_text.h&quot;,&quot;ag_caption.h&quot;,&quot;ag_checkbox.h&quot;,&quot;ag_combo.h&quot;,&quot;ag_edit.h&quot;,&quot;ag_fontengine.h&quot;,&quot;ag_fs.h&quot;,&quot;ag_painttarget.h&quot;,&quot;ag_surface.h&quot;,&quot;ag_texture.h&quot;,&quot;ag_surfacemanager.h&quot;,&quot;ag_image.h&quot;,&quot;ag_layoutfactory.h&quot;,&quot;ag_listbox.h&quot;,&quot;ag_list.h&quot;,&quot;ag_main.h&quot;,&quot;ag_menu.h&quot;,&quot;ag_menuitem.h&quot;,&quot;ag_mixer.h&quot;,&quot;ag_mutex.h&quot;,&quot;ag_painter.h&quot;,&quot;ag_png.h&quot;,&quot;ag_radio.h&quot;,&quot;ag_screen.h&quot;,&quot;ag_glscreen.h&quot;,&quot;ag_table.h&quot;,&quot;ag_texturecache.h&quot;,&quot;ag_theme.h&quot;,&quot;ag_tools.h&quot;,&quot;ag_window.h&quot;,&quot;ag_xml.h&quot;,&quot;ag_screenwidget.h&quot;,&quot;ag_scroller.h&quot;,&quot;ag_plugin.h&quot;,&quot;ag_destructor.h&quot;]
++ &quot;ag_application.h&quot;,&quot;ag_background.h&quot;,&quot;ag_border.h&quot;,&quot;ag_button.h&quot;,&quot;ag_text.h&quot;,&quot;ag_caption.h&quot;,&quot;ag_checkbox.h&quot;,&quot;ag_combo.h&quot;,&quot;ag_edit.h&quot;,&quot;ag_fontengine.h&quot;,&quot;ag_fs.h&quot;,&quot;ag_painttarget.h&quot;,&quot;ag_surface.h&quot;,&quot;ag_texture.h&quot;,&quot;ag_surfacemanager.h&quot;,&quot;ag_image.h&quot;,&quot;ag_layoutfactory.h&quot;,&quot;ag_listbox.h&quot;,&quot;ag_list.h&quot;,&quot;ag_main.h&quot;,&quot;ag_menu.h&quot;,&quot;ag_menuitem.h&quot;,&quot;ag_mixer.h&quot;,&quot;ag_mutex.h&quot;,&quot;ag_painter.h&quot;,&quot;ag_png.h&quot;,&quot;ag_radio.h&quot;,&quot;ag_screen.h&quot;,&quot;ag_glscreen.h&quot;,&quot;ag_table.h&quot;,&quot;ag_texturecache.h&quot;,&quot;ag_theme.h&quot;,&quot;ag_tools.h&quot;,&quot;ag_window.h&quot;,&quot;ag_xml.h&quot;,&quot;ag_screenwidget.h&quot;,&quot;ag_scroller.h&quot;,&quot;ag_plugin.h&quot;,&quot;ag_destructor.h&quot;,&quot;ag_rand.h&quot;]
+ 
+ interfaceHeadersSRC.collect!{|s|&quot;src/&quot;+s}
+ interfaceHeadersGUI.collect!{|s|&quot;gui/src/&quot;+s}
+@@ -73,7 +73,7 @@
+ 	rubyincludedir=Config::CONFIG['archdir']
+ end
+ 
+-$CFLAGS+=&quot; -Isrc -I&quot;+$GUISRC+&quot; -DUSE_RUBY -I&quot;+rubyincludedir+&quot; -Wall&quot;
++$CFLAGS+=&quot; -Isrc -I&quot;+$GUISRC+&quot; -I#{$GUISRC}/mtwist -DUSE_RUBY -I&quot;+rubyincludedir+&quot; -Wall&quot;
+ 
+ if $debug
+ 	$CFLAGS+=&quot; -g -O0&quot;
+@@ -93,7 +93,7 @@
+ 
+ interfaceHeaders = interfaceHeadersGUI + interfaceHeadersSRC
+ 
+-SRCS=(Dir[$GUISRC+&quot;/*.cc&quot;]+Dir[$GUISRC+&quot;/*.c&quot;]+Dir[&quot;src/*.cc&quot;]+[&quot;src/swig.cc&quot;,&quot;gui/src/guiswig.cc&quot;]).uniq
++SRCS=(Dir[$GUISRC+&quot;/*.cc&quot;]+Dir[$GUISRC+&quot;/*.c&quot;]+Dir[&quot;src/*.cc&quot;]+[&quot;src/swig.cc&quot;,&quot;gui/src/guiswig.cc&quot;,&quot;gui/src/mtwist/mtwist.c&quot;]).uniq
+ if $internalSGE
+ 	SRCS+=Dir[$GUISRC+&quot;/sge/*.cc&quot;]
+ end
+
+Added: antargis/trunk/gui/src/ag_rand.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_rand.cc	2007-03-08 20:12:12 UTC (rev 1057)
++++ antargis/trunk/gui/src/ag_rand.cc	2007-03-11 20:40:28 UTC (rev 1058)
+@@ -0,0 +1,75 @@
++/*
++ * Copyright (c) 2005 by David Kamphausen. All rights reserved.
++ *
++ * ag_rand.cc
++ * by David Kamphausen (<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">david.kamphausen at web.de</A>)
++ *
++ * The &quot;Antargis&quot; project, including all files needed to compile it,
++ * is free software; you can redistribute it and/or use it and/or modify it
++ * under the terms of the GNU General Public License as published
++ * by the Free Software Foundation; either version 2 of the License,
++ * or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
++ *
++ * You should have received a copy of the GNU General Public
++ * License along with this program.
++ */
++
++#include &quot;ag_rand.h&quot;
++#include &quot;ag_debug.h&quot;
++#include &quot;mtwist.h&quot;
++
++#include &lt;sstream&gt;
++
++static mt_state mState;
++
++
++AGRandomizer::AGRandomizer(const std::string &amp;pSeed)
++{
++  std::istringstream is;
++  is.str(pSeed);
++
++  is&gt;&gt;mState.stateptr;
++  is&gt;&gt;mState.initialized;
++
++  for(unsigned long i=0;i&lt;MT_STATE_SIZE;i++)
++    is&gt;&gt;mState.statevec[i];
++  
++  //  mts_seed(&amp;mState);
++
++}
++float AGRandomizer::operator()(float f)
++{
++  float d=(float)mts_drand(&amp;mState);
++  cdebug(&quot;d:&quot;&lt;&lt;d&lt;&lt;&quot; f:&quot;&lt;&lt;f);
++  d*=f;
++  cdebug(&quot;d2:&quot;&lt;&lt;d);
++  
++  return d;
++}
++int AGRandomizer::operator()(int i)
++{
++  int r=mts_lrand(&amp;mState);
++  cdebug(&quot;r:&quot;&lt;&lt;r&lt;&lt;&quot; i:&quot;&lt;&lt;i);
++  r%=i;
++  cdebug(&quot;r2:&quot;&lt;&lt;r);
++  return r;
++}
++
++std::string AGRandomizer::stateToString() const
++{
++  std::ostringstream os;
++  os&lt;&lt;mState.stateptr&lt;&lt;&quot; &quot;&lt;&lt;mState.initialized&lt;&lt;&quot; &quot;;
++
++  for(unsigned long i=0;i&lt;MT_STATE_SIZE;i++)
++    os&lt;&lt;mState.statevec[i]&lt;&lt;&quot; &quot;;
++
++  return os.str();
++
++}
++
++
++
+
+Added: antargis/trunk/gui/src/ag_rand.h
+===================================================================
+--- antargis/trunk/gui/src/ag_rand.h	2007-03-08 20:12:12 UTC (rev 1057)
++++ antargis/trunk/gui/src/ag_rand.h	2007-03-11 20:40:28 UTC (rev 1058)
+@@ -0,0 +1,42 @@
++/*
++ * Copyright (c) 2005 by David Kamphausen. All rights reserved.
++ *
++ * ag_rand.h
++ * by David Kamphausen (<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">david.kamphausen at web.de</A>)
++ *
++ * The &quot;Antargis&quot; project, including all files needed to compile it,
++ * is free software; you can redistribute it and/or use it and/or modify it
++ * under the terms of the GNU General Public License as published
++ * by the Free Software Foundation; either version 2 of the License,
++ * or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
++ *
++ * You should have received a copy of the GNU General Public
++ * License along with this program.
++ */
++
++#ifndef __AG_RAND
++#define __AG_RAND
++
++#include &lt;string&gt;
++
++class AGRandomizer
++{
++ public:
++  AGRandomizer(const std::string &amp;pSeed);
++#ifdef SWIG
++  %rename(randFloat) operator()(float f);
++  %rename(randInt) operator()(int i);
++#endif
++  float operator()(float f);
++  int operator()(int i);
++
++  std::string stateToString() const;
++
++};
++
++
++#endif
+
+Added: antargis/trunk/gui/src/mtwist/README
+===================================================================
+--- antargis/trunk/gui/src/mtwist/README	2007-03-08 20:12:12 UTC (rev 1057)
++++ antargis/trunk/gui/src/mtwist/README	2007-03-11 20:40:28 UTC (rev 1058)
+@@ -0,0 +1,16 @@
++This is an implementation of the Mersenne Twist pseudorandom number
++generator, including both C and C++ interfaces and a set of functions
++for generating random variates from common distributions.
++
++To compile, you may need to define MT_NOINLINE or MT_LONG_LONG.
++
++The full documentation for the package is in the manual pages,
++mtwist.3 and randistrs.3.
++
++For more information, see the Web page for the package, at:
++
++	<A HREF="http://www.cs.hmc.edu/~geoff/mtwist.html">http://www.cs.hmc.edu/~geoff/mtwist.html</A>
++
++or
++
++	<A HREF="http://www.lasr.cs.ucla.edu/geoff/mtwist.html">http://www.lasr.cs.ucla.edu/geoff/mtwist.html</A>
+
+Added: antargis/trunk/gui/src/mtwist/mtwist.3
+===================================================================
+--- antargis/trunk/gui/src/mtwist/mtwist.3	2007-03-08 20:12:12 UTC (rev 1057)
++++ antargis/trunk/gui/src/mtwist/mtwist.3	2007-03-11 20:40:28 UTC (rev 1058)
+@@ -0,0 +1,389 @@
++.\&quot;
++.\&quot; $Id: mtwist.3,v 1.5 2002/10/30 07:39:53 geoff Exp $
++.\&quot;
++.\&quot; $Log: mtwist.3,v $
++.\&quot; Revision 1.5  2002/10/30 07:39:53  geoff
++.\&quot; Document the new seeding routines.
++.\&quot;
++.\&quot; Revision 1.4  2001/06/20 08:15:51  geoff
++.\&quot; Correct the documentation of the generator's period.
++.\&quot;
++.\&quot; Revision 1.3  2001/06/19 00:43:01  geoff
++.\&quot; Document the lack of a newline in the &lt;&lt; operator
++.\&quot;
++.\&quot; Revision 1.2  2001/06/18 10:09:24  geoff
++.\&quot; Fix the manual section.
++.\&quot;
++.\&quot; Revision 1.1  2001/06/16 21:20:31  geoff
++.\&quot; Initial revision
++.\&quot;
++.\&quot; 
++.TH mtwist 3 &quot;June 14, 2001&quot; &quot;&quot; &quot;Linux Programmer's Manual&quot;
++.SH NAME
++mts_seed32new, mts_seed32, mts_seedfull, mts_seed, mts_goodseed, mts_bestseed,
++mts_savestate, mts_loadstate, mt_seed32new, mt_seed32, mt_seedfull, mt_seed,
++mt_goodseed, mt_bestseed, mt_getstate, mt_savestate, mt_loadstate,
++mts_lrand, mts_llrand, mts_drand, mts_ldrand, mt_lrand, mt_llrand,
++mt_drand, mt_ldrand,
++mt_prng \- generate uniformly distributed pseudo-random numbers
++.SH SYNOPSIS
++.nf
++.IR &quot;#defines&quot; &quot; (see below)&quot;
++.br
++.B
++#include &quot;mtwist.h&quot;
++.sp
++C interface:
++.sp
++.BI &quot;void mts_seed32(mt_state* &quot; state &quot;, unsigned long &quot; seed &quot;);&quot;
++.sp
++.BI &quot;void mts_seed32new(mt_state* &quot; state &quot;, unsigned long &quot; seed &quot;);&quot;
++.sp
++.BI &quot;void mts_seedfull(mt_state* &quot; state &quot;,&quot;
++.BI &quot;                  unsigned long &quot; seeds &quot;[MT_STATE_SIZE]);&quot;
++.sp
++.BI &quot;void mts_seed(mt_state* &quot; state &quot;);&quot;
++.sp
++.BI &quot;void mts_goodseed(mt_state* &quot; state &quot;);&quot;
++.sp
++.BI &quot;void mts_bestseed(mt_state* &quot; state &quot;);&quot;
++.sp
++.BI &quot;int mts_savestate(FILE* &quot; statefile &quot;, mt_state* &quot; state &quot;);&quot;
++.sp
++.BI &quot;int mts_loadstate(FILE* &quot; statefile &quot;, mt_state* &quot; state &quot;);&quot;
++.sp
++.BI &quot;void mt_seed32(unsigned long &quot; seed &quot;);&quot;
++.sp
++.BI &quot;void mt_seed32new(unsigned long &quot; seed &quot;);&quot;
++.sp
++.BI &quot;void mt_seedfull(unsigned long &quot; seeds &quot;[MT_STATE_SIZE]);&quot;
++.sp
++.B void mt_seed(void);
++.sp
++.B void mt_goodseed(void);
++.sp
++.B void mt_bestseed(void);
++.sp
++.B mt_state* mt_getstate(void);
++.sp
++.BI &quot;int mt_savestate(FILE* &quot; statefile &quot;);&quot;
++.sp
++.BI &quot;int mt_loadstate(FILE* &quot; statefile &quot;);&quot;
++.sp
++.BI &quot;unsigned long mts_lrand(mt_state* &quot; state &quot;);&quot;
++.sp
++.BI &quot;unsigned long long mts_llrand(mt_state* &quot; state &quot;);&quot;
++.sp
++.BI &quot;double mts_drand(mt_state* &quot; state &quot;);&quot;
++.sp
++.BI &quot;double mts_ldrand(mt_state* &quot; state &quot;);&quot;
++.sp
++.B unsigned long mt_lrand(void);
++.sp
++.B unsigned long long mt_llrand(void);
++.sp
++.B double mt_drand(void);
++.sp
++.B double mt_ldrand(void);
++.sp
++.B &quot;C++ interface:&quot;
++.sp
++.BI &quot;mt_prng &quot; rng ;
++.sp
++.BI &quot;mt_prng &quot; rng &quot;(bool &quot; pickseed &quot; = false);&quot;
++.sp
++.BI &quot;mt_prng &quot; rng &quot;(unsigned long &quot; seed );
++.sp
++.BI &quot;mt_prng &quot; rng &quot;(unsigned long &quot; seeds [MT_STATE_SIZE]);
++.sp
++.BI &quot;void &quot; rng &quot;.seed32(unsigned long &quot; seed &quot;);&quot;
++.sp
++.BI &quot;void &quot; rng &quot;.seedfull(unsigned long seeds[MT_STATE_SIZE]);&quot;
++.sp
++.BI &quot;void &quot; rng &quot;.seed();&quot;
++.sp
++.BI &quot;void &quot; rng &quot;.goodseed();&quot;
++.sp
++.BI &quot;void &quot; rng &quot;.bestseed();&quot;
++.sp
++.BI &quot;unsigned long &quot; rng &quot;.lrand();&quot;
++.sp
++.BI &quot;unsigned long long &quot; rng &quot;.llrand();&quot;
++.sp
++.BI &quot;double &quot; rng &quot;.drand();&quot;
++.sp
++.BI &quot;double &quot; rng &quot;.ldrand();&quot;
++.sp
++.BI &quot;double &quot; rng &quot;();&quot;
++.sp
++.IB &quot;stream&quot; &quot; &lt;&lt; &quot; rng &quot;;&quot;
++.sp
++.IB &quot;stream&quot; &quot; &gt;&gt; &quot; rng &quot;;&quot;
++.SH DESCRIPTION
++These functions generate pseudo-random numbers using Matsumoto and
++Nishimura's Mersenne Twist algorithm (see:
++.nf
++.sp
++        <A HREF="http://www.math.keio.ac.jp/~matumoto/emt.html">http://www.math.keio.ac.jp/~matumoto/emt.html</A>
++.sp
++.fi
++for full information).
++The period of this pseudo random-number generator (PRNG) is 2^19337-1
++which is vastly longer than the life of the universe
++even if the random numbers are being generated at an impossible rate.
++The generator also has excellent statistical properties.
++.PP
++The
++.B mtwist
++package assumes a 32-bit machine with a C or C++ compiler that
++supports inline functions and the
++.B long long
++data type.
++If these features are not present, it will be necessary to
++.B #define
++either or both of
++.B MT_NO_INLINE
++or
++.BR MT_NO_LONGLONG ,
++as appropriate.
++On a machine with 64-bit hardware, the value
++.B MT_MACHINE_BITS
++must be defined equal to 64.
++At present, the
++.B mtwist
++package assumes that
++.B long
++is a 32-bit type, even on 64-bit machines.
++If this assumption is false, the declarations in the package will have
++to be modified.
++.PP
++All of the PRNG functions work from a
++.IR &quot;state vector&quot; ,
++which is of type
++.B mt_state
++in C and type
++.B mt_prng
++in C++.
++The state vector stores everything that the PRNG needs to generate new
++numbers in the proper sequence.
++By using multiple state vectors, programs can draw random numbers from
++independent sequences, which is important in applications such as
++simulation (where each independent random variable should be drawn
++from its own sequence to avoid unintentional correlations).
++.PP
++For convenience, the C interface also provides a built-in default
++state vector that can be used in simple applications.
++The
++.BI mt_ xxx
++functions use the default state vector to control their behavior,
++while the
++.BI mts_xxx
++functions accept a user-provided state vector.
++.PP
++In C, a user-provided state vector has the following structure:
++.PP
++.nf
++#define MT_STATE_SIZE 624
++
++typedef struct {
++.in +8
++unsigned long statevec[MT_STATE_SIZE];
++.in +16
++/* Vector holding current state */
++.in -16
++int stateptr;   /* Next state entry to be used */
++int initialized;
++.in +16
++/* NZ if state has been initialized */
++.in -24
++} mt_state;
++.fi
++.PP
++An uninitialized PRNG is indicated by zeros in
++.I both
++.B stateptr
++and
++.BR initialized .
++It is the programmer's responsibility to ensure that these fields are
++zero before calling any of the
++.BI mts_xxx
++functions.
++.PP
++It is occasionally useful to directly access the default state vector, so
++.B mt_getstate
++will return a pointer to the default state.
++.PP
++In both C and C++, the functionality is divided into two categories:
++seeding and pseudorandom-number generation.
++If one of the generation functions is called on an unseeded generator,
++a default seed (specified by Matsumoto and Nishimura) will be used.
++Usually, the programmer will wish to override the default seed and
++choose a more appropriate one.
++The simplest way to seed a PRNG is by calling one of the
++.B *seed32new
++functions.
++This will invoke Matsumoto and Nishimura's revised Knuth-style seed
++generator.
++.PP
++The
++.B *seed32
++functions
++will invoke Matsumoto and Nishimura's original Knuth-style seed
++generator, which is now deprecated.
++In C++, the same effect can be achieved by passing a 32-bit
++.RB ( &quot;unsigned long&quot; )
++seed to the constructor.
++The original 32-bit seeder did not work correctly if the seed was zero,
++so in that
++case the default seed of 4357 will be substituted.
++The original seeder is still supported so that older software will
++continue to work in the same fashion without changes.
++.PP
++The
++.B *seed32new
++and
++.B *seed32
++functions are simple to use, but they have the drawback that only 4
++billion distinct pseudorandom sequences can be generated using them.
++To allow access to sequences beginning anywhere in the entire space of
++possibilities, the
++.B *seedfull
++functions can be passed an initial state vector of 624 32-bit numbers,
++or a C++ PRNG can be constructed with a 624-element array as an
++argument.
++The initialization vector must contain at least one nonzero value;
++if this rule is violated, the program will be aborted (unfortunately
++without a diagnostic message due to C/C++ portability issues).
++.PP
++The
++.BR *seed32new ,
++.BR *seed32 ,
++and
++.B *seedfull
++functions allow fixed, reproducible seeds, which is useful for
++simulation and experimentation.
++For game-like applications, non-reproducible seeds are usually more
++appropriate.
++The
++.BR mts_seed ,
++.BR mt_seed ,
++and
++.B seed
++functions use the system time to generate an argument to the
++.B *seed32new
++functions to satisfy this need.
++The microseconds portion of the time is included in the seed to
++enhance the probability that two programs will generate different
++random sequences.
++.PP
++Since the various &quot;plain&quot;
++.B seed
++functions are also somewhat limited in the variety they can produce,
++two other functions are available on systems that have support for the
++.B /dev/random
++device.
++The
++.B *goodseed
++functions attempt to use
++.B /dev/urandom
++to get truly random values for use with
++.BR *seedfull .
++If
++.B /dev/urandom
++isn't available, these functions fall back to calling the equivalent &quot;plain&quot;
++.B seed
++function.
++C++ programmers can also invoke
++.B goodseed
++at construction time by passing an argument of
++.B true
++to the constructor.
++.PP
++For the most random seed possible, the
++.B *bestseed
++functions attempt to use
++.B /dev/random
++to acquire values for
++.BR *seedfull ,
++falling back to
++.B *seed
++if
++.B /dev/random
++is unavailable.
++The disadvantage of these functions is that it usually takes a
++significant amount of (wall-clock) time before
++.B /dev/random
++can produce enough entropy to provide a seed.
++Therefore, it is nearly always better to stick with the
++.B *goodseed
++functions.
++.PP
++Finally, it is often useful to be able to save and restore the PRNG
++state for later use.
++In C, the functions
++.B *savestate
++.B *loadstate
++will save the current state into an open
++.B stdio
++.B FILE
++as a single long line (in ASCII)
++and later restore it such that the restored PRNG will pick up where
++the saved one left off.
++In C++, the same effect can be achieved by writing to or reading from
++a C++
++.B stream
++using the usual
++.B &quot;&lt;&lt;&quot;
++and
++.B &quot;&gt;&gt;&quot;
++operators.
++As with all well-behaved C++ types, the
++.B &quot;&lt;&lt;&quot;
++operator does not add a newline after the saved state.
++.PP
++Once a generator has been seeded,
++uniformly distributed pseudorandom numbers can be produced in several
++formats.
++(The functions in the
++.IR randistrs (3)
++library can be used to produce other statistical distributions.)
++The
++.B *lrand
++and
++.B *llrand
++generate 32-bit and 64-bit random integers uniformly distributed
++between 0 and the maximum unsigned value.
++(The
++.B *llrand
++functions are only available on machines that support the
++.B &quot;long long&quot;
++data type.
++The
++.B *drand
++functions generate a double-precision number in the range [0,1)
++(i.e., 0 is a possible value but 1 is not).
++The number generated by
++.B *drand
++has 32 bits of precision.
++For convenience, the C++ interface also defines a function operator
++that returns the same result as
++.BR drand ,
++so that a PRNG can be called as if it were a function.
++For applications that demand increased precision, the
++.B *ldrand
++functions generate a double-precision number in [0,1) with up to 64
++bits of precision (usually 52 bits).
++.SH BUGS
++The package won't work on a machine where
++.B long
++is a 64-bit integer.
++If
++.B inline
++or
++.B long long
++is not available, special symbols must be defined before using the
++package.
++It would be better if knowledge of the architecture and compiler were
++built into the package.
++.SH &quot;SEE ALSO&quot;
++.BR randistrs &quot;(3), &quot; drand48 &quot;(3), &quot; rand &quot;(3), &quot; random (3)
+
+Added: antargis/trunk/gui/src/mtwist/mtwist.c
+===================================================================
+--- antargis/trunk/gui/src/mtwist/mtwist.c	2007-03-08 20:12:12 UTC (rev 1057)
++++ antargis/trunk/gui/src/mtwist/mtwist.c	2007-03-11 20:40:28 UTC (rev 1058)
+@@ -0,0 +1,952 @@
++#ifndef lint
++static char Rcs_Id[] =
++    &quot;$Id: mtwist.c,v 1.19 2003/09/11 05:55:19 geoff Exp $&quot;;
++#endif
++
++/*
++ * C library functions for generating pseudorandom numbers using the
++ * Mersenne Twist algorithm.  See M. Matsumoto and T. Nishimura,
++ * &quot;Mersenne Twister: A 623-Dimensionally Equidistributed Uniform
++ * Pseudo-Random Number Generator&quot;, ACM Transactions on Modeling and
++ * Computer Simulation, Vol. 8, No. 1, January 1998, pp 3--30.
++ *
++ * The Web page on the Mersenne Twist algorithm is at:
++ *
++ * <A HREF="http://www.math.keio.ac.jp/~matumoto/emt.html">http://www.math.keio.ac.jp/~matumoto/emt.html</A>
++ *
++ * These functions were written by Geoffrey H. Kuenning, Claremont, CA.
++ *
++ * IMPORTANT NOTE: the Makefile must define two machine-specific
++ * variables to get optimum features and performance:
++ *
++ *	MT_NO_INLINE	should be defined if the compiler doesn't support
++ *			the &quot;inline&quot; keyword.
++ *	MT_NO_LONGLONG	should be defined if the compiler doesn't support a
++ *			&quot;long long&quot; type for 64-bit integers
++ *	MT_MACHINE_BITS	must be either 32 or 64, reflecting the natural
++ *			size of the processor registers.  If undefined, it
++ *			will default to 32.
++ *
++ * The first two variables above are defined in an inverted sense
++ * because I expect that most compilers will support inline and
++ * long-long.  By inverting the sense, this common case will require
++ * no special compiler flags.
++ *
++ * IMPORTANT NOTE: this software assumes that the inherent width of a
++ * &quot;long&quot; is 32 bits.  If you are running on a machine that uses
++ * 64-bit longs, some of the declarations and code will have to be
++ * modified.
++ *
++ * This software is based on LGPL-ed code by Takuji Nishimura.  It has
++ * also been heavily influenced by code written by Shawn Cokus, and
++ * somewhat influenced by code written by Richard J. Wagner.  It is
++ * therefore also distributed under the LGPL:
++ *
++ * This library is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Library General Public License
++ * as published by the Free Software Foundation; either version 2 of
++ * the License, or (at your option) any later version.
++ *
++ * This library is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Library General Public License for more details.  You should have
++ * received a copy of the GNU Library General Public License along
++ * with this library; if not, write to the Free Foundation, Inc., 59
++ * Temple Place, Suite 330, Boston, MA 02111-1307 USA
++ *
++ * $Log: mtwist.c,v $
++ * Revision 1.19  2003/09/11 05:55:19  geoff
++ * Get rid of some minor compiler warnings.
++ *
++ * Revision 1.18  2003/09/11 05:50:53  geoff
++ * Don't #define inline to nothing, since that breaks standard include
++ * files.  Instead, use MT_INLINE as a synonym.
++ *
++ * Revision 1.17  2002/10/31 22:07:10  geoff
++ * Make WIN32 detection work with GCC as well as MS C
++ *
++ * Revision 1.16  2002/10/31 22:04:59  geoff
++ * Fix a typo in the WIN32 option
++ *
++ * Revision 1.15  2002/10/31 06:01:43  geoff
++ * Incorporate Joseph Brill's Windows-portability changes
++ *
++ * Revision 1.14  2002/10/30 07:39:53  geoff
++ * Reintroduce the old seeding functions (so that old code will still
++ * produce the same results), and give the new versions new names.
++ *
++ * Revision 1.13  2002/10/30 01:08:26  geoff
++ * Switch to M&amp;T's new initialization method
++ *
++ * Revision 1.12  2001/06/18 05:40:12  geoff
++ * Prefix the compile options with MT_.
++ *
++ * Revision 1.11  2001/06/14 10:26:59  geoff
++ * Invert the sense of the #define flags so that the default is the
++ * normal case (if gcc is normal!).  Also default MT_MACHINE_BITS to 32.
++ *
++ * Revision 1.10  2001/06/14 10:10:38  geoff
++ * Move the RNG functions into the header file so they can be inlined.
++ * Add saving/loading of state.  Add a function that marks the PRNG as
++ * initialized while also calculating critical constants.  Run the
++ * refresh routine whenever seed32 is called.  Add functions to seed
++ * based on /dev/random or the time.
++ *
++ * Revision 1.9  2001/06/11 10:00:04  geoff
++ * Major changes to improve flexibility and performance, and to prepare
++ * for inlining.  This code is about as fast as it can get without
++ * inlining the various PRNG functions.  Add seed/goodseed/bestseed for
++ * seeding from random start values.  Add the refresh routine a la Cokus,
++ * but optimize it by unrolling loops.  Change getstate to return a
++ * complete state pointer, since knowing the position in the state vector
++ * is critical to restoring state.  Add more macros to improve
++ * readability.  Rename certain macros in preparation for inlining.  Get
++ * rid of leftover optimizer-bug stuff.  Stop using mtwist_guts.h;
++ * instead use direct code (via macros) and the refresh function.
++ *
++ * Revision 1.8  2001/04/23 08:36:03  geoff
++ * Move the #defined code into a header file to ease stepping with a debugger.
++ *
++ * Revision 1.7  2001/04/23 08:00:13  geoff
++ * Add code to work around optimizer bug
++ *
++ * Revision 1.6  2001/04/14 01:33:32  geoff
++ * Clarify the license
++ *
++ * Revision 1.5  2001/04/09 08:45:00  geoff
++ * Rename default_state to mt_default_state, and make it global so that
++ * the random-distribution code can use it.
++ *
++ * Revision 1.4  2001/04/07 23:24:11  geoff
++ * My guess in the commentary for the last delta was right: it's faster
++ * on a x86 to convert the two halves of the PRN to double, multiplying
++ * them by the appropriate value to scale them, and then add them as
++ * doubles.  I suspect the reason is that there is no instruction to
++ * convert a 64-bit value directly to a double, so the work of building
++ * the long long (which isn't easy anyway, without assembly access) is
++ * worse than wasted.  So add support for MT_MACHINE_BITS, and only go
++ * the via-long-long route on a true 64-bit machine.
++ *
++ * Revision 1.3  2001/04/07 23:09:38  geoff
++ * Get rid of MT_INLINE.  Convert all of the code to use preprocessor
++ * macros for the guts of the PRNG code.  Take advantage of the
++ * conversion to get rid of unnecessary calls initialization tests.  Also
++ * clean up the generation of long-double pseudorandom numbers on
++ * machines that have the long long type (by converting first to a long
++ * long, then to a double, saving one floating-point operation).  The
++ * latter change might be a mistake on 32-bit machines.  The code is now
++ * much faster as a result of macro-izing.
++ *
++ * Revision 1.2  2001/04/07 22:21:41  geoff
++ * Make the long-double code a hair faster by always having a 64-bit
++ * conversion constant.  Add commentary to the PRNG loop.
++ *
++ * Revision 1.1  2001/04/07 09:43:41  geoff
++ * Initial revision
++ *
++ */
++
++#ifdef _WIN32
++#undef WIN32
++#define WIN32
++#endif /* _WIN32 */
++
++#include &lt;stdio.h&gt;
++#include &lt;stdlib.h&gt;
++#ifdef WIN32
++#include &lt;sys/timeb.h&gt;
++#else /* WIN32 */
++#include &lt;sys/time.h&gt;
++#endif /* WIN32 */
++
++/*
++ * Before we include the Mersenne Twist header file, we must do a bit
++ * of magic setup.  The code for actual random-number generation
++ * resides in that file rather than here.  We need to arrange for the
++ * code to be compiled into this .o file, either because inlines
++ * aren't supported or because somebody might want to take a pointer
++ * to a function.  We do so with a couple of careful #defines.
++ */
++#undef MT_NO_INLINE			/* Ask for code to be compiled */
++#define MT_INLINE			/* Disable the inline keyword */
++#define MT_EXTERN			/* Generate real code for functions */
++
++#include &quot;mtwist.h&quot;
++
++/*
++ * Table of contents:
++ */
++void			mts_mark_initialized(mt_state* state);
++					/* Mark a PRNG state as initialized */
++void			mts_seed32(mt_state* state, unsigned long seed);
++					/* Set random seed for any generator */
++void			mts_seed32new(mt_state* state, unsigned long seed);
++					/* Set random seed for any generator */
++void			mts_seedfull(mt_state* state,
++			  unsigned long seeds[MT_STATE_SIZE]);
++					/* Set complicated seed for any gen. */
++void			mts_seed(mt_state* state);
++					/* Choose seed from random input */
++void			mts_goodseed(mt_state* state);
++					/* Choose seed from more random */
++					/* ..input than mts_seed */
++static void		mts_devseed(mt_state* state, char* seed_dev);
++					/* Choose seed from a device */
++void			mts_bestseed(mt_state* state);
++					/* Choose seed from extremely random */
++					/* ..input (can be *very* slow) */
++void			mts_refresh(mt_state* state);
++					/* Generate 624 more random values */
++int			mts_savestate(FILE* statefile, mt_state* state);
++					/* Save state to a file (ASCII) */
++int			mts_loadstate(FILE* statefile, mt_state* state);
++					/* Load state from a file (ASCII) */
++
++void			mt_seed32(unsigned long seed);
++					/* Set random seed for default gen. */
++void			mt_seed32new(unsigned long seed);
++					/* Set random seed for default gen. */
++void			mt_seedfull(unsigned long seeds[MT_STATE_SIZE]);
++					/* Set complicated seed for default */
++void			mt_seed(void);	/* Choose seed from random input */
++void			mt_goodseed(void);
++					/* Choose seed from more random */
++					/* ..input than mts_seed */
++void			mt_bestseed(void);
++					/* Choose seed from extremely random */
++					/* ..input (can be *very* slow) */
++extern mt_state*	mt_getstate(void);
++					/* Get current state of default */
++					/* ..generator */
++int			mt_savestate(FILE* statefile);
++					/* Save state to a file (ASCII) */
++int			mt_loadstate(FILE* statefile);
++					/* Load state from a file (ASCII) */
++
++
++/*
++ * The following values are fundamental parameters of the algorithm.
++ * With the exception of the two masks, all of them were found
++ * experimentally using methods described in Matsumoto and Nishimura's
++ * paper.  They are exceedingly magic; don't change them.
++ */
++
++/* MT_STATE_SIZE is defined in the header file. */
++#define RECURRENCE_OFFSET 397		/* Offset into state space for the */
++					/* ..recurrence relation.  The */
++					/* ..recurrence mashes together two */
++					/* ..values that are separated by */
++					/* ..this offset in the state */
++					/* ..space. */
++#define MATRIX_A	0x9908b0df	/* Constant vector A for the */
++					/* ..recurrence relation.  The */
++					/* ..mashed-together value is */
++					/* ..multiplied by this vector to */
++					/* ..get a new value that will be */
++					/* ..stored into the state space. */
++
++/*
++ * Width of a long.  Don't change this even if your longs are 64 bits.
++ */
++#define BIT_WIDTH	32		/* Work with 32-bit words */
++
++/*
++ * Masks for extracting the bits to be mashed together.  The widths of these
++ * masks are also fundamental parameters of the algorithm, determined
++ * experimentally -- but of course the masks themselves are simply bit
++ * selectors.
++ */
++#define UPPER_MASK	0x80000000	/* Most significant w-r bits */
++#define LOWER_MASK	0x7fffffff	/* Least significant r bits */
++
++/*
++ * Macro to simplify code in the generation loop.  This function
++ * combines the top bit of x with the bottom 31 bits of y.
++ */
++#define COMBINE_BITS(x, y) \
++			(((x) &amp; UPPER_MASK) | ((y) &amp; LOWER_MASK))
++
++/*
++ * Another generation-simplification macro.  This one does the magic
++ * scrambling function.
++ */
++#define MATRIX_MULTIPLY(original, new) \
++			((original) ^ ((new) &gt;&gt; 1) \
++			  ^ matrix_decider[(new) &amp; 0x1])
++
++/*
++ * Parameters of Knuth's PRNG (Line 25, Table 1, p. 102 of &quot;The Art of
++ * Computer Programming, Vol. 2, 2nd ed, 1981).
++ */
++#define KNUTH_MULTIPLIER_OLD \
++			69069
++
++/*
++ * Parameters of Knuth's PRNG (p. 106 of &quot;The Art of Computer
++ * Programming, Vol. 2, 3rd ed).
++ */
++#define KNUTH_MULTIPLIER_NEW \
++			1812433253ul
++#define KNUTH_SHIFT	30		// Even on a 64-bit machine!
++
++/*
++ * Default 32-bit random seed if mts_seed32 wasn't called
++ */
++#define DEFAULT_SEED32_OLD \
++			4357
++#define DEFAULT_SEED32_NEW \
++			5489ul
++
++/*
++ * Where to get random numbers
++ */
++#define DEVRANDOM	&quot;/dev/random&quot;
++#define DEVURANDOM	&quot;/dev/urandom&quot;
++
++/*
++ * Many applications need only a single PRNG, so it's a nuisance to have to
++ * specify a state.  For those applications, we will provide a default
++ * state, and functions to use it.
++ */
++mt_state		mt_default_state;
++
++/*
++ * To generate double-precision random numbers, we need to divide the result
++ * of mts_lrand or mts_llrand by 2^32 or 2^64, respectively.  The quickest
++ * way to do that on most machines is to multiply by the inverses of those
++ * numbers.  However, I don't trust the compiler to correctly convert the
++ * corresponding decimal constant.  So we will compute the correct number at
++ * run time as part of initialization, which will produce a nice exact
++ * result.
++ */
++double			mt_32_to_double;
++					/* Multiplier to convert long to dbl */
++double			mt_64_to_double;
++					/* Mult'r to cvt long long to dbl */
++
++/*
++ * In the recurrence relation, the new value is XORed with MATRIX_A only if
++ * the lower bit is nonzero.  Since most modern machines don't like to
++ * branch, it's vastly faster to handle this decision by indexing into an
++ * array.  The chosen bit is used as an index into the following vector,
++ * which produces either zero or MATRIX_A and thus the desired effect.
++ */
++static unsigned long	matrix_decider[2] =
++			  {0x0, MATRIX_A};
++
++/*
++ * Mark a PRNG's state as having been initialized.  This is the only
++ * way to set that field nonzero; that way we can be sure that the
++ * constants are set properly before the PRNG is used.
++ *
++ * As a side effect, set up some constants that the PRNG assumes are
++ * valid.  These are calculated at initialization time rather than
++ * being written as decimal constants because I frankly don't trust
++ * the compiler's ASCII conversion routines.
++ */
++void mts_mark_initialized(
++    mt_state*		state)		/* State vector to mark initialized */
++    {
++    int			i;		/* Power of 2 being calculated */
++
++    /*
++     * Figure out the proper multiplier for long-to-double conversion.  We
++     * don't worry too much about efficiency, since the assumption is that
++     * initialization is vastly rarer than generation of random numbers.
++     */
++    mt_32_to_double = 1.0;
++    for (i = 0;  i &lt; BIT_WIDTH;  i++)
++	mt_32_to_double /= 2.0;
++    mt_64_to_double = mt_32_to_double;
++    for (i = 0;  i &lt; BIT_WIDTH;  i++)
++	mt_64_to_double /= 2.0;
++
++    state-&gt;initialized = 1;
++    }
++
++/*
++ * Initialize a Mersenne Twist PRNG from a 32-bit seed.
++ *
++ * According to Matsumoto and Nishimura's paper, the seed array needs to be
++ * filled with nonzero values.  (My own interpretation is that there needs
++ * to be at least one nonzero value).  They suggest using Knuth's PRNG from
++ * Line 25, Table 1, p.102, &quot;The Art of Computer Programming,&quot; Vol. 2 (2nd
++ * ed.), 1981.  I find that rather odd, since that particular PRNG is
++ * sensitive to having an initial seed of zero (there are many other PRNGs
++ * out there that have an additive component, so that a seed of zero does
++ * not generate a repeating-zero sequence).  However, one thing I learned
++ * from reading Knuth is that you shouldn't second-guess mathematicians
++ * about PRNGs.  Also, by following M &amp; N's approach, we will be compatible
++ * with other implementations.  So I'm going to stick with their version,
++ * with the single addition that a zero seed will be changed to their
++ * default seed.
++ */
++void mts_seed32(
++    mt_state*		state,		/* State vector to initialize */
++    unsigned long	seed)		/* 32-bit seed to start from */
++    {
++    int			i;		/* Loop index */
++
++    if (seed == 0)
++	seed = DEFAULT_SEED32_OLD;
++
++    /*
++     * Fill the state vector using Knuth's PRNG.  Be sure to mask down
++     * to 32 bits in case we're running on a machine with 64-bit
++     * longs.
++     */
++    state-&gt;statevec[MT_STATE_SIZE - 1] = seed &amp; 0xffffffff;
++    for (i = MT_STATE_SIZE - 2;  i &gt;= 0;  i--)
++        state-&gt;statevec[i] =
++          (KNUTH_MULTIPLIER_OLD * state-&gt;statevec[i + 1]) &amp; 0xffffffff;
++
++    state-&gt;stateptr = MT_STATE_SIZE;
++    mts_mark_initialized(state);
++
++    /*
++     * Matsumoto and Nishimura's implementation refreshes the PRNG
++     * immediately after running the Knuth algorithm.  This is
++     * probably a good thing, since Knuth's PRNG doesn't generate very
++     * good numbers.
++     */
++    mts_refresh(state);
++    }
++
++/*
++ * Initialize a Mersenne Twist PRNG from a 32-bit seed, using
++ * Matsumoto and Nishimura's newer reference implementation (Jan. 9,
++ * 2002).
++ */
++void mts_seed32new(
++    mt_state*		state,		/* State vector to initialize */
++    unsigned long	seed)		/* 32-bit seed to start from */
++    {
++    int			i;		/* Loop index */
++    unsigned long	nextval;	/* Next value being calculated */
++
++    /*
++     * Fill the state vector using Knuth's PRNG.  Be sure to mask down
++     * to 32 bits in case we're running on a machine with 64-bit
++     * longs.
++     */
++    state-&gt;statevec[MT_STATE_SIZE - 1] = seed &amp; 0xffffffffUL;
++    for (i = MT_STATE_SIZE - 2;  i &gt;= 0;  i--)
++	{
++	nextval = state-&gt;statevec[i + 1] &gt;&gt; KNUTH_SHIFT;
++	nextval ^= state-&gt;statevec[i + 1];
++	nextval *= KNUTH_MULTIPLIER_NEW;
++	nextval += (MT_STATE_SIZE - 1) - i;
++	state-&gt;statevec[i] = nextval &amp; 0xffffffffUL;
++	}
++
++    state-&gt;stateptr = MT_STATE_SIZE;
++    mts_mark_initialized(state);
++
++    /*
++     * Matsumoto and Nishimura's implementation refreshes the PRNG
++     * immediately after running the Knuth algorithm.  This is
++     * probably a good thing, since Knuth's PRNG doesn't generate very
++     * good numbers.
++     */
++    mts_refresh(state);
++    }
++
++/*
++ * Initialize a Mersenne Twist RNG from a 624-long seed.
++ *
++ * The 32-bit seeding routine given by Matsumoto and Nishimura has the
++ * drawback that there are only 2^32 different PRNG sequences that can be
++ * generated by calling that function.  This function solves that problem by
++ * allowing a full 624*32-bit state to be given.  (Note that 31 bits of the
++ * given state are ignored; see the paper for details.)
++ *
++ * Since an all-zero state would cause the PRNG to cycle, we detect
++ * that case and abort the program (silently, since there is no
++ * portable way to produce a message in both C and C++ environments).
++ * An alternative would be to artificially force the state to some
++ * known nonzero value.  However, I feel that if the user is providing
++ * a full state, it's a bug to provide all zeros and we we shouldn't
++ * conceal the bug by generating apparently correct output.
++ */
++void mts_seedfull(
++    mt_state*		state,		/* State vector to initialize */
++    unsigned long	seeds[MT_STATE_SIZE])
++					/* Seed array to start from */
++    {
++    int			had_nz = 0;	/* NZ if at least one NZ seen */
++    int			i;		/* Loop index */
++
++    for (i = 0;  i &lt; MT_STATE_SIZE;  i++)
++        {
++        if (seeds[i] != 0)
++	    had_nz = 1;
++        state-&gt;statevec[MT_STATE_SIZE - i - 1] = seeds[i];
++	}
++
++    if (!had_nz)
++	{
++	/*
++	 * It would be nice to abort with a message.  Unfortunately, fprintf
++	 * isn't compatible with all implementations of C++.  In the
++	 * interest of C++ compatibility, therefore, we will simply abort
++	 * silently.  It will unfortunately be up to a programmer to run
++	 * under a debugger (or examine the core dump) to discover the cause
++	 * of the abort.
++	 */
++	abort();
++	}
++
++    state-&gt;stateptr = MT_STATE_SIZE;
++    mts_mark_initialized(state);
++    }
++
++/*
++ * Choose a seed based on some moderately random input.  Prefers
++ * /dev/urandom as a source of random numbers, but uses the lower bits
++ * of the current time if /dev/urandom is not available.  In any case,
++ * only provides 32 bits of entropy.
++ */
++void mts_seed(
++    mt_state*		state)		/* State vector to seed */
++    {
++    mts_devseed(state, DEVURANDOM);
++    }
++
++/*
++ * Choose a seed based on some fairly random input.  Prefers
++ * /dev/random as a source of random numbers, but uses the lower bits
++ * of the current time if /dev/random is not available.  In any case,
++ * only provides 32 bits of entropy.
++ */
++void mts_goodseed(
++    mt_state*		state)		/* State vector to seed */
++    {
++    mts_devseed(state, DEVRANDOM);
++    }
++
++/*
++ * Choose a seed based on a random-number device given by the caller.
++ * If that device can't be opened, use the lower 32 bits from the
++ * current time.
++ */
++static void mts_devseed(
++    mt_state*		state,		/* State vector to seed */
++    char*		seed_dev)	/* Device to seed from */
++    {
++    int			bytesread;	/* Byte count read from device */
++    int			nextbyte;	/* Index of next byte to read */
++    FILE*		ranfile;	/* Access to device */
++    union
++	{
++	char		ranbuffer[sizeof (unsigned long)];
++					/* Space for reading random int */
++	unsigned long	randomvalue;	/* Random value for initialization */
++	}
++			randomunion;	/* Union for reading random int */
++#ifdef WIN32
++    struct _timeb	tb;		/* Time of day (Windows mode) */
++#else /* WIN32 */
++    struct timeval	tv;		/* Time of day */
++    struct timezone	tz;		/* Dummy for gettimeofday */
++#endif /* WIN32 */
++
++    ranfile = fopen(seed_dev, &quot;rb&quot;);
++    if (ranfile != NULL)
++	{
++	for (nextbyte = 0;
++	  nextbyte &lt; (int)sizeof randomunion.ranbuffer;
++	  nextbyte += bytesread)
++	    {
++	    bytesread = fread(&amp;randomunion.ranbuffer[nextbyte], 1,
++	      sizeof randomunion.ranbuffer - nextbyte, ranfile);
++	    if (bytesread == 0)
++		break;
++	    }
++	fclose(ranfile);
++	if (nextbyte == sizeof randomunion.ranbuffer)
++	    {
++	    mts_seed32new(state, randomunion.randomvalue);
++	    return;
++	    }
++	}
++
++    /*
++     * The device isn't available.  Use the time.  We will
++     * assume that the time of day is accurate to microsecond
++     * resolution, which is true on most modern machines.
++     */
++#ifdef WIN32
++    (void) _ftime (&amp;tb);
++#else /* WIN32 */
++    (void) gettimeofday (&amp;tv, &amp;tz);
++#endif /* WIN32 */
++
++    /*
++     * We just let the excess part of the seconds field overflow
++     */
++#ifdef WIN32
++    randomunion.randomvalue = tb.time * 1000 + tb.millitm;
++#else /* WIN32 */
++    randomunion.randomvalue = tv.tv_sec * 1000000 + tv.tv_usec;
++#endif /* WIN32 */
++    mts_seed32new(state, randomunion.randomvalue);
++    }
++
++/*
++ * Choose a seed based on the best random input available.  Prefers
++ * /dev/random as a source of random numbers, and reads the entire
++ * 624-long state from that device.  Because of this approach, the
++ * function can take a long time (in real time) to complete, since
++ * /dev/random may have to wait quite a while before it can provide
++ * that much randomness.  If /dev/random is unavailable, falls back to
++ * calling mts_goodseed.
++ */
++void mts_bestseed(
++    mt_state*		state)		/* State vector to seed */
++    {
++    int			bytesread;	/* Byte count read from device */
++    int			nextbyte;	/* Index of next byte to read */
++    FILE*		ranfile;	/* Access to device */
++
++    ranfile = fopen(&quot;/dev/random&quot;, &quot;rb&quot;);
++    if (ranfile == NULL)
++	{
++	mts_goodseed(state);
++	return;
++	}
++
++    for (nextbyte = 0;
++      nextbyte &lt; (int)sizeof state-&gt;statevec;
++      nextbyte += bytesread)
++	{
++	bytesread = fread((char *)&amp;state-&gt;statevec + nextbyte, 1,
++	  sizeof state-&gt;statevec - nextbyte, ranfile);
++	if (bytesread == 0)
++	    {
++	    /*
++	     * Something went wrong.  Fall back to time-based seeding.
++	     */
++	    fclose(ranfile);
++	    mts_goodseed(state);
++	    return;
++	    }
++	}
++    }
++
++/*
++ * Generate 624 more random values.  This function is called when the
++ * state vector has been exhausted.  It generates another batch of
++ * pseudo-random values.  The performance of this function is critical
++ * to the performance of the Mersenne Twist PRNG, so it has been
++ * highly optimized.
++ */
++void mts_refresh(
++    register mt_state*	state)		/* State for the PRNG */
++    {
++    register int	i;		/* Index into the state */
++    register unsigned long*
++			state_ptr;	/* Next place to get from state */
++    register unsigned long
++			value1;		/* Scratch val picked up from state */
++    register unsigned long
++			value2;		/* Scratch val picked up from state */
++
++    /*
++     * Start by making sure a random seed has been set.  If not, set
++     * one.
++     */
++    if (!state-&gt;initialized)
++	{
++	mts_seed32(state, DEFAULT_SEED32_OLD);
++	return;				/* Seed32 calls us recursively */
++	}
++
++    /*
++     * Now generate the new pseudorandom values by applying the
++     * recurrence relation.  We use two loops and a final
++     * 2-statement sequence so that we can handle the wraparound
++     * explicitly, rather than having to use the relatively slow
++     * modulus operator.
++     *
++     * In essence, the recurrence relation concatenates bits
++     * chosen from the current random value (last time around)
++     * with the immediately preceding one.  Then it
++     * matrix-multiplies the concatenated bits with a value
++     * RECURRENCE_OFFSET away and a constant matrix.  The matrix
++     * multiplication reduces to a shift and two XORs.
++     *
++     * Some comments on the optimizations are in order:
++     *
++     * Strictly speaking, none of the optimizations should be
++     * necessary.  All could conceivably be done by a really good
++     * compiler.  However, the compilers available to me aren't quite
++     * smart enough, so hand optimization needs to be done.
++     *
++     * Shawn Cokus was the first to achieve a major speedup.  In the
++     * original code, the first value given to COMBINE_BITS (in my
++     * characterization) was re-fetched from the state array, rather
++     * than being carried in a scratch variable.  Cokus noticed that
++     * the first argument to COMBINE_BITS could be saved in a register
++     * in the previous loop iteration, getting rid of the need for an
++     * expensive memory reference.
++     *
++     * Cokus also switched to using pointers to access the state
++     * array and broke the original loop into two so that he could
++     * avoid using the expensive modulus operator.  Cokus used three
++     * pointers; Richard J. Wagner noticed that the offsets between
++     * the three were constant, so that they could be collapsed into a
++     * single pointer and constant-offset accesses.  This is clearly
++     * faster on x86 architectures, and is the same cost on RISC
++     * machines.  A secondary benefit is that Cokus' version was
++     * register-starved on the x86, while Wagner's version was not.
++     *
++     * I made several smaller improvements to these observations.
++     * First, I reversed the contents of the state vector.  In the
++     * current version of the code, this change doesn't directly
++     * affect the performance of the refresh loop, but it has the nice
++     * side benefit that an all-zero state structure represents an
++     * uninitialized generator.  It also slightly speeds up the
++     * random-number routines, since they can compare the state
++     * pointer against zero instead of against a constant (this makes
++     * the biggest difference on RISC machines).
++     *
++     * Second, I returned to Matsumoto and Nishimura's original
++     * technique of using a lookup table to decide whether to xor the
++     * constant vector A (MATRIX_A in this code) with the newly
++     * computed value.  Cokus and Wagner had used the ?: operator,
++     * which requires a test and branch.  Modern machines don't like
++     * branches, so the table lookup is faster.
++     *
++     * Third, in the Cokus and Wagner versions the loop ends with a
++     * statement similar to &quot;value1 = value2&quot;, which is necessary to
++     * carry the fetched value into the next loop iteration.  I
++     * recognized that if the loop were unrolled so that it generates
++     * two values per iteration, a bit of variable renaming would get
++     * rid of that assignment.  A nice side effect is that the
++     * overhead of loop control becomes only half as large.
++     *
++     * It is possible to improve the code's performance somewhat
++     * further.  In particular, since the second loop's loop count
++     * factors into 2*2*3*3*11, it could be unrolled yet further.
++     * That's easy to do, too: just change the &quot;/ 2&quot; into a division
++     * by whatever factor you choose, and then use cut-and-paste to
++     * duplicate the code in the body.  To remove a few more cycles,
++     * fix the code to decrement state_ptr by the unrolling factor, and
++     * adjust the various offsets appropriately.  However, the payoff
++     * will be small.  At the moment, the x86 version of the loop is
++     * 25 instructions, of which 3 are involved in loop control
++     * (including the decrementing of state_ptr).  Further unrolling by
++     * a factor of 2 would thus produce only about a 6% speedup.
++     *
++     * The logical extension of the unrolling
++     * approach would be to remove the loops and create 624
++     * appropriate copies of the body.  However, I think that doing
++     * the latter is a bit excessive!
++     *
++     * I suspect that a superior optimization would be to simplify the
++     * mathematical operations involved in the recurrence relation.
++     * However, I have no idea whether such a simplification is
++     * feasible.
++     */
++    state_ptr = &amp;state-&gt;statevec[MT_STATE_SIZE - 1];
++    value1 = *state_ptr;
++    for (i = (MT_STATE_SIZE - RECURRENCE_OFFSET) / 2;  --i &gt;= 0;  )
++	{
++	state_ptr -= 2;
++	value2 = state_ptr[1];
++	value1 = COMBINE_BITS(value1, value2);
++	state_ptr[2] =
++	  MATRIX_MULTIPLY(state_ptr[-RECURRENCE_OFFSET + 2], value1);
++	value1 = state_ptr[0];
++	value2 = COMBINE_BITS(value2, value1);
++	state_ptr[1] =
++	  MATRIX_MULTIPLY(state_ptr[-RECURRENCE_OFFSET + 1], value2);
++	}
++    value2 = *--state_ptr;
++    value1 = COMBINE_BITS(value1, value2);
++    state_ptr[1] =
++      MATRIX_MULTIPLY(state_ptr[-RECURRENCE_OFFSET + 1], value1);
++
++    for (i = (RECURRENCE_OFFSET - 1) / 2;  --i &gt;= 0;  )
++	{
++	state_ptr -= 2;
++	value1 = state_ptr[1];
++	value2 = COMBINE_BITS(value2, value1);
++	state_ptr[2] =
++	  MATRIX_MULTIPLY(state_ptr[MT_STATE_SIZE - RECURRENCE_OFFSET + 2],
++	    value2);
++	value2 = state_ptr[0];
++	value1 = COMBINE_BITS(value1, value2);
++	state_ptr[1] =
++	  MATRIX_MULTIPLY(state_ptr[MT_STATE_SIZE - RECURRENCE_OFFSET + 1],
++	    value1);
++	}
++
++    /*
++     * The final entry in the table requires the &quot;previous&quot; value
++     * to be gotten from the other end of the state vector, so it
++     * must be handled specially.
++     */
++    value1 = COMBINE_BITS(value2, state-&gt;statevec[MT_STATE_SIZE - 1]);
++    *state_ptr =
++      MATRIX_MULTIPLY(state_ptr[MT_STATE_SIZE - RECURRENCE_OFFSET], value1);
++
++    /*
++     * Now that refresh is complete, reset the state pointer to allow more
++     * pseudorandom values to be fetched from the state array.
++     */
++    state-&gt;stateptr = MT_STATE_SIZE;
++    }
++
++/*
++ * Save state to a file.  The save format is compatible with Richard
++ * J. Wagner's format, although the details are different.  Returns NZ
++ * if the save succeeded.  Produces one very long line containing 625
++ * numbers.
++ */
++int mts_savestate(
++    FILE*		statefile,	/* File to save to */
++    mt_state*		state)		/* State to be saved */
++    {
++    int			i;		/* Next word to save */
++
++    if (!state-&gt;initialized)
++	mts_seed32(state, DEFAULT_SEED32_OLD);
++
++    for (i = MT_STATE_SIZE;  --i &gt;= 0;  )
++	{
++	if (fprintf(statefile, &quot;%lu &quot;, state-&gt;statevec[i]) &lt; 0)
++	    return 0;
++	}
++
++    if (fprintf(statefile, &quot;%d\n&quot;, state-&gt;stateptr) &lt; 0)
++	return 0;
++
++    return 1;
++    }
++
++/*
++ * Load state from a file.  Returns NZ if the load succeeded.
++ */
++int mts_loadstate(
++    FILE*		statefile,	/* File to load from */
++    mt_state*		state)		/* State to be loaded */
++    {
++    int			i;		/* Next word to load */
++
++    /*
++     * Set the state to &quot;uninitialized&quot; in case the load fails.
++     */
++    state-&gt;initialized = state-&gt;stateptr = 0;
++
++    for (i = MT_STATE_SIZE;  --i &gt;= 0;  )
++	{
++	if (fscanf(statefile, &quot;%lu&quot;, &amp;state-&gt;statevec[i]) != 1)
++	    return 0;
++	}
++
++    if (fscanf(statefile, &quot;%d&quot;, &amp;state-&gt;stateptr) != 1)
++	return 0;
++
++    /*
++     * The only validity checking we can do is to insist that the
++     * state pointer be valid.
++     */
++    if (state-&gt;stateptr &lt; 0  ||  state-&gt;stateptr &gt; MT_STATE_SIZE)
++	{
++	state-&gt;stateptr = 0;
++	return 0;
++	}
++
++    mts_mark_initialized(state);
++
++    return 1;
++    }
++
++/*
++ * Initialize the default Mersenne Twist PRNG from a 32-bit seed.
++ *
++ * See mts_seed32 for full commentary.
++ */
++void mt_seed32(
++    unsigned long	seed)		/* 32-bit seed to start from */
++    {
++    mts_seed32(&amp;mt_default_state, seed);
++    }
++
++/*
++ * Initialize the default Mersenne Twist PRNG from a 32-bit seed.
++ *
++ * See mts_seed32new for full commentary.
++ */
++void mt_seed32new(
++    unsigned long	seed)		/* 32-bit seed to start from */
++    {
++    mts_seed32new(&amp;mt_default_state, seed);
++    }
++
++/*
++ * Initialize a Mersenne Twist RNG from a 624-long seed.
++ *
++ * See mts_seedfull for full commentary.
++ */
++void mt_seedfull(
++    unsigned long	seeds[MT_STATE_SIZE])
++    {
++    mts_seedfull(&amp;mt_default_state, seeds);
++    }
++
++/*
++ * Initialize the PRNG from random input.  See mts_seed.
++ */
++void mt_seed()
++    {
++    mts_seed(&amp;mt_default_state);
++    }
++
++/*
++ * Initialize the PRNG from random input.  See mts_goodseed.
++ */
++void mt_goodseed()
++    {
++    mts_goodseed(&amp;mt_default_state);
++    }
++
++/*
++ * Initialize the PRNG from random input.  See mts_bestseed.
++ */
++void mt_bestseed()
++    {
++    mts_bestseed(&amp;mt_default_state);
++    }
++
++/*
++ * Return a pointer to the current state of the PRNG.  The purpose of
++ * this function is to allow the state to be saved for later
++ * restoration.  The state should not be modified; instead, it should
++ * be reused later as a parameter to one of the mts_xxx functions.
++ */
++extern mt_state* mt_getstate()
++    {
++    return &amp;mt_default_state;
++    }
++
++/*
++ * Save state to a file.  The save format is compatible with Richard
++ * J. Wagner's format, although the details are different.
++ */
++int mt_savestate(
++    FILE*		statefile)	/* File to save to */
++    {
++    return mts_savestate(statefile, &amp;mt_default_state);
++    }
++
++/*
++ * Load state from a file.
++ */
++int mt_loadstate(
++    FILE*		statefile)	/* File to load from */
++    {
++    return mts_loadstate(statefile, &amp;mt_default_state);
++    }
+
+Added: antargis/trunk/gui/src/mtwist/mtwist.h
+===================================================================
+--- antargis/trunk/gui/src/mtwist/mtwist.h	2007-03-08 20:12:12 UTC (rev 1057)
++++ antargis/trunk/gui/src/mtwist/mtwist.h	2007-03-11 20:40:28 UTC (rev 1058)
+@@ -0,0 +1,830 @@
++#ifndef MTWIST_H
++#define MTWIST_H
++
++/*
++ * $Id: mtwist.h,v 1.15 2003/09/11 23:56:20 geoff Exp geoff $
++ *
++ * Header file for C/C++ use of the Mersenne-Twist pseudo-RNG.  See
++ * <A HREF="http://www.math.keio.ac.jp/~matumoto/emt.html">http://www.math.keio.ac.jp/~matumoto/emt.html</A> for full information.
++ *
++ * Author of this header file: Geoffrey H. Kuenning, March 18, 2001.
++ *
++ * IMPORTANT NOTE: the Makefile must define two machine-specific
++ * variables to get optimum features and performance:
++ *
++ *	MT_NO_INLINE	should be defined if the compiler doesn't support
++ *			the &quot;inline&quot; keyword.
++ *	MT_NO_LONGLONG	should be defined if the compiler doesn't support a
++ *			&quot;long long&quot; type for 64-bit integers
++ *	MT_MACHINE_BITS	must be either 32 or 64, reflecting the natural
++ *			size of the processor registers.  If undefined, it
++ *			will default to a value calculated from limits.h.
++ *
++ * The first two variables above are defined in an inverted sense
++ * because I expect that most compilers will support inline and
++ * long-long.  By inverting the sense, this common case will require
++ * no special compiler flags.
++ *
++ * IMPORTANT NOTE: this software assumes that the inherent width of a
++ * &quot;long&quot; is 32 bits.  If you are running on a machine that uses
++ * 64-bit longs, some of the declarations and code will have to be
++ * modified.
++ *
++ * The executable part of this software is based on LGPL-ed code by
++ * Takuji Nishimura.  The header file is therefore also distributed
++ * under the LGPL:
++ *
++ * This library is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Library General Public License
++ * as published by the Free Software Foundation; either version 2 of
++ * the License, or (at your option) any later version.
++ *
++ * This library is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Library General Public License for more details.  You should have
++ * received a copy of the GNU Library General Public License along
++ * with this library; if not, write to the Free Foundation, Inc., 59
++ * Temple Place, Suite 330, Boston, MA 02111-1307 USA
++ *
++ * $Log: mtwist.h,v $
++ * Revision 1.15  2003/09/11 23:56:20  geoff
++ * Allow stdio references in C++ files; it turns out that ANSI has
++ * blessed it.  Declare the various functions as external even if they're
++ * inlined or being compiled directly (in mtwist.c).  Get rid of a #ifdef
++ * that can't ever be true.
++ *
++ * Revision 1.14  2003/09/11 05:50:53  geoff
++ * Don't allow stdio references from C++, since they're not guaranteed to
++ * work on all compilers.  Disable inlining using the MT_INLINE keyword
++ * rather than #defining inline, since doing the latter can affect other
++ * files and functions than our own.
++ *
++ * Revision 1.13  2003/07/01 23:29:29  geoff
++ * Refer to streams from the standard library using the correct namespace.
++ *
++ * Revision 1.12  2002/10/30 07:39:54  geoff
++ * Declare the new seeding functions.
++ *
++ * Revision 1.11  2001/06/19 00:41:16  geoff
++ * For consistency with other C++ types, don't put out a newline after
++ * the saved data.
++ *
++ * Revision 1.10  2001/06/18 10:09:24  geoff
++ * Fix some places where I forgot to set one of the result values.  Make
++ * the C++ state vector protected so the random-distributions package can
++ * pass it to the C functions.
++ *
++ * Revision 1.9  2001/06/18 05:40:12  geoff
++ * Prefix the compile options with MT_.
++ *
++ * Revision 1.8  2001/06/14 10:26:59  geoff
++ * Invert the sense of the #define flags so that the default is the
++ * normal case (if gcc is normal!).  Also default MT_MACHINE_BITS to 32.
++ *
++ * Revision 1.7  2001/06/14 10:10:38  geoff
++ * Move the critical-path PRNG code into the header file so that it can
++ * be inlined.  Add saving/loading of state.  Add functions to seed based
++ * on /dev/random or the time.  Add the function-call operator in the C++
++ * code.
++ *
++ * Revision 1.6  2001/06/11 10:00:04  geoff
++ * Add declarations of the refresh and /dev/random seeding functions.
++ * Change getstate to return a complete state pointer, since knowing the
++ * position in the state vector is critical to restoring the state.
++ *
++ * Revision 1.5  2001/04/23 08:36:03  geoff
++ * Remember to zero the state pointer when constructing, since otherwise
++ * proper initialization won't happen.
++ *
++ * Revision 1.4  2001/04/14 01:33:32  geoff
++ * Clarify the license
++ *
++ * Revision 1.3  2001/04/14 01:04:54  geoff
++ * Add a C++ class, mt_prng, that makes usage more convenient for C++
++ * programmers.
++ *
++ * Revision 1.2  2001/04/09 08:45:00  geoff
++ * Fix the name in the #ifndef wrapper, and clean up some outdated comments.
++ *
++ * Revision 1.1  2001/04/07 09:43:41  geoff
++ * Initial revision
++ *
++ */
++
++#include &lt;stdio.h&gt;
++#ifdef __cplusplus
++#include &lt;iostream&gt;
++#endif /* __cplusplus */
++
++#ifndef MT_MACHINE_BITS
++#include &lt;limits.h&gt;
++#if INT_MAX == 2147483647
++#define MT_MACHINE_BITS	32
++#else /* INT_MAX */
++#define MT_MACHINE_BITS	64
++#endif /* INT_MAX */
++#endif /* MT_MACHINE_BITS */
++
++/*
++ * The following value is a fundamental parameter of the algorithm.
++ * It was found experimentally using methods described in Matsumoto
++ * and Nishimura's paper.  It is exceedingly magic; don't change it.
++ */
++#define MT_STATE_SIZE	624		/* Size of the MT state vector */
++
++/*
++ * Internal state for an MT RNG.  The user can keep multiple mt_state
++ * structures around as a way of generating multiple streams of random
++ * numbers.
++ *
++ * In Matsumoto and Nishimura's original paper, the state vector was
++ * processed in a forward direction.  I have reversed the state vector
++ * in this implementation.  The reason for the reversal is that it
++ * allows the critical path to use a test against zero instead of a
++ * test against 624 to detect the need to refresh the state.  on most
++ * machines, testing against zero is slightly faster.  It also means
++ * that a state that has been set to all zeros will be correctly
++ * detected as needing initialization; this means that setting a state
++ * vector to zero (either with memset or by statically allocating it)
++ * will cause the RNG to operate properly.
++ */
++typedef struct
++    {
++    unsigned long	statevec[MT_STATE_SIZE];
++					/* Vector holding current state */
++    int			stateptr;	/* Next state entry to be used */
++    int			initialized;	/* NZ if state was initialized */
++    }
++			mt_state;
++
++#ifdef __cplusplus
++extern &quot;C&quot;
++    {
++#endif
++
++/*
++ * Functions for manipulating any generator (given a state pointer).
++ */
++extern void		mts_mark_initialized(mt_state* state);
++					/* Mark a PRNG state as initialized */
++extern void		mts_seed32(mt_state* state, unsigned long seed);
++					/* Set random seed for any generator */
++extern void		mts_seed32new(mt_state* state, unsigned long seed);
++					/* Set random seed for any generator */
++extern void		mts_seedfull(mt_state* state,
++			  unsigned long seeds[MT_STATE_SIZE]);
++					/* Set complicated seed for any gen. */
++extern void		mts_seed(mt_state* state);
++					/* Choose seed from random input. */
++					/* ..Prefers /dev/urandom; uses time */
++					/* ..if /dev/urandom unavailable. */
++					/* ..Only gives 32 bits of entropy. */
++extern void		mts_goodseed(mt_state* state);
++					/* Choose seed from more random */
++					/* ..input than mts_seed.  Prefers */
++					/* ../dev/random; uses time if that */
++					/* ..is unavailable.  Only gives 32 */
++					/* ..bits of entropy. */
++extern void		mts_bestseed(mt_state* state);
++					/* Choose seed from extremely random */
++					/* ..input (can be *very* slow). */
++					/* ..Prefers /dev/random and reads */
++					/* ..the entire state from there. */
++					/* ..If /dev/random is unavailable, */
++					/* ..falls back to mt_goodseed().  */
++					/* ..Not usually worth the cost.  */
++extern void		mts_refresh(mt_state* state);
++					/* Generate 624 more random values */
++extern int		mts_savestate(FILE* statefile, mt_state* state);
++					/* Save state to a file (ASCII). */
++					/* ..Returns NZ if succeeded. */
++extern int		mts_loadstate(FILE* statefile, mt_state* state);
++					/* Load state from a file (ASCII). */
++					/* ..Returns NZ if succeeded. */
++
++/*
++ * Functions for manipulating the default generator.
++ */
++extern void		mt_seed32(unsigned long seed);
++					/* Set random seed for default gen. */
++extern void		mt_seed32new(unsigned long seed);
++					/* Set random seed for default gen. */
++extern void		mt_seedfull(unsigned long seeds[MT_STATE_SIZE]);
++					/* Set complicated seed for default */
++extern void		mt_seed(void);	/* Choose seed from random input. */
++					/* ..Prefers /dev/urandom; uses time */
++					/* ..if /dev/urandom unavailable. */
++					/* ..Only gives 32 bits of entropy. */
++extern void		mt_goodseed(void);
++					/* Choose seed from more random */
++					/* ..input than mts_seed.  Prefers */
++					/* ../dev/random; uses time if that */
++					/* ..is unavailable.  Only gives 32 */
++					/* ..bits of entropy. */
++extern void		mt_bestseed(void);
++					/* Choose seed from extremely random */
++					/* ..input (can be *very* slow). */
++					/* ..Prefers /dev/random and reads */
++					/* ..the entire state from there. */
++					/* ..If /dev/random is unavailable, */
++					/* ..falls back to mt_goodseed().  */
++					/* ..Not usually worth the cost.  */
++extern mt_state*	mt_getstate(void);
++					/* Get current state of default */
++					/* ..generator */
++extern int		mt_savestate(FILE* statefile);
++					/* Save state to a file (ASCII) */
++					/* ..Returns NZ if succeeded. */
++extern int		mt_loadstate(FILE* statefile);
++					/* Load state from a file (ASCII) */
++					/* ..Returns NZ if succeeded. */
++
++#ifdef __cplusplus
++    }
++#endif
++
++/*
++ * Functions for generating random numbers.  The actual code of the
++ * functions is given in this file so that it can be declared inline.
++ * For compilers that don't have the inline feature, mtwist.c will
++ * incorporate this file with some clever #defining so that the code
++ * actually gets compiled.  In that case, however, &quot;extern&quot;
++ * definitions will be needed here, so we give them.
++ */
++#ifdef __cplusplus
++#undef MT_NO_INLINE			/* C++ definitely has inlining */
++#endif /* __cplusplus */
++
++extern unsigned long	mts_lrand(mt_state* state);
++					/* Generate 32-bit value, any gen. */
++#ifndef MT_NO_LONGLONG
++extern unsigned long long
++			mts_llrand(mt_state* state);
++					/* Generate 64-bit value, any gen. */
++#endif /* MT_NO_LONGLONG */
++extern double		mts_drand(mt_state* state);
++					/* Generate floating value, any gen. */
++					/* Fast, with only 32-bit precision */
++extern double		mts_ldrand(mt_state* state);
++					/* Generate floating value, any gen. */
++					/* Slower, with 64-bit precision */
++
++extern unsigned long	mt_lrand(void);	/* Generate 32-bit random value */
++#ifndef MT_NO_LONGLONG
++extern unsigned long long
++			mt_llrand(void);
++					/* Generate 64-bit random value */
++#endif /* MT_NO_LONGLONG */
++extern double		mt_drand(void);
++					/* Generate floating value */
++					/* Fast, with only 32-bit precision */
++extern double		mt_ldrand(void);
++					/* Generate floating value */
++					/* Slower, with 64-bit precision */
++
++#ifndef MT_NO_INLINE
++/*
++ * Tempering parameters.  These are perhaps the most magic of all the magic
++ * values in the algorithm.  The values are again experimentally determined.
++ * The values generated by the recurrence relation (constants above) are not
++ * equidistributed in 623-space.  For some reason, the tempering process
++ * produces that effect.  Don't ask me why.  Read the paper if you can
++ * understand the math.  Or just trust these magic numbers.
++ */
++#define MT_TEMPERING_MASK_B 0x9d2c5680
++#define MT_TEMPERING_MASK_C 0xefc60000
++#define MT_TEMPERING_SHIFT_U(y) \
++			(y &gt;&gt; 11)
++#define MT_TEMPERING_SHIFT_S(y) \
++			(y &lt;&lt; 7)
++#define MT_TEMPERING_SHIFT_T(y) \
++			(y &lt;&lt; 15)
++#define MT_TEMPERING_SHIFT_L(y) \
++			(y &gt;&gt; 18)
++
++/*
++ * Macros to do the tempering.  MT_PRE_TEMPER does all but the last step;
++ * it's useful for situations where the final step can be incorporated
++ * into a return statement.  MT_FINAL_TEMPER does that final step (not as
++ * an assignment).  MT_TEMPER does the entire process.  Note that
++ * MT_PRE_TEMPER and MT_TEMPER both modify their arguments.
++ */
++#define MT_PRE_TEMPER(value)						\
++    do									\
++	{								\
++	value ^= MT_TEMPERING_SHIFT_U(value);				\
++	value ^= MT_TEMPERING_SHIFT_S(value) &amp; MT_TEMPERING_MASK_B;	\
++	value ^= MT_TEMPERING_SHIFT_T(value) &amp; MT_TEMPERING_MASK_C;	\
++	}								\
++	while (0)
++#define MT_FINAL_TEMPER(value) \
++			((value) ^ MT_TEMPERING_SHIFT_L(value))
++#define MT_TEMPER(value)						\
++    do									\
++	{								\
++	value ^= MT_TEMPERING_SHIFT_U(value);				\
++	value ^= MT_TEMPERING_SHIFT_S(value) &amp; MT_TEMPERING_MASK_B;	\
++	value ^= MT_TEMPERING_SHIFT_T(value) &amp; MT_TEMPERING_MASK_C;	\
++	value ^= MT_TEMPERING_SHIFT_L(value);				\
++	}								\
++	while (0)
++
++extern mt_state		mt_default_state;
++					/* State of the default generator */
++extern double		mt_32_to_double;
++					/* Multiplier to convert long to dbl */
++extern double		mt_64_to_double;
++					/* Mult'r to cvt long long to dbl */
++
++/*
++ * In gcc, inline functions must be declared extern or they'll produce
++ * assembly code (and thus linking errors).  We have to work around
++ * that difficulty with the MT_EXTERN define.
++ */
++#ifndef MT_EXTERN
++#ifdef __cplusplus
++#define MT_EXTERN			/* C++ doesn't need static */
++#else /* __cplusplus */
++#define MT_EXTERN	extern		/* C (at least gcc) needs extern */
++#endif /* __cplusplus */
++#endif /* MT_EXTERN */
++
++/*
++ * Make it possible for mtwist.c to disable the inline keyword.  We
++ * use our own keyword so that we don't interfere with inlining in
++ * C/C++ header files, above.
++ */
++#ifndef MT_INLINE
++#define MT_INLINE	inline		/* Compiler has inlining */
++#endif /* MT_INLINE */
++
++/*
++ * Generate a random number in the range 0 to 2^32-1, inclusive, working
++ * from a given state vector.
++ *
++ * The generator is optimized for speed.  The primary optimization is that
++ * the pseudorandom numbers are generated in batches of MT_STATE_SIZE.  This
++ * saves the cost of a modulus operation in the critical path.
++ */
++MT_EXTERN MT_INLINE unsigned long mts_lrand(
++    register mt_state*	state)		/* State for the PRNG */
++    {
++    register unsigned long
++			random_value;	/* Pseudorandom value generated */
++
++    if (state-&gt;stateptr &lt;= 0)
++	mts_refresh(state);
++
++    random_value = state-&gt;statevec[--state-&gt;stateptr];
++    MT_PRE_TEMPER(random_value);
++    return MT_FINAL_TEMPER(random_value);
++    }
++
++#ifndef MT_NO_LONGLONG
++/*
++ * Generate a random number in the range 0 to 2^64-1, inclusive, working
++ * from a given state vector.
++ *
++ * According to Matsumoto and Nishimura, such a number can be generated by
++ * simply concatenating two 32-bit pseudorandom numbers.  Who am I to argue?
++ *
++ * Note that there is a slight inefficiency here: if the 624-entry state is
++ * recycled on the second call to mts_lrand, there will be an unnecessary
++ * check to see if the state has been initialized.  The cost of that check
++ * seems small (since it happens only once every 624 random numbers, and
++ * never if only 64-bit numbers are being generated), so I didn't bother to
++ * optimize it out.  Doing so would be messy, since it would require two
++ * nearly-identical internal implementations of mts_lrand.
++ */
++MT_EXTERN MT_INLINE unsigned long long mts_llrand(
++    register mt_state*	state)		/* State for the PRNG */
++    {
++    register unsigned long
++			random_value_1;	/* 1st pseudorandom value generated */
++    register unsigned long
++			random_value_2;	/* 2nd pseudorandom value generated */
++
++    /*
++     * For maximum speed, we'll handle the two overflow cases
++     * together.  That will save us one test in the common case, at
++     * the expense of an extra one in the overflow case.
++     */
++    if (--state-&gt;stateptr &lt;= 0)
++	{
++	if (state-&gt;stateptr &lt; 0)
++	    {
++	    mts_refresh(state);
++	    random_value_1 = state-&gt;statevec[--state-&gt;stateptr];
++	    }
++	else
++	    {
++	    random_value_1 = state-&gt;statevec[state-&gt;stateptr];
++	    mts_refresh(state);
++	    }
++	}
++    else
++	random_value_1 = state-&gt;statevec[--state-&gt;stateptr];
++
++    MT_TEMPER(random_value_1);
++
++    random_value_2 = state-&gt;statevec[--state-&gt;stateptr];
++    MT_PRE_TEMPER(random_value_2);
++
++    return ((unsigned long long) random_value_1 &lt;&lt; 32)
++      | (unsigned long long) MT_FINAL_TEMPER(random_value_2);
++    }
++#endif /* MT_NO_LONGLONG */
++
++/*
++ * Generate a double-precision random number between 0 (inclusive) and 1.0
++ * (exclusive).  This function is optimized for speed, but it only generates
++ * 32 bits of precision.  Use mts_ldrand to get 64 bits of precision.
++ */
++MT_EXTERN MT_INLINE double mts_drand(
++    register mt_state*	state)		/* State for the PRNG */
++    {
++    register unsigned long
++			random_value;	/* Pseudorandom value generated */
++
++    if (state-&gt;stateptr &lt;= 0)
++	mts_refresh(state);
++
++    random_value = state-&gt;statevec[--state-&gt;stateptr];
++    MT_TEMPER(random_value);
++
++    return random_value * mt_32_to_double;
++    }
++
++/*
++ * Generate a double-precision random number between 0 (inclusive) and 1.0
++ * (exclusive).  This function generates 64 bits of precision.  Use
++ * mts_drand for more speed but less precision.
++ */
++MT_EXTERN MT_INLINE double mts_ldrand(
++    register mt_state*	state)		/* State for the PRNG */
++    {
++#if MT_MACHINE_BITS == 64
++    unsigned long long	final_value;	/* Final (integer) value */
++#endif /* MT_MACHINE_BITS */
++    register unsigned long
++			random_value_1;	/* 1st pseudorandom value generated */
++    register unsigned long
++			random_value_2;	/* 2nd pseudorandom value generated */
++
++    /*
++     * For maximum speed, we'll handle the two overflow cases
++     * together.  That will save us one test in the common case, at
++     * the expense of an extra one in the overflow case.
++     */
++    if (--state-&gt;stateptr &lt;= 0)
++	{
++	if (state-&gt;stateptr &lt; 0)
++	    {
++	    mts_refresh(state);
++	    random_value_1 = state-&gt;statevec[--state-&gt;stateptr];
++	    }
++	else
++	    {
++	    random_value_1 = state-&gt;statevec[state-&gt;stateptr];
++	    mts_refresh(state);
++	    }
++	}
++    else
++	random_value_1 = state-&gt;statevec[--state-&gt;stateptr];
++
++    MT_TEMPER(random_value_1);
++
++    random_value_2 = state-&gt;statevec[--state-&gt;stateptr];
++    MT_TEMPER(random_value_2);
++
++#if MT_MACHINE_BITS == 64
++    final_value = ((unsigned long long) random_value_1 &lt;&lt; 32)
++      | (unsigned long long) random_value_2;
++    return final_value * mt_64_to_double;
++#else /* MT_MACHINE_BITS */
++    return random_value_1 * mt_32_to_double + random_value_2 * mt_64_to_double;
++#endif /* MT_MACHINE_BITS */
++    }
++
++/*
++ * Generate a random number in the range 0 to 2^32-1, inclusive, working
++ * from the default state vector.
++ *
++ * See mts_lrand for full commentary.
++ */
++MT_EXTERN MT_INLINE unsigned long mt_lrand()
++    {
++    register unsigned long
++			random_value;	/* Pseudorandom value generated */
++
++    if (mt_default_state.stateptr &lt;= 0)
++	mts_refresh(&amp;mt_default_state);
++
++    random_value = mt_default_state.statevec[--mt_default_state.stateptr];
++    MT_PRE_TEMPER(random_value);
++
++    return MT_FINAL_TEMPER(random_value);
++    }
++
++#ifndef MT_NO_LONGLONG
++/*
++ * Generate a random number in the range 0 to 2^64-1, inclusive, working
++ * from the default state vector.
++ *
++ * See mts_llrand for full commentary.
++ */
++MT_EXTERN MT_INLINE unsigned long long mt_llrand()
++    {
++    register unsigned long
++			random_value_1;	/* 1st pseudorandom value generated */
++    register unsigned long
++			random_value_2;	/* 2nd pseudorandom value generated */
++
++    /*
++     * For maximum speed, we'll handle the two overflow cases
++     * together.  That will save us one test in the common case, at
++     * the expense of an extra one in the overflow case.
++     */
++    if (--mt_default_state.stateptr &lt;= 0)
++	{
++	if (mt_default_state.stateptr &lt; 0)
++	    {
++	    mts_refresh(&amp;mt_default_state);
++	    random_value_1 =
++	      mt_default_state.statevec[--mt_default_state.stateptr];
++	    }
++	else
++	    {
++	    random_value_1 =
++	      mt_default_state.statevec[mt_default_state.stateptr];
++	    mts_refresh(&amp;mt_default_state);
++	    }
++	}
++    else
++	random_value_1 =
++	  mt_default_state.statevec[--mt_default_state.stateptr];
++
++    MT_TEMPER(random_value_1);
++
++    random_value_2 = mt_default_state.statevec[--mt_default_state.stateptr];
++    MT_PRE_TEMPER(random_value_2);
++
++    return ((unsigned long long) random_value_1 &lt;&lt; 32)
++      | (unsigned long long) MT_FINAL_TEMPER(random_value_2);
++    }
++#endif /* MT_NO_LONGLONG */
++
++/*
++ * Generate a double-precision random number between 0 (inclusive) and 1.0
++ * (exclusive).  This function is optimized for speed, but it only generates
++ * 32 bits of precision.  Use mt_ldrand to get 64 bits of precision.
++ */
++MT_EXTERN MT_INLINE double mt_drand()
++    {
++    register unsigned long
++			random_value;	/* Pseudorandom value generated */
++
++    if (mt_default_state.stateptr &lt;= 0)
++	mts_refresh(&amp;mt_default_state);
++
++    random_value = mt_default_state.statevec[--mt_default_state.stateptr];
++    MT_TEMPER(random_value);
++
++    return random_value * mt_32_to_double;
++    }
++
++/*
++ * Generate a double-precision random number between 0 (inclusive) and 1.0
++ * (exclusive).  This function generates 64 bits of precision.  Use
++ * mts_drand for more speed but less precision.
++ */
++MT_EXTERN MT_INLINE double mt_ldrand(void)
++    {
++#if MT_MACHINE_BITS == 64
++    unsigned long long	final_value;	/* Final (integer) value */
++#endif /* MT_MACHINE_BITS */
++    register unsigned long
++			random_value_1;	/* 1st pseudorandom value generated */
++    register unsigned long
++			random_value_2;	/* 2nd pseudorandom value generated */
++
++    /*
++     * For maximum speed, we'll handle the two overflow cases
++     * together.  That will save us one test in the common case, at
++     * the expense of an extra one in the overflow case.
++     */
++    if (--mt_default_state.stateptr &lt;= 0)
++	{
++	if (mt_default_state.stateptr &lt; 0)
++	    {
++	    mts_refresh(&amp;mt_default_state);
++	    random_value_1 =
++	      mt_default_state.statevec[--mt_default_state.stateptr];
++	    }
++	else
++	    {
++	    random_value_1 =
++	      mt_default_state.statevec[mt_default_state.stateptr];
++	    mts_refresh(&amp;mt_default_state);
++	    }
++	}
++    else
++	random_value_1 =
++	  mt_default_state.statevec[--mt_default_state.stateptr];
++
++    MT_TEMPER(random_value_1);
++
++    random_value_2 = mt_default_state.statevec[--mt_default_state.stateptr];
++    MT_TEMPER(random_value_2);
++
++#if MT_MACHINE_BITS == 64
++    final_value = ((unsigned long long) random_value_1 &lt;&lt; 32)
++      | (unsigned long long) random_value_2;
++    return final_value * mt_64_to_double;
++#else /* MT_MACHINE_BITS */
++    return random_value_1 * mt_32_to_double + random_value_2 * mt_64_to_double;
++#endif /* MT_MACHINE_BITS */
++    }
++
++#endif /* MT_NO_INLINE */
++
++#ifdef __cplusplus
++/*
++ * C++ interface to the Mersenne Twist PRNG.  This class simply
++ * provides a more C++-ish way to access the PRNG.  Only state-based
++ * functions are provided.  All functions are inlined, both for speed
++ * and so that the same implementation code can be used in C and C++.
++ */
++class mt_prng
++    {
++    public:
++	/*
++	 * Constructors and destructors.  The default constructor
++	 * leaves initialization (seeding) for later unless pickSeed
++	 * is true, in which case the seed is chosen based on either
++	 * /dev/urandom (if available) or the system time.  The other
++	 * constructors accept either a 32-bit seed, or a full
++	 * 624-long seed.
++	 */
++			mt_prng(	// Default constructor
++			    bool pickSeed = false)
++					// True to get seed from /dev/urandom
++					// ..or time
++			    {
++			    state.stateptr = 0;
++			    state.initialized = 0;
++			    if (pickSeed)
++				mts_seed(&amp;state);
++			    }
++			mt_prng(unsigned long seed)
++					// Construct with 32-bit seeding
++			    {
++			    state.stateptr = 0;
++			    state.initialized = 0;
++			    mts_seed32(&amp;state, seed);
++			    }
++			mt_prng(unsigned long seeds[MT_STATE_SIZE])
++					// Construct with full seeding
++			    {
++			    state.stateptr = 0;
++			    state.initialized = 0;
++			    mts_seedfull(&amp;state, seeds);
++			    }
++			~mt_prng() { }
++
++	/*
++	 * Copy and assignment are best left defaulted.
++	 */
++
++	/*
++	 * PRNG seeding functions.
++	 */
++	void		seed32(unsigned long seed)
++					// Set 32-bit random seed
++			    {
++			    mts_seed32(&amp;state, seed);
++			    }
++	void		seed32new(unsigned long seed)
++					// Set 32-bit random seed
++			    {
++			    mts_seed32new(&amp;state, seed);
++			    }
++	void		seedfull(unsigned long seeds[MT_STATE_SIZE])
++					// Set complicated random seed
++			    {
++			    mts_seedfull(&amp;state, seeds);
++			    }
++	void		seed()		// Choose seed from random input
++			    {
++			    mts_seed(&amp;state);
++			    }
++	void		goodseed()	// Choose better seed from random input
++			    {
++			    mts_goodseed(&amp;state);
++			    }
++	void		bestseed()	// Choose best seed from random input
++			    {
++			    mts_bestseed(&amp;state);
++			    }
++	friend std::ostream&amp;
++			operator&lt;&lt;(std::ostream&amp; stream, const mt_prng&amp; rng);
++	friend std::istream&amp;
++			operator&gt;&gt;(std::istream&amp; stream, mt_prng&amp; rng);
++
++	/*
++	 * PRNG generation functions
++	 */
++	unsigned long	lrand()		// Generate 32-bit pseudo-random value
++			    {
++			    return mts_lrand(&amp;state);
++			    }
++#ifndef MT_NO_LONGLONG
++	unsigned long long
++			llrand()	// Generate 64-bit pseudo-random value
++			    {
++			    return mts_llrand(&amp;state);
++			    }
++#endif /* MT_NO_LONGLONG */
++	double		drand()		// Generate fast 32-bit floating value
++			    {
++			    return mts_drand(&amp;state);
++			    }
++	double		ldrand()	// Generate slow 64-bit floating value
++			    {
++			    return mts_ldrand(&amp;state);
++			    }
++
++	/*
++	 * Following Richard J. Wagner's example, we overload the
++	 * function-call operator to return a 32-bit floating value.
++	 * That allows the common use of the PRNG to be simplified as
++	 * in the following example:
++	 *
++	 *	mt_prng ranno(true);
++	 *	// ...
++	 *	coinFlip = ranno() &gt;= 0.5 ? heads : tails;
++	 */
++	double		operator()()
++			    {
++			    return mts_drand(&amp;state);
++			    }
++    protected:
++	/*
++	 * Protected data
++	 */
++	mt_state	state;		// Current state of the PRNG
++    };
++
++/*
++ * Save state to a stream.  See mts_savestate.
++ */
++MT_INLINE std::ostream&amp; operator&lt;&lt;(
++    std::ostream&amp;	stream,		// Stream to save to
++    const mt_prng&amp;	rng)		// PRNG to save
++    {
++    for (int i = MT_STATE_SIZE;  --i &gt;= 0;  )
++	{
++	if (!(stream &lt;&lt; rng.state.statevec[i] &lt;&lt; ' '))
++	    return stream;
++	}
++
++    return stream &lt;&lt; rng.state.stateptr;
++    }
++
++/*
++ * Restore state from a stream.  See mts_loadstate.
++ */
++MT_INLINE std::istream&amp; operator&gt;&gt;(
++    std::istream&amp;	stream,		// Stream to laod from
++    mt_prng&amp;		rng)		// PRNG to load
++    {
++    rng.state.initialized = rng.state.stateptr = 0;
++    for (int i = MT_STATE_SIZE;  --i &gt;= 0;  )
++	{
++	if (!(stream &gt;&gt; rng.state.statevec[i]))
++	    return stream;
++	}
++
++    if (!(stream &gt;&gt; rng.state.stateptr))
++	{
++	rng.state.stateptr = 0;
++	return stream;
++	}
++
++    /*
++     * If the state is invalid, all we can do is to make it uninitialized.
++     */
++    if (rng.state.stateptr &lt; 0  ||  rng.state.stateptr &gt; MT_STATE_SIZE)
++	{
++	rng.state.stateptr = 0;
++	return stream;
++	}
++
++    mts_mark_initialized(&amp;rng.state);
++
++    return stream;
++    }
++#endif
++
++#endif /* MTWIST_H */
+
+Added: antargis/trunk/gui/src/mtwist/randistrs.3
+===================================================================
+--- antargis/trunk/gui/src/mtwist/randistrs.3	2007-03-08 20:12:12 UTC (rev 1057)
++++ antargis/trunk/gui/src/mtwist/randistrs.3	2007-03-11 20:40:28 UTC (rev 1058)
+@@ -0,0 +1,321 @@
++.\&quot;
++.\&quot; $Id: randistrs.3,v 1.2 2001/06/19 00:41:17 geoff Exp $
++.\&quot;
++.\&quot; $Log: randistrs.3,v $
++.\&quot; Revision 1.2  2001/06/19 00:41:17  geoff
++.\&quot; Add documentation of the new &quot;l&quot; versions of all the functions.
++.\&quot;
++.\&quot; Revision 1.1  2001/06/18 10:04:20  geoff
++.\&quot; Initial revision
++.\&quot;
++.\&quot; 
++.TH randistrs 3 &quot;June 18, 2001&quot; &quot;&quot; &quot;Linux Programmer's Manual&quot;
++.SH NAME
++rds_iuniform, rds_liuniform, rds_uniform, rds_luniform,
++rds_exponential, rds_lexponential, rds_erlang, rds_lerlang,
++rds_weibull, rds_lweibull, rds_normal, rds_lnormal, rds_lognormal,
++rds_llognormal, rds_triangular, rds_ltriangular, rds_empirical,
++rds_lempirical, rd_iuniform, rd_liuniform, rd_uniform, rd_luniform,
++rd_exponential, rd_lexponential, rd_erlang, rd_lerlang, rd_weibull,
++rd_lweibull, rd_normal, rd_lnormal, rd_lognormal, rd_llognormal,
++rd_triangular, rd_ltriangular, rd_empirical rd_lempirical \- generate
++pseudo-random numbers in various distributions
++.SH SYNOPSIS
++.nf
++.IR &quot;#defines&quot; &quot; (see below)&quot;
++.br
++.B
++#include &quot;randistrs.h&quot;
++.sp
++C interface:
++.R
++.sp
++.BI &quot;long rds_iuniform(mt_state* &quot; state &quot;, long &quot; lower &quot;, long &quot; upper &quot;);&quot;
++.sp
++.BI &quot;long long rds_liuniform(mt_state* &quot; state &quot;,&quot;
++.BI &quot;                  long long &quot; lower &quot;, long long &quot; upper &quot;);&quot;
++.sp
++.BI &quot;double rds_uniform(mt_state* &quot; state &quot;, double &quot; lower &quot;, double &quot; upper &quot;);&quot;
++.sp
++.BI &quot;double rds_luniform(mt_state* &quot; state &quot;, double &quot; lower &quot;, double &quot; upper &quot;);&quot;
++.sp
++.BI &quot;double rds_exponential(mt_state* &quot; state &quot;, double &quot; mean &quot;);&quot;
++.sp
++.BI &quot;double rds_lexponential(mt_state* &quot; state &quot;, double &quot; mean &quot;);&quot;
++.sp
++.BI &quot;double rds_erlang(mt_state* &quot; state &quot;, int &quot; p &quot;, double &quot; mean &quot;);&quot;
++.sp
++.BI &quot;double rds_lerlang(mt_state* &quot; state &quot;, int &quot; p &quot;, double &quot; mean &quot;);&quot;
++.sp
++.BI &quot;double rds_weibull(mt_state* &quot; state &quot;, double &quot; shape &quot;, double &quot; scale &quot;);&quot;
++.sp
++.BI &quot;double rds_lweibull(mt_state* &quot; state &quot;, double &quot; shape &quot;, double &quot; scale &quot;);&quot;
++.sp
++.BI &quot;double rds_normal(mt_state* &quot; state &quot;, double &quot; mean &quot;, double &quot; sigma &quot;);&quot;
++.sp
++.BI &quot;double rds_lnormal(mt_state* &quot; state &quot;, double &quot; mean &quot;, double &quot; sigma &quot;);&quot;
++.sp
++.BI &quot;double rds_lognormal(mt_state* &quot; state &quot;, double &quot; shape &quot;, double &quot; scale &quot;);&quot;
++.sp
++.BI &quot;double rds_llognormal(mt_state* &quot; state &quot;, double &quot; shape &quot;, double &quot; scale &quot;);&quot;
++.sp
++.BI &quot;double rds_triangular(mt_state* &quot; state &quot;, double &quot; lower &quot;,&quot;
++.BI &quot;                      double &quot; upper &quot;, double &quot; mode &quot;);&quot;
++.sp
++.BI &quot;double rds_ltriangular(mt_state* &quot; state &quot;, double &quot; lower &quot;,&quot;
++.BI &quot;                      double &quot; upper &quot;, double &quot; mode &quot;);&quot;
++.sp
++.BI &quot;double rds_empirical(mt_state* &quot; state &quot;, int &quot; n_probs &quot;,&quot;
++.BI &quot;                     double* &quot; values &quot;, double* &quot; probs &quot;);&quot;
++.sp
++.BI &quot;double rds_lempirical(mt_state* &quot; state &quot;, int &quot; n_probs &quot;,&quot;
++.BI &quot;                     double* &quot; values &quot;, double* &quot; probs &quot;);&quot;
++.sp
++.BI &quot;long rd_iuniform(long &quot; lower &quot;, long &quot; upper &quot;);&quot;
++.sp
++.BI &quot;long long rd_liuniform(long long &quot; lower &quot;, long long &quot; upper &quot;);&quot;
++.sp
++.BI &quot;double rd_uniform(double &quot; lower &quot;, double &quot; upper &quot;);&quot;
++.sp
++.BI &quot;double rd_luniform(double &quot; lower &quot;, double &quot; upper &quot;);&quot;
++.sp
++.BI &quot;double rd_exponential(double &quot; mean &quot;);&quot;
++.sp
++.BI &quot;double rd_lexponential(double &quot; mean &quot;);&quot;
++.sp
++.BI &quot;double rd_erlang(int &quot; p &quot;, double &quot; mean &quot;);&quot;
++.sp
++.BI &quot;double rd_lerlang(int &quot; p &quot;, double &quot; mean &quot;);&quot;
++.sp
++.BI &quot;double rd_weibull(double &quot; shape &quot;, double &quot; scale &quot;);&quot;
++.sp
++.BI &quot;double rd_lweibull(double &quot; shape &quot;, double &quot; scale &quot;);&quot;
++.sp
++.BI &quot;double rd_normal(double &quot; mean &quot;, double &quot; sigma &quot;);&quot;
++.sp
++.BI &quot;double rd_lnormal(double &quot; mean &quot;, double &quot; sigma &quot;);&quot;
++.sp
++.BI &quot;double rd_lognormal(double &quot; shape &quot;, double &quot; scale &quot;);&quot;
++.sp
++.BI &quot;double rd_llognormal(double &quot; shape &quot;, double &quot; scale &quot;);&quot;
++.sp
++.BI &quot;double rd_triangular(double &quot; lower &quot;, double &quot; upper &quot;, double &quot; mode &quot;);&quot;
++.sp
++.BI &quot;double rd_ltriangular(double &quot; lower &quot;, double &quot; upper &quot;, double &quot; mode &quot;);&quot;
++.sp
++.BI &quot;double rd_empirical(int &quot; n_probs &quot;, double* &quot; values &quot;, double* &quot; probs &quot;);&quot;
++.sp
++.BI &quot;double rd_lempirical(int &quot; n_probs &quot;, double* &quot; values &quot;, double* &quot; probs &quot;);&quot;
++.sp
++.B &quot;C++ interface:&quot;
++.sp
++.BI &quot;mt_distribution &quot; rng ;
++.sp
++.BI &quot;long &quot; rng &quot;.iuniform(long &quot; lower &quot;, long &quot; upper &quot;);&quot;
++.sp
++.BI &quot;long long &quot; rng &quot;.liuniform(long long &quot; lower &quot;, long long &quot; upper &quot;);&quot;
++.sp
++.BI &quot;double &quot; rng &quot;.uniform(double &quot; lower &quot;, double &quot; upper &quot;);&quot;
++.sp
++.BI &quot;double &quot; rng &quot;.luniform(double &quot; lower &quot;, double &quot; upper &quot;);&quot;
++.sp
++.BI &quot;double &quot; rng &quot;.exponential(double &quot; mean &quot;);&quot;
++.sp
++.BI &quot;double &quot; rng &quot;.lexponential(double &quot; mean &quot;);&quot;
++.sp
++.BI &quot;double &quot; rng &quot;.erlang(int &quot; p &quot;, double &quot; mean &quot;);&quot;
++.sp
++.BI &quot;double &quot; rng &quot;.lerlang(int &quot; p &quot;, double &quot; mean &quot;);&quot;
++.sp
++.BI &quot;double &quot; rng &quot;.weibull(double &quot; shape &quot;, double &quot; scale &quot;);&quot;
++.sp
++.BI &quot;double &quot; rng &quot;.lweibull(double &quot; shape &quot;, double &quot; scale &quot;);&quot;
++.sp
++.BI &quot;double &quot; rng &quot;.normal(double &quot; mean &quot;, double &quot; sigma &quot;);&quot;
++.sp
++.BI &quot;double &quot; rng &quot;.lnormal(double &quot; mean &quot;, double &quot; sigma &quot;);&quot;
++.sp
++.BI &quot;double &quot; rng &quot;.lognormal(double &quot; shape &quot;, double &quot; scale &quot;);&quot;
++.sp
++.BI &quot;double &quot; rng &quot;.llognormal(double &quot; shape &quot;, double &quot; scale &quot;);&quot;
++.sp
++.BI &quot;double &quot; rng &quot;.triangular(double &quot; lower &quot;, double &quot; upper &quot;, double &quot; mode &quot;);&quot;
++.sp
++.BI &quot;double &quot; rng &quot;.ltriangular(double &quot; lower &quot;, double &quot; upper &quot;, double &quot; mode &quot;);&quot;
++.sp
++.BI &quot;double &quot; rng &quot;.empirical(int &quot; n_probs &quot;, double* &quot; values &quot;, double* &quot; probs &quot;);&quot;
++.SH DESCRIPTION
++.BI &quot;double &quot; rng &quot;.lempirical(int &quot; n_probs &quot;, double* &quot; values &quot;, double* &quot; probs &quot;);&quot;
++.SH DESCRIPTION
++These functions generate pseudo-random numbers in various
++distributions using the Mersenne Twist algorithm described in
++.BR mtwist (3).
++.PP
++Depending on the compiler and architecture, it may be necessary to
++.B #define
++either or both of
++.B MT_NO_INLINE
++or
++.B MT_NO_LONGLONG
++before including the
++.B randistrs.h
++header file;
++see
++.BR mtwist (3)
++for more information.
++.PP
++The C interface provides four flavors of each function:
++.BI rds_ xxx\fR,\fP
++.BI rds_l xxx\fR,\fP
++.BI rd_ xxx\fR,\fP
++and
++.BI rd_l xxx\fR.\fP
++The &quot;\fBrds\fP&quot; versions
++accept an explicit Mersenne Twist state vector, as
++described in
++.BR mtwist (3).
++The &quot;\fBrd\fP&quot; versions use the default global state vector;
++in general these functions should be avoided except for unimportant
++applications.
++The versions with no &quot;\fBl\fP&quot; after the underscore use the 32-bit
++version of the PRNG, while the &quot;\fBl\fP&quot; versions generate more bits
++(usually 53) to increase the accuracy of the generated distribution at
++the expense of speed.
++.PP
++In the C++ interface, the
++.B mt_distribution
++class is derived from
++.B mt_prng
++(see
++.BR mtwist (3)),
++and provides all the functionality of that class as well as the
++extended functions for generating specific distributions.
++.PP
++With the exception of the
++.B *iuniform
++functions, all functions return a double-precision result.
++The range of the result depends on the distribution and the
++parameters.
++However, in all cases the precision of the result of non-&quot;\fBl\fP&quot;
++functions is limited to 32
++bits, or about 1 part in 4 billion.
++.PP
++The
++.B *iuniform
++functions generate integers selected from a uniform distribution in
++the range
++.RI ( lower ,
++.IR upper ].
++If the total range given to the non-&quot;\fBl\fP&quot; functions is less than
++429497, a fast but slightly
++inaccurate method is used; the bias in this case will never exceed
++.01%.
++If the range exceeds that value, a slightly slower but precise method
++is used.
++.PP
++The
++.B *liuniform
++functions also generate uniformly distributed integers, but they will
++support a range greater than 4294967295.
++The
++.B *liuniform
++functions should never be used unless a large range is required.
++.PP
++The
++.B *uniform
++functions generate double-precision numbers selected from a uniform
++distribution in the range
++.RI ( lower ,
++.IR upper ].
++This function should
++.I not
++be used to generate uniformly distributed random integers.
++Use the
++.I *iuniform
++family instead.
++.PP
++The
++.B *exponential
++functions generate an exponential distribution with the given mean.
++The
++.B *erlang
++functions generate a
++.IR p -Erlang
++distribution with the given mean.
++The
++.B *weibull
++functions generate a Weibull function with the given shape and scale
++parameters.
++.PP
++The
++.B *normal
++functions generate a normal (Gaussian) distribution with the given
++mean and a standard deviation equal to
++.IR sigma .
++The
++.B *lognormal
++functions generate a lognormal distribution with the given shape and
++scale parameters.
++.PP
++The
++.B *triangular
++functions generate a triangular distribution in the range 
++.RI ( lower ,
++.IR upper ]
++and with the given mode.
++.PP
++Finally, the
++.B *empirical
++functions generate empirically determined distributions.
++The caller must supply an array of
++.I n_probs
++probabilities in
++.I probs
++and an array of
++.IR n_probs +1
++.IR values .
++The result will be
++.IR values [0]
++with probability
++.IR probs [0],
++.IR values [1]
++with probability
++.IR probs [1],
++and so forth.
++The extra value,
++.IR values [ n_probs ],
++will appear with a probability equal to 1 minus the sum of the
++preceding probabilities.
++There is little point in using the &quot;\fBl\fP&quot; versions of the
++.B *empirical
++functions unless you have strong evidence to the contrary.
++.SH NOTES
++.PP
++It would be helpful if the package supported even more distributions.
++.PP
++The
++.B *iuniform
++functions keep internal state in an attempt to speed up their
++performance when the range is large.
++This internal state makes them non-reentrant.
++.PP
++When the range is small,
++.B *iuniform
++functions exhibit a very slight bias in favor of some values.
++This bias isn't significant for any application less demanding than
++gambling.
++To eliminate the bias, compile
++.B randistrs.c
++with
++.B RD_MAX_BIAS
++set to zero.
++.PP
++The state-saving optimization in the
++.B *iuniform
++functions doesn't help when they are called with varying ranges, even
++if a different state vector is used for each range.
++.SH &quot;SEE ALSO&quot;
++.BR mtwist (3)
++.PP
++Any good statistics or simulation textbook for descriptions of the
++distributions.
+
+Added: antargis/trunk/gui/src/mtwist/randistrs.c
+===================================================================
+--- antargis/trunk/gui/src/mtwist/randistrs.c	2007-03-08 20:12:12 UTC (rev 1057)
++++ antargis/trunk/gui/src/mtwist/randistrs.c	2007-03-11 20:40:28 UTC (rev 1058)
+@@ -0,0 +1,911 @@
++#ifndef lint
++static char Rcs_Id[] =
++    &quot;$Id: randistrs.c,v 1.7 2005/05/17 21:40:10 geoff Exp $&quot;;
++#endif
++
++/*
++ * C library functions for generating various random distributions
++ * using the Mersenne Twist PRNG.  See the header file for full
++ * documentation.
++ *
++ * These functions were written by Geoffrey H. Kuenning, Claremont, CA.
++ *
++ * Unless otherwise specified, these algorithms are taken from Averill
++ * M. Law and W. David Kelton, &quot;Simulation Modeling and Analysis&quot;,
++ * McGraw-Hill, 1991.
++ *
++ * Copyright 2001, 2002, Geoffrey H. Kuenning, Claremont, CA.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions
++ * are met:
++ *
++ * 1. Redistributions of source code must retain the above copyright
++ *    notice, this list of conditions and the following disclaimer.
++ * 2. Redistributions in binary form must reproduce the above copyright
++ *    notice, this list of conditions and the following disclaimer in the
++ *    documentation and/or other materials provided with the distribution.
++ * 3. All modifications to the source code must be clearly marked as
++ *    such.  Binary redistributions based on modified source code
++ *    must be clearly marked as modified versions in the documentation
++ *    and/or other materials provided with the distribution.
++ * 4. The name of Geoff Kuenning may not be used to endorse or promote
++ *    products derived from this software without specific prior
++ *    written permission.
++ *
++ * THIS SOFTWARE IS PROVIDED BY GEOFF KUENNING AND CONTRIBUTORS ``AS IS'' AND
++ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++ * ARE DISCLAIMED.  IN NO EVENT SHALL GEOFF KUENNING OR CONTRIBUTORS BE LIABLE
++ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
++ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
++ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
++ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
++ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
++ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
++ * SUCH DAMAGE.
++ *
++ * $Log: randistrs.c,v $
++ * Revision 1.7  2005/05/17 21:40:10  geoff
++ * Fix a bug that caused rds_iuniform to generate off-by-one values if the
++ * lower bound was negative.
++ *
++ * Revision 1.6  2002/10/30 00:50:44  geoff
++ * Add a (BSD-style) license.  Fix all places where logs are taken so
++ * that there is no risk of unintentionally taking the log of zero.  This
++ * is a very low-probability occurrence, but it's better to have robust
++ * code.
++ *
++ * Revision 1.5  2001/06/20 09:07:57  geoff
++ * Fix a place where long long wasn't conditionalized.
++ *
++ * Revision 1.4  2001/06/19 00:41:17  geoff
++ * Add the &quot;l&quot; versions of all functions.  Add the MT_NO_CACHING option.
++ *
++ * Revision 1.3  2001/06/18 10:09:24  geoff
++ * Add the iuniform functions to generate unbiased uniformly distributed
++ * integers.
++ *
++ * Revision 1.2  2001/04/10 09:11:38  geoff
++ * Make sure the Erlang distribution has a p of 1 or more.  Fix a serious
++ * bug in the Erlang calculation (the value returned was completely
++ * wrong).
++ *
++ * Revision 1.1  2001/04/09 08:39:54  geoff
++ * Initial revision
++ *
++ */
++
++#include &quot;mtwist.h&quot;
++#include &quot;randistrs.h&quot;
++#include &lt;math.h&gt;
++
++/*
++ * Table of contents:
++ */
++long			rds_iuniform(mt_state * state, long lower, long upper);
++					/* (Integer) uniform distribution */
++#ifndef MT_NO_LONGLONG
++long long		rds_liuniform(mt_state * state, long long lower,
++			  long long upper);
++					/* (Integer) uniform distribution */
++#endif /* MT_NO_LONGLONG */
++double			rds_uniform(mt_state * state,
++			  double lower, double upper);
++					/* (Floating) uniform distribution */
++double			rds_luniform(mt_state * state,
++			  double lower, double upper);
++					/* (Floating) uniform distribution */
++double			rds_exponential(mt_state * state, double mean);
++					/* Exponential distribution */
++double			rds_lexponential(mt_state * state, double mean);
++					/* Exponential distribution */
++double			rds_erlang(mt_state * state, int p, double mean);
++					/* p-Erlang distribution */
++double			rds_lerlang(mt_state * state, int p, double mean);
++					/* p-Erlang distribution */
++double			rds_weibull(mt_state * state,
++			  double shape, double scale);
++					/* Weibull distribution */
++double			rds_lweibull(mt_state * state,
++			  double shape, double scale);
++					/* Weibull distribution */
++double			rds_normal(mt_state * state,
++			  double mean, double sigma);
++					/* Normal distribution */
++double			rds_lnormal(mt_state * state,
++			  double mean, double sigma);
++					/* Normal distribution */
++double			rds_lognormal(mt_state * state,
++			  double shape, double scale);
++					/* Lognormal distribution */
++double			rds_llognormal(mt_state * state,
++			  double shape, double scale);
++					/* Lognormal distribution */
++double			rds_triangular(mt_state * state,
++			  double lower, double upper, double mode);
++					/* Triangular distribution */
++double			rds_ltriangular(mt_state * state,
++			  double lower, double upper, double mode);
++					/* Triangular distribution */
++double			rds_empirical(mt_state * state,
++			  int n_probs, double * values, double * probs);
++					/* Empirical distribution */
++double			rds_lempirical(mt_state * state,
++			  int n_probs, double * values, double * probs);
++					/* Empirical distribution */
++long			rd_iuniform(long lower, long upper);
++					/* (Integer) uniform distribution */
++#ifndef MT_NO_LONGLONG
++long long		rd_liuniform(long long lower, long long upper);
++					/* (Integer) uniform distribution */
++#endif /* MT_NO_LONGLONG */
++double			rd_uniform(double lower, double upper);
++					/* (Floating) uniform distribution */
++double			rd_luniform(double lower, double upper);
++					/* (Floating) uniform distribution */
++double			rd_exponential(double mean);
++					/* Exponential distribution */
++double			rd_lexponential(double mean);
++					/* Exponential distribution */
++double			rd_erlang(int p, double mean);
++					/* p-Erlang distribution */
++double			rd_lerlang(int p, double mean);
++					/* p-Erlang distribution */
++double			rd_weibull(double shape, double scale);
++					/* Weibull distribution */
++double			rd_lweibull(double shape, double scale);
++					/* Weibull distribution */
++double			rd_normal(double mean, double sigma);
++					/* Normal distribution */
++double			rd_lnormal(double mean, double sigma);
++					/* Normal distribution */
++double			rd_lognormal(double shape, double scale);
++					/* Lognormal distribution */
++double			rd_llognormal(double shape, double scale);
++					/* Lognormal distribution */
++double			rd_triangular(double lower, double upper, double mode);
++					/* Triangular distribution */
++double			rd_ltriangular(double lower, double upper, double mode);
++					/* Triangular distribution */
++double			rd_empirical(int n_probs,
++			  double * values, double * probs);
++					/* Empirical distribution */
++double			rd_lempirical(int n_probs,
++			  double * values, double * probs);
++					/* Empirical distribution */
++
++/*
++ * The Mersenne Twist PRNG makes it default state available as an
++ * external variable.  This feature is undocumented, but is useful to
++ * use because it allows us to avoid implementing every function
++ * twice.  (In fact, the feature was added to enable this file to be
++ * written.  It would be better to write in C++, where I could control
++ * the access to the state.)
++ */
++extern mt_state		mt_default_state;
++
++/*
++ * Threshold below which it is OK for uniform integer distributions to make
++ * use of the double-precision code as a crutch.  For ranges below
++ * this value, a double-precision random value is generated and then
++ * mapped to the given range.  For a lower bound of zero, this is
++ * equivalent to mapping a 32-bit integer into the range by using the
++ * following formula:
++ *
++ *	final = upper * mt_lrand() / (1 &lt;&lt; 32);
++ *
++ * That formula can't be computed using integer arithmetic, since the
++ * multiplication must precede the division and would cause overflow.
++ * Double-precision calculations solve that problem.  However the
++ * formula will also produce biased results unless the range (&quot;upper&quot;)
++ * is exactly a power of 2.  To see this, suppose mt_lrand produced
++ * values from 0 to 7 (i.e., 8 values), and we asked for numbers in
++ * the range (0, 7].  The 8 values uniformly generated by mt_lrand
++ * would be mapped into the 7 output values.  Clearly, one output
++ * value (in this case, 4) would occur twice as often as the others
++ *
++ * The amount of bias introduced by this approximation depends on the
++ * relative sizes of the requested range and the range of values
++ * produced by mt_lrand.  If the ranges are almost equal, some values
++ * will occur almost twice as often as they should.  At the other
++ * extreme, consider a requested range of 3 values (0 to 2,
++ * inclusive).  If the PRNG cycles through all 2^32 possible values,
++ * two of the output values will be generated 1431655765 times and the
++ * third will appear 1431655766 times.  Clearly, the bias here is
++ * within the expected limits of randomness.
++ *
++ * The exact amount of bias depends on the relative size of the range
++ * compared to the width of the PRNG output.  In general, for an
++ * output range of r, no value will appear more than r/(2^32) extra
++ * times using the simple integer algorithm.
++ *
++ * The threshold given below will produce a bias of under 0.01%.  For
++ * values above this threshold, a slower but 100% accurate algorithm
++ * will be used.
++ */
++#ifndef RD_MAX_BIAS
++#define RD_MAX_BIAS		0.0001
++#endif /* RD_MAX_BIAS */
++#ifndef RD_UNIFORM_THRESHOLD
++#define RD_UNIFORM_THRESHOLD	((int)((double)(1u &lt;&lt; 31) * 2.0 * RD_MAX_BIAS))
++#endif /* RD_UNIFORM_THRESHOLD */
++
++/*
++ * Generate a uniform integer distribution on the open interval
++ * (lower, upper].  See comments above about RD_UNIFORM_THRESHOLD.  If
++ * we are above the threshold, this function is relatively expensive
++ * because we may have to repeatedly draw random numbers to get a
++ * one that works.
++ */
++long rds_iuniform(
++    mt_state *		state,		/* State of the MT PRNG to use */
++    long		lower,		/* Lower limit of distribution */
++    long		upper)		/* Upper limit of distribution */
++    {
++    unsigned long	range = upper - lower;
++					/* Range of requested distribution */
++
++    if (range &lt;= RD_UNIFORM_THRESHOLD)
++	return lower + (long)(mts_ldrand(state) * range);
++    else
++	{
++	/*
++	 * Using the simple formula would produce too much bias.
++	 * Instead, draw numbers until we get one within the range.
++	 * To save time, we first calculate a mask so that we only
++	 * look at the number of bits we actually need.  Since finding
++	 * the mask is expensive, we do a bit of caching here (note
++	 * that the caching makes the code non-reentrant; set
++	 * MT_NO_CACHING to achieve reentrancy).
++	 *
++	 * Incidentally, the astute reader will note that we use the
++	 * low-order bits of the PRNG output.  If the PRNG were linear
++	 * congruential, using the low-order bits wouuld be a major
++	 * no-no.  However, the Mersenne Twist PRNG doesn't have that
++	 * drawback.
++	 */
++#ifdef MT_NO_CACHING
++	unsigned long	rangemask = 0;	/* Mask for range */
++#else /* MT_NO_CACHING */
++	static unsigned long
++			lastrange = 0;	/* Range used last time */
++	static unsigned long
++			rangemask = 0;	/* Mask for range */
++#endif /* MT_NO_CACHING */
++	register unsigned long
++			ranval;		/* Random value from mts_lrand */
++
++#ifndef MT_NO_CACHING
++	if (range != lastrange)
++#endif /* MT_NO_CACHING */
++	    {
++	    /*
++	     * Range is different from last time, recalculate mask.
++	     *
++	     * A few iterations could be trimmed off of the loop if we
++	     * started rangemask at the next power of 2 above
++	     * RD_UNIFORM_THRESHOLD.  However, I don't currently know
++	     * a formula for generating that value (though there is
++	     * probably one in HAKMEM).
++	     */
++#ifndef MT_NO_CACHING
++	    lastrange = range;
++#endif /* MT_NO_CACHING */
++	    for (rangemask = 1;
++	      rangemask &lt; range  &amp;&amp;  rangemask != 0;
++	      rangemask &lt;&lt;= 1)
++		;
++
++	    /*
++	     * If rangemask became zero, the range is over 2^31.  In
++	     * that case, subtracting 1 from rangemask will produce a
++	     * full-word mask, which is what we need.
++	     */
++	    rangemask -= 1;
++	    }
++
++	/*
++	 * Draw random numbers until we get one in the requested range.
++	 */
++	do
++	    {
++	    ranval = mts_lrand(state) &amp; rangemask;
++	    }
++	    while (ranval &gt;= range);
++	return lower + ranval;
++	}
++    }
++
++#ifndef MT_NO_LONGLONG
++/*
++ * Generate a uniform integer distribution on the open interval
++ * (lower, upper].
++ */
++long long rds_liuniform(
++    mt_state *		state,		/* State of the MT PRNG to use */
++    long long		lower,		/* Lower limit of distribution */
++    long long		upper)		/* Upper limit of distribution */
++    {
++    unsigned long long	range = upper - lower;
++					/* Range of requested distribution */
++
++    /*
++     * Draw numbers until we get one within the range.  To save time,
++     * we first calculate a mask so that we only look at the number of
++     * bits we actually need.  Since finding the mask is expensive, we
++     * do a bit of caching here.  See rds_iuniform for more information.
++     */
++#ifdef MT_NO_CACHING
++    unsigned long	rangemask = 0;	/* Mask for range */
++#else /* MT_NO_CACHING */
++    static unsigned long
++		    lastrange = 0;	/* Range used last time */
++    static unsigned long
++		    rangemask = 0;	/* Mask for range */
++#endif /* MT_NO_CACHING */
++    register unsigned long
++		    ranval;		/* Random value from mts_lrand */
++
++#ifndef MT_NO_CACHING
++    if (range != lastrange)
++#endif /* MT_NO_CACHING */
++	{
++	/*
++	 * Range is different from last time, recalculate mask.
++	 */
++#ifndef MT_NO_CACHING
++	lastrange = range;
++#endif /* MT_NO_CACHING */
++	for (rangemask = 1;
++	  rangemask &lt; range  &amp;&amp;  rangemask != 0;
++	  rangemask &lt;&lt;= 1)
++	    ;
++
++	/*
++	 * If rangemask became zero, the range is over 2^31.  In
++	 * that case, subtracting 1 from rangemask will produce a
++	 * full-word mask, which is what we need.
++	 */
++	rangemask -= 1;
++	}
++
++    /*
++     * Draw random numbers until we get one in the requested range.
++     */
++    do
++	{
++	ranval = mts_llrand(state) &amp; rangemask;
++	}
++	while (ranval &gt;= range);
++    return lower + ranval;
++    }
++#endif /* MT_NO_LONGLONG */
++
++/*
++ * Generate a uniform distribution on the open interval (lower, upper].
++ */
++double rds_uniform(
++    mt_state *		state,		/* State of the MT PRNG to use */
++    double		lower,		/* Lower limit of distribution */
++    double		upper)		/* Upper limit of distribution */
++    {
++    return lower + mts_drand(state) * (upper - lower);
++    }
++
++/*
++ * Generate a uniform distribution on the open interval (lower, upper].
++ */
++double rds_luniform(
++    mt_state *		state,		/* State of the MT PRNG to use */
++    double		lower,		/* Lower limit of distribution */
++    double		upper)		/* Upper limit of distribution */
++    {
++    return lower + mts_ldrand(state) * (upper - lower);
++    }
++
++/*
++ * Generate an exponential distribution with the given mean.
++ */
++double rds_exponential(
++    mt_state *		state,		/* State of the MT PRNG to use */
++    double		mean)		/* Mean of generated distribution */
++    {
++    double		random_value;	/* Random sample on (0,1] */
++
++    do
++	random_value = mts_drand(state);
++    while (random_value == 0.0);
++    return -mean * log(random_value);
++    }
++
++/*
++ * Generate an exponential distribution with the given mean.
++ */
++double rds_lexponential(
++    mt_state *		state,		/* State of the MT PRNG to use */
++    double		mean)		/* Mean of generated distribution */
++    {
++    double		random_value;	/* Random sample on (0,1] */
++
++    do
++	random_value = mts_ldrand(state);
++    while (random_value == 0.0);
++    return -mean * log(random_value);
++    }
++
++/*
++ * Generate a p-Erlang distribution with the given mean.
++ */
++double rds_erlang(
++    mt_state *		state,		/* State of the MT PRNG to use */
++    int			p,		/* Order of distribution to generate */
++    double		mean)		/* Mean of generated distribution */
++    {
++    int			order;		/* Order generated so far */
++    double		random_value;	/* Value generated so far */
++
++    do
++	{
++	if (p &lt;= 1)
++	    p = 1;
++	random_value = mts_drand(state);
++	for (order = 1;  order &lt; p;  order++)
++	    random_value *= mts_drand(state);
++	}
++    while (random_value == 0.0);
++    return -mean * log(random_value) / p;
++    }
++
++/*
++ * Generate a p-Erlang distribution with the given mean.
++ */
++double rds_lerlang(
++    mt_state *		state,		/* State of the MT PRNG to use */
++    int			p,		/* Order of distribution to generate */
++    double		mean)		/* Mean of generated distribution */
++    {
++    int			order;		/* Order generated so far */
++    double		random_value;	/* Value generated so far */
++
++    do
++	{
++	if (p &lt;= 1)
++	    p = 1;
++	random_value = mts_ldrand(state);
++	for (order = 1;  order &lt; p;  order++)
++	    random_value *= mts_ldrand(state);
++	}
++    while (random_value == 0.0);
++    return -mean * log(random_value) / p;
++    }
++
++/*
++ * Generate a Weibull distribution with the given shape and scale parameters.
++ */
++double rds_weibull(
++    mt_state *		state,		/* State of the MT PRNG to use */
++    double		shape,		/* Shape of the distribution */
++    double		scale)		/* Scale of the distribution */
++    {
++    double		random_value;	/* Random sample on (0,1] */
++
++    do
++	random_value = mts_drand(state);
++    while (random_value == 0.0);
++    return scale * exp(log(-log(random_value)) / shape);
++    }
++					/* Weibull distribution */
++/*
++ * Generate a Weibull distribution with the given shape and scale parameters.
++ */
++double rds_lweibull(
++    mt_state *		state,		/* State of the MT PRNG to use */
++    double		shape,		/* Shape of the distribution */
++    double		scale)		/* Scale of the distribution */
++    {
++    double		random_value;	/* Random sample on (0,1] */
++
++    do
++	random_value = mts_ldrand(state);
++    while (random_value == 0.0);
++    return scale * exp(log(-log(random_value)) / shape);
++    }
++					/* Weibull distribution */
++/*
++ * Generate a normal distribution with the given mean and standard
++ * deviation.  See Law and Kelton, p. 491.
++ */
++double rds_normal(
++    mt_state *		state,		/* State of the MT PRNG to use */
++    double		mean,		/* Mean of generated distribution */
++    double		sigma)		/* Standard deviation to generate */
++    {
++    double		mag;		/* Magnitude of (x,y) point */
++    double		offset;		/* Unscaled offset from mean */
++    double		xranval;	/* First random value on (-1,1] */
++    double		yranval;	/* Second random value on (-1,1] */
++
++    /*
++     * Generating a normal distribution is a bit tricky.  We may need
++     * to make several attempts before we get a valid result.  When we
++     * are done, we will have two normally distributed values, one of
++     * which we discard.
++     */
++    do
++	{
++	xranval = 2.0 * mts_drand(state) - 1.0;
++	yranval = 2.0 * mts_drand(state) - 1.0;
++	mag = xranval * xranval + yranval * yranval;
++	}
++    while (mag &gt; 1.0  ||  mag == 0.0);
++
++    offset = sqrt((-2.0 * log(mag)) / mag);
++    return mean + sigma * xranval * offset;
++
++    /*
++     * The second random variate is given by:
++     *
++     *     mean + sigma * yranval * offset;
++     *
++     * If this were a C++ function, it could probably save that value
++     * somewhere and return it in the next subsequent call.  But
++     * that's too hard to make bulletproof (and reentrant) in C.
++     */
++    }
++
++/*
++ * Generate a normal distribution with the given mean and standard
++ * deviation.  See Law and Kelton, p. 491.
++ */
++double rds_lnormal(
++    mt_state *		state,		/* State of the MT PRNG to use */
++    double		mean,		/* Mean of generated distribution */
++    double		sigma)		/* Standard deviation to generate */
++    {
++    double		mag;		/* Magnitude of (x,y) point */
++    double		offset;		/* Unscaled offset from mean */
++    double		xranval;	/* First random value on (-1,1] */
++    double		yranval;	/* Second random value on (-1,1] */
++
++    /*
++     * Generating a normal distribution is a bit tricky.  We may need
++     * to make several attempts before we get a valid result.  When we
++     * are done, we will have two normally distributed values, one of
++     * which we discard.
++     */
++    do
++	{
++	xranval = 2.0 * mts_ldrand(state) - 1.0;
++	yranval = 2.0 * mts_ldrand(state) - 1.0;
++	mag = xranval * xranval + yranval * yranval;
++	}
++    while (mag &gt; 1.0  ||  mag == 0.0);
++
++    offset = sqrt((-2.0 * log(mag)) / mag);
++    return mean + sigma * xranval * offset;
++
++    /*
++     * The second random variate is given by:
++     *
++     *     mean + sigma * yranval * offset;
++     *
++     * If this were a C++ function, it could probably save that value
++     * somewhere and return it in the next subsequent call.  But
++     * that's too hard to make bulletproof (and reentrant) in C.
++     */
++    }
++
++/*
++ * Generate a lognormal distribution with the given shape and scale
++ * parameters.
++ */
++double rds_lognormal(
++    mt_state *		state,		/* State of the MT PRNG to use */
++    double		shape,		/* Shape of the distribution */
++    double		scale)		/* Scale of the distribution */
++    {
++    return exp(rds_normal(state, scale, shape));
++    }
++
++/*
++ * Generate a lognormal distribution with the given shape and scale
++ * parameters.
++ */
++double rds_llognormal(
++    mt_state *		state,		/* State of the MT PRNG to use */
++    double		shape,		/* Shape of the distribution */
++    double		scale)		/* Scale of the distribution */
++    {
++    return exp(rds_lnormal(state, scale, shape));
++    }
++
++/*
++ * Generate a triangular distibution between given limits, with a
++ * given mode.
++ */
++double rds_triangular(
++    mt_state *		state,		/* State of the MT PRNG to use */
++    double		lower,		/* Lower limit of distribution */
++    double		upper,		/* Upper limit of distribution */
++    double		mode)		/* Highest point of distribution */
++    {
++    double		ran_value;	/* Value generated by PRNG */
++    double		scaled_mode;	/* Scaled version of mode */
++
++    scaled_mode = (mode - lower) / (upper - lower);
++    ran_value = mts_drand(state);
++    if (ran_value &lt;= scaled_mode)
++	ran_value = sqrt(scaled_mode * ran_value);
++    else
++	ran_value = 1.0 - sqrt((1.0 - scaled_mode) * (1.0 - ran_value));
++    return lower + (upper - lower) * ran_value;
++    }
++
++/*
++ * Generate a triangular distibution between given limits, with a
++ * given mode.
++ */
++double rds_ltriangular(
++    mt_state *		state,		/* State of the MT PRNG to use */
++    double		lower,		/* Lower limit of distribution */
++    double		upper,		/* Upper limit of distribution */
++    double		mode)		/* Highest point of distribution */
++    {
++    double		ran_value;	/* Value generated by PRNG */
++    double		scaled_mode;	/* Scaled version of mode */
++
++    scaled_mode = (mode - lower) / (upper - lower);
++    ran_value = mts_ldrand(state);
++    if (ran_value &lt;= scaled_mode)
++	ran_value = sqrt(scaled_mode * ran_value);
++    else
++	ran_value = 1.0 - sqrt((1.0 - scaled_mode) * (1.0 - ran_value));
++    return lower + (upper - lower) * ran_value;
++    }
++
++/*
++ * Generate an empirical distribution given a set of values and their
++ * probabilities.
++ */
++double rds_empirical(
++    mt_state *		state,		/* State of the MT PRNG to use */
++    int			n_probs,	/* Number of probabilities given */
++    double *		values,		/* Vals returned with various probs */
++    double *		probs)		/* Probs of various values */
++    {
++    int			i;		/* Index into both arrays */
++    double		ran_value;	/* Value generated by PRNG */
++
++    ran_value = mts_drand(state);
++    /*
++     * NEEDSWORK: This should be a binary search if n_probs is
++     * moderately large (e.g., more than about 5-7).
++     */
++    for (i = 0;  i &lt; n_probs;  i++)
++	{
++	if (ran_value &lt;= probs[i])
++	    return values[i];
++	}
++    return values[n_probs];
++    }
++
++/*
++ * Generate an empirical distribution given a set of values and their
++ * probabilities.
++ */
++double rds_lempirical(
++    mt_state *		state,		/* State of the MT PRNG to use */
++    int			n_probs,	/* Number of probabilities given */
++    double *		values,		/* Vals returned with various probs */
++    double *		probs)		/* Probs of various values */
++    {
++    int			i;		/* Index into both arrays */
++    double		ran_value;	/* Value generated by PRNG */
++
++    ran_value = mts_ldrand(state);
++    /*
++     * NEEDSWORK: This should be a binary search if n_probs is
++     * moderately large (e.g., more than about 5-7).
++     */
++    for (i = 0;  i &lt; n_probs;  i++)
++	{
++	if (ran_value &lt;= probs[i])
++	    return values[i];
++	}
++    return values[n_probs];
++    }
++
++/*
++ * Generate a uniform integer distribution on the open interval
++ * (lower, upper].  See comments on rds_iuniform.
++ */
++long rd_iuniform(
++    long		lower,		/* Lower limit of distribution */
++    long		upper)		/* Upper limit of distribution */
++    {
++    return rds_iuniform(&amp;mt_default_state, lower, upper);
++    }
++
++#ifndef MT_NO_LONGLONG
++/*
++ * Generate a uniform integer distribution on the open interval
++ * (lower, upper].  See comments on rds_iuniform.
++ */
++long long rd_liuniform(
++    long long		lower,		/* Lower limit of distribution */
++    long long		upper)		/* Upper limit of distribution */
++    {
++    return rds_liuniform(&amp;mt_default_state, lower, upper);
++    }
++#endif /* MT_NO_LONGLONG */
++
++/*
++ * Generate a uniform distribution on the open interval (lower, upper].
++ */
++double rd_uniform(
++    double		lower,		/* Lower limit of distribution */
++    double		upper)		/* Upper limit of distribution */
++    {
++    return rds_uniform (&amp;mt_default_state, lower, upper);
++    }
++
++/*
++ * Generate a uniform distribution on the open interval (lower, upper].
++ */
++double rd_luniform(
++    double		lower,		/* Lower limit of distribution */
++    double		upper)		/* Upper limit of distribution */
++    {
++    return rds_luniform (&amp;mt_default_state, lower, upper);
++    }
++
++/*
++ * Generate an exponential distribution with the given mean.
++ */
++double rd_exponential(
++    double		mean)		/* Mean of generated distribution */
++    {
++    return rds_exponential (&amp;mt_default_state, mean);
++    }
++
++/*
++ * Generate an exponential distribution with the given mean.
++ */
++double rd_lexponential(
++    double		mean)		/* Mean of generated distribution */
++    {
++    return rds_lexponential (&amp;mt_default_state, mean);
++    }
++
++/*
++ * Generate a p-Erlang distribution with the given mean.
++ */
++double rd_erlang(
++    int			p,		/* Order of distribution to generate */
++    double		mean)		/* Mean of generated distribution */
++    {
++    return rds_erlang (&amp;mt_default_state, p, mean);
++    }
++
++/*
++ * Generate a p-Erlang distribution with the given mean.
++ */
++double rd_lerlang(
++    int			p,		/* Order of distribution to generate */
++    double		mean)		/* Mean of generated distribution */
++    {
++    return rds_lerlang (&amp;mt_default_state, p, mean);
++    }
++
++/*
++ * Generate a Weibull distribution with the given shape and scale parameters.
++ */
++double rd_weibull(
++    double		shape,		/* Shape of the distribution */
++    double		scale)		/* Scale of the distribution */
++    {
++    return rds_weibull (&amp;mt_default_state, shape, scale);
++    }
++
++/*
++ * Generate a Weibull distribution with the given shape and scale parameters.
++ */
++double rd_lweibull(
++    double		shape,		/* Shape of the distribution */
++    double		scale)		/* Scale of the distribution */
++    {
++    return rds_lweibull (&amp;mt_default_state, shape, scale);
++    }
++
++/*
++ * Generate a normal distribution with the given mean and standard
++ * deviation.  See Law and Kelton, p. 491.
++ */
++double rd_normal(
++    double		mean,		/* Mean of generated distribution */
++    double		sigma)		/* Standard deviation to generate */
++    {
++    return rds_normal (&amp;mt_default_state, mean, sigma);
++    }
++
++/*
++ * Generate a normal distribution with the given mean and standard
++ * deviation.  See Law and Kelton, p. 491.
++ */
++double rd_lnormal(
++    double		mean,		/* Mean of generated distribution */
++    double		sigma)		/* Standard deviation to generate */
++    {
++    return rds_lnormal (&amp;mt_default_state, mean, sigma);
++    }
++
++/*
++ * Generate a lognormal distribution with the given shape and scale
++ * parameters.
++ */
++double rd_lognormal(
++    double		shape,		/* Shape of the distribution */
++    double		scale)		/* Scale of the distribution */
++    {
++    return rds_lognormal (&amp;mt_default_state, shape, scale);
++    }
++
++/*
++ * Generate a lognormal distribution with the given shape and scale
++ * parameters.
++ */
++double rd_llognormal(
++    double		shape,		/* Shape of the distribution */
++    double		scale)		/* Scale of the distribution */
++    {
++    return rds_llognormal (&amp;mt_default_state, shape, scale);
++    }
++
++/*
++ * Generate a triangular distibution between given limits, with a
++ * given mode.
++ */
++double rd_triangular(
++    double		lower,		/* Lower limit of distribution */
++    double		upper,		/* Upper limit of distribution */
++    double		mode)
++    {
++    return rds_triangular (&amp;mt_default_state, lower, upper, mode);
++    }
++
++/*
++ * Generate a triangular distibution between given limits, with a
++ * given mode.
++ */
++double rd_ltriangular(
++    double		lower,		/* Lower limit of distribution */
++    double		upper,		/* Upper limit of distribution */
++    double		mode)
++    {
++    return rds_ltriangular (&amp;mt_default_state, lower, upper, mode);
++    }
++
++/*
++ * Generate an empirical distribution given a set of values and their
++ * probabilities.
++ */
++double rd_empirical(
++    int			n_probs,	/* Number of probabilities given */
++    double *		values,		/* Vals returned with various probs */
++    double *		probs)		/* Probs of various values */
++    {
++    return rds_empirical (&amp;mt_default_state, n_probs, values, probs);
++    }
++
++/*
++ * Generate an empirical distribution given a set of values and their
++ * probabilities.
++ */
++double rd_lempirical(
++    int			n_probs,	/* Number of probabilities given */
++    double *		values,		/* Vals returned with various probs */
++    double *		probs)		/* Probs of various values */
++    {
++    return rds_lempirical (&amp;mt_default_state, n_probs, values, probs);
++    }
+
+Added: antargis/trunk/gui/src/mtwist/randistrs.h
+===================================================================
+--- antargis/trunk/gui/src/mtwist/randistrs.h	2007-03-08 20:12:12 UTC (rev 1057)
++++ antargis/trunk/gui/src/mtwist/randistrs.h	2007-03-11 20:40:28 UTC (rev 1058)
+@@ -0,0 +1,381 @@
++#ifndef RANDISTRS_H
++#define RANDISTRS_H
++
++/*
++ * $Id: randistrs.h,v 1.4 2001/06/20 09:07:58 geoff Exp $
++ *
++ * Header file for C/C++ use of a generalized package that generates
++ * random numbers in various distributions, using the Mersenne-Twist
++ * pseudo-RNG.  See mtwist.h and mtwist.c for documentation on the PRNG.
++ *
++ * Author of this header file: Geoffrey H. Kuenning, April 7, 2001.
++ *
++ * All of the functions provided by this package have three variants.
++ * The rd_xxx versions use the default state vector provided by the MT
++ * package.  The rds_xxx versions use a state vector provided by the
++ * caller.  In general, the rds_xxx versions are preferred for serious
++ * applications, since they allow random numbers used for different
++ * purposes to be drawn from independent, uncorrelated streams.
++ * Finally, the C++ interface provides a class &quot;mt_distribution&quot;,
++ * derived from mt_prng, with no-prefix (&quot;xxx&quot;) versions of each
++ * function.
++ *
++ * The summary below will describe only the rds_xxx functions.  The
++ * rd_xxx functions have identical specifications, except that the
++ * &quot;state&quot; argument is omitted.  In all cases, the &quot;state&quot; argument
++ * has type mt_state, and must have been initialized either by calling
++ * one of the Mersenne Twist seeding functions, or by being set to all
++ * zeros.
++ *
++ * The &quot;l&quot; version of each function calls the 64-bit version of the
++ * PRNG instead of the 32-bit version.  In general, you shouldn't use
++ * those functions unless your application is *very* sensitive to tiny
++ * variations in the probability distribution.  This is especially
++ * true of the uniform and empirical distributions.
++ *
++ * Random-distribution functions:
++ *
++ * rds_iuniform(mt_state* state, long lower, long upper)
++ *		(Integer) uniform on the open interval (lower, upper].
++ * rds_liuniform(mt_state* state, long long lower, long long upper)
++ *		(Integer) uniform on the open interval (lower, upper].
++ *		Don't use unless you need numbers bigger than a long!
++ * rds_uniform(mt_state* state, double lower, double upper)
++ *		(Floating) uniform on the open interval (lower, upper].
++ * rds_luniform(mt_state* state, double lower, double upper)
++ *		(Floating) uniform on the open interval (lower, upper].
++ *		Higher precision but slower than rds_uniform.
++ * rds_exponential(mt_state* state, double mean)
++ *		Exponential with the given mean.
++ * rds_lexponential(mt_state* state, double mean)
++ *		Exponential with the given mean.
++ *		Higher precision but slower than rds_exponential.
++ * rds_erlang(mt_state* state, int p, double mean)
++ *		p-Erlang with the given mean.
++ * rds_lerlang(mt_state* state, int p, double mean)
++ *		p-Erlang with the given mean.
++ *		Higher precision but slower than rds_erlang.
++ * rds_weibull(mt_state* state, double shape, double scale)
++ *		Weibull with the given shape and scale parameters.
++ * rds_lweibull(mt_state* state, double shape, double scale)
++ *		Weibull with the given shape and scale parameters.
++ *		Higher precision but slower than rds_weibull.
++ * rds_normal(mt_state* state, double mean, double sigma)
++ *		Normal with the  given mean and standard deviation.
++ * rds_lnormal(mt_state* state, double mean, double sigma)
++ *		Normal with the  given mean and standard deviation.
++ *		Higher precision but slower than rds_normal.
++ * rds_lognormal(mt_state* state, double shape, double scale)
++ *		Lognormal with the given shape and scale parameters.
++ * rds_llognormal(mt_state* state, double shape, double scale)
++ *		Lognormal with the given shape and scale parameters.
++ *		Higher precision but slower than rds_lognormal.
++ * rds_triangular(mt_state* state, double lower, double upper, double mode)
++ *		Triangular on the closed interval (lower, upper) with
++ *		the given mode.
++ * rds_ltriangular(mt_state* state, double lower, double upper, double mode)
++ *		Triangular on the closed interval (lower, upper) with
++ *		the given mode.
++ *		Higher precision but slower than rds_triangular.
++ * rds_empirical(mt_state* state, int n_probs, double* values, double* probs)
++ *		values[0] with probability probs[0], values[1] with
++ *		probability probs[1] - probs[0], etc.; values[n_probs]
++ *		with probability 1-probs[n_probs-1].  Note that there
++ *		is one more value than there are probabilities.  It is
++ *		the caller's responsibility to make sure that the
++ *		probabilities are monotonically increasing and that
++ *		their sum is less than or equal to 1; if this
++ *		condition is violated, some of the values will never
++ *		be generated.
++ * rds_lempirical(mt_state* state, int n_probs, double* values, double* probs)
++ *		Empirical distribution.  Higher precision but slower than
++ *		rds_empirical.
++ * rd_iuniform(long lower, long upper)
++ * rd_liuniform(long long lower, long long upper)
++ *		As above, using the default MT-PRNG.
++ * rd_uniform(double lower, double upper)
++ * rd_luniform(double lower, double upper)
++ *		As above, using the default MT-PRNG.
++ * rd_exponential(double mean)
++ * rd_lexponential(double mean)
++ *		As above, using the default MT-PRNG.
++ * rd_erlang(int p, double mean)
++ * rd_lerlang(int p, double mean)
++ *		As above, using the default MT-PRNG.
++ * rd_weibull(double shape, double scale)
++ * rd_lweibull(double shape, double scale)
++ *		As above, using the default MT-PRNG.
++ * rd_normal(double mean, double sigma)
++ * rd_lnormal(double mean, double sigma)
++ *		As above, using the default MT-PRNG.
++ * rd_lognormal(double shape, double scale)
++ * rd_llognormal(double shape, double scale)
++ *		As above, using the default MT-PRNG.
++ * rd_triangular(double lower, double upper, double mode)
++ * rd_ltriangular(double lower, double upper, double mode)
++ *		As above, using the default MT-PRNG.
++ * rd_empirical(int n_probs, double* values, double* probs)
++ * rd_lempirical(int n_probs, double* values, double* probs)
++ *		As above, using the default MT-PRNG.
++ *
++ * $Log: randistrs.h,v $
++ * Revision 1.4  2001/06/20 09:07:58  geoff
++ * Fix a place where long long wasn't conditionalized.
++ *
++ * Revision 1.3  2001/06/19 00:41:17  geoff
++ * Add the &quot;l&quot; versions of all functions.
++ *
++ * Revision 1.2  2001/06/18 10:09:24  geoff
++ * Add the iuniform functions.  Improve the header comments.  Add a C++
++ * interface.  Clean up some stylistic inconsistencies.
++ *
++ * Revision 1.1  2001/04/09 08:39:54  geoff
++ * Initial revision
++ *
++ */
++
++#include &quot;mtwist.h&quot;
++
++#ifdef __cplusplus
++extern &quot;C&quot;
++    {
++#endif
++
++/*
++ * Functions that use a provided state.
++ */
++extern long		rds_iuniform(mt_state* state, long lower, long upper);
++					/* (Integer) uniform distribution */
++#ifndef MT_NO_LONGLONG
++extern long long	rds_liuniform(mt_state* state, long long lower,
++			  long long upper);
++					/* (Integer) uniform distribution */
++#endif /* MT_NO_LONGLONG */
++extern double		rds_uniform(mt_state* state,
++			  double lower, double upper);
++					/* (Floating) uniform distribution */
++extern double		rds_luniform(mt_state* state,
++			  double lower, double upper);
++					/* (Floating) uniform distribution */
++extern double		rds_exponential(mt_state* state, double mean);
++					/* Exponential distribution */
++extern double		rds_lexponential(mt_state* state, double mean);
++					/* Exponential distribution */
++extern double		rds_erlang(mt_state* state, int p, double mean);
++					/* p-Erlang distribution */
++extern double		rds_lerlang(mt_state* state, int p, double mean);
++					/* p-Erlang distribution */
++extern double		rds_weibull(mt_state* state,
++			  double shape, double scale);
++					/* Weibull distribution */
++extern double		rds_lweibull(mt_state* state,
++			  double shape, double scale);
++					/* Weibull distribution */
++extern double		rds_normal(mt_state* state,
++			  double mean, double sigma);
++					/* Normal distribution */
++extern double		rds_lnormal(mt_state* state,
++			  double mean, double sigma);
++					/* Normal distribution */
++extern double		rds_lognormal(mt_state* state,
++			  double shape, double scale);
++					/* Lognormal distribution */
++extern double		rds_llognormal(mt_state* state,
++			  double shape, double scale);
++					/* Lognormal distribution */
++extern double		rds_triangular(mt_state* state,
++			  double lower, double upper, double mode);
++					/* Triangular distribution */
++extern double		rds_ltriangular(mt_state* state,
++			  double lower, double upper, double mode);
++					/* Triangular distribution */
++extern double		rds_empirical(mt_state* state,
++			  int n_probs, double* values, double* probs);
++					/* Empirical distribution */
++extern double		rds_lempirical(mt_state* state,
++			  int n_probs, double* values, double* probs);
++					/* Empirical distribution */
++
++/*
++ * Functions that use the default state of the PRNG.
++ */
++extern long		rd_iuniform(long lower, long upper);
++					/* (Integer) uniform distribution */
++#ifndef MT_NO_LONGLONG
++extern long long	rd_liuniform(long long lower, long long upper);
++					/* (Integer) uniform distribution */
++#endif /* MT_NO_LONGLONG */
++extern double		rd_uniform(double lower, double upper);
++					/* (Floating) uniform distribution */
++extern double		rd_luniform(double lower, double upper);
++					/* (Floating) uniform distribution */
++extern double		rd_exponential(double mean);
++					/* Exponential distribution */
++extern double		rd_lexponential(double mean);
++					/* Exponential distribution */
++extern double		rd_erlang(int p, double mean);
++					/* p-Erlang distribution */
++extern double		rd_lerlang(int p, double mean);
++					/* p-Erlang distribution */
++extern double		rd_weibull(double shape, double scale);
++					/* Weibull distribution */
++extern double		rd_lweibull(double shape, double scale);
++					/* Weibull distribution */
++extern double		rd_normal(double mean, double sigma);
++					/* Normal distribution */
++extern double		rd_lnormal(double mean, double sigma);
++					/* Normal distribution */
++extern double		rd_lognormal(double shape, double scale);
++					/* Lognormal distribution */
++extern double		rd_llognormal(double shape, double scale);
++					/* Lognormal distribution */
++extern double		rd_triangular(double lower, double upper, double mode);
++					/* Triangular distribution */
++extern double		rd_ltriangular(double lower, double upper,
++			  double mode);	/* Triangular distribution */
++extern double		rd_empirical(int n_probs,
++			  double* values, double* probs);
++					/* Empirical distribution */
++extern double		rd_lempirical(int n_probs,
++			  double* values, double* probs);
++					/* Empirical distribution */
++
++#ifdef __cplusplus
++    }
++#endif
++
++#ifdef __cplusplus
++/*
++ * C++ interface to the random-distribution generators.  This class is
++ * little more than a wrapper for the C functions, but it fits a bit
++ * more nicely with the mt_prng class.
++ */
++class mt_distribution : public mt_prng
++    {
++    public:
++	/*
++	 * Constructors and destructors.  All constructors and
++	 * destructors are the same as for mt_prng.
++	 */
++			mt_distribution(
++					// Default constructor
++			    bool pickSeed = false)
++					// True to get seed from /dev/urandom
++					// ..or time
++			    : mt_prng(pickSeed)
++			    {
++			    }
++			mt_distribution(unsigned long seed)
++					// Construct with 32-bit seeding
++			    : mt_prng(seed)
++			    {
++			    }
++			mt_distribution(unsigned long seeds[MT_STATE_SIZE])
++					// Construct with full seeding
++			    : mt_prng(seeds)
++			    {
++			    }
++			~mt_distribution() { }
++
++	/*
++	 * Functions for generating distributions.  These simply
++	 * invoke the C functions above.
++	 */
++	long		iuniform(long lower, long upper)
++					/* Uniform distribution */
++			    {
++			    return rds_iuniform(&amp;state, lower, upper);
++			    }
++#ifndef MT_NO_LONGLONG
++	long long	liuniform(long long lower, long long upper)
++					/* Uniform distribution */
++			    {
++			    return rds_liuniform(&amp;state, lower, upper);
++			    }
++#endif /* MT_NO_LONGLONG */
++	double		uniform(double lower, double upper)
++					/* Uniform distribution */
++			    {
++			    return rds_uniform(&amp;state, lower, upper);
++			    }
++	double		luniform(double lower, double upper)
++					/* Uniform distribution */
++			    {
++			    return rds_luniform(&amp;state, lower, upper);
++			    }
++	double		exponential(double mean)
++					/* Exponential distribution */
++			    {
++			    return rds_exponential(&amp;state, mean);
++			    }
++	double		lexponential(double mean)
++					/* Exponential distribution */
++			    {
++			    return rds_lexponential(&amp;state, mean);
++			    }
++	double		erlang(int p, double mean)
++					/* p-Erlang distribution */
++			    {
++			    return rds_erlang(&amp;state, p, mean);
++			    }
++	double		lerlang(int p, double mean)
++					/* p-Erlang distribution */
++			    {
++			    return rds_lerlang(&amp;state, p, mean);
++			    }
++	double		weibull(double shape, double scale)
++					/* Weibull distribution */
++			    {
++			    return rds_weibull(&amp;state, shape, scale);
++			    }
++	double		lweibull(double shape, double scale)
++					/* Weibull distribution */
++			    {
++			    return rds_lweibull(&amp;state, shape, scale);
++			    }
++	double		normal(double mean, double sigma)
++					/* Normal distribution */
++			    {
++			    return rds_normal(&amp;state, mean, sigma);
++			    }
++	double		lnormal(double mean, double sigma)
++					/* Normal distribution */
++			    {
++			    return rds_lnormal(&amp;state, mean, sigma);
++			    }
++	double		lognormal(double shape, double scale)
++					/* Lognormal distribution */
++			    {
++			    return rds_lognormal(&amp;state, shape, scale);
++			    }
++	double		llognormal(double shape, double scale)
++					/* Lognormal distribution */
++			    {
++			    return rds_llognormal(&amp;state, shape, scale);
++			    }
++	double		triangular(double lower, double upper, double mode)
++					/* Triangular distribution */
++			    {
++			    return rds_triangular(&amp;state, lower, upper, mode);
++			    }
++	double		ltriangular(double lower, double upper, double mode)
++					/* Triangular distribution */
++			    {
++			    return rds_ltriangular(&amp;state, lower, upper, mode);
++			    }
++	double		empirical(int n_probs, double* values, double* probs)
++					/* Empirical distribution */
++			    {
++			    return
++			      rds_empirical(&amp;state, n_probs, values, probs);
++			    }
++	double		lempirical(int n_probs, double* values, double* probs)
++					/* Empirical distribution */
++			    {
++			    return
++			      rds_lempirical(&amp;state, n_probs, values, probs);
++			    }
++    };
++#endif
++
++#endif /* RANDISTRS_H */
+
+Added: antargis/trunk/ruby/tests/rand_test.rb
+===================================================================
+--- antargis/trunk/ruby/tests/rand_test.rb	2007-03-08 20:12:12 UTC (rev 1057)
++++ antargis/trunk/ruby/tests/rand_test.rb	2007-03-11 20:40:28 UTC (rev 1058)
+@@ -0,0 +1,12 @@
++#!/usr/bin/env ruby
++
++require 'libantargis'
++include Libantargis
++
++a=AGRandomizer.new(&quot;&quot;)
++
++puts a.randInt(20)
++puts a.randInt(20)
++puts a.randInt(20)
++puts a.randInt(20)
++
+
+Modified: antargis/trunk/src/antargisgui.h
+===================================================================
+--- antargis/trunk/src/antargisgui.h	2007-03-08 20:12:12 UTC (rev 1057)
++++ antargis/trunk/src/antargisgui.h	2007-03-11 20:40:28 UTC (rev 1058)
+@@ -58,6 +58,7 @@
+ #include &quot;../gui/src/ag_scroller.h&quot;
+ #include &quot;../gui/src/ag_plugin.h&quot;
+ #include &quot;../gui/src/ag_destructor.h&quot;
++#include &quot;../gui/src/ag_rand.h&quot;
+ #include &quot;../src/ant_frustum.h&quot;
+ #include &quot;../src/ant_projection.h&quot;
+ #include &quot;../src/ant_camera.h&quot;
+@@ -143,6 +144,7 @@
+ %include &quot;../gui/src/ag_scroller.h&quot;
+ %include &quot;../gui/src/ag_plugin.h&quot;
+ %include &quot;../gui/src/ag_destructor.h&quot;
++%include &quot;../gui/src/ag_rand.h&quot;
+ %include &quot;../src/ant_frustum.h&quot;
+ %include &quot;../src/ant_projection.h&quot;
+ %include &quot;../src/ant_camera.h&quot;
+
+Modified: antargis/trunk/src/nantmarker.hh
+===================================================================
+--- antargis/trunk/src/nantmarker.hh	2007-03-08 20:12:12 UTC (rev 1057)
++++ antargis/trunk/src/nantmarker.hh	2007-03-11 20:40:28 UTC (rev 1058)
+@@ -2834,6 +2834,11 @@
+  Data_Get_Struct($input,AGRadioGroup,b);
+  $result=*b;
+ }
++%typemap(directorout) AGRandomizer {
++ AGRandomizer *b;
++ Data_Get_Struct($input,AGRandomizer,b);
++ $result=*b;
++}
+ %typemap(directorout) AGRect2 {
+  AGRect2 *b;
+  Data_Get_Struct($input,AGRect2,b);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000015.html">[Antargis-svn] r1057 - antargis/trunk/ruby/tests
+</A></li>
+	<LI>Next message: <A HREF="000017.html">[Antargis-svn] r1059 - in antargis/trunk: gui/src ruby ruby/tests	src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#16">[ date ]</a>
+              <a href="thread.html#16">[ thread ]</a>
+              <a href="subject.html#16">[ subject ]</a>
+              <a href="author.html#16">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

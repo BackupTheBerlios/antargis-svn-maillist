@@ -1,0 +1,7560 @@
+From davidkamphausen at mail.berlios.de  Sun Sep  2 19:22:00 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Sun, 2 Sep 2007 19:22:00 +0200
+Subject: [Antargis-svn] r1168 - in antargis/branches/rant/ruby: . entities
+	tests
+Message-ID: <200709021722.l82HM0Gt017327@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-09-02 19:22:00 +0200 (Sun, 02 Sep 2007)
+New Revision: 1168
+
+Modified:
+   antargis/branches/rant/ruby/README
+   antargis/branches/rant/ruby/ant_hljobs.rb
+   antargis/branches/rant/ruby/ant_tools.rb
+   antargis/branches/rant/ruby/entities/entities.rb
+   antargis/branches/rant/ruby/map.rb
+   antargis/branches/rant/ruby/tests/impostor.rb
+   antargis/branches/rant/ruby/view.rb
+Log:
+* some new files
+
+
+Modified: antargis/branches/rant/ruby/README
+===================================================================
+--- antargis/branches/rant/ruby/README	2007-08-30 18:32:20 UTC (rev 1167)
++++ antargis/branches/rant/ruby/README	2007-09-02 17:22:00 UTC (rev 1168)
+@@ -20,10 +20,6 @@
+ 
+ == BoA's world
+ 
+-=== Entities
+-The basic objects of the game, like trees, people, buildings and so forth are called entities.
+-To read more about entities go here: link:files/ruby/entities/README.html
+-
+ === Map
+ A map represents the complete world of BoA. It consists of:
+ * a height-map
+@@ -34,3 +30,11 @@
+ * C++-HeightMap
+ * C++-AntargisMap
+ 
++
++=== Entities
++The basic objects of the game, like trees, people, buildings and so forth are called entities.
++To read more about entities go here: link:files/ruby/entities/README.html
++
++=== Jobs
++Each entity has a job, a low-level-job (LLJob) to be more specific. Certain entities additionally have high-level-jobs (HLJobs).
++For more information on this topic head on to link:files/ruby/jobs/README.html
+\ No newline at end of file
+
+Modified: antargis/branches/rant/ruby/ant_hljobs.rb
+===================================================================
+--- antargis/branches/rant/ruby/ant_hljobs.rb	2007-08-30 18:32:20 UTC (rev 1167)
++++ antargis/branches/rant/ruby/ant_hljobs.rb	2007-09-02 17:22:00 UTC (rev 1168)
+@@ -27,6 +27,9 @@
+ 
+ require 'entities.rb'
+ 
++if false
++
++
+ # Base class for high-level jobs. It contains the basic functions that're needed for usage within
+ # AntBoss (AntHero and AntHouse)
+ class AntHLJob
+@@ -1121,5 +1124,7 @@
+ 	return false
+ end
+ 
+-#require 'ant_new_hljobs.rb'
++end
+ 
++require 'jobs/ant_new_hljobs.rb'
++
+
+Modified: antargis/branches/rant/ruby/ant_tools.rb
+===================================================================
+--- antargis/branches/rant/ruby/ant_tools.rb	2007-08-30 18:32:20 UTC (rev 1167)
++++ antargis/branches/rant/ruby/ant_tools.rb	2007-09-02 17:22:00 UTC (rev 1168)
+@@ -1,4 +1,4 @@
+-require "ant_sound.rb"
++require "ruby/ant_sound.rb"
+ 
+ def getMeshData(file,zoom,texture="",shadow=true)
+ 	id=file+":"+texture
+@@ -72,9 +72,15 @@
+ 	puts "TRACE #{caller[0]}"
+ end
+ 
+-def assert(&block)
++class AntargisException<Exception
++	attr_accessor :text
++end
++
++def assert(text="",&block)
+ 	if not block.call
+-		raise "Assertion #{block} failed in #{caller[0]} #{block.binding}"
++		exception=AntargisException.new
++		exception.text="#{text} #{block} failed in #{caller[0]} #{block.binding}"
++		raise exception
+ 	end
+ end
+ 
+
+Modified: antargis/branches/rant/ruby/entities/entities.rb
+===================================================================
+--- antargis/branches/rant/ruby/entities/entities.rb	2007-08-30 18:32:20 UTC (rev 1167)
++++ antargis/branches/rant/ruby/entities/entities.rb	2007-09-02 17:22:00 UTC (rev 1168)
+@@ -38,9 +38,12 @@
+ 	end
+ 
+ 
+-
+-	def initialize(p)
+-		super(p)
++	# create a new entity at the position *p*
++	# set some default settings
++	# get a unique ID
++	# loading must be done externally in loadXML !
++	def initialize(position)
++		super(position)
+ 		@xmlProps={}
+ 		@birthday=getMap.getTime
+ 		@mode=""
+@@ -49,8 +52,6 @@
+ 	
+ 		@uid=getMap.getUniqueID
+ 
+-		#self.experience=0
+-
+ 		setHunger(0) # general entities have no hunger
+ 	end
+ 
+@@ -115,7 +116,10 @@
+ 		_("This is an entity - no more info here.")
+ 	end
+ 
++	# :section: miscellanous
++
+ 	# simple comparison operator, so that ents can be distinguished
++	# for what is this needed ???
+ 	def <=>(e)
+ 		to_s<=>e.to_s
+ 	end
+@@ -149,9 +153,12 @@
+ 		super
+ 		setMoraleStrength(v*2)
+ 	end
++
++	# get the age of this entity - computed from @birthday
+ 	def age
+ 		((getMap.getTime- at birthday).to_f/YEAR).to_i
+ 	end
++	# @birthday will be set according to the current date (get it by calling getMap.getTime)
+ 	def age=(years)
+ 		@birthday=getMap.getTime-years*YEAR
+ 	end
+@@ -250,6 +257,10 @@
+ 
+ 	# :section: state-changes
+ 
++	# set a mesh for this entity - have a look at AntModels for more information on how this works
++	# * normally you give a subtype or nothing at all to this function and AntModels will take care of the right
++	#   mesh. *sym* override the current entities type.
++	# * you can pipe in a SceneNode-based object through *subtype* though this is no good !
+ 	def setMesh(subtype="",sym=nil)
+ 		if subtype.is_a?(SceneNode)
+ 			puts  "THIS SHOULD NOT BE USED ANY LONGER: setMesh(realMesh) !!!!!!!!!!!!"
+
+Modified: antargis/branches/rant/ruby/map.rb
+===================================================================
+--- antargis/branches/rant/ruby/map.rb	2007-08-30 18:32:20 UTC (rev 1167)
++++ antargis/branches/rant/ruby/map.rb	2007-09-02 17:22:00 UTC (rev 1168)
+@@ -483,7 +483,7 @@
+ 
+ 	def createPathfinder
+ 		@path=CombinedPathFinder.new(self)
+-		@path.displayPathfindingGraph(self,getScene)
++		#@path.displayPathfindingGraph(self,getScene)
+ 	end
+ 
+ 	def createPathfinderOLD
+
+Modified: antargis/branches/rant/ruby/tests/impostor.rb
+===================================================================
+--- antargis/branches/rant/ruby/tests/impostor.rb	2007-08-30 18:32:20 UTC (rev 1167)
++++ antargis/branches/rant/ruby/tests/impostor.rb	2007-09-02 17:22:00 UTC (rev 1168)
+@@ -1,98 +1,40 @@
+ #!/usr/bin/env ruby
+ 
+ require 'ruby/antargislib.rb'
+-require 'ruby/ant_models.rb'
+ 
+-class MMap
+-	def getScene
+-		$scene
+-	end
+-end
+ 
+-def getMap
+-	MMap.new
+-end
+ 
+ class MyApp<GLApp
+-	@@types=[]
+-	AntModels.getMeshMap.each{|k,v|
+-		puts "#{k}(#{k.class}):#{v} #{v.class}"
+-		v.each{|x,y|
+-			assert{!(k.is_a?(Hash)||x.is_a?(Hash))}
+-			x.each{|xi|
+-				@@types<<[k,xi]
+-				puts "K:#{k}(#{k.class}) Y:#{x}(#{x.class})"
+-			}
+-		}
+-	}
+-	puts @@types.inspect
+-	
+ 	def initialize(w,h)
+ 		super
+-		$scene=getScene
++		#node=Mesh.new(getScene,getMeshData("data/models/sack.ant2",0.3,"data/textures/models/sack.png"),AGVector4.new(0,0,0),0)
++		node=Mesh.new(getScene,getMeshData("data/models/workshop.ant2",0.18,"data/textures/models/workshop.png"),AGVector4.new(0,0,0),-50)
+ 
+-		hotpoints={}
++		getScene.addNode(node)
+ 
+-		#@@types=[[:man,"stand"]]
++		imp=AntImpostorData.new(node)
+ 
+-		tex=nil
+-		@@types.each{|t,t2|
+-			puts "TRY CREATE #{t}(#{t.class}) #{t2}(#{t2.class})"
+-			node=AntModels.createModel(t,t2)
+-			puts "#{t}:#{t2} failed creation" if node.nil?
+-			if node.is_a?(AnimMesh)
+-				anims=node.getData.getAnimations
+-				puts "# anims:#{anims.length}"
+-				anims.collect!{|s|s.to_s+""}
+-				anim=anims[0]
+-				if anims.member?(t2.to_s)
+-					anim=t2
+-# 				else
+-# 					anims.each{|a|puts "#{a}(#{a.class})"}
+-# 					puts "t2:#{t2} (#{t2.class})"
+-# 					raise 1
+-				end
+-				puts "anim:#{anim}"
+-				node.setAnimation(anim.to_s)
+-				node.advance(0.1)
+-				node.setRotation(30)
+-			end
+-			$scene.addNode(node)
+-			imp=AntImpostorData.new(node,512,512)
+-	
+-			tex=imp.getTexture
+-			name=t.to_s
+-			if t2
+-				name+="_"+(t2.to_s)	
+-			end
+-			name+=".png"
+-			surface=imp.getSurface
+-			p=surface.shrink2Fit
+-	
+-			hotpoints[name]=p
+-			surface.save(name)
+-			getScene.removeNode(node)
+-		}
+-
+-		text=""
+-		hotpoints.each{|k,v|text+=k+":"+(v.to_s)+"\n"}
+-		saveFile("hotspots.txt",text)
++		tex=imp.getTexture
+ 			
+-# 		image=AGImage.new(nil,AGRect2.new(0,0,tex.width,tex.height),tex,false)
+-# 		setMainWidget(image)
++		image=AGImage.new(nil,AGRect2.new(0,0,tex.width,tex.height),tex,false)
++		setMainWidget(image)
+ 		
+-		#getScene.removeNode(node)
++		getScene.removeNode(node)
+ 	end
+ 
+ 	def eventFrame(t)
+-# 		delay(100)
++		#imp=
++		delay(100)
+ 	puts t
+ 		return true
+ 	end
++
++#  	def draw(p)
++#  		p.blit(imp.getTexture)
++#  	end
+ end
+ 
+-#getMain.initVideo(512,512,32,false,true)
++#app=MyApp.new(128,128) #800,600)
++app=MyApp.new(1024,768) #800,600)
+ 
+-app=MyApp.new(1024,768)
+-
+ app.run
+
+Modified: antargis/branches/rant/ruby/view.rb
+===================================================================
+--- antargis/branches/rant/ruby/view.rb	2007-08-30 18:32:20 UTC (rev 1167)
++++ antargis/branches/rant/ruby/view.rb	2007-09-02 17:22:00 UTC (rev 1168)
+@@ -42,7 +42,9 @@
+ 
+ # AntRubyView is the central view class of antargis. It contains several sub-views like:
+ # * AntButtonPanel
++# * AntNameDisplay
+ # * FIXME
++#
+ class AntRubyView <AntBaseMapView
+ 	def initialize(w,h)
+ 		super(w,h)
+
+
+
+From davidkamphausen at mail.berlios.de  Sun Sep  2 19:22:26 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Sun, 2 Sep 2007 19:22:26 +0200
+Subject: [Antargis-svn] r1169 - in antargis/branches/rant/ruby: . jobs
+	state_machine state_machine/spec state_machine/tests
+Message-ID: <200709021722.l82HMQfC017358@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-09-02 19:22:26 +0200 (Sun, 02 Sep 2007)
+New Revision: 1169
+
+Added:
+   antargis/branches/rant/ruby/jobs/README
+   antargis/branches/rant/ruby/jobs/ant_hljob_base.rb
+   antargis/branches/rant/ruby/jobs/ant_hljob_states.rb
+   antargis/branches/rant/ruby/jobs/ant_new_hljobs.rb
+   antargis/branches/rant/ruby/jobs/ant_state_machine.rb
+   antargis/branches/rant/ruby/state_machine/
+   antargis/branches/rant/ruby/state_machine/spec/
+   antargis/branches/rant/ruby/state_machine/spec/state_machine.rb
+   antargis/branches/rant/ruby/state_machine/state_machine.rb
+   antargis/branches/rant/ruby/state_machine/tests/
+   antargis/branches/rant/ruby/state_machine/tests/state_machine_test.rb
+Log:
+* missing files
+
+
+Added: antargis/branches/rant/ruby/jobs/README
+===================================================================
+--- antargis/branches/rant/ruby/jobs/README	2007-09-02 17:22:00 UTC (rev 1168)
++++ antargis/branches/rant/ruby/jobs/README	2007-09-02 17:22:26 UTC (rev 1169)
+@@ -0,0 +1,10 @@
++== High level jobs
++What high level jobs (further named as HLJobs) are or do:
++* assigned to AntBoss objects only (heroes and buildings (or maybe Villages in future ?))
++* organize all men that are assigned to this with low-level-jobs (LLJobs)
++* each AntBoss can have only one HLJob at a time.
++
++High level jobs are organized as state-machines. These state-machines are handled by BaseMachine.
++A job-base-class (AntNewHLJob) is derived from that. 
++
++
+
+Added: antargis/branches/rant/ruby/jobs/ant_hljob_base.rb
+===================================================================
+--- antargis/branches/rant/ruby/jobs/ant_hljob_base.rb	2007-09-02 17:22:00 UTC (rev 1168)
++++ antargis/branches/rant/ruby/jobs/ant_hljob_base.rb	2007-09-02 17:22:26 UTC (rev 1169)
+@@ -0,0 +1,71 @@
++require 'jobs/ant_state_machine.rb'
++
++class AntNewHLJob<BaseMachine
++	attr_reader :finished, :stopped
++	# some magic here
++	def initialize(hero,startState=nil)
++		super(startState)
++		@hero=hero
++		assert{not @hero.nil?}
++
++		@finished=false
++
++		firstCall
++	end
++
++	def getTime
++		puts "getTime"
++		@hero.getMap.getTime
++	end
++
++	def allMen
++		if @hero.is_a?(AntHero)
++			@hero.getMen
++		else
++			@hero.getMen-[@hero]
++		end
++	end
++
++	def hero
++		@hero
++	end
++
++	def stopJob
++		@stopped=true
++		stateCall("leave")
++	end
++
++	def check(man)
++		#raise 1
++		if @state.nil?
++			@finished=true
++			return
++		end
++		#raise 1
++		stateCall("assign",man)
++		advance
++		@finished=ready
++	end
++
++	def delete(man)
++		puts "IGNORING AntNewHLJob::delete(#{man})"
++		if man==@hero
++			puts "STOPPING JOB - because hero died"
++			@finished=true
++			@state=nil
++		end
++	end
++
++
++	def trace
++		if @hero.nil?
++			puts "TRACE #{caller[0]} #{self}"
++		else
++			puts "TRACE #{caller[0]} #{self} #{hero} #{getTime}"
++		end
++	end
++
++	def kill
++		stateCall("kill")
++	end		
++end
+
+Added: antargis/branches/rant/ruby/jobs/ant_hljob_states.rb
+===================================================================
+--- antargis/branches/rant/ruby/jobs/ant_hljob_states.rb	2007-09-02 17:22:00 UTC (rev 1168)
++++ antargis/branches/rant/ruby/jobs/ant_hljob_states.rb	2007-09-02 17:22:26 UTC (rev 1169)
+@@ -0,0 +1,736 @@
++# Does the walk-formation
++# 
++#
++require 'jobs/ant_state_machine.rb'
++
++class Module
++	def wrap(objectName,methodName,objectMethodName=nil)
++		objectMethodName||=methodName
++		ts="*s"
++		ts="s" if methodName=~/.*=$/
++		s="def #{methodName}(#{ts})\n#{objectName}.#{objectMethodName}(#{ts})\nend\n"
++		puts s
++		module_eval s
++	end
++end
++
++
++module HLJob_Additions
++	attr_accessor :machine
++	["hero","allMen","getTime","targetPos","targetPos=","formatDir","formatDir=","target"].each{|n|wrap "machine",n}
++end
++
++class HLJob_BaseState
++	include HLJob_Additions
++
++	def trace
++		if @hero.nil?
++			puts "TRACE #{caller[0]} #{self}"
++		else
++			puts "TRACE #{caller[0]} #{self} #{hero} #{getTime}"
++		end
++	end
++end
++
++class HLJob_DummyState<HLJob_BaseState
++end
++
++class HLJob_FormatWalk<HLJob_BaseState
++	# needed: getTime
++
++	# wait 5 seconds at max for formatting
++	FORMAT_MAX_TIME=5
++
++	def enter
++		puts "#{self}:enter"
++		trace
++		hero.formation=AntFormationBlock.new(hero,formatDir)
++		heroPos=hero.getPos2D
++		allMen.each{|man|
++			pos=hero.getFormation(man,heroPos)
++			man.walkTo(pos)
++			man.hlJobMode[:formatting]=true
++		}
++		@formatStart=getTime
++	end
++
++	def assign(man)
++		#raise 1
++		man.setDirection(180-(targetPos-hero.getPos2D).normalized.getAngle.angle*180.0/Math::PI)
++		man.standStill
++		man.hlJobMode.delete(:formatting)
++	end
++
++	def ready
++		if getTime- at formatStart>FORMAT_MAX_TIME
++			puts "MUST BE READY"
++			return true
++		end
++		allMen.each{|man|
++			puts "formatting:#{man}:#{man.hlJobMode[:formatting]}"
++			if man.hlJobMode[:formatting]
++				return false
++			end
++		}
++		return true
++	end
++
++private
++
++end
++
++class HLJob_FormatSit<HLJob_BaseState
++	# needed: getTime
++
++	# wait 5 seconds at max for formatting
++	FORMAT_MAX_TIME=15
++
++	def enter
++		#raise 1
++		trace
++		hero.formation=AntFormationRest.new(hero)
++		heroPos=hero.getPos2D
++		allMen.each{|man|
++			pos=hero.getFormation(man,heroPos)
++			man.walkTo(pos)
++			man.hlJobMode[:formatting]=true
++		}
++		@formatStart=getTime
++	end
++
++	def assign(man)
++		man.setDirection(180-(hero.getPos2D-man.getPos2D).normalized.getAngle.angle*180.0/Math::PI)
++		man.standStill
++		man.hlJobMode.delete(:formatting)
++	end
++
++	def ready
++		puts "#{self}:ready"
++		if getTime- at formatStart>FORMAT_MAX_TIME
++			# FIXME:rest deserts
++			return true
++		end
++		allMen.each{|man|
++			if man.hlJobMode[:formatting]
++				return false
++			end
++		}
++		return true
++	end
++end
++
++class HLJob_MoveToNextWayPoint<HLJob_BaseState
++	# needed: hero,allMen,targetPos, near
++
++	attr_accessor :near
++
++	def initialize
++		super
++		@near=0
++	end
++
++	def enter
++		puts "#{self}:enter"
++		hero.formation=AntFormationBlock.new(hero,formatDir)
++		allMen.each{|man|
++			pos=hero.getFormation(man,targetPos)
++			man.newMoveJob(0,pos,near)
++			man.hlJobMode[:walking]=true
++		}
++	end
++
++	def assign(man)
++		man.standStill
++		man.hlJobMode.delete(:walking)
++
++		# FIXME: maybe let him desert if this is called too often ?
++	end
++
++	def ready
++		allMen.each{|man|
++			if man.hlJobMode[:walking]
++				return false
++			end
++		}
++		return true
++	end
++
++end
++
++class HLJob_MoveComplete<BaseState
++	include HLJob_Additions
++	state :moveToNextPoint=>HLJob_MoveToNextWayPoint
++	state :formatWalk=>HLJob_FormatWalk
++	state :endState=>HLJob_DummyState
++
++	startState :formatWalk
++	endState :endState
++	
++	edge :moveToNextPoint, :formatWalk, :stillHasWaypoints
++	edge :formatWalk, :moveToNextPoint
++	edge :moveToNextPoint, :endState, :noMoreWaypoints
++
++	def enter
++		puts "#{self}:enter"
++		if @waypoints.nil?
++			initWaypoints
++		end
++	end
++
++	def stillHasWaypoints
++		puts state
++		if @waypoints.length>0
++			self.targetPos=@waypoints.shift
++			puts "targetPos:#{targetPos}"
++			return true
++		end
++		false
++	end
++
++	def near=(n)
++		@states[:moveToNextPoint].near=n
++	end
++
++	def noMoreWaypoints
++		@waypoints.length==0
++	end
++
++	def moveDirectly
++		@state=:moveToNextPoint
++	end
++
++	def assign(man)
++		#raise 1
++		state.assign(man)
++	end
++
++	def hero
++		machine.hero
++	end
++	def formatDir
++		(targetPos-hero.getPos2D).normalized
++	end
++
++	private
++
++	def initWaypoints
++		if getMap.path
++			@waypoints=[hero.getPos2D]+getMap.path.computePath(hero.getPos2D,targetPos,hero)+[targetPos]
++			# remove waypoints in between - if they're not necessary - origin must be given, too
++			@waypoints=getMap.path.refinePath(@waypoints,hero)
++			# remove origin for waypoint-list
++			assert{@waypoints.length>=2}
++			@waypoints.shift
++			
++			@waypoints+=[targetPos]
++
++		else
++			@waypoints=[targetPos]
++		end
++		@completeTargetPos=targetPos
++		self.targetPos=@waypoints.shift
++	end
++end
++
++class HLJob_SitDown<HLJob_BaseState
++	def enter
++		allMen.each{|man|
++			man.setDirection(180-(hero.getPos2D-man.getPos2D).normalized.getAngle.angle*180.0/Math::PI)
++			man.sitDown
++			man.hlJobMode[:sitting]=true
++		}
++	end
++
++	def assign(man)
++		man.sitStill
++		man.hlJobMode.delete(:sitting)
++	end
++
++	def ready
++		allMen.each{|man|
++			if man.hlJobMode[:sitting]
++				return false
++			end
++		}
++		return true
++	end
++end
++
++class HLJob_JustSit<HLJob_BaseState
++	def enter
++		allMen.each{|man|
++			man.sitStill
++		}
++	end
++	def assign(man)
++		man.sitStill # and rest
++	end
++
++	def ready
++		return false
++	end
++end
++
++class HLJob_JustSitOnce<HLJob_BaseState
++	def enter
++		allMen.each{|man|
++			man.sitStill
++			man.hlJobMode[:justSitting]=true
++		}
++	end
++	def assign(man)
++		man.hlJobMode.delete(:justSitting)
++	end
++	def ready
++		allMen.each{|man|
++			if man.hlJobMode[:justSitting]
++				return false
++			else
++				return true
++			end
++		}
++	end
++end
++	
++
++class HLJob_FetchStart<HLJob_BaseState
++	# needed a target-entity
++	def enter
++		trace
++		fetchPoint=machine.target.getPos2D
++		puts "fetchPoint:#{fetchPoint}  heroPos:#{hero.getPos2D}"
++		allMen.each{|man|
++			man.walkTo(fetchPoint)
++			man.hlJobMode[:fetching]=true
++			puts "set to fetching: #{man}"
++		}
++		
++	end
++
++	def assign(man)
++		trace
++		man.standStill
++		man.hlJobMode.delete(:fetching)
++	end
++
++	def ready
++		trace
++		allMen.each{|man|
++			puts "fetchStart_ready check: #{man} : #{man.hlJobMode[:fetching]}"
++			if man.hlJobMode[:fetching]
++				return false
++			end
++			puts "false"
++		}
++		puts "return true ??"
++		return true
++	end
++end
++
++class HLJob_GetResource<HLJob_BaseState
++	# needed: resources return array of resource-strings
++	attr_accessor :resources
++
++	def initialize
++		@resources=[]
++	end
++
++	def enter
++		for i in 1..hero.getAggression
++			allMen.each{|man|
++				resources.each{|r|
++					a=machine.target.resource.get(r)
++					if a>1
++						man.resource.add(r,1)
++						target.resource.sub(r,1)
++					end
++				}
++			}
++		end
++		allMen.each{|m|m.resourceChanged}
++	end
++	def ready
++		return true
++	end
++end
++
++class HLJob_KillAnimal<HLJob_BaseState
++	def enter
++		target.eventDie
++		hero.resource.takeAll(target.resource)
++		allMen.each{|m|m.resourceChanged}
++	end
++end
++
++# spread things among team-members
++class HLJob_SpreadThings<HLJob_BaseState
++	RESOURCES_TO_SPREAD=["sword","shield","bow","boat"]
++
++	def enter
++		allMen.each{|man|
++			man.walkTo(hero.getPos2D)
++			man.hlJobMode[:gatherToSpread]=true
++		}
++		@alreadySpread=false
++	end
++
++	def assign(man)
++		man.standStillShort
++		if man.hlJobMode[:gatherToSpread]
++			man.hlJobMode.delete(:gatherToSpread)
++			man.hlJobMode[:waitForSpread]=true
++		elsif man.hlJobMode[:waitForSpread]
++			man.hlJobMode.delete(:waitForSpread)
++		else
++			# nothing for now
++		end
++	end
++
++	def ready
++		return true if @alreadySpread		
++		allMen.each{|man|
++			return false if man.hlJobMode[:gatherToSpread] or man.hlJobMode[:waitForSpread]
++		}
++		# we can spread now
++		doSpreading
++		@alreadySpread=true
++		return true
++	end
++	private
++	
++	def doSpreading
++		# FIXME: maybe this can be done more easily ???
++		trace
++	
++		all={}
++		RESOURCES_TO_SPREAD.each{|r|	
++			all=0
++			allMen.each{|m|
++				c=m.resource.get(r)
++				all+=c
++			}
++			if all>=allMen.length
++				# give everyone 1 of these and put the rest on the hero
++				allMen.each{|m|
++					m.resource.set(r,1)
++				}
++				hero.resource.add(r,all-allMen.length)
++			else
++				men=allMen.sort {|b,a|a.resource.get(r)<=>b.resource.get(r)} # sort descending
++				# put hero at first
++				men.delete(hero)
++				men=[hero]+men
++				men.each{|m|m.resource.set(r,0)} # reset
++				for i in 1..all # now give to those who had a weapon and to hero (at first)
++					men[i-1].resource.set(r,1)
++				end
++			end
++		}
++		# spread food equally
++		food=0
++		allMen.each{|m|food+=m.resource.get("food")}
++		min=(food/allMen.length).to_i
++		allMen.each{|m|m.resource.set("food",min)}
++		# spread rest on first
++		food-=min*allMen.length
++		for i in 1..food
++			allMen[i-1].resource.add("food",1)
++		end
++
++		allMen.each{|m|m.resourceChanged}
++	end
++	
++end
++
++class HLJob_FightData<HLJob_BaseState
++
++	attr_reader :inited
++	# only attacker creates fightData
++	def initialize(fightJob)
++		@parties={:attacker=>[fightJob],:defender=>[]}
++		@oldparties=@parties.dup
++	end
++	def add(fightJob)
++		@parties[getFightType(fightJob)].push(fightJob)
++		@oldparties[getFightType(fightJob)].push(fightJob)
++		reshuffle
++	end
++
++	# this called if (and only if) the hero has won or is fleeing (and thus aborting the fight)
++	def remove(fightJob)
++		@parties[fightJob.fightType].delete(fightJob)
++		@oldparties[fightJob.fightType].delete(fightJob)
++		reshuffle
++	end
++
++	# this called if (and only if) the hero has lost
++	def removeLost(fightJob)
++		@parties[fightJob.fightType].delete(fightJob)
++		reshuffle
++	end
++
++	def getFightType(fightJob)
++		target=fightJob.target
++		[:attacker,:defender].each{|t| 
++			return otherType(t) if @parties[t].collect{|a|a.hero}.member?(target)
++		}
++		raise "Target #{fightJob} (target:#{target}) not found in getFightType!"
++	end
++
++	def getNewOpponent(man,fightJob)
++		assert{man.canFight}
++		assert{man.is_a?(AntHero) or man.is_a?(AntMan)}
++		assert{man.getHero==fightJob.hero}
++	
++		checkForUpdate
++
++		# for a start: get next opponent
++		# (maybe take next free opponent ??)
++		# (maybe: find weakest friend and help him ???)
++
++		myType=fightJob.fightType
++		oType=otherType(myType)
++
++		opponent=@parties[oType].collect{|job|job.undefeatedMen}.flatten.uniq.shuffle[0]
++		if opponent.nil?
++			# we won ???
++			#eventWon(myType)
++			return nil
++		else
++			assert{opponent.canFight}
++			return opponent
++		end
++	end
++
++	def checkForUpdate
++
++		#raise "FIXME"
++		# check, if heroes are still able to fight, else reshuffle - let hero lose or sth else
++
++		nparties={}
++		oldparties=@parties
++		@parties.each{|type,jobs|
++			njobs=jobs.select{|job|job.hero.canFight}
++			nparties[type]=njobs
++		}
++		@parties=nparties
++
++		if @parties!=oldparties
++			reshuffle
++		end
++
++	end
++
++	private
++
++	def otherType(my)
++		{:attacker=>:defender,:defender=>:attacker}[my]
++	end
++
++	def getAllJobs
++		@parties.collect{|type,jobs|jobs}.flatten
++	end
++	def getAllHeroes
++		getAllJobs.collect{|job|job.hero}
++	end
++
++	def reshuffle
++		trace
++		# reinit and assign
++
++		menGroup={}
++		leave=false
++		@parties.each{|type,jobs|
++			puts "parties: #{type}:#{jobs}"
++			menGroup[type]=jobs.collect{|job|job.undefeatedMen}.flatten.uniq
++			menGroup[type].each{|man|man.delJob}
++			leave=true if @inited and menGroup[type].length==0 # a fightjob is leaving
++		}
++		return if leave
++	
++		# check that each group has more than 0 members
++		assert{menGroup.select{|k,v|v.length==0}.length==0}
++
++		defenders=menGroup[:defender].dup
++
++		defenders.each{|d|d.hlJobMode.delete(:fightTarget)}
++		
++		assert{defenders.length>0}
++
++		# each attacker gets an opponent - if all defenders are used - restart them agaim
++		menGroup[:attacker].each{|attacker|
++			defender=defenders.min{|a,b|(a.getPos2D-attacker.getPos2D).length<=>(b.getPos2D-attacker.getPos2D).length}
++
++			assert{not defender.nil?}
++
++			attacker.hlJobMode[:fightTarget]=defender
++			if not defender.hlJobMode.member?(:fightTarget)
++				defender.hlJobMode[:fightTarget]=attacker
++			end
++
++			defenders.delete(defender)
++
++			defenders=menGroup[:defender].dup if defenders.length==0
++		}
++		menGroup[:defender].each{|defender|
++			if not defender.hlJobMode.member?(:fightTarget)
++				# assign remaining defenders to attackers
++				attacker=menGroup[:attacker].min{|a,b|(a.getPos2D-defender.getPos2D).length<=>(b.getPos2D-defender.getPos2D).length}
++				defender.hlJobMode[:fightTarget]=attacker
++			end
++		}
++		@inited=true
++	end
++
++
++end
++
++class HLJob_Fight<HLJob_BaseState
++	# needed: hero,target, undefeatedMen
++
++	attr_reader :fightType, :fightData, :won
++
++	def enter
++		@oldHeroPosition=hero.getPos2D
++		trace
++
++		targetHadFightData=target.hlJobMode[:fightData].nil?
++		
++		puts "fightData: #{target.hlJobMode[:fightData]}"
++		checkForFightData
++		if targetHadFightData
++			puts "NOT YET INITED #{self} hero:#{hero} target:#{target}"
++			target.newHLDefendJob(hero)
++		end
++		trace
++		assignAllJobs
++	end
++
++	def assign(man)
++		if man.is_a?(AntHouse)
++			man.newRestJob(20)
++			return
++		end
++
++		if not man.canFight	
++			# it's possible that man is defeated is the same time that another is defeated ?
++			# this way his morale is low - but eventDefeated wasn't called yet
++			man.hlJobMode[:defeated]=true
++		end
++
++		if man.hlJobMode[:defeated]
++			# FIXME:send away
++			# FIXME: maybe flee ?
++			if hero.is_a?(AntHouse)
++				if man.hlJobMode[:homing]
++					man.standStill
++				else
++					man.hlJobMode[:homing]
++					man.walkTo(@oldHeroPosition+AGVector2.new(getRand*2-1,getRand*2-1))
++				end
++			else
++				# FIXME
++			end
++			man.hlJobMode[:defeated]=true
++			man.hlJobMode.delete(:fighting)
++		else
++			puts ".canFight:#{man.canFight} #{man.getEnergy} #{man.getMorale}"
++			assert{man.canFight}
++
++			opponent=@fightData.getNewOpponent(man,self)
++			if opponent.nil?
++				# won
++				@won=true
++			else
++				assert{man.canFight and opponent.canFight}
++				man.hlJobMode[:fightTarget]=opponent
++				man.newFightJob(0,man.hlJobMode[:fightTarget])
++			end
++		end
++	end
++
++	def leave
++		if lost
++			@fightData.removeLost(self)
++		else
++			@fightData.remove(self)
++		end
++		@fightData=nil
++		@fightType=nil
++		hero.hlJobMode.delete(:fightType)
++		hero.hlJobMode.delete(:fightData)
++
++		allMen.each{|man|
++			man.hlJobMode.delete(:defeated)
++			man.hlJobMode.delete(:fighting)
++			man.hlJobMode.delete(:homing)
++		}
++	end
++
++	def ready
++		return true if @ready
++		if won 
++			@won=true
++			machine.eventWon(target)
++			@ready=true
++		elsif lost
++			@lost=true
++			machine.eventLost(target)
++			@ready=true
++		end
++			
++		return @ready
++	end
++
++	def lost
++		((not @won) and undefeatedMen.length==0) or (not hero.canFight)
++	end
++
++	def undefeatedMen
++		allMen.select{|man|man.hlJobMode[:defeated].nil? && man.canFight}
++	end
++
++	private
++	# return true if fightData already exists
++	def checkForFightData
++		trace
++		puts "TARGET #{target}"
++		if target.hlJobMode[:fightData]
++			trace
++			@fightData=target.hlJobMode[:fightData]
++			@fightData.add(self)
++			@fightType=@fightData.getFightType(self)
++			return true
++		else
++			trace
++			@fightData=HLJob_FightData.new(self)
++			@fightType=:attacker
++		end
++		puts "assigned fightData!"
++		hero.hlJobMode[:fightData]=@fightData # store so that it's avaiable above
++	end
++	def assignAllJobs
++		# FIXME:assign a fight-job to every member (undefeatedMen)
++		trace
++
++		undefeatedMen.each{|man|
++			assert{not man.hlJobMode[:fightTarget].nil?}
++			man.newFightJob(0,man.hlJobMode[:fightTarget])
++			# FIXME: check if morale is high enough
++			man.hlJobMode.delete(:defeated)
++			man.hlJobMode[:fighting]=true
++		}
++	end
++end
++
++
++class HLJob_Recruit<HLJob_BaseState
++	def enter
++	end
++	
++	private
++	def recruitGetMen
++		
++	end
++end
++
+
+Added: antargis/branches/rant/ruby/jobs/ant_new_hljobs.rb
+===================================================================
+--- antargis/branches/rant/ruby/jobs/ant_new_hljobs.rb	2007-09-02 17:22:00 UTC (rev 1168)
++++ antargis/branches/rant/ruby/jobs/ant_new_hljobs.rb	2007-09-02 17:22:26 UTC (rev 1169)
+@@ -0,0 +1,277 @@
++#
++# This is a new implementation of the high-level jobs.
++# They're now state-based. Each job consists of several
++# states. Each of these states has (or can have) an "enter",
++# "assign","ready" and a "leave"-function.
++# "enter" is called each time the current job switches into
++# this state. "leave" is called when the state is left
++# "ready" will be called to check, if the task of this state is 
++# finished and the job can be transfered into a new state.
++# "assign" is called whenever a man has no low-level-job anymore
++# and wants to get a new task. You should always assign low-level-jobs
++# to waiting men, because otherwise this function gets called for
++# each waiting man in each frame, which can have impact on the performance.
++#
++# 
++
++def newHLJobs
++	return true
++end
++
++module HLJob
++	def hero
++		@hero
++	end
++	def allMen
++		@hero.getMen
++	end
++end
++
++require 'jobs/ant_hljob_states.rb'
++require 'jobs/ant_hljob_base.rb'
++
++
++class AntNewHLRestJob<AntNewHLJob
++	state :formatSit=>HLJob_FormatSit
++	state :sitDown=>HLJob_SitDown
++	state :justSitOnce=>HLJob_JustSitOnce
++	state :spreadThings=>HLJob_SpreadThings
++
++	startState :formatSit
++	edge :formatSit, :sitDown
++	edge :sitDown,:justSitOnce
++	edge :justSitOnce,:spreadThings,:checkSpread
++	edge :justSitOnce,:justSitOnce,:notCheckSpread
++	edge :spreadThings,:formatSit,:lastSpread
++
++	SPREAD_CHECK_TIME=10 # all 10 seconds spread things
++
++	def initialize(hero,time)
++		super(hero)
++	end
++	def image
++		"data/gui/bed.png"
++	end
++	# fixme: discard this
++	def makeMessage(boss)
++		RestMessage.new(boss, at time)
++	end
++
++	def lastSpread
++		@spreadTime=getTime
++		true
++	end
++
++	def checkSpread
++		curTime=getTime
++		puts "SPREADTIME: #{@spreadTime}   getTime:#{curTime}"
++		return true if @spreadTime.nil?
++		puts "#{curTime- at spreadTime}>#{SPREAD_CHECK_TIME}"
++		return curTime- at spreadTime>SPREAD_CHECK_TIME
++	end
++
++	def notCheckSpread
++		not checkSpread
++	end
++		
++end
++
++begin
++AntHeroRestJobOld=AntHeroRestJob
++rescue
++end
++AntHeroRestJob=AntNewHLRestJob
++
++
++
++class AntNewHLMoveJob<AntNewHLJob
++	state :moveComplete=>	HLJob_MoveComplete
++	state :endState => HLJob_DummyState
++
++	startState :moveComplete
++	endState :endState
++
++	edge :moveComplete,:endState
++
++	attr_accessor :targetPos
++	attr_accessor :formatDir
++
++	def initialize(hero,prio,pos,dist,doFormat=true)
++		@targetPos=pos.dim2
++		super(hero)
++		if not doFormat
++			state.moveDirectly			
++		end
++	end
++	# FIXME: move this to a config-file !
++	def image
++		"data/gui/move.png"
++	end
++	# FIXME: discard this
++	def makeMessage(boss)
++		MoveMessage.new(boss,targetPos, at dist)
++	end
++
++end
++begin
++AntHeroMoveJobOld=AntHeroMoveJob
++rescue ; end
++AntHeroMoveJob=AntNewHLMoveJob
++
++
++
++
++
++class AntNewHLTakeJob<AntNewHLJob
++	state :fetchStart => HLJob_FetchStart
++	state :getResource => HLJob_GetResource
++	state :move =>HLJob_MoveComplete
++	state :moveBack => HLJob_MoveComplete
++	state :endState => HLJob_DummyState
++
++	startState :move
++	endState :endState
++
++	edge :move,:fetchStart,:fetchStart
++	edge :fetchStart,:getResource,:gettingResource
++	edge :getResource, :moveBack
++	edge :moveBack, :endState
++
++	attr_accessor :targetPos, :near, :target
++
++	def initialize(phero,target,what="food")
++
++		@targetPos=target.getPos2D
++		@target=target
++		super(phero)
++		@states[:move].near=4
++		@states[:getResource].resources={"food"=>["food"],"weapon"=>["sword","bow","boat","shield"]}[what]
++	end
++
++	def image
++		if @what=="food"
++			"data/gui/take_apple.png"
++		else
++			"data/gui/take_weapon.png"
++		end
++	end
++
++	def fetchStart
++		@targetPos=hero.getPos2D
++		true
++	end
++	def gettingResource
++		true
++	end
++end
++
++begin
++AntHeroTakeJobOld=AntHeroTakeJob
++rescue; end
++AntHeroTakeJob=AntNewHLTakeJob
++
++
++
++
++class AntNewHLKillAnimal<AntNewHLTakeJob
++	inheritMachine
++
++	def gettingResource
++		# kill animal
++		playSound
++		killAnimal
++		super
++	end
++
++	
++	private
++	def playSound
++		# FIXME: play eat sound
++	end
++	def killAnimal
++		@target.eventDie
++		hero.resource.takeAll(target.resource)
++	end
++end
++begin
++AntHeroFightAnimalJobOld=AntHeroFightAnimalJob
++rescue;end
++AntHeroFightAnimalJob=AntNewHLKillAnimal
++
++
++
++class AntNewHLFight<AntNewHLJob
++	state :move=>HLJob_MoveComplete
++	state :fight=>HLJob_Fight
++	state :endState=>HLJob_DummyState
++
++	edge :move,:fight
++	edge :fight,:endState
++
++	startState :move
++	endState :endState
++
++	attr_accessor :targetPos,:near,:target
++
++	def initialize(hero,target,defend=false)
++		@targetPos=target.getPos2D
++		@target=target
++		puts "DEFEND #{defend}"
++		if defend
++			trace
++			super(hero,:fight)
++			trace
++		else
++			trace
++			super(hero)
++			trace
++		end
++		assert{@state==:fight || defend==false}
++		@states[:move].near=10
++
++		puts "STATE #{state}"
++	end
++
++	def image
++		"data/gui/sword.png"
++	end
++
++	def eventWon(opponent)
++
++# 		trace
++# 		puts hero,hero.getName
++# 		raise 1
++	end
++	def eventLost(opponent)
++# 		trace
++# 		puts hero,hero.getName
++# 		raise 1
++		hero.setOwner(opponent)
++	end
++
++
++end
++
++# rename and replace old hl-jobs
++
++
++
++
++# AntHeroFightAnimalJobOld=AntHeroFightAnimalJob
++# AntHeroFightAnimalJob=AntNewHLKillAnimal
++# 
++begin
++AntHeroFightJobOld=AntHeroFightJob
++rescue;end
++AntHeroFightJob=AntNewHLFight
++
++if false
++
++end
++
++
++# FIXME:
++# 1) recruiting
++# 2) constructing
++# 3) build houses
++
+
+Added: antargis/branches/rant/ruby/jobs/ant_state_machine.rb
+===================================================================
+--- antargis/branches/rant/ruby/jobs/ant_state_machine.rb	2007-09-02 17:22:00 UTC (rev 1168)
++++ antargis/branches/rant/ruby/jobs/ant_state_machine.rb	2007-09-02 17:22:26 UTC (rev 1169)
+@@ -0,0 +1,174 @@
++class BaseState
++	@@states={}
++	@@edges={}
++	@@endstates={}
++	@@startstate={}
++	def BaseState.state(p)
++		s=@@states[self]
++		s||={}
++		p.each{|k,v|s[k]=v}
++		@@states[self]=s
++	end
++	def BaseState.edge(v0,v1,f=nil)
++		@@edges[self]||=[]
++		@@edges[self]<<[v0,v1,f]
++	end
++	def BaseState.startState(s)
++		puts "setting startstate for #{self}:#{s}"
++		@@startstate[self]=s
++	end
++	def BaseState.endState(s)
++		@@endstates[self]||=[]
++		@@endstates[self].push(s)
++	end
++
++	def BaseState.inheritMachine
++		me=ancestors[0]
++		anc=ancestors[1]
++		@@states[me]=@@states[anc].dup
++		@@edges[me]=@@edges[anc].dup
++		@@endstates[me]=@@endstates[anc].dup
++		@@startstate[me]=@@startstate[anc]
++	end
++	
++	def initialize(startState=nil)
++		@states={}
++		@@states[self.class].each{|k,v|@states[k]=v.new;@states[k].machine=self}
++		@state=startState
++		@state||=@@startstate[self.class]
++		@firstRun=false
++	end
++	
++	def ready
++		return true if @state.nil?
++		if @@endstates[self.class]
++			if @@endstates[self.class].length>0
++				return true if @@endstates[self.class].member?(@state)
++			end
++		end
++		return false
++	end		
++
++	def advance
++		if @states.length==0
++			puts "no states here"
++			return
++		end
++		if hasState
++			stepState
++		end
++	end
++
++	def firstCall
++		enterRecursive
++	end
++
++	def hasState
++		if @state
++			return (not @states[@state].nil?)
++		end
++		false
++	end
++
++	def state
++		if @state
++			if @states[@state]
++				return @states[@state]
++			end
++		end
++		raise "no state defined!"
++	end
++
++	def stateCall(*s)
++		if @state
++			if @states[@state]
++				puts "(#{s})(#{s[0]})"
++				if @states[@state].respond_to?(s[0])
++					@states[@state].send(*s) #(s[1..-1]))
++				end
++			end
++		end
++	end
++
++protected
++	def enterRecursive(selftoo=true)
++		puts "#{self}:enterRecursive"
++
++		if self.respond_to?("enter") and selftoo
++			puts "#{self}:enterRecursive - enter..."
++			enter
++			puts "#{self}:enterRecursive - enter.ok"
++		end
++
++		puts "#{self}:enterRecursive - hasState:#{hasState}"
++		if hasState
++			puts "#{self}:enterRecursive - respond_to(enterRec):#{state.respond_to?("enterRecursive")}"
++			puts "#{self}:enterRecursive - state:#{state}"
++			if state.respond_to?("enterRecursive")
++				state.enterRecursive
++			else
++				puts "#{self}:enterRecursive - statecall-enter..."
++				stateCall("enter")
++			end
++		end
++	end
++
++private
++	def stepState
++		assert {hasState}
++		stateCall("advance")
++		if state.ready
++			toNextState
++		else
++			true
++		end
++	end
++	
++	def toNextState
++		puts "#{self} toNextState:#{@state}:#{state}"
++		nstate=nil
++		@@edges[self.class].each{|e|
++			if e[0]==@state
++				ok=true
++				if not e[2].nil?
++					ok=self.send(e[2]) #.call
++				end
++				if ok
++					nstate=e[1]
++				end
++			end
++		}
++		if nstate
++			switch2(nstate)
++			return true
++		elsif @@endstates[self.class].member?(@state)
++			switch2(nil)
++		end
++		false
++	end
++	
++	def left
++		@firstRun=false
++	end
++		
++	def switch2(s)
++		stateCall("leave")
++		stateCall("left")
++		@state=s
++		#stateCall("enterRecursive")
++		enterRecursive(false)
++	end
++end
++
++class BaseMachine<BaseState
++# 	def initialize(start=nil)
++# 		super(start)
++# 		if start.nil?
++# 			@state=@@startstate[self.class]
++# 			puts "startstate: #{@@startstate[self.class]}"
++# 		else
++# 			@state=start
++# 		end
++# 	end
++end
++
+
+Added: antargis/branches/rant/ruby/state_machine/spec/state_machine.rb
+===================================================================
+--- antargis/branches/rant/ruby/state_machine/spec/state_machine.rb	2007-09-02 17:22:00 UTC (rev 1168)
++++ antargis/branches/rant/ruby/state_machine/spec/state_machine.rb	2007-09-02 17:22:26 UTC (rev 1169)
+@@ -0,0 +1,236 @@
++# bowling_spec.rb
++require 'ruby/state_machine/state_machine.rb'
++
++describe StateMachineNode do
++	before(:each) do
++    @node = StateMachineNode.new(:id)
++  end
++
++	it "should have id :id" do
++		@node.id.should == :id
++	end
++
++	it "should have a function dict, which is the state-machines dictionary" do
++		@node.methods.member?("dict").should == true
++	end
++
++	it "accessing the dictionary when the node is not attached to a machine will raise an exception" do
++		lambda {@node.dict}.should raise_error(AntargisException)
++	end
++end
++
++describe StateMachineEdge do
++  before(:each) do
++		@e = StateMachineEdge.new(:a,:b,:name)
++  end
++
++	it "should have from node :a" do
++		@e.from.should == :a
++	end
++	it "should have to node :b" do
++		@e.to.should == :b
++	end
++	it "should have name :name" do
++		@e.name.should == :name
++	end
++end
++
++describe StateMachineDefinition, "with no node" do
++	before(:each) do
++		@d=StateMachineDefinition.new
++	end
++	it "creating a machine should raise an error" do
++		lambda {@d.createMachine}.should raise_error(AntargisException) #("startnode not set")
++	end
++end
++
++describe StateMachineDefinition, "with a single node" do
++  before(:each) do
++		@d = StateMachineDefinition.new
++		@d.addNode(StateMachineNode,:startNode)
++		@d.startNode=:startNode
++  end
++	it "should have node count 1" do
++		@d.nodeCount.should == 1
++	end
++
++	it "should be finished when run" do
++		m=@d.createMachine
++		m.tick(1)
++		m.finished.should == true
++	end
++
++end
++
++# a mockstate that can be set to finished externally
++class MockState<StateMachineNode
++	attr_accessor :dummyVar
++
++	def initialize(pid)
++		super(pid)	
++		@finished=true
++
++	end
++	def finished=(f)
++		@finished=f
++	end
++	def isFinished?
++		@finished
++	end
++
++	def eventEnter
++		logEvent("eventEnter")
++	end
++	def eventLeave
++		logEvent("eventLeave")
++	end
++	def eventFrame(t)
++		logEvent("eventFrame")
++		t
++	end
++
++private
++	def logEvent(name)
++		dict["events"]||=[]
++		dict["events"] << id.to_s+" "+name
++	end
++	
++end
++
++describe StateMachine, " with 2 mock-states " do
++	before(:all) do 
++		@d=StateMachineDefinition.new
++		@n1=@d.startNode=@d.addNode(MockState,:start)
++		@n2=@d.addNode(MockState,:end)
++		@d.addEdge(@n1, at n2)
++	end
++	it "should not touch another machine with same definition in their states" do
++		m1=@d.createMachine
++		m2=@d.createMachine
++
++		m1.state.dummyVar=20
++		m2.state.dummyVar.should == nil
++	end
++
++	before(:each) do
++		@m=@d.createMachine
++	end
++	
++	it "should call eventEnter on startNode before calling eventFrame" do
++		@m.tick(1)
++		events=@m.dict["events"]
++		events.length.should == 5
++		events[0].should == "start eventEnter"
++		events[1].should == "start eventFrame"
++		events[2].should == "start eventLeave"
++		events[3].should == "end eventEnter"
++		events[4].should == "end eventFrame"
++	end
++
++	it "should not be finished without being started/tick called" do
++		@m.finished.should == false
++	end
++	it "should be finished when tick was called" do
++		@m.tick(1)
++		@m.finished.should == true
++	end
++	it "- rest-time should be equal to initial time when calling tick" do
++		time=1
++		restTime=@m.tick(time)
++		time.should restTime
++	end
++	it "should only process first node and stay there, when tick-time is 0" do
++		@m.tick(0)
++		@m.state.id.should == @n1
++	end
++	it "should end in @n2 and be finished, when tick-time is 1" do
++		@m.tick(1)
++		@m.state.id.should == @n2
++		@m.finished.should == true
++	end
++	it "should return a node when calling state" do
++		@m.state.should is_a?(StateMachineNode)
++	end
++
++	it "should have a dictionary" do
++		@m.dict.should is_a?(Hash)
++	end
++
++	it "should be able to pass on information from one state to another" do	
++		@m.dict["test"]=10
++		@m.tick(1)
++		@m.state.id.should == @n2
++		@m.dict["test"].should == 10
++	end
++
++	it "should be able to pass on information from one state to another - saved and restored within state" do	
++		@m.state.dict["test"]=10
++		@m.tick(1)
++		@m.state.id.should == @n2
++		@m.state.dict["test"].should == 10
++	end
++
++	it "- states have link up to machine" do
++		@m.state.machine.should == @m
++	end	
++
++	it "should return the state, when giving the correct name" do
++		s1=@m.getState(:start)
++		s1.should is_a?(StateMachineNode)
++		s1.id.should == @n1
++		s2=@m.getState(:end)
++		s2.should is_a?(StateMachineNode)
++		s2.id.should == @n2
++	end
++end
++
++class DelayState<StateMachineNode
++	def eventEnter
++		@time=1
++	end
++	def eventFrame(t)
++		d=[1,t].min
++		@time-=d
++		t-=d
++		t
++	end
++	def isFinished?
++		@time<=0
++	end
++end
++
++describe StateMachine, " with 2 mock-states and a decision-node" do
++	before(:all) do
++		@d=StateMachineDefinition.new
++		@n1=@d.addNode(DelayState,:start)
++		@n2=@d.addNode(DecisionNode, :decision) do |node|(node.dict[:continue] ? :continue : :return) end
++		@n3=@d.addNode(DelayState,:end)
++		@d.addEdge(@n1, at n2)
++		@d.addEdge(@n2, at n3,:continue)
++		@d.addEdge(@n2, at n1,:return)
++		@d.startNode=@n1
++	end
++	before(:each) do
++		@m=@d.createMachine
++	end
++	it "should return again and again when continue is false" do
++		@m.state.id.should == @n1
++		@m.tick(0.5)
++		@m.state.id.should == @n1
++		@m.tick(0.5)
++		@m.state.id.should == @n2
++		@m.tick(0.5)
++		@m.state.id.should == @n1
++	end
++	it "should finish when continue is true" do
++		@m.dict[:continue]=true
++		@m.state.id.should == @n1
++		@m.tick(0.5)
++		@m.state.id.should == @n1
++		@m.tick(0.5)
++		@m.state.id.should == @n2
++		@m.tick(0.5)
++		@m.state.id.should == @n3
++	end
++end
++
+
+Added: antargis/branches/rant/ruby/state_machine/state_machine.rb
+===================================================================
+--- antargis/branches/rant/ruby/state_machine/state_machine.rb	2007-09-02 17:22:00 UTC (rev 1168)
++++ antargis/branches/rant/ruby/state_machine/state_machine.rb	2007-09-02 17:22:26 UTC (rev 1169)
+@@ -0,0 +1,203 @@
++require 'ruby/ant_tools.rb'
++
++class StateMachineBase
++	attr_accessor :dict
++end
++
++class StateMachineNode
++	attr_reader :id
++	attr_accessor :machine
++
++	def initialize(pid)
++		assert{pid.is_a?(Symbol)}
++
++		@id=pid
++	end
++
++	def eventEnter
++	end
++	def eventLeave
++	end
++	def eventFrame(t)
++		t	
++	end
++
++	def isFinished?
++		true
++	end
++
++	def output
++		nil
++	end
++
++	def dict
++		assert{@machine.is_a?(StateMachine)}
++		@machine.dict
++	end
++end
++
++class StateMachineEdge
++	attr_reader :from, :to, :name
++	def initialize(from,to,name)
++		assert{from.is_a?(Symbol)}
++		assert{to.is_a?(Symbol)}
++		assert{name.is_a?(Symbol)}
++		@from=from
++		@to=to
++		@name=name
++	end
++end
++
++class StateMachineDefinition
++	attr_reader :startNode
++	def initialize
++		@nodes={}
++		@edges={}
++		@blocks={}
++		@startNode=nil
++	end
++
++	def startNode=(name)
++		assert("startNode is already a member node") {not @nodes[name].nil?}
++		@startNode=name
++	end
++
++	def addNode(nodeClass,name,&block)
++		assert {nodeClass.ancestors.member?(StateMachineNode)}
++		assert {@nodes[name].nil?}
++		@nodes[name]=nodeClass
++		@blocks[name]=block
++		name
++	end
++	def addEdge(node1,node2,name=nil)
++		assert {hasNode(node1)}
++		assert {hasNode(node2)}
++		assert {name.is_a?(Symbol) || name.nil?}
++		name||=:default
++		edge=StateMachineEdge.new(node1,node2,name)
++		@edges[edge.from]||=[]
++		@edges[edge.from] << edge
++	end
++
++	def nodeCount
++		@nodes.length
++	end
++
++	def ready?
++		(not @startNode.nil?)
++	end
++
++	def getNextNode(nodeName,output)
++		output||=:default
++		return nil if @edges[nodeName].nil?
++		#puts "ok"
++		@edges[nodeName].each{|edge|
++			#puts "#{edge.name} #{output}"
++			if edge.name==output
++				return edge.to
++			end
++		}
++		nil
++	end
++	def hasNode(nodeName)
++		(not @nodes[nodeName].nil?)
++	end
++	
++
++	def getNodeClass(nodeName)
++		assert("getNodeClass checks if has node '#{nodeName}'") {hasNode(nodeName)}
++		@nodes[nodeName]
++	end
++
++	def createMachine
++		StateMachine.new(self)
++	end
++
++	def getBlock(nodeName)
++		@blocks[nodeName]
++	end
++end
++
++
++class StateMachine
++	MAX_LOOPS=20
++	attr_reader :finished
++	attr_accessor :dict
++
++	def initialize(definition)
++		assert{definition.is_a?(StateMachineDefinition)}
++		assert("startnode not set!") {definition.ready?}
++		@definition=definition
++		@nodes={}
++		@dict={}
++		@currentNode=getNode(@definition.startNode)
++		@finished=false
++		@started=false
++	end
++
++	def tick(timeFrame)
++		restTime=timeFrame
++		loops=0
++		while restTime>0 and loops<MAX_LOOPS
++			if not @started
++				@started=true
++				@currentNode.eventEnter
++			end
++			restTime=@currentNode.eventFrame(restTime)
++			assert{restTime.is_a?(Numeric)}
++			if @currentNode.isFinished?
++				output=@currentNode.output
++				nextNodeName=@definition.getNextNode(@currentNode.id,output)
++				#sputs "FROM #{@currentNode.id} TO #{nextNodeName}"
++				if nextNodeName.nil?
++					setFinished
++					return eventFinished
++				end
++				nextNode=getNode(nextNodeName)
++				@currentNode.eventLeave
++				@currentNode=nextNode
++				nextNode.eventEnter
++			end
++			loops+=1
++		end
++		raise "Too many loops in StateMachine.tick(.) restFrame:#{restTime}" if loops>=MAX_LOOPS
++	end
++
++	def eventFinished
++	end
++
++	def state
++		@currentNode
++	end
++
++	def getState(state)
++		getNode(state)
++	end
++
++	private
++	def setFinished
++		@finished=true
++	end
++
++	def getNode(nodeName)
++		block=@definition.getBlock(nodeName)
++		if block
++			@nodes[nodeName]||=@definition.getNodeClass(nodeName).new(nodeName,block)
++		else
++			@nodes[nodeName]||=@definition.getNodeClass(nodeName).new(nodeName)
++		end
++		@nodes[nodeName].machine=self
++		@nodes[nodeName]
++	end
++end
++
++class DecisionNode < StateMachineNode
++	def initialize(id,block)
++		super(id)
++		@block=block
++	end
++	def output
++		@block.call(self)
++	end	
++end
++
+
+Added: antargis/branches/rant/ruby/state_machine/tests/state_machine_test.rb
+===================================================================
+--- antargis/branches/rant/ruby/state_machine/tests/state_machine_test.rb	2007-09-02 17:22:00 UTC (rev 1168)
++++ antargis/branches/rant/ruby/state_machine/tests/state_machine_test.rb	2007-09-02 17:22:26 UTC (rev 1169)
+@@ -0,0 +1,58 @@
++require 'ruby/state_machine/state_machine.rb'
++require 'test/unit'
++
++class MockState<StateMachineNode
++	attr_accessor :dummyVar
++	def initialize(pid)
++		super(pid)	
++		@finished=true
++	end
++	def finished=(f)
++		@finished=f
++	end
++	def isFinished?
++		@finished
++	end
++	
++end
++
++
++class SinglNodeTest < Test::Unit::TestCase
++	def setup
++		d=StateMachineDefinition.new
++		
++		n=StateMachineNode.new(:start)
++
++		d.addNode(n)
++
++		d.startNode=(n)
++
++		@m=StateMachine.new(d)
++	end
++
++	def test_notFinishedWhenNotStarted
++		assert((not @m.finished),"@m should not be finished when not yet started!")
++	end
++
++	def test_simplerun
++		@m.tick(10)
++		assert(@m.finished,"@m should be finished!")
++	end
++end
++
++class TwoMachinesSeparate < Test::Unit::TestCase
++	def setup
++		d=StateMachineDefinition.new
++		n=MockState.new(:p0)
++		d << (n)
++		d.startNode=n
++		@m1=StateMachine.new(d)
++		@m2=StateMachine.new(d)
++	end
++
++	def test_notSync
++		@m1.state.dummyVar=10
++		assert(@m2.state.dummyVar.nil?,"@m2.state.dummyVar shouldn't be influenced by @m1.state.dummyVar")
++	end
++end
++
+
+
+
+From davidkamphausen at mail.berlios.de  Sun Sep  2 19:23:48 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Sun, 2 Sep 2007 19:23:48 +0200
+Subject: [Antargis-svn] r1170 - antargis/branches/rant/ruby
+Message-ID: <200709021723.l82HNm0l017465@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-09-02 19:23:48 +0200 (Sun, 02 Sep 2007)
+New Revision: 1170
+
+Removed:
+   antargis/branches/rant/ruby/ant_hljob_states.rb
+   antargis/branches/rant/ruby/ant_new_hljobs.rb
+Log:
+* old files removed
+
+
+Deleted: antargis/branches/rant/ruby/ant_hljob_states.rb
+===================================================================
+--- antargis/branches/rant/ruby/ant_hljob_states.rb	2007-09-02 17:22:26 UTC (rev 1169)
++++ antargis/branches/rant/ruby/ant_hljob_states.rb	2007-09-02 17:23:48 UTC (rev 1170)
+@@ -1,561 +0,0 @@
+-# Does the walk-formation
+-# 
+-#
+-module HLJob_FormatWalk
+-	# needed: getTime
+-
+-	# wait 5 seconds at max for formatting
+-	FORMAT_MAX_TIME=5
+-
+-	def formatWalk_enter
+-		trace
+-		hero.formation=AntFormationBlock.new(@hero,formatDir)
+-		heroPos=@hero.getPos2D
+-		allMen.each{|man|
+-			pos=@hero.getFormation(man,heroPos)
+-			man.walkTo(pos)
+-			man.hlJobMode[:formatting]=true
+-		}
+-		@formatStart=getTime
+-	end
+-
+-	def formatWalk_assign(man)
+-		man.setDirection(180-(targetPos-hero.getPos2D).normalized.getAngle.angle*180.0/Math::PI)
+-		man.standStill
+-		man.hlJobMode.delete(:formatting)
+-	end
+-
+-	def formatWalk_ready
+-		if getTime- at formatStart>FORMAT_MAX_TIME
+-			return true
+-		end
+-		allMen.each{|man|
+-			if man.hlJobMode[:formatting]
+-				return false
+-			end
+-		}
+-		return true
+-	end
+-
+-private
+-	def formatDir
+-		(targetPos-hero.getPos2D).normalized
+-	end
+-
+-end
+-
+-module HLJob_FormatSit
+-	# needed: getTime
+-
+-	# wait 5 seconds at max for formatting
+-	FORMAT_MAX_TIME=15
+-
+-	def formatSit_enter
+-		trace
+-		hero.formation=AntFormationRest.new(@hero)
+-		heroPos=@hero.getPos2D
+-		allMen.each{|man|
+-			pos=@hero.getFormation(man,heroPos)
+-			man.walkTo(pos)
+-			man.hlJobMode[:formatting]=true
+-			#puts "formatSit_enter: #{man} to #{pos}  (heroPos:#{heroPos})"
+-		}
+-		@formatStart=getTime
+-	end
+-
+-	def formatSit_assign(man)
+-		man.setDirection(180-(hero.getPos2D-man.getPos2D).normalized.getAngle.angle*180.0/Math::PI)
+-		man.standStill
+-		man.hlJobMode.delete(:formatting)
+-	end
+-
+-	def formatSit_ready
+-		if getTime- at formatStart>FORMAT_MAX_TIME
+-			# FIXME:rest deserts
+-			return true
+-		end
+-		allMen.each{|man|
+-			#puts "formatSit_ready: #{man}:#{man.hlJobMode[:formatting]}"
+-			if man.hlJobMode[:formatting]
+-				return false
+-			end
+-		}
+-		return true
+-	end
+-end
+-
+-module HLJob_MoveToNextWayPoint
+-	# needed: hero,allMen,targetPos, near
+-	def near
+-		0
+-	end
+-
+-	def moveToNextWayPoint_enter
+-		hero.formation=AntFormationBlock.new(@hero,formatDir)
+-		allMen.each{|man|
+-			pos=@hero.getFormation(man,targetPos)
+-			man.newMoveJob(0,pos,near)
+-			man.hlJobMode[:walking]=true
+-		}
+-	end
+-
+-	def moveToNextWayPoint_assign(man)
+-		man.standStill
+-		man.hlJobMode.delete(:walking)
+-
+-		# FIXME: maybe let him desert if this is called too often ?
+-	end
+-
+-	def moveToNextWayPoint_ready
+-		allMen.each{|man|
+-			if man.hlJobMode[:walking]
+-				return false
+-			end
+-		}
+-		return true
+-	end
+-
+-end
+-
+-module HLJob_SitDown
+-	def sitDown_enter
+-		allMen.each{|man|
+-			man.setDirection(180-(hero.getPos2D-man.getPos2D).normalized.getAngle.angle*180.0/Math::PI)
+-			man.sitDown
+-			man.hlJobMode[:sitting]=true
+-		}
+-	end
+-
+-	def sitDown_assign(man)
+-		man.sitStill
+-		man.hlJobMode.delete(:sitting)
+-	end
+-
+-	def sitDown_ready
+-		allMen.each{|man|
+-			if man.hlJobMode[:sitting]
+-				return false
+-			end
+-		}
+-		return true
+-	end
+-end
+-
+-module HLJob_JustSit
+-	def justSit_enter
+-		allMen.each{|man|
+-			man.sitStill
+-		}
+-	end
+-	def justSit_assign(man)
+-		man.sitStill # and rest
+-	end
+-
+-	def justSit_ready
+-		return false
+-	end
+-end
+-
+-module HLJob_JustSitOnce
+-	def justSitOnce_enter
+-		allMen.each{|man|
+-			man.sitStill
+-			man.hlJobMode[:justSitting]=true
+-		}
+-	end
+-	def justSitOnce_assign(man)
+-		man.hlJobMode.delete(:justSitting)
+-	end
+-	def justSitOnce_ready
+-		allMen.each{|man|
+-			if man.hlJobMode[:justSitting]
+-				return false
+-			else
+-				return true
+-			end
+-		}
+-	end
+-end
+-	
+-
+-module HLJob_FetchStart
+-	# needed a target-entity
+-	def fetchStart_enter
+-		trace
+-		fetchPoint=target.getPos2D
+-		puts "fetchPoint:#{fetchPoint}  heroPos:#{hero.getPos2D}"
+-		allMen.each{|man|
+-			man.walkTo(fetchPoint)
+-			man.hlJobMode[:fetching]=true
+-			puts "set to fetching: #{man}"
+-		}
+-		
+-	end
+-
+-	def fetchStart_assign(man)
+-		trace
+-		man.standStill
+-		man.hlJobMode.delete(:fetching)
+-	end
+-
+-	def fetchStart_ready
+-		trace
+-		allMen.each{|man|
+-			puts "fetchStart_ready check: #{man} : #{man.hlJobMode[:fetching]}"
+-			if man.hlJobMode[:fetching]
+-				return false
+-			end
+-			puts "false"
+-		}
+-		puts "return true ??"
+-		return true
+-	end
+-end
+-
+-module HLJob_GetResource
+-	# needed: resources return array of resource-strings
+-	def getResource_enter
+-		for i in 1..hero.getAggression
+-			allMen.each{|man|
+-				resources.each{|r|
+-					a=target.resource.get(r)
+-					if a>1
+-						man.resource.add(r,1)
+-						target.resource.sub(r,1)
+-					end
+-				}
+-			}
+-		end
+-		allMen.each{|m|m.resourceChanged}
+-	end
+-	def getResource_ready
+-		return true
+-	end
+-end
+-
+-module HLJob_KillAnimal
+-	def killAnimal_enter
+-		target.eventDie
+-		hero.resource.takeAll(target.resource)
+-		allMen.each{|m|m.resourceChanged}
+-	end
+-end
+-
+-# spread things among team-members
+-module HLJob_SpreadThings
+-	RESOURCES_TO_SPREAD=["sword","shield","bow","boat"]
+-
+-	def spreadThings_enter
+-		allMen.each{|man|
+-			man.walkTo(hero.getPos2D)
+-			man.hlJobMode[:gatherToSpread]=true
+-		}
+-		@alreadySpread=false
+-	end
+-
+-	def spreadThings_assign(man)
+-		man.standStillShort
+-		if man.hlJobMode[:gatherToSpread]
+-			man.hlJobMode.delete(:gatherToSpread)
+-			man.hlJobMode[:waitForSpread]=true
+-		elsif man.hlJobMode[:waitForSpread]
+-			man.hlJobMode.delete(:waitForSpread)
+-		else
+-			# nothing for now
+-		end
+-	end
+-
+-	def spreadThings_ready
+-		return true if @alreadySpread		
+-		allMen.each{|man|
+-			return false if man.hlJobMode[:gatherToSpread] or man.hlJobMode[:waitForSpread]
+-		}
+-		# we can spread now
+-		doSpreading
+-		@alreadySpread=true
+-		return true
+-	end
+-	private
+-	
+-	def doSpreading
+-		# FIXME: maybe this can be done more easily ???
+-		trace
+-	
+-		all={}
+-		RESOURCES_TO_SPREAD.each{|r|	
+-			all=0
+-			allMen.each{|m|
+-				c=m.resource.get(r)
+-				all+=c
+-			}
+-			if all>=allMen.length
+-				# give everyone 1 of these and put the rest on the hero
+-				allMen.each{|m|
+-					m.resource.set(r,1)
+-				}
+-				hero.resource.add(r,all-allMen.length)
+-			else
+-				men=allMen.sort {|b,a|a.resource.get(r)<=>b.resource.get(r)} # sort descending
+-				# put hero at first
+-				men.delete(hero)
+-				men=[hero]+men
+-				men.each{|m|m.resource.set(r,0)} # reset
+-				for i in 1..all # now give to those who had a weapon and to hero (at first)
+-					men[i-1].resource.set(r,1)
+-				end
+-			end
+-		}
+-		# spread food equally
+-		food=0
+-		allMen.each{|m|food+=m.resource.get("food")}
+-		min=(food/allMen.length).to_i
+-		allMen.each{|m|m.resource.set("food",min)}
+-		# spread rest on first
+-		food-=min*allMen.length
+-		for i in 1..food
+-			allMen[i-1].resource.add("food",1)
+-		end
+-
+-		allMen.each{|m|m.resourceChanged}
+-	end
+-	
+-end
+-
+-class HLJob_FightData
+-
+-	attr_reader :inited
+-	# only attacker creates fightData
+-	def initialize(fightJob)
+-		@parties={:attacker=>[fightJob],:defender=>[]}
+-		@oldparties=@parties.dup
+-	end
+-	def add(fightJob)
+-		@parties[getFightType(fightJob)].push(fightJob)
+-		@oldparties[getFightType(fightJob)].push(fightJob)
+-		reshuffle
+-	end
+-
+-	# this called if (and only if) the hero has won or is fleeing (and thus aborting the fight)
+-	def remove(fightJob)
+-		@parties[fightJob.fightType].delete(fightJob)
+-		@oldparties[fightJob.fightType].delete(fightJob)
+-		reshuffle
+-	end
+-
+-	# this called if (and only if) the hero has lost
+-	def removeLost(fightJob)
+-		@parties[fightJob.fightType].delete(fightJob)
+-		reshuffle
+-	end
+-
+-	def getFightType(fightJob)
+-		target=fightJob.target
+-		[:attacker,:defender].each{|t| 
+-			return otherType(t) if @parties[t].collect{|a|a.hero}.member?(target)
+-		}
+-		raise "Target #{fightJob} (target:#{target}) not found in getFightType!"
+-	end
+-
+-	def getNewOpponent(man,fightJob)
+-		assert{man.is_a?(AntHero) or man.is_a?(AntMan)}
+-		assert{man.getHero==fightJob.hero}
+-	
+-		# for a start: get next opponent
+-		# (maybe take next free opponent ??)
+-		# (maybe: find weakest friend and help him ???)
+-
+-		myType=fightJob.fightType
+-		oType=otherType(myType)
+-
+-		opponent=@parties[oType].collect{|job|job.undefeatedMen}.flatten.uniq.shuffle[0]
+-		if opponent.nil?
+-			# we won ???
+-			#eventWon(myType)
+-			return nil
+-		else
+-			return opponent
+-		end
+-	end
+-
+-	private
+-
+-	def otherType(my)
+-		{:attacker=>:defender,:defender=>:attacker}[my]
+-	end
+-
+-	def reshuffle
+-		# reinit and assign
+-
+-		menGroup={}
+-		leave=false
+-		@parties.each{|type,jobs|
+-			puts "parties: #{type}:#{jobs}"
+-			menGroup[type]=jobs.collect{|job|job.undefeatedMen}.flatten.uniq
+-			menGroup[type].each{|man|man.delJob}
+-			leave=true if @inited and menGroup[type].length==0 # a fightjob is leaving
+-		}
+-		return if leave
+-	
+-		# check that each group has more than 0 members
+-		assert{menGroup.select{|k,v|v.length==0}.length==0}
+-
+-		defenders=menGroup[:defender].dup
+-
+-		defenders.each{|d|d.hlJobMode.delete(:fightTarget)}
+-		
+-		assert{defenders.length>0}
+-
+-		# each attacker gets an opponent - if all defenders are used - restart them agaim
+-		menGroup[:attacker].each{|attacker|
+-			defender=defenders.min{|a,b|(a.getPos2D-attacker.getPos2D).length<=>(b.getPos2D-attacker.getPos2D).length}
+-
+-			assert{not defender.nil?}
+-
+-			attacker.hlJobMode[:fightTarget]=defender
+-			if not defender.hlJobMode.member?(:fightTarget)
+-				defender.hlJobMode[:fightTarget]=attacker
+-			end
+-
+-			defenders.delete(defender)
+-
+-			defenders=menGroup[:defender].dup if defenders.length==0
+-		}
+-		menGroup[:defender].each{|defender|
+-			if not defender.hlJobMode.member?(:fightTarget)
+-				# assign remaining defenders to attackers
+-				attacker=menGroup[:attacker].min{|a,b|(a.getPos2D-defender.getPos2D).length<=>(b.getPos2D-defender.getPos2D).length}
+-				defender.hlJobMode[:fightTarget]=attacker
+-			end
+-		}
+-		@inited=true
+-	end
+-
+-
+-end
+-
+-module HLJob_Fight
+-	# needed: hero,target, undefeatedMen
+-
+-	attr_reader :fightType, :fightData, :won
+-
+-	def fight_enter
+-
+-		targetHadFightData=target.hlJobMode[:fightData].nil?
+-		
+-		puts "fightData: #{target.hlJobMode[:fightData]}"
+-		checkForFightData
+-		if targetHadFightData
+-			puts "NOT YET INITED #{self} hero:#{hero} target:#{target}"
+-			target.newHLDefendJob(hero)
+-		end
+-		assignAllJobs
+-	end
+-
+-	def fight_assign(man)
+-		if man.is_a?(AntHouse)
+-			man.newRestJob(20)
+-			return
+-		end
+-
+-		if man.hlJobMode[:defeated]
+-			# FIXME:send away
+-			# FIXME: maybe flee ?
+-			if hero.is_a?(AntHouse)
+-				if man.hlJobMode[:homing]
+-					man.standStill
+-				else
+-					man.hlJobMode[:homing]
+-					man.walkTo(hero.getPos2D)
+-				end
+-			else
+-				# FIXME
+-			end
+-			man.hlJobMode[:defeated]=true
+-			man.hlJobMode.delete(:fighting)
+-		else
+-			opponent=@fightData.getNewOpponent(man,self)
+-			if opponent.nil?
+-				# won
+-				@won=true
+-			else
+-				man.hlJobMode[:fightTarget]=opponent
+-				man.newFightJob(0,man.hlJobMode[:fightTarget])
+-			end
+-		end
+-	end
+-
+-	def fight_leave
+-		if lost
+-			@fightData.removeLost(self)
+-		else
+-			@fightData.remove(self)
+-		end
+-		@fightData=nil
+-		@fightType=nil
+-		hero.hlJobMode.delete(:fightType)
+-		hero.hlJobMode.delete(:fightData)
+-
+-		allMen.each{|man|
+-			man.hlJobMode.delete(:defeated)
+-			man.hlJobMode.delete(:fighting)
+-			man.hlJobMode.delete(:homing)
+-		}
+-	end
+-
+-	def fight_ready
+-		if won 
+-			eventWon(target)
+-			return true
+-		elsif lost
+-			eventLost(target)
+-			return true
+-		end
+-		return false
+-	end
+-
+-	def lost
+-		(not @won) and undefeatedMen.length==0
+-	end
+-
+-	def undefeatedMen
+-		allMen.select{|man|man.hlJobMode[:defeated].nil?}
+-	end
+-
+-	private
+-	# return true if fightData already exists
+-	def checkForFightData
+-		if target.hlJobMode[:fightData]
+-			@fightData=target.hlJobMode[:fightData]
+-			@fightData.add(self)
+-			@fightType=@fightData.getFightType(self)
+-			return true
+-		else
+-			@fightData=HLJob_FightData.new(self)
+-			@fightType=:attacker
+-		end
+-		puts "assigned fightData!"
+-		hero.hlJobMode[:fightData]=@fightData # store so that it's avaiable above
+-	end
+-	def assignAllJobs
+-		# FIXME:assign a fight-job to every member (undefeatedMen)
+-
+-		undefeatedMen.each{|man|
+-			assert{not man.hlJobMode[:fightTarget].nil?}
+-			man.newFightJob(0,man.hlJobMode[:fightTarget])
+-			# FIXME: check if morale is high enough
+-			man.hlJobMode.delete(:defeated)
+-			man.hlJobMode[:fighting]=true
+-		}
+-	end
+-end
+-
+-module HLJob_Recruit
+-	def recruit_enter
+-	end
+-	
+-	private
+-	def recruitGetMen
+-		
+-	end
+-end
+-
+
+Deleted: antargis/branches/rant/ruby/ant_new_hljobs.rb
+===================================================================
+--- antargis/branches/rant/ruby/ant_new_hljobs.rb	2007-09-02 17:22:26 UTC (rev 1169)
++++ antargis/branches/rant/ruby/ant_new_hljobs.rb	2007-09-02 17:23:48 UTC (rev 1170)
+@@ -1,244 +0,0 @@
+-#
+-# This is a new implementation of the high-level jobs.
+-# They're now state-based. Each job consists of several
+-# states. Each of these states has (or can have) an "enter",
+-# "assign","ready" and a "leave"-function.
+-# "enter" is called each time the current job switches into
+-# this state. "leave" is called when the state is left
+-# "ready" will be called to check, if the task of this state is 
+-# finished and the job can be transfered into a new state.
+-# "assign" is called whenever a man has no low-level-job anymore
+-# and wants to get a new task. You should always assign low-level-jobs
+-# to waiting men, because otherwise this function gets called for
+-# each waiting man in each frame, which can have impact on the performance.
+-#
+-# 
+-
+-def newHLJobs
+-	return true
+-end
+-
+-# 
+-# FIXME: * add path-finding to moving
+-#        * do FIXME s ;-)
+-
+-module HLJob
+-	def hero
+-		@hero
+-	end
+-	def allMen
+-		@hero.getMen
+-	end
+-end
+-
+-require 'ant_hljob_states.rb'
+-require 'ant_hljob_base.rb'
+-
+-
+-class AntNewHLRestJob<AntNewHLJob
+-	include HLJob_FormatSit
+-	include HLJob_SitDown
+-	include HLJob_JustSitOnce
+-	include HLJob_SpreadThings
+-
+-	SPREAD_CHECK_TIME=10 # all 10 seconds spread things
+-
+-	def initialize(hero,time)
+-		@state=:FormatSit
+-		@workflow=[[:FormatSit,:SitDown],[:SitDown,:CheckSpread],[:SpreadThings,:FormatSit],[:JustSitOnce,:CheckSpread]] #JustSit],[:JustSit]
+-		super(hero)
+-	end
+-	def image
+-		"data/gui/bed.png"
+-	end
+-	# fixme: discard this
+-	def makeMessage(boss)
+-		RestMessage.new(boss, at time)
+-	end
+-
+-	def sitDown_leave
+-		if @spreadOnce.nil?
+-			@spreadTime=getTime-SPREAD_CHECK_TIME
+-			@spreadOnce=true
+-		else
+-			@spreadTime=getTime
+-		end
+-	end
+-	
+-
+-	def checkSpread_enter
+-		curTime=getTime
+-		puts "#{curTime- at spreadTime}>#{SPREAD_CHECK_TIME}"
+-		if curTime- at spreadTime>SPREAD_CHECK_TIME
+-			switchToState(:SpreadThings)
+-		else
+-			switchToState(:JustSitOnce)
+-		end
+-	end
+-end
+-
+-class AntNewHLMoveJob<AntNewHLJob
+-	include HLJob_FormatWalk
+-	include HLJob_MoveToNextWayPoint
+-	include HLJob_FormatSit
+-	include HLJob_SitDown
+-	# FIXME: time is irrelevant here!
+-	#def initialize(hero,time)
+-
+-	attr_reader :targetPos
+-
+-	def initialize(hero,prio,pos,dist,doFormat=true)
+-		@targetPos=pos.dim2
+-		if doFormat
+-			@state=:FormatWalk
+-		else
+-			@state=:MoveToNextWayPoint
+-		end
+-		@workflow=[
+-			[:FormatWalk,:MoveToNextWayPoint],
+-# 			[:MoveToNextWayPoint,:FormatSit],
+-# 			[:FormatSit,:SitDown]
+-		]
+-		super(hero)
+-	end
+-	# FIXME: move this to a config-file !
+-	def image
+-		"data/gui/move.png"
+-	end
+-	# FIXME: discard this
+-	def makeMessage(boss)
+-		MoveMessage.new(boss,targetPos, at dist)
+-	end
+-
+-end
+-
+-
+-class AntNewHLTakeJob<AntNewHLJob
+-	include HLJob_FormatWalk
+-	include HLJob_FetchStart
+-	include HLJob_GetResource
+-	include HLJob_MoveToNextWayPoint
+-
+-	attr_reader :resources, :targetPos, :near, :target
+-
+-	def initialize(phero,target,what="food")
+-		@resources={"food"=>["food"],"weapon"=>["sword","bow","boat","shield"]}[what]
+-
+-		@state=:FormatWalk
+-		@workflow=[
+-			[:FormatWalk,:MoveToNextWayPoint],
+-			[:MoveToNextWayPoint,:MyStore],
+-			[:MyStore,:FetchStart],
+-			[:FetchStart,:GetResource],
+-			[:GetResource,:MoveToNextWayPoint]
+-		]
+-		@targetPos=target.getPos2D
+-		@target=target
+-		@near=4
+-		super(phero)
+-	end
+-
+-	def image
+-		if @what=="food"
+-			"data/gui/take_apple.png"
+-		else
+-			"data/gui/take_weapon.png"
+-		end
+-	end
+-
+-
+-	def myStore_enter
+-		trace
+-		if @taken
+-			@finished=true
+-			return 
+-		end
+-		@targetPos=hero.getPos2D
+-		puts "#{@targetPos} #{hero.getPos2D}"
+-		@near=0
+-		@taken=true
+-	end
+-end
+-
+-class AntNewHLKillAnimal<AntNewHLTakeJob
+-	def fetchStart_leave
+-		# kill animal
+-		playSound
+-		killAnimal
+-	end
+-
+-	
+-	def myStore_enter
+-		if @taken
+-			@finished=true
+-			return 
+-		end
+-		# no need to return to separate position
+-		@taken=true
+-	end
+-
+-	private
+-	def playSound
+-		# FIXME: play eat sound
+-	end
+-	def killAnimal
+-		@target.eventDie
+-		hero.resource.takeAll(target.resource)
+-	end
+-end
+-
+-class AntNewHLFight<AntNewHLJob
+-	include HLJob_FormatWalk
+-	include HLJob_MoveToNextWayPoint
+-	include HLJob_Fight
+-
+-	attr_reader :targetPos,:near,:target
+-
+-	def initialize(hero,target,defend=false)
+-		@target=target
+-		if defend
+-			@state=:Fight
+-			@workflow=[]
+-			#trace
+-		else
+-			@state=:FormatWalk
+-			@targetPos=target.getPos2D
+-			@near=10
+-			@workflow=[
+-				[:FormatWalk,:MoveToNextWayPoint],
+-				[:MoveToNextWayPoint,:Fight]
+-			]
+-		end
+-		super(hero)
+-	end
+-
+-	def image
+-		"data/gui/sword.png"
+-	end
+-
+-	def eventWon(opponent)
+-	end
+-	def eventLost(opponent)
+-		@finished=true
+-		hero.setOwner(opponent) #.getPlayer)
+-	end
+-
+-
+-end
+-
+-# rename and replace old hl-jobs
+-
+-AntHeroRestJobOld=AntHeroRestJob
+-AntHeroRestJob=AntNewHLRestJob
+-
+-AntHeroMoveJobOld=AntHeroMoveJob
+-AntHeroMoveJob=AntNewHLMoveJob
+-
+-AntHeroTakeJobOld=AntHeroTakeJob
+-AntHeroTakeJob=AntNewHLTakeJob
+-
+-AntHeroFightAnimalJobOld=AntHeroFightAnimalJob
+-AntHeroFightAnimalJob=AntNewHLKillAnimal
+-
+-AntHeroFightJobOld=AntHeroFightJob
+-AntHeroFightJob=AntNewHLFight
+\ No newline at end of file
+
+
+
+From davidkamphausen at mail.berlios.de  Wed Sep  5 20:30:19 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Wed, 5 Sep 2007 20:30:19 +0200
+Subject: [Antargis-svn] r1171 - in antargis/branches/rant: . build ext/basic
+	ext/game ruby ruby/entities ruby/jobs ruby/state_machine
+	ruby/state_machine/spec
+Message-ID: <200709051830.l85IUJa2006777@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-09-05 20:30:18 +0200 (Wed, 05 Sep 2007)
+New Revision: 1171
+
+Removed:
+   antargis/branches/rant/ext/game/path_data_v3.cc
+   antargis/branches/rant/ext/game/path_data_v3.h
+   antargis/branches/rant/ext/game/path_weighter.cc
+   antargis/branches/rant/ext/game/path_weighter.h
+Modified:
+   antargis/branches/rant/Rantfile
+   antargis/branches/rant/build/create_interface.rb
+   antargis/branches/rant/ext/basic/ag_messageobject.cc
+   antargis/branches/rant/ext/basic/ag_messageobject.h
+   antargis/branches/rant/ext/game/entity.cc
+   antargis/branches/rant/ext/game/entity.h
+   antargis/branches/rant/ext/game/headers.hh
+   antargis/branches/rant/ruby/ant_hljobs.rb
+   antargis/branches/rant/ruby/ant_tools.rb
+   antargis/branches/rant/ruby/entities/ant_boss.rb
+   antargis/branches/rant/ruby/jobs/ant_hljob_base.rb
+   antargis/branches/rant/ruby/jobs/ant_hljob_states.rb
+   antargis/branches/rant/ruby/jobs/ant_new_hljobs.rb
+   antargis/branches/rant/ruby/state_machine/spec/state_machine.rb
+   antargis/branches/rant/ruby/state_machine/state_machine.rb
+Log:
+* many improvements
+
+
+Modified: antargis/branches/rant/Rantfile
+===================================================================
+--- antargis/branches/rant/Rantfile	2007-09-02 17:23:48 UTC (rev 1170)
++++ antargis/branches/rant/Rantfile	2007-09-05 18:30:18 UTC (rev 1171)
+@@ -229,7 +229,7 @@
+ 
+ 	incs="-DAGEXPORT -Ibuild -I#{sys.expand_path(getDir(t.name))} #{var :INCLUDESTR}"
+ 	out=".deps"+Dir.separator+sys.expand_path(t.name).gsub("/","_")
+-	cmd=makeCommand("SWIGDEPS",out,incs+" "+sys.expand_path(t.name.gsub(/[0-9_a-z]*\.h$/,"interface.i")))
++	cmd=makeCommand("SWIGDEPS",out,incs+" "+sys.expand_path(t.name.gsub(/[0-9_a-z]*\.(h|cc)$/,"interface.i")))
+ 	sys cmd
+ 	puts
+ 
+
+Modified: antargis/branches/rant/build/create_interface.rb
+===================================================================
+--- antargis/branches/rant/build/create_interface.rb	2007-09-02 17:23:48 UTC (rev 1170)
++++ antargis/branches/rant/build/create_interface.rb	2007-09-05 18:30:18 UTC (rev 1171)
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env ruby
+-#
++#--
+ # Copyright (c) 2005 by David Kamphausen. All rights reserved.
+ #
+ # create_interface.rb
+@@ -17,18 +17,28 @@
+ #
+ # You should have received a copy of the GNU General Public
+ # License along with this program.
++#++
++# == Short Description
++# This ruby-script generates swig-interface (input)-files out of
++# C++-header files.
++# The header-files to include are marked with INCLUDE_SWIG somewhere in the file.
++# Apart from simple including classes that are derived from AGRubyObject get
++# a special treatment to be handled within the garbage collection.
+ #
+ 
+-# = Short Description =
+-# 
+-
+-
+-
+-
+ require 'build/interface_template.rb'
+ require 'build/base_tools.rb'
+ require 'find.rb'
+ 
++def vputs(*a)
++	puts *a if $verbose
++end
++
++def iputs(*a)
++	print "   "
++	puts *a
++end
++
+ class MyInput
+ 	attr_reader :swigInput, :outputDir
+ 	def initialize
+@@ -43,12 +53,15 @@
+ 					@outputDir=a[3..-1]
+ 				when /^-i=/
+ 					@swigInput=a[3..-1]
++				when /^-v$/
++					$verbose=true
+ 				when /^-h/, /^--help/
+ 					@help=true
+ 					puts "Arguments:"
+ 					puts " -h, --help     print this help"
+ 					puts " -d=<DIR>       define output-directory"
+ 					puts " -i=<SWIGFILE>  define SWIG-input-file (swig.h) - can be set multiple times"
++					puts " -v             verbose output"
+ 			end
+ 		}
+ 
+@@ -61,7 +74,6 @@
+ 
+ 	def interfaceName
+ 		name=@outputDir+Dir.separator+"interface.i"
+-		puts "INTERFACENAME:",name
+ 		name
+ 	end
+ 
+@@ -77,10 +89,9 @@
+ end
+ 
+ def getFiles(dir)
+-    pattern=dir+"/"+"*.h"
++	pattern=dir+"/"+"*.h"
+ 	files=Dir[pattern].select{|f|not f=~/swig.h/} #-[dir+Dir.separator+"swig.h"]
+-    #puts "getFiles #{dir}",pattern,"--",files,"----"
+-    files  
++	files  
+ end
+ 
+ ## check if the given string is contained in the file specified by filename
+@@ -183,7 +194,7 @@
+ 	end
+ 
+ 	def initLevels
+-		puts "initLevels..."
++		vputs "initLevels..."
+ 		@levels={}
+ 		@levels["AGRubyObject"]=0
+ 		spreadLevels
+@@ -214,24 +225,6 @@
+ 		end
+ 
+ 		l=@levels.values.max
+-
+-		# 		# output levels
+-		# 		(0..l).each{|i|
+-		# 			@levels.each{|n,level|
+-		# 				if level==i
+-		# 					puts "#{i} #{n}"
+-		# 				end
+-		# 			}
+-		# 		}
+-		# 		# check for failed classes
+-		# 		failed=false
+-		# 		@classList.each{|c|
+-		# 			if @levels[c].nil?
+-		# 				puts "-- #{c}"
+-		# 				failed=true
+-		# 			end
+-		# 		}
+-		# 		raise "Non processes classes found!" if failed
+ 	end
+ 
+ 	# in correct order
+@@ -241,14 +234,14 @@
+ 		files=[]
+ 		l=@levels.values.max
+ 		(0..l).each{|i|
+-            puts "LEVEL #{i}"
++            vputs "LEVEL #{i}"
+ 			@levels.each{|n,level|
+ 				if level==i and @class2File[n]
+-                    puts n
++                    vputs n
+ 					files << @class2File[n]
+ 				end
+ 			}
+-            puts "----"
++            vputs "----"
+ 		}
+ 
+ 		# add files of classes with unknown level
+@@ -257,20 +250,20 @@
+ 				files << @class2File[c]
+ 			end
+ 		}
+-        puts "myfiles:", at myfiles,"---"
++        vputs "myfiles:", at myfiles,"---"
+         
+-        puts "FILES:",files,"---"
++        vputs "FILES:",files,"---"
+ 		files=files.select{|f|@myfiles.member?(f)} # select only "my" files - those included in this directory
+-        puts "FILES after select:",files,"---"
++        vputs "FILES after select:",files,"---"
+ 		addfiles=@files-files
+ 		files+=addfiles                            # add files that are in other directories
+-        puts "FILES (add:",files,"---"
++        vputs "FILES (add:",files,"---"
+ 
+ 		# unique the array
+ 		if files.length>0
+ 			files.uniq!
+ 		end
+-        puts "FILES (uniq):",files,"---"
++        vputs "FILES (uniq):",files,"---"
+ 
+ 		files
+ 	end
+@@ -323,13 +316,21 @@
+     #Dir["*/*"].collect{|f|f.gsub(/\/.*/,"")}.uniq
+ end
+ 
+-
++iputs "processing input parameter..."
+ myInput=MyInput.new
+ 
++iputs "getting input interface files (of current directory #{myInput.outputDir})..."
+ files=getSwigInterfaceFiles(getFiles(myInput.outputDir))
+-
+-
++vputs "--"
++vputs files.join("\n")
++vputs "--"
++iputs "found #{files.length} files"
++iputs "filtering INCLUDE_SWIG to get header files (all of the whole project)..."
+ cfiles=findFilesWith("INCLUDE_SWIG")
++iputs "found #{cfiles.length} files"
++vputs "--"
++vputs cfiles.join("\n")
++vputs "--"
+ #exit
+ 
+ #parsedClasses=ParsedClasses.new(files,`find $(pwd) -name "*.h"|grep -v swig`.split("\n"))
+@@ -338,9 +339,9 @@
+ 
+ addfiles=[]
+ myInput.swigInput.each{|inDir|
+-    puts "inDir #{inDir}"
++  vputs "inDir #{inDir}"
+ 	pattern=getDirUnix(inDir)+"/*.h"
+-	puts "PATTERN:",pattern,"!!!!"
++	vputs "PATTERN:",pattern,"!!!!"
+ 	addfiles+=Dir[pattern].select{|f|not f=~/swig.h/}.select{|f|File.open(f).read=~/INCLUDE_SWIG/}
+ }
+ 
+
+Modified: antargis/branches/rant/ext/basic/ag_messageobject.cc
+===================================================================
+--- antargis/branches/rant/ext/basic/ag_messageobject.cc	2007-09-02 17:23:48 UTC (rev 1170)
++++ antargis/branches/rant/ext/basic/ag_messageobject.cc	2007-09-05 18:30:18 UTC (rev 1171)
+@@ -117,7 +117,7 @@
+   return mEvent.key.keysym.sym;
+ }
+ 
+-SDLMod AGEvent::getMod() const
++MSDLMod AGEvent::getMod() const
+ {
+   assert(eventOk(mEvent));
+   return mEvent.key.keysym.mod;
+@@ -471,7 +471,7 @@
+   AGString b=s;
+   k.scancode=getUntil(b,":").toUint8();
+   k.sym=(SDLKey)getUntil(b,":").toUint8();
+-  k.mod=(SDLMod)getUntil(b,":").toUint8();
++  k.mod=(MSDLMod)getUntil(b,":").toUint8();
+   k.unicode=getUntil(b,":").toSint16();
+   
+ 
+
+Modified: antargis/branches/rant/ext/basic/ag_messageobject.h
+===================================================================
+--- antargis/branches/rant/ext/basic/ag_messageobject.h	2007-09-02 17:23:48 UTC (rev 1170)
++++ antargis/branches/rant/ext/basic/ag_messageobject.h	2007-09-05 18:30:18 UTC (rev 1171)
+@@ -28,9 +28,15 @@
+ #include <set>
+ 
+ #include "ag_geometry.h"
+-#include "ag_rubyobj.h"
++#include "ag_rubyobj.h"
+ #include <ag_string.h>
+ 
++#if SDL_COMPILEDVERSION>1300
++#define MSDLMod Uint16
++#else
++#define MSDLMod SDLMod
++#endif
++
+ class AGListener;
+ class AGSignal;
+ 
+@@ -64,7 +70,7 @@
+ 
+   AGVector2 getMousePosition() const;
+   SDLKey getKey() const;
+-  SDLMod getMod() const;
++  MSDLMod getMod() const;
+   Uint16 getUnicode() const;
+   int getButton() const;
+ 
+
+Modified: antargis/branches/rant/ext/game/entity.cc
+===================================================================
+--- antargis/branches/rant/ext/game/entity.cc	2007-09-02 17:23:48 UTC (rev 1170)
++++ antargis/branches/rant/ext/game/entity.cc	2007-09-05 18:30:18 UTC (rev 1171)
+@@ -544,6 +544,14 @@
+         return mJob;
+       }
+ 
++AGString AntEntity::getJobName() const
++{
++  if(mJob)
++    return mJob->xmlName();
++  return "";
++}
++
++
+ float AntEntity::getHealSpeed() const
+       {
+         return mHealSpeed;
+
+Modified: antargis/branches/rant/ext/game/entity.h
+===================================================================
+--- antargis/branches/rant/ext/game/entity.h	2007-09-02 17:23:48 UTC (rev 1170)
++++ antargis/branches/rant/ext/game/entity.h	2007-09-05 18:30:18 UTC (rev 1171)
+@@ -175,6 +175,7 @@
+     virtual void resourceChanged();
+ 
+     bool hasJob() const;
++    AGString getJobName() const;
+ 
+     AGRect2 getRect() const;
+ 
+
+Modified: antargis/branches/rant/ext/game/headers.hh
+===================================================================
+--- antargis/branches/rant/ext/game/headers.hh	2007-09-02 17:23:48 UTC (rev 1170)
++++ antargis/branches/rant/ext/game/headers.hh	2007-09-05 18:30:18 UTC (rev 1171)
+@@ -72,9 +72,6 @@
+ #include "ext/3dengine/ag_glwidget.h"
+ #include "ext/3dengine/boa_3d_wireframe.h"
+ #include "ext/game/path.h"
+-#include "ext/game/path_data_v3.h"
+-#include "ext/game/path_v2.h"
+-#include "ext/game/path_base.h"
+ #include "ext/game/terrain.h"
+ #include "ext/game/entity.h"
+ #include "ext/game/water.h"
+@@ -83,14 +80,10 @@
+ #include "ext/game/minimap.h"
+ #include "ext/game/map.h"
+ #include "ext/game/heuristic.h"
+-#include "ext/game/path_weighter.h"
+ #include "ext/game/jobs.h"
+ #include "ext/game/resource.h"
+ #ifdef SWIG
+ %include "ext/game/path.h"
+-%include "ext/game/path_data_v3.h"
+-%include "ext/game/path_v2.h"
+-%include "ext/game/path_base.h"
+ %include "ext/game/terrain.h"
+ %include "ext/game/entity.h"
+ %include "ext/game/water.h"
+@@ -99,7 +92,6 @@
+ %include "ext/game/minimap.h"
+ %include "ext/game/map.h"
+ %include "ext/game/heuristic.h"
+-%include "ext/game/path_weighter.h"
+ %include "ext/game/jobs.h"
+ %include "ext/game/resource.h"
+ #endif
+
+Deleted: antargis/branches/rant/ext/game/path_data_v3.cc
+===================================================================
+--- antargis/branches/rant/ext/game/path_data_v3.cc	2007-09-02 17:23:48 UTC (rev 1170)
++++ antargis/branches/rant/ext/game/path_data_v3.cc	2007-09-05 18:30:18 UTC (rev 1171)
+@@ -1,442 +0,0 @@
+-#include "path_data_v3.h"
+-#include "path_vector_sort.h"
+-
+-#include <ag_profiler.h>
+-
+-#include <ag_debug.h>
+-#include <algorithm>
+-
+-#include <math.h>
+-
+-//namespace PathFinding
+-//{
+-
+-  Field::Field(const AGVector2 &pMiddle,size_t pID):mID(pID),
+-						    mMiddle(pMiddle)
+-  {
+-  }
+-
+-  Field::~Field()
+-  {
+-  }
+-
+-  void Field::insert(const AGVector2 &v,DistanceComputer &pDist)
+-  {
+-    mVectors.insert(v);
+-    mNeighbors.erase(v);
+-    
+-    std::vector<AGVector2> neighbors=pDist.getNeighbors(v);
+-
+-    for(std::vector<AGVector2>::iterator i=neighbors.begin();i!=neighbors.end();i++)
+-      {
+-	if(mVectors.find(*i)==mVectors.end())
+-	  mNeighbors.insert(*i);
+-      }
+-
+-  }
+-
+-  bool Field::isNeighbor(const AGVector2 &v) const
+-  {
+-    return mNeighbors.find(v)!=mNeighbors.end();
+-  }
+-
+-  bool Field::hasVector(const AGVector2 &v) const
+-  {
+-    return mVectors.find(v)!=mVectors.end();
+-  }
+-
+-  AGVector2 Field::getMiddle() const
+-  {
+-    return mMiddle;
+-  }
+-
+-  std::vector<AGVector2> Field::getVectors() const
+-  {
+-    std::vector<AGVector2> v;
+-    std::copy(mVectors.begin(),mVectors.end(),std::back_inserter(v));
+-    return v;
+-  }
+-
+-  std::vector<AGVector2> Field::getNeighbors() const
+-  {
+-    std::vector<AGVector2> v;
+-    std::copy(mNeighbors.begin(),mNeighbors.end(),std::back_inserter(v));
+-    return v;
+-  }
+-
+-
+-
+-
+-
+-////////////////////////////////////////////////////////
+-// FieldCollection
+-////////////////////////////////////////////////////////
+-
+-
+-  FieldCollection::~FieldCollection()
+-  {
+-  }
+-
+-  Field *FieldCollection::createField(const AGVector2 &pMiddle,size_t pId)
+-  {
+-    return new FieldWithDistances(pMiddle,pId);
+-  }
+-  
+-
+-  //
+-  void FieldCollection::assign(const AGVector2 &v,size_t pField,DistanceComputer &pDist)
+-  {
+-    assert(pField<mFields.size());
+-
+-    mFields[pField]->insert(v,pDist);
+-    mVec2Field[v]=pField;
+-  }
+-
+-
+-  size_t FieldCollection::newField(const AGVector2 &pMiddle)
+-  {
+-    size_t id=mFields.size();
+-    mFields.push_back(createField(pMiddle,id));
+-    return id;
+-  }
+-
+-Field *FieldCollection::getField(size_t pField)
+-{
+-  return mFields[pField];
+-}
+-
+-  size_t FieldCollection::getFieldId(const AGVector2 &pVector) const
+-  {
+-    std::map<AGVector2,size_t>::const_iterator i=mVec2Field.find(pVector);
+-
+-    if(i!=mVec2Field.end())
+-      return i->second;
+-
+-    return  -1;
+-  }
+-
+-  size_t FieldCollection::getFieldCount() const
+-  {
+-    return mFields.size();
+-  }
+-
+-  void FieldCollection::mark()
+-  {
+-    CTRACE;
+-    for(std::vector<Field*>::iterator i=mFields.begin();i!=mFields.end();i++)
+-      markObject(*i);
+-  }
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-  AGVector2 takeRandom(const std::set<AGVector2> &pSet)
+-  {
+-    assert(pSet.size()>0);
+-    int pos=(int)(rand()%pSet.size());
+-    std::set<AGVector2>::const_iterator i=pSet.begin();
+-    for(;i!=pSet.end() && pos>0;pos--,i++);
+-    return *i;
+-  }
+-
+-  void assignFields(FieldCollection &pCollection,DistanceComputer &pDist,size_t pFieldCount)
+-  {
+-    std::vector<AGVector2> allVectorList=pDist.getAllPassable();
+-
+-    float maxFieldWidth=sqrt(allVectorList.size()/pFieldCount)*0.7;
+-
+-
+-    //    maxFieldWidth=3;
+-
+-    std::set<AGVector2> restOfVectors;
+-
+-    std::copy(allVectorList.begin(),allVectorList.end(),std::inserter(restOfVectors,restOfVectors.begin()));
+-
+-    while(restOfVectors.size()>0)
+-      {
+-	AGVector2 fieldMiddle=takeRandom(restOfVectors);
+-	DistanceOrder order(fieldMiddle);
+-
+-	size_t newField=pCollection.newField(fieldMiddle);
+-	
+-
+-	std::set<AGVector2,DistanceOrder> growField(order);
+-	std::copy(restOfVectors.begin(),restOfVectors.end(),std::inserter(growField,growField.begin()));
+-
+-	cdebug("MIDDLE:"<<fieldMiddle);
+-	
+-	size_t k=0;
+-	for(std::set<AGVector2,DistanceOrder>::iterator i=growField.begin();i!=growField.end() && k<30;i++,k++)
+-	  {
+-	    //	    cdebug(" "<<*i<<"  "<<(*i-fieldMiddle).length());
+-	  }
+-
+-	do
+-	  {
+-	    AGVector2 current=*growField.begin();
+-	    
+-	    if((current-fieldMiddle).length()<maxFieldWidth)
+-	      {
+-		growField.erase(growField.begin());
+-		restOfVectors.erase(current);
+-		pCollection.assign(current,newField,pDist);
+-	      }
+-	    else
+-	      break;
+-	  }while(growField.size()>0);
+-      }
+-    
+-
+-
+-    cdebug("FIELDS:"<<pCollection.getFieldCount());
+-  }
+-
+-
+-
+-
+-  // FieldWithDistances
+-
+-
+-  FieldWithDistances::FieldWithDistances(const AGVector2 &pMiddle,size_t pID):
+-    Field(pMiddle,pID)
+-  {
+-  }
+-
+-void FieldWithDistances::initLocalDistances(const DistanceComputer &pComputer,const std::vector<AGVector2> &pVectors)
+-  {
+-    STACKTRACE;
+-    AGVector2 m=getMiddle();
+-    std::set<AGVector2> baseVectors;
+-    std::copy(pVectors.begin(),pVectors.end(),std::inserter(baseVectors,baseVectors.begin()));
+-
+-    std::vector<AGVector2> vectors=getVectors();
+-
+-    for(std::vector<AGVector2>::iterator i=vectors.begin();i!=vectors.end();i++)
+-      {
+-	STACKTRACE;
+-	std::map<AGVector2,float> curDists;
+-
+-	// compute distances for paths starting at *i
+-	DistanceOrder order(*i);
+-	std::set<AGVector2,DistanceOrder> vecSet(order);
+-	vecSet.insert(*i);
+-	//	cdebug("VEC:"<<*i);
+-	while(vecSet.size()>0)
+-	  {
+-	    STACKTRACE;
+-	    AGVector2 currentVec=*vecSet.begin();
+-	    vecSet.erase(vecSet.begin());
+-	    std::vector<std::pair<AGVector2,float> > newVecs;
+-	    {
+-	      STACKTRACE;
+-	      newVecs=pComputer.getAllReachableFrom(currentVec);
+-	    }
+-	    //	    cdebug("newVecs:"<<newVecs.size());
+-	    for(std::vector<std::pair<AGVector2,float> >::iterator ni=newVecs.begin();ni!=newVecs.end();ni++)
+-	      {
+-		STACKTRACE;
+-		// FIXME: check if in "my Field" or neighbor !!!
+-		if(ni->first!=*i) // don't store initial vector
+-		  {
+-		    STACKTRACE;
+-		    if(baseVectors.find(ni->first)!=baseVectors.end())
+-		      {
+-			STACKTRACE;
+-			std::map<AGVector2,float>::iterator found=curDists.find(ni->first);
+-			if(ni->second>0)
+-			  if(found==curDists.end() || (found->second>ni->second))
+-			    //			if((curDists[ni->first]>ni->second || curDists[ni->first]==0) && ni->second>0)
+-			    {
+-			      STACKTRACE;
+-			      curDists[ni->first]=ni->second;
+-			      vecSet.insert(ni->first);
+-			    }
+-		      }
+-		  }
+-	      }
+-
+-	  }
+-	
+-
+-
+-	// store them into the distance-field
+-
+-	for(std::map<AGVector2,float>::iterator di=curDists.begin();di!=curDists.end();di++)
+-	  {
+-	    STACKTRACE;
+-	    mDistances.insert(std::make_pair(std::make_pair(*i,di->first),di->second));
+-	  }
+-	
+-      }
+-  }
+-
+-  // FIXME: make this const !
+-  float FieldWithDistances::getDistance(const AGVector2 &a,const AGVector2 &b)
+-  {
+-    return mDistances[std::make_pair(a,b)];
+-  }
+-
+-
+-
+-////////////////////////////////////////////////////////
+-// FieldWithNeighborDistances
+-////////////////////////////////////////////////////////
+-FieldWithNeighborDistances::FieldWithNeighborDistances(const AGVector2 &pMiddle,size_t pID):
+-  FieldWithDistances(pMiddle,pID)
+-{
+-}
+-
+-// from my a to b, that is in neighbor field
+-void FieldWithNeighborDistances::setNeighborDistance(const AGVector2 &a,const AGVector2 &b,float value)
+-{
+-  mNeighborDistances[std::make_pair(a,b)]=value;
+-}
+-float FieldWithNeighborDistances::getNeighborDistance(const AGVector2 &a,const AGVector2 &b)
+-{
+-  return mNeighborDistances[std::make_pair(a,b)];
+-}
+-
+-void FieldWithNeighborDistances::setFieldDistance(const AGVector2 &a,size_t pField,float value)
+-{
+-  mFieldDistances[std::make_pair(a,pField)]=value;
+-}
+-float FieldWithNeighborDistances::getFieldDistance(const AGVector2 &a,size_t pField)
+-{
+-  return mFieldDistances[std::make_pair(a,pField)];
+-}
+-
+-
+-
+-
+-
+-
+-
+-////////////////////////////////////////////////////////
+-// FieldCollectionWithDistances
+-////////////////////////////////////////////////////////
+-
+-
+-
+-Field *FieldCollectionWithDistances::createField(const AGVector2 &pMiddle,size_t pId)
+-{
+-  return new FieldWithNeighborDistances(pMiddle,pId);
+-}
+-
+-
+-void FieldCollectionWithDistances::computeFieldNeighbors()
+-{
+-  if(mFieldNeighbors.size()>0)
+-    return;
+-  for(size_t i=0;i<getFieldCount();i++)
+-    {
+-      std::set<size_t> ns;
+-      std::vector<AGVector2> vs=getField(i)->getNeighbors();
+-      for(std::vector<AGVector2>::iterator j=vs.begin();j!=vs.end();j++)
+-	{
+-	  size_t id=getFieldId(*j);
+-	  if(id<getFieldCount())
+-	    ns.insert(id);
+-	}
+-      mFieldNeighbors[i]=ns;
+-    }
+-}
+-
+-std::set<size_t> FieldCollectionWithDistances::getNeighborFields(size_t fieldNum)
+-{
+-  return mFieldNeighbors[fieldNum];
+-}
+-
+-
+-void FieldCollectionWithDistances::computeDistances(const DistanceComputer &pDist)
+-{
+-
+-  computeFieldNeighbors();
+-
+-  for(size_t fieldNum=0;fieldNum<getFieldCount();fieldNum++)
+-    {
+-      STACKTRACE;
+-      std::set<size_t> fields;
+-
+-      if(true)
+-	fields=getNeighborFields(fieldNum);
+-      else
+-	fields.insert(fieldNum);
+-
+-      std::vector<AGVector2> vectors;
+-
+-      fields.insert(fieldNum);
+-
+-      for(std::set<size_t>::iterator i=fields.begin();i!=fields.end();i++)
+-	{
+-	  assert(*i<getFieldCount());
+-	  std::vector<AGVector2> tmp=getField(*i)->getVectors();
+-	  std::copy(tmp.begin(),tmp.end(),std::back_inserter(vectors));
+-	}
+-      Field *f=getField(fieldNum);
+-      FieldWithDistances *df=dynamic_cast<FieldWithDistances*>(f);
+-      assert(df);
+-      cdebug("FIELD:"<<fieldNum<<" vecs:"<<vectors.size());
+-      df->initLocalDistances(pDist,vectors);
+-    }
+-
+-
+-
+-
+-  /*
+-  for(size_t fieldNum=0;fieldNum<getFieldCount();fieldNum++)
+-    {
+-      cdebug("fieldNum:"<<fieldNum<<" of "<<getFieldCount());
+-      FieldWithNeighborDistances *curField=dynamic_cast<FieldWithNeighborDistances*>(getField(fieldNum));
+-      assert(curField);
+-      if(curField)
+-	{
+-	  std::vector<AGVector2> curVectors=curField->getVectors();
+-	  std::vector<AGVector2> curNeighbors=curField->getNeighbors();
+-	  std::map<std::pair<AGVector2,AGVector2>,float> distances;
+-	  
+-	  cdebug("curVectors:"<<curVectors.size());
+-	  cdebug("curNeighbors:"<<curNeighbors.size());
+-
+-	  for(std::vector<AGVector2>::iterator curVector=curVectors.begin();curVector!=curVectors.end();curVector++)
+-	    {
+-	      for(std::vector<AGVector2>::iterator curNeighbor=curNeighbors.begin();curNeighbor!=curNeighbors.end();curNeighbor++)
+-		{
+-		  size_t neighborField=getFieldId(*curNeighbor);
+-
+-		  if(neighborField<getFieldCount()) // check if field is valid
+-		    {
+-		      FieldWithNeighborDistances *curField2=dynamic_cast<FieldWithNeighborDistances*>(getField(neighborField));
+-		      assert(curField2);
+-		      if(curField2)
+-			{
+-			  std::vector<AGVector2> field2Vecs=curField2->getVectors();
+-			  for(std::vector<AGVector2>::iterator field2Vec=field2Vecs.begin();field2Vec!=field2Vecs.end();field2Vec++)
+-			    {
+-			      float nDist=curField->getDistance(*curVector,*curNeighbor)+curField2->getDistance(*curNeighbor,*field2Vec);
+-			      std::pair<AGVector2,AGVector2> index(*curVector,*field2Vec);
+-			      float oldDist=distances[index];
+-			      if(oldDist==0 || oldDist>nDist)
+-				distances[index]=nDist;
+-			    }
+-			}
+-		    }
+-		}
+-	    }
+-	}
+-    }
+-
+-  */
+-}
+-
+-
+-
+-
+-
+-//}
+
+Deleted: antargis/branches/rant/ext/game/path_data_v3.h
+===================================================================
+--- antargis/branches/rant/ext/game/path_data_v3.h	2007-09-02 17:23:48 UTC (rev 1170)
++++ antargis/branches/rant/ext/game/path_data_v3.h	2007-09-05 18:30:18 UTC (rev 1171)
+@@ -1,140 +0,0 @@
+-#ifndef PATH_DATA_V3_H
+-#define PATH_DATA_V3_H
+-
+-// INCLUDE_SWIG - used to filter, which files are included in swig-interfacing
+-
+-#include <ag_geometry.h>
+-
+-#include "path_weighter.h"
+-
+-#include <vector>
+-#include <map>
+-#include <set>
+-#include <ag_rubyobj.h>
+-
+-//namespace PathFinding
+-//{
+-
+-  class AGEXPORT Field:public AGRubyObject
+-  {
+-  public:
+-    Field(const AGVector2 &pMiddle,size_t pID);
+-    virtual ~Field();
+-
+-    void insert(const AGVector2 &v,DistanceComputer &pDist);
+-
+-    bool hasVector(const AGVector2 &v) const;
+-    bool isNeighbor(const AGVector2 &v) const;
+-
+-    AGVector2 getMiddle() const;
+-
+-    std::vector<AGVector2> getVectors() const;
+-    std::vector<AGVector2> getNeighbors() const;
+-
+-  private:
+-    size_t mID;
+-  protected:
+-    std::set<AGVector2> mVectors;
+-
+-    std::set<AGVector2> mNeighbors;
+-  private:
+-    AGVector2 mMiddle;
+-  };
+-
+-  class AGEXPORT FieldCollection:public AGRubyObject
+-  {
+-  public:
+-    virtual ~FieldCollection();
+-
+-    void assign(const AGVector2 &v,size_t pField,DistanceComputer &pDist);
+-    size_t newField(const AGVector2 &pMiddle);
+-
+-    Field *getField(size_t pField);
+-
+-    size_t getFieldId(const AGVector2 &pVector) const;
+-
+-    size_t getFieldCount() const;
+-
+-    void mark();
+-
+-  protected:
+-    virtual Field *createField(const AGVector2 &pMiddle,size_t pId);
+-
+-  private:
+-
+-
+-    std::vector<Field*> mFields;
+-    std::map<AGVector2,size_t> mVec2Field;
+-  };
+-
+-class AGEXPORT FieldCollectionWithDistances:public FieldCollection
+-{
+- public:
+-  /*
+-    Does the following:
+-    1) save distances from vec a => vec b (in neighboring fields) into fieldwithneighbordistances.neighbordistances
+-    2) compute this.mDistances from middle to middle
+-    * 3) save distances from vec a => neighbor middle from there to field x in fieldwithneighbordistances.fielddistance
+-    * last is not needed necessarily
+-   */
+-  void computeDistances(const DistanceComputer &pDist);
+-
+-  void computeFieldNeighbors();
+-
+-  std::set<size_t> getNeighborFields(size_t fieldNum);
+-
+-
+-  protected:
+-  virtual Field *createField(const AGVector2 &pMiddle,size_t pId);
+-    
+- private:
+-  std::map<size_t,size_t> mDistances;
+-  std::map<size_t,std::set<size_t> > mFieldNeighbors;
+-};
+-
+-
+-  AGEXPORT void assignFields(FieldCollection &pCollection,DistanceComputer &pDist,size_t pFieldCount);
+-
+-
+-  class AGEXPORT FieldAssigner
+-  {
+-  public:
+-    
+-  };
+-
+-  class AGEXPORT FieldWithDistances:public Field
+-  {
+-  public:
+-    FieldWithDistances(const AGVector2 &pMiddle,size_t pID);
+-
+-
+-    void initLocalDistances(const DistanceComputer &pComputer,const std::vector<AGVector2> &pVectors);
+-    
+-    float getDistance(const AGVector2 &a,const AGVector2 &b);
+-
+-    
+-  private:
+-    std::map<std::pair<AGVector2,AGVector2>,float> mDistances;
+-  };
+-
+-class AGEXPORT FieldWithNeighborDistances:public FieldWithDistances
+-{
+- public:
+-  FieldWithNeighborDistances(const AGVector2 &pMiddle,size_t pID);
+-
+-  // from my a to b, that is in neighbor field
+-  void setNeighborDistance(const AGVector2 &a,const AGVector2 &b,float value);
+-  float getNeighborDistance(const AGVector2 &a,const AGVector2 &b);
+-
+-  void setFieldDistance(const AGVector2 &a,size_t pField,float value);
+-  float getFieldDistance(const AGVector2 &a,size_t pField);
+-
+- private:
+-  std::map<std::pair<AGVector2,AGVector2>,float> mNeighborDistances;
+-  std::map<std::pair<AGVector2,size_t>, float> mFieldDistances;
+-};
+-
+-//}
+-
+-#endif
+-
+
+Deleted: antargis/branches/rant/ext/game/path_weighter.cc
+===================================================================
+--- antargis/branches/rant/ext/game/path_weighter.cc	2007-09-02 17:23:48 UTC (rev 1170)
++++ antargis/branches/rant/ext/game/path_weighter.cc	2007-09-05 18:30:18 UTC (rev 1171)
+@@ -1,145 +0,0 @@
+-#include "path_weighter.h"
+-
+-#include <ag_debug.h>
+-#include <ag_profiler.h>
+-#include "height_map.h"
+-#include <math.h>
+-
+-DistanceComputer::DistanceComputer(HeightMap *pHeightMap,
+-				   float pStepX,float pStepY):
+-  mHeightMap(pHeightMap),
+-  mStepX(pStepX),mStepY(pStepY)
+-{
+-  assert(mHeightMap);
+-}
+-
+-bool DistanceComputer::isPassable(const AGVector2 &pPoint) const
+-{
+-  return mHeightMap->getHeight(pPoint[0],pPoint[1])>-0.2;
+-}
+-
+-float DistanceComputer::beginX() const
+-{
+-  return 0;
+-}
+-float DistanceComputer::beginY() const
+-{
+-  return 0;
+-}
+-float DistanceComputer::stepX() const
+-{
+-  return mStepX;
+-}
+-float DistanceComputer::stepY() const
+-{
+-  return mStepY;
+-}
+-float DistanceComputer::endX() const
+-{
+-  return mHeightMap->getW();
+-}
+-float DistanceComputer::endY() const
+-{
+-  return mHeightMap->getH();
+-}
+-
+-float DistanceComputer::width() const
+-{
+-  return endX()-beginX();
+-}
+-
+-float DistanceComputer::height() const
+-{
+-  return endY()-beginY();
+-}
+-
+-
+-// FIXME: maybe move this to other class ?
+-float DistanceComputer::simpleWeight(const AGVector2 &a,const AGVector2 &b) const
+-{
+-  STACKTRACE;
+-  float ha=mHeightMap->getHeight(a[0],a[1]);
+-  float hb=mHeightMap->getHeight(b[0],b[1]);
+-
+-  float d=(a-b).length();
+-  float hd=ha-hb;
+-
+-  if(hb>ha) // up hill
+-    return sqrt(d*d+hd*hd);
+-  return d; // down hill - normal speed
+-}
+-
+-/**
+- * compute possible neighbors (w.r.t. to map-borders)
+- */
+-std::vector<AGVector2> DistanceComputer::getNeighbors(const AGVector2 &p) const
+-{
+-  STACKTRACE;
+-
+-  std::vector<AGVector2> diffList,rList;
+-  AGVector2 t;
+-
+-  diffList.push_back(AGVector2(-stepX(),0));
+-  diffList.push_back(AGVector2(+stepX(),0));
+-  diffList.push_back(AGVector2(0,-stepY()));
+-  diffList.push_back(AGVector2(0,+stepY()));
+-
+-  /*  
+-  diffList.push_back(AGVector2(-stepX(),-stepY()));
+-  diffList.push_back(AGVector2(+stepX(),-stepY()));
+-  diffList.push_back(AGVector2(-stepX(),+stepY()));
+-  diffList.push_back(AGVector2(+stepX(),+stepY()));
+-  */
+-  for(std::vector<AGVector2>::iterator i=diffList.begin();i!=diffList.end();i++)
+-    {
+-      t=*i+p;
+-      {
+-	STACKTRACE;
+-	
+-	if(t.getX() >= beginX() &&
+-	   t.getX()<=endX() && 
+-	   t.getY()>=beginY() && 
+-	   t.getY()<=endY())
+-	  rList.push_back(t);
+-      }
+-    }
+-
+-  return rList;
+-}
+-
+-std::vector<std::pair<AGVector2,float> > DistanceComputer::getAllReachableFrom(const AGVector2 &p) const
+-{
+-  STACKTRACE;
+-  float w;
+-  std::vector<std::pair<AGVector2,float> > rList;
+-  std::vector<AGVector2> nList=getNeighbors(p);
+-
+-  for(std::vector<AGVector2>::iterator i=nList.begin();i!=nList.end();i++)
+-    {
+-      STACKTRACE;
+-
+-      {
+-	w=simpleWeight(p,*i);
+-	STACKTRACE;
+-      }
+-      rList.push_back(std::make_pair(*i,w));
+-    }
+-  return rList;
+-}
+-
+-
+-std::vector<AGVector2> DistanceComputer::getAllPassable() const
+-{
+-  std::vector<AGVector2> l;
+-
+-  float x,y;
+-  AGVector2 v(x,y);
+-  for(x=beginX();x<=endX();x+=stepX())
+-    for(y=beginY();y<=endY();y+=stepY())
+-      {
+-	v=AGVector2(x,y);
+-	if(isPassable(v))
+-	  l.push_back(v);
+-      }
+-  return l;
+-}
+
+Deleted: antargis/branches/rant/ext/game/path_weighter.h
+===================================================================
+--- antargis/branches/rant/ext/game/path_weighter.h	2007-09-02 17:23:48 UTC (rev 1170)
++++ antargis/branches/rant/ext/game/path_weighter.h	2007-09-05 18:30:18 UTC (rev 1171)
+@@ -1,49 +0,0 @@
+-#ifndef PATH_WEIGHTER_H
+-#define PATH_WEIGHTER_H
+-
+-// INCLUDE_SWIG - used to filter, which files are included in swig-interfacing
+-
+-#include <path_base.h>
+-
+-#include <map>
+-
+-class HeightMap;
+-
+-/**
+- * Computes distances from a height field
+- */
+-class AGEXPORT DistanceComputer
+-{
+- public:
+-  DistanceComputer(HeightMap *pHeightMap,float pStepX=1,float pStepY=1);
+-
+-  float beginX() const;
+-  float beginY() const;
+-  float stepX() const;
+-  float stepY() const;
+-  float endX() const;
+-  float endY() const;
+-
+-  float width() const;
+-  float height() const;
+-
+-  std::vector<std::pair<AGVector2,float> > getAllReachableFrom(const AGVector2 &p) const;
+-
+-  // compute weight for to neighboring points (from a to b)
+-  float simpleWeight(const AGVector2 &a,const AGVector2 &b) const;
+-
+-  bool isPassable(const AGVector2 &pPoint) const;
+-
+-  std::vector<AGVector2> getNeighbors(const AGVector2 &p) const;
+-
+-
+-  std::vector<AGVector2> getAllPassable() const;
+-
+- private:
+-
+-  HeightMap *mHeightMap;
+-  float mStepX,mStepY;
+-};
+-
+-
+-#endif
+
+Modified: antargis/branches/rant/ruby/ant_hljobs.rb
+===================================================================
+--- antargis/branches/rant/ruby/ant_hljobs.rb	2007-09-02 17:23:48 UTC (rev 1170)
++++ antargis/branches/rant/ruby/ant_hljobs.rb	2007-09-05 18:30:18 UTC (rev 1171)
+@@ -27,7 +27,7 @@
+ 
+ require 'entities.rb'
+ 
+-if false
++if true
+ 
+ 
+ # Base class for high-level jobs. It contains the basic functions that're needed for usage within
+@@ -1126,5 +1126,5 @@
+ 
+ end
+ 
+-require 'jobs/ant_new_hljobs.rb'
++#require 'jobs/ant_new_hljobs.rb'
+ 
+
+Modified: antargis/branches/rant/ruby/ant_tools.rb
+===================================================================
+--- antargis/branches/rant/ruby/ant_tools.rb	2007-09-02 17:23:48 UTC (rev 1170)
++++ antargis/branches/rant/ruby/ant_tools.rb	2007-09-05 18:30:18 UTC (rev 1171)
+@@ -74,6 +74,10 @@
+ 
+ class AntargisException<Exception
+ 	attr_accessor :text
++	
++	def to_s
++		super+":"+text.to_s
++	end
+ end
+ 
+ def assert(text="",&block)
+
+Modified: antargis/branches/rant/ruby/entities/ant_boss.rb
+===================================================================
+--- antargis/branches/rant/ruby/entities/ant_boss.rb	2007-09-02 17:23:48 UTC (rev 1170)
++++ antargis/branches/rant/ruby/entities/ant_boss.rb	2007-09-05 18:30:18 UTC (rev 1171)
+@@ -225,7 +225,7 @@
+ 	
+ 	def assignJob2All
+ 		if getMap
+-			getMap.eventNewJobAssignedToBoss(self)
++			getMap.eventNewJobAssignedToBoss(self) if getMap.respond_to?(:eventNewJobAssignedToBoss)
+ 		end
+ 
+ 		begin
+
+Modified: antargis/branches/rant/ruby/jobs/ant_hljob_base.rb
+===================================================================
+--- antargis/branches/rant/ruby/jobs/ant_hljob_base.rb	2007-09-02 17:23:48 UTC (rev 1170)
++++ antargis/branches/rant/ruby/jobs/ant_hljob_base.rb	2007-09-05 18:30:18 UTC (rev 1171)
+@@ -29,6 +29,10 @@
+ 	def hero
+ 		@hero
+ 	end
++	
++	def getRand
++		@hero.getRand
++	end
+ 
+ 	def stopJob
+ 		@stopped=true
+
+Modified: antargis/branches/rant/ruby/jobs/ant_hljob_states.rb
+===================================================================
+--- antargis/branches/rant/ruby/jobs/ant_hljob_states.rb	2007-09-02 17:23:48 UTC (rev 1170)
++++ antargis/branches/rant/ruby/jobs/ant_hljob_states.rb	2007-09-05 18:30:18 UTC (rev 1171)
+@@ -17,7 +17,7 @@
+ 
+ module HLJob_Additions
+ 	attr_accessor :machine
+-	["hero","allMen","getTime","targetPos","targetPos=","formatDir","formatDir=","target"].each{|n|wrap "machine",n}
++	["getRand","hero","allMen","getTime","targetPos","targetPos=","formatDir","formatDir=","target"].each{|n|wrap "machine",n}
+ end
+ 
+ class HLJob_BaseState
+@@ -726,6 +726,7 @@
+ 
+ class HLJob_Recruit<HLJob_BaseState
+ 	def enter
++		raise "IMPLEMENT ME"
+ 	end
+ 	
+ 	private
+
+Modified: antargis/branches/rant/ruby/jobs/ant_new_hljobs.rb
+===================================================================
+--- antargis/branches/rant/ruby/jobs/ant_new_hljobs.rb	2007-09-02 17:23:48 UTC (rev 1170)
++++ antargis/branches/rant/ruby/jobs/ant_new_hljobs.rb	2007-09-05 18:30:18 UTC (rev 1171)
+@@ -257,6 +257,8 @@
+ 
+ 
+ 
++
++
+ # AntHeroFightAnimalJobOld=AntHeroFightAnimalJob
+ # AntHeroFightAnimalJob=AntNewHLKillAnimal
+ # 
+@@ -265,9 +267,44 @@
+ rescue;end
+ AntHeroFightJob=AntNewHLFight
+ 
+-if false
++class AntNewHLRecruitJob<AntNewHLJob
++	state :moveComplete=>	HLJob_MoveComplete
++	state :recruit=>HLJob_Recruit
++	state :endState => HLJob_DummyState
+ 
++	startState :moveComplete
++	endState :endState
++
++	edge :moveComplete,:endState
++
++	attr_accessor :targetPos
++	attr_accessor :formatDir
++	attr_accessor :target
++
++	def initialize(hero,target)
++		@targetPos=target.getPos2D
++		@target=target
++		super(hero)
++		@states[:moveComplete].near=4
++		
++		if (hero.getPos2D-target.getPos2D).length<4
++			state.moveDirectly			
++		end
++	end
++	# FIXME: move this to a config-file !
++	def image
++		"data/gui/move.png"
++	end
++	# FIXME: discard this
++	def makeMessage(boss)
++		MoveMessage.new(boss,targetPos, at dist)
++	end
++
+ end
++begin
++AntHeroRecruitJobOld=AntHeroRecruitJob
++rescue ; end
++AntHeroRecruitJob=AntNewHLRecruitJob
+ 
+ 
+ # FIXME:
+
+Modified: antargis/branches/rant/ruby/state_machine/spec/state_machine.rb
+===================================================================
+--- antargis/branches/rant/ruby/state_machine/spec/state_machine.rb	2007-09-02 17:23:48 UTC (rev 1170)
++++ antargis/branches/rant/ruby/state_machine/spec/state_machine.rb	2007-09-05 18:30:18 UTC (rev 1171)
+@@ -74,7 +74,7 @@
+ 	def finished=(f)
+ 		@finished=f
+ 	end
+-	def isFinished?
++	def ready
+ 		@finished
+ 	end
+ 
+@@ -194,7 +194,7 @@
+ 		t-=d
+ 		t
+ 	end
+-	def isFinished?
++	def ready
+ 		@time<=0
+ 	end
+ end
+
+Modified: antargis/branches/rant/ruby/state_machine/state_machine.rb
+===================================================================
+--- antargis/branches/rant/ruby/state_machine/state_machine.rb	2007-09-02 17:23:48 UTC (rev 1170)
++++ antargis/branches/rant/ruby/state_machine/state_machine.rb	2007-09-05 18:30:18 UTC (rev 1171)
+@@ -19,10 +19,14 @@
+ 	def eventLeave
+ 	end
+ 	def eventFrame(t)
+-		t	
++		#raise "should not be used!"
++		t-0.5
+ 	end
+ 
+-	def isFinished?
++	def assign(entity)
++	end
++
++	def ready
+ 		true
+ 	end
+ 
+@@ -123,6 +127,7 @@
+ 	MAX_LOOPS=20
+ 	attr_reader :finished
+ 	attr_accessor :dict
++	attr_accessor :debug
+ 
+ 	def initialize(definition)
+ 		assert{definition.is_a?(StateMachineDefinition)}
+@@ -141,11 +146,12 @@
+ 		while restTime>0 and loops<MAX_LOOPS
+ 			if not @started
+ 				@started=true
++				puts "#{@currentNode.id}.eventEnter" if @debug
+ 				@currentNode.eventEnter
+ 			end
+ 			restTime=@currentNode.eventFrame(restTime)
+ 			assert{restTime.is_a?(Numeric)}
+-			if @currentNode.isFinished?
++			if @currentNode.ready
+ 				output=@currentNode.output
+ 				nextNodeName=@definition.getNextNode(@currentNode.id,output)
+ 				#sputs "FROM #{@currentNode.id} TO #{nextNodeName}"
+
+
+
+From davidkamphausen at mail.berlios.de  Wed Sep  5 20:30:52 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Wed, 5 Sep 2007 20:30:52 +0200
+Subject: [Antargis-svn] r1172 - in
+	antargis/branches/rant/ruby/state_machine: . spec
+Message-ID: <200709051830.l85IUqNJ006825@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-09-05 20:30:52 +0200 (Wed, 05 Sep 2007)
+New Revision: 1172
+
+Added:
+   antargis/branches/rant/ruby/state_machine/ant_hl_job_states.rb
+   antargis/branches/rant/ruby/state_machine/spec/job_states.rb
+Log:
+* missing files
+
+
+Added: antargis/branches/rant/ruby/state_machine/ant_hl_job_states.rb
+===================================================================
+--- antargis/branches/rant/ruby/state_machine/ant_hl_job_states.rb	2007-09-05 18:30:18 UTC (rev 1171)
++++ antargis/branches/rant/ruby/state_machine/ant_hl_job_states.rb	2007-09-05 18:30:52 UTC (rev 1172)
+@@ -0,0 +1,61 @@
++require 'ruby/state_machine/state_machine.rb'
++
++class HLJob_New_BaseState<StateMachineNode
++	def hero
++		dict[:hero]
++	end
++	def allMen
++		dict[:hero].getMen
++	end
++	def getTime
++		getMap.getTime
++	end
++end
++
++class HLJob_DirState<HLJob_New_BaseState
++	def formatDir
++		(targetPos-hero.getPos2D).normalized
++	end
++	def targetPos
++		dict[:targetPos]
++	end
++end
++
++class HLJob_FormatWalk_State<HLJob_DirState
++	# needed: getTime
++
++	# wait 5 seconds at max for formatting
++	FORMAT_MAX_TIME=5
++
++	def eventEnter
++		hero.formation=AntFormationBlock.new(hero,formatDir)
++		heroPos=hero.getPos2D
++		allMen.each{|man|
++			pos=hero.getFormation(man,heroPos)
++			man.walkTo(pos)
++			man.hlJobMode[:formatting]=true
++		}
++		@formatStart=getTime
++	end
++
++	def assign(man)
++		#raise 1
++		man.setDirection(180-(targetPos-hero.getPos2D).normalized.getAngle.angle*180.0/Math::PI)
++		man.standStill
++		man.hlJobMode.delete(:formatting)
++	end
++
++	def ready
++		if getTime- at formatStart>FORMAT_MAX_TIME
++			puts "MUST BE READY"
++			return true
++		end
++		allMen.each{|man|
++			puts "formatting:#{man}:#{man.hlJobMode[:formatting]}"
++			if man.hlJobMode[:formatting]
++				return false
++			end
++		}
++		return true
++	end
++end
+\ No newline at end of file
+
+Added: antargis/branches/rant/ruby/state_machine/spec/job_states.rb
+===================================================================
+--- antargis/branches/rant/ruby/state_machine/spec/job_states.rb	2007-09-05 18:30:18 UTC (rev 1171)
++++ antargis/branches/rant/ruby/state_machine/spec/job_states.rb	2007-09-05 18:30:52 UTC (rev 1172)
+@@ -0,0 +1,84 @@
++$:.push("ruby/entities")
++
++require 'ruby/antargislib.rb'
++require 'ruby/map.rb'
++require 'ruby/entities/entities.rb'
++require 'ruby/state_machine/ant_hl_job_states.rb'
++
++# class MockEnt
++# 	def setPos(p)
++# 		@p=p
++# 	end
++# end
++# 
++# class AntHero<MockEnt
++# 	def initialize
++# 		@men=[]
++# 	end
++# 	def addMan(m)
++# 		@men << m
++# 	end
++# end
++# class AntMan<MockEnt
++# 	def setBoss(b)
++# 		@boss=b
++# 		@boss.addMan(self)
++# 	end
++# end
++
++class JobTestingSuite
++	attr_reader :hero, :entities, :men
++	def initialize
++		app=AGApplication.new
++		scene=Scene.new(800,600)
++		@map=AntRubyMap.new(app,scene,800,600)
++		@hero=AntHero.new
++		@hero.setPos(AGVector2.new(2,2))
++		@men=[]
++		vecs=[[2,1],[1,1]]
++		vecs.each{|v|
++			man=AntMan.new
++			man.setPos(AGVector2.new(v[0],v[1]))
++			man.setBoss(@hero)
++			@men << man
++		}
++		@entities=@men+[@hero]
++	end
++end
++
++describe HLJob_FormatWalk_State, "Formatting state" do
++	# initialize a state-machine-def
++	before(:all) do
++		@def=StateMachineDefinition.new
++		@def.startNode=@def.addNode(HLJob_FormatWalk_State,:format)
++		@suite=JobTestingSuite.new		
++	end
++	before(:each) do
++		@m=@def.createMachine
++		@m.debug=true
++		@m.dict[:hero]=@suite.hero
++		@m.dict[:targetPos]=AGVector2.new(4,4)
++	end
++
++	it "should assign a job to each man" do
++		@suite.entities.each{|e|e.hasJob.should == false }
++		@m.tick(0.001)
++		@suite.entities.each{|e|e.hasJob.should == true }
++	end
++
++	it "should format men to the given formation" do
++		while not @m.finished do
++			@m.tick(1)
++			@suite.entities.each{|e|e.move(0.2)}
++		end
++		@suite.entities.each{|e|
++			e.getPos2D.should == @suite.hero.getFormation(e, at suite.hero.getPos2D)
++		}
++	end
++	
++	it "should finish in a decent time."
++
++	it "should assign even if old jobs are assigned."
++end
++
++
+
+
+
+From davidkamphausen at mail.berlios.de  Mon Sep 10 21:37:55 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Mon, 10 Sep 2007 21:37:55 +0200
+Subject: [Antargis-svn] r1173 - in antargis/branches/rant: . build
+	ext/3dengine ext/basic ext/game ext/gui ext/math ext/video
+	ruby ruby/entities ruby/jobs
+Message-ID: <200709101937.l8AJbtKF013324@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-09-10 21:37:54 +0200 (Mon, 10 Sep 2007)
+New Revision: 1173
+
+Added:
+   antargis/branches/rant/build/spec/
+   antargis/branches/rant/ruby/entities/entity.rb
+   antargis/branches/rant/ruby/spec/
+Modified:
+   antargis/branches/rant/Rantfile
+   antargis/branches/rant/TODO
+   antargis/branches/rant/configure
+   antargis/branches/rant/ext/3dengine/glsl.cc
+   antargis/branches/rant/ext/3dengine/scene_base.cc
+   antargis/branches/rant/ext/3dengine/scenenode.cc
+   antargis/branches/rant/ext/basic/ag_collector.cc
+   antargis/branches/rant/ext/basic/ag_config.cc
+   antargis/branches/rant/ext/basic/ag_singleton.cc
+   antargis/branches/rant/ext/basic/init.cc
+   antargis/branches/rant/ext/game/entity.cc
+   antargis/branches/rant/ext/game/entity.h
+   antargis/branches/rant/ext/game/height_map.cc
+   antargis/branches/rant/ext/game/heuristic.cc
+   antargis/branches/rant/ext/game/heuristic.h
+   antargis/branches/rant/ext/game/map.cc
+   antargis/branches/rant/ext/game/minimap.cc
+   antargis/branches/rant/ext/game/terrain.cc
+   antargis/branches/rant/ext/game/terrain.h
+   antargis/branches/rant/ext/game/water.cc
+   antargis/branches/rant/ext/gui/init.cc
+   antargis/branches/rant/ext/math/init.cc
+   antargis/branches/rant/ext/video/ag_vdebug.cc
+   antargis/branches/rant/ruby/ant_hljobs.rb
+   antargis/branches/rant/ruby/ant_tools.rb
+   antargis/branches/rant/ruby/antargislib.rb
+   antargis/branches/rant/ruby/entities/ant_bakery.rb
+   antargis/branches/rant/ruby/entities/ant_boss.rb
+   antargis/branches/rant/ruby/entities/ant_druid.rb
+   antargis/branches/rant/ruby/entities/ant_field.rb
+   antargis/branches/rant/ruby/entities/ant_fir.rb
+   antargis/branches/rant/ruby/entities/ant_fire.rb
+   antargis/branches/rant/ruby/entities/ant_grass.rb
+   antargis/branches/rant/ruby/entities/ant_manbase.rb
+   antargis/branches/rant/ruby/entities/ant_mine.rb
+   antargis/branches/rant/ruby/entities/ant_ring.rb
+   antargis/branches/rant/ruby/entities/ant_sack.rb
+   antargis/branches/rant/ruby/entities/ant_tower.rb
+   antargis/branches/rant/ruby/entities/ant_townhall.rb
+   antargis/branches/rant/ruby/entities/ant_tree.rb
+   antargis/branches/rant/ruby/entities/ant_workshop.rb
+   antargis/branches/rant/ruby/entities/entities.rb
+   antargis/branches/rant/ruby/jobs/ant_hljob_states.rb
+   antargis/branches/rant/ruby/jobs/ant_new_hljobs.rb
+   antargis/branches/rant/ruby/map.rb
+Log:
+* many fixes/changes
+
+
+Modified: antargis/branches/rant/Rantfile
+===================================================================
+--- antargis/branches/rant/Rantfile	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/Rantfile	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -59,7 +59,9 @@
+ cflags=""
+ cflags+=" -DGCDEBUG" if $config["gcdebug"]   # enable debuggin of garbage-collection
+ cflags+=" -g -O0"    if $config["debug"]     # disable optimizations for better debugging
+-cflags+=" -O2"       unless $config["debug"] # enable optimizations
++cflags+=" -DNDEBUG -DMNDEBUG"  if not $config["debug"] # disable debug-output
++cflags+=" -O0 -g"       unless $config["debug"] # enable optimizations
++#cflags+=" -O2"       unless $config["debug"] # enable optimizations
+ cflags+=" -DMPROFILE" if $config["profile"]  # enable profiling
+ 	
+ 
+
+Modified: antargis/branches/rant/TODO
+===================================================================
+--- antargis/branches/rant/TODO	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/TODO	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -1,6 +1,9 @@
+-* introduce path-finder with water
++* configure -
++	* make mkmf as default
++	* redesign addOption to ???
++	
+ 
+-* download allinoneruby.rb
++
+ * build allinoneruby.exe
+ * put ag_sdl*.tar.gz into svn
+ * put up instructions into wiki
+
+Modified: antargis/branches/rant/configure
+===================================================================
+--- antargis/branches/rant/configure	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/configure	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -2,7 +2,7 @@
+ 
+ require 'build/configure.rb'
+ 
+-version="0.2.1.2"
++version="0.2.1.3"
+ 
+ puts <<EOT
+ Battle of Antargis - Configuration
+
+Modified: antargis/branches/rant/ext/3dengine/glsl.cc
+===================================================================
+--- antargis/branches/rant/ext/3dengine/glsl.cc	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ext/3dengine/glsl.cc	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -155,11 +155,10 @@
+ {
+   disable();
+   CTRACE;
+-  cdebug("name:"<<name);
++  //  cdebug("name:"<<name);
+   if(glslOk() && !hasQuit())
+     glDeleteObjectARB(p);
+-  cdebug("name:"<<name);
+-  cdebug("name:"<<name);
++  //  cdebug("name:"<<name);
+   delete vertex;
+   delete frag;
+ }
+
+Modified: antargis/branches/rant/ext/3dengine/scene_base.cc
+===================================================================
+--- antargis/branches/rant/ext/3dengine/scene_base.cc	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ext/3dengine/scene_base.cc	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -26,6 +26,7 @@
+ 
+ void SceneBase::addNode(SceneNode *node)
+ {
++  std::cout<<"addNode:(this:"<<this<<") "<<node<<"  "<<typeid(*node).name()<<std::endl;
+   if(mNodeSet.find(node)==mNodeSet.end())
+     {
+       node->setScene(this);
+@@ -56,6 +57,7 @@
+ 
+ void SceneBase::removeNode(SceneNode *node)
+ {
++  std::cout<<"remove node:"<<node<<std::endl;
+   if(mNodeSet.find(node)!=mNodeSet.end())
+     {
+       Nodes::iterator i=std::find(mNodes.begin(),mNodes.end(),node);
+@@ -63,7 +65,8 @@
+       mNodeSet.erase(node);
+       assert(node->getScene()==this);
+       node->resetScene();
+-      assert(mTree->remove(node));
++      bool ok=(mTree->remove(node));
++      assert(ok);
+     }
+   else
+     {
+@@ -103,7 +106,11 @@
+   for(SceneNodeList::iterator i=l.begin();i!=l.end();i++)
+     {
+       if((*i)->visible())
+-	(*i)->advance(time);
++	{
++	  std::cout<<(*i)<<std::endl;
++	  std::cout<<(typeid(**i).name())<<std::endl;
++	  (*i)->advance(time);
++	}
+     }
+ }
+ 
+@@ -118,10 +125,12 @@
+ 
+ void SceneBase::mark()
+ {
++  std::cout<<"SceneBase::mark()"<<std::endl;
+   SceneBase::Nodes::iterator i=mNodes.begin();
+ 
+   for(;i!=mNodes.end();i++)
+     {
++      std::cout<<"scenebase-mark:"<< this<<"  "<<*i<<std::endl;
+       markObject(*i);
+     }
+ }
+
+Modified: antargis/branches/rant/ext/3dengine/scenenode.cc
+===================================================================
+--- antargis/branches/rant/ext/3dengine/scenenode.cc	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ext/3dengine/scenenode.cc	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -5,6 +5,7 @@
+ SceneNode::SceneNode(SceneBase *s,const AGVector4 &pPos,const AGBox3 &b):
+   mPos(pPos),mBBox(b)
+ {
++  std::cout<<"new scene-node: "<<this<<std::endl;
+   assert(s);
+   mRubyObject=false;
+   mScene=s;
+@@ -17,6 +18,7 @@
+ 
+ SceneNode::~SceneNode()
+ {
++  std::cout<<"del scene-node: "<<this<<" scene:"<<mScene<<std::endl;
+   //  CTRACE;
+   //mRubyObject=false; // why was this here ??????
+ 
+@@ -32,12 +34,14 @@
+ {
+   assert(mScene==0 || mScene==pScene);
+   mScene=pScene;
++  std::cout<<"setscene:"<<this<<" to "<<mScene<<std::endl;
+ }
+ 
+ 
+ /// release attaching to scene
+ void SceneNode::resetScene()
+ {
++  std::cout<<"resetScene from "<<this<<std::endl;
+   mScene=0;
+ }
+ 
+
+Modified: antargis/branches/rant/ext/basic/ag_collector.cc
+===================================================================
+--- antargis/branches/rant/ext/basic/ag_collector.cc	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ext/basic/ag_collector.cc	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -5,26 +5,26 @@
+ 
+ void AGCollector::insertGlobal(AGRubyObject *pObject)
+ {
+-  CTRACE;
++  //  CTRACE;
+   mGlobals.insert(pObject);
+ }
+ 
+ void AGCollector::removeGlobal(AGRubyObject *pObject)
+ {
+-  CTRACE;
++  //  CTRACE;
+   mGlobals.erase(pObject);
+ }
+ 
+ void AGCollector::mark()
+ {
+-  CTRACE;
++  //  CTRACE;
+   for(std::set<AGRubyObject*>::iterator i=mGlobals.begin();i!=mGlobals.end();i++)
+     markObject(*i);
+ }
+ 
+ AGCollector *getCollector()
+ {
+-	if(getMain())
+-		return getMain()->getCollector();
+-	return 0;
++  if(getMain())
++    return getMain()->getCollector();
++  return 0;
+ }
+
+Modified: antargis/branches/rant/ext/basic/ag_config.cc
+===================================================================
+--- antargis/branches/rant/ext/basic/ag_config.cc	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ext/basic/ag_config.cc	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -3,7 +3,6 @@
+ 
+ AGConfig::AGConfig()
+ {
+-  CTRACE;
+   Document doc("config.xml");
+ 
+   Node &root=doc.root();
+@@ -27,7 +26,7 @@
+ 	{
+ 	  singleValue[(*i)->get("name")]=(*i)->get("value");
+ 	  comments[(*i)->get("name")]=comment;
+-	  cdebug((*i)->get("name")<<":"<<(*i)->get("value")<<":"<<comment);
++	  //	  cdebug((*i)->get("name")<<":"<<(*i)->get("value")<<":"<<comment);
+ 	  comment="";
+ 	}
+     }
+
+Modified: antargis/branches/rant/ext/basic/ag_singleton.cc
+===================================================================
+--- antargis/branches/rant/ext/basic/ag_singleton.cc	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ext/basic/ag_singleton.cc	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -5,7 +5,7 @@
+ 
+ AGSingleton::AGSingleton()
+ {
+-  CTRACE;
++  //  CTRACE;
+   assert(hasMain());
+   assert(getMain()->getCollector());
+ 
+
+Modified: antargis/branches/rant/ext/basic/init.cc
+===================================================================
+--- antargis/branches/rant/ext/basic/init.cc	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ext/basic/init.cc	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -15,7 +15,7 @@
+ 
+ AGEXPORT void AG_Init_libantargisbasic()
+ {
+-  TRACE;
++  //  TRACE;
+   if(!hasMain())
+     AGMain *main=new AGMain;
+ 
+
+Modified: antargis/branches/rant/ext/game/entity.cc
+===================================================================
+--- antargis/branches/rant/ext/game/entity.cc	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ext/game/entity.cc	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -848,13 +848,18 @@
+   return dynamic_cast<MoveJob*>(mJob);
+ }
+ 
+-AntEntity *AntEntity::getFightTarget()
++AntEntity *AntEntity::getTarget()
+ {
+   if(mJob)
+     {
+       FightJob *f=dynamic_cast<FightJob*>(mJob);
+       if(f)
+ 	return f->getTarget();
++      
++      MoveJob *m=dynamic_cast<MoveJob*>(mJob);
++      if(m)
++	return m->getTarget();
++      
+     }
+   return 0;
+ }
+@@ -894,3 +899,4 @@
+ {
+   return mDefeated;
+ }
++
+
+Modified: antargis/branches/rant/ext/game/entity.h
+===================================================================
+--- antargis/branches/rant/ext/game/entity.h	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ext/game/entity.h	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -29,7 +29,6 @@
+ #include <ag_color.h>
+ #include <ag_string.h>
+ 
+-
+ #include <set>
+ #include <vector>
+ 
+@@ -271,7 +270,7 @@
+ 
+     void heal(float pTime);
+ 
+-    AntEntity *getFightTarget();
++    AntEntity *getTarget();
+ 
+   private:
+     void init();
+
+Modified: antargis/branches/rant/ext/game/height_map.cc
+===================================================================
+--- antargis/branches/rant/ext/game/height_map.cc	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ext/game/height_map.cc	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -625,6 +625,9 @@
+ 
+ void HeightMap::mark()
+ {
++  std::cout<<"HeightMap::mark tihs:"<<this<<" scene:"<<mScene<<std::endl;
++  if(mScene)
++    markObject(mScene);
+   if(mTerrain)
+     markObject(mTerrain);
+ }
+
+Modified: antargis/branches/rant/ext/game/heuristic.cc
+===================================================================
+--- antargis/branches/rant/ext/game/heuristic.cc	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ext/game/heuristic.cc	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -1,5 +1,6 @@
+ #include "heuristic.h"
+ #include <ag_debug.h>
++#include <ag_profiler.h>
+ #include "ag_serial_vec.h"
+ 
+ #include <set>
+@@ -26,6 +27,7 @@
+ 
+ StoredHeuristicFunction::StoredHeuristicFunction(BinaryIn &pIn)
+ {
++#ifdef OLD_STORE
+   Uint32 s;
+   AGVector2 v;
+   Uint16 ai,bi;
+@@ -36,12 +38,13 @@
+   assert(s<10000);
+ 
+   std::vector<AGVector2> allVecs;
+-  
++
++  cdebug("reading vecs..");
+   for(size_t i=0;i<s;i++)
+     {
+       pIn>>v;
+       allVecs.push_back(v);
+-      cdebug(i<<":"<<v);
++      //      cdebug(i<<":"<<v);
+     }
+ 
+ 
+@@ -51,22 +54,73 @@
+ 
+   assert(s<2000000); // sanity check
+ 
++  cdebug("reading edges..");
+   for(size_t i=0;i<s;i++)
+     {
+-      pIn>>ai>>bi>>w;
+-      //      cdebug("ai:"<<ai<<" bi:"<<bi<<" w:"<<w);
+-      mMap.insert(std::make_pair(std::make_pair(allVecs[ai],allVecs[bi]),w));
++      {
++	STACKTRACE;
++	pIn>>ai>>bi>>w;
++      }
++      {
++	STACKTRACE;
++	//      cdebug("ai:"<<ai<<" bi:"<<bi<<" w:"<<w);
++	mMap.insert(std::make_pair(std::make_pair(allVecs[ai],allVecs[bi]),w));
++      }
+     }
++  cdebug("ready.");
++#else
++  Uint32 s;
++  AGVector2 v;
++  Uint16 ai,bi;
++  float w;
++  pIn>>s;
++
++  assert(s<10000);
++
++  for(size_t i=0;i<s;i++)
++    {
++      pIn>>v;
++      mVecs[v]=i;
++      //      cdebug(i<<":"<<v);
++    }
++
++
++  pIn>>s;
++
++  assert(s==mVecs.size()*mVecs.size());
++  assert(s<2000000); // sanity check
++
++  mMapVec=std::vector<float>(s);
++
++  for(size_t i=0;i<s;i++)
++    {
++      {
++	STACKTRACE;
++	pIn>>ai>>bi>>w;
++      }
++      {
++	STACKTRACE;
++
++	mMapVec[ai+bi*mVecs.size()]=w;
++      }
++    }
++#endif
+ }
+ 
+ 
+ void StoredHeuristicFunction::store(Input in,Output out)
+ {
++#ifdef NEW_STORE
++  assert(mMapVec.size()==0);
++#endif
+   mMap[in]=out;
+ }
+ 
+ void StoredHeuristicFunction::store(const AGVector2 &from,const AGVector2 &to,float value)
+ {
++#ifdef NEW_STORE
++  assert(mMapVec.size()==0);
++#endif
+   mMap[std::make_pair(from,to)]=value;
+ }
+ 
+@@ -75,16 +129,35 @@
+ 
+ StoredHeuristicFunction::Output StoredHeuristicFunction::operator()(const Input &input)
+ {
++#ifdef NEW_STORE
++  if(mMapVec.size()>0)
++    {
++      size_t i=getIndex(input);
++      return mMapVec[i];
++    }
++#endif
+   return mMap[input];
+ }
+ 
+ 
++#ifdef NEW_STORE
++size_t StoredHeuristicFunction::getIndex(const Input &input)
++{
++  size_t x=mVecs[input.first];
++  size_t y=mVecs[input.second];
+ 
++  return x+y*mVecs.size();
++}
++#endif
++
++
++
+ void StoredHeuristicFunction::printTo(BinaryOut &pOut)
+ {
+   std::set<AGVector2> allVecs;
+-  
+ 
++  assert(mMapVec.size()==0);
++
+   for(std::map<Input,Output>::iterator i=mMap.begin();i!=mMap.end();i++)
+     {
+       allVecs.insert(i->first.first);
+
+Modified: antargis/branches/rant/ext/game/heuristic.h
+===================================================================
+--- antargis/branches/rant/ext/game/heuristic.h	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ext/game/heuristic.h	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -24,6 +24,8 @@
+   float get(const AGVector2 &a,const AGVector2 &b);
+ };
+ 
++#define NEW_STORE
++
+ class AGEXPORT StoredHeuristicFunction:public HeuristicFunction
+ {
+  public:
+@@ -41,7 +43,15 @@
+   void printTo(BinaryOut &pOut);
+ 
+  private:
++
+   std::map<Input,Output> mMap;
++#ifdef NEW_STORE
++  std::map<AGVector2,size_t> mVecs;
++  std::vector<float> mMapVec;
++
++  size_t getIndex(const Input &input);
++#endif
++
+   
+ };
+ 
+
+Modified: antargis/branches/rant/ext/game/map.cc
+===================================================================
+--- antargis/branches/rant/ext/game/map.cc	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ext/game/map.cc	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -458,6 +458,7 @@
+ 
+ void AntMap::mark()
+ {
++  cout<<"AntMap::mark()"<<std::endl;
+   CTRACE;
+   HeightMap::mark();
+   AntMap::EntityList::iterator i=mEntities.begin();
+
+Modified: antargis/branches/rant/ext/game/minimap.cc
+===================================================================
+--- antargis/branches/rant/ext/game/minimap.cc	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ext/game/minimap.cc	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -25,14 +25,14 @@
+ 
+ bool MiniMap::mapChangedComplete(AGEvent *e)
+ {
+-  CTRACE;
++  //  CTRACE;
+   mapChangedP(true);
+   return false;
+ }
+   
+ bool MiniMap::mapChanged(AGEvent *e)
+ {
+-  CTRACE;
++  //  CTRACE;
+   mapChangedP(false);
+   return false;
+ }
+@@ -44,7 +44,7 @@
+ 
+ void MiniMap::mapChangedP(bool forceFull=false)
+ {
+-  CTRACE;
++  //  CTRACE;
+   if(!mMap)
+     return;
+   int w,h;
+@@ -365,14 +365,14 @@
+ 
+   virtual void create(AGWidget *pParent,const AGRect2 &pRect,const Node &pNode)
+   {
+-    CTRACE;
++    //    CTRACE;
+     setResult(new MiniMap(pParent,pRect,0));
+   }
+ };
+ 
+ void registerMinimapCreator()
+ {
+-	TRACE;
++  //	TRACE;
+   getLayoutFactory()->addCreator("miniMap",new AGMiniMapLayoutCreator);
+ }
+ 
+
+Modified: antargis/branches/rant/ext/game/terrain.cc
+===================================================================
+--- antargis/branches/rant/ext/game/terrain.cc	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ext/game/terrain.cc	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -344,3 +344,9 @@
+   return &mGrass;
+ }
+ 
++void Terrain::mark()
++{
++  std::cout<<"Terrain::mark()"<<std::endl;
++  for(Nodes::iterator i=mNodes.begin();i!=mNodes.end();i++)
++    markObject(*i);
++}
+
+Modified: antargis/branches/rant/ext/game/terrain.h
+===================================================================
+--- antargis/branches/rant/ext/game/terrain.h	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ext/game/terrain.h	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -122,6 +122,8 @@
+   /// the whole map is changed - so better take care of this (texture-upload instead of repainting on GPU)
+   virtual void mapChangedComplete();
+ 
++  void mark();
++
+  private:
+   void init();
+ };
+
+Modified: antargis/branches/rant/ext/game/water.cc
+===================================================================
+--- antargis/branches/rant/ext/game/water.cc	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ext/game/water.cc	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -32,6 +32,8 @@
+   SceneNode(pScene,pos,AGBox3()),
+   mX(x),mY(y),mW(w),mH(h),mMap(&map)
+ {
++  CTRACE;
++  std::cout<<"water:"<<this<<std::endl;
+   step=2;
+   tex=getTextureCache()->get("data/textures/terrain/water.png");
+ 
+@@ -44,6 +46,7 @@
+ 
+ WaterPiece::~WaterPiece()
+ {
++  std::cout<<"water killed:"<<this<<std::endl;
+   if(sceneValid())
+     getScene()->removeNode(this);
+ 
+
+Modified: antargis/branches/rant/ext/gui/init.cc
+===================================================================
+--- antargis/branches/rant/ext/gui/init.cc	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ext/gui/init.cc	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -1,11 +1,9 @@
+ #include <ag_base.h>
+ #include <ag_debug.h>
+-#include <ag_layout.h>
+-
+-AGEXPORT void AG_Init_libantargisgui()
+-{
+-	TRACE;
+-
+-	AGLayout::registerLayouts();
+-}
+-
++#include <ag_layout.h>
++
++AGEXPORT void AG_Init_libantargisgui()
++{
++  AGLayout::registerLayouts();
++}
++
+
+Modified: antargis/branches/rant/ext/math/init.cc
+===================================================================
+--- antargis/branches/rant/ext/math/init.cc	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ext/math/init.cc	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -5,6 +5,6 @@
+ 
+ void AGEXPORT AG_Init_libantargismath()
+ {
+-	TRACE;
+-	getMain()->setRand(new AGRandomizer(""));
++  //	TRACE;
++  getMain()->setRand(new AGRandomizer(""));
+ }
+
+Modified: antargis/branches/rant/ext/video/ag_vdebug.cc
+===================================================================
+--- antargis/branches/rant/ext/video/ag_vdebug.cc	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ext/video/ag_vdebug.cc	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -13,7 +13,9 @@
+ 	
+ 	std::cerr<<msg.str()<<std::endl;
+ 	throw std::runtime_error(msg.str());
++#ifndef MNDEBUG
+ 	agRaise(msg.str());
++#endif
+       }
+     }
+ 
+@@ -26,8 +28,10 @@
+ 	  std::cerr<<"SDL_Error:"<<s<<":"<<se<<std::endl;
+ 	  if(std::string(se).substr(0,37)=="Failed loading glXGetSwapIntervalMESA")
+ 	    std::cerr<<"IGNORING THIS ERROR!"<<std::endl;
++#ifndef MNDEBUG
+ 	  else
+ 	    agRaise(se);
++#endif
+ 	  SDL_ClearError();
+ 	}
+     }
+
+Modified: antargis/branches/rant/ruby/ant_hljobs.rb
+===================================================================
+--- antargis/branches/rant/ruby/ant_hljobs.rb	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ruby/ant_hljobs.rb	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -27,7 +27,7 @@
+ 
+ require 'entities.rb'
+ 
+-if true
++if false
+ 
+ 
+ # Base class for high-level jobs. It contains the basic functions that're needed for usage within
+@@ -1124,7 +1124,7 @@
+ 	return false
+ end
+ 
++else
++
++require 'jobs/ant_new_hljobs.rb'
+ end
+-
+-#require 'jobs/ant_new_hljobs.rb'
+-
+
+Modified: antargis/branches/rant/ruby/ant_tools.rb
+===================================================================
+--- antargis/branches/rant/ruby/ant_tools.rb	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ruby/ant_tools.rb	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -68,6 +68,12 @@
+ 	return c
+ end
+ 
++class Class
++	def descendants
++		getDescendantsOfClass(self)
++	end
++end
++
+ def trace
+ 	puts "TRACE #{caller[0]}"
+ end
+
+Modified: antargis/branches/rant/ruby/antargislib.rb
+===================================================================
+--- antargis/branches/rant/ruby/antargislib.rb	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ruby/antargislib.rb	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -10,7 +10,6 @@
+ 	@@antargislibinited||=false
+ 
+ 	if not @@antargislibinited
+-		puts "MYTRY"
+ 		# try suspending arts
+ 		if File.exists?("/usr/bin/artsshell")
+ 			File.popen("/usr/bin/artsshell suspend 2>&1").close
+@@ -19,15 +18,16 @@
+ 		@@programDir=Dir.pwd+"/ruby"
+ 		# add programdir to path
+ 		$:.push(@@programDir)
++		$:.push(@@programDir+"/entities")
+ 
+ 		@@extDir=Dir.pwd+"/ext"
+ 		# add programdir to path
+-		$:.push(@@extDir)
+-        if ENV["PATH"].split(";").length>3 # FIXME: is windows ?
+-            ENV["PATH"]+=";.\\ext"
+-        else
+-            ENV["PATH"]+=":./ext"
+-        end
++		$:.push(@@extDir)
++        if ENV["PATH"].split(";").length>3 # FIXME: is windows ?
++            ENV["PATH"]+=";.\\ext"
++        else
++            ENV["PATH"]+=":./ext"
++        end
+ 	end
+ end
+ 
+
+Modified: antargis/branches/rant/ruby/entities/ant_bakery.rb
+===================================================================
+--- antargis/branches/rant/ruby/entities/ant_bakery.rb	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ruby/entities/ant_bakery.rb	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -13,6 +13,7 @@
+ 	end
+ 	
+ 	def setupMesh
++		return if getScene.nil?
+ 		setMesh
+ 		p=AGVector3.new(0,1.6,2.2)
+ 		addMesh(@smokeMesh=AntParticle.new(getMap.getScene,5),p)
+@@ -41,6 +42,7 @@
+ private
+ 	# checks if smoke should be displayed
+ 	def checkSmoke
++		return if getScene.nil?
+ 		if @smokeMesh
+ 			if @smoke
+ 				@smokeMesh.setEnabled((@smoke>0))
+
+Modified: antargis/branches/rant/ruby/entities/ant_boss.rb
+===================================================================
+--- antargis/branches/rant/ruby/entities/ant_boss.rb	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ruby/entities/ant_boss.rb	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -147,6 +147,7 @@
+ 				@job.check(man)
+ 			end
+ 		end
++		resourceChanged
+ 	end
+ 	
+ 	def removeMan(man)
+@@ -154,6 +155,8 @@
+ 		if @job
+ 			@job.delete(man)
+ 		end
++		resourceChanged
++		#raise 1
+ 	end
+ 	
+ 	def setPlayer(player)
+@@ -281,6 +284,7 @@
+ 
+ 	def setupRing
+ 		@ring=getRing
++		return if @ring.nil?
+ 		if @selected
+ 			#f6c108
+ 			@ring.setRingColor(AGVector4.new(1,0.7,0.1,0.8))
+
+Modified: antargis/branches/rant/ruby/entities/ant_druid.rb
+===================================================================
+--- antargis/branches/rant/ruby/entities/ant_druid.rb	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ruby/entities/ant_druid.rb	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -7,6 +7,7 @@
+ 		setupMesh
+ 	end
+ 	def resourceChanged
++		super
+ 		setupMesh
+ 	end
+ 	
+
+Modified: antargis/branches/rant/ruby/entities/ant_field.rb
+===================================================================
+--- antargis/branches/rant/ruby/entities/ant_field.rb	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ruby/entities/ant_field.rb	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -21,6 +21,7 @@
+ 			end
+ 		end
+ 		setupMesh
++		super
+ 	end
+ 
+ 	def eventNoJob
+
+Modified: antargis/branches/rant/ruby/entities/ant_fir.rb
+===================================================================
+--- antargis/branches/rant/ruby/entities/ant_fir.rb	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ruby/entities/ant_fir.rb	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -28,6 +28,7 @@
+ 		setProvide("tree",true)
+ 	end
+ 	def resourceChanged
++		super
+ 		setupMesh
+ 	end
+ end
+@@ -48,7 +49,7 @@
+ 			@typeID=-1
+ 			setProvide("wood",false)
+ 		end
+-		setupMesh
++		super
+ 	end
+ 
+ 	
+
+Modified: antargis/branches/rant/ruby/entities/ant_fire.rb
+===================================================================
+--- antargis/branches/rant/ruby/entities/ant_fire.rb	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ruby/entities/ant_fire.rb	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -3,7 +3,7 @@
+ 		super
+ 		mp=AGVector3.new(0,0,0)
+ 		setMesh(:on)
+-		if MyAntargislib.opengl
++		if MyAntargislib.opengl and getScene
+ 			@smokeMesh=AntParticle.new(getMap.getScene,4)
+ 			addMesh(@smokeMesh,mp)
+ 			smoke=AntParticle.new(getMap.getScene,40)
+@@ -15,6 +15,7 @@
+ 		@enabled=true
+ 	end
+ 	def disable
++		return if getScene
+ 		setMesh(:off)
+ 		if MyAntargislib.opengl
+ 			#setMesh(Mesh.new(getMap.getScene,getMeshData("data/models/fire.ant2",0.3,"data/textures/models/fire2.png"),AGVector4.new(0,0,0),0))
+
+Modified: antargis/branches/rant/ruby/entities/ant_grass.rb
+===================================================================
+--- antargis/branches/rant/ruby/entities/ant_grass.rb	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ruby/entities/ant_grass.rb	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -167,10 +167,12 @@
+ end
+ 
+ def makeGrassMesh(size=0.4)
++	return nil if getMap.getScene.nil?
+ 	return Mesh.new(getMap.getScene,getGrassMeshData(size,4,"data/textures/models/high_grass2.png"),AGVector4.new(0,0,0,0),0)
+ end
+ 
+ def makeBushMesh(size=0.4)
++	return nil if getMap.getScene.nil?
+ 	return Mesh.new(getMap.getScene,getGrassMeshData(size,1,"data/textures/models/bush5.png",true),AGVector4.new(0,0,0,0),0)
+ end
+ 
+@@ -189,6 +191,7 @@
+ 		setupMesh
+ 	end
+ 	def resourceChanged
++		super
+ 		setupMesh
+ 	end
+ 	
+
+Modified: antargis/branches/rant/ruby/entities/ant_manbase.rb
+===================================================================
+--- antargis/branches/rant/ruby/entities/ant_manbase.rb	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ruby/entities/ant_manbase.rb	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -62,6 +62,10 @@
+ 		setMeshState("sitdown")
+ 	end
+ 
++	def lookTo(p)
++		setDirection(180-(p-getPos2D).normalized.getAngle.angle*180.0/Math::PI)
++	end
++
+ 	def walkTo(p)
+ 		newMoveJob(0,p,0)
+ 	end
+
+Modified: antargis/branches/rant/ruby/entities/ant_mine.rb
+===================================================================
+--- antargis/branches/rant/ruby/entities/ant_mine.rb	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ruby/entities/ant_mine.rb	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -34,6 +34,7 @@
+ 	end
+ 	def resourceChanged
+ 		setupMesh
++		super
+ 	end
+ 	
+ 	private
+
+Modified: antargis/branches/rant/ruby/entities/ant_ring.rb
+===================================================================
+--- antargis/branches/rant/ruby/entities/ant_ring.rb	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ruby/entities/ant_ring.rb	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -78,6 +78,7 @@
+ 
+ 
+ def makeRingMesh
++	return nil if getMap.getScene.nil?
+ 	return AntModels.createModel(:sack) if not opengl # FIXME
+ 	mesh=ColoredMesh.new(getMap.getScene,RingData.getRingData,AGVector4.new(0,0,0,0),0)
+ 	mesh.setOrder(RING_Z)
+@@ -85,6 +86,7 @@
+ end
+ 
+ def makeBigRingMesh
++	return nil if getMap.getScene.nil?
+ 	return AntModels.createModel(:sack) if not opengl # FIXME
+ 	mesh=ColoredMesh.new(getMap.getScene,RingData.getRingData(4),AGVector4.new(0,0,0,0),0)
+ 	mesh.setOrder(RING_Z)
+
+Modified: antargis/branches/rant/ruby/entities/ant_sack.rb
+===================================================================
+--- antargis/branches/rant/ruby/entities/ant_sack.rb	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ruby/entities/ant_sack.rb	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -14,5 +14,6 @@
+ 		@storeGood.each{|r|
+ 			setProvide(r,resource.get(r)>0)
+ 		}
++		super
+ 	end
+ end
+\ No newline at end of file
+
+Modified: antargis/branches/rant/ruby/entities/ant_tower.rb
+===================================================================
+--- antargis/branches/rant/ruby/entities/ant_tower.rb	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ruby/entities/ant_tower.rb	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -24,6 +24,7 @@
+ 			setProvide(r,resource.get(r)>0)
+ 			puts provides(r)
+ 		}
++		super
+ 	end
+ 
+ 	###############################
+
+Modified: antargis/branches/rant/ruby/entities/ant_townhall.rb
+===================================================================
+--- antargis/branches/rant/ruby/entities/ant_townhall.rb	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ruby/entities/ant_townhall.rb	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -37,10 +37,10 @@
+ 	end
+ 
+ 	def resourceChanged
+-		puts "RESOURCE CHANGED"
+ 		@storeGood.each{|r|
+ 			setProvide(r,resource.get(r)>0)
+ 		}
++		super
+ 	end
+ 
+ 	def neededStock
+
+Modified: antargis/branches/rant/ruby/entities/ant_tree.rb
+===================================================================
+--- antargis/branches/rant/ruby/entities/ant_tree.rb	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ruby/entities/ant_tree.rb	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -85,6 +85,7 @@
+ 			setProvide("wood",false)
+ 		end
+ 		setupMesh
++		super
+ 	end
+ 	
+ 	def setTreeType(t)
+@@ -114,7 +115,8 @@
+ 			typeId=@typeID%10
+ 		end
+ 		mesh=setMesh(typeId)
+-		mesh.setRotation(@angle)
++		
++		mesh.setRotation(@angle) if mesh
+ 	end
+ 
+ 	# an old function for display apples - this is too costly
+
+Modified: antargis/branches/rant/ruby/entities/ant_workshop.rb
+===================================================================
+--- antargis/branches/rant/ruby/entities/ant_workshop.rb	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ruby/entities/ant_workshop.rb	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -41,6 +41,7 @@
+ 	end
+ 	# sets up the mesh and adds a smoke-particle engine, which is disabled at first
+ 	def setupMesh
++		return if getScene.nil?
+ 		setMesh
+ 		p=AGVector3.new(-1.3,-1.2,2.2)
+ 		if opengl
+@@ -87,6 +88,7 @@
+ private
+ 	# checks if smoke should be displayed
+ 	def checkSmoke
++		return if getScene.nil?
+ 		if @smokeMesh
+ 			if @smoke
+ 				@smokeMesh.setEnabled((@smoke>0))
+
+Modified: antargis/branches/rant/ruby/entities/entities.rb
+===================================================================
+--- antargis/branches/rant/ruby/entities/entities.rb	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ruby/entities/entities.rb	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -18,279 +18,8 @@
+ # License along with this program.
+ #
+ 
+-require 'ant_local.rb'
++require 'entity.rb'
+ 
+-# this variables are used for playing sounds, which should be done with AntRubyEntity::playSound
+-INNER_VOL_SIZE=9 # size of circle around camera-middle with max volume
+-OUTER_VOL_SIZE=25 # size circle around camera describing volume descend
+-
+-# AntRubyEntity slighty enhances the functionality already provided by AntEntity.
+-# This should be used for all the entity-types.
+-class AntRubyEntity<AntEntity
+-	attr_accessor :birthday
+-	attr_reader :uid
+-
+-	def AntRubyEntity.setMap(map)
+-		@@map=map
+-	end
+-	def getMap
+-		@@map
+-	end
+-
+-
+-	# create a new entity at the position *p*
+-	# set some default settings
+-	# get a unique ID
+-	# loading must be done externally in loadXML !
+-	def initialize(position)
+-		super(position)
+-		@xmlProps={}
+-		@birthday=getMap.getTime
+-		@mode=""
+-		@handlers={}
+-		self.learnAmount=0.05
+-	
+-		@uid=getMap.getUniqueID
+-
+-		setHunger(0) # general entities have no hunger
+-	end
+-
+-
+-	# play a sound identified by +name+. Sounds of this type shouldn't called when they were only called
+-	# +minDiff+ (or less) seconds before. Note that the sound is played at the place where this entity is placed.
+-	# So it's not hearable far away from it.
+-	def playSound(name,minDiff=0.5)
+-		scene=getMap.getScene
+-		d=((scene.getCamera.dim2-getPos2D).length-INNER_VOL_SIZE)
+-		vol=1
+-		if d>0
+-			vol=[(OUTER_VOL_SIZE-d)/OUTER_VOL_SIZE,0].max
+-		end
+-		AntSound.playSoundGlobal(name,vol,minDiff)
+-	end
+-
+-	
+-	# :section: Editing
+-
+-	# Within the editor you can change additional properties, e.g. count of men for a hero. This functions are used for this.
+-	def setXMLProp(n,v)
+-		@xmlProps[n]=v
+-	end
+-	def getXMLProp(n)
+-		if @xmlProps[n]==nil
+-			return ""
+-		else
+-			return @xmlProps[n]
+-		end
+-	end
+-
+-	# :section: XML loading/saving
+-
+-	def preloadXML(node)
+-		if node.get("birthday")!=""
+-			@birthday=node.get("birthday").to_f
+-		end
+-		@mode=node.get("mode")
+-		if node.get("uid")!=""
+-			@uid=node.get("uid").to_i
+-			getMap.checkUID(@uid)
+-		end
+-		setName(node.get("name"))
+-	end
+-
+-	def loadXML(node)
+-		super
+-	end
+-	def saveXML(node)
+-		super(node)
+-		@xmlProps.each{|n,v|
+-			node.set(n,v)
+-		}
+-		if @birthday
+-			node.set("birthday", at birthday.to_s)
+-		end
+-		node.set("mode", at mode)
+-		node.set("uid", at uid.to_s)
+-	end
+-	def getDescription
+-		_("This is an entity - no more info here.")
+-	end
+-
+-	# :section: miscellanous
+-
+-	# simple comparison operator, so that ents can be distinguished
+-	# for what is this needed ???
+-	def <=>(e)
+-		to_s<=>e.to_s
+-	end
+-
+-	def menCount
+-		0
+-	end
+-	def getPlayer
+-		nil
+-	end
+-	def fightTarget
+-		@fightTarget
+-	end
+-	def getRand
+-		if false
+-			# FIXME - implement me (network code)
+-			#rand
+-			puts "mrand:#{@mrand}"
+-			@mrand||=AGRandomizer.new("")
+-			val=@mrand.randFloat(1)
+-	
+-			puts "#{self} getRand #{val}  #{@mrand}"
+-			puts caller.join("\n")
+-	
+-			return val
+-		end
+-		agRand(1.0)
+-	end
+-
+-	def setStrength(v)
+-		super
+-		setMoraleStrength(v*2)
+-	end
+-
+-	# get the age of this entity - computed from @birthday
+-	def age
+-		((getMap.getTime- at birthday).to_f/YEAR).to_i
+-	end
+-	# @birthday will be set according to the current date (get it by calling getMap.getTime)
+-	def age=(years)
+-		@birthday=getMap.getTime-years*YEAR
+-	end
+-	def getMen
+-		[]
+-	end
+-
+-	
+-	def setMode(mode)
+-		@mode=mode
+-	end
+-	def getMode
+-		@mode
+-	end
+-
+-
+-
+-	def isOnOpenWater(p=nil)
+-		if (not p)
+-			p=getPos2D
+-		end
+-		getMap.getPos(p).z<-0.2
+-	end
+-	def isOnWater
+-		getMap.getPos(getPos2D).z<0
+-	end
+-
+-	# give name under which this entity is stored in xml. It's generated from the classname. The first character is downcased.
+-	# The rest is camel-case as usual.
+-	# For instace: AntShop => antShop
+-	def xmlName
+-		xml=self.class.to_s
+-		xml=xml[0..0].downcase+xml[1..1000]
+-		return xml
+-	end
+-
+-	def addHandler(eventName,&block)
+-		@handlers[eventName]||=[]
+-		@handlers[eventName].push(block)
+-	end
+-
+-	def doEvent(name)
+-		if @handlers[name]
+-			@handlers[name].each{|b|
+-				b.call
+-			}
+-		end
+-	end
+-
+-	# :section: job-handling
+-	# These functions add support for event-Handling within Entities' jobs. This is (will be) used for
+-	# scripting and AI.
+-	#	
+-	# FIXME: THis should be moved somewhere else (?)
+-	#
+-	# For more information on scripting link:files/ruby/scripting/README.html
+-
+-	def newFightJob(p,target,distance)
+-		@fightTarget=target
+-		super
+-		doEvent(:eventNewFightJob)
+-	end
+-	def newRestJob(t)
+-		super
+-		doEvent(:eventNewRestJob)
+-	end
+-
+-	# :section eventHandling
+-	def eventNoJob
+-		super
+-		doEvent(:eventNoJob)
+-	end
+-	def eventJobFinished
+-		super
+-		doEvent(:eventJobFinished)
+-	end
+-
+-	def experienceFull
+-		super
+-		self.experience=1
+-	end
+-
+-
+-	# :section: status-information
+-
+-	# an event-handler for resources being changed. In this case a possible view on the inventory is updated
+-	def resourceChanged	
+-		super
+-		AntInventory.update(self)
+-	end
+-
+-	# is this entity under attack - here this is always false, because it doesn't make sense for all entities
+-	def underAttack
+-		false
+-	end
+-
+-	# :section: state-changes
+-
+-	# set a mesh for this entity - have a look at AntModels for more information on how this works
+-	# * normally you give a subtype or nothing at all to this function and AntModels will take care of the right
+-	#   mesh. *sym* override the current entities type.
+-	# * you can pipe in a SceneNode-based object through *subtype* though this is no good !
+-	def setMesh(subtype="",sym=nil)
+-		if subtype.is_a?(SceneNode)
+-			puts  "THIS SHOULD NOT BE USED ANY LONGER: setMesh(realMesh) !!!!!!!!!!!!"
+-			super(subtype) # wrapper
+-			return subtype
+-		end
+-		@map={:AntSack=>:sack}
+-		t=self.class.to_s
+-		t=t.gsub("Ant","").downcase
+-		t=t.to_sym
+-		if sym
+-			t=sym
+-		end
+-		
+-		super(mesh=AntModels.createModel(t,subtype))
+-		return mesh
+-	end
+-
+-
+-
+-
+-	# :section: deprecated
+-
+-
+-	# FIXME: remove this - this is a backward-compability function 
+-	def get
+-		self
+-	end
+-end
+-
+ # here comes a list of all the different entity-types BoA currently uses:
+ require 'ant_hero.rb'
+ require 'ant_sheep.rb'
+
+Added: antargis/branches/rant/ruby/entities/entity.rb
+===================================================================
+--- antargis/branches/rant/ruby/entities/entity.rb	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ruby/entities/entity.rb	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -0,0 +1,280 @@
++require 'ant_local.rb'
++
++# this variables are used for playing sounds, which should be done with AntRubyEntity::playSound
++INNER_VOL_SIZE=9 # size of circle around camera-middle with max volume
++OUTER_VOL_SIZE=25 # size circle around camera describing volume descend
++
++# AntRubyEntity slighty enhances the functionality already provided by AntEntity.
++# This should be used for all the entity-types.
++class AntRubyEntity<AntEntity
++	attr_accessor :birthday
++	attr_reader :uid
++
++	def AntRubyEntity.setMap(map)
++		@@map=map
++	end
++	def getMap
++		@@map
++	end
++
++	def getScene
++		@@map.getScene
++	end
++
++
++	# create a new entity at the position *p*
++	# set some default settings
++	# get a unique ID
++	# loading must be done externally in loadXML !
++	def initialize(position)
++		super(position)
++		@xmlProps={}
++		@birthday=getMap.getTime
++		@mode=""
++		@handlers={}
++		self.learnAmount=0.05
++	
++		@uid=getMap.getUniqueID
++
++		setHunger(0) # general entities have no hunger
++	end
++
++
++	# play a sound identified by +name+. Sounds of this type shouldn't called when they were only called
++	# +minDiff+ (or less) seconds before. Note that the sound is played at the place where this entity is placed.
++	# So it's not hearable far away from it.
++	def playSound(name,minDiff=0.5)
++		scene=getMap.getScene
++		d=((scene.getCamera.dim2-getPos2D).length-INNER_VOL_SIZE)
++		vol=1
++		if d>0
++			vol=[(OUTER_VOL_SIZE-d)/OUTER_VOL_SIZE,0].max
++		end
++		AntSound.playSoundGlobal(name,vol,minDiff)
++	end
++
++	
++	# :section: Editing
++
++	# Within the editor you can change additional properties, e.g. count of men for a hero. This functions are used for this.
++	def setXMLProp(n,v)
++		@xmlProps[n]=v
++	end
++	def getXMLProp(n)
++		if @xmlProps[n]==nil
++			return ""
++		else
++			return @xmlProps[n]
++		end
++	end
++
++	# :section: XML loading/saving
++
++	def preloadXML(node)
++		if node.get("birthday")!=""
++			@birthday=node.get("birthday").to_f
++		end
++		@mode=node.get("mode")
++		if node.get("uid")!=""
++			@uid=node.get("uid").to_i
++			getMap.checkUID(@uid)
++		end
++		setName(node.get("name"))
++	end
++
++	def loadXML(node)
++		super
++	end
++	def saveXML(node)
++		super(node)
++		@xmlProps.each{|n,v|
++			node.set(n,v)
++		}
++		if @birthday
++			node.set("birthday", at birthday.to_s)
++		end
++		node.set("mode", at mode)
++		node.set("uid", at uid.to_s)
++	end
++	def getDescription
++		_("This is an entity - no more info here.")
++	end
++
++	# :section: miscellanous
++
++	# simple comparison operator, so that ents can be distinguished
++	# for what is this needed ???
++	def <=>(e)
++		to_s<=>e.to_s
++	end
++
++	def menCount
++		0
++	end
++	def getPlayer
++		nil
++	end
++	def fightTarget
++		@fightTarget
++	end
++	def getRand
++		if false
++			# FIXME - implement me (network code)
++			#rand
++			puts "mrand:#{@mrand}"
++			@mrand||=AGRandomizer.new("")
++			val=@mrand.randFloat(1)
++	
++			puts "#{self} getRand #{val}  #{@mrand}"
++			puts caller.join("\n")
++	
++			return val
++		end
++		agRand(1.0)
++	end
++
++	def setStrength(v)
++		super
++		setMoraleStrength(v*2)
++	end
++
++	# get the age of this entity - computed from @birthday
++	def age
++		((getMap.getTime- at birthday).to_f/YEAR).to_i
++	end
++	# @birthday will be set according to the current date (get it by calling getMap.getTime)
++	def age=(years)
++		@birthday=getMap.getTime-years*YEAR
++	end
++	def getMen
++		[]
++	end
++
++	
++	def setMode(mode)
++		@mode=mode
++	end
++	def getMode
++		@mode
++	end
++
++
++
++	def isOnOpenWater(p=nil)
++		if (not p)
++			p=getPos2D
++		end
++		getMap.getPos(p).z<-0.2
++	end
++	def isOnWater
++		getMap.getPos(getPos2D).z<0
++	end
++
++	# give name under which this entity is stored in xml. It's generated from the classname. The first character is downcased.
++	# The rest is camel-case as usual.
++	# For instace: AntShop => antShop
++	def xmlName
++		xml=self.class.to_s
++		xml=xml[0..0].downcase+xml[1..1000]
++		return xml
++	end
++
++	def addHandler(eventName,&block)
++		@handlers[eventName]||=[]
++		@handlers[eventName].push(block)
++	end
++
++	def doEvent(name)
++		if @handlers[name]
++			@handlers[name].each{|b|
++				b.call
++			}
++		end
++	end
++
++	# :section: job-handling
++	# These functions add support for event-Handling within Entities' jobs. This is (will be) used for
++	# scripting and AI.
++	#	
++	# FIXME: THis should be moved somewhere else (?)
++	#
++	# For more information on scripting link:files/ruby/scripting/README.html
++
++	def newFightJob(p,target,distance)
++		@fightTarget=target
++		super
++		doEvent(:eventNewFightJob)
++	end
++	def newRestJob(t)
++		super
++		doEvent(:eventNewRestJob)
++	end
++
++	# :section eventHandling
++	def eventNoJob
++		super
++		doEvent(:eventNoJob)
++	end
++	def eventJobFinished
++		super
++		doEvent(:eventJobFinished)
++	end
++
++	def experienceFull
++		super
++		self.experience=1
++	end
++
++
++	# :section: status-information
++
++	# an event-handler for resources being changed. In this case a possible view on the inventory is updated
++	def resourceChanged	
++		super
++		begin
++			AntInventory.update(self)
++		rescue NameError
++		end
++	end
++
++	# is this entity under attack - here this is always false, because it doesn't make sense for all entities
++	def underAttack
++		false
++	end
++
++	# :section: state-changes
++
++	# set a mesh for this entity - have a look at AntModels for more information on how this works
++	# * normally you give a subtype or nothing at all to this function and AntModels will take care of the right
++	#   mesh. *sym* override the current entities type.
++	# * you can pipe in a SceneNode-based object through *subtype* though this is no good !
++	def setMesh(subtype="",sym=nil)
++		return if getMap.getScene.nil?
++		if subtype.is_a?(SceneNode)
++			puts  "THIS SHOULD NOT BE USED ANY LONGER: setMesh(realMesh) !!!!!!!!!!!!"
++			super(subtype) # wrapper
++			return subtype
++		end
++		@map={:AntSack=>:sack}
++		t=self.class.to_s
++		t=t.gsub("Ant","").downcase
++		t=t.to_sym
++		if sym
++			t=sym
++		end
++		
++		super(mesh=AntModels.createModel(t,subtype))
++		return mesh
++	end
++
++
++
++
++	# :section: deprecated
++
++
++	# FIXME: remove this - this is a backward-compability function 
++	def get
++		self
++	end
++end
+
+Modified: antargis/branches/rant/ruby/jobs/ant_hljob_states.rb
+===================================================================
+--- antargis/branches/rant/ruby/jobs/ant_hljob_states.rb	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ruby/jobs/ant_hljob_states.rb	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -15,6 +15,17 @@
+ end
+ 
+ 
++# class Object
++# 	def describe(t,&block)
++# 		if block
++# 			puts t
++# 			block.call
++# 		else
++# 			puts "WARNING: #{t} not implemented"
++# 		end
++# 	end
++# end
++
+ module HLJob_Additions
+ 	attr_accessor :machine
+ 	["getRand","hero","allMen","getTime","targetPos","targetPos=","formatDir","formatDir=","target"].each{|n|wrap "machine",n}
+@@ -30,6 +41,7 @@
+ 			puts "TRACE #{caller[0]} #{self} #{hero} #{getTime}"
+ 		end
+ 	end
++
+ end
+ 
+ class HLJob_DummyState<HLJob_BaseState
+@@ -724,14 +736,95 @@
+ end
+ 
+ 
++#
++# Recruiting goes like follows:
++# 
++#
+ class HLJob_Recruit<HLJob_BaseState
+ 	def enter
+-		raise "IMPLEMENT ME"
++#		describe "Initialize state-vars: countToRecruit" do
++			@countTargetMen=target.getMen.length
++			@countRecruiting=0
++			@countRecruited=0
++			@myPos=hero.getPos2D
++#		end
++		initRecruiting
+ 	end
+-	
++
++	def ready
++		((@countRecruited>=howManyToRecruit) or nonToRecruitLeft) and (hero.getPos2D-hero.getFormation(hero, at myPos)).length<0.1
++	end
++
++	def assign(man)
++		if checkRecruited(man)
++			returnToStart(man)
++			return
++		end
++
++		if (not ready)
++			letRecruit(man)
++		else
++			returnToStart(man)
++		end
++	end
++
+ 	private
+-	def recruitGetMen
+-		
++
++	def howManyToRecruit
++		@countTargetMen*hero.getAggression/3
+ 	end
++
++	def checkRecruited(man)
++		if man.hlJobMode[:recruitTarget]
++			target=man.hlJobMode[:recruitTarget]
++			target.setBoss(hero)
++			target.hlJobMode[:recruitTarget]=nil
++			man.hlJobMode[:recruitTarget]=nil
++			returnToStart(target)
++			@countRecruited+=1
++			return true
++		end
++		return false
++	end
++
++	def returnToStart(man)
++		pos=hero.getFormation(man, at myPos)
++		if (man.getPos2D-pos).length<0.1
++			man.lookTo(@myPos)
++			man.standStill
++		else
++			man.walkTo(pos)
++		end
++	end
++
++	def getAssignableTargets
++		target.getMen-hero.getMen.map{|man|man.getTarget}		
++	end
++
++	def nonToRecruitLeft
++		getAssignableTargets==0
++	end
++
++	def getNext(man,targets)
++		targets.min{|a,b|(a.getPos2D-man.getPos2D).length<=>(b.getPos2D-man.getPos2D).length}
++	end
++
++	def letRecruit(man)
++		target=getNext(man,getAssignableTargets)
++		if target
++			man.hlJobMode[:recruitTarget]=target
++			man.newMoveJob(0,target,1)
++			@countRecruiting=@countRecruiting+1
++		end
++	end
++
++	def initRecruiting
++		hero.getMen.each{|man|man.hlJobMode[:recruitTarget]=nil}
++		# hero at last
++		hero.getMen.reverse.each{|man|
++			letRecruit(man)
++			break if @countRecruiting>=howManyToRecruit
++		}
++	end
+ end
+ 
+
+Modified: antargis/branches/rant/ruby/jobs/ant_new_hljobs.rb
+===================================================================
+--- antargis/branches/rant/ruby/jobs/ant_new_hljobs.rb	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ruby/jobs/ant_new_hljobs.rb	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -12,7 +12,6 @@
+ # to waiting men, because otherwise this function gets called for
+ # each waiting man in each frame, which can have impact on the performance.
+ #
+-# 
+ 
+ def newHLJobs
+ 	return true
+@@ -275,7 +274,8 @@
+ 	startState :moveComplete
+ 	endState :endState
+ 
+-	edge :moveComplete,:endState
++	edge :moveComplete,:recruit
++	edge :recruit,:endState
+ 
+ 	attr_accessor :targetPos
+ 	attr_accessor :formatDir
+@@ -308,7 +308,6 @@
+ 
+ 
+ # FIXME:
+-# 1) recruiting
+ # 2) constructing
+ # 3) build houses
+ 
+
+Modified: antargis/branches/rant/ruby/map.rb
+===================================================================
+--- antargis/branches/rant/ruby/map.rb	2007-09-05 18:30:52 UTC (rev 1172)
++++ antargis/branches/rant/ruby/map.rb	2007-09-10 19:37:54 UTC (rev 1173)
+@@ -21,6 +21,7 @@
+ require 'ant_player.rb'
+ require 'ant_trigger.rb'
+ require 'ant_level.rb'
++require 'entity.rb'
+ 
+ require 'ant_ai.rb'
+ require 'ant_path.rb'
+@@ -48,22 +49,29 @@
+ 
+ # AntRubyMap is not only the "map", but manages the moving and the actions of all the
+ # entities around. Apart from that it contains the Players. So it might be better to call it "World"
++# It might be important to mention, that currently only one map at a moment is supported, because
++# AntRubyEntity contains a pointer the current instance - this makes it possible that all entities can
++# access the map through getMap - FIXME
+ class AntRubyMap<AntMap
+ 	attr_accessor :pause,:players
+ 	attr_reader :path
+ 
+ 	def initialize(app,pScene,w,h,playerName="Rowen")
+-		assert{app.is_a?(AGApplication)}
+-		assert{pScene.is_a?(SceneBase)}
++# 		assert{app.is_a?(AGApplication)}
++# 		assert{pScene.is_a?(SceneBase)}
+ 		assert{w.is_a?(Numeric)}
+ 		assert{h.is_a?(Numeric)}
+ 
++		if pScene.nil?
++			require 'ant_mock.rb'
++		end
++
+ 		super(pScene,w,h)
+ 		@pause=false # is game paused
+ 		@app=app
+ 
+ 		@@systemTime=0.0  # systemTime is needed for the playing of sounds - so they won't be played too often
+-		@curTime=0.0     # curTime holds the current "date" of the world; the age of entities is measures by this
++		@curTime=0.0      # curTime holds the current "date" of the world; the age of entities is measures by this
+ 
+ 		@playerName=playerName
+ 		@players=[]
+
+
+
+From davidkamphausen at mail.berlios.de  Mon Sep 10 21:38:26 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Mon, 10 Sep 2007 21:38:26 +0200
+Subject: [Antargis-svn] r1174 - in antargis/branches/rant: build/spec
+	ruby/entities ruby/entities/spec
+Message-ID: <200709101938.l8AJcQZn013374@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-09-10 21:38:25 +0200 (Mon, 10 Sep 2007)
+New Revision: 1174
+
+Added:
+   antargis/branches/rant/build/spec/libraries.rb
+   antargis/branches/rant/ruby/entities/spec/
+   antargis/branches/rant/ruby/entities/spec/entities.rb
+Log:
+* missin files
+
+
+Added: antargis/branches/rant/build/spec/libraries.rb
+===================================================================
+--- antargis/branches/rant/build/spec/libraries.rb	2007-09-10 19:37:54 UTC (rev 1173)
++++ antargis/branches/rant/build/spec/libraries.rb	2007-09-10 19:38:25 UTC (rev 1174)
+@@ -0,0 +1,5 @@
++describe String, "Build process" do
++	it "should use mkmf as default"
++	it "should check for libGLU"
++	it "should check for all the used libraries"
++end
+\ No newline at end of file
+
+Added: antargis/branches/rant/ruby/entities/spec/entities.rb
+===================================================================
+--- antargis/branches/rant/ruby/entities/spec/entities.rb	2007-09-10 19:37:54 UTC (rev 1173)
++++ antargis/branches/rant/ruby/entities/spec/entities.rb	2007-09-10 19:38:25 UTC (rev 1174)
+@@ -0,0 +1,29 @@
++require 'ruby/ant_tools.rb'
++require 'ruby/antargislib.rb'
++require 'ruby/entities/entities.rb'
++require 'ruby/map.rb'
++
++(AntRubyEntity.descendants-[AntRubyEntity]).each{|aClass|
++	describe aClass do
++		it "should call AntRubyEntity.resourceChanged when resourceChanges is called on a descendant" do
++			puts "TESTING #{aClass}"
++			class AntRubyEntity
++				alias :resourceChangedOld :resourceChanged
++				def resourceChanged
++					$ok=true
++				end
++			end
++			$ok=false
++			map=AntRubyMap.new(nil,nil,32,32)
++			object=aClass.new #(AGVector2.new(0,0))
++			object.setPos(AGVector2.new(1,1))
++			object.resourceChanged
++			class AntRubyEntity
++				alias :resourceChanged :resourceChangedOld
++			end
++			$ok.should == true
++			
++		end
++		it "should run without a scene-object defined"
++	end
++}
+\ No newline at end of file
+
+
+
+From davidkamphausen at mail.berlios.de  Mon Sep 10 21:38:54 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Mon, 10 Sep 2007 21:38:54 +0200
+Subject: [Antargis-svn] r1175 - in antargis/branches/rant/ruby: . jobs
+	jobs/spec spec
+Message-ID: <200709101938.l8AJcsDO013412@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-09-10 21:38:54 +0200 (Mon, 10 Sep 2007)
+New Revision: 1175
+
+Added:
+   antargis/branches/rant/ruby/ant_mock.rb
+   antargis/branches/rant/ruby/jobs/spec/
+   antargis/branches/rant/ruby/jobs/spec/recruit.rb
+   antargis/branches/rant/ruby/spec/map.rb
+Log:
+* new files
+
+
+Added: antargis/branches/rant/ruby/ant_mock.rb
+===================================================================
+--- antargis/branches/rant/ruby/ant_mock.rb	2007-09-10 19:38:25 UTC (rev 1174)
++++ antargis/branches/rant/ruby/ant_mock.rb	2007-09-10 19:38:54 UTC (rev 1175)
+@@ -0,0 +1,4 @@
++class Mesh
++	def initialize
++	end
++end
+\ No newline at end of file
+
+Added: antargis/branches/rant/ruby/jobs/spec/recruit.rb
+===================================================================
+--- antargis/branches/rant/ruby/jobs/spec/recruit.rb	2007-09-10 19:38:25 UTC (rev 1174)
++++ antargis/branches/rant/ruby/jobs/spec/recruit.rb	2007-09-10 19:38:54 UTC (rev 1175)
+@@ -0,0 +1,60 @@
++require 'ruby/antargislib.rb'
++require 'map.rb'
++require 'entities.rb'
++#require 'ruby/state_machine/ant_hl_job_states.rb'
++
++module Testing
++	@@testing=false
++	def Testing.initTesting
++		return if @@testing
++		@@testing=true
++
++		@@app=AGApplication.new
++		@@scene=Scene.new(800,600)
++	end
++
++	def Testing.getTestMapFor(test)
++		initTesting
++		case test
++			when :recruit
++				#map=AntRubyMap.new(@@app,@@scene,800,600)
++				map=AntRubyMap.new(nil,nil,800,600)
++				map.loadMap("data/levels/tutorial/tutorial0.antlvl")
++				map
++		end
++	end
++end
++
++describe AntHeroRecruitJob,"Test-map for recruiting" do
++	before(:all) do
++		@map=Testing.getTestMapFor(:recruit)
++	end
++	it "should include a hero called 'Rowen'" do
++		@map.getByName("Rowen").should is_a?(AntHero)
++	end
++end
++
++describe AntHeroRecruitJob,"A hero recruit job" do
++	before(:each) do
++		@map=Testing.getTestMapFor(:recruit)
++
++		@hero=@map.getByName("Rowen")
++	end
++
++	it "map should include Rowen" do
++		@hero.should_not be_nil
++	end
++
++
++# 	it "should at any time determine how strong the aggression of the hero is and thus should not start new ll-jobs to recruit people if there are already enough"
++# 	it "should take care when the aggression level is raised"
++# 	it "should assign a low-level job to the men - according to the amount of needed people" 
++# 	it "should return each man after recruiting of being recruited to the starting point"
++# 	it "should use sit-formation for the starting-point"
++# 	it "should let people sit, when they don't have anything to do"
++# 
++# 	it "aggression of 3 implies all people"		
++# 	
++# 	it "aggression of 2 implies 2/3 of all people"
++# 	it "aggression of 1 implies 1/3 of all people"
++end
+\ No newline at end of file
+
+Added: antargis/branches/rant/ruby/spec/map.rb
+===================================================================
+--- antargis/branches/rant/ruby/spec/map.rb	2007-09-10 19:38:25 UTC (rev 1174)
++++ antargis/branches/rant/ruby/spec/map.rb	2007-09-10 19:38:54 UTC (rev 1175)
+@@ -0,0 +1,32 @@
++require 'ruby/antargislib.rb'
++require 'map.rb'
++
++module Testing
++	@@testing=false
++	def Testing.initTesting
++		return if @@testing
++		@@testing=true
++
++		@@app=AGApplication.new
++		@@scene=Scene.new(800,600)
++	end
++
++	def Testing.getTestMapFor(test)
++		initTesting
++		case test
++			when :recruit
++				map=AntRubyMap.new(@@app,@@scene,800,600)
++				map.loadMap("data/levels/tutorial/tutorial0.antlvl")
++				map
++		end
++	end
++end
++
++describe AntRubyMap,"A BoA-Ruby-map" do
++	it "should run without UI at all" do
++		map=AntRubyMap.new(nil,nil,64,64)
++		map.move(1)
++	end
++
++	it "should be possible to create two maps concurrently (low prio)"
++end
+\ No newline at end of file
+
+
+
+From davidkamphausen at mail.berlios.de  Wed Sep 12 20:49:47 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Wed, 12 Sep 2007 20:49:47 +0200
+Subject: [Antargis-svn] r1176 - in antargis/branches/rant: . build
+	build/configs ext/3dengine ext/game
+Message-ID: <200709121849.l8CInlAm017769@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-09-12 20:49:46 +0200 (Wed, 12 Sep 2007)
+New Revision: 1176
+
+Added:
+   antargis/branches/rant/build/build.rb
+   antargis/branches/rant/build/config_file.rb
+Modified:
+   antargis/branches/rant/build/base_tools.rb
+   antargis/branches/rant/build/config_tools.rb
+   antargis/branches/rant/build/configs/unix.rb
+   antargis/branches/rant/build/configure.rb
+   antargis/branches/rant/build/create_interface.rb
+   antargis/branches/rant/configure
+   antargis/branches/rant/ext/3dengine/scene_base.cc
+   antargis/branches/rant/ext/3dengine/scenenode.cc
+   antargis/branches/rant/ext/game/height_map.cc
+   antargis/branches/rant/ext/game/map.cc
+   antargis/branches/rant/ext/game/terrain.cc
+   antargis/branches/rant/ext/game/water.cc
+Log:
+* many changes on the build-system
+
+
+Modified: antargis/branches/rant/build/base_tools.rb
+===================================================================
+--- antargis/branches/rant/build/base_tools.rb	2007-09-10 19:38:54 UTC (rev 1175)
++++ antargis/branches/rant/build/base_tools.rb	2007-09-12 18:49:46 UTC (rev 1176)
+@@ -1,6 +1,7 @@
+ require 'build/platform.rb'
+ require 'config.rb'                   # include build-options
+ require 'build/config_tools.rb'
++require 'build/build.rb'
+ 
+ def getDir(path)
+ 	# FIXME: check for windows
+@@ -17,9 +18,6 @@
+ 	"antargis"+dir.split("/")[-1]
+ end
+ 
+-def makeDepName(output)
+-	dep=".deps/"+output.gsub("/","_")
+-end
+ 
+ def getDependencies(output)
+ 	dep=makeDepName(output)
+@@ -34,16 +32,6 @@
+ 	[]
+ end
+ 
+-# build a command out of templates in config.rb
+-def makeCommand(cmd,output,input)
+-	#cmd.sub("?OUTPUT?",output).sub("?INPUT?",input)
+-	begin
+-		Dir.mkdir(".deps")
+-	rescue
+-	end
+-	dep=makeDepName(output)
+-	extendCommand($config,cmd,{"OUTPUT"=>output,"INPUT"=>input,"DEP"=>dep})
+-end
+ 
+ 
+ 
+@@ -55,52 +43,3 @@
+ 	(not ENV['WINDIR'].nil?)
+ end
+ 
+-module Cmd
+-	@@quiet=false 
+-	def Cmd.sys(cmd)
+-		
+-		puts cmd if not @@quiet
+-		#as=`#{cmd}`
+-		
+-		#puts "-#{cmd}-",cmd.class
+-		res=system(cmd)
+-		#puts a
+-		raise 1 unless res
+-		
+-	end
+-
+-	def Cmd.setQuiet(flag)
+-		@@quiet=flag
+-	end
+-end
+-
+-
+-module Build
+-	include Cmd
+-
+-	def Build.includes
+-		includes=Dir.glob(File.join("ext","**","*.h")).collect{|f|f.sub(/\/[^\/]*$/,"")}.uniq+[getConfig("archdir")]
+-		includes.collect{|i|"-I#{i}"}.join(" ")
+-	end
+-
+-	def Build.cflags
+-		includes+" "+getConfig("CFLAGS")+" "+$config["CFLAGS"]
+-	end
+-
+-	def Build.compile(cFile)
+-		cObj=cFileToObj(cFile)
+-		cmd=makeCommand("CXX_CALL",cObj,cflags+" "+cFile)
+-		Cmd.sys cmd
+-	end
+-	
+-	def Build.linkToLib(target,objs,libs)
+-		cmd=makeCommand("LINK_SHARED",target,(objs+libs).join(" "))
+-		Cmd.sys cmd
+-	end
+-
+-	def Build.cFileToObj(filename)
+-		filename.sub(/\.cc$/,".oo").sub(/\.c$/,".o")
+-	end
+-
+-end
+-
+
+Added: antargis/branches/rant/build/build.rb
+===================================================================
+--- antargis/branches/rant/build/build.rb	2007-09-10 19:38:54 UTC (rev 1175)
++++ antargis/branches/rant/build/build.rb	2007-09-12 18:49:46 UTC (rev 1176)
+@@ -0,0 +1,78 @@
++def makeDepName(output)
++	dep=".deps/"+output.gsub("/","_")
++end
++
++
++# build a command out of templates in config.rb
++def makeCommand(cmd,output,input)
++	#cmd.sub("?OUTPUT?",output).sub("?INPUT?",input)
++	begin
++		Dir.mkdir(".deps")
++	rescue
++	end
++	dep=makeDepName(output)
++	extendCommand($config,cmd,{"OUTPUT"=>output,"INPUT"=>input,"DEP"=>dep})
++end
++
++module Cmd
++	@@quiet=false 
++	def Cmd.sys(cmd)
++		puts cmd if not @@quiet
++		res=system(cmd)
++		raise 1 unless res
++	end
++
++	def Cmd.setQuiet(flag)
++		@@quiet=flag
++	end
++end
++
++
++module Build
++	include Cmd
++	@@silent=false
++
++	def self.silent=(flag)
++		@@silent=flag
++	end
++
++	def Build.includes
++		includes=Dir.glob(File.join("ext","**","*.h")).collect{|f|f.sub(/\/[^\/]*$/,"")}.uniq+[getConfig("archdir")]
++		includes.collect{|i|"-I#{i}"}.join(" ")
++	end
++
++	def Build.cflags
++		includes+" "+getConfig("CFLAGS")+" "+$config["CFLAGS"].to_s
++	end
++
++	def Build.compile(cFile)
++		cObj=cFileToObj(cFile)
++		cmd=makeCommand("CXX_CALL",cObj,cflags+" "+cFile)
++		call(cmd)
++	end
++
++	def Build.link(target,objs,libs)
++		cmd=makeCommand("LINK_EXE",target,(objs+libs).join(" "))
++		call(cmd)
++	end
++	
++	def Build.linkToLib(target,objs,libs)
++		cmd=makeCommand("LINK_SHARED",target,(objs+libs).join(" "))
++		call(cmd)
++	end
++
++	def Build.cFileToObj(filename)
++		filename.sub(/\.cc$/,".oo").sub(/\.c$/,".o")
++	end
++private	
++	def self.call(cmd)
++		if @@silent
++			cmd+=" 2>/dev/null"
++			#puts cmd
++			system(cmd)
++		else
++			Cmd.sys(cmd)
++		end
++	end
++end
++
+
+Added: antargis/branches/rant/build/config_file.rb
+===================================================================
+--- antargis/branches/rant/build/config_file.rb	2007-09-10 19:38:54 UTC (rev 1175)
++++ antargis/branches/rant/build/config_file.rb	2007-09-12 18:49:46 UTC (rev 1176)
+@@ -0,0 +1,5 @@
++require 'config.rb'
++
++def getConfigDirect(value,config)
++	$config[value]
++end
+\ No newline at end of file
+
+Modified: antargis/branches/rant/build/config_tools.rb
+===================================================================
+--- antargis/branches/rant/build/config_tools.rb	2007-09-10 19:38:54 UTC (rev 1175)
++++ antargis/branches/rant/build/config_tools.rb	2007-09-12 18:49:46 UTC (rev 1176)
+@@ -1,5 +1,9 @@
+ def extendCommandLine(config,s)
+-  r=config[s]
++	if config[s] 
++		r=config[s]
++	else
++  	r=getConfigDirect(s)
++	end
+   return r if r.nil?
+   r.gsub(/\$\(([^\)]*)\)/) {|a|
+ 		n=a[2..-2] # filter "$(xy..z)" to "xy..z"
+
+Modified: antargis/branches/rant/build/configs/unix.rb
+===================================================================
+--- antargis/branches/rant/build/configs/unix.rb	2007-09-10 19:38:54 UTC (rev 1175)
++++ antargis/branches/rant/build/configs/unix.rb	2007-09-12 18:49:46 UTC (rev 1176)
+@@ -26,6 +26,9 @@
+ 	"CXX_CALL"=>"$(CCACHE) $(CXX) $(COMPILE_PARAMS)",
+ 	# build a shared library (.so or .dll)
+ 	"LINK_SHARED"=>"$(LINK) -shared -o $(OUTPUT) -Lext $(INPUT)",
++	# build a program (.exe)
++	"LINK_EXE"=>"$(LINK) -o $(OUTPUT) -Lext $(INPUT)",
++
+ 	# generate c++-code from a swig-interface file
+ 	"SWIG_CALL"=>"$(SWIG) -v -Wall -ruby -c++ -o $(OUTPUT) $(INPUT)",
+ 	# generate dependencies for swig-interface files
+
+Modified: antargis/branches/rant/build/configure.rb
+===================================================================
+--- antargis/branches/rant/build/configure.rb	2007-09-10 19:38:54 UTC (rev 1175)
++++ antargis/branches/rant/build/configure.rb	2007-09-12 18:49:46 UTC (rev 1176)
+@@ -15,26 +15,23 @@
+ require 'build/platform.rb'
+ require 'build/config_tools.rb'
+ 
++alias :oldGetConfig :getConfig
++def getConfig(n)
++	v=CFG.get(n)
++	v=oldGetConfig(n) if v.nil?
++	#puts "GETCONFIG #{n}:#{v}"
++	v
++end
++
+ # the CFG-module serves with many functions that may be used in a configure script
+ module CFG
+-	@@options=[]
+ 	@@config={}
+ 	@@checks=[]
++	@@options={}
++	@@failed=[]
+ 
+-	# add a cli-option with name *name* and short-cut *short*
+-	# Example:
+-	#  CFG.addOption("enable-debug","d",
+-	#  	"enable debugging") do  ||
+-	#  	  	CFG.set("debug",true)
+-	#   end
+-	# will result in an output like this:
+-	#   -Battle of Antargis - Configuration
+-  #   -------------------------------------------------------------------------------
+-  #   --help, -h                              display help text
+-	#   --enable-debug, -d                      enable debugging
+-	# the given block *proc* will do whatever you define for instance setting debug to true in set configuration hash
+-	def CFG.addOption(name,short,help,param=nil,default=nil,&proc)
+-		@@options.push({:name=>name,:short=>short,:help=>help,:proc=>proc,:param=>param,:default=>default})
++	def self.setOptions(ops)
++		ops.each{|k,v|CFG.set(k,v)}
+ 	end
+ 
+ 	# return an array containing a hash, that describes, how the possible options will be checked
+@@ -48,31 +45,22 @@
+ 		@@checks << {:name=>name,:proc=>proc,:needed=>needed}
+ 	end
+ 
+-	def CFG.call(name)
+-		@@options.each{|op|
+-			if op[:name]==name || op[:short]==name
+-				op[:proc].call
+-			end
+-		}
+-	end
+-
+-
+-	def CFG.checkDefaults
+-		@@options.each{|op|
+-			if get(op[:name]).nil? and op[:default]
+-				set(op[:name],op[:default])
+-			end
+-		}
+-	end
+-
+ 	def CFG.run
+-		parseArgs
+-		checkDefaults
+ 		checkCompile
+ 		ok=runChecks
+ 		saveConfig if ok
+ 	end
+ 
++	def CFG.runCheck(name,needed=true,&proc)
++		text="checking "+name+" ..."
++		print text
++		ok=proc.call
++		#ok=(not ok.nil?)
++		print " "*(40-text.length)
++		puts ({true=>"ok",false=>"failed",nil=>"failed"}[ok])
++		@@failed << c[:name] unless ok or not c[:needed]
++	end
++
+ 	def CFG.runChecks
+ 		puts 
+ 		failed=[]
+@@ -82,7 +70,7 @@
+ 			ok=c[:proc].call
+ 			#ok=(not ok.nil?)
+ 			print " "*(40-text.length)
+-			puts ({true=>"ok",false=>"failed"}[ok])
++			puts ({true=>"ok",false=>"failed",nil=>"failed"}[ok])
+ 			failed << c[:name] unless ok or not c[:needed]
+ 		}
+ 		if failed.length>0
+@@ -100,7 +88,7 @@
+ 		f=File.open(configName,"w")
+ 		f.puts <<EOT
+ $config={
+-#{@@config.collect{|k,v|"  '"+k+"'=>"+toS(v)}.join(",\n")}
++#{@@config.collect{|k,v|"  '#{k}'=>"+toS(v)}.join(",\n")}
+ }
+ EOT
+ 		f.close
+@@ -116,15 +104,16 @@
+ 	end
+ 
+ 	def CFG.checkProgram(program,needed=true)
+-		addOption("path-"+program,"",
+-			"set path to program '#{program}' like this:\n --path-#{program}=/usr/local/bin/#{program}","path") do |d|
+-				set(program,d)
+-			end
++# 		addOption("path-"+program,"",
++# 			"set path to program '#{program}' like this:\n --path-#{program}=/usr/local/bin/#{program}","path") do |d|
++# 				set(program,d)
++# 			end
+ 
+ 		addCheck("program "+program,needed) do
+ 			path=get(program)
+ 			path||=findProgram(program)
+ 			r=testProgram(path)
++			#puts "found at #{path}"
+ 			set(program,path) if r
+ 			r
+ 		end
+@@ -167,10 +156,6 @@
+ 
+ 	def CFG.includeConfig
+ 		avail=["unix","mingw32"]
+-		addOption("base-config","",
+-			"set base-config like "+avail.join(", "),"config") do |v|
+-			set("base-config",v)
+-		end
+ 		addCheck ("base-config") do ||
+ 			c=get("base-config")
+ 			c=nil unless avail.member?(c)
+@@ -192,16 +177,44 @@
+ 		CFG.set("RUBYLIB",getConfig("LIBRUBYARG_SHARED"))
+ 	end
+ 
+-	def CFG.checkLibrary(libname)
++	def CFG.checkLibrary(libname,description,needed=true)
++		addCheck("lib"+libname,needed) do ||
++			#puts "FIXME checkLibrary #{libname}  #{description}"
++			if true
++				
++				# C-check
++				begin Dir.mkdir(".tmp"); rescue ;end
++				filename=".tmp/test.c"
++				f=File.open(filename,"w")
++				f.puts "int main(){return 0;}"
++				f.close
++				require 'build/build.rb'
++				Build.silent=true
++				Build.compile(filename)
++				obj=Build.cFileToObj(filename)
++				exe=".tmp/test"
++				Build.link(exe,[obj],["-l"+libname])
++				result=system(exe)
++				
++				set("LIBS",get("LIBS").to_s+" -l#{libname}") if result
++				result
++			end
++			
++
++		end
+ 	end
+ 
++	def self.hasLibrary(libname)
++		get("LIBS").split(" ").map{|l|l[2..-1]}.member?(libname)
++	end
+ 
++
+ 	private
+ 
+ 	# this function parses the cli-inputs
+ 	#
+ 	# *FIXME: replace this with the standard ruby-cli-input-parser
+-	def CFG.parseArgs
++	def CFG.parseArgsOld
+ 		ARGV.each{|arg|
+ 			found=false
+ 			# parse single arguments like "-d" or "-dgh" (like tar -xfz)
+@@ -214,7 +227,12 @@
+ 				if found
+ 					# all were ok, so call each these options
+ 					arg[1..-1].scan(/./){|byte|
+-						@@options.each{|op|op[:proc].call if op[:short]==byte}
++						@@options.each{|op|
++							if op[:short]==byte
++								puts "* #{op[:help]}"
++								op[:proc].call(true)
++							end
++						}
+ 					}
+ 				end
+ 			end
+@@ -227,7 +245,8 @@
+ 					# parse "simple" options without parameters
+ 					if arg=~/^--#{ename}$/ or arg=~/^-#{op[:short]}$/
+ 						found=true
+-						op[:proc].call
++						puts "* #{op[:help]}"
++						op[:proc].call(found)
+ 					# parse options with parameter, given like this : "-d=<somedir>" or "--dir=bladir"
+ 					elsif arg=~/^--#{ename}=.+/ or arg=~/^-#{op[:short]}=.+$/
+ 						found=true
+@@ -244,27 +263,19 @@
+ 		case v
+ 			when String
+ 				"'"+v.to_s+"'"
++			when Array
++				"'"+v.join(";")+"'"
++			when Hash
++				"'"+v.collect{|k,v|"#{k}=>#{v}"}.join(";")+"'"
+ 			else
++				#puts v,v.class
++				#raise "MUH"
+ 				v.to_s
+ 		end
+ 	end
++end
+ 
+-	addOption("help","h",
+-		"display help text") do
+-			CFG.options.each{|op|
+-				text=""
+-				text << "--#{op[:name]}"
+-				text << "=<#{op[:param]}>" if op[:param]
+-				text << ", -#{op[:short]}" if op[:short]!=""
+-				text << "=<#{op[:param]}>" if op[:short]!="" and op[:param]
+-				text+=" "*(40-text.length)
+-				l=text.length
+-				helpa=op[:help].split("\n")
+-				text+=helpa[0]
+-				helpa[1..-1].each{|h|
+-					text << "\n"+" "*l+h
+-				}
+-				puts text
+-			}
+-	end
+-end
++
++def getConfigDirect(v,config={})
++	CFG.get(v)
++end
+\ No newline at end of file
+
+Modified: antargis/branches/rant/build/create_interface.rb
+===================================================================
+--- antargis/branches/rant/build/create_interface.rb	2007-09-10 19:38:54 UTC (rev 1175)
++++ antargis/branches/rant/build/create_interface.rb	2007-09-12 18:49:46 UTC (rev 1176)
+@@ -434,7 +434,7 @@
+     for(std::list<CastFunction>::iterator i=funcs.begin();i!=funcs.end();i++)
+       {
+          swig_type_info*t=(*i)(ptr);
+-	       std::cout<<"test:"<<t<<std::endl;
++	       //std::cout<<"test:"<<t<<std::endl;
+          if(t)
+            return t;
+       }
+@@ -454,7 +454,7 @@
+ {
+         #{a}*a=(#{a}*)(*p);
+         #{b}*b=dynamic_cast<#{b}*>(a);
+-				printf("TRY CAST #{a} 2 #{b} : %lx\\n",b);
++				//printf("TRY CAST #{a} 2 #{b} : %lx\\n",b);
+         if(b)
+         {
+                 *p=(void*)b;
+
+Modified: antargis/branches/rant/configure
+===================================================================
+--- antargis/branches/rant/configure	2007-09-10 19:38:54 UTC (rev 1175)
++++ antargis/branches/rant/configure	2007-09-12 18:49:46 UTC (rev 1176)
+@@ -1,104 +1,148 @@
+ #!/usr/bin/env ruby
+ 
+ require 'build/configure.rb'
++require 'ostruct'
++require 'optparse'
++require 'pp'
+ 
+-version="0.2.1.3"
+-
+ puts <<EOT
+ Battle of Antargis - Configuration
+ -------------------------------------------------------------------------------
+ EOT
+ 
+-CFG.addOption("enable-debug","d",
+-	"enable debugging") do  ||
+-		CFG.set("debug",true)
+-	end
++NEEDED_PROGRAMS=["gcc","g++","swig","ruby"]
++POSSIBLE_PROGRAMS=["ccache","sdl-config"]
+ 
+-CFG.addOption("enable-gc-debug","g",
+-	"enable debugging of garbage collector") do  ||
+-		CFG.set("gcdebug",true)
+-	end
++def allPrograms
++	POSSIBLE_PROGRAMS+NEEDED_PROGRAMS
++end
+ 
+-CFG.addOption("enable-profile","p",
+-	"enable c++ profiling") do  ||
+-		CFG.set("profile",true)
+-	end
++class ConfigureOptions
++	def self.parse(args)
++		options={}
++		options[:use_mkmf]=true
++		options[:debug]=false
++		options[:gcdebug]=false
++		options[:profile]=false
++		options[:version]="0.2.1.4"
+ 
++		options[:programs]={}
++		allPrograms.each{|p|
++			options[:programs][p]=p
++		}
++	
++		opts=OptionParser.new do |opts|
++		  opts.banner = "Usage: configure [options]"
+ 
+-CFG.addOption("prefix","",
+-	"set prefix directory","dir") do |d|
+-		CFG.set("prefix",d)
+-	end
++			opts.separator ""
++			opts.separator "Specific options:"
+ 
+-CFG.addOption("profile","p",
+-	"enable profiling of C++-code") do ||
+-		CFG.set("profile",true)
+-	end
++			opts.on("-d", "--enable-debug",
++							"enable debugging") do 
++				options[:debug]=true
++			end
+ 
+-CFG.addOption("drmuser","",
+-	"set user for DRM","user") do |v|
+-		CFG.set("drmuser",v)
+-	end
++			opts.on("-g","--enable-gc-debug",
++							"enable debugging of garbage collector") do
++				options[:gcdebug]=true
++			end
+ 
+-CFG.addOption("drmpw","",
+-	"set password for DRM","password") do |v|
+-		CFG.set("drmpass",v)
+-	end
++			opts.on("-p","--enable-profile",
++							"enable c++ profiling") do 
++				options[:profile]=true
++			end
+ 
+-CFG.addOption("version","v",
+-	"set release version of BoA","version",version) do |v|
+-		CFG.set("version",v)
+-	end
++			opts.on("--prefix PREFIXDIR",
++							"set prefix directory PREFIXDIR") do |dir|
++				options[:prefix]=dir
++			end
+ 
+-if $:.join("")=~/1.8/
+-	if isWindows
+-		CFG.set("RUBYLIB","-lmsvcrt-ruby18")
+-	else
+-		CFG.set("RUBYLIB","-lruby1.8")
++			opts.on("--drmuser DRMUSER",
++				"set user for DRM") do |v|
++					options[:drmuser]=v
++			end
++			
++			opts.on("--drmpw DRMPASSWORD",
++				"set password for DRM") do |v|
++					options[:drmpass]=v
++			end
++			
++			opts.on("-v","--version",
++				"set release version of BoA") do |v|
++					options[:version]=v
++			end
++
++			opts.on("--ext-config CONFIG",
++				"use user-defined config instead of ruby's mkmf","CONFIG maybe in mingw32 or unix") do |extconfig|
++					options[:extconfig]=extconfig
++			end
++
++			allPrograms.each{|program|
++				opts.on("--path-"+program+" PATH",
++					"set path to program '#{program}'") do |d|
++					CFG.set(program,d)
++				end
++			}
++
++
++		end
++		opts.parse!(args)
++		options
+ 	end
+-else
+-	if isWindows
+-		CFG.set("RUBYLIB","-lmsvcrt-ruby19")
+-	else
+-		CFG.set("RUBYLIB","-lruby1.9")
+-	end
+ end
++		
++options = ConfigureOptions.parse(ARGV)
+ 
+-CFG.checkProgram("ccache",false)
+-CFG.checkProgram("gcc")
+-CFG.checkProgram("g++")
+-CFG.checkProgram("swig")
+-CFG.checkProgram("ruby")
+-CFG.checkProgram("sdl-config",false)
+ 
+-CFG.addCheck("sdl-config --libs",false) do
+-        libs=nil
+-        begin
+-            libs=`#{CFG.get("sdl-config")} --libs`.gsub("\n","")
+-        rescue
+-        end
+-        CFG.set("LIBS",libs) if libs        
+-    end
++NEEDED_PROGRAMS.each{|program|
++	CFG.checkProgram(program,true)
++}
++POSSIBLE_PROGRAMS.each{|program|
++	CFG.checkProgram(program,false)
++}
+ 
+-CFG.addCheck("sdl-config --cflags",false) do
+-        libs=nil
+-        begin
+-            libs=`#{CFG.get("sdl-config")} --cflags`.gsub("\n","")
+-        rescue
+-        end
+-        CFG.set("CFLAGS",libs) if libs        
+-    end
++CFG.setOptions(options)
+ 
+ 
+-CFG.addOption("use-mkmf","",
+-	"use ruby's configuration mechanism for configuration") do  ||
+-		CFG.gatherMkmfInfo
++CFG.addCheck("sdl-config --libs",false) do
++	libs=nil
++	begin
++		call="#{CFG.get("sdl-config")} --libs"
++		libs=`#{call}`.gsub("\n","")
++	rescue
+ 	end
++	CFG.set("LIBS",libs) if libs        
++	true if libs
++end
+ 
++CFG.addCheck("sdl-config --cflags",false) do
++	libs=nil
++	begin
++			libs=`#{CFG.get("sdl-config")} --cflags`.gsub("\n","")
++	rescue
++	end
++	CFG.set("CFLAGS",libs) if libs        
++	true if libs
++end
++
+ CFG.includeConfig
++CFG.gatherMkmfInfo if options[:use_mkmf]
+ 
++CFG.checkLibrary("opengl32","OpenGL library (win32)",false)
++CFG.checkLibrary("glu32","OpenGL Utility library (win32)",false)
++#puts foundGL
++CFG.checkLibrary("GL","OpenGL library",false)
++CFG.checkLibrary("GLU","OpenGL Utility library",false)
++
+ CFG.run
+ 
++if (not (CFG.hasLibrary("opengl32") or CFG.hasLibrary("GL")))
++	puts "NO opengl-library found. Please install one - including dev-packages!"
++end
++if (not (CFG.hasLibrary("glu32") or CFG.hasLibrary("GLU")))
++	puts "NO glu-library found. Please install one - including dev-packages!"
++end
++
+ puts
+ puts "You should run '>rant clean && rant' to let changes take effect!"
+ puts 
+
+Modified: antargis/branches/rant/ext/3dengine/scene_base.cc
+===================================================================
+--- antargis/branches/rant/ext/3dengine/scene_base.cc	2007-09-10 19:38:54 UTC (rev 1175)
++++ antargis/branches/rant/ext/3dengine/scene_base.cc	2007-09-12 18:49:46 UTC (rev 1176)
+@@ -26,7 +26,7 @@
+ 
+ void SceneBase::addNode(SceneNode *node)
+ {
+-  std::cout<<"addNode:(this:"<<this<<") "<<node<<"  "<<typeid(*node).name()<<std::endl;
++  //  std::cout<<"addNode:(this:"<<this<<") "<<node<<"  "<<typeid(*node).name()<<std::endl;
+   if(mNodeSet.find(node)==mNodeSet.end())
+     {
+       node->setScene(this);
+@@ -57,7 +57,7 @@
+ 
+ void SceneBase::removeNode(SceneNode *node)
+ {
+-  std::cout<<"remove node:"<<node<<std::endl;
++  //  std::cout<<"remove node:"<<node<<std::endl;
+   if(mNodeSet.find(node)!=mNodeSet.end())
+     {
+       Nodes::iterator i=std::find(mNodes.begin(),mNodes.end(),node);
+@@ -107,8 +107,8 @@
+     {
+       if((*i)->visible())
+ 	{
+-	  std::cout<<(*i)<<std::endl;
+-	  std::cout<<(typeid(**i).name())<<std::endl;
++	  //	  std::cout<<(*i)<<std::endl;
++	  //	  std::cout<<(typeid(**i).name())<<std::endl;
+ 	  (*i)->advance(time);
+ 	}
+     }
+@@ -125,12 +125,12 @@
+ 
+ void SceneBase::mark()
+ {
+-  std::cout<<"SceneBase::mark()"<<std::endl;
++  //  std::cout<<"SceneBase::mark()"<<std::endl;
+   SceneBase::Nodes::iterator i=mNodes.begin();
+ 
+   for(;i!=mNodes.end();i++)
+     {
+-      std::cout<<"scenebase-mark:"<< this<<"  "<<*i<<std::endl;
++      //  std::cout<<"scenebase-mark:"<< this<<"  "<<*i<<std::endl;
+       markObject(*i);
+     }
+ }
+
+Modified: antargis/branches/rant/ext/3dengine/scenenode.cc
+===================================================================
+--- antargis/branches/rant/ext/3dengine/scenenode.cc	2007-09-10 19:38:54 UTC (rev 1175)
++++ antargis/branches/rant/ext/3dengine/scenenode.cc	2007-09-12 18:49:46 UTC (rev 1176)
+@@ -5,7 +5,7 @@
+ SceneNode::SceneNode(SceneBase *s,const AGVector4 &pPos,const AGBox3 &b):
+   mPos(pPos),mBBox(b)
+ {
+-  std::cout<<"new scene-node: "<<this<<std::endl;
++  //  std::cout<<"new scene-node: "<<this<<std::endl;
+   assert(s);
+   mRubyObject=false;
+   mScene=s;
+@@ -18,7 +18,7 @@
+ 
+ SceneNode::~SceneNode()
+ {
+-  std::cout<<"del scene-node: "<<this<<" scene:"<<mScene<<std::endl;
++  //  std::cout<<"del scene-node: "<<this<<" scene:"<<mScene<<std::endl;
+   //  CTRACE;
+   //mRubyObject=false; // why was this here ??????
+ 
+@@ -34,14 +34,14 @@
+ {
+   assert(mScene==0 || mScene==pScene);
+   mScene=pScene;
+-  std::cout<<"setscene:"<<this<<" to "<<mScene<<std::endl;
++  //  std::cout<<"setscene:"<<this<<" to "<<mScene<<std::endl;
+ }
+ 
+ 
+ /// release attaching to scene
+ void SceneNode::resetScene()
+ {
+-  std::cout<<"resetScene from "<<this<<std::endl;
++  //  std::cout<<"resetScene from "<<this<<std::endl;
+   mScene=0;
+ }
+ 
+
+Modified: antargis/branches/rant/ext/game/height_map.cc
+===================================================================
+--- antargis/branches/rant/ext/game/height_map.cc	2007-09-10 19:38:54 UTC (rev 1175)
++++ antargis/branches/rant/ext/game/height_map.cc	2007-09-12 18:49:46 UTC (rev 1176)
+@@ -625,7 +625,7 @@
+ 
+ void HeightMap::mark()
+ {
+-  std::cout<<"HeightMap::mark tihs:"<<this<<" scene:"<<mScene<<std::endl;
++  //  std::cout<<"HeightMap::mark tihs:"<<this<<" scene:"<<mScene<<std::endl;
+   if(mScene)
+     markObject(mScene);
+   if(mTerrain)
+
+Modified: antargis/branches/rant/ext/game/map.cc
+===================================================================
+--- antargis/branches/rant/ext/game/map.cc	2007-09-10 19:38:54 UTC (rev 1175)
++++ antargis/branches/rant/ext/game/map.cc	2007-09-12 18:49:46 UTC (rev 1176)
+@@ -458,7 +458,7 @@
+ 
+ void AntMap::mark()
+ {
+-  cout<<"AntMap::mark()"<<std::endl;
++  //  cout<<"AntMap::mark()"<<std::endl;
+   CTRACE;
+   HeightMap::mark();
+   AntMap::EntityList::iterator i=mEntities.begin();
+
+Modified: antargis/branches/rant/ext/game/terrain.cc
+===================================================================
+--- antargis/branches/rant/ext/game/terrain.cc	2007-09-10 19:38:54 UTC (rev 1175)
++++ antargis/branches/rant/ext/game/terrain.cc	2007-09-12 18:49:46 UTC (rev 1176)
+@@ -346,7 +346,7 @@
+ 
+ void Terrain::mark()
+ {
+-  std::cout<<"Terrain::mark()"<<std::endl;
++  //  std::cout<<"Terrain::mark()"<<std::endl;
+   for(Nodes::iterator i=mNodes.begin();i!=mNodes.end();i++)
+     markObject(*i);
+ }
+
+Modified: antargis/branches/rant/ext/game/water.cc
+===================================================================
+--- antargis/branches/rant/ext/game/water.cc	2007-09-10 19:38:54 UTC (rev 1175)
++++ antargis/branches/rant/ext/game/water.cc	2007-09-12 18:49:46 UTC (rev 1176)
+@@ -33,7 +33,7 @@
+   mX(x),mY(y),mW(w),mH(h),mMap(&map)
+ {
+   CTRACE;
+-  std::cout<<"water:"<<this<<std::endl;
++
+   step=2;
+   tex=getTextureCache()->get("data/textures/terrain/water.png");
+ 
+@@ -46,7 +46,6 @@
+ 
+ WaterPiece::~WaterPiece()
+ {
+-  std::cout<<"water killed:"<<this<<std::endl;
+   if(sceneValid())
+     getScene()->removeNode(this);
+ 
+
+
+

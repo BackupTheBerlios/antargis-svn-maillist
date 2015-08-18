@@ -1,0 +1,1870 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1244 - in antargis/trunk: .	data/gui/layout/editor/campaign ext/basic ext/game ext/gui	rookey rookey/cpp ruby ruby/editor/campaign ruby/gui ruby/spec
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2008-May/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1244%20-%20in%20antargis/trunk%3A%20.%0A%09data/gui/layout/editor/campaign%20ext/basic%20ext/game%20ext/gui%0A%09rookey%20rookey/cpp%20ruby%20ruby/editor/campaign%20ruby/gui%20ruby/spec&In-Reply-To=%3C200805102006.m4AK6dcV008599%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000199.html">
+   <LINK REL="Next"  HREF="000201.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1244 - in antargis/trunk: .	data/gui/layout/editor/campaign ext/basic ext/game ext/gui	rookey rookey/cpp ruby ruby/editor/campaign ruby/gui ruby/spec</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1244%20-%20in%20antargis/trunk%3A%20.%0A%09data/gui/layout/editor/campaign%20ext/basic%20ext/game%20ext/gui%0A%09rookey%20rookey/cpp%20ruby%20ruby/editor/campaign%20ruby/gui%20ruby/spec&In-Reply-To=%3C200805102006.m4AK6dcV008599%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1244 - in antargis/trunk: .	data/gui/layout/editor/campaign ext/basic ext/game ext/gui	rookey rookey/cpp ruby ruby/editor/campaign ruby/gui ruby/spec">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sat May 10 22:06:39 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000199.html">[Antargis-svn] r1243 - antargis/trunk
+</A></li>
+        <LI>Next message: <A HREF="000201.html">[Antargis-svn] r1245 - in antargis/trunk: . build build/swig	build/win32 build/win32/libs data/gui/layout/editor/campaign	ext/basic ext/gui ruby/editor/campaign ruby/gui
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#200">[ date ]</a>
+              <a href="thread.html#200">[ thread ]</a>
+              <a href="subject.html#200">[ subject ]</a>
+              <a href="author.html#200">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2008-05-10 22:06:38 +0200 (Sat, 10 May 2008)
+New Revision: 1244
+
+Added:
+   antargis/trunk/.cproject
+Modified:
+   antargis/trunk/
+   antargis/trunk/.project
+   antargis/trunk/Rakefile
+   antargis/trunk/data/gui/layout/editor/campaign/main.xml
+   antargis/trunk/ext/basic/ag_collector.cc
+   antargis/trunk/ext/basic/ag_collector.h
+   antargis/trunk/ext/basic/ag_messageobject.cc
+   antargis/trunk/ext/game/ant_app.h
+   antargis/trunk/ext/gui/ag_application.cc
+   antargis/trunk/ext/gui/ag_application.h
+   antargis/trunk/ext/gui/ag_button.cc
+   antargis/trunk/ext/gui/ag_button.h
+   antargis/trunk/ext/gui/ag_edit.cc
+   antargis/trunk/ext/gui/ag_layout.cc
+   antargis/trunk/ext/gui/ag_layout.h
+   antargis/trunk/ext/gui/ag_layoutfactory.cc
+   antargis/trunk/ext/gui/ag_layoutfactory.h
+   antargis/trunk/ext/gui/ag_table.cc
+   antargis/trunk/ext/gui/ag_widget.cc
+   antargis/trunk/ext/gui/ag_widget.h
+   antargis/trunk/rookey/config_generator.rb
+   antargis/trunk/rookey/cpp/ag_rubyobj.cc
+   antargis/trunk/rookey/swig_interface_builder.rb
+   antargis/trunk/ruby/ant_tools.rb
+   antargis/trunk/ruby/editor/campaign/drag_grid.rb
+   antargis/trunk/ruby/gui/ag_tools.rb
+   antargis/trunk/ruby/gui/testing.rb
+   antargis/trunk/ruby/spec/spec_gui.rb
+   antargis/trunk/ruby/spec_helper.rb
+Log:
+Incomplete - task 1: Campaign Editor 
+
+
+
+Property changes on: antargis/trunk
+___________________________________________________________________
+Name: svn:ignore
+   - coverage
+*.bundle
+.build*
+starter.dSYM
+spec_output.html
+starter
+.deps
+.settings
+antconfig.rb
+events.txt
+.cproject
+rookey_configuration.rb
+test
+
+test.c
+
+   + coverage
+*.bundle
+.build*
+starter.dSYM
+spec_output.html
+starter
+.deps
+.settings
+antconfig.rb
+events.txt
+rookey_configuration.rb
+test
+
+test.c
+
+antargis_interface.i
+
+
+Added: antargis/trunk/.cproject
+===================================================================
+--- antargis/trunk/.cproject	2008-05-03 17:45:54 UTC (rev 1243)
++++ antargis/trunk/.cproject	2008-05-10 20:06:38 UTC (rev 1244)
+@@ -0,0 +1,357 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
++&lt;?fileVersion 4.0.0?&gt;
++
++&lt;cproject&gt;
++&lt;storageModule moduleId=&quot;org.eclipse.cdt.core.settings&quot;&gt;
++&lt;cconfiguration id=&quot;cdt.managedbuild.toolchain.gnu.macosx.base.1811784377&quot;&gt;
++&lt;storageModule buildSystemId=&quot;org.eclipse.cdt.managedbuilder.core.configurationDataProvider&quot; id=&quot;cdt.managedbuild.toolchain.gnu.macosx.base.1811784377&quot; moduleId=&quot;org.eclipse.cdt.core.settings&quot; name=&quot;MacOSX GCC&quot;&gt;
++&lt;externalSettings&gt;
++&lt;externalSetting languages=&quot;cdt.managedbuild.tool.gnu.assembler.input.1153741540&quot;/&gt;
++&lt;/externalSettings&gt;
++&lt;extensions&gt;
++&lt;extension id=&quot;org.eclipse.cdt.core.MachO&quot; point=&quot;org.eclipse.cdt.core.BinaryParser&quot;/&gt;
++&lt;extension id=&quot;org.eclipse.cdt.core.GASErrorParser&quot; point=&quot;org.eclipse.cdt.core.ErrorParser&quot;/&gt;
++&lt;extension id=&quot;org.eclipse.cdt.core.GLDErrorParser&quot; point=&quot;org.eclipse.cdt.core.ErrorParser&quot;/&gt;
++&lt;extension id=&quot;org.eclipse.cdt.core.GCCErrorParser&quot; point=&quot;org.eclipse.cdt.core.ErrorParser&quot;/&gt;
++&lt;extension id=&quot;org.eclipse.cdt.core.MakeErrorParser&quot; point=&quot;org.eclipse.cdt.core.ErrorParser&quot;/&gt;
++&lt;/extensions&gt;
++&lt;/storageModule&gt;
++&lt;storageModule moduleId=&quot;cdtBuildSystem&quot; version=&quot;4.0.0&quot;&gt;
++&lt;configuration artifactName=&quot;ant2&quot; buildProperties=&quot;&quot; description=&quot;&quot; id=&quot;cdt.managedbuild.toolchain.gnu.macosx.base.1811784377&quot; name=&quot;MacOSX GCC&quot; parent=&quot;org.eclipse.cdt.build.core.emptycfg&quot;&gt;
++&lt;folderInfo id=&quot;cdt.managedbuild.toolchain.gnu.macosx.base.1811784377.27937868&quot; name=&quot;/&quot; resourcePath=&quot;&quot;&gt;
++&lt;toolChain id=&quot;cdt.managedbuild.toolchain.gnu.macosx.base.75161259&quot; name=&quot;cdt.managedbuild.toolchain.gnu.macosx.base&quot; superClass=&quot;cdt.managedbuild.toolchain.gnu.macosx.base&quot;&gt;
++&lt;targetPlatform archList=&quot;all&quot; binaryParser=&quot;org.eclipse.cdt.core.MachO&quot; id=&quot;cdt.managedbuild.target.gnu.platform.macosx.base.140571892&quot; name=&quot;Debug Platform&quot; osList=&quot;macosx&quot; superClass=&quot;cdt.managedbuild.target.gnu.platform.macosx.base&quot;/&gt;
++&lt;builder autoBuildTarget=&quot;all&quot; buildPath=&quot;${workspace_loc:/antargis}&quot; cleanBuildTarget=&quot;clean&quot; enableAutoBuild=&quot;false&quot; enableCleanBuild=&quot;true&quot; enabledIncrementalBuild=&quot;true&quot; id=&quot;cdt.managedbuild.target.gnu.builder.macosx.base.1667142796&quot; incrementalBuildTarget=&quot;all&quot; keepEnvironmentInBuildfile=&quot;false&quot; managedBuildOn=&quot;false&quot; name=&quot;Gnu Make Builder&quot; superClass=&quot;cdt.managedbuild.target.gnu.builder.macosx.base&quot;&gt;
++&lt;outputEntries&gt;
++&lt;entry flags=&quot;VALUE_WORKSPACE_PATH|RESOLVED&quot; kind=&quot;outputPath&quot; name=&quot;&quot;/&gt;
++&lt;/outputEntries&gt;
++&lt;/builder&gt;
++&lt;tool id=&quot;cdt.managedbuild.tool.macosx.c.linker.macosx.base.1623357869&quot; name=&quot;MacOS X C Linker&quot; superClass=&quot;cdt.managedbuild.tool.macosx.c.linker.macosx.base&quot;/&gt;
++&lt;tool id=&quot;cdt.managedbuild.tool.macosx.cpp.linker.macosx.base.715311545&quot; name=&quot;MacOS X C++ Linker&quot; superClass=&quot;cdt.managedbuild.tool.macosx.cpp.linker.macosx.base&quot;&gt;
++&lt;inputType id=&quot;cdt.managedbuild.tool.macosx.cpp.linker.input.2111031433&quot; superClass=&quot;cdt.managedbuild.tool.macosx.cpp.linker.input&quot;&gt;
++&lt;additionalInput kind=&quot;additionalinputdependency&quot; paths=&quot;$(USER_OBJS)&quot;/&gt;
++&lt;additionalInput kind=&quot;additionalinput&quot; paths=&quot;$(LIBS)&quot;/&gt;
++&lt;/inputType&gt;
++&lt;/tool&gt;
++&lt;tool id=&quot;cdt.managedbuild.tool.gnu.assembler.macosx.base.1857098937&quot; name=&quot;GCC Assembler&quot; superClass=&quot;cdt.managedbuild.tool.gnu.assembler.macosx.base&quot;&gt;
++&lt;option id=&quot;gnu.both.asm.option.include.paths.856275255&quot; name=&quot;Include paths (-I)&quot; superClass=&quot;gnu.both.asm.option.include.paths&quot;/&gt;
++&lt;inputType id=&quot;cdt.managedbuild.tool.gnu.assembler.input.1153741540&quot; superClass=&quot;cdt.managedbuild.tool.gnu.assembler.input&quot;/&gt;
++&lt;/tool&gt;
++&lt;tool id=&quot;cdt.managedbuild.tool.gnu.archiver.macosx.base.273120086&quot; name=&quot;GCC Archiver&quot; superClass=&quot;cdt.managedbuild.tool.gnu.archiver.macosx.base&quot;/&gt;
++&lt;tool id=&quot;cdt.managedbuild.tool.gnu.cpp.compiler.macosx.base.867094230&quot; name=&quot;GCC C++ Compiler&quot; superClass=&quot;cdt.managedbuild.tool.gnu.cpp.compiler.macosx.base&quot;&gt;
++&lt;option id=&quot;gnu.cpp.compiler.option.include.paths.94633763&quot; name=&quot;Include paths (-I)&quot; superClass=&quot;gnu.cpp.compiler.option.include.paths&quot; valueType=&quot;includePath&quot;&gt;
++&lt;listOptionValue builtIn=&quot;false&quot; value=&quot;&quot;${workspace_loc:/antargis/ext/3dengine}&quot;&quot;/&gt;
++&lt;listOptionValue builtIn=&quot;false&quot; value=&quot;&quot;${workspace_loc:/antargis/ext/gui}&quot;&quot;/&gt;
++&lt;listOptionValue builtIn=&quot;false&quot; value=&quot;&quot;${workspace_loc:/antargis/ext/game}&quot;&quot;/&gt;
++&lt;listOptionValue builtIn=&quot;false&quot; value=&quot;&quot;${workspace_loc:/antargis/ext/math}&quot;&quot;/&gt;
++&lt;listOptionValue builtIn=&quot;false&quot; value=&quot;&quot;${workspace_loc:/antargis/ext/basic}&quot;&quot;/&gt;
++&lt;listOptionValue builtIn=&quot;false&quot; value=&quot;&quot;${workspace_loc:/antargis/ext/video}&quot;&quot;/&gt;
++&lt;listOptionValue builtIn=&quot;false&quot; value=&quot;&quot;${workspace_loc:/antargis/ext/sound}&quot;&quot;/&gt;
++&lt;listOptionValue builtIn=&quot;false&quot; value=&quot;&quot;${workspace_loc:/antargis/rookey/cpp}&quot;&quot;/&gt;
++&lt;listOptionValue builtIn=&quot;false&quot; value=&quot;/opt/local/include&quot;/&gt;
++&lt;listOptionValue builtIn=&quot;false&quot; value=&quot;/opt/local/include/SDL&quot;/&gt;
++&lt;listOptionValue builtIn=&quot;false&quot; value=&quot;/usr/X11/include&quot;/&gt;
++&lt;/option&gt;
++&lt;inputType id=&quot;cdt.managedbuild.tool.gnu.cpp.compiler.input.2046502659&quot; superClass=&quot;cdt.managedbuild.tool.gnu.cpp.compiler.input&quot;/&gt;
++&lt;/tool&gt;
++&lt;tool id=&quot;cdt.managedbuild.tool.gnu.c.compiler.macosx.base.794557353&quot; name=&quot;GCC C Compiler&quot; superClass=&quot;cdt.managedbuild.tool.gnu.c.compiler.macosx.base&quot;&gt;
++&lt;option id=&quot;gnu.c.compiler.option.preprocessor.def.symbols.350862796&quot; name=&quot;Defined symbols (-D)&quot; superClass=&quot;gnu.c.compiler.option.preprocessor.def.symbols&quot; valueType=&quot;definedSymbols&quot;&gt;
++&lt;listOptionValue builtIn=&quot;false&quot; value=&quot;AGEXPORT&quot;/&gt;
++&lt;/option&gt;
++&lt;inputType id=&quot;cdt.managedbuild.tool.gnu.c.compiler.input.1205404936&quot; superClass=&quot;cdt.managedbuild.tool.gnu.c.compiler.input&quot;/&gt;
++&lt;/tool&gt;
++&lt;/toolChain&gt;
++&lt;/folderInfo&gt;
++&lt;sourceEntries&gt;
++&lt;entry excluding=&quot;.deps|.build_darwin9.0|.build_darwin9.0/antargis_swig.cc|build/|.build_/|.settings/|antargis.xcodeproj/|coverage/|packages/&quot; flags=&quot;VALUE_WORKSPACE_PATH&quot; kind=&quot;sourcePath&quot; name=&quot;&quot;/&gt;
++&lt;/sourceEntries&gt;
++&lt;/configuration&gt;
++&lt;/storageModule&gt;
++
++&lt;storageModule moduleId=&quot;org.eclipse.cdt.core.externalSettings&quot;/&gt;
++&lt;storageModule moduleId=&quot;org.eclipse.cdt.core.language.mapping&quot;/&gt;
++
++
++&lt;storageModule moduleId=&quot;org.eclipse.cdt.make.core.buildtargets&quot;&gt;
++&lt;buildTargets&gt;
++&lt;target name=&quot;default&quot; path=&quot;&quot; targetID=&quot;org.eclipse.cdt.build.MakeTargetBuilder&quot;&gt;
++&lt;buildCommand&gt;/usr/bin/rake&lt;/buildCommand&gt;
++&lt;buildArguments/&gt;
++&lt;buildTarget&gt;default&lt;/buildTarget&gt;
++&lt;stopOnError&gt;true&lt;/stopOnError&gt;
++&lt;useDefaultCommand&gt;false&lt;/useDefaultCommand&gt;
++&lt;runAllBuilders&gt;true&lt;/runAllBuilders&gt;
++&lt;/target&gt;
++&lt;target name=&quot;clean&quot; path=&quot;&quot; targetID=&quot;org.eclipse.cdt.build.MakeTargetBuilder&quot;&gt;
++&lt;buildCommand&gt;/usr/bin/rake&lt;/buildCommand&gt;
++&lt;buildArguments/&gt;
++&lt;buildTarget&gt;clean&lt;/buildTarget&gt;
++&lt;stopOnError&gt;true&lt;/stopOnError&gt;
++&lt;useDefaultCommand&gt;false&lt;/useDefaultCommand&gt;
++&lt;runAllBuilders&gt;true&lt;/runAllBuilders&gt;
++&lt;/target&gt;
++&lt;target name=&quot;spec&quot; path=&quot;&quot; targetID=&quot;org.eclipse.cdt.build.MakeTargetBuilder&quot;&gt;
++&lt;buildCommand&gt;/usr/bin/rake&lt;/buildCommand&gt;
++&lt;buildArguments/&gt;
++&lt;buildTarget&gt;spec&lt;/buildTarget&gt;
++&lt;stopOnError&gt;true&lt;/stopOnError&gt;
++&lt;useDefaultCommand&gt;false&lt;/useDefaultCommand&gt;
++&lt;runAllBuilders&gt;true&lt;/runAllBuilders&gt;
++&lt;/target&gt;
++&lt;/buildTargets&gt;
++&lt;/storageModule&gt;
++&lt;storageModule moduleId=&quot;scannerConfiguration&quot;&gt;
++&lt;autodiscovery enabled=&quot;true&quot; problemReportingEnabled=&quot;true&quot; selectedProfileId=&quot;org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile&quot;/&gt;
++&lt;profile id=&quot;org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile&quot;&gt;
++&lt;buildOutputProvider&gt;
++&lt;openAction enabled=&quot;true&quot; filePath=&quot;&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/buildOutputProvider&gt;
++&lt;scannerInfoProvider id=&quot;specsFile&quot;&gt;
++&lt;runAction arguments=&quot;-E -P -v -dD ${plugin_state_location}/${specs_file}&quot; command=&quot;gcc&quot; useDefault=&quot;true&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/scannerInfoProvider&gt;
++&lt;/profile&gt;
++&lt;profile id=&quot;org.eclipse.cdt.make.core.GCCStandardMakePerFileProfile&quot;&gt;
++&lt;buildOutputProvider&gt;
++&lt;openAction enabled=&quot;true&quot; filePath=&quot;&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/buildOutputProvider&gt;
++&lt;scannerInfoProvider id=&quot;makefileGenerator&quot;&gt;
++&lt;runAction arguments=&quot;-f ${project_name}_scd.mk&quot; command=&quot;make&quot; useDefault=&quot;true&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/scannerInfoProvider&gt;
++&lt;/profile&gt;
++&lt;profile id=&quot;org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfile&quot;&gt;
++&lt;buildOutputProvider&gt;
++&lt;openAction enabled=&quot;true&quot; filePath=&quot;&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/buildOutputProvider&gt;
++&lt;scannerInfoProvider id=&quot;specsFile&quot;&gt;
++&lt;runAction arguments=&quot;-E -P -v -dD ${plugin_state_location}/${specs_file}&quot; command=&quot;gcc&quot; useDefault=&quot;true&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/scannerInfoProvider&gt;
++&lt;/profile&gt;
++&lt;profile id=&quot;org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP&quot;&gt;
++&lt;buildOutputProvider&gt;
++&lt;openAction enabled=&quot;true&quot; filePath=&quot;&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/buildOutputProvider&gt;
++&lt;scannerInfoProvider id=&quot;specsFile&quot;&gt;
++&lt;runAction arguments=&quot;-E -P -v -dD ${plugin_state_location}/specs.cpp&quot; command=&quot;g++&quot; useDefault=&quot;true&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/scannerInfoProvider&gt;
++&lt;/profile&gt;
++&lt;profile id=&quot;org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC&quot;&gt;
++&lt;buildOutputProvider&gt;
++&lt;openAction enabled=&quot;true&quot; filePath=&quot;&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/buildOutputProvider&gt;
++&lt;scannerInfoProvider id=&quot;specsFile&quot;&gt;
++&lt;runAction arguments=&quot;-E -P -v -dD ${plugin_state_location}/specs.c&quot; command=&quot;gcc&quot; useDefault=&quot;true&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/scannerInfoProvider&gt;
++&lt;/profile&gt;
++&lt;profile id=&quot;org.eclipse.cdt.managedbuilder.core.GCCWinManagedMakePerProjectProfile&quot;&gt;
++&lt;buildOutputProvider&gt;
++&lt;openAction enabled=&quot;true&quot; filePath=&quot;&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/buildOutputProvider&gt;
++&lt;scannerInfoProvider id=&quot;specsFile&quot;&gt;
++&lt;runAction arguments=&quot;-E -P -v -dD ${plugin_state_location}/${specs_file}&quot; command=&quot;gcc&quot; useDefault=&quot;true&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/scannerInfoProvider&gt;
++&lt;/profile&gt;
++&lt;profile id=&quot;org.eclipse.cdt.managedbuilder.core.GCCWinManagedMakePerProjectProfileCPP&quot;&gt;
++&lt;buildOutputProvider&gt;
++&lt;openAction enabled=&quot;true&quot; filePath=&quot;&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/buildOutputProvider&gt;
++&lt;scannerInfoProvider id=&quot;specsFile&quot;&gt;
++&lt;runAction arguments=&quot;-E -P -v -dD ${plugin_state_location}/specs.cpp&quot; command=&quot;g++&quot; useDefault=&quot;true&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/scannerInfoProvider&gt;
++&lt;/profile&gt;
++&lt;profile id=&quot;org.eclipse.cdt.managedbuilder.core.GCCWinManagedMakePerProjectProfileC&quot;&gt;
++&lt;buildOutputProvider&gt;
++&lt;openAction enabled=&quot;true&quot; filePath=&quot;&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/buildOutputProvider&gt;
++&lt;scannerInfoProvider id=&quot;specsFile&quot;&gt;
++&lt;runAction arguments=&quot;-E -P -v -dD ${plugin_state_location}/specs.c&quot; command=&quot;gcc&quot; useDefault=&quot;true&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/scannerInfoProvider&gt;
++&lt;/profile&gt;
++&lt;scannerConfigBuildInfo instanceId=&quot;cdt.managedbuild.toolchain.gnu.macosx.base.1811784377;cdt.managedbuild.toolchain.gnu.macosx.base.1811784377.27937868;cdt.managedbuild.tool.gnu.cpp.compiler.macosx.base.867094230;cdt.managedbuild.tool.gnu.cpp.compiler.input.2046502659&quot;&gt;
++&lt;autodiscovery enabled=&quot;true&quot; problemReportingEnabled=&quot;true&quot; selectedProfileId=&quot;org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP&quot;/&gt;
++&lt;profile id=&quot;org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile&quot;&gt;
++&lt;buildOutputProvider&gt;
++&lt;openAction enabled=&quot;true&quot; filePath=&quot;&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/buildOutputProvider&gt;
++&lt;scannerInfoProvider id=&quot;specsFile&quot;&gt;
++&lt;runAction arguments=&quot;-E -P -v -dD ${plugin_state_location}/${specs_file}&quot; command=&quot;gcc&quot; useDefault=&quot;true&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/scannerInfoProvider&gt;
++&lt;/profile&gt;
++&lt;profile id=&quot;org.eclipse.cdt.make.core.GCCStandardMakePerFileProfile&quot;&gt;
++&lt;buildOutputProvider&gt;
++&lt;openAction enabled=&quot;true&quot; filePath=&quot;&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/buildOutputProvider&gt;
++&lt;scannerInfoProvider id=&quot;makefileGenerator&quot;&gt;
++&lt;runAction arguments=&quot;-f ${project_name}_scd.mk&quot; command=&quot;make&quot; useDefault=&quot;true&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/scannerInfoProvider&gt;
++&lt;/profile&gt;
++&lt;profile id=&quot;org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfile&quot;&gt;
++&lt;buildOutputProvider&gt;
++&lt;openAction enabled=&quot;true&quot; filePath=&quot;&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/buildOutputProvider&gt;
++&lt;scannerInfoProvider id=&quot;specsFile&quot;&gt;
++&lt;runAction arguments=&quot;-E -P -v -dD ${plugin_state_location}/${specs_file}&quot; command=&quot;gcc&quot; useDefault=&quot;true&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/scannerInfoProvider&gt;
++&lt;/profile&gt;
++&lt;profile id=&quot;org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP&quot;&gt;
++&lt;buildOutputProvider&gt;
++&lt;openAction enabled=&quot;true&quot; filePath=&quot;&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/buildOutputProvider&gt;
++&lt;scannerInfoProvider id=&quot;specsFile&quot;&gt;
++&lt;runAction arguments=&quot;-E -P -v -dD ${plugin_state_location}/specs.cpp&quot; command=&quot;g++&quot; useDefault=&quot;true&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/scannerInfoProvider&gt;
++&lt;/profile&gt;
++&lt;profile id=&quot;org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC&quot;&gt;
++&lt;buildOutputProvider&gt;
++&lt;openAction enabled=&quot;true&quot; filePath=&quot;&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/buildOutputProvider&gt;
++&lt;scannerInfoProvider id=&quot;specsFile&quot;&gt;
++&lt;runAction arguments=&quot;-E -P -v -dD ${plugin_state_location}/specs.c&quot; command=&quot;gcc&quot; useDefault=&quot;true&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/scannerInfoProvider&gt;
++&lt;/profile&gt;
++&lt;profile id=&quot;org.eclipse.cdt.managedbuilder.core.GCCWinManagedMakePerProjectProfile&quot;&gt;
++&lt;buildOutputProvider&gt;
++&lt;openAction enabled=&quot;true&quot; filePath=&quot;&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/buildOutputProvider&gt;
++&lt;scannerInfoProvider id=&quot;specsFile&quot;&gt;
++&lt;runAction arguments=&quot;-E -P -v -dD ${plugin_state_location}/${specs_file}&quot; command=&quot;gcc&quot; useDefault=&quot;true&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/scannerInfoProvider&gt;
++&lt;/profile&gt;
++&lt;profile id=&quot;org.eclipse.cdt.managedbuilder.core.GCCWinManagedMakePerProjectProfileCPP&quot;&gt;
++&lt;buildOutputProvider&gt;
++&lt;openAction enabled=&quot;true&quot; filePath=&quot;&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/buildOutputProvider&gt;
++&lt;scannerInfoProvider id=&quot;specsFile&quot;&gt;
++&lt;runAction arguments=&quot;-E -P -v -dD ${plugin_state_location}/specs.cpp&quot; command=&quot;g++&quot; useDefault=&quot;true&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/scannerInfoProvider&gt;
++&lt;/profile&gt;
++&lt;profile id=&quot;org.eclipse.cdt.managedbuilder.core.GCCWinManagedMakePerProjectProfileC&quot;&gt;
++&lt;buildOutputProvider&gt;
++&lt;openAction enabled=&quot;true&quot; filePath=&quot;&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/buildOutputProvider&gt;
++&lt;scannerInfoProvider id=&quot;specsFile&quot;&gt;
++&lt;runAction arguments=&quot;-E -P -v -dD ${plugin_state_location}/specs.c&quot; command=&quot;gcc&quot; useDefault=&quot;true&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/scannerInfoProvider&gt;
++&lt;/profile&gt;
++&lt;/scannerConfigBuildInfo&gt;
++&lt;scannerConfigBuildInfo instanceId=&quot;cdt.managedbuild.toolchain.gnu.macosx.base.1811784377;cdt.managedbuild.toolchain.gnu.macosx.base.1811784377.27937868;cdt.managedbuild.tool.gnu.c.compiler.macosx.base.794557353;cdt.managedbuild.tool.gnu.c.compiler.input.1205404936&quot;&gt;
++&lt;autodiscovery enabled=&quot;true&quot; problemReportingEnabled=&quot;true&quot; selectedProfileId=&quot;org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC&quot;/&gt;
++&lt;profile id=&quot;org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile&quot;&gt;
++&lt;buildOutputProvider&gt;
++&lt;openAction enabled=&quot;true&quot; filePath=&quot;&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/buildOutputProvider&gt;
++&lt;scannerInfoProvider id=&quot;specsFile&quot;&gt;
++&lt;runAction arguments=&quot;-E -P -v -dD ${plugin_state_location}/${specs_file}&quot; command=&quot;gcc&quot; useDefault=&quot;true&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/scannerInfoProvider&gt;
++&lt;/profile&gt;
++&lt;profile id=&quot;org.eclipse.cdt.make.core.GCCStandardMakePerFileProfile&quot;&gt;
++&lt;buildOutputProvider&gt;
++&lt;openAction enabled=&quot;true&quot; filePath=&quot;&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/buildOutputProvider&gt;
++&lt;scannerInfoProvider id=&quot;makefileGenerator&quot;&gt;
++&lt;runAction arguments=&quot;-f ${project_name}_scd.mk&quot; command=&quot;make&quot; useDefault=&quot;true&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/scannerInfoProvider&gt;
++&lt;/profile&gt;
++&lt;profile id=&quot;org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfile&quot;&gt;
++&lt;buildOutputProvider&gt;
++&lt;openAction enabled=&quot;true&quot; filePath=&quot;&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/buildOutputProvider&gt;
++&lt;scannerInfoProvider id=&quot;specsFile&quot;&gt;
++&lt;runAction arguments=&quot;-E -P -v -dD ${plugin_state_location}/${specs_file}&quot; command=&quot;gcc&quot; useDefault=&quot;true&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/scannerInfoProvider&gt;
++&lt;/profile&gt;
++&lt;profile id=&quot;org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP&quot;&gt;
++&lt;buildOutputProvider&gt;
++&lt;openAction enabled=&quot;true&quot; filePath=&quot;&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/buildOutputProvider&gt;
++&lt;scannerInfoProvider id=&quot;specsFile&quot;&gt;
++&lt;runAction arguments=&quot;-E -P -v -dD ${plugin_state_location}/specs.cpp&quot; command=&quot;g++&quot; useDefault=&quot;true&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/scannerInfoProvider&gt;
++&lt;/profile&gt;
++&lt;profile id=&quot;org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC&quot;&gt;
++&lt;buildOutputProvider&gt;
++&lt;openAction enabled=&quot;true&quot; filePath=&quot;&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/buildOutputProvider&gt;
++&lt;scannerInfoProvider id=&quot;specsFile&quot;&gt;
++&lt;runAction arguments=&quot;-E -P -v -dD ${plugin_state_location}/specs.c&quot; command=&quot;gcc&quot; useDefault=&quot;true&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/scannerInfoProvider&gt;
++&lt;/profile&gt;
++&lt;profile id=&quot;org.eclipse.cdt.managedbuilder.core.GCCWinManagedMakePerProjectProfile&quot;&gt;
++&lt;buildOutputProvider&gt;
++&lt;openAction enabled=&quot;true&quot; filePath=&quot;&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/buildOutputProvider&gt;
++&lt;scannerInfoProvider id=&quot;specsFile&quot;&gt;
++&lt;runAction arguments=&quot;-E -P -v -dD ${plugin_state_location}/${specs_file}&quot; command=&quot;gcc&quot; useDefault=&quot;true&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/scannerInfoProvider&gt;
++&lt;/profile&gt;
++&lt;profile id=&quot;org.eclipse.cdt.managedbuilder.core.GCCWinManagedMakePerProjectProfileCPP&quot;&gt;
++&lt;buildOutputProvider&gt;
++&lt;openAction enabled=&quot;true&quot; filePath=&quot;&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/buildOutputProvider&gt;
++&lt;scannerInfoProvider id=&quot;specsFile&quot;&gt;
++&lt;runAction arguments=&quot;-E -P -v -dD ${plugin_state_location}/specs.cpp&quot; command=&quot;g++&quot; useDefault=&quot;true&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/scannerInfoProvider&gt;
++&lt;/profile&gt;
++&lt;profile id=&quot;org.eclipse.cdt.managedbuilder.core.GCCWinManagedMakePerProjectProfileC&quot;&gt;
++&lt;buildOutputProvider&gt;
++&lt;openAction enabled=&quot;true&quot; filePath=&quot;&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/buildOutputProvider&gt;
++&lt;scannerInfoProvider id=&quot;specsFile&quot;&gt;
++&lt;runAction arguments=&quot;-E -P -v -dD ${plugin_state_location}/specs.c&quot; command=&quot;gcc&quot; useDefault=&quot;true&quot;/&gt;
++&lt;parser enabled=&quot;true&quot;/&gt;
++&lt;/scannerInfoProvider&gt;
++&lt;/profile&gt;
++&lt;/scannerConfigBuildInfo&gt;
++&lt;/storageModule&gt;
++&lt;/cconfiguration&gt;
++&lt;/storageModule&gt;
++&lt;storageModule moduleId=&quot;cdtBuildSystem&quot; version=&quot;4.0.0&quot;&gt;
++&lt;project id=&quot;ant2.null.336431676&quot; name=&quot;ant2&quot;/&gt;
++&lt;/storageModule&gt;
++&lt;/cproject&gt;
+
+
+Property changes on: antargis/trunk/.cproject
+___________________________________________________________________
+Name: svn:mime-type
+   + text/plain
+
+Modified: antargis/trunk/.project
+===================================================================
+--- antargis/trunk/.project	2008-05-03 17:45:54 UTC (rev 1243)
++++ antargis/trunk/.project	2008-05-10 20:06:38 UTC (rev 1244)
+@@ -22,14 +22,18 @@
+ 					&lt;value&gt;false&lt;/value&gt;
+ 				&lt;/dictionary&gt;
+ 				&lt;dictionary&gt;
+-					&lt;key&gt;?children?&lt;/key&gt;
+-					&lt;value&gt;?name?=outputEntries\|?children?=?name?=entry\\\\\\\\\\\\\\\|\\\\\\\|\||&lt;/value&gt;
++					&lt;key&gt;org.eclipse.cdt.make.core.buildLocation&lt;/key&gt;
++					&lt;value&gt;${workspace_loc:/antargis}&lt;/value&gt;
+ 				&lt;/dictionary&gt;
+ 				&lt;dictionary&gt;
+ 					&lt;key&gt;org.eclipse.cdt.make.core.enableFullBuild&lt;/key&gt;
+ 					&lt;value&gt;true&lt;/value&gt;
+ 				&lt;/dictionary&gt;
+ 				&lt;dictionary&gt;
++					&lt;key&gt;?children?&lt;/key&gt;
++					&lt;value&gt;?name?=outputEntries\|?children?=?name?=entry\\\\\\\\\\\\\\\|\\\\\\\|\||&lt;/value&gt;
++				&lt;/dictionary&gt;
++				&lt;dictionary&gt;
+ 					&lt;key&gt;org.eclipse.cdt.make.core.enableCleanBuild&lt;/key&gt;
+ 					&lt;value&gt;true&lt;/value&gt;
+ 				&lt;/dictionary&gt;
+@@ -78,7 +82,7 @@
+ 		&lt;nature&gt;org.eclipse.cdt.managedbuilder.core.ScannerConfigNature&lt;/nature&gt;
+ 		&lt;nature&gt;org.eclipse.cdt.core.ccnature&lt;/nature&gt;
+ 		&lt;nature&gt;org.eclipse.cdt.managedbuilder.core.managedBuildNature&lt;/nature&gt;
+-&lt;nature&gt;org.eclipse.dltk.ruby.core.nature&lt;/nature&gt;
++		&lt;nature&gt;org.eclipse.dltk.ruby.core.nature&lt;/nature&gt;
+ 	&lt;/natures&gt;
+ 	&lt;linkedResources&gt;
+ 		&lt;link&gt;
+
+Modified: antargis/trunk/Rakefile
+===================================================================
+--- antargis/trunk/Rakefile	2008-05-03 17:45:54 UTC (rev 1243)
++++ antargis/trunk/Rakefile	2008-05-10 20:06:38 UTC (rev 1244)
+@@ -31,7 +31,7 @@
+ def system(cmd)
+   #puts Dir.pwd
+   if cmd=~/ruby .*/
+-    cmd.gsub!(/^ruby/,&quot;./starter&quot;)
++    cmd=cmd.gsub(/^ruby/,&quot;./starter&quot;)
+   end
+   #puts cmd
+   oldSystem(cmd)
+
+Modified: antargis/trunk/data/gui/layout/editor/campaign/main.xml
+===================================================================
+--- antargis/trunk/data/gui/layout/editor/campaign/main.xml	2008-05-03 17:45:54 UTC (rev 1243)
++++ antargis/trunk/data/gui/layout/editor/campaign/main.xml	2008-05-10 20:06:38 UTC (rev 1244)
+@@ -2,14 +2,13 @@
+ &lt;layout name=&quot;CampaignEditorLayout&quot;&gt;
+ &lt;dragEnvironment name=&quot;dragEnvironment&quot;&gt;
+ &lt;table cols=&quot;1&quot; rows=&quot;2&quot;&gt;
+-  &lt;rowsize row=&quot;0&quot; fixed=&quot;30&quot;/&gt;
++  &lt;rowsize row=&quot;0&quot; fixed=&quot;50&quot;/&gt;
+   &lt;cell col=&quot;0&quot; row=&quot;0&quot;&gt;
+     &lt;toolBar&gt;
+-      &lt;frame width=&quot;5&quot;&gt;
+-        &lt;button text=&quot;Save&quot; name=&quot;save&quot;/&gt;
+-      &lt;/frame&gt;
++         &lt;toolButton text=&quot;Save&quot; name=&quot;save&quot; caption=&quot;muh&quot;/&gt;
+     &lt;/toolBar&gt;
+   &lt;/cell&gt;
++  
+   &lt;cell col=&quot;0&quot; row=&quot;1&quot;&gt;
+   &lt;table cols=&quot;2&quot; rows=&quot;2&quot; name=&quot;bigTable&quot;&gt;
+     &lt;colsize col=&quot;0&quot; fixed=&quot;100&quot;/&gt;
+@@ -32,11 +31,6 @@
+       &lt;/table&gt;
+     &lt;/cell&gt;
+     
+-    &lt;!--
+-    &lt;cell col=&quot;1&quot; row=&quot;0&quot;&gt;
+-        &lt;dragGrid name=&quot;dragGrid&quot; cellWidth=&quot;100&quot; hoverColor='#9999FF' edit=&quot;textEdit&quot;/&gt;
+-    &lt;/cell&gt;
+-    --&gt;
+     
+     &lt;cell col=&quot;1&quot; row=&quot;0&quot;&gt;
+       &lt;scrollingWidget clientRect=&quot;(0,0,1600,1024)&quot;&gt;
+@@ -58,5 +52,6 @@
+   &lt;/table&gt;
+   &lt;/cell&gt;
+   &lt;/table&gt;
++  &lt;appearEffect name=&quot;showEdit&quot; table=&quot;bigTable&quot; row=&quot;1&quot; size=&quot;50&quot; duration=&quot;10&quot;/&gt;
+ &lt;/dragEnvironment&gt;
+ &lt;/layout&gt;
+\ No newline at end of file
+
+Modified: antargis/trunk/ext/basic/ag_collector.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_collector.cc	2008-05-03 17:45:54 UTC (rev 1243)
++++ antargis/trunk/ext/basic/ag_collector.cc	2008-05-10 20:06:38 UTC (rev 1244)
+@@ -3,27 +3,30 @@
+ #include &lt;ag_main.h&gt;
+ 
+ void AGCollector::insertGlobal(AGRubyObject *pObject)
+-{
+-  //  CTRACE;
+-  mGlobals.insert(pObject);
+-}
++  {
++    // cdebug(pObject&lt;&lt;&quot;:&quot;&lt;&lt;typeid(*pObject).name());
++    mGlobals.insert(pObject);
++  }
+ 
+ void AGCollector::removeGlobal(AGRubyObject *pObject)
+-{
+-  //  CTRACE;
+-  mGlobals.erase(pObject);
+-}
++  {
++    //cdebug(pObject&lt;&lt;&quot;:&quot;&lt;&lt;typeid(*pObject).name());
++    mGlobals.erase(pObject);
++  }
+ 
+ void AGCollector::mark()
+-{
+-  //  CTRACE;
+-  for(std::set&lt;AGRubyObject*&gt;::iterator i=mGlobals.begin();i!=mGlobals.end();i++)
+-    markObject(*i);
+-}
++  {
++    for(std::set&lt;AGRubyObject*&gt;::iterator i=mGlobals.begin();i!=mGlobals.end();i++)
++      {
++        // cdebug(*i);
+ 
++        markObject(*i);
++      }
++  }
++
+ AGCollector *getCollector()
+-{
+-  if(getMain())
+-    return getMain()-&gt;getCollector();
+-  return 0;
+-}
++  {
++    if(getMain())
++      return getMain()-&gt;getCollector();
++    return 0;
++  }
+
+Modified: antargis/trunk/ext/basic/ag_collector.h
+===================================================================
+--- antargis/trunk/ext/basic/ag_collector.h	2008-05-03 17:45:54 UTC (rev 1243)
++++ antargis/trunk/ext/basic/ag_collector.h	2008-05-10 20:06:38 UTC (rev 1244)
+@@ -1,10 +1,11 @@
+ #ifndef AG_COLLECTOR_H
+ #define AG_COLLECTOR_H
+ 
++#include &lt;ag_base.h&gt;
++#include &lt;ag_rubyobj.h&gt;
++
+ #include &lt;set&gt;
+ 
+-#include &lt;ag_rubyobj.h&gt;
+-
+ class AGEXPORT AGCollector:public AGRubyObject
+ {
+  public:
+
+Modified: antargis/trunk/ext/basic/ag_messageobject.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_messageobject.cc	2008-05-03 17:45:54 UTC (rev 1243)
++++ antargis/trunk/ext/basic/ag_messageobject.cc	2008-05-10 20:06:38 UTC (rev 1244)
+@@ -325,13 +325,9 @@
+ 
+ bool AGMessageObject::processEvent(AGEvent* agEvent) 
+   {
+-
+-    //  dbout(1,&quot;typeid:&quot;&lt;&lt;typeid(this).name());
+-    //  TRACE;
+-    //  SDL_Event e;
++    cdebug(agEvent-&gt;getKey()&lt;&lt;&quot;:&quot;&lt;&lt;typeid(*this).name());
+     bool rc=false;
+ 
+-    //  const AGSDLEvent *agEvent=reinterpret_cast&lt;const AGSDLEvent*&gt;(pEvent);
+     if(agEvent-&gt;isSDLEvent())
+       {
+         const SDL_Event &amp;event=agEvent-&gt;get();
+
+Modified: antargis/trunk/ext/game/ant_app.h
+===================================================================
+--- antargis/trunk/ext/game/ant_app.h	2008-05-03 17:45:54 UTC (rev 1243)
++++ antargis/trunk/ext/game/ant_app.h	2008-05-10 20:06:38 UTC (rev 1244)
+@@ -15,14 +15,10 @@
+  * 
+  *    For information about the overall-architecture please refer to the ruby-documentation at: ../ruby/index.html
+  *
+- * 
++  */
+ 
+ 
+ 
+- */
+-
+-
+-
+ #include &quot;scene.h&quot;
+ #include &quot;ant_renderer.h&quot;
+ #include &lt;iostream&gt;
+
+Modified: antargis/trunk/ext/gui/ag_application.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_application.cc	2008-05-03 17:45:54 UTC (rev 1243)
++++ antargis/trunk/ext/gui/ag_application.cc	2008-05-10 20:06:38 UTC (rev 1244)
+@@ -255,6 +255,7 @@
+     if(mOverlay)
+       processed=mOverlay-&gt;processEvent(message);
+ 
++    cdebug(processed);
+     if(!processed)
+       {
+         if(!processed &amp;&amp; mainWidget)
+@@ -461,6 +462,7 @@
+ bool AGApplication::eventKeyDown(AGEvent *m)
+   {
+     CTRACE;
++    cdebug(&quot;M:&quot;&lt;&lt;m-&gt;getKey());
+     if(m-&gt;isSDLEvent())
+       {
+         SDLKey k=m-&gt;getKey();
+
+Modified: antargis/trunk/ext/gui/ag_application.h
+===================================================================
+--- antargis/trunk/ext/gui/ag_application.h	2008-05-03 17:45:54 UTC (rev 1243)
++++ antargis/trunk/ext/gui/ag_application.h	2008-05-10 20:06:38 UTC (rev 1244)
+@@ -130,12 +130,12 @@
+ 
+   void setDemoTime(float t);
+   
++  bool doEvent(const SDL_Event &amp;e);
+  private:
+   void clearOldMousePosition();
+   void drawCursor();
+ 
+   void flushEventQueue();
+-  bool doEvent(const SDL_Event &amp;e);
+ 
+   bool mRunning;
+   bool mIdleCalls;
+
+Modified: antargis/trunk/ext/gui/ag_button.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_button.cc	2008-05-03 17:45:54 UTC (rev 1243)
++++ antargis/trunk/ext/gui/ag_button.cc	2008-05-10 20:06:38 UTC (rev 1244)
+@@ -42,6 +42,7 @@
+   AGWidget(pParent,r),
+   mText(pText),mID(id),mState(NORMAL),mTextW(0)
+   {
++    CTRACE;
+     mImageW=0;
+     setTheme(&quot;&quot;);
+     AGFont font(&quot;FreeSans.ttf&quot;);
+@@ -112,6 +113,8 @@
+ 
+ void AGButton::draw(AGPainter &amp;p)
+   {
++    assert(mTextW);
++//    cdebug(mTextW-&gt;getText());
+     p.pushMatrix();
+     p.transform(AGRect2(0,0,width(),height()).shrink(borderWidth));
+     AGRect2 pr=getRect().origin();
+@@ -218,23 +221,33 @@
+     return AGWidget::eventMouseButtonUp(e);
+   }
+ 
++void AGButton::setRect(const AGRect2 &amp;r)
++  {
++    AGWidget::setRect(r);
++    updateClientRects();
++  }
++
+ void AGButton::setWidth(float w)
+   {
+     assert(w&gt;=0);
+     AGWidget::setWidth(w);
+-    std::list&lt;AGWidget*&gt;::iterator i=mChildren.begin();
+-    for(;i!=mChildren.end();i++)
+-      (*i)-&gt;setRect(getRect().shrink(borderWidth));
++    updateClientRects();
+   }
+ void AGButton::setHeight(float h)
+   {
+     assert(h&gt;=0);
+     AGWidget::setHeight(h);
++    updateClientRects();
++  }
++
++void AGButton::updateClientRects()
++  {
+     std::list&lt;AGWidget*&gt;::iterator i=mChildren.begin();
+     for(;i!=mChildren.end();i++)
+       (*i)-&gt;setRect(getRect().shrink(borderWidth));
+   }
+ 
++
+ /**
+    \return returns the text displayed on the button
+  */
+@@ -270,6 +283,7 @@
+ 
+ void AGButton::setTheme(const AGString &amp;pTheme)
+   {
++    CTRACE;
+     queryRedraw();
+     mTheme=addPoint(pTheme);
+ 
+
+Modified: antargis/trunk/ext/gui/ag_button.h
+===================================================================
+--- antargis/trunk/ext/gui/ag_button.h	2008-05-03 17:45:54 UTC (rev 1243)
++++ antargis/trunk/ext/gui/ag_button.h	2008-05-10 20:06:38 UTC (rev 1244)
+@@ -56,7 +56,7 @@
+      DISABLED        //!&lt; the button disabled (greyed)
+    };
+ 
+-  AGButton(AGWidget *pParent,const AGRect2 &amp;r,const AGStringUtf8&amp;pText,int id=-1);
++  AGButton(AGWidget *pParent,const AGRect2 &amp;r,const AGStringUtf8&amp;pText=&quot;&quot;,int id=-1);
+ 
+   void setSurface(AGSurface pSurface,bool pChangeSize=false);
+   void setTexture(const AGTexture &amp;pTexture);
+@@ -71,6 +71,7 @@
+ 
+   virtual void setWidth(float w);
+   virtual void setHeight(float w);
++  void setRect(const AGRect2 &amp;r);
+ 
+   virtual AGStringUtf8 getCaption() const;
+ 
+@@ -94,6 +95,8 @@
+   bool isOpaque() const;
+ 
+  private:
++   
++  void updateClientRects();
+   AGStringUtf8 mText;
+   int mID;
+   AGString mTheme;
+
+Modified: antargis/trunk/ext/gui/ag_edit.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_edit.cc	2008-05-03 17:45:54 UTC (rev 1243)
++++ antargis/trunk/ext/gui/ag_edit.cc	2008-05-10 20:06:38 UTC (rev 1244)
+@@ -30,10 +30,10 @@
+ 
+ AGEditLine::AGEditLine(const AGStringUtf8 &amp;pText,AGFont pFont,bool pHardEnd):
+   mText(pText),mFont(pFont),mHardEnd(pHardEnd)
+-  {
+-    mAlign=EDIT_LEFT;
+-    mVAlign=EDIT_TOP;
+-  }
++    {
++      mAlign=EDIT_LEFT;
++      mVAlign=EDIT_TOP;
++    }
+ 
+ AGEditLine::~AGEditLine()
+   {
+@@ -264,32 +264,33 @@
+   mLShift(false),mRShift(false),mLCtrl(false),mRCtrl(false),mLAlt(false),mRAlt(false),
+   mMultiLine(true),mWrapLines(true),
+   sigModified(this,&quot;sigModified&quot;)
+-  {
+-    mInserting=true;
+-    mMaxLength=-1;
+-    mMutable=true;
+-    mShowCursor=true;
+-    AGFont font1(&quot;FreeSans.ttf&quot;,14);
+-    AGFont font2(&quot;FreeSans.ttf&quot;,13);
+-    font1.setColor(AGColor(0,0,0));
+-    font2.setColor(AGColor(0,0,0xFF));
+-    AGEditLine l(&quot;&quot;,font1,true);
+-    mAlign=EDIT_LEFT;
+-    mVAlign=EDIT_TOP;
+-    l.setAlign(mAlign);
+-    l.setVAlign(mVAlign);
+-    mLines.push_back(l);
++    {
++      CTRACE;
++      mInserting=true;
++      mMaxLength=-1;
++      mMutable=true;
++      mShowCursor=true;
++      AGFont font1(&quot;FreeSans.ttf&quot;,14);
++      AGFont font2(&quot;FreeSans.ttf&quot;,13);
++      font1.setColor(AGColor(0,0,0));
++      font2.setColor(AGColor(0,0,0xFF));
++      AGEditLine l(&quot;&quot;,font1,true);
++      mAlign=EDIT_LEFT;
++      mVAlign=EDIT_TOP;
++      l.setAlign(mAlign);
++      l.setVAlign(mVAlign);
++      mLines.push_back(l);
+ 
+-    mCx=mCy=0;
+-    mViewCy=0;
++      mCx=mCy=0;
++      mViewCy=0;
+ 
+-    AGString t=mTheme;
+-    if(t.length())
+-      t+=&quot;.&quot;;
+-    mBackground=AGBackground(t+&quot;edit.background&quot;);
+-    mDrawBackground=true;
+-    setTheme(&quot;edit&quot;);
+-  }
++      AGString t=mTheme;
++      if(t.length())
++        t+=&quot;.&quot;;
++      mBackground=AGBackground(t+&quot;edit.background&quot;);
++      mDrawBackground=true;
++      setTheme(&quot;edit&quot;);
++    }
+ 
+ void AGEdit::setMaxLength(int i)
+   {
+@@ -299,7 +300,7 @@
+ 
+ void AGEdit::draw(AGPainter &amp;p)
+   {
+-
++    //    cdebug(&quot;text:&quot;&lt;&lt;getText());
+     int x,y,cy;
+     int completeHeight=0;
+     x=y=cy=0;
+@@ -397,6 +398,8 @@
+     AGStringUtf8 ins;
+     bool doInsert=false;
+     bool used=false;
++
++    cdebug(k&lt;&lt;&quot;::&quot;&lt;&lt;SDLK_RETURN);
+     if(k==SDLK_RIGHT)
+       {
+         getActLine();
+@@ -476,6 +479,8 @@
+       }
+     else if(k==SDLK_RETURN)
+       {
++        cdebug(&quot;RETUURN!&quot;);
++        cdebug(mMultiLine);
+         if(mMultiLine) 
+           {
+             getActLine();
+@@ -531,6 +536,8 @@
+         cdebug(&quot;ralt&quot;);
+         mRAlt=true;
+       }
++    else if(k==SDLK_ESCAPE)
++      {}
+     else if((unicode&amp;0xFFF8)!=0 || (k&gt;=SDLK_0 &amp;&amp; k&lt;=SDLK_9) || (k&gt;=SDLK_a &amp;&amp; k&lt;=SDLK_z))
+       {
+         ins=AGStringUtf8(unicode2Utf8(unicode));
+@@ -539,7 +546,7 @@
+         doInsert=true;
+       }
+     cdebug(&quot;KEY:&quot;&lt;&lt;SDL_GetKeyName(k)&lt;&lt;&quot;  &quot;&lt;&lt;k);
+-
++    cdebug(&quot;INSERT:&quot;&lt;&lt;doInsert);
+     if(doInsert)
+       {
+         if(insert(ins))
+@@ -549,7 +556,7 @@
+       }
+     if(used)
+       return true;
+-    
++    return false;
+   }
+ 
+ bool AGEdit::eventKeyDown(AGEvent *m)
+@@ -563,14 +570,14 @@
+       {
+         SDLKey k=m-&gt;getKey();
+         Uint16 unicode=m-&gt;getUnicode();
+-        
++
+         bool result=processKey(k,unicode);
+         if(result)
+           {
+             std::cout&lt;&lt;&quot;MODIFIED&quot;&lt;&lt;std::endl;
+             sigModified(m);
+           }
+-        
++
+         return result;
+       }
+     return false;
+
+Modified: antargis/trunk/ext/gui/ag_layout.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_layout.cc	2008-05-03 17:45:54 UTC (rev 1243)
++++ antargis/trunk/ext/gui/ag_layout.cc	2008-05-10 20:06:38 UTC (rev 1244)
+@@ -48,6 +48,7 @@
+ void AGLayout::loadXML(const std::string &amp;pXMLData)
+   {
+     CTRACE;
++    getLayoutFactory()-&gt;pushLayout(this);
+ 
+     // disable GC here
+     // marking makes problems here - as the widgets are not inserted into the tree 
+@@ -83,6 +84,8 @@
+         AGWidget *w=mTabIndices.begin()-&gt;second;
+         w-&gt;gainCompleteFocus(); // is ok, because till here layout isn't inserted into screen yet
+       }
++    getLayoutFactory()-&gt;popLayout();
++    mTempWidgets.clear();
+   }
+ 
+ bool AGLayout::eventKeyDown(AGEvent *m)
+@@ -221,4 +224,15 @@
+       }
+   }
+ 
++void AGLayout::insertTempWidget(AGWidget *pWidget)
++  {
++    mTempWidgets.insert(pWidget);
++  }
+ 
++
++void AGLayout::mark()
++  {
++    AGWidget::mark();
++    for(std::set&lt;AGWidget*&gt;::iterator i=mTempWidgets.begin();i!=mTempWidgets.end();i++)
++      markObject(*i);
++  }
+
+Modified: antargis/trunk/ext/gui/ag_layout.h
+===================================================================
+--- antargis/trunk/ext/gui/ag_layout.h	2008-05-03 17:45:54 UTC (rev 1243)
++++ antargis/trunk/ext/gui/ag_layout.h	2008-05-10 20:06:38 UTC (rev 1244)
+@@ -42,8 +42,13 @@
+ 
+   static void registerLayouts();
+ 
++  virtual void mark();
+  private:
++  void insertTempWidget(AGWidget *pWidget);
++   
+   std::map&lt;int,AGWidget*&gt; mTabIndices;
++  
++  std::set&lt;AGWidget*&gt; mTempWidgets;
+ };
+ 
+ AGEXPORT AGWidget *parseNode(AGWidget *pParent,const Node &amp;pNode);
+
+Modified: antargis/trunk/ext/gui/ag_layoutfactory.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_layoutfactory.cc	2008-05-03 17:45:54 UTC (rev 1243)
++++ antargis/trunk/ext/gui/ag_layoutfactory.cc	2008-05-10 20:06:38 UTC (rev 1244)
+@@ -33,6 +33,8 @@
+ void AGLayoutCreator::setResult(AGWidget *pWidget)
+   {
+     mWidget=pWidget;
++    if(mWidget)
++      getLayoutFactory()-&gt;getCurrentLayout()-&gt;addChildRef(mWidget);
+   }
+ AGWidget *AGLayoutCreator::getResult()
+   {
+@@ -95,6 +97,22 @@
+     return 0;
+   }
+ 
++void AGLayoutFactory::pushLayout(AGLayout *pLayout)
++  {
++    mCurrentLayouts.push_back(pLayout);
++  }
++void AGLayoutFactory::popLayout()
++  {
++    mCurrentLayouts.pop_back();
++  }
++
++AGLayout *AGLayoutFactory::getCurrentLayout()
++  {
++    return mCurrentLayouts.back();
++  }
++
++
++
+ AGLayoutFactory *mLayoutFactory=0;
+ AGLayoutFactory *getLayoutFactory()
+   {
+
+Modified: antargis/trunk/ext/gui/ag_layoutfactory.h
+===================================================================
+--- antargis/trunk/ext/gui/ag_layoutfactory.h	2008-05-03 17:45:54 UTC (rev 1243)
++++ antargis/trunk/ext/gui/ag_layoutfactory.h	2008-05-10 20:06:38 UTC (rev 1244)
+@@ -27,6 +27,7 @@
+ #include &lt;ag_utf8.h&gt;
+ #include &lt;ag_widget.h&gt;
+ #include &lt;ag_xml.h&gt;
++#include &lt;ag_layout.h&gt;
+ 
+ class AGEXPORT AGLayoutCreator:public AGSingleton
+ {
+@@ -41,8 +42,9 @@
+ 
+   void mark();
+  private:
++   
+   AGWidget *mWidget;
+-    //std::string mName;
++  
+ 
+ };
+ 
+@@ -60,6 +62,15 @@
+   AGWidget *create(AGWidget *pParent,const AGRect2 &amp;pRect,const Node &amp;pNode);
+   
+   friend AGLayoutFactory *getLayoutFactory();
++  
++  friend void AGLayout::loadXML(const std::string &amp;pXMLData);
++
++  AGLayout *getCurrentLayout();
++ private:
++  std::list&lt;AGLayout*&gt; mCurrentLayouts;
++  void pushLayout(AGLayout *pLayout);
++  void popLayout();
++
+ };
+ 
+ AGEXPORT AGLayoutFactory *getLayoutFactory();
+
+Modified: antargis/trunk/ext/gui/ag_table.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_table.cc	2008-05-03 17:45:54 UTC (rev 1243)
++++ antargis/trunk/ext/gui/ag_table.cc	2008-05-10 20:06:38 UTC (rev 1244)
+@@ -193,7 +193,6 @@
+   {
+     CTRACE;
+     int mx,my;
+-    cdebug(getName());
+ 
+     // first get the fixed sizes
+     int fx,fy;
+@@ -233,7 +232,6 @@
+     for(mx=0;mx&lt;w;mx++)
+       for(my=0;my&lt;h;my++)
+         {
+-          cdebug(mx&lt;&lt;&quot;:&quot;&lt;&lt;my);
+           if(cols[mx].second)
+             {
+               AGWidget *wd=children[mx+my*w];
+@@ -244,11 +242,9 @@
+             }
+           if(rows[my].second)
+             {
+-              cdebug(&quot;fixed y:&quot;&lt;&lt;my);
+               AGWidget *wd=children[mx+my*w];
+               if(wd)
+                 {
+-                  cdebug(&quot;setH:&quot;&lt;&lt;wd&lt;&lt;typeid(*wd).name());
+                   wd-&gt;setHeight(rows[my].first);
+                 }
+             }
+
+Modified: antargis/trunk/ext/gui/ag_widget.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_widget.cc	2008-05-03 17:45:54 UTC (rev 1243)
++++ antargis/trunk/ext/gui/ag_widget.cc	2008-05-10 20:06:38 UTC (rev 1244)
+@@ -51,7 +51,7 @@
+     return gNewClippingTechnique;
+   }
+ 
+-
++/*
+ // FIXME: This shouldn't be needed anymore !!
+ class MWidgetSet:public std::set&lt;AGWidget*&gt;
+ {
+@@ -80,7 +80,7 @@
+       }
+     return mPAllWidgets;
+   }
+-
++*/
+ AGWidget::AGWidget(AGWidget *pParent,const AGRect2 &amp;r):
+   sigMouseEnter(this,&quot;sigMouseEnter&quot;),
+   sigMouseLeave(this,&quot;sigMouseLeave&quot;),
+@@ -91,25 +91,28 @@
+   mFixedWidth(false),mFixedHeight(false),mVisible(true),mCaching(false),
+   mHasFocus(false),mFocus(0)
+ 
+-{
+-  mChangeRect=AGRect2(0,0,0,0);
+-  mCache=0;
+-  mCacheTouched=false;
+-  mTooltipWidget=0;
+-  mModal=false;
+-  if(getAllWidgets())
+-    getAllWidgets()-&gt;insert(this);
++  {
++    CTRACE;
++    if(mParent)
++      mParent-&gt;addChildRef(this);
++    
++    mChangeRect=AGRect2(0,0,0,0);
++    mCache=0;
++    mCacheTouched=false;
++    mTooltipWidget=0;
++    mModal=false;
++    //if(getAllWidgets())
++    //  getAllWidgets()-&gt;insert(this);
+ 
+-  getMain()-&gt;getCollector()-&gt;insertGlobal(this);
+-}
++    getMain()-&gt;getCollector()-&gt;insertGlobal(this);
++  }
+ 
+ AGWidget::~AGWidget()
+   {
+     CTRACE;
+ 
+-    if(!mParent)
+-      if(hasMain())
+-        getMain()-&gt;getCollector()-&gt;removeGlobal(this);
++    if(hasMain())
++      getMain()-&gt;getCollector()-&gt;removeGlobal(this);
+ 
+     std::list&lt;AGWidget*&gt;::iterator i=mChildren.begin();
+     for(;i!=mChildren.end();i++)
+@@ -118,18 +121,19 @@
+       }
+     if(getParent())
+       {
+-        if(getAllWidgets())
++        /*if(getAllWidgets())
+           {
+             if(getAllWidgets()-&gt;find(getParent())==getAllWidgets()-&gt;end())
+               {
+                 dbout(5000,&quot;WARNING:Error in ~AGWidget!!!&quot;);
+               }
+-            else
++            else*/
++           
+               getParent()-&gt;eventChildrenDeleted(this);
+-          }
++          //}
+       }
+-    if(getAllWidgets())
+-      getAllWidgets()-&gt;erase(this);
++    //if(getAllWidgets())
++    //  getAllWidgets()-&gt;erase(this);
+   }
+ 
+ std::list&lt;AGWidget*&gt; AGWidget::getChildren()
+@@ -254,6 +258,8 @@
+   {
+     if(!mVisible)
+       return false;
++    cdebug(&quot;proc&quot;);
++    cdebug(event-&gt;getKey());
+ 
+     bool processed = false;
+     // do i have a capturehook set ? (modal)
+@@ -424,8 +430,17 @@
+     return false;
+   }
+ 
++void AGWidget::addChildRef(AGWidget *pWidget)
++  {
++    assert(pWidget);
++    mRefChildren.insert(pWidget);
++  }
++
++
+ void AGWidget::addChild(AGWidget *w)
+   {
++    mRefChildren.erase(w);
++    
+     mChildren.push_front(w); // set on top
+     if(mHasFocus &amp;&amp; w-&gt;canFocus())
+       {
+@@ -535,8 +550,6 @@
+   }
+ void AGWidget::setHeight(float h)
+   {
+-    CTRACE;
+-    cdebug(getName());
+     regChange();
+     mr.setHeight(h);
+     regChange();
+@@ -667,19 +680,19 @@
+ void AGWidget::gainCompleteFocus(AGWidget *pWidget)
+   {
+ #ifdef FOCUS_BY_SORT
+-if(mParent)
+-  mParent-&gt;gainCompleteFocus(this);
+-if(pWidget)
+-  {
+-    //      dbout(5000,mChildren.size());
+-    std::list&lt;AGWidget*&gt;::iterator i=std::find(mChildren.begin(),mChildren.end(),pWidget);
+-    if(i!=mChildren.end())
++    if(mParent)
++      mParent-&gt;gainCompleteFocus(this);
++    if(pWidget)
+       {
+-        mChildren.erase(i);
+-        mChildren.push_front(pWidget);
++        //      dbout(5000,mChildren.size());
++        std::list&lt;AGWidget*&gt;::iterator i=std::find(mChildren.begin(),mChildren.end(),pWidget);
++        if(i!=mChildren.end())
++          {
++            mChildren.erase(i);
++            mChildren.push_front(pWidget);
++          }
++        //      dbout(5000,mChildren.size());
+       }
+-    //      dbout(5000,mChildren.size());
+-  }
+ #endif
+   }
+ 
+@@ -845,10 +858,10 @@
+ 
+ AGWidget *AGWidget::getChild(const AGString &amp;pName)
+   {
+-    CTRACE;
+     if(mName==pName)
+       return this;
+ 
++    
+     AGWidget *w=0;
+     std::list&lt;AGWidget*&gt;::iterator i=mChildren.begin();
+ 
+@@ -876,6 +889,14 @@
+     // mark mToClear also - as it can be that they are still used on stack
+     for(std::list&lt;AGWidget*&gt;::iterator i=mToClear.begin();i!=mToClear.end();i++)
+       markObject(*i);
++
++  
++    for(std::set&lt;AGWidget*&gt;::iterator i=mRefChildren.begin();i!=mRefChildren.end();i++)
++      {
++        assert((*i));
++        markObject(*i);
++      }
++
+   }
+ 
+ 
+@@ -1155,12 +1176,12 @@
+ 
+ 
+ AGRect2 AGWidget::getChildRect(const AGRect2 &amp;pRect) const
+-  {
+-    if(mUseClientRect)
+-        mClientProj.project(pRect);
+-    else
+-      return pRect;
+-  }
++{
++  if(mUseClientRect)
++    mClientProj.project(pRect);
++  else
++    return pRect;
++}
+ bool AGWidget::containsPoint(AGWidget *pWidget,const AGVector2 &amp;pVector) const
+ {
+   return getChildRect(pWidget-&gt;getRect()).contains(pVector);
+
+Modified: antargis/trunk/ext/gui/ag_widget.h
+===================================================================
+--- antargis/trunk/ext/gui/ag_widget.h	2008-05-03 17:45:54 UTC (rev 1243)
++++ antargis/trunk/ext/gui/ag_widget.h	2008-05-10 20:06:38 UTC (rev 1244)
+@@ -95,7 +95,7 @@
+   
+   AGRect2 getRect() const;
+   virtual AGRect2 getClientRect() const;
+-  void setRect(const AGRect2 &amp;pRect);
++  virtual void setRect(const AGRect2 &amp;pRect);
+ 
+   void setParent(AGWidget *pParent);
+   AGWidget *getParent();
+@@ -232,6 +232,8 @@
+   virtual bool eventMouseButtonDownClipped(AGEvent *pEvent,const AGVector2 &amp;pPosition);
+   virtual bool eventMouseButtonUpClipped(AGEvent *pEvent,const AGVector2 &amp;pPosition);
+   virtual bool eventMouseMotionClipped(AGEvent *pEvent,const AGVector2 &amp;pPosition);
++
++  void addChildRef(AGWidget *pWidget);
+ protected:
+   
+ 
+@@ -285,6 +287,8 @@
+   AGStringUtf8 mTooltip;
+   AGTooltip *mTooltipWidget;
+ 
++  std::set&lt;AGWidget*&gt; mRefChildren;
++  
+ protected:
+   std::list&lt;AGWidget*&gt; mChildren;
+ 
+
+Modified: antargis/trunk/rookey/config_generator.rb
+===================================================================
+--- antargis/trunk/rookey/config_generator.rb	2008-05-03 17:45:54 UTC (rev 1243)
++++ antargis/trunk/rookey/config_generator.rb	2008-05-10 20:06:38 UTC (rev 1244)
+@@ -76,9 +76,7 @@
+ 	      getPath.map{|dir|
+ 	        
+ 	        p=File.join(dir,program)
+-          #puts &quot;TEST:&quot;+p
+ 	        p=nil unless File.exists?(p)
+-          #puts &quot;RES:&quot;+p.to_s
+           p
+ 	      }
+       }.flatten.uniq-[nil]
+@@ -144,7 +142,7 @@
+ 	    configurators.each{|c|
+ 	      unless run.member?(c)
+ 		      if c.needs.select{|s|not ok.member?(s)}.length == 0
+-		        log &quot;Running congurator #{c}&quot;
++		        log &quot;Running configurator #{c}&quot;
+ 		        c.new.run(config)
+ 		        ok+=c.provides
+ 		        ok.uniq!
+
+Modified: antargis/trunk/rookey/cpp/ag_rubyobj.cc
+===================================================================
+--- antargis/trunk/rookey/cpp/ag_rubyobj.cc	2008-05-03 17:45:54 UTC (rev 1243)
++++ antargis/trunk/rookey/cpp/ag_rubyobj.cc	2008-05-10 20:06:38 UTC (rev 1244)
+@@ -1,6 +1,5 @@
++#include &quot;ag_base.h&quot;
+ #include &quot;ag_rubyobj.h&quot;
+-//#include &quot;ag_debug.h&quot;
+-//#include &quot;ag_profiler.h&quot;
+ #include &lt;assert.h&gt;
+ #include &lt;typeinfo&gt;
+ #include &lt;set&gt;
+@@ -13,12 +12,11 @@
+ #endif
+ #include &lt;ruby.h&gt;
+ 
+-//#include &lt;ag_main.h&gt;
+-
+ bool mRubyQuitting=false;
+ 
+ // this set keeps track of all valid instances of AGRubyObject
+ std::set&lt;AGRubyObject*&gt; mRubyObjects;
++std::set&lt;AGRubyObject*&gt; mRemovedRubyObjects;
+ 
+ void setQuitting()
+   {
+@@ -42,13 +40,16 @@
+ 
+ AGRubyObject::AGRubyObject()
+   {
++    //std::cerr&lt;&lt;&quot;AGRubyObject::new:&quot;&lt;&lt;this&lt;&lt;std::endl;
+     mRubyObjects.insert(this);
+   }
+ AGRubyObject::~AGRubyObject()
+   {
++    //std::cerr&lt;&lt;&quot;AGRubyObject::Removed:&quot;&lt;&lt;this&lt;&lt;std::endl;
+     for(std::set&lt;AGBaseObject*&gt;::iterator i=mReferences.begin();i!=mReferences.end();i++)
+       (*i)-&gt;baseClear();
+     mRubyObjects.erase(this);
++    mRemovedRubyObjects.insert(this);
+   }
+ 
+ 
+@@ -62,6 +63,7 @@
+ // recursive should be set true only in one direction, otherwise you'll generate endless-loops (!!)
+ void AGRubyObject::markObject(AGRubyObject *o, bool recursive)
+   {
++    //std::cerr&lt;&lt;&quot;markObject:&quot;&lt;&lt;o&lt;&lt;std::endl;
+     // o must be a valid ruby-object
+     assert(mRubyObjects.find(o)!=mRubyObjects.end());
+ 
+@@ -69,6 +71,7 @@
+     VALUE v=convertCpp2Ruby(o);
+     if(v!=Qnil)
+       {
++        //std::cout&lt;&lt;&quot;V:&quot;&lt;&lt;v&lt;&lt;std::endl;
+         // then mark it
+         rb_gc_mark(v);
+       }
+@@ -107,6 +110,8 @@
+     assert(ptr);
+     // the given object must be a AGRubyObject and it must be valid (it's in mRubyObjects)
+     AGRubyObject *o=static_cast&lt;AGRubyObject*&gt;(ptr);
++    if(mRubyObjects.find(o)==mRubyObjects.end())
++      std::cerr&lt;&lt;&quot;OLD RUBYOBJ:&quot;&lt;&lt;(mRemovedRubyObjects.find(o)!=mRemovedRubyObjects.end())&lt;&lt;&quot;:&quot;&lt;&lt;o&lt;&lt;std::endl;
+     assert(mRubyObjects.find(o)!=mRubyObjects.end());
+ 
+ #ifdef GCDEBUG
+
+Modified: antargis/trunk/rookey/swig_interface_builder.rb
+===================================================================
+--- antargis/trunk/rookey/swig_interface_builder.rb	2008-05-03 17:45:54 UTC (rev 1243)
++++ antargis/trunk/rookey/swig_interface_builder.rb	2008-05-10 20:06:38 UTC (rev 1244)
+@@ -195,6 +195,13 @@
+           swig_type_info *ty = SWIG_TypeDynamicCast($1_descriptor,(void **) &amp;$1);
+           $result = SWIG_NewPointerObj($1, ty, $owner);
+         }        
++        %typemap(directorin) #{c.name} *, #{c.name} &amp; {
++          if($1)
++          {
++          swig_type_info *ty = SWIG_TypeDynamicCast($1_descriptor,(void **) &amp;$1);
++          $input = SWIG_NewPointerObj($1, ty, $owner);
++          }
++        }        
+         %{
+         
+         swig_type_info* #{c.name}_dynamic_cast(void **p)
+
+Modified: antargis/trunk/ruby/ant_tools.rb
+===================================================================
+--- antargis/trunk/ruby/ant_tools.rb	2008-05-03 17:45:54 UTC (rev 1243)
++++ antargis/trunk/ruby/ant_tools.rb	2008-05-10 20:06:38 UTC (rev 1244)
+@@ -26,7 +26,7 @@
+ end
+ 
+ def displayError(error)
+-	getSoundManager.playWave(&quot;data/sound/error.wav&quot;)
++  getSoundManager.playWave([&quot;data&quot;,&quot;sound&quot;,&quot;error.wav&quot;].join(&quot;/&quot;))
+ 	playSound(error)
+ 	dputs &quot;ERROR:&quot;+error.to_s
+ end
+@@ -72,3 +72,16 @@
+ end
+ 
+ 
++class Object
++  def define_cmethod(method_name, method = nil, &amp;proc)
++    if proc.nil?
++      raise ArgumentError
++    else
++      method = proc
++    end if method.nil?
++  
++    (class &lt;&lt; self; self; end).module_eval do
++      define_method( method_name.to_sym, method )
++    end
++  end
++end
+
+Modified: antargis/trunk/ruby/editor/campaign/drag_grid.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/drag_grid.rb	2008-05-03 17:45:54 UTC (rev 1243)
++++ antargis/trunk/ruby/editor/campaign/drag_grid.rb	2008-05-10 20:06:38 UTC (rev 1244)
+@@ -59,7 +59,6 @@
+ 
+     private
+     
+-    
+     def createRoundRect(rect,radius)
+       x=AGVector2.new(radius,0)
+       y=AGVector2.new(0,radius)
+@@ -108,10 +107,65 @@
+       setRect(o+(-to.getScreenRect.getV0))
+     end
+   end
+-  
++end
++
++class Effect&lt;AGWidget
++  def initialize(p,r,node)
++    super(p,r)
++    @registered=false
++    @running=false
++    @duration=node[&quot;duration&quot;].to_f
++    run
++  end
++  def draw(p)
++    if @registered==false
++      registerEffect
++    end
++  end
++  def run
++    @running=true
++    @time=0
++  end
++  def eventFrame(t)
++    pp @running
++    #exit
++    if @running
++      @time+=t
++     # exit
++      @running=false if @time&gt;=@duration
++      @time=@duration if @time&gt;@duration 
++      step(@time/@duration)
++    end
++  end
++  def step(per)
++    pp per
++    exit
++  end
++  private
++  def registerEffect
++    if getApp
++      getApp.sigFrame.connect(self,:eventFrame)
++      @registered=true
++    end
++  end
++end
++
++class AppearEffect&lt;Effect
++  def initialize(p,r,node)
++    super
++    @name=node[&quot;name&quot;]
++    @target=node[&quot;table&quot;]
++    @row=node[&quot;row&quot;].to_i
++    @size=50
+     
++  end
++  def step(amount)
++    table=getApp.getMainWidget.getChild(@target)
++    table.modifyRow(@row,amount*@size)
++  end
+ end
+ 
++
+ class AGHoverWidget&lt;AGWidget
+   attr_reader :hovered
+   attr_accessor :hoverBorder
+@@ -426,19 +480,50 @@
+ end
+ 
+ class ToolBar&lt;AGWidgetWithConfig
++  attr_reader :borderWidth
+   def initialize(p,r,ops)
+     super
+     @ul=getColor(&quot;ul&quot;,&quot;#CCCCCC&quot;)
+     @ur=getColor(&quot;ur&quot;,&quot;#CCCCCC&quot;)
+     @ll=getColor(&quot;ll&quot;,&quot;#999999&quot;)
+     @lr=getColor(&quot;lr&quot;,&quot;#999999&quot;)
++    @borderWidth=ops[&quot;borderWidth&quot;].to_i
+   end
+   def draw(p)
+     p.drawGradient(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">getRect.origin, at ul</A><A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at ur</A><A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at ll</A><A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at lr</A>)
+   end
++  def getNextChildRect
++    cCount=getChildren.length
++    getChildRects[cCount].shrink(3)
++  end
++  
++  def getChildRects
++    rectSize=[width,height].min
++    rects=[]
++    0.upto(width/rectSize){|x|
++      0.upto(height/rectSize){|y|
++        rects&lt;&lt;AGRect.new(x,y,rectSize,rectSize)
++      }
++    }
++    rects
++  end
+ end
+ 
++class ToolButton&lt;AGButton
++  def initialize(p,r,ops)
++    puts &quot;MUH1&quot;
++    puts self.object_id
++    text=AGStringUtf8.new(&quot;HUP&quot;) #ops[&quot;text&quot;])
++    super(p,r,text)
++    setCaching(false)
++    puts &quot;MUH2&quot;
++    setRect(p.getNextChildRect)
++    setCaption(text)
++    setName(ops[&quot;name&quot;])
++  end
++end
+ 
++
+ class DragGrid&lt;AGWidgetWithConfig
+   attr_reader :cells, :cellWidth, :selected
+   
+@@ -556,27 +641,63 @@
+ end
+ 
+ 
+-[DragGrid,DragSource,DragTrash,DragEnvironment,ToolBar].each{|c|standardLayoutCreator(c)}
++[DragGrid,DragSource,DragTrash,DragEnvironment,ToolBar,ToolButton,AppearEffect].each{|c|standardLayoutCreator(c)}
+ 
++class RubySignal
++  def initialize(name)
++    @name=name
++    @receivers=[]
++  end
++  def connect(object,method)
++    @receivers&lt;&lt;[object,method]
++  end
++  def call(*s)
++    @receivers.each{|p|
++      object,method=p
++      object.send(method,*s)
++    }
++  end  
++end
++def createSignal(x)
++  signal=RubySignal.new(x)
++  self.define_cmethod(x) {|*s|
++    puts s.length
++    if s.length==0
++      signal
++    else
++      signal.call(*s)
++    end
++  }
++end
++
+ class MApp&lt;AGApplication
+   def initialize()
+     super
++    createSignal :sigFrame
+     layout=AGLayout.new(nil)
+     @layout=layout
+-    layout.loadXML(loadFile(&quot;data/gui/layout/editor/campaign/main.xml&quot;))
++    file=File.join('data','gui','layout','editor','campaign','main.xml')
++    layout.loadXML( loadFile(file) )
+     setMainWidget(layout)
+-    layout.getChild(&quot;bigTable&quot;).modifyRow(1,10)
+-    env=layout.getChild(&quot;dragEnvironment&quot;)
+-    @grid=layout.getChild(&quot;dragGrid&quot;)
+-    addHandler(env,:sigClick,:eventDeselect)
++    layout.setApp(self)
++    if layout.getChild(&quot;bigTable&quot;)
++	    layout.getChild(&quot;bigTable&quot;).modifyRow(1,10)
++	    env=layout.getChild(&quot;dragEnvironment&quot;)
++	    @grid=layout.getChild(&quot;dragGrid&quot;)
++	    addHandler(env,:sigClick,:eventDeselect)
++    end
++    
++    
+   end
+   def eventDeselect
+     @grid.select(nil)
+   end
+   def eventFrame(t)
+     pp 1/t
++    sigFrame(t)
+     super
+   end
++  
+ end
+ 
+ app=MApp.new
+
+Modified: antargis/trunk/ruby/gui/ag_tools.rb
+===================================================================
+--- antargis/trunk/ruby/gui/ag_tools.rb	2008-05-03 17:45:54 UTC (rev 1243)
++++ antargis/trunk/ruby/gui/ag_tools.rb	2008-05-10 20:06:38 UTC (rev 1244)
+@@ -170,4 +170,27 @@
+ 			AGVector2.new(a,b)
+ 		end
+ 	end
++  class AGRubyMessageObject&lt;AGMessageObject
++    def initialize()
++      super
++      @map={}
++    end
++    def signal(e)
++      id=[e.getCaller,e.getName]
++      if @map[id]
++        @map[id].each{|b|b.call(e)}
++      end
++    end
++    def append(from,to)
++      id=[from.getCaller,from.getName]
++      @map[id]||=[]
++      @map[id]&lt;&lt;to
++    end
++  end
++#  class AGSignal
++#    
++#    def connect(&amp;block)
++#      
++#    end
++#  end
+ end
+
+Modified: antargis/trunk/ruby/gui/testing.rb
+===================================================================
+--- antargis/trunk/ruby/gui/testing.rb	2008-05-03 17:45:54 UTC (rev 1243)
++++ antargis/trunk/ruby/gui/testing.rb	2008-05-10 20:06:38 UTC (rev 1244)
+@@ -115,7 +115,9 @@
+     s1=&quot;SDL_KEYDOWN:0:1:0:#{sym}:0:#{sym}&quot;
+     puts s1
+     #exit
+-    @app.eventKeyDown(newEvent(@app,&quot;&quot;,toSDLEvent(s1)))
+-    @app.eventKeyUp(newEvent(@app,&quot;&quot;,toSDLEvent(&quot;SDL_KEYUP:0:0:0:#{sym}:0:#{sym}&quot;)))
++    puts @app
++    pp @app.methods.sort
++    @app.doEvent(toSDLEvent(s1))
++    @app.doEvent(toSDLEvent(&quot;SDL_KEYUP:0:0:0:#{sym}:0:#{sym}&quot;))
+   end
+ end
+
+Modified: antargis/trunk/ruby/spec/spec_gui.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_gui.rb	2008-05-03 17:45:54 UTC (rev 1243)
++++ antargis/trunk/ruby/spec/spec_gui.rb	2008-05-10 20:06:38 UTC (rev 1244)
+@@ -2,17 +2,32 @@
+ 
+ describe &quot;AGEdit&quot; do
+   include GuiTest
+-  it &quot;should ignore pressing RETURN,ESCAPE when not in multiline mode&quot; do
++  before(:each) do
+     @app=makeTestAppClass(AGApplication).new
+-    widget=AGEdit.new(nil,AGRect2.new(20,20,200,50))
+-    @app.setMainWidget(widget)
++    @widget=AGEdit.new(nil,AGRect2.new(20,20,200,50))
++    @app.setMainWidget(@widget)
+     @app.step
++  end
++  
++  it &quot;should accept RETURN as newline&quot; do
+     key('a')
+-    widget.getText.to_s.should == &quot;a&quot;
+-    #&quot;it should work&quot;.should == &quot;&quot;
+-    
+-    #while true; @app.run;end
++    key(SDLK_RETURN.chr)
++    key('a')
++    @widget.getText.to_s.should == &quot;a\na&quot;
+   end
++  
++  it &quot;should ignore ESCAPE&quot; do
++    key('a')
++    key(SDLK_ESCAPE.chr)
++    @widget.getText.to_s.should == &quot;a&quot;
++  end
++  
++  it &quot;should ignore pressing RETURN when not in multiline mode&quot; do
++    @widget.setMulti(false)
++    key('a')
++    key(SDLK_RETURN.chr)
++    @widget.getText.to_s.should == &quot;a&quot;
++  end
+ end
+ 
+ describe &quot;AGListBox&quot; do
+
+Modified: antargis/trunk/ruby/spec_helper.rb
+===================================================================
+--- antargis/trunk/ruby/spec_helper.rb	2008-05-03 17:45:54 UTC (rev 1243)
++++ antargis/trunk/ruby/spec_helper.rb	2008-05-10 20:06:38 UTC (rev 1244)
+@@ -3,21 +3,9 @@
+ require 'pp'
+ require 'ruby/antargislib.rb'
+ 
++
+ #if Object.respond_to?(:define_cmethod)
+ 	
+-	class Object
+-		def define_cmethod(method_name, method = nil, &amp;proc)
+-			if proc.nil?
+-				raise ArgumentError
+-			else
+-				method = proc
+-			end if method.nil?
+-		
+-			(class &lt;&lt; self; self; end).module_eval do
+-				define_method( method_name.to_sym, method )
+-			end
+-		end
+-	end
+ 	
+ 	$MY_KERNEL=self
+ 	def kernel
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000199.html">[Antargis-svn] r1243 - antargis/trunk
+</A></li>
+	<LI>Next message: <A HREF="000201.html">[Antargis-svn] r1245 - in antargis/trunk: . build build/swig	build/win32 build/win32/libs data/gui/layout/editor/campaign	ext/basic ext/gui ruby/editor/campaign ruby/gui
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#200">[ date ]</a>
+              <a href="thread.html#200">[ thread ]</a>
+              <a href="subject.html#200">[ subject ]</a>
+              <a href="author.html#200">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

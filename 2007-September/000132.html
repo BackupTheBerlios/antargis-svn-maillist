@@ -1,0 +1,191 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1175 - in antargis/branches/rant/ruby: . jobs	jobs/spec spec
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-September/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1175%20-%20in%20antargis/branches/rant/ruby%3A%20.%20jobs%0A%09jobs/spec%20spec&In-Reply-To=%3C200709101938.l8AJcsDO013412%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000131.html">
+   <LINK REL="Next"  HREF="000133.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1175 - in antargis/branches/rant/ruby: . jobs	jobs/spec spec</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1175%20-%20in%20antargis/branches/rant/ruby%3A%20.%20jobs%0A%09jobs/spec%20spec&In-Reply-To=%3C200709101938.l8AJcsDO013412%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1175 - in antargis/branches/rant/ruby: . jobs	jobs/spec spec">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Mon Sep 10 21:38:54 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000131.html">[Antargis-svn] r1174 - in antargis/branches/rant: build/spec	ruby/entities ruby/entities/spec
+</A></li>
+        <LI>Next message: <A HREF="000133.html">[Antargis-svn] r1176 - in antargis/branches/rant: . build	build/configs ext/3dengine ext/game
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#132">[ date ]</a>
+              <a href="thread.html#132">[ thread ]</a>
+              <a href="subject.html#132">[ subject ]</a>
+              <a href="author.html#132">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-09-10 21:38:54 +0200 (Mon, 10 Sep 2007)
+New Revision: 1175
+
+Added:
+   antargis/branches/rant/ruby/ant_mock.rb
+   antargis/branches/rant/ruby/jobs/spec/
+   antargis/branches/rant/ruby/jobs/spec/recruit.rb
+   antargis/branches/rant/ruby/spec/map.rb
+Log:
+* new files
+
+
+Added: antargis/branches/rant/ruby/ant_mock.rb
+===================================================================
+--- antargis/branches/rant/ruby/ant_mock.rb	2007-09-10 19:38:25 UTC (rev 1174)
++++ antargis/branches/rant/ruby/ant_mock.rb	2007-09-10 19:38:54 UTC (rev 1175)
+@@ -0,0 +1,4 @@
++class Mesh
++	def initialize
++	end
++end
+\ No newline at end of file
+
+Added: antargis/branches/rant/ruby/jobs/spec/recruit.rb
+===================================================================
+--- antargis/branches/rant/ruby/jobs/spec/recruit.rb	2007-09-10 19:38:25 UTC (rev 1174)
++++ antargis/branches/rant/ruby/jobs/spec/recruit.rb	2007-09-10 19:38:54 UTC (rev 1175)
+@@ -0,0 +1,60 @@
++require 'ruby/antargislib.rb'
++require 'map.rb'
++require 'entities.rb'
++#require 'ruby/state_machine/ant_hl_job_states.rb'
++
++module Testing
++	@@testing=false
++	def Testing.initTesting
++		return if @@testing
++		@@testing=true
++
++		@@app=AGApplication.new
++		@@scene=Scene.new(800,600)
++	end
++
++	def Testing.getTestMapFor(test)
++		initTesting
++		case test
++			when :recruit
++				#map=AntRubyMap.new(@@app,@@scene,800,600)
++				map=AntRubyMap.new(nil,nil,800,600)
++				map.loadMap(&quot;data/levels/tutorial/tutorial0.antlvl&quot;)
++				map
++		end
++	end
++end
++
++describe AntHeroRecruitJob,&quot;Test-map for recruiting&quot; do
++	before(:all) do
++		@map=Testing.getTestMapFor(:recruit)
++	end
++	it &quot;should include a hero called 'Rowen'&quot; do
++		@map.getByName(&quot;Rowen&quot;).should is_a?(AntHero)
++	end
++end
++
++describe AntHeroRecruitJob,&quot;A hero recruit job&quot; do
++	before(:each) do
++		@map=Testing.getTestMapFor(:recruit)
++
++		@hero=@map.getByName(&quot;Rowen&quot;)
++	end
++
++	it &quot;map should include Rowen&quot; do
++		@hero.should_not be_nil
++	end
++
++
++# 	it &quot;should at any time determine how strong the aggression of the hero is and thus should not start new ll-jobs to recruit people if there are already enough&quot;
++# 	it &quot;should take care when the aggression level is raised&quot;
++# 	it &quot;should assign a low-level job to the men - according to the amount of needed people&quot; 
++# 	it &quot;should return each man after recruiting of being recruited to the starting point&quot;
++# 	it &quot;should use sit-formation for the starting-point&quot;
++# 	it &quot;should let people sit, when they don't have anything to do&quot;
++# 
++# 	it &quot;aggression of 3 implies all people&quot;		
++# 	
++# 	it &quot;aggression of 2 implies 2/3 of all people&quot;
++# 	it &quot;aggression of 1 implies 1/3 of all people&quot;
++end
+\ No newline at end of file
+
+Added: antargis/branches/rant/ruby/spec/map.rb
+===================================================================
+--- antargis/branches/rant/ruby/spec/map.rb	2007-09-10 19:38:25 UTC (rev 1174)
++++ antargis/branches/rant/ruby/spec/map.rb	2007-09-10 19:38:54 UTC (rev 1175)
+@@ -0,0 +1,32 @@
++require 'ruby/antargislib.rb'
++require 'map.rb'
++
++module Testing
++	@@testing=false
++	def Testing.initTesting
++		return if @@testing
++		@@testing=true
++
++		@@app=AGApplication.new
++		@@scene=Scene.new(800,600)
++	end
++
++	def Testing.getTestMapFor(test)
++		initTesting
++		case test
++			when :recruit
++				map=AntRubyMap.new(@@app,@@scene,800,600)
++				map.loadMap(&quot;data/levels/tutorial/tutorial0.antlvl&quot;)
++				map
++		end
++	end
++end
++
++describe AntRubyMap,&quot;A BoA-Ruby-map&quot; do
++	it &quot;should run without UI at all&quot; do
++		map=AntRubyMap.new(nil,nil,64,64)
++		map.move(1)
++	end
++
++	it &quot;should be possible to create two maps concurrently (low prio)&quot;
++end
+\ No newline at end of file
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000131.html">[Antargis-svn] r1174 - in antargis/branches/rant: build/spec	ruby/entities ruby/entities/spec
+</A></li>
+	<LI>Next message: <A HREF="000133.html">[Antargis-svn] r1176 - in antargis/branches/rant: . build	build/configs ext/3dengine ext/game
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#132">[ date ]</a>
+              <a href="thread.html#132">[ thread ]</a>
+              <a href="subject.html#132">[ subject ]</a>
+              <a href="author.html#132">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

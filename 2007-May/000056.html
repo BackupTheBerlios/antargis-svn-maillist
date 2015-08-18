@@ -1,0 +1,2087 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1098 - in antargis/branches/branch_2d: . gui/src	ruby ruby/tests src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-May/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1098%20-%20in%20antargis/branches/branch_2d%3A%20.%20gui/src%0A%09ruby%20ruby/tests%20src&In-Reply-To=%3C200705191430.l4JEUH3D010015%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000055.html">
+   <LINK REL="Next"  HREF="000057.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1098 - in antargis/branches/branch_2d: . gui/src	ruby ruby/tests src</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1098%20-%20in%20antargis/branches/branch_2d%3A%20.%20gui/src%0A%09ruby%20ruby/tests%20src&In-Reply-To=%3C200705191430.l4JEUH3D010015%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1098 - in antargis/branches/branch_2d: . gui/src	ruby ruby/tests src">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sat May 19 16:30:17 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000055.html">[Antargis-svn] r1097 - antargis/branches/branch_2d/ruby/tests
+</A></li>
+        <LI>Next message: <A HREF="000057.html">[Antargis-svn] r1099 - in antargis/branches/branch_2d: gui/src ruby	ruby/tests src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#56">[ date ]</a>
+              <a href="thread.html#56">[ thread ]</a>
+              <a href="subject.html#56">[ subject ]</a>
+              <a href="author.html#56">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-05-19 16:30:14 +0200 (Sat, 19 May 2007)
+New Revision: 1098
+
+Added:
+   antargis/branches/branch_2d/gui/src/ag_algebra.cc
+   antargis/branches/branch_2d/gui/src/ag_algebra.h
+   antargis/branches/branch_2d/gui/src/ag_clip.cc
+   antargis/branches/branch_2d/gui/src/ag_clip.h
+   antargis/branches/branch_2d/gui/src/ag_clip_painttarget.cc
+   antargis/branches/branch_2d/gui/src/ag_clip_painttarget.h
+   antargis/branches/branch_2d/gui/src/ag_gauss.h
+   antargis/branches/branch_2d/gui/src/ag_projection.cc
+   antargis/branches/branch_2d/gui/src/ag_projection.h
+   antargis/branches/branch_2d/ruby/tests/algebra_test.rb
+   antargis/branches/branch_2d/ruby/tests/basis_test.rb
+   antargis/branches/branch_2d/ruby/tests/clip_test.rb
+   antargis/branches/branch_2d/ruby/tests/clip_widget_test.rb
+   antargis/branches/branch_2d/ruby/tests/rect_test.rb
+Modified:
+   antargis/branches/branch_2d/Rakefile
+   antargis/branches/branch_2d/gui/src/ag_application.cc
+   antargis/branches/branch_2d/gui/src/ag_button.cc
+   antargis/branches/branch_2d/gui/src/ag_button.h
+   antargis/branches/branch_2d/gui/src/ag_geometry.cc
+   antargis/branches/branch_2d/gui/src/ag_geometry.h
+   antargis/branches/branch_2d/gui/src/ag_glscreen.cc
+   antargis/branches/branch_2d/gui/src/ag_glscreen.h
+   antargis/branches/branch_2d/gui/src/ag_painter.cc
+   antargis/branches/branch_2d/gui/src/ag_painter.h
+   antargis/branches/branch_2d/gui/src/ag_string_utf8.cc
+   antargis/branches/branch_2d/gui/src/ag_string_utf8.h
+   antargis/branches/branch_2d/gui/src/ag_widget.cc
+   antargis/branches/branch_2d/gui/src/ag_widget.h
+   antargis/branches/branch_2d/gui/src/interface.i
+   antargis/branches/branch_2d/ruby/ant_local.rb
+   antargis/branches/branch_2d/ruby/tests/dirty_rects.rb
+   antargis/branches/branch_2d/src/antargisgui.h
+   antargis/branches/branch_2d/src/interface.i
+   antargis/branches/branch_2d/src/nantmarker.hh
+   antargis/branches/branch_2d/src/path.cc
+Log:
+* some algebra-functions
+* some more work on dirty-rects
+
+
+Modified: antargis/branches/branch_2d/Rakefile
+===================================================================
+--- antargis/branches/branch_2d/Rakefile	2007-05-13 08:45:12 UTC (rev 1097)
++++ antargis/branches/branch_2d/Rakefile	2007-05-19 14:30:14 UTC (rev 1098)
+@@ -36,7 +36,7 @@
+ &quot;scenenode.h&quot;,&quot;anim_mesh.h&quot;,&quot;anim_mesh_data.h&quot;,&quot;ant_app.h&quot;,&quot;entity.h&quot;,&quot;entptr.h&quot;,&quot;glsl.h&quot;,&quot;height_map.h&quot;,&quot;map.h&quot;,&quot;mesh_data.h&quot;,&quot;mesh.h&quot;,&quot;mesh_2d_data.h&quot;,&quot;mesh_2d.h&quot;,&quot;mesh_optimizer.h&quot;,&quot;minimap.h&quot;,&quot;new_decal.h&quot;,&quot;ant_renderer.h&quot;,&quot;resource.h&quot;,&quot;scene_base.h&quot;,&quot;scene.h&quot;,&quot;scene_2d.h&quot;,&quot;smoke.h&quot;,&quot;terrain.h&quot;,&quot;vertex_array.h&quot;,&quot;water.h&quot;,&quot;path.h&quot;,&quot;impostor.h&quot;]
+ interfaceHeadersGUI=[
+ &quot;ag_rubyobj.h&quot;,&quot;ag_messageobject.h&quot;,&quot;ag_serial.h&quot;,&quot;ag_aes.h&quot;,&quot;ag_singleton.h&quot;,
+- &quot;ag_geometry.h&quot;,&quot;ag_font.h&quot;,&quot;ag_color.h&quot;,&quot;ag_local.h&quot;,&quot;ag_config.h&quot;,&quot;ag_string.h&quot;,&quot;ag_string_utf8.h&quot;,
++ &quot;ag_geometry.h&quot;,&quot;ag_projection.h&quot;,&quot;ag_algebra.h&quot;,&quot;ag_clip.h&quot;,&quot;ag_font.h&quot;,&quot;ag_color.h&quot;,&quot;ag_local.h&quot;,&quot;ag_config.h&quot;,&quot;ag_string.h&quot;,&quot;ag_string_utf8.h&quot;,
+  &quot;ag_widget.h&quot;,&quot;ag_colorbutton.h&quot;,&quot;ag_glwidget.h&quot;,&quot;ag_xml.h&quot;,&quot;ag_layout.h&quot;,&quot;ag_dialog.h&quot;,&quot;ag_mutex.h&quot;,
+  &quot;ag_application.h&quot;,&quot;ag_background.h&quot;,&quot;ag_border.h&quot;,&quot;ag_button.h&quot;,&quot;ag_text.h&quot;,&quot;ag_caption.h&quot;,&quot;ag_checkbox.h&quot;,&quot;ag_combo.h&quot;,&quot;ag_edit.h&quot;,&quot;ag_fontengine.h&quot;,&quot;ag_fs.h&quot;,&quot;ag_painttarget.h&quot;,&quot;ag_surface.h&quot;,&quot;ag_texture.h&quot;,&quot;ag_surfacemanager.h&quot;,&quot;ag_image.h&quot;,&quot;ag_layoutfactory.h&quot;,&quot;ag_listbox.h&quot;,&quot;ag_list.h&quot;,&quot;ag_main.h&quot;,&quot;ag_menu.h&quot;,&quot;ag_menuitem.h&quot;,&quot;ag_mixer.h&quot;,&quot;ag_mutex.h&quot;,&quot;ag_painter.h&quot;,&quot;ag_png.h&quot;,&quot;ag_radio.h&quot;,&quot;ag_screen.h&quot;,&quot;ag_glscreen.h&quot;,&quot;ag_table.h&quot;,&quot;ag_texturecache.h&quot;,&quot;ag_theme.h&quot;,&quot;ag_tools.h&quot;,&quot;ag_window.h&quot;,&quot;ag_xml.h&quot;,&quot;ag_screenwidget.h&quot;,&quot;ag_scroller.h&quot;,&quot;ag_plugin.h&quot;,&quot;ag_destructor.h&quot;,&quot;ag_rand.h&quot;]
+ 
+
+Added: antargis/branches/branch_2d/gui/src/ag_algebra.cc
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_algebra.cc	2007-05-13 08:45:12 UTC (rev 1097)
++++ antargis/branches/branch_2d/gui/src/ag_algebra.cc	2007-05-19 14:30:14 UTC (rev 1098)
+@@ -0,0 +1,208 @@
++#include &quot;ag_algebra.h&quot;
++#include &quot;ag_debug.h&quot;
++#include &quot;ag_gauss.h&quot;
++#include &quot;ag_stringstream.h&quot;
++
++
++
++AGMatrixN::AGMatrixN(size_t w,size_t h):m(w*h,0),
++					mW(w),mH(h)
++{
++}
++
++AGMatrixN::AGMatrixN(const AGMatrixN &amp;n):m(n.m),
++					mW(n.mW),
++					mH(n.mH)
++{
++}
++
++void AGMatrixN::set(size_t x,size_t y,float v)
++{
++  assert(x&lt;mW);
++  assert(y&lt;mH);
++  m[index(x,y)]=v;
++}
++float AGMatrixN::get(size_t x,size_t y) const
++{
++  assert(x&lt;mW);
++  assert(y&lt;mH);
++  return m[index(x,y)];
++}
++
++AGMatrixN &amp;AGMatrixN::operator*=(const AGMatrixN &amp;p)
++{
++  assert(mW==p.mH);
++  AGMatrixN n(p.mW,mH);
++  for(size_t x=0;x&lt;p.mW;x++)
++    for(size_t y=0;y&lt;mH;y++)
++      {
++	float v=0;
++	for(size_t k=0;k&lt;mW;k++)
++	  v+=get(k,y)*p.get(x,k);
++	n.set(x,y,v);
++      }
++  *this=n;
++  return *this;
++    
++}
++AGMatrixN AGMatrixN::operator*(const AGMatrixN &amp;p) const
++{
++  assert(mW==p.mH);
++  AGMatrixN n(p.mW,mH);
++  for(size_t x=0;x&lt;p.mW;x++)
++    for(size_t y=0;y&lt;mH;y++)
++      {
++	float v=0;
++	for(size_t k=0;k&lt;mW;k++)
++	  v+=get(k,y)*p.get(x,k);
++	n.set(x,y,v);
++      }
++  return n;
++}
++
++AGMatrixN AGMatrixN::operator-(const AGMatrixN &amp;p) const
++{
++  assert(mW==p.mW);
++  assert(mH==p.mH);
++  AGMatrixN n(mW,mH);
++
++  for(size_t x=0;x&lt;mW;x++)
++    for(size_t y=0;y&lt;mH;y++)
++      n.set(x,y,get(x,y)-p.get(x,y));
++  return n;
++}
++
++float AGMatrixN::scalar() const
++{
++  float s=0;
++  float v;
++  for(size_t x=0;x&lt;mW;x++)
++    for(size_t y=0;y&lt;mH;y++)
++      {
++	v=get(x,y);
++	s+=v*v;
++      }
++  return sqrt(s);
++}
++
++
++AGMatrixN AGMatrixN::makeQuadratic() const
++{
++  size_t nw=std::max(mW,mH);
++  AGMatrixN a(nw,nw);
++  a.copyFrom(*this);
++  return a;
++}
++
++/// a very simple way to compute a pseudo-inverse
++/// using svd may be better - no matter ;-)
++/// for details go to <A HREF="http://en.wikipedia.org/wiki/Pseudoinverse">http://en.wikipedia.org/wiki/Pseudoinverse</A>
++AGMatrixN AGMatrixN::pseudoInverse() const
++{
++  AGMatrixN t=transposed();
++  if(mW&lt;mH)
++    return (t*(*this)).inverse()*t;
++  else
++    return t*((*this)*t).inverse();
++}
++
++AGMatrixN AGMatrixN::transposed() const
++{
++  AGMatrixN a(mH,mW);
++  for(size_t x=0;x&lt;mW;x++)
++    for(size_t y=0;y&lt;mH;y++)
++      a.set(y,x,get(x,y));
++  return a;
++}
++
++
++
++AGMatrixN AGMatrixN::inverse() const
++{
++  size_t nw=std::max(mW,mH);
++  AGMatrixN a(nw,nw),b(nw,nw);
++
++  a.makeUnitMatrix();
++  b.copyFrom(*this);
++  /*
++  std::cout&lt;&lt;&quot;A:&quot;&lt;&lt;std::endl;
++  a.output();
++  std::cout&lt;&lt;&quot;B:&quot;&lt;&lt;std::endl;
++  b.output();
++  */
++  gauss(a,b,nw);
++  /*
++  std::cout&lt;&lt;&quot;A:&quot;&lt;&lt;std::endl;
++  a.output();
++  std::cout&lt;&lt;&quot;B:&quot;&lt;&lt;std::endl;
++  b.output();*/
++  return a;
++}
++
++void AGMatrixN::makeUnitMatrix()
++{
++  for(size_t x=0;x&lt;mW;x++)
++    for(size_t y=0;y&lt;mH;y++)
++      set(x,y,(x==y?1:0));
++}
++  
++void AGMatrixN::copyFrom(const AGMatrixN &amp;p)
++{
++  for(size_t x=0;x&lt;mW &amp;&amp; x&lt;p.mW;x++)
++    for(size_t y=0;y&lt;mH &amp;&amp; y&lt;p.mH;y++)
++      set(x,y,p.get(x,y));
++}
++
++void AGMatrixN::output() const
++{
++  for(size_t y=0;y&lt;mH;y++)
++    {
++      for(size_t x=0;x&lt;mW;x++)
++	{
++	  std::cout&lt;&lt;get(x,y)&lt;&lt;&quot;\t&quot;;
++	}
++      std::cout&lt;&lt;&quot;\n&quot;;
++    }
++
++}
++
++AGString AGMatrixN::toString() const
++{
++  AGStringStream s;
++  for(size_t y=0;y&lt;mH;y++)
++    {
++      for(size_t x=0;x&lt;mW;x++)
++	{
++	  s&lt;&lt;get(x,y)&lt;&lt;&quot;\t&quot;;
++	}
++      s&lt;&lt;&quot;\n&quot;;
++    }
++  return s.str();
++}
++
++void AGMatrixN::swapRows(size_t a,size_t b)
++{
++  if(a==b)
++    return;
++  assert(a&lt;mH);
++  assert(b&lt;mH);
++  for(size_t x=0;x&lt;mW;x++)
++    {
++      float t=get(x,a);
++      set(x,a,get(x,b));
++      set(x,b,t);
++    }
++}
++void AGMatrixN::swapCols(size_t a,size_t b)
++{
++  if(a==b)
++    return;
++  assert(a&lt;mW);
++  assert(b&lt;mW);
++  for(size_t y=0;y&lt;mH;y++)
++    {
++      float t=get(a,y);
++      set(a,y,get(b,y));
++      set(b,y,t);
++    }
++}
+
+Added: antargis/branches/branch_2d/gui/src/ag_algebra.h
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_algebra.h	2007-05-13 08:45:12 UTC (rev 1097)
++++ antargis/branches/branch_2d/gui/src/ag_algebra.h	2007-05-19 14:30:14 UTC (rev 1098)
+@@ -0,0 +1,48 @@
++#ifndef AG_ALGEBRA_H
++#define AG_ALGEBRA_H
++
++#include &lt;vector&gt;
++#include &lt;ag_string.h&gt;
++
++class AGMatrixN
++{
++ public:
++  AGMatrixN(size_t w,size_t h);
++  AGMatrixN(const AGMatrixN &amp;p);
++
++  void set(size_t x,size_t y,float v);
++  float get(size_t x,size_t y) const;
++
++  AGMatrixN &amp;operator*=(const AGMatrixN &amp;p);
++  AGMatrixN operator*(const AGMatrixN &amp;p) const;
++
++  AGMatrixN operator-(const AGMatrixN &amp;p) const;
++
++  float scalar() const;
++
++  AGMatrixN inverse() const;
++  AGMatrixN pseudoInverse() const;
++  AGMatrixN makeQuadratic() const;
++
++  AGMatrixN transposed() const;
++
++  void makeUnitMatrix();
++
++  void copyFrom(const AGMatrixN &amp;p);
++
++  void output() const;
++
++  AGString toString() const;
++
++  void swapRows(size_t a,size_t b);
++  void swapCols(size_t a,size_t b);
++
++ private:
++  
++  inline size_t index(size_t x,size_t y) const { return x+y*mW; }
++
++  std::vector&lt;float&gt; m;
++  size_t mW,mH;
++};
++
++#endif
+
+Modified: antargis/branches/branch_2d/gui/src/ag_application.cc
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_application.cc	2007-05-13 08:45:12 UTC (rev 1097)
++++ antargis/branches/branch_2d/gui/src/ag_application.cc	2007-05-19 14:30:14 UTC (rev 1098)
+@@ -27,6 +27,7 @@
+ #include &quot;ag_mixer.h&quot;
+ #include &quot;ag_texturecache.h&quot;
+ #include &quot;ag_profiler.h&quot;
++#include &quot;ag_clip_painttarget.h&quot;
+ 
+ #include &lt;ruby.h&gt;
+ 
+@@ -354,13 +355,16 @@
+     return;
+ 
+   bool oldClippingTechnique=false;
++  AGClipping clip;
+ 
+   STACKTRACE;
+   beginRender();
+   if(mainWidget)
+     {
+       getScreen().begin();
+-      AGPainter p;
++      AGClipPaintTarget paintTarget(&amp;getScreen());
++      AGPainter p(paintTarget);
++      clip.exclude(mainWidget-&gt;getScreenRect());
+       if(pLastDrawn==mainWidget &amp;&amp; !opengl())
+ 	{
+ 	  if(oldClippingTechnique)
+@@ -374,8 +378,12 @@
+ 	  else
+ 	    {
+ 	      // FIXME: do some advanced clipping
++	      mainWidget-&gt;acquireClipping(clip);
+ 	    }
+ 	}
++
++      cdebug(&quot;CLIP:&quot;&lt;&lt;clip.toString());
++      paintTarget.clip(clip);
+       mainWidget-&gt;drawAll(p);
+ 
+       if(mTooltip)
+@@ -391,6 +399,8 @@
+ 
+       pLastDrawn=mainWidget;
+     }
++  else
++    cdebug(&quot;no mainwidget&quot;);
+   drawCursor();
+ 
+   std::list&lt;AGRect2&gt; changeList;
+@@ -399,10 +409,16 @@
+       changeList=mainWidget-&gt;aquireChanges();
+       mainWidget-&gt;clearChangeRects();
+     }
+-  if(changeList.size())
+-    getScreen().update(changeList);
++  if(opengl())// || true)
++    getScreen().flip();
+   else
+-    getScreen().flip();
++    {
++      std::vector&lt;AGRect2&gt; changeV=clip.clip(mainWidget-&gt;getScreenRect());
++      changeList.clear();
++      std::copy(changeV.begin(),changeV.end(),std::back_inserter(changeList));
++      getScreen().update(changeList);
++    }
++
+   endRender();
+   cdebug(&quot;end render&quot;);
+ }
+
+Modified: antargis/branches/branch_2d/gui/src/ag_button.cc
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_button.cc	2007-05-13 08:45:12 UTC (rev 1097)
++++ antargis/branches/branch_2d/gui/src/ag_button.cc	2007-05-19 14:30:14 UTC (rev 1098)
+@@ -383,3 +383,8 @@
+   for(std::map&lt;State,AGBorder&gt;::iterator i=mBorder.begin();i!=mBorder.end();++i)
+     i-&gt;second.useTextures();
+ }
++
++bool AGButton::isOpaque() const
++{
++  return true;
++}
+
+Modified: antargis/branches/branch_2d/gui/src/ag_button.h
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_button.h	2007-05-13 08:45:12 UTC (rev 1097)
++++ antargis/branches/branch_2d/gui/src/ag_button.h	2007-05-19 14:30:14 UTC (rev 1098)
+@@ -89,6 +89,8 @@
+ 
+   virtual void useTextures();
+ 
++  bool isOpaque() const;
++
+  private:
+   AGStringUtf8 mText;
+   int mID;
+
+Added: antargis/branches/branch_2d/gui/src/ag_clip.cc
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_clip.cc	2007-05-13 08:45:12 UTC (rev 1097)
++++ antargis/branches/branch_2d/gui/src/ag_clip.cc	2007-05-19 14:30:14 UTC (rev 1098)
+@@ -0,0 +1,84 @@
++#include &quot;ag_clip.h&quot;
++#include &quot;ag_stringstream.h&quot;
++#include &lt;stdexcept&gt;
++
++void AGClipping::exclude(const AGRect2 &amp;r)
++{
++  mExclude.push_back(r);
++  //FIXME: check for intersections
++}
++ 
++void AGClipping::include(const AGRect2 &amp;r)
++{
++  std::vector&lt;AGRect2&gt; n;
++  
++  for(std::vector&lt;AGRect2&gt;::iterator i=mExclude.begin();i!=mExclude.end();i++)
++    {
++      std::vector&lt;AGRect2&gt; t=(*i).difference(r);
++      std::copy(t.begin(),t.end(),std::back_inserter(n));
++    }
++  mExclude=n;
++}
++  
++std::vector&lt;AGRect2&gt; AGClipping::clip(const AGRect2&amp;r)
++{
++  std::vector&lt;AGRect2&gt; t,n;
++
++  t.push_back(r);
++
++  for(std::vector&lt;AGRect2&gt;::iterator i=mExclude.begin();i!=mExclude.end();i++)
++    {
++      for(std::vector&lt;AGRect2&gt;::iterator j=t.begin();j!=t.end();j++)
++	{
++	  std::vector&lt;AGRect2&gt; t2=j-&gt;difference(*i);
++	  for(std::vector&lt;AGRect2&gt;::iterator k=t2.begin();k!=t2.end();k++)
++	    {
++	      if(k-&gt;w()&gt;0 &amp;&amp; k-&gt;h()&gt;0)
++		n.push_back(*k);
++	    }
++	}
++      t=n;
++      n.clear();
++      
++    }
++
++  // FIXME: check for optimization
++
++  return t;
++  
++}
++
++bool AGClipping::included(const AGVector2 &amp;v)
++{
++  for(std::vector&lt;AGRect2&gt;::iterator i=mExclude.begin();i!=mExclude.end();i++)
++    if(i-&gt;contains(v))
++      return false;
++  return true;
++}
++
++
++std::vector&lt;std::pair&lt;AGRect2,AGRect2&gt; &gt; AGClipping::clip(const AGRect2&amp;r,const AGRect2 &amp;sync)
++{
++  std::vector&lt;std::pair&lt;AGRect2,AGRect2&gt; &gt; n;
++
++  std::vector&lt;AGRect2&gt; t=clip(r);
++  
++  for(std::vector&lt;AGRect2&gt;::iterator i=t.begin();i!=t.end();i++)
++    {
++      
++    }
++  throw std::runtime_error(&quot;not implemented yet!&quot;);
++  return n;
++}
++
++AGString AGClipping::toString() const
++{
++  AGStringStream os;
++
++  os&lt;&lt;&quot;[AGClipping:&quot;;
++  for(std::vector&lt;AGRect2&gt;::const_iterator i=mExclude.begin();i!=mExclude.end();i++)
++    os&lt;&lt;i-&gt;toString()&lt;&lt;&quot;;&quot;;
++  os&lt;&lt;&quot;]&quot;;
++
++  return os.str();
++}
+
+Added: antargis/branches/branch_2d/gui/src/ag_clip.h
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_clip.h	2007-05-13 08:45:12 UTC (rev 1097)
++++ antargis/branches/branch_2d/gui/src/ag_clip.h	2007-05-19 14:30:14 UTC (rev 1098)
+@@ -0,0 +1,31 @@
++#ifndef AG_CLIP_H
++#define AG_CLIP_H
++
++#include &lt;ag_geometry.h&gt;
++
++class AGClipping
++{
++ public:
++  void include(const AGRect2 &amp;r);
++  void exclude(const AGRect2 &amp;r);
++  
++  std::vector&lt;AGRect2&gt; clip(const AGRect2&amp;r);
++  std::vector&lt;std::pair&lt;AGRect2,AGRect2&gt; &gt; clip(const AGRect2&amp;r,const AGRect2 &amp;sync);
++
++  std::vector&lt;AGLine2&gt; clip(const AGLine2 &amp;p);
++
++  bool included(const AGVector2 &amp;v);
++
++  bool valid() const;
++
++  AGString toString() const;
++
++ private:
++
++  void optimize();
++
++  //  std::vector&lt;AGRect2&gt; mInclude;
++  std::vector&lt;AGRect2&gt; mExclude;
++};
++
++#endif
+
+Added: antargis/branches/branch_2d/gui/src/ag_clip_painttarget.cc
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_clip_painttarget.cc	2007-05-13 08:45:12 UTC (rev 1097)
++++ antargis/branches/branch_2d/gui/src/ag_clip_painttarget.cc	2007-05-19 14:30:14 UTC (rev 1098)
+@@ -0,0 +1,113 @@
++#include &quot;ag_clip_painttarget.h&quot;
++#include &quot;ag_debug.h&quot;
++
++AGClipPaintTarget::AGClipPaintTarget(AGPaintTarget *pTarget):mTarget(pTarget)
++{
++}
++
++void AGClipPaintTarget::blitTri(const AGTexture &amp;pSource,const AGTriangle2 &amp;pSrc,const AGTriangle2 &amp;pDest)
++{
++  cdebug(&quot;NOT IMPLEMENTED!&quot;);
++}
++
++void AGClipPaintTarget::blit(const AGTexture &amp;pSource,const AGRect2 &amp;pDest,const AGRect2 &amp;pSrc,const AGColor &amp;pColor)
++{
++  std::vector&lt;std::pair&lt;AGRect2,AGRect2&gt; &gt; l=mClipping.clip(pDest,pSrc);
++  for(std::vector&lt;std::pair&lt;AGRect2,AGRect2&gt; &gt;::iterator i=l.begin();i!=l.end();i++)
++    {
++      mTarget-&gt;blit(pSource,i-&gt;first,i-&gt;second,pColor);
++    }
++}
++
++void AGClipPaintTarget::blit(const AGTexture &amp;pSource,const AGRect2 &amp;pDest,const AGRect2 &amp;pSrc)
++{
++  std::vector&lt;std::pair&lt;AGRect2,AGRect2&gt; &gt; l=mClipping.clip(pDest,pSrc);
++  for(std::vector&lt;std::pair&lt;AGRect2,AGRect2&gt; &gt;::iterator i=l.begin();i!=l.end();i++)
++    {
++      mTarget-&gt;blit(pSource,i-&gt;first,i-&gt;second);
++    }
++}
++
++void AGClipPaintTarget::blit(const AGSurface &amp;pSource,const AGRect2 &amp;pDest,const AGRect2 &amp;pSrc)
++{
++  std::vector&lt;std::pair&lt;AGRect2,AGRect2&gt; &gt; l=mClipping.clip(pDest,pSrc);
++  for(std::vector&lt;std::pair&lt;AGRect2,AGRect2&gt; &gt;::iterator i=l.begin();i!=l.end();i++)
++    {
++      mTarget-&gt;blit(pSource,i-&gt;first,i-&gt;second);
++    }
++}
++
++void AGClipPaintTarget::drawLine(const AGVector2 &amp;p0,const AGVector2 &amp;p1,const AGColor &amp;c)
++{
++  std::vector&lt;AGLine2&gt; l=mClipping.clip(AGLine2(p0,p1));
++  for(std::vector&lt;AGLine2&gt;::iterator i=l.begin();i!=l.end();i++)
++    mTarget-&gt;drawLine(i-&gt;getV0(),i-&gt;getV1(),c);
++}
++
++void AGClipPaintTarget::fillRect(const AGRect2 &amp;pr,const AGColor &amp;c)
++{
++  std::vector&lt;AGRect2&gt; l=mClipping.clip(pr);
++  for(std::vector&lt;AGRect2&gt;::iterator i=l.begin();i!=l.end();i++)
++    mTarget-&gt;fillRect(*i,c);
++}
++
++void AGClipPaintTarget::fillRects(const std::vector&lt;std::pair&lt;AGRect2,AGVector4&gt; &gt; &amp;pr)
++{
++  std::vector&lt;std::pair&lt;AGRect2,AGVector4&gt; &gt; l;
++
++  // collect clippings
++  for(std::vector&lt;std::pair&lt;AGRect2,AGVector4&gt; &gt;::const_iterator i=pr.begin();i!=pr.end();i++)
++    {
++      std::vector&lt;AGRect2&gt; l2=mClipping.clip(i-&gt;first);
++      for(std::vector&lt;AGRect2&gt;::iterator i2=l2.begin();i2!=l2.end();i2++)
++	l.push_back(std::make_pair(*i2,i-&gt;second));
++    }
++  mTarget-&gt;fillRects(l);
++}
++   
++void AGClipPaintTarget::blit(const AGTexture &amp;pSource,const std::vector&lt;std::pair&lt;AGRect2,AGRect2&gt; &gt; &amp;pSrcDestRects,const AGColor &amp;pColor)
++{
++  std::vector&lt;std::pair&lt;AGRect2,AGRect2&gt; &gt; l;
++
++  // collect clippings
++  for(std::vector&lt;std::pair&lt;AGRect2,AGRect2&gt; &gt;::const_iterator i=pSrcDestRects.begin();i!=pSrcDestRects.end();i++)
++    {
++      std::vector&lt;std::pair&lt;AGRect2,AGRect2&gt; &gt; l2=mClipping.clip(i-&gt;first,i-&gt;second);
++      std::copy(l2.begin(),l2.end(),std::back_inserter(l));
++    }
++  mTarget-&gt;blit(pSource,l,pColor);
++}
++
++void AGClipPaintTarget::tile(const AGTexture &amp;pSource,const AGRect2 &amp;pTarget, const AGColor &amp;pColor)
++{
++  //std::vector&lt;std::pair&lt;AGRect2,AGRect2&gt; &gt; l2=mClipping.clip(i-&gt;first);
++  
++  cdebug(&quot;WARNING: AGClipPaintTarget::tile not implemented yet!&quot;);
++}
++   
++void AGClipPaintTarget::putPixel(int x,int y,const AGColor &amp;c)
++{
++  if(mClipping.included(AGVector2(x,y)))
++    mTarget-&gt;putPixel(x,y,c);
++}
++
++AGColor AGClipPaintTarget::getPixel(int x,int y) const
++{
++  return mTarget-&gt;getPixel(x,y);
++}
++
++  // manage painting sessions
++void AGClipPaintTarget::clip(const AGClipping &amp;c)
++{
++  mClipping=c;
++}
++
++void AGClipPaintTarget::unclip()
++{
++  mClipping=AGClipping();
++}
++
++AGRect2 AGClipPaintTarget::getRect() const
++{
++  return mTarget-&gt;getRect();
++}
+
+Added: antargis/branches/branch_2d/gui/src/ag_clip_painttarget.h
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_clip_painttarget.h	2007-05-13 08:45:12 UTC (rev 1097)
++++ antargis/branches/branch_2d/gui/src/ag_clip_painttarget.h	2007-05-19 14:30:14 UTC (rev 1098)
+@@ -0,0 +1,65 @@
++/*
++ * Copyright (c) 2005 by David Kamphausen. All rights reserved.
++ *
++ * ag_painttarget.h
++ * by David Kamphausen (<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">david.kamphausen at web.de</A>)
++ *
++ * The &quot;Antargis&quot; project, including all files needed to compile it,
++ * is free software; you can redistribute it and/or use it and/or modify it
++ * under the terms of the GNU General Public License as published
++ * by the Free Software Foundation; either version 2 of the License,
++ * or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
++ *
++ * You should have received a copy of the GNU General Public
++ * License along with this program.
++ */
++
++#ifndef __AG_CLIP_PAINTTARGET_H
++#define __AG_CLIP_PAINTTARGET_H
++
++#include &lt;ag_painttarget.h&gt;
++#include &lt;ag_clip.h&gt;
++
++/// virtual paint target - use this for advanced clipping !
++class AGClipPaintTarget:public AGPaintTarget
++{
++ public:
++  AGClipPaintTarget(AGPaintTarget *pTarget);
++
++  virtual void blitTri(const AGTexture &amp;pSource,const AGTriangle2 &amp;pSrc,const AGTriangle2 &amp;pDest);
++
++  virtual void blit(const AGTexture &amp;pSource,const AGRect2 &amp;pDest,const AGRect2 &amp;pSrc,const AGColor &amp;pColor);
++  virtual void blit(const AGTexture &amp;pSource,const AGRect2 &amp;pDest,const AGRect2 &amp;pSrc);
++  virtual void blit(const AGSurface &amp;pSource,const AGRect2 &amp;pDest,const AGRect2 &amp;pSrc);
++
++  virtual void drawLine(const AGVector2 &amp;p0,const AGVector2 &amp;p1,const AGColor &amp;c);
++  virtual void fillRect(const AGRect2 &amp;pr,const AGColor &amp;c);
++
++  virtual void fillRects(const std::vector&lt;std::pair&lt;AGRect2,AGVector4&gt; &gt; &amp;pr);
++   
++  virtual void blit(const AGTexture &amp;pSource,const std::vector&lt;std::pair&lt;AGRect2,AGRect2&gt; &gt; &amp;pSrcDestRects,const AGColor &amp;pColor);
++
++  virtual void tile(const AGTexture &amp;pSource,const AGRect2 &amp;pTarget, const AGColor &amp;pColor);
++   
++  virtual AGRect2 getRect() const;
++
++  virtual void putPixel(int x,int y,const AGColor &amp;c);
++  virtual AGColor getPixel(int x,int y) const;
++
++  // manage painting sessions
++  virtual void clip(const AGClipping &amp;c);
++
++  virtual void unclip();
++
++ private:
++  AGPaintTarget *mTarget;
++  AGClipping mClipping;
++};
++
++
++#endif
++
+
+Added: antargis/branches/branch_2d/gui/src/ag_gauss.h
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_gauss.h	2007-05-13 08:45:12 UTC (rev 1097)
++++ antargis/branches/branch_2d/gui/src/ag_gauss.h	2007-05-19 14:30:14 UTC (rev 1098)
+@@ -0,0 +1,97 @@
++#ifndef AG_GAUSS_H
++#define AG_GAUSS_H
++
++#include &lt;math.h&gt;
++
++/// input:a should be a unit-matrix, b contains the matrix to be inverted!
++/// afterwards a contains the result 
++template&lt;class TMatrix&gt;
++bool gauss(TMatrix &amp;a,TMatrix &amp;b,int size)
++{
++  TRACE;
++  // cdebug(&quot;A:\n&quot;&lt;&lt;a.toString());
++  // cdebug(&quot;B:\n&quot;&lt;&lt;b.toString());
++
++  // lower-left triangle
++  for(int c=0;c&lt;size-1;c++) // cols
++    {
++      //FIXME: check that we have a one in (c,c) - otherwise swap rows !
++      if(fabs(b.get(c,c))&lt;0.0001)
++	{
++	  int k;
++	  // find a row where b.get(c,c+n)!=0 for n&gt;1 
++	  for(k=1;k+c&lt;size;k++)
++	    if(fabs(b.get(c,c+k))&gt;0)
++	      {
++		// swap rows
++		b.swapRows(c,c+k);
++		a.swapRows(c,c+k);
++		break;
++	      }
++	  if(k+c==size)
++	    return false; // PROBLEM!!!!
++	}
++
++      for(int r=c+1;r&lt;size;r++) // rows
++	{
++	  if(fabs(b.get(c,r))&gt;0.0001)
++	    {
++	      float f=-b.get(c,c)/b.get(c,r);
++	      //	      // cdebug(&quot;f:&quot;&lt;&lt;f);
++	      for(int i=0;i&lt;size;i++)
++		{
++		  // modify row
++		  a.set(i,r,a.get(i,c)+a.get(i,r)*f);
++		  //		  if(i==0)
++		  //		    // cdebug(b.get(c,r-1)&lt;&lt;&quot;    &quot;&lt;&lt;b.get(c,r));
++		  b.set(i,r,b.get(i,c)+b.get(i,r)*f);
++		}
++	      // cdebug(&quot;c:&quot;&lt;&lt;c&lt;&lt;&quot; r:&quot;&lt;&lt;r);
++	      // cdebug(&quot;INTERMED A:\n&quot;&lt;&lt;a.toString());
++	      // cdebug(&quot;INTERMED B:\n&quot;&lt;&lt;b.toString());
++	    }
++	}
++    }
++  // cdebug(&quot;A:\n&quot;&lt;&lt;a.toString());
++  // cdebug(&quot;B:\n&quot;&lt;&lt;b.toString());
++
++  // upper-right triangle
++  for(int c=size-1;c&gt;0;c--) // cols
++    {
++      for(int r=0;r&lt;c;r++) // rows
++	{
++	  if(fabs(b.get(c,r))&gt;0.0001)
++	    {
++	      float f=-b.get(c,r+1)/b.get(c,r);
++	      for(int i=0;i&lt;size;i++)
++		{
++		  // modify row
++		  a.set(i,r,a.get(i,r+1)+a.get(i,r)*f);
++		  b.set(i,r,b.get(i,r+1)+b.get(i,r)*f);
++		}
++	    }
++	}
++    }
++    // cdebug(&quot;A:\n&quot;&lt;&lt;a.toString());
++    // cdebug(&quot;B:\n&quot;&lt;&lt;b.toString());
++
++  // norming
++
++  for(int r=0;r&lt;size;r++)
++    {
++      float v=b.get(r,r);
++      if(v!=0)
++      for(int c=0;c&lt;size;c++)
++	{
++	  a.set(c,r,a.get(c,r)/v);
++	  b.set(c,r,b.get(c,r)/v);
++	}
++    }
++    // cdebug(&quot;A:\n&quot;&lt;&lt;a.toString());
++    // cdebug(&quot;B:\n&quot;&lt;&lt;b.toString());
++    return true; // everythin ok
++}
++
++
++#endif
++
+
+Modified: antargis/branches/branch_2d/gui/src/ag_geometry.cc
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_geometry.cc	2007-05-13 08:45:12 UTC (rev 1097)
++++ antargis/branches/branch_2d/gui/src/ag_geometry.cc	2007-05-19 14:30:14 UTC (rev 1098)
+@@ -29,6 +29,7 @@
+ #include &lt;ag_xml.h&gt;
+ #include &lt;ag_debug.h&gt;
+ #include &lt;ag_stringstream.h&gt;
++#include &lt;ag_gauss.h&gt;
+ 
+ #include &lt;ruby.h&gt;
+ 
+@@ -201,7 +202,12 @@
+   v[1]=node.get(&quot;y&quot;).toFloat();
+ }
+ 
++AGVector2 AGVector2::operator-() const
++{
++  return AGVector2(-v[0],-v[1]);
++}
+ 
++
+ float getArcInternal(float x,float y)
+ {
+   if(y==0.0)
+@@ -646,6 +652,19 @@
+   a[2][1]=n[1];
+ }
+ 
++AGMatrix3::AGMatrix3(float x,float y)
++{
++  a[0][0]=x;
++  a[1][1]=y;
++  a[2][2]=1.0f;
++  a[0][1]=a[0][2]=
++    a[1][0]=a[1][2]=
++    a[2][0]=a[2][1]=0.0f;
++  a[2][0]=0.0f;
++  a[2][1]=0.0f;
++  
++}
++
+ AGMatrix3 AGMatrix3::transposed() const
+ {
+   AGMatrix3 a;
+@@ -656,69 +675,6 @@
+ }
+ 
+ 
+-template&lt;class AGMatrix3&gt;
+-void gauss(AGMatrix3 &amp;a,AGMatrix3 &amp;b,int size)
+-{
+-  // lower-left triangle
+-  for(int c=0;c&lt;size-1;c++) // cols
+-    {
+-      for(int r=c+1;r&lt;size;r++) // rows
+-	{
+-	  if(fabs(b.get(c,r))&gt;0.0001)
+-	    {
+-	      float f=-b.get(c,r-1)/b.get(c,r);
+-	      //	      cdebug(&quot;f:&quot;&lt;&lt;f);
+-	      for(int i=0;i&lt;size;i++)
+-		{
+-		  // modify row
+-		  a.set(i,r,a.get(i,r-1)+a.get(i,r)*f);
+-		  //		  if(i==0)
+-		  //		    cdebug(b.get(c,r-1)&lt;&lt;&quot;    &quot;&lt;&lt;b.get(c,r));
+-		  b.set(i,r,b.get(i,r-1)+b.get(i,r)*f);
+-		}
+-	    }
+-	}
+-    }
+-  //  cdebug(&quot;A:\n&quot;&lt;&lt;a.toString());
+-  //  cdebug(&quot;B:\n&quot;&lt;&lt;b.toString());
+-
+-  // upper-right triangle
+-  for(int c=size-1;c&gt;0;c--) // cols
+-    {
+-      for(int r=0;r&lt;c;r++) // rows
+-	{
+-	  if(fabs(b.get(c,r))&gt;0.0001)
+-	    {
+-	      float f=-b.get(c,r+1)/b.get(c,r);
+-	      for(int i=0;i&lt;size;i++)
+-		{
+-		  // modify row
+-		  a.set(i,r,a.get(i,r+1)+a.get(i,r)*f);
+-		  b.set(i,r,b.get(i,r+1)+b.get(i,r)*f);
+-		}
+-	    }
+-	}
+-    }
+-  //  cdebug(&quot;A:\n&quot;&lt;&lt;a.toString());
+-  //  cdebug(&quot;B:\n&quot;&lt;&lt;b.toString());
+-
+-  // norming
+-
+-  for(int r=0;r&lt;size;r++)
+-    {
+-      float v=b.get(r,r);
+-      if(v!=0)
+-      for(int c=0;c&lt;size;c++)
+-	{
+-	  a.set(c,r,a.get(c,r)/v);
+-	  b.set(c,r,b.get(c,r)/v);
+-	}
+-    }
+-  //  cdebug(&quot;A:\n&quot;&lt;&lt;a.toString());
+-  //  cdebug(&quot;B:\n&quot;&lt;&lt;b.toString());
+-
+-}
+-
+ AGMatrix3 AGMatrix3::inverted() const
+ {
+   // gauss-alg.
+@@ -729,7 +685,35 @@
+   return a;
+ }
+ 
++void AGMatrix3::swapRows(size_t a,size_t b)
++{
++  if(a==b)
++    return;
++  assert(a&lt;3);
++  assert(b&lt;3);
++  for(size_t x=0;x&lt;3;x++)
++    {
++      float t=get(x,a);
++      set(x,a,get(x,b));
++      set(x,b,t);
++    }
++}
+ 
++void AGMatrix3::swapCols(size_t a,size_t b)
++{
++  if(a==b)
++    return;
++  assert(a&lt;3);
++  assert(b&lt;3);
++  for(size_t y=0;y&lt;3;y++)
++    {
++      float t=get(a,y);
++      set(a,y,get(b,y));
++      set(b,y,t);
++    }
++}
++
++
+ void AGMatrix3::set(size_t x,size_t y,float f)
+ {
+   assert(x&gt;=0 &amp;&amp; x&lt;3);
+@@ -1267,7 +1251,58 @@
+ 		 AGVector2(mx1,my1));
+ }
+ 
++std::vector&lt;AGRect2&gt; AGRect2::difference(const AGRect2 &amp;r) const
++{
++  std::vector&lt;AGRect2&gt; l;
++  for(int i=0;i&lt;3;i++)
++    for(int j=0;j&lt;3;j++)
++      {
++	
++	float nx,ny,nw,nh;
++	
++	switch(i)
++	  {
++	  case 0:
++	    nx=x0();
++	    nw=r.x0()-x0();
++	    break;
++	  case 1:
++	    nx=r.x0();
++	    nw=r.x1()-r.x0();
++	    break;
++	  case 2:
++	    nx=r.x1();
++	    nw=x1()-r.x1();
++	    break;
++	  };
++	switch(j)
++	  {
++	  case 0:
++	    ny=y0();
++	    nh=r.y0()-y0();
++	    break;
++	  case 1:
++	    ny=r.y0();
++	    nh=r.y1()-r.y0();
++	    break;
++	  case 2:
++	    ny=r.y1();
++	    nh=y1()-r.y1();
++	    break;
++	  };
++	if(nw&gt;0 &amp;&amp; nh&gt;0)
++	  {
++	    AGRect2 n=intersect(AGRect2(nx,ny,nw,nh));
++	    if(n.w()&gt;0 &amp;&amp; n.h()&gt;0)
++	      if(!r.contains(n))
++		l.push_back(n);
++	  }
++      }
++  return l;
++}
+ 
++
++
+ AGVector2 AGRect2::operator[](size_t i) const
+ {
+   switch(i)
+@@ -1363,7 +1398,12 @@
+   return AGRect2(0,0,w(),h());
+ }
+ 
++float AGRect2::content() const
++{
++  return (v1[0]-v0[0])*(v1[1]-v0[1]);
++}
+ 
++
+ void AGRect2::include(const AGVector2 &amp;v)
+ {
+   v0[0]=std::min(v0[0],v[0]);
+@@ -2090,7 +2130,35 @@
+   return a;
+ }
+ 
++void AGMatrix4::swapRows(size_t a,size_t b)
++{
++  if(a==b)
++    return;
++  assert(a&lt;4);
++  assert(b&lt;4);
++  for(size_t x=0;x&lt;4;x++)
++    {
++      float t=get(x,a);
++      set(x,a,get(x,b));
++      set(x,b,t);
++    }
++}
+ 
++void AGMatrix4::swapCols(size_t a,size_t b)
++{
++  if(a==b)
++    return;
++  assert(a&lt;4);
++  assert(b&lt;4);
++  for(size_t y=0;y&lt;4;y++)
++    {
++      float t=get(a,y);
++      set(a,y,get(b,y));
++      set(b,y,t);
++    }
++}
++
++
+ AGMatrix3 AGMatrix4::get3x3(size_t x,size_t y) const
+ {
+   AGMatrix3 m;
+
+Modified: antargis/branches/branch_2d/gui/src/ag_geometry.h
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_geometry.h	2007-05-13 08:45:12 UTC (rev 1097)
++++ antargis/branches/branch_2d/gui/src/ag_geometry.h	2007-05-19 14:30:14 UTC (rev 1098)
+@@ -85,6 +85,7 @@
+ 
+   AGAngle getAngle() const;
+ 
++  AGVector2 operator-() const;
+   AGVector2 operator-(const AGVector2 &amp;p) const;
+   AGVector2 operator+(const AGVector2 &amp;p) const;
+   AGVector2 &amp;operator+=(const AGVector2 &amp;p);
+@@ -227,8 +228,9 @@
+   };
+ 
+   AGMatrix3();
+-  AGMatrix3(const AGAngle &amp;a);
+-  AGMatrix3(const AGVector3 &amp;a);
++  AGMatrix3(const AGAngle &amp;a); // rotate
++  AGMatrix3(const AGVector3 &amp;a); // transpose
++  AGMatrix3(float x,float y); // scale
+   void set(size_t x,size_t y,float f);
+   float get(size_t x,size_t y) const;
+   float &amp;get(size_t x,size_t y);
+@@ -247,6 +249,10 @@
+   Row operator[](size_t y);
+   const Row operator[](size_t y) const;
+ 
++  void swapRows(size_t a,size_t b);
++  void swapCols(size_t a,size_t b);
++  
++
+ #ifdef SWIG
+   %rename(to_s) toString() const;
+ #endif
+@@ -461,6 +467,9 @@
+ 
+   AGRect2 intersect(const AGRect2 &amp;r) const;
+ 
++  //result=this-r
++  std::vector&lt;AGRect2&gt; difference(const AGRect2 &amp;r) const;
++
+   SDL_Rect sdl() const;
+ 
+   bool operator==(const AGRect2 &amp;r) const;
+@@ -470,6 +479,8 @@
+ 
+   AGRect2 alignGrid() const; // align to integer grid
+ 
++  float content() const;
++
+ #ifdef SWIG
+   %rename(to_s) toString() const;
+ #endif
+@@ -613,6 +624,9 @@
+   MRow operator[](size_t y);
+   //  const Row operator[](size_t y) const;
+ 
++  void swapRows(size_t a,size_t b);
++  void swapCols(size_t a,size_t b);
++
+ #ifdef SWIG
+   %rename(to_s) toString() const;
+ #endif
+
+Modified: antargis/branches/branch_2d/gui/src/ag_glscreen.cc
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_glscreen.cc	2007-05-13 08:45:12 UTC (rev 1097)
++++ antargis/branches/branch_2d/gui/src/ag_glscreen.cc	2007-05-19 14:30:14 UTC (rev 1098)
+@@ -251,7 +251,12 @@
+ 
+   initGUIView(w,h);
+ }
++void AGGLScreen::update(const std::list&lt;AGRect2&gt; &amp;rs)
++{
++  flip();
++}
+ 
++
+ size_t next2pow(size_t i)
+ {
+   size_t j=1;
+
+Modified: antargis/branches/branch_2d/gui/src/ag_glscreen.h
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_glscreen.h	2007-05-13 08:45:12 UTC (rev 1097)
++++ antargis/branches/branch_2d/gui/src/ag_glscreen.h	2007-05-19 14:30:14 UTC (rev 1098)
+@@ -80,6 +80,7 @@
+   AGSurface screenshot(bool frontBuffer=true);
+ 
+   void flip();
++  virtual void update(const std::list&lt;AGRect2&gt; &amp;rs); // call this instead of flip, if you want
+   bool inScreen(const AGRect2 &amp;r) const;
+ 
+   virtual size_t getWidth() const;
+
+Modified: antargis/branches/branch_2d/gui/src/ag_painter.cc
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_painter.cc	2007-05-13 08:45:12 UTC (rev 1097)
++++ antargis/branches/branch_2d/gui/src/ag_painter.cc	2007-05-19 14:30:14 UTC (rev 1098)
+@@ -48,6 +48,20 @@
+   a.set(2,2,0);
+ }
+ 
++AGProjection::AGProjection(const AGClipping &amp;pClip):advancedClipping(pClip)
++{
++  a.set(0,0,1);
++  a.set(0,1,0);
++  a.set(0,2,0);
++  a.set(1,0,0);
++  a.set(1,1,1);
++  a.set(1,2,0);
++  a.set(2,0,0);
++  a.set(2,1,0);
++  a.set(2,2,0);
++}
++
++
+ AGVector2 AGProjection::project(const AGVector2 &amp;p) const
+ {
+   AGVector2 r=(a*AGVector3(p[0],p[1],1)).dim2();
+@@ -356,17 +370,6 @@
+   STACKTRACE;
+   float x,y;
+ 
+-  /*
+-  for(y=pDest.y0();y&lt;pDest.y1();y+=pSrc.h())
+-    for(x=pDest.x0();x&lt;pDest.x1();x+=pSrc.w())
+-      {
+-	float w=std::min(pSrc.w(),pDest.x1()-x);
+-	float h=std::min(pSrc.h(),pDest.y1()-y);
+-	blit(pSource,AGRect2(x,y,w,h),AGRect2(pSrc.x0(),pSrc.y0(),w,h));
+-      }
+-  */
+-
+-  
+   std::vector&lt;std::pair&lt;AGRect2,AGRect2&gt; &gt; rects;
+   for(y=pDest.y0();y&lt;pDest.y1();y+=pSrc.h())
+     for(x=pDest.x0();x&lt;pDest.x1();x+=pSrc.w())
+@@ -377,8 +380,6 @@
+ 	rects.push_back(std::make_pair(AGRect2(pSrc.x0(),pSrc.y0(),w,h),AGRect2(x,y,w,h)));
+       }
+   mTarget-&gt;blit(pSource,rects,AGColor(0xff,0xff,0xff,0xff));
+-  
+-
+ }
+ 
+ AGColor calcColor(AGVector2 p,const AGColor &amp;pc0,const AGColor &amp;pc1,const AGColor &amp;pc2,const AGColor &amp;pc3)
+
+Modified: antargis/branches/branch_2d/gui/src/ag_painter.h
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_painter.h	2007-05-13 08:45:12 UTC (rev 1097)
++++ antargis/branches/branch_2d/gui/src/ag_painter.h	2007-05-19 14:30:14 UTC (rev 1098)
+@@ -26,6 +26,7 @@
+ #include &lt;ag_geometry.h&gt;
+ #include &lt;ag_font.h&gt;
+ #include &lt;ag_painttarget.h&gt;
++#include &lt;ag_clip.h&gt;
+ #include &lt;ag_base.h&gt;
+ 
+ 
+@@ -38,8 +39,10 @@
+ {
+   AGMatrix3 a;
+   AGRect2 clip;
++  AGClipping advancedClipping;
+ 
+   AGProjection(const AGRect2 &amp;pClip);
++  AGProjection(const AGClipping &amp;pClip);
+ 
+   AGVector2 project(const AGVector2 &amp;p) const;
+   bool pointOk(const AGVector2 &amp;p) const;
+@@ -110,6 +113,9 @@
+   void translate(const AGVector2 &amp;v);
+   void scale(const AGVector2 &amp;v);
+   void clip(const AGRect2 &amp;r);
++
++  void clip(const AGClipping &amp;clip);
++
+   void transform(const AGRect2 &amp;r);
+ 
+   AGVector2 project(const AGVector2 &amp;p) const;
+
+Added: antargis/branches/branch_2d/gui/src/ag_projection.cc
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_projection.cc	2007-05-13 08:45:12 UTC (rev 1097)
++++ antargis/branches/branch_2d/gui/src/ag_projection.cc	2007-05-19 14:30:14 UTC (rev 1098)
+@@ -0,0 +1,27 @@
++#include &quot;ag_projection.h&quot;
++#include &quot;ag_debug.h&quot;
++
++
++AGProjection2D::AGProjection2D(const AGRect2 &amp;from, const AGRect2 &amp;to)
++{
++  assert(from.content()&gt;0 &amp;&amp; to.content()&gt;0);
++
++  float sx=to.w()/from.w();
++  float sy=to.h()/from.h();
++
++  m=AGMatrix3(-from.getV0())*AGMatrix3(sx,sy)*AGMatrix3(to.getV0());
++}
++  
++AGRect2 AGProjection2D::project(const AGRect2 &amp;r)
++{
++  return AGRect2((m*r.getV0()).dim2(),(m*r.getV1()).dim2());
++}
++AGVector2 AGProjection2D::project(const AGVector2 &amp;p)
++{
++  return (m*p).dim2();
++}
++
++void AGProjection2D::pushProjection(const AGProjection2D &amp;p)
++{
++  m*=p.m;
++}
+
+Added: antargis/branches/branch_2d/gui/src/ag_projection.h
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_projection.h	2007-05-13 08:45:12 UTC (rev 1097)
++++ antargis/branches/branch_2d/gui/src/ag_projection.h	2007-05-19 14:30:14 UTC (rev 1098)
+@@ -0,0 +1,21 @@
++#ifndef AG_PROJECTION
++#define AG_PROJECTION
++
++#include &lt;ag_geometry.h&gt;
++
++
++class AGProjection2D
++{
++  AGMatrix3 m;
++ public:
++  AGProjection2D(const AGRect2 &amp;from, const AGRect2 &amp;to);
++  
++  AGRect2 project(const AGRect2 &amp;r);
++  AGVector2 project(const AGVector2 &amp;p);
++
++  void pushProjection(const AGProjection2D &amp;p);
++};
++
++
++
++#endif
+
+Modified: antargis/branches/branch_2d/gui/src/ag_string_utf8.cc
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_string_utf8.cc	2007-05-13 08:45:12 UTC (rev 1097)
++++ antargis/branches/branch_2d/gui/src/ag_string_utf8.cc	2007-05-19 14:30:14 UTC (rev 1098)
+@@ -305,6 +305,21 @@
+   return n;
+ }
+ 
++AGStringUtf8 AGStringUtf8::operator+(const AGString &amp;s) const
++{
++  AGStringUtf8 n(*this);
++  n+=AGStringUtf8(s);
++  return n;
++}
++
++AGStringUtf8 AGStringUtf8::operator+(const char *s) const
++{
++  AGStringUtf8 n(*this);
++  n+=AGStringUtf8(s);
++  return n;
++}
++
++
+ bool AGStringUtf8::operator==(const AGStringUtf8 &amp;p) const
+ {
+   return s==p.s;
+
+Modified: antargis/branches/branch_2d/gui/src/ag_string_utf8.h
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_string_utf8.h	2007-05-13 08:45:12 UTC (rev 1097)
++++ antargis/branches/branch_2d/gui/src/ag_string_utf8.h	2007-05-19 14:30:14 UTC (rev 1098)
+@@ -7,6 +7,7 @@
+ #include &lt;ag_base.h&gt;
+ 
+ class AGStringUtf8;
++class AGString;
+ 
+ class AGCharUtf8
+ {
+@@ -106,6 +107,8 @@
+   AGStringUtf8 replace(const AGStringUtf8 &amp;what, const AGStringUtf8 &amp;by) const;
+   
+   AGStringUtf8 operator+(const AGStringUtf8 &amp;s) const;
++  AGStringUtf8 operator+(const AGString &amp;s) const;
++  AGStringUtf8 operator+(const char *s) const;
+ 
+ 
+   bool operator==(const AGStringUtf8 &amp;p) const;
+
+Modified: antargis/branches/branch_2d/gui/src/ag_widget.cc
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_widget.cc	2007-05-13 08:45:12 UTC (rev 1097)
++++ antargis/branches/branch_2d/gui/src/ag_widget.cc	2007-05-19 14:30:14 UTC (rev 1098)
+@@ -32,6 +32,7 @@
+ #include &quot;ag_application.h&quot;
+ #include &quot;ag_layout.h&quot;
+ #include &quot;ag_config.h&quot;
++#include &quot;ag_clip.h&quot;
+ 
+ #define FOCUS_BY_SORT
+ 
+@@ -40,6 +41,19 @@
+ 
+ //AGWidget *agNoParent=0;
+ 
++static bool gNewClippingTechnique=true;
++
++void setNewClippingTechnique(bool f)
++{
++  gNewClippingTechnique=f;
++}
++bool getNewClippingTechnique()
++{
++  return gNewClippingTechnique;
++}
++
++
++
+ class MWidgetSet:public std::set&lt;AGWidget*&gt;
+ {
+ public:
+@@ -399,7 +413,10 @@
+ 
+ void AGWidget::regChange()
+ {
+-  AGRect2 t=getScreenRect().grow(20);
++  AGRect2 t=getScreenRect().grow(5);
++
++  pushChangeRect(t);
++
+   if(mChangeRect.width()==0 || mChangeRect.height()==0)
+     mChangeRect=t;
+   else
+@@ -777,7 +794,14 @@
+   return mVisible;
+ }
+ 
++/// override this and return true, if widget is opaque and you want to increase performance
++bool AGWidget::isOpaque() const
++{
++  return false;
++}
+ 
++
++
+ AGWidget *AGWidget::getChild(const AGString &amp;pName)
+ {
+   if(mName==pName)
+@@ -1034,7 +1058,28 @@
+   return false;
+ }
+ 
++void AGWidget::acquireClipping(AGClipping &amp;p)
++{
++  if(!visible())
++    return;
+ 
++  cdebug(&quot;clipping before:&quot;&lt;&lt;p.toString());
++  if(isOpaque())
++    p.exclude(getScreenRect());
++  
++  for(std::list&lt;AGRect2&gt;::iterator i=mMyChanges.begin();i!=mMyChanges.end();i++)
++    p.include(*i+getScreenPosition());
++
++  cdebug(&quot;clipping in:&quot;&lt;&lt;p.toString());
++  
++  for(std::list&lt;AGWidget*&gt;::iterator i=mChildren.begin();i!=mChildren.end();i++)
++    (*i)-&gt;acquireClipping(p);
++
++  cdebug(&quot;clipping after:&quot;&lt;&lt;p.toString());
++  return;
++}
++
++
+ std::list&lt;AGRect2&gt; AGWidget::aquireChanges()
+ {
+   std::list&lt;AGRect2&gt; l;
+@@ -1051,9 +1096,13 @@
+ }
+ void AGWidget::pushChangeRect(const AGRect2 &amp;pRect)
+ {
++  cdebug(&quot;push:&quot;&lt;&lt;pRect);
+   mMyChanges.push_back(pRect);
+ }
+ void AGWidget::clearChangeRects()
+ {
++  cdebug(&quot;clearing - size was:&quot;&lt;&lt;mMyChanges.size());
+   mMyChanges.clear();
++  for(std::list&lt;AGWidget*&gt;::iterator i=mChildren.begin();i!=mChildren.end();i++)
++    (*i)-&gt;clearChangeRects();
+ }
+
+Modified: antargis/branches/branch_2d/gui/src/ag_widget.h
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_widget.h	2007-05-13 08:45:12 UTC (rev 1097)
++++ antargis/branches/branch_2d/gui/src/ag_widget.h	2007-05-19 14:30:14 UTC (rev 1098)
+@@ -30,6 +30,7 @@
+ 
+ class AGTooltip;
+ class AGLayout;
++class AGClipping;
+ 
+ /** 
+     \defgroup widgets Widgets
+@@ -127,6 +128,7 @@
+ 
+   bool visible() const;
+   void setVisible(bool v);
++  bool isOpaque() const;
+ 
+   virtual void setWidth(float w);
+   virtual void setHeight(float w);
+@@ -199,6 +201,8 @@
+ 
+   void setTooltip(const AGStringUtf8 &amp;pTooltip);
+ 
++  void acquireClipping(AGClipping &amp;p);
++
+   std::list&lt;AGRect2&gt; aquireChanges();
+   void pushChangeRect(const AGRect2 &amp;pRect);
+   void clearChangeRects();
+@@ -250,6 +254,8 @@
+ 
+ AGWidget *toAGWidget(AGMessageObject *o);
+ 
+-//extern AGWidget *agNoParent;
++void setNewClippingTechnique(bool f);
++bool getNewClippingTechnique();
+ 
++
+ #endif
+
+Modified: antargis/branches/branch_2d/gui/src/interface.i
+===================================================================
+--- antargis/branches/branch_2d/gui/src/interface.i	2007-05-13 08:45:12 UTC (rev 1097)
++++ antargis/branches/branch_2d/gui/src/interface.i	2007-05-19 14:30:14 UTC (rev 1098)
+@@ -30,6 +30,7 @@
+ %include &quot;std_string.i&quot;
+ %include &quot;std_vector.i&quot;
+ %include &quot;std_map.i&quot;
++%include &quot;std_list.i&quot;
+ 
+ %template(StringVector) std::vector&lt;std::string&gt;;
+ %template(NodeVector) std::vector&lt;Node*&gt;;
+
+Modified: antargis/branches/branch_2d/ruby/ant_local.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_local.rb	2007-05-13 08:45:12 UTC (rev 1097)
++++ antargis/branches/branch_2d/ruby/ant_local.rb	2007-05-19 14:30:14 UTC (rev 1098)
+@@ -52,7 +52,7 @@
+ 		read
+ 	end
+ 	def process(x)
+-		x=x.gsub(&quot;\n&quot;,&quot;\\n&quot;)
++		x=x.to_s.gsub(&quot;\n&quot;,&quot;\\n&quot;)
+ 		r=myprocess(x)
+ 		#puts &quot;TRANSLATE: #{x} #{r.class}&quot;
+ 		return r
+
+Added: antargis/branches/branch_2d/ruby/tests/algebra_test.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/tests/algebra_test.rb	2007-05-13 08:45:12 UTC (rev 1097)
++++ antargis/branches/branch_2d/ruby/tests/algebra_test.rb	2007-05-19 14:30:14 UTC (rev 1098)
+@@ -0,0 +1,67 @@
++#!/usr/bin/env ruby
++
++require 'libantargis.so'
++include Libantargis
++
++setDebugLevel(0)
++
++def inverseTest
++	m=AGMatrixN.new(4,4)
++	
++	a=
++	[[1,-1,0,0],
++	[0,1,-1,0],
++	[0,0,1,-1],
++	[1,0,0,1]]
++	
++	(0..3).each{|x|
++		(0..3).each{|y|
++			m.set(x,y,a[y][x])
++		}
++	}
++	puts &quot;M:&quot;
++	m.output
++	
++	x=m.inverse
++	
++	y=m*x
++	puts &quot;Y:&quot;
++	y.output
++end
++
++def multTest
++	a=AGMatrixN.new(2,2)
++	b=AGMatrixN.new(2,2)
++	a.makeUnitMatrix
++	b.makeUnitMatrix
++	a.set(0,1,10)
++	b.set(0,1,10)
++	puts &quot;a:&quot;	
++	a.output
++	puts &quot;b:&quot;	
++	b.output
++	c=a*b
++	puts &quot;c:&quot;	
++	c.output
++end
++
++def invTest2
++	a=AGMatrixN.new(3,3)
++	a.set(0,0,1)
++	a.set(0,1,1)
++	a.set(1,0,1)
++	a.set(2,2,2)
++	puts &quot;a:&quot;
++	a.output
++	i=a.inverse
++	puts &quot;i:&quot;
++	i.output
++
++	t=a*i
++	puts &quot;t:&quot;
++	t.output
++end
++
++#multTest
++#invTest2
++inverseTest
+\ No newline at end of file
+
+Added: antargis/branches/branch_2d/ruby/tests/basis_test.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/tests/basis_test.rb	2007-05-13 08:45:12 UTC (rev 1097)
++++ antargis/branches/branch_2d/ruby/tests/basis_test.rb	2007-05-19 14:30:14 UTC (rev 1098)
+@@ -0,0 +1,101 @@
++#!/usr/bin/env ruby
++
++require 'libantargis.so'
++include Libantargis
++
++setDebugLevel(0)
++
++def makeBasis
++	m=AGMatrixN.new(2,8)
++	
++	a=[
++	[1,1,1,1],
++	[1,1,-1,-1],
++	[1,-1,0,0],
++	[0,0,1,-1],
++	]
++
++	a=[
++	[1,1,1,1,1,1,1,1],
++	[1,1,1,1,-1,-1,-1,-1],
++	[1,1,-1,-1,0,0,0,0],
++	[0,0,0,0,1,1,-1,-1],
++	[-1,1,0,0,0,0,0,0],
++	[0,0,-1,1,0,0,0,0],
++	[0,0,0,0,-1,1,0,0],
++	]
++
++	
++	(0..7).each{|x|
++		(0..1).each{|y|
++			m.set(y,x,a[y][x])
++		}
++	}
++	m
++end
++
++def makeSample(w)
++	v=AGMatrixN.new(1,w)
++	(0..(w-1)).each{|c|
++		v.set(0,c,rand)
++	}
++	v
++end
++
++def encode(basePair,v)
++	inv=basePair[1]
++	inv*v
++end
++
++def decode(basePair,encodedV)
++	m=basePair[0]
++	m*encodedV
++end
++
++basis=makeBasis
++
++basis.output
++
++inv=basis.pseudoInverse
++
++basePair=[basis,inv]
++
++inv.output
++
++puts &quot;CHECK unit-matrix:&quot;
++(basis*inv).output
++#exit
++
++sample=makeSample(8)
++
++puts &quot;sample:&quot;
++sample.output
++puts &quot;encoded:&quot;
++enc=encode(basePair,sample)
++enc.output
++puts &quot;decoded:&quot;
++dec=decode(basePair,enc)
++dec.output
++
++puts &quot;ERR:&quot;
++puts (dec-sample).scalar
++
++
++err=0
++err2=0
++count=10000
++(0..count).each{|i|
++	sample=makeSample(8)
++	sample2=makeSample(8)
++	err2+=(sample-sample2).scalar
++	enc=encode(basePair,sample)
++	dec=decode(basePair,enc)
++	c=(dec-sample).scalar
++	#puts c
++	err+=c
++	
++}
++
++puts err/count
++puts err2/count
++
+
+Added: antargis/branches/branch_2d/ruby/tests/clip_test.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/tests/clip_test.rb	2007-05-13 08:45:12 UTC (rev 1097)
++++ antargis/branches/branch_2d/ruby/tests/clip_test.rb	2007-05-19 14:30:14 UTC (rev 1098)
+@@ -0,0 +1,37 @@
++#!/usr/bin/env ruby
++
++require 'ruby/antargislib.rb'
++
++r=AGRect2.new(0,0,20,20)
++
++class MyWidget&lt;AGWidget
++	def initialize(p,r)
++		super
++		@a=AGClipping.new
++		@a.exclude(AGRect2.new(0,0,500,500))
++		@a.include(AGRect2.new(100,100,200,200))
++		@a.exclude(AGRect2.new(150,150,50,50))
++	end
++	def draw(p)
++		rs=@a.clip(AGRect2.new(0,0,400,400))
++		rs.each{|r|
++			p.fillRect(r,AGColor.new(
++				(rand*0xFF).to_i,
++				(rand*0xFF).to_i,
++				(rand*0xFF).to_i))
++		}
++	end
++end
++
++class MyApp&lt;AGApplication
++	def initialize
++		super
++		setMainWidget(MyWidget.new(nil,AGRect2.new(0,0,640,480)))
++	end
++	def eventFrame(t)	
++		delay(100)
++		true
++	end
++end
++app=MyApp.new
++app.run
+\ No newline at end of file
+
+Added: antargis/branches/branch_2d/ruby/tests/clip_widget_test.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/tests/clip_widget_test.rb	2007-05-13 08:45:12 UTC (rev 1097)
++++ antargis/branches/branch_2d/ruby/tests/clip_widget_test.rb	2007-05-19 14:30:14 UTC (rev 1098)
+@@ -0,0 +1,70 @@
++#!/usr/bin/env ruby
++
++require 'ruby/antargislib.rb'
++
++getMain.initVideo(640,480,32,false,false)
++
++setDebugLevel(0)
++
++class MyWidget&lt;AGWidget
++	def initialize(p,r)
++		super
++	end
++	def draw(p)
++		c=AGColor.new(0xFF,0,0)#(rand*0xFF).to_i,(rand*0xFF).to_i,(rand*0xFF).to_i)
++		p.fillRect(getRect.origin,c)
++	end
++end
++
++class MyWidget2&lt;AGWidget
++	def initialize(p,r)
++		super
++		@x=@y=0
++		eventFrame(0)
++		queryRedraw
++	end
++	def draw(p)
++		c=AGColor.new((rand*0xFF).to_i,(rand*0xFF).to_i,(rand*0xFF).to_i)
++		p.fillRect(getRect.origin,c) #AGColor.new(0,0,0))
++		c=AGColor.new(0,0xFF,0) #(rand*0xFF).to_i,(rand*0xFF).to_i,(rand*0xFF).to_i)
++		p.fillRect(@r,c)
++	end
++	def eventFrame(t)
++		if @inited
++		else
++			pushChangeRect(getRect.origin) #queryRedraw
++			@inited=true
++		end
++		@x+=1
++		@y+=3
++		@x%=width
++		@y%=height
++		@r=AGRect2.new(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">x, at y</A>,10,10)
++		pushChangeRect(@r.grow(3))
++		#queryRedraw
++		true
++	end
++end
++
++class MyApp&lt;AGApplication
++	def initialize
++		super
++		@ws=[]
++		@m=MyWidget2.new(nil,AGRect2.new(50,50,200,200))
++		setMainWidget(@m)
++		@ws &lt;&lt; MyWidget.new(@m,AGRect2.new(5,5,110,70))
++		@ws &lt;&lt; AGButton.new(@m,AGRect2.new(10,10,100,50),AGStringUtf8.new(&quot;halo&quot;))
++		puts &quot;adddd...&quot;
++		#@ws.each{|w|@m.addChild(w)}
++		
++
++	end
++	def eventFrame(t)
++		delay(10)
++		@m.eventFrame(t)
++		true
++	end
++end
++
++a=MyApp.new
++a.run
+\ No newline at end of file
+
+Modified: antargis/branches/branch_2d/ruby/tests/dirty_rects.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/tests/dirty_rects.rb	2007-05-13 08:45:12 UTC (rev 1097)
++++ antargis/branches/branch_2d/ruby/tests/dirty_rects.rb	2007-05-19 14:30:14 UTC (rev 1098)
+@@ -14,7 +14,7 @@
+ 	def prepareDraw
+ 	end
+ 	def draw(p)
+-		p.fillRect(AGRect2.new(0,0,300,300),AGColor.new(0,0,0))
++		#p.fillRect(AGRect2.new(0,0,300,300),AGColor.new(0,0,0))
+ 		p.fillRect(AGRect2.new(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">x, at y</A>,10,10),AGColor.new(0xFF,0,0))
+ 	end
+ 	def eventFrame(t)
+
+Added: antargis/branches/branch_2d/ruby/tests/rect_test.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/tests/rect_test.rb	2007-05-13 08:45:12 UTC (rev 1097)
++++ antargis/branches/branch_2d/ruby/tests/rect_test.rb	2007-05-19 14:30:14 UTC (rev 1098)
+@@ -0,0 +1,30 @@
++#!/usr/bin/env ruby
++
++#require 'ruby/antargislib.rb'
++require 'libantargis.so'
++include Libantargis
++
++r=AGRect2.new(0,0,20,20)
++
++def checkPair(a,b)
++	l=a.difference(b)
++	l.each{|r|
++		puts &quot;ERROR: #{r} not in #{a}!&quot; unless a.contains(r)
++		puts &quot;ERROR: #{r} is in #{b}!&quot; if b.contains(r)
++	}
++	puts &quot;size:#{l.length}&quot;
++	#puts l
++end
++
++[5,10].each{|w|
++	[5,10].each{|h|
++		[-20,-10,-5,0,5,10,20,30].each{|x|
++			[-20,-10,-5,0,5,10,20,30].each{|y|
++				a=AGRect2.new(x,y,w,h)
++				checkPair(r,a)
++			}
++		}
++	}
++}
++
++puts &quot;seems ok&quot;
+\ No newline at end of file
+
+Modified: antargis/branches/branch_2d/src/antargisgui.h
+===================================================================
+--- antargis/branches/branch_2d/src/antargisgui.h	2007-05-13 08:45:12 UTC (rev 1097)
++++ antargis/branches/branch_2d/src/antargisgui.h	2007-05-19 14:30:14 UTC (rev 1098)
+@@ -6,6 +6,9 @@
+ #include &quot;../gui/src/ag_aes.h&quot;
+ #include &quot;../gui/src/ag_singleton.h&quot;
+ #include &quot;../gui/src/ag_geometry.h&quot;
++#include &quot;../gui/src/ag_projection.h&quot;
++#include &quot;../gui/src/ag_algebra.h&quot;
++#include &quot;../gui/src/ag_clip.h&quot;
+ #include &quot;../gui/src/ag_font.h&quot;
+ #include &quot;../gui/src/ag_color.h&quot;
+ #include &quot;../gui/src/ag_local.h&quot;
+@@ -97,6 +100,9 @@
+ %include &quot;../gui/src/ag_aes.h&quot;
+ %include &quot;../gui/src/ag_singleton.h&quot;
+ %include &quot;../gui/src/ag_geometry.h&quot;
++%include &quot;../gui/src/ag_projection.h&quot;
++%include &quot;../gui/src/ag_algebra.h&quot;
++%include &quot;../gui/src/ag_clip.h&quot;
+ %include &quot;../gui/src/ag_font.h&quot;
+ %include &quot;../gui/src/ag_color.h&quot;
+ %include &quot;../gui/src/ag_local.h&quot;
+
+Modified: antargis/branches/branch_2d/src/interface.i
+===================================================================
+--- antargis/branches/branch_2d/src/interface.i	2007-05-13 08:45:12 UTC (rev 1097)
++++ antargis/branches/branch_2d/src/interface.i	2007-05-19 14:30:14 UTC (rev 1098)
+@@ -6,6 +6,7 @@
+ %include &quot;std_vector.i&quot;
+ %include &quot;std_pair.i&quot;
+ %include &quot;std_map.i&quot;
++//%include &quot;std_list.i&quot;
+ 
+ %include &quot;nantmarker.hh&quot;
+ /*
+@@ -81,6 +82,8 @@
+ %template(AGMatrixVector) std::vector&lt;AGMatrix4&gt;;
+ %template(AGVector2List) std::vector&lt;AGVector2&gt;;
+ %template(AGPairVec2Surface) std::pair&lt;AGVector2,AGSurface*&gt;;
++%template(AGRect2Vector) std::vector&lt;AGRect2&gt;;
++//%template(AGRect2List) std::list&lt;AGRect2&gt;;
+ 
+ %include &quot;antargisgui.h&quot;
+ 
+
+Modified: antargis/branches/branch_2d/src/nantmarker.hh
+===================================================================
+--- antargis/branches/branch_2d/src/nantmarker.hh	2007-05-13 08:45:12 UTC (rev 1097)
++++ antargis/branches/branch_2d/src/nantmarker.hh	2007-05-19 14:30:14 UTC (rev 1098)
+@@ -2981,6 +2981,11 @@
+  Data_Get_Struct($input,AGCircle2,b);
+  $result=*b;
+ }
++%typemap(directorout) AGClipping {
++ AGClipping *b;
++ Data_Get_Struct($input,AGClipping,b);
++ $result=*b;
++}
+ %typemap(directorout) AGCollisionData {
+  AGCollisionData *b;
+  Data_Get_Struct($input,AGCollisionData,b);
+@@ -3151,6 +3156,11 @@
+  Data_Get_Struct($input,AGMatrix4,b);
+  $result=*b;
+ }
++%typemap(directorout) AGMatrixN {
++ AGMatrixN *b;
++ Data_Get_Struct($input,AGMatrixN,b);
++ $result=*b;
++}
+ %typemap(directorout) AGMenu {
+  AGMenu *b;
+  Data_Get_Struct($input,AGMenu,b);
+@@ -3186,6 +3196,11 @@
+  Data_Get_Struct($input,AGPlugin,b);
+  $result=*b;
+ }
++%typemap(directorout) AGProjection2D {
++ AGProjection2D *b;
++ Data_Get_Struct($input,AGProjection2D,b);
++ $result=*b;
++}
+ %typemap(directorout) AGRadio {
+  AGRadio *b;
+  Data_Get_Struct($input,AGRadio,b);
+
+Modified: antargis/branches/branch_2d/src/path.cc
+===================================================================
+--- antargis/branches/branch_2d/src/path.cc	2007-05-13 08:45:12 UTC (rev 1097)
++++ antargis/branches/branch_2d/src/path.cc	2007-05-19 14:30:14 UTC (rev 1098)
+@@ -798,7 +798,7 @@
+ 
+   size_t tries=0;
+ 
+-  while(tries&lt;50000 &amp;&amp; pathSet.size()&gt;0)
++  while(tries&lt;1000 &amp;&amp; pathSet.size()&gt;0)
+     {
+       Path path=*pathSet.begin();
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000055.html">[Antargis-svn] r1097 - antargis/branches/branch_2d/ruby/tests
+</A></li>
+	<LI>Next message: <A HREF="000057.html">[Antargis-svn] r1099 - in antargis/branches/branch_2d: gui/src ruby	ruby/tests src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#56">[ date ]</a>
+              <a href="thread.html#56">[ thread ]</a>
+              <a href="subject.html#56">[ subject ]</a>
+              <a href="author.html#56">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

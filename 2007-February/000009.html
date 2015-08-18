@@ -1,0 +1,343 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1051 - in antargis/trunk: gui/src src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-February/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1051%20-%20in%20antargis/trunk%3A%20gui/src%20src&In-Reply-To=%3C200702191704.l1JH4fq5026578%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000008.html">
+   <LINK REL="Next"  HREF="000010.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1051 - in antargis/trunk: gui/src src</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1051%20-%20in%20antargis/trunk%3A%20gui/src%20src&In-Reply-To=%3C200702191704.l1JH4fq5026578%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1051 - in antargis/trunk: gui/src src">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Mon Feb 19 18:04:41 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000008.html">[Antargis-svn] r1050 - in antargis/trunk: gui/src ruby
+</A></li>
+        <LI>Next message: <A HREF="000010.html">[Antargis-svn] r1052 - antargis/trunk/ruby
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#9">[ date ]</a>
+              <a href="thread.html#9">[ thread ]</a>
+              <a href="subject.html#9">[ subject ]</a>
+              <a href="author.html#9">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-02-19 18:04:39 +0100 (Mon, 19 Feb 2007)
+New Revision: 1051
+
+Modified:
+   antargis/trunk/gui/src/ag_painter.cc
+   antargis/trunk/gui/src/ag_painter.h
+   antargis/trunk/gui/src/ag_rubyobj.h
+   antargis/trunk/src/nantmarker.hh
+Log:
+* register painter in surface 
+
+
+Modified: antargis/trunk/gui/src/ag_painter.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_painter.cc	2007-02-19 09:48:05 UTC (rev 1050)
++++ antargis/trunk/gui/src/ag_painter.cc	2007-02-19 17:04:39 UTC (rev 1051)
+@@ -213,8 +213,11 @@
+ 
+ AGPainter::~AGPainter()
+ {
+-  mTarget-&gt;unclip();
+-  mTarget-&gt;endPaint();
++  if(mTarget.valid())
++    {
++      mTarget-&gt;unclip();
++      mTarget-&gt;endPaint();
++    }
+ }
+ 
+ void AGPainter::putPixel(const AGVector2 &amp;p,const AGColor &amp;c)
+@@ -301,7 +304,7 @@
+ {
+   STACKTRACE;
+   float x,y;
+-  if(!dynamic_cast&lt;AGGLScreen*&gt;(mTarget))
++  if(!dynamic_cast&lt;AGGLScreen*&gt;(mTarget.getPtr()))
+     {
+       #warning &quot;remove this and implement in agtexture*&quot;
+       for(y=pDest.y0();y&lt;pDest.y1();y+=pSrc.h())
+@@ -386,7 +389,7 @@
+ void AGPainter::drawGradient(const AGRect2 &amp;pr,const AGColor &amp;pc0,const AGColor &amp;pc1,const AGColor &amp;pc2,const AGColor &amp;pc3)
+ {
+   STACKTRACE;
+-  AGGLScreen *glScreen=dynamic_cast&lt;AGGLScreen*&gt;(mTarget);
++  AGGLScreen *glScreen=dynamic_cast&lt;AGGLScreen*&gt;(mTarget.getPtr());
+   
+   AGRect2 src(0,0,1,1);
+ 
+@@ -406,13 +409,13 @@
+ 	{
+ 	  glScreen-&gt;drawGradient(r,c0,c1,c2,c3);
+ 	}
+-      else if(opengl() &amp;&amp; dynamic_cast&lt;AGTexture*&gt;(mTarget))
++      else if(opengl() &amp;&amp; dynamic_cast&lt;AGTexture*&gt;(mTarget.getPtr()))
+ 	{
+-	  dynamic_cast&lt;AGTexture*&gt;(mTarget)-&gt;drawGradient(r,c0,c1,c2,c3);
++	  dynamic_cast&lt;AGTexture*&gt;(mTarget.getPtr())-&gt;drawGradient(r,c0,c1,c2,c3);
+ 	}
+       else
+ 	{
+-	  AGSDLScreen *sdlScreen=dynamic_cast&lt;AGSDLScreen*&gt;(mTarget);
++	  AGSDLScreen *sdlScreen=dynamic_cast&lt;AGSDLScreen*&gt;(mTarget.getPtr());
+ 	    
+ 	  if(sdlScreen)
+ 	    {
+@@ -442,7 +445,7 @@
+ void AGPainter::drawBorder(const AGRect2&amp; pRect,int width, const AGColor&amp; c1, const AGColor&amp; c2)
+ {
+   STACKTRACE;
+-  AGGLScreen *glScreen=dynamic_cast&lt;AGGLScreen*&gt;(mTarget);
++  AGGLScreen *glScreen=dynamic_cast&lt;AGGLScreen*&gt;(mTarget.getPtr());
+   if(glScreen)
+     {
+       #warning &quot;add clipping in gl&quot;
+@@ -590,11 +593,6 @@
+ 
+ AGPaintTarget *AGPainter::getTarget()
+ {
+-  return mTarget;
++  return mTarget.getPtr();
+ }
+ 
+-void AGPainter::mark()
+-{
+-  if(mTarget)
+-    markObject(mTarget);
+-}
+
+Modified: antargis/trunk/gui/src/ag_painter.h
+===================================================================
+--- antargis/trunk/gui/src/ag_painter.h	2007-02-19 09:48:05 UTC (rev 1050)
++++ antargis/trunk/gui/src/ag_painter.h	2007-02-19 17:04:39 UTC (rev 1051)
+@@ -63,7 +63,7 @@
+ #define AGEXPORT
+ #endif
+ 
+-class AGEXPORT AGPainter:public AGRubyObject
++class AGEXPORT AGPainter
+ {
+  public:
+   AGPainter();
+@@ -117,14 +117,12 @@
+ 
+   AGPaintTarget *getTarget();
+ 
+-  virtual void mark();
+-
+  private:
+   std::list&lt;AGProjection&gt; ps;
+ 
+   AGProjection mCurrent;
+ 
+-  AGPaintTarget *mTarget;
++  gc_ptr&lt;AGPaintTarget&gt; mTarget;
+ };
+ 
+ #endif
+
+Modified: antargis/trunk/gui/src/ag_rubyobj.h
+===================================================================
+--- antargis/trunk/gui/src/ag_rubyobj.h	2007-02-19 09:48:05 UTC (rev 1050)
++++ antargis/trunk/gui/src/ag_rubyobj.h	2007-02-19 17:04:39 UTC (rev 1051)
+@@ -34,6 +34,7 @@
+ #include &lt;string&gt;
+ #include &lt;set&gt;
+ #include &lt;ag_base.h&gt;
++#include &lt;stdexcept&gt;
+ 
+ class AGRubyObject;
+ 
+@@ -44,8 +45,13 @@
+  public:
+   AGBaseObject(AGRubyObject *p);
+ 
+-  virtual ~AGBaseObject();
+-  virtual void baseClear();
++  ~AGBaseObject();
++  void baseClear();
++
++  bool valid()
++  {
++    return mp;
++  }
+ };
+ 
+ template&lt;class T&gt;
+@@ -60,6 +66,12 @@
+     {
+       return (T*)mp;
+     }
++  T* getPtr()
++    {
++      if(!mp)
++	throw std::runtime_error(&quot;mp not defined!&quot;);
++      return (T*)mp;
++    }
+ };
+ 
+ class AGEXPORT AGRubyObject
+
+Modified: antargis/trunk/src/nantmarker.hh
+===================================================================
+--- antargis/trunk/src/nantmarker.hh	2007-02-19 09:48:05 UTC (rev 1050)
++++ antargis/trunk/src/nantmarker.hh	2007-02-19 17:04:39 UTC (rev 1051)
+@@ -58,7 +58,7 @@
+ 	result-&gt;mRubyObject=true;
+ }
+ %markfunc AGScroller &quot;general_markfunc&quot;
+-%exception AnimMesh::AnimMesh {
++%exception Scene::Scene {
+ 	$action
+ 	result-&gt;mRUBY=self;
+ #ifdef GCDEBUG
+@@ -67,8 +67,8 @@
+ #endif
+ 	result-&gt;mRubyObject=true;
+ }
+-%markfunc AnimMesh &quot;general_markfunc&quot;
+-%exception Scene::Scene {
++%markfunc Scene &quot;general_markfunc&quot;
++%exception AnimMesh::AnimMesh {
+ 	$action
+ 	result-&gt;mRUBY=self;
+ #ifdef GCDEBUG
+@@ -77,7 +77,7 @@
+ #endif
+ 	result-&gt;mRubyObject=true;
+ }
+-%markfunc Scene &quot;general_markfunc&quot;
++%markfunc AnimMesh &quot;general_markfunc&quot;
+ %exception WaterPiece::WaterPiece {
+ 	$action
+ 	result-&gt;mRUBY=self;
+@@ -1992,7 +1992,7 @@
+  }
+  else $input=Qnil;
+ }
+-%typemap(out) AGGLWidget*{
++%typemap(out) DecimatedGraph*{
+  if($1)
+  {
+   if($1-&gt;mRubyObject)
+@@ -2001,12 +2001,12 @@
+    {
+      if(false);
+    else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGGLWidget,0);
++     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_DecimatedGraph,0);
+    }
+  }
+  else vresult=Qnil;
+ }
+-%typemap(directorin) AGGLWidget*{
++%typemap(directorin) DecimatedGraph*{
+  if($1)
+  {
+   if($1-&gt;mRubyObject)
+@@ -2015,12 +2015,12 @@
+    {
+      if(false);
+    else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGGLWidget,0);
++     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_DecimatedGraph,0);
+    }
+  }
+  else $input=Qnil;
+ }
+-%typemap(out) DecimatedGraph*{
++%typemap(out) AGGLWidget*{
+  if($1)
+  {
+   if($1-&gt;mRubyObject)
+@@ -2029,12 +2029,12 @@
+    {
+      if(false);
+    else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_DecimatedGraph,0);
++     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGGLWidget,0);
+    }
+  }
+  else vresult=Qnil;
+ }
+-%typemap(directorin) DecimatedGraph*{
++%typemap(directorin) AGGLWidget*{
+  if($1)
+  {
+   if($1-&gt;mRubyObject)
+@@ -2043,7 +2043,7 @@
+    {
+      if(false);
+    else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_DecimatedGraph,0);
++     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGGLWidget,0);
+    }
+  }
+  else $input=Qnil;
+@@ -2574,6 +2574,11 @@
+  Data_Get_Struct($input,AGBackground,b);
+  $result=*b;
+ }
++%typemap(directorout) AGBaseObject {
++ AGBaseObject *b;
++ Data_Get_Struct($input,AGBaseObject,b);
++ $result=*b;
++}
+ %typemap(directorout) AGBorder {
+  AGBorder *b;
+  Data_Get_Struct($input,AGBorder,b);
+@@ -3234,6 +3239,11 @@
+  Data_Get_Struct($input,WaterPiece,b);
+  $result=*b;
+ }
++%typemap(directorout) gc_ptr {
++ gc_ptr *b;
++ Data_Get_Struct($input,gc_ptr,b);
++ $result=*b;
++}
+ %typemap(directorout) Uint8 {
+  $result=NUM2INT($input);
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000008.html">[Antargis-svn] r1050 - in antargis/trunk: gui/src ruby
+</A></li>
+	<LI>Next message: <A HREF="000010.html">[Antargis-svn] r1052 - antargis/trunk/ruby
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#9">[ date ]</a>
+              <a href="thread.html#9">[ thread ]</a>
+              <a href="subject.html#9">[ subject ]</a>
+              <a href="author.html#9">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,299 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1163 - in antargis/branches/rant: . ext/external	ext/game ext/gui ruby ruby/entities
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1163%20-%20in%20antargis/branches/rant%3A%20.%20ext/external%0A%09ext/game%20ext/gui%20ruby%20ruby/entities&In-Reply-To=%3C200708271834.l7RIY5XA020646%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000119.html">
+   <LINK REL="Next"  HREF="000121.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1163 - in antargis/branches/rant: . ext/external	ext/game ext/gui ruby ruby/entities</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1163%20-%20in%20antargis/branches/rant%3A%20.%20ext/external%0A%09ext/game%20ext/gui%20ruby%20ruby/entities&In-Reply-To=%3C200708271834.l7RIY5XA020646%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1163 - in antargis/branches/rant: . ext/external	ext/game ext/gui ruby ruby/entities">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Mon Aug 27 20:34:05 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000119.html">[Antargis-svn] r1162 - in antargis/branches/rant: . build/configs	ext/3dengine ext/game ruby
+</A></li>
+        <LI>Next message: <A HREF="000121.html">[Antargis-svn] r1164 - in antargis/branches/rant: . build ruby	ruby/entities ruby/gui
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#120">[ date ]</a>
+              <a href="thread.html#120">[ thread ]</a>
+              <a href="subject.html#120">[ subject ]</a>
+              <a href="author.html#120">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-08-27 20:34:04 +0200 (Mon, 27 Aug 2007)
+New Revision: 1163
+
+Added:
+   antargis/branches/rant/ext/game/README
+   antargis/branches/rant/ext/gui/README
+   antargis/branches/rant/ruby/entities/README
+Modified:
+   antargis/branches/rant/INSTALL
+   antargis/branches/rant/README
+   antargis/branches/rant/Rantfile
+   antargis/branches/rant/ext/external/README
+   antargis/branches/rant/ruby/README
+Log:
+* documentation...
+
+
+Modified: antargis/branches/rant/INSTALL
+===================================================================
+--- antargis/branches/rant/INSTALL	2007-08-25 19:26:25 UTC (rev 1162)
++++ antargis/branches/rant/INSTALL	2007-08-27 18:34:04 UTC (rev 1163)
+@@ -1,13 +1,14 @@
+-INSTALLATION of Battles of Antargis
+-==========================================
++== INSTALLATION of Battles of Antargis
+ Quick Start:
+-1) Install ruby, libsdl, libsdl-image, libsdl-ttf, libsdl-mixer, opengl.
+-	You need the developer-packages of all these libraries/programs!
+-  If you want to do serious developing you should install rant, too!
++
++1) Install ruby, libsdl, libsdl-image, libsdl-ttf, libsdl-mixer, opengl. You need the developer-packages of all these libraries/programs! If you want to do serious developing you should install rant, too!
++
+ 2) Don't forget to install ruby1.8-dev (or ruby1.9-dev if you use ruby 1.9)
++
+ 3) After this step no root-privileges are needed.
+-4) If you have installed rant in step 1: Run &quot;rant&quot; in this directory
+-   Otherwise: Run &quot;ruby build.rb&quot; in the current directory
++
++4) If you have installed rant in step 1: Run &quot;rant&quot; in this directory. Otherwise: Run &quot;ruby build.rb&quot; in the current directory
++
+ 5) Run &quot;./antargis&quot; in this directory
+ 
+ Essentials: Ruby, (Rant)
+@@ -15,10 +16,15 @@
+ 
+ Libraries: libSDL,libSDL_mixer libSDL_ttf, libSDL_image, opengl
+ 
+-Links:
++== Links
+ Ruby          <A HREF="http://www.ruby-lang.org">http://www.ruby-lang.org</A>
++
+ Rant          <A HREF="http://rant.rubyforge.org/">http://rant.rubyforge.org/</A>
++
+ libSDL        <A HREF="http://www.libsdl.org">http://www.libsdl.org</A>
++
+ libSDL-image  <A HREF="http://www.libsdl.org/projects/SDL_image">http://www.libsdl.org/projects/SDL_image</A>
++
+ libSDL-ttf    <A HREF="http://www.libsdl.org/projects/SDL_ttf">http://www.libsdl.org/projects/SDL_ttf</A>
++
+ libSDL-mixer  <A HREF="http://www.libsdl.org/projects/SDL_mixer">http://www.libsdl.org/projects/SDL_mixer</A>
+
+Modified: antargis/branches/rant/README
+===================================================================
+--- antargis/branches/rant/README	2007-08-25 19:26:25 UTC (rev 1162)
++++ antargis/branches/rant/README	2007-08-27 18:34:04 UTC (rev 1163)
+@@ -18,20 +18,32 @@
+ == Overview
+ 
+ The game is devided into several parts, which have each a specified purpose.
+-These parts are:
+-* a graphical-user-interface (GUI) library, which is called AntargisGUI
+-* a 3d-engine
+-* a c++-game-engine
+-* the actual game-logic in ruby
++The main difference between parts is the language, in that they're written, C++ or Ruby.
++
++The main language of BoA is Ruby. But because most low-level-libraries cannot directly be used by Ruby and
++for some things Ruby is just too slow, there are some parts of the Engine, that are written in C++.
++
++The game is parted into several layers, that shouldn't be mixed too much. These layers are:
++* external libraries (Ruby,SDL,libstdc++,...)
++* basic-lib, which includes basic functions like filesystem-access, basic geometry-processing, event-handling and so forth
++* math-lib - holding extended math-functions
++* video-lib - providing a (nearly) seamless usage of either OpenGL or plain (2D-) SDL-Mode for video-access
++* sound-lib - providing some simplified access to SDL_Mixer
++* gui-lib - a small gui-lib, that's pretty easy to use and designed for usage in games
++* 3dengine - a pretty small 3d-engine, that can be used for RTS-games (it's not designed to work for FPS or the like)
++* game-lib - basic functionality for RTS games. It includes those functions that are called frequently and thus must be pretty fast.
++
++The layers above are all done in C++. What now follows are the Ruby-parts:
+ * much glue-code in ruby for menus, dialogs and the like 
++* game-logic
+ 
+-1. On information about Antargis GUI-lib go to link:files/gui/README.html
+-2. Information about Antargis game-engine can be found at link:files/src/README.html
+-3. Game logic, esp. Multiplayer, AI- and level-scripting: files/ruby/README.html
++1. On information about Antargis GUI-lib go to link:files/ext/gui/README.html
++2. Information about Antargis game-engine can be found at link:files/ext/game/README.html
++3. Game logic, esp. Multiplayer, AI- and level-scripting: link:files/ruby/README.html
+ 
+ == Installation
+ 
+-For installation and building have a look at the INSTALL file.
++For installation and building have a look at the link:files/INSTALL.html file.
+ 
+ Run the game by simply starting antargis:
+ &gt; ./antargis
+
+Modified: antargis/branches/rant/Rantfile
+===================================================================
+--- antargis/branches/rant/Rantfile	2007-08-25 19:26:25 UTC (rev 1162)
++++ antargis/branches/rant/Rantfile	2007-08-27 18:34:04 UTC (rev 1163)
+@@ -342,7 +342,8 @@
+  end
+ desc &quot;Generate html documentation.&quot;
+ 	gen RubyDoc do |t|
+-			a=sys[&quot;**/README&quot;]+sys[&quot;ruby/**/*.rb&quot;]
++			a=sys[&quot;**/README&quot;]+sys[&quot;ruby/**/*.rb&quot;]+sys[&quot;INSTALL&quot;]
++			a=a.select{|f|not f=~/_test/}
+ 			t.opts = %w(--title Battles\ of\ Antargis --main README )+a
+ 			t.dir = &quot;docs/ruby&quot;
+ 	end
+
+Modified: antargis/branches/rant/ext/external/README
+===================================================================
+--- antargis/branches/rant/ext/external/README	2007-08-25 19:26:25 UTC (rev 1162)
++++ antargis/branches/rant/ext/external/README	2007-08-27 18:34:04 UTC (rev 1163)
+@@ -1,3 +1,4 @@
++== Mersenne Twister 
+ This is an implementation of the Mersenne Twist pseudorandom number
+ generator, including both C and C++ interfaces and a set of functions
+ for generating random variates from common distributions.
+
+Added: antargis/branches/rant/ext/game/README
+===================================================================
+--- antargis/branches/rant/ext/game/README	2007-08-25 19:26:25 UTC (rev 1162)
++++ antargis/branches/rant/ext/game/README	2007-08-27 18:34:04 UTC (rev 1163)
+@@ -0,0 +1 @@
++== Information about the Antargis-Game-Engine 
+\ No newline at end of file
+
+Added: antargis/branches/rant/ext/gui/README
+===================================================================
+--- antargis/branches/rant/ext/gui/README	2007-08-25 19:26:25 UTC (rev 1162)
++++ antargis/branches/rant/ext/gui/README	2007-08-27 18:34:04 UTC (rev 1163)
+@@ -0,0 +1,39 @@
++== Overview
++AntargisGUI is a C++ GUI-library, that's aimed at usage in either C++ and Ruby.
++It's based upon libSDL and OpenGL and can be run in OpenGL-mode and plain SDL-mode, too.
++However within the Antargis-game only OpenGL-mode is used.
++
++Though being quiet small(TM) AntargisGUI provides a whole bunch of features, like:
++* widgets, windows, buttons, list-boxes, combo-boxes, dialogs, checkboxes, edits (single and multiline), tooltips
++* simple event-handling
++* file-system abstraction
++* UTF-8 and localization support
++* XML-based layouts
++* extendable through either C++ and Ruby
++* basic geometry-classes (2d and 3d)
++* encryption with AES
++* themeable
++
++Because the important parts are written in C++, the main documentation in done with doxygen.
++So for more detailed information and a complete API-documentation go to link:../api/html/index.html 
++
++== Dependencies (deprecated)
++
++This library is aimed at being used by a script language like ruby or python, but it should be still
++usable in plain c++.
++
++needed libraries:
++ruby(-dev)
++swig(-dev)
++libSDL
++libSDL_image
++libSDL_ttf
++libSDL_mixer
++libphysfs
++
++you have 2 possibilities to compile it
++1) use autotools:
++  ./configure &amp;&amp; make &amp;&amp; make install
++2) using extconf.rb /mkmf:
++  cd src &amp;&amp; ruby extconf.rb &amp;&amp; make &amp;&amp; make install
++
+
+Modified: antargis/branches/rant/ruby/README
+===================================================================
+--- antargis/branches/rant/ruby/README	2007-08-25 19:26:25 UTC (rev 1162)
++++ antargis/branches/rant/ruby/README	2007-08-27 18:34:04 UTC (rev 1163)
+@@ -5,4 +5,19 @@
+ * basic game logic like maps, entities and jobs
+ * level-scripting
+ * AI-scripting
+-* multi-player support
+\ No newline at end of file
++* multi-player support
++
++== Entities
++The basic objects of the game, like trees, people, buildings and so forth are called entities.
++To read more about entities go here: link:files/ruby/entities/README.html
++
++== Map
++A map represents the complete world of BoA. It consists of:
++* a height-map
++* entities on the map
++* some game-logic, that holds everything in place
++
++To make things a little easier, it's implemented in several layers:
++* C++-HeightMap
++* C++-AntargisMap
++
+
+Added: antargis/branches/rant/ruby/entities/README
+===================================================================
+--- antargis/branches/rant/ruby/entities/README	2007-08-25 19:26:25 UTC (rev 1162)
++++ antargis/branches/rant/ruby/entities/README	2007-08-27 18:34:04 UTC (rev 1163)
+@@ -0,0 +1,18 @@
++== Entities 
++
++=== Introduction
++
++Entities are objects. There are many classes of entities, that have an entirely different behaviour.
++But they have some simple things in common:
++* each entity has an inventory (like in RP-games)
++* each entity has properties like energy or experience - no matter how reasonable this may seem ATM.
++* a low-level-job
++* it can have one (or more) mesh(es)
++* it has many different events, that are called, when certain things happen.
++
++Because events and movements for every entity are computed in each frame of the game (should be at least 25 times a second), that's pretty much to do. Because Ruby isn't that fast, these things are done in C++.
++
++So there is a basic entity-class in C++-code that's called AntEntity
++
++Above this c++-class there is a Ruby-Class named AntRubyEntity, that contains some more basic stuff, that's implemented in Ruby more easily.
++
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000119.html">[Antargis-svn] r1162 - in antargis/branches/rant: . build/configs	ext/3dengine ext/game ruby
+</A></li>
+	<LI>Next message: <A HREF="000121.html">[Antargis-svn] r1164 - in antargis/branches/rant: . build ruby	ruby/entities ruby/gui
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#120">[ date ]</a>
+              <a href="thread.html#120">[ thread ]</a>
+              <a href="subject.html#120">[ subject ]</a>
+              <a href="author.html#120">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

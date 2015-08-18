@@ -1,0 +1,1768 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1075 - in antargis/branches/new_hl_jobs: .	data/gui/layout data/levels/tutorial gui/src ruby src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-April/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1075%20-%20in%20antargis/branches/new_hl_jobs%3A%20.%0A%09data/gui/layout%20data/levels/tutorial%20gui/src%20ruby%20src&In-Reply-To=%3C200704291739.l3THdnlv019686%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000032.html">
+   <LINK REL="Next"  HREF="000034.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1075 - in antargis/branches/new_hl_jobs: .	data/gui/layout data/levels/tutorial gui/src ruby src</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1075%20-%20in%20antargis/branches/new_hl_jobs%3A%20.%0A%09data/gui/layout%20data/levels/tutorial%20gui/src%20ruby%20src&In-Reply-To=%3C200704291739.l3THdnlv019686%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1075 - in antargis/branches/new_hl_jobs: .	data/gui/layout data/levels/tutorial gui/src ruby src">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sun Apr 29 19:39:49 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000032.html">[Antargis-svn] r1074 - antargis/branches
+</A></li>
+        <LI>Next message: <A HREF="000034.html">[Antargis-svn] r1076 - in antargis/branches/new_hl_jobs/ruby: .	tests
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#33">[ date ]</a>
+              <a href="thread.html#33">[ thread ]</a>
+              <a href="subject.html#33">[ subject ]</a>
+              <a href="author.html#33">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-04-29 19:39:46 +0200 (Sun, 29 Apr 2007)
+New Revision: 1075
+
+Modified:
+   antargis/branches/new_hl_jobs/Rakefile
+   antargis/branches/new_hl_jobs/antargis.iss
+   antargis/branches/new_hl_jobs/data/gui/layout/ant_layout.xml
+   antargis/branches/new_hl_jobs/data/levels/tutorial/tutorial0.rb
+   antargis/branches/new_hl_jobs/gui/src/ag_debug.h
+   antargis/branches/new_hl_jobs/gui/src/ag_main.h
+   antargis/branches/new_hl_jobs/ruby/ant_boss.rb
+   antargis/branches/new_hl_jobs/ruby/ant_hero.rb
+   antargis/branches/new_hl_jobs/ruby/ant_hljob_base.rb
+   antargis/branches/new_hl_jobs/ruby/ant_hljob_states.rb
+   antargis/branches/new_hl_jobs/ruby/ant_hljobs.rb
+   antargis/branches/new_hl_jobs/ruby/ant_local.rb
+   antargis/branches/new_hl_jobs/ruby/ant_man.rb
+   antargis/branches/new_hl_jobs/ruby/ant_manbase.rb
+   antargis/branches/new_hl_jobs/ruby/ant_new_hljobs.rb
+   antargis/branches/new_hl_jobs/ruby/antargislib.rb
+   antargis/branches/new_hl_jobs/src/entity.cc
+   antargis/branches/new_hl_jobs/src/jobs.cc
+   antargis/branches/new_hl_jobs/src/terrain.cc
+   antargis/branches/new_hl_jobs/src/vertex_array.cc
+Log:
+* improvements on hl-jobs
+
+
+Modified: antargis/branches/new_hl_jobs/Rakefile
+===================================================================
+--- antargis/branches/new_hl_jobs/Rakefile	2007-04-23 18:01:28 UTC (rev 1074)
++++ antargis/branches/new_hl_jobs/Rakefile	2007-04-29 17:39:46 UTC (rev 1075)
+@@ -358,11 +358,13 @@
+ 			msh &quot;cp #{f} #{distdir}&quot;
+ 		}
+ 		msh &quot;cp libantargis.so #{distdir}&quot;
+-		msh &quot;rm -rf #{distdir}/autopackage #{distdir}/contrib #{distdir}/mkmf.log&quot;
++		msh &quot;rm -rf #{distdir}/autopackage #{distdir}/contrib #{distdir}/mkmf.log #{distdir}/*.txt #{distdir}/FIXME #{distdir}/*TODO #{distdir}/*.html&quot;
+ 	
+ 		# FIXME: maybe del this
+ 		msh &quot;cp #{distdir}/libpng13.dll #{distdir}/libpng12.dll&quot;
+ 		msh &quot;cp #{distdir}/libtiff3.dll #{distdir}/tiff.dll&quot;
++	else
++		msh &quot;rm -rf #{distdir}/autopackage #{distdir}/contrib #{distdir}/mkmf.log #{distdir}/*.txt #{distdir}/FIXME #{distdir}/*TODO #{distdir}/*.html #{distdir}/debian #{distdir}/test&quot;
+ 	end
+ 	
+ 
+
+Modified: antargis/branches/new_hl_jobs/antargis.iss
+===================================================================
+--- antargis/branches/new_hl_jobs/antargis.iss	2007-04-23 18:01:28 UTC (rev 1074)
++++ antargis/branches/new_hl_jobs/antargis.iss	2007-04-29 17:39:46 UTC (rev 1075)
+@@ -5,21 +5,21 @@
+ 
+ [Setup]
+ AppName=Antargis
+-AppVerName=Antargis 0.1.9
++AppVerName=Antargis 0.2
+ DefaultDirName={pf}\Antargis
+ DefaultGroupName=Antargis
+ UninstallDisplayIcon={app}\Antargis.exe
+ Compression=lzma/fast
+ SolidCompression=yes
+ ;InfoAfterFile=c:\Antargis\readme.txt
+-OutputBaseFilename=Antargis-0.1.9-setup
++OutputBaseFilename=Antargis-0.2-setup
+ AppPublisher=Antargis-Team
+ AppPublisherURL=antargis.berlios.de
+-AppVersion=0.1.9
++AppVersion=0.2
+ 
+ 
+ [Files]
+-Source: &quot;z:\home\david\projects\antargis\ant\antargis-0.1.9\*&quot;; DestDir: &quot;{app}&quot;; Flags:recursesubdirs
++Source: &quot;z:\home\david\projects\antargis\ant\antargis-0.2\*&quot;; DestDir: &quot;{app}&quot;; Flags:recursesubdirs
+ 
+ [Icons]
+ Name: &quot;{group}\Antargis&quot;; Filename: &quot;{app}\Antargis.lnk&quot; ; WorkingDir: &quot;{app}&quot;
+
+Modified: antargis/branches/new_hl_jobs/data/gui/layout/ant_layout.xml
+===================================================================
+--- antargis/branches/new_hl_jobs/data/gui/layout/ant_layout.xml	2007-04-23 18:01:28 UTC (rev 1074)
++++ antargis/branches/new_hl_jobs/data/gui/layout/ant_layout.xml	2007-04-29 17:39:46 UTC (rev 1075)
+@@ -233,6 +233,6 @@
+ 	&lt;table cols=&quot;2&quot; rows=&quot;2&quot;&gt;
+ 		&lt;colsize col=&quot;1&quot; fixed=&quot;216&quot;/&gt;
+ 		&lt;rowsize row=&quot;1&quot; fixed=&quot;30&quot;/&gt;
+-		&lt;text name=&quot;statusBar&quot; col=&quot;0&quot; row=&quot;1&quot; caption=&quot;FPS:0&quot; cache=&quot;true&quot;/&gt;
++		&lt;text name=&quot;statusBar&quot; col=&quot;0&quot; row=&quot;1&quot; caption=&quot;FPS:0&quot; cache=&quot;false&quot;/&gt;
+ 	&lt;/table&gt;
+ &lt;/layout&gt;
+
+Modified: antargis/branches/new_hl_jobs/data/levels/tutorial/tutorial0.rb
+===================================================================
+--- antargis/branches/new_hl_jobs/data/levels/tutorial/tutorial0.rb	2007-04-23 18:01:28 UTC (rev 1074)
++++ antargis/branches/new_hl_jobs/data/levels/tutorial/tutorial0.rb	2007-04-29 17:39:46 UTC (rev 1075)
+@@ -44,6 +44,7 @@
+ 		return false #ignore
+ 	end
+ 	def eventHeroDied(ent)
++		puts &quot;eventHeroDied(#{ent}) - #{ent.getName}&quot;
+ 		case ent.getName	
+ 			when &quot;Rowen&quot;
+ 				lostLevel
+@@ -72,6 +73,7 @@
+ 	end
+ 	def wonLevel
+ 		puts &quot;INTERFACE:&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at interface</A>,self
++		#raise 1
+ 		@interface.wonLevel
+ 		@won=true
+ 		start=StoryFlow.new(&quot;recruit&quot;)
+
+Modified: antargis/branches/new_hl_jobs/gui/src/ag_debug.h
+===================================================================
+--- antargis/branches/new_hl_jobs/gui/src/ag_debug.h	2007-04-23 18:01:28 UTC (rev 1074)
++++ antargis/branches/new_hl_jobs/gui/src/ag_debug.h	2007-04-29 17:39:46 UTC (rev 1075)
+@@ -99,10 +99,12 @@
+ void agRaise(const std::string &amp;s);
+ 
+ #ifndef __WIN32__
+-//#undef assert
+-//#define assert(x) {if(!(x)) agRaise((::toString(&quot;assert failed &quot;)+LINEINFO(__STRING(x))).c_str()); }
++#undef assert
++#define assert(x) {if(!(x)) agRaise((::toString(&quot;assert failed &quot;)+LINEINFO(__STRING(x))).c_str()); }
+ #endif
+ 
++//#undef assert
++
+ #define Assert(x) assert(x)
+ 
+ #define STUB cdebug(&quot;STUB in File &quot;&lt;&lt;__FILE__&lt;&lt;&quot; line:&quot;&lt;&lt;__LINE__&lt;&lt;&quot; function:&quot;&lt;&lt;__PRETTY_FUNCTION__)
+
+Modified: antargis/branches/new_hl_jobs/gui/src/ag_main.h
+===================================================================
+--- antargis/branches/new_hl_jobs/gui/src/ag_main.h	2007-04-23 18:01:28 UTC (rev 1074)
++++ antargis/branches/new_hl_jobs/gui/src/ag_main.h	2007-04-29 17:39:46 UTC (rev 1075)
+@@ -97,6 +97,7 @@
+ // from ag_debug
+ size_t getDebugLevel();
+ void setDebugLevel(size_t t);
++void setRubyRaising(bool flag);
+ 
+ 
+ #endif
+
+Modified: antargis/branches/new_hl_jobs/ruby/ant_boss.rb
+===================================================================
+--- antargis/branches/new_hl_jobs/ruby/ant_boss.rb	2007-04-23 18:01:28 UTC (rev 1074)
++++ antargis/branches/new_hl_jobs/ruby/ant_boss.rb	2007-04-29 17:39:46 UTC (rev 1075)
+@@ -94,6 +94,7 @@
+ 	end
+ 	
+ 	def eventNoJob
++		#return if @meshState!=&quot;dead&quot;
+ # 		dputs &quot;eventNoJob &quot;+self.class.to_s+&quot; &quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">+ at job.to_s</A>
+ # 		dputs caller.join(&quot;\n&quot;)
+ 		checkHLJobEnd(self)
+@@ -150,7 +151,10 @@
+ 	end
+ 	
+ 	def removeMan(man)
+-		@men.delete(man)
++		if @men.member?(man)
++			@men.delete(man)
++			man.setBoss(nil)
++		end
+ 		if @job
+ 			@job.delete(man)
+ 		end
+@@ -174,11 +178,11 @@
+ # 		return
+ # 	end
+ 
+-	def eventAttacked(by)
+-		ret=newHLDefendJob(by)
+-		AntInventory.update(self)
+-		ret
+-	end
++# 	def eventAttacked(by)
++# 		ret=newHLDefendJob(by)
++# 		AntInventory.update(self)
++# 		ret
++# 	end
+ 	
+ 	def eventManDefeated(man)
+ 		dputs &quot;AntBoss:eventManDefeated: #{man} #{man.getName}&quot;
+@@ -224,20 +228,20 @@
+ 	end
+ 	
+ 	def assignJob2All
+-		if getMap
+-			getMap.eventNewJobAssignedToBoss(self)
+-		end
+-
+-		begin
+-		# discard reassigning in this case
+-		return if ObjectSpace.const_get(:AntNewHLJob)
+-		rescue
+-		end
+-
+-		@men.each{|man|
+-			man.delJob
+-			assignJob(man)
+-		}
++# 		if getMap
++# 			getMap.eventNewJobAssignedToBoss(self)
++# 		end
++# 
++# 		begin
++# 		# discard reassigning in this case
++# 		return if ObjectSpace.const_get(:AntNewHLJob)
++# 		rescue
++# 		end
++# 
++# 		@men.each{|man|
++# 			man.delJob
++# 			assignJob(man)
++# 		}
+ 	end
+ 	def killAllJobs
+ 		@men.each{|man|man.delJob}
+
+Modified: antargis/branches/new_hl_jobs/ruby/ant_hero.rb
+===================================================================
+--- antargis/branches/new_hl_jobs/ruby/ant_hero.rb	2007-04-23 18:01:28 UTC (rev 1074)
++++ antargis/branches/new_hl_jobs/ruby/ant_hero.rb	2007-04-29 17:39:46 UTC (rev 1075)
+@@ -64,6 +64,7 @@
+ 	
+ 	def noHLJob
+ 		puts &quot;noHLJob #{self}&quot;
++		assert{getEnergy&gt;0}
+ 		if @player
+ 			@player.assignJob(self)
+ 			#stopFireSound
+@@ -74,6 +75,7 @@
+ 	end
+ 	
+ 	def startFireSound
++		assert{getEnergy&gt;0}
+ 		if not @fireSound
+ 			dputs &quot;STARTING FIRE&quot;
+ 			@fireSound=AntSound.playLoopSoundGlobal(self,&quot;fire&quot;,getPos2D,0.4)
+@@ -94,6 +96,7 @@
+ 	end
+ 
+ 	def newFightJob(d,ptarget)
++		assert{ptarget.canFight}
+ 		checkResources
+ 		super
+ 		@moving=true
+@@ -109,6 +112,7 @@
+ 	end
+ 	
+ 	def assignJob(man)
++		puts &quot;#{self}:#{getName}:assignJob(#{man}:#{man.getName}&quot;
+ 		checkHLJobEnd(man)
+ 	end	
+ 	def moveHome(man)
+@@ -131,32 +135,38 @@
+ 		assignJob2All
+ 	end
+ 	def newHLRecruitJob(target)
++		assert{target.is_a?(AntBoss)}
+ 		@job.stopJob if @job
+ 		@job=AntHeroRecruitJob.new(self,target)
+ 		assignJob2All
+ 	end
+ 	def newHLConstructJob(target)
++		assert{target.is_a?(AntWorkshop)}
+ 		@job.stopJob if @job
+ 		@job=AntHeroConstructJob.new(self,target)
+ 		assignJob2All
+ 	end
+ 	def newHLTakeFoodJob(target)
++		assert{target.is_a?(AntHouse)}
+ 		@job.stopJob if @job
+ 		puts &quot;take food job #{self} #{target}&quot;
+ 		@job=AntHeroTakeJob.new(self,target,&quot;food&quot;)
+ 		assignJob2All
+ 	end
+ 	def newHLTakeWeaponJob(target)
++		assert{target.is_a?(AntBoss)}
+ 		@job.stopJob if @job
+ 		@job=AntHeroTakeJob.new(self,target,&quot;weapon&quot;)
+ 		assignJob2All
+ 	end
+ 	def newHLFightJob(target)
++		assert{target.is_a?(AntBoss) and target.canFight}
+ 		@job.stopJob if @job
+ 		@job=AntHeroFightJob.new(self,target)
+ 		assignJob2All
+ 	end
+ 	def newHLFightAnimalJob(target)
++		assert{target.is_a?(AntAnimal)}
+ 		@job.stopJob if @job
+ 		@job=AntHeroFightAnimalJob.new(self,target)
+ 		assignJob2All
+@@ -234,20 +244,20 @@
+ 		end
+ 	end
+ 
+-	def eventAttacked(by)
+-		puts &quot;eventAttacked #{by}&quot;
+-		super
+-	end
++# 	def eventAttacked(by)
++# 		puts &quot;eventAttacked #{by}&quot;
++# 		super
++# 	end
+ 	
+ 	def assignJob2All
+ 		super
+-		puts &quot;ASSIGN JOB 2 All #{self}&quot;
+-		puts &quot;---&quot;
++# 		puts &quot;ASSIGN JOB 2 All #{self}&quot;
++# 		puts &quot;---&quot;
+ 		if @job.class!=AntHeroRestJob
+ 			setFire(false)
+ 		end
+-		doEvent(:newJobAssigned)
+-		puts &quot;ASSIGN JOB ready.&quot;
++ 		doEvent(:newJobAssigned)
++# 		puts &quot;ASSIGN JOB ready.&quot;
+ 	end
+ 
+ 	def setMeshState(name)
+@@ -331,13 +341,33 @@
+ 	end
+ 
+ 	def eventDie
++		puts &quot;ENERGY:#{self} #{self.getEnergy}&quot;
+ 		super
+-		@job=nil
++		puts &quot;ENERGY:#{self} #{self.getEnergy}&quot;
++		puts &quot;hero #{self} died.(#{getName})&quot;
++		# release all men
++		puts &quot;# men:#{@men.length}&quot;
++		@men.each{|man|
++			puts &quot;myMen:#{man}:#{man.getName}&quot;
++			if man.is_a?(AntMan)
++				puts &quot;#{man} #{man.getName}:setBoss(nil)&quot;
++				man.setBoss(nil)
++				@men.delete(man)
++			end
++		}
++
++		killJob
+ 		if @player
+ 			@player.remove(self)
+ 		end
+ 		getMap.eventHeroDied(self)
+ 	end
+ 
++
++	def killJob
++		@job.kill if @job
++		@job=nil
++	
++	end
+ end
+ 
+
+Modified: antargis/branches/new_hl_jobs/ruby/ant_hljob_base.rb
+===================================================================
+--- antargis/branches/new_hl_jobs/ruby/ant_hljob_base.rb	2007-04-23 18:01:28 UTC (rev 1074)
++++ antargis/branches/new_hl_jobs/ruby/ant_hljob_base.rb	2007-04-29 17:39:46 UTC (rev 1075)
+@@ -1,16 +1,23 @@
+-class AntNewHLJob
++require 'ant_state_machine.rb'
++
++class AntNewHLJob&lt;BaseMachine
+ 	attr_reader :finished, :stopped
+ 	# some magic here
+-	def initialize(hero)
++	def initialize(hero,startState=nil)
++		super(startState)
+ 		@hero=hero
++		assert{not @hero.nil?}
+ 
+ 		@finished=false
+ 
+ 		firstCall
+ 	end
++
+ 	def getTime
++		puts &quot;getTime&quot;
+ 		@hero.getMap.getTime
+ 	end
++
+ 	def allMen
+ 		if @hero.is_a?(AntHero)
+ 			@hero.getMen
+@@ -18,86 +25,47 @@
+ 			@hero.getMen-[@hero]
+ 		end
+ 	end
++
+ 	def hero
+ 		@hero
+ 	end
+ 
+ 	def stopJob
+ 		@stopped=true
+-		if @state
+-			call(@state,&quot;leave&quot;)
+-		end
++		stateCall(&quot;leave&quot;)
+ 	end
+ 
+ 	def check(man)
+-		return if @state.nil?
+-		call2(@state,&quot;assign&quot;,man)
+-		while call(@state,&quot;ready&quot;)
+-			call(@state,&quot;leave&quot;)
+-			goToNextState
+-			break if @state.nil? or @finished
++		#raise 1
++		if @state.nil?
++			@finished=true
++			return
+ 		end
+-		puts &quot;FINISHED: #{@finished}&quot;
++		#raise 1
++		stateCall(&quot;assign&quot;,man)
++		advance
++		@finished=ready
+ 	end
+ 
+-	# override this one
+-	def goToNextState
+-		@workflow.each{|p|
+-			if p[0]==@state
+-				@state=p[1]
+-				call(@state,&quot;enter&quot;)
+-				return
+-			end
+-		}
+-		@finished=true
++	def delete(man)
++		puts &quot;IGNORING AntNewHLJob::delete(#{man})&quot;
++		if man==@hero
++			puts &quot;STOPPING JOB - because hero died&quot;
++			@finished=true
++			@state=nil
++		end
+ 	end
+ 
+-	def switchToState(state)
+-		call(@state,&quot;leave&quot;)
+-		@state=state
+-		call(@state,&quot;enter&quot;)
+-	end
+ 
+-	def firstCall
+-		call(@state,&quot;enter&quot;)
+-	end
+-
+-	def call(state,event)
+-		m=methodName(state,event)
+-		print &quot;CALL #{hero.getName} #{state} #{event} #{m}  #{getTime} -- &quot;
+-		if self.class.method_defined?(m)
+-			v=send(m)
+-			puts v
+-			return v
++	def trace
++		if @hero.nil?
++			puts &quot;TRACE #{caller[0]} #{self}&quot;
+ 		else
+-			puts &quot;UNKNOWN&quot;
+-			true
++			puts &quot;TRACE #{caller[0]} #{self} #{hero} #{getTime}&quot;
+ 		end
+ 	end
+-	def xmlName
+-		self.class.to_s
+-	end
+ 
+-	def call2(state,event,man)
+-		m=methodName(state,event)
+-		print &quot;CALL2 #{hero.getName} #{state} #{event} #{m} #{man} #{getTime} -- &quot;
+-		if self.class.method_defined?(m)
+-			v=send(m,man)
+-			puts v
+-			return v
+-		else
+-			puts &quot;UNKNOWN&quot;
+-			true
+-		end
+-	end
+-
+-	def methodName(state,event)
+-		m=state.to_s+&quot;_&quot;+event
+-		m=m[0..0].downcase+m[1..-1]
+-	end
+-
+-	def trace
+-		puts &quot;TRACE #{caller[0]} #{getTime}&quot;
+-	end
+-		
++	def kill
++		stateCall(&quot;kill&quot;)
++	end		
+ end
+
+Modified: antargis/branches/new_hl_jobs/ruby/ant_hljob_states.rb
+===================================================================
+--- antargis/branches/new_hl_jobs/ruby/ant_hljob_states.rb	2007-04-23 18:01:28 UTC (rev 1074)
++++ antargis/branches/new_hl_jobs/ruby/ant_hljob_states.rb	2007-04-29 17:39:46 UTC (rev 1075)
+@@ -1,35 +1,74 @@
+ # Does the walk-formation
+ # 
+ #
+-module HLJob_FormatWalk
++require 'ant_state_machine.rb'
++
++class Module
++	def wrap(objectName,methodName,objectMethodName=nil)
++		objectMethodName||=methodName
++		ts=&quot;*s&quot;
++		ts=&quot;s&quot; if methodName=~/.*=$/
++		s=&quot;def #{methodName}(#{ts})\n#{objectName}.#{objectMethodName}(#{ts})\nend\n&quot;
++		puts s
++		module_eval s
++	end
++end
++
++
++module HLJob_Additions
++	attr_accessor :machine
++	#include AntWrapper
++	[&quot;hero&quot;,&quot;allMen&quot;,&quot;getTime&quot;,&quot;targetPos&quot;,&quot;targetPos=&quot;,&quot;formatDir&quot;,&quot;formatDir=&quot;,&quot;target&quot;].each{|n|wrap &quot;machine&quot;,n}
++end
++
++class HLJob_BaseState
++	include HLJob_Additions
++
++	def trace
++		if @hero.nil?
++			puts &quot;TRACE #{caller[0]} #{self}&quot;
++		else
++			puts &quot;TRACE #{caller[0]} #{self} #{hero} #{getTime}&quot;
++		end
++	end
++end
++
++class HLJob_DummyState&lt;HLJob_BaseState
++end
++
++class HLJob_FormatWalk&lt;HLJob_BaseState
+ 	# needed: getTime
+ 
+ 	# wait 5 seconds at max for formatting
+ 	FORMAT_MAX_TIME=5
+ 
+-	def formatWalk_enter
++	def enter
++		puts &quot;#{self}:enter&quot;
+ 		trace
+-		hero.formation=AntFormationBlock.new(@hero,formatDir)
+-		heroPos=@hero.getPos2D
++		hero.formation=AntFormationBlock.new(hero,formatDir)
++		heroPos=hero.getPos2D
+ 		allMen.each{|man|
+-			pos=@hero.getFormation(man,heroPos)
++			pos=hero.getFormation(man,heroPos)
+ 			man.walkTo(pos)
+ 			man.hlJobMode[:formatting]=true
+ 		}
+ 		@formatStart=getTime
+ 	end
+ 
+-	def formatWalk_assign(man)
++	def assign(man)
++		#raise 1
+ 		man.setDirection(180-(targetPos-hero.getPos2D).normalized.getAngle.angle*180.0/Math::PI)
+ 		man.standStill
+ 		man.hlJobMode.delete(:formatting)
+ 	end
+ 
+-	def formatWalk_ready
++	def ready
+ 		if <A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">getTime- at formatStart</A>&gt;FORMAT_MAX_TIME
++			puts &quot;MUST BE READY&quot;
+ 			return true
+ 		end
+ 		allMen.each{|man|
++			puts &quot;formatting:#{man}:#{man.hlJobMode[:formatting]}&quot;
+ 			if man.hlJobMode[:formatting]
+ 				return false
+ 			end
+@@ -38,44 +77,41 @@
+ 	end
+ 
+ private
+-	def formatDir
+-		(targetPos-hero.getPos2D).normalized
+-	end
+ 
+ end
+ 
+-module HLJob_FormatSit
++class HLJob_FormatSit&lt;HLJob_BaseState
+ 	# needed: getTime
+ 
+ 	# wait 5 seconds at max for formatting
+ 	FORMAT_MAX_TIME=15
+ 
+-	def formatSit_enter
++	def enter
++		#raise 1
+ 		trace
+-		hero.formation=AntFormationRest.new(@hero)
+-		heroPos=@hero.getPos2D
++		hero.formation=AntFormationRest.new(hero)
++		heroPos=hero.getPos2D
+ 		allMen.each{|man|
+-			pos=@hero.getFormation(man,heroPos)
++			pos=hero.getFormation(man,heroPos)
+ 			man.walkTo(pos)
+ 			man.hlJobMode[:formatting]=true
+-			#puts &quot;formatSit_enter: #{man} to #{pos}  (heroPos:#{heroPos})&quot;
+ 		}
+ 		@formatStart=getTime
+ 	end
+ 
+-	def formatSit_assign(man)
++	def assign(man)
+ 		man.setDirection(180-(hero.getPos2D-man.getPos2D).normalized.getAngle.angle*180.0/Math::PI)
+ 		man.standStill
+ 		man.hlJobMode.delete(:formatting)
+ 	end
+ 
+-	def formatSit_ready
++	def ready
++		puts &quot;#{self}:ready&quot;
+ 		if <A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">getTime- at formatStart</A>&gt;FORMAT_MAX_TIME
+ 			# FIXME:rest deserts
+ 			return true
+ 		end
+ 		allMen.each{|man|
+-			#puts &quot;formatSit_ready: #{man}:#{man.hlJobMode[:formatting]}&quot;
+ 			if man.hlJobMode[:formatting]
+ 				return false
+ 			end
+@@ -84,29 +120,34 @@
+ 	end
+ end
+ 
+-module HLJob_MoveToNextWayPoint
++class HLJob_MoveToNextWayPoint&lt;HLJob_BaseState
+ 	# needed: hero,allMen,targetPos, near
+-	def near
+-		0
++
++	attr_accessor :near
++
++	def initialize
++		super
++		@near=0
+ 	end
+ 
+-	def moveToNextWayPoint_enter
+-		hero.formation=AntFormationBlock.new(@hero,formatDir)
++	def enter
++		puts &quot;#{self}:enter&quot;
++		hero.formation=AntFormationBlock.new(hero,formatDir)
+ 		allMen.each{|man|
+-			pos=@hero.getFormation(man,targetPos)
++			pos=hero.getFormation(man,targetPos)
+ 			man.newMoveJob(0,pos,near)
+ 			man.hlJobMode[:walking]=true
+ 		}
+ 	end
+ 
+-	def moveToNextWayPoint_assign(man)
++	def assign(man)
+ 		man.standStill
+ 		man.hlJobMode.delete(:walking)
+ 
+ 		# FIXME: maybe let him desert if this is called too often ?
+ 	end
+ 
+-	def moveToNextWayPoint_ready
++	def ready
+ 		allMen.each{|man|
+ 			if man.hlJobMode[:walking]
+ 				return false
+@@ -117,8 +158,83 @@
+ 
+ end
+ 
+-module HLJob_SitDown
+-	def sitDown_enter
++class HLJob_MoveComplete&lt;BaseState
++	include HLJob_Additions
++	state :moveToNextPoint=&gt;HLJob_MoveToNextWayPoint
++	state :formatWalk=&gt;HLJob_FormatWalk
++	state :endState=&gt;HLJob_DummyState
++
++	startState :formatWalk
++	endState :endState
++	
++	edge :moveToNextPoint, :formatWalk, :stillHasWaypoints
++	edge :formatWalk, :moveToNextPoint
++	edge :moveToNextPoint, :endState, :noMoreWaypoints
++
++	def enter
++		puts &quot;#{self}:enter&quot;
++		if @waypoints.nil?
++			initWaypoints
++		end
++	end
++
++	def stillHasWaypoints
++		puts state
++		if @waypoints.length&gt;0
++			self.targetPos=@waypoints.shift
++			puts &quot;targetPos:#{targetPos}&quot;
++			return true
++		end
++		false
++	end
++
++	def near=(n)
++		@states[:moveToNextPoint].near=n
++	end
++
++	def noMoreWaypoints
++		@waypoints.length==0
++	end
++
++	def moveDirectly
++		@state=:moveToNextPoint
++	end
++
++	def assign(man)
++		#raise 1
++		state.assign(man)
++	end
++
++	def hero
++		machine.hero
++	end
++	def formatDir
++		(targetPos-hero.getPos2D).normalized
++	end
++
++	private
++
++	def initWaypoints
++		if getMap.path
++			@waypoints=[hero.getPos2D]+getMap.path.computePath(hero.getPos2D,targetPos)+[targetPos]
++			# remove waypoints in between - if they're not necessary - origin must be given, too
++			@waypoints=getMap.path.refinePath(@waypoints,MapPathWeighter.new(getMap))
++			# remove origin for waypoint-list
++			assert{@waypoints.length&gt;=2}
++			@waypoints.shift
++			
++			@waypoints+=[targetPos]
++
++		else
++			@waypoints=[targetPos]
++		end
++		@completeTargetPos=targetPos
++		self.targetPos=@waypoints.shift
++	end
++end
++
++class HLJob_SitDown&lt;HLJob_BaseState
++	def enter
+ 		allMen.each{|man|
+ 			man.setDirection(180-(hero.getPos2D-man.getPos2D).normalized.getAngle.angle*180.0/Math::PI)
+ 			man.sitDown
+@@ -126,12 +242,12 @@
+ 		}
+ 	end
+ 
+-	def sitDown_assign(man)
++	def assign(man)
+ 		man.sitStill
+ 		man.hlJobMode.delete(:sitting)
+ 	end
+ 
+-	def sitDown_ready
++	def ready
+ 		allMen.each{|man|
+ 			if man.hlJobMode[:sitting]
+ 				return false
+@@ -141,32 +257,32 @@
+ 	end
+ end
+ 
+-module HLJob_JustSit
+-	def justSit_enter
++class HLJob_JustSit&lt;HLJob_BaseState
++	def enter
+ 		allMen.each{|man|
+ 			man.sitStill
+ 		}
+ 	end
+-	def justSit_assign(man)
++	def assign(man)
+ 		man.sitStill # and rest
+ 	end
+ 
+-	def justSit_ready
++	def ready
+ 		return false
+ 	end
+ end
+ 
+-module HLJob_JustSitOnce
+-	def justSitOnce_enter
++class HLJob_JustSitOnce&lt;HLJob_BaseState
++	def enter
+ 		allMen.each{|man|
+ 			man.sitStill
+ 			man.hlJobMode[:justSitting]=true
+ 		}
+ 	end
+-	def justSitOnce_assign(man)
++	def assign(man)
+ 		man.hlJobMode.delete(:justSitting)
+ 	end
+-	def justSitOnce_ready
++	def ready
+ 		allMen.each{|man|
+ 			if man.hlJobMode[:justSitting]
+ 				return false
+@@ -178,11 +294,11 @@
+ end
+ 	
+ 
+-module HLJob_FetchStart
++class HLJob_FetchStart&lt;HLJob_BaseState
+ 	# needed a target-entity
+-	def fetchStart_enter
++	def enter
+ 		trace
+-		fetchPoint=target.getPos2D
++		fetchPoint=machine.target.getPos2D
+ 		puts &quot;fetchPoint:#{fetchPoint}  heroPos:#{hero.getPos2D}&quot;
+ 		allMen.each{|man|
+ 			man.walkTo(fetchPoint)
+@@ -192,13 +308,13 @@
+ 		
+ 	end
+ 
+-	def fetchStart_assign(man)
++	def assign(man)
+ 		trace
+ 		man.standStill
+ 		man.hlJobMode.delete(:fetching)
+ 	end
+ 
+-	def fetchStart_ready
++	def ready
+ 		trace
+ 		allMen.each{|man|
+ 			puts &quot;fetchStart_ready check: #{man} : #{man.hlJobMode[:fetching]}&quot;
+@@ -212,13 +328,19 @@
+ 	end
+ end
+ 
+-module HLJob_GetResource
++class HLJob_GetResource&lt;HLJob_BaseState
+ 	# needed: resources return array of resource-strings
+-	def getResource_enter
++	attr_accessor :resources
++
++	def initialize
++		@resources=[]
++	end
++
++	def enter
+ 		for i in 1..hero.getAggression
+ 			allMen.each{|man|
+ 				resources.each{|r|
+-					a=target.resource.get(r)
++					a=machine.target.resource.get(r)
+ 					if a&gt;1
+ 						man.resource.add(r,1)
+ 						target.resource.sub(r,1)
+@@ -228,13 +350,13 @@
+ 		end
+ 		allMen.each{|m|m.resourceChanged}
+ 	end
+-	def getResource_ready
++	def ready
+ 		return true
+ 	end
+ end
+ 
+-module HLJob_KillAnimal
+-	def killAnimal_enter
++class HLJob_KillAnimal&lt;HLJob_BaseState
++	def enter
+ 		target.eventDie
+ 		hero.resource.takeAll(target.resource)
+ 		allMen.each{|m|m.resourceChanged}
+@@ -242,10 +364,10 @@
+ end
+ 
+ # spread things among team-members
+-module HLJob_SpreadThings
++class HLJob_SpreadThings&lt;HLJob_BaseState
+ 	RESOURCES_TO_SPREAD=[&quot;sword&quot;,&quot;shield&quot;,&quot;bow&quot;,&quot;boat&quot;]
+ 
+-	def spreadThings_enter
++	def enter
+ 		allMen.each{|man|
+ 			man.walkTo(hero.getPos2D)
+ 			man.hlJobMode[:gatherToSpread]=true
+@@ -253,7 +375,7 @@
+ 		@alreadySpread=false
+ 	end
+ 
+-	def spreadThings_assign(man)
++	def assign(man)
+ 		man.standStillShort
+ 		if man.hlJobMode[:gatherToSpread]
+ 			man.hlJobMode.delete(:gatherToSpread)
+@@ -265,7 +387,7 @@
+ 		end
+ 	end
+ 
+-	def spreadThings_ready
++	def ready
+ 		return true if @alreadySpread		
+ 		allMen.each{|man|
+ 			return false if man.hlJobMode[:gatherToSpread] or man.hlJobMode[:waitForSpread]
+@@ -321,7 +443,7 @@
+ 	
+ end
+ 
+-class HLJob_FightData
++class HLJob_FightData&lt;HLJob_BaseState
+ 
+ 	attr_reader :inited
+ 	# only attacker creates fightData
+@@ -357,9 +479,12 @@
+ 	end
+ 
+ 	def getNewOpponent(man,fightJob)
++		assert{man.canFight}
+ 		assert{man.is_a?(AntHero) or man.is_a?(AntMan)}
+ 		assert{man.getHero==fightJob.hero}
+ 	
++		checkForUpdate
++
+ 		# for a start: get next opponent
+ 		# (maybe take next free opponent ??)
+ 		# (maybe: find weakest friend and help him ???)
+@@ -373,17 +498,45 @@
+ 			#eventWon(myType)
+ 			return nil
+ 		else
++			assert{opponent.canFight}
+ 			return opponent
+ 		end
+ 	end
+ 
++	def checkForUpdate
++
++		#raise &quot;FIXME&quot;
++		# check, if heroes are still able to fight, else reshuffle - let hero lose or sth else
++
++		nparties={}
++		oldparties=@parties
++		@parties.each{|type,jobs|
++			njobs=jobs.select{|job|job.hero.canFight}
++			nparties[type]=njobs
++		}
++		@parties=nparties
++
++		if @parties!=oldparties
++			reshuffle
++		end
++
++	end
++
+ 	private
+ 
+ 	def otherType(my)
+ 		{:attacker=&gt;:defender,:defender=&gt;:attacker}[my]
+ 	end
+ 
++	def getAllJobs
++		@parties.collect{|type,jobs|jobs}.flatten
++	end
++	def getAllHeroes
++		getAllJobs.collect{|job|job.hero}
++	end
++
+ 	def reshuffle
++		trace
+ 		# reinit and assign
+ 
+ 		menGroup={}
+@@ -433,12 +586,13 @@
+ 
+ end
+ 
+-module HLJob_Fight
++class HLJob_Fight&lt;HLJob_BaseState
+ 	# needed: hero,target, undefeatedMen
+ 
+ 	attr_reader :fightType, :fightData, :won
+ 
+-	def fight_enter
++	def enter
++		trace
+ 
+ 		targetHadFightData=target.hlJobMode[:fightData].nil?
+ 		
+@@ -448,15 +602,22 @@
+ 			puts &quot;NOT YET INITED #{self} hero:#{hero} target:#{target}&quot;
+ 			target.newHLDefendJob(hero)
+ 		end
++		trace
+ 		assignAllJobs
+ 	end
+ 
+-	def fight_assign(man)
++	def assign(man)
+ 		if man.is_a?(AntHouse)
+ 			man.newRestJob(20)
+ 			return
+ 		end
+ 
++		if @won or @lost
++			man.newRestJob(20)
++			return
++		end
++
++
+ 		if man.hlJobMode[:defeated]
+ 			# FIXME:send away
+ 			# FIXME: maybe flee ?
+@@ -473,18 +634,22 @@
+ 			man.hlJobMode[:defeated]=true
+ 			man.hlJobMode.delete(:fighting)
+ 		else
++			puts &quot;.canFight:#{man.canFight} #{man.getEnergy} #{man.getMorale}&quot;
++			assert{man.canFight}
++
+ 			opponent=@fightData.getNewOpponent(man,self)
+ 			if opponent.nil?
+ 				# won
+ 				@won=true
+ 			else
++				assert{man.canFight and opponent.canFight}
+ 				man.hlJobMode[:fightTarget]=opponent
+ 				man.newFightJob(0,man.hlJobMode[:fightTarget])
+ 			end
+ 		end
+ 	end
+ 
+-	def fight_leave
++	def leave
+ 		if lost
+ 			@fightData.removeLost(self)
+ 		else
+@@ -502,15 +667,18 @@
+ 		}
+ 	end
+ 
+-	def fight_ready
++	def ready
++		return true if @ready
+ 		if won 
+-			eventWon(target)
+-			return true
++			@won=true
++			machine.eventWon(target)
++			@ready=true
+ 		elsif lost
+-			eventLost(target)
+-			return true
++			@lost=true
++			machine.eventLost(target)
++			@ready=true
+ 		end
+-		return false
++		return @ready
+ 	end
+ 
+ 	def lost
+@@ -518,18 +686,22 @@
+ 	end
+ 
+ 	def undefeatedMen
+-		allMen.select{|man|man.hlJobMode[:defeated].nil?}
++		allMen.select{|man|man.hlJobMode[:defeated].nil? &amp;&amp; man.canFight}
+ 	end
+ 
+ 	private
+ 	# return true if fightData already exists
+ 	def checkForFightData
++		trace
++		puts &quot;TARGET #{target}&quot;
+ 		if target.hlJobMode[:fightData]
++			trace
+ 			@fightData=target.hlJobMode[:fightData]
+ 			@fightData.add(self)
+ 			@fightType=@fightData.getFightType(self)
+ 			return true
+ 		else
++			trace
+ 			@fightData=HLJob_FightData.new(self)
+ 			@fightType=:attacker
+ 		end
+@@ -538,6 +710,7 @@
+ 	end
+ 	def assignAllJobs
+ 		# FIXME:assign a fight-job to every member (undefeatedMen)
++		trace
+ 
+ 		undefeatedMen.each{|man|
+ 			assert{not man.hlJobMode[:fightTarget].nil?}
+@@ -549,8 +722,8 @@
+ 	end
+ end
+ 
+-module HLJob_Recruit
+-	def recruit_enter
++class HLJob_Recruit&lt;HLJob_BaseState
++	def enter
+ 	end
+ 	
+ 	private
+
+Modified: antargis/branches/new_hl_jobs/ruby/ant_hljobs.rb
+===================================================================
+--- antargis/branches/new_hl_jobs/ruby/ant_hljobs.rb	2007-04-23 18:01:28 UTC (rev 1074)
++++ antargis/branches/new_hl_jobs/ruby/ant_hljobs.rb	2007-04-29 17:39:46 UTC (rev 1075)
+@@ -825,6 +825,7 @@
+ 	attr_reader :finished
+ 	def initialize(hero,target)
+ 		super(hero,0,target.getPos2D,4)
++		assert{target.is_a?(AntWorkshop)}
+ 		@target=target
+ 		@usedmen=0
+ 		@restype={}
+@@ -1120,5 +1121,5 @@
+ 	return false
+ end
+ 
+-#require 'ant_new_hljobs.rb'
++require 'ant_new_hljobs.rb'
+ 
+
+Modified: antargis/branches/new_hl_jobs/ruby/ant_local.rb
+===================================================================
+--- antargis/branches/new_hl_jobs/ruby/ant_local.rb	2007-04-23 18:01:28 UTC (rev 1074)
++++ antargis/branches/new_hl_jobs/ruby/ant_local.rb	2007-04-29 17:39:46 UTC (rev 1075)
+@@ -52,7 +52,11 @@
+ 		read
+ 	end
+ 	def process(x)
+-		x=x.gsub(&quot;\n&quot;,&quot;\\n&quot;)
++		if x.is_a?(AGStringUtf8)
++			x=x.replace(AGStringUtf8.new(&quot;\n&quot;),AGStringUtf8.new(&quot;\\n&quot;))
++		else
++			x=x.gsub(&quot;\n&quot;,&quot;\\n&quot;)
++		end
+ 		r=myprocess(x)
+ 		#puts &quot;TRANSLATE: #{x} #{r.class}&quot;
+ 		return r
+
+Modified: antargis/branches/new_hl_jobs/ruby/ant_man.rb
+===================================================================
+--- antargis/branches/new_hl_jobs/ruby/ant_man.rb	2007-04-23 18:01:28 UTC (rev 1074)
++++ antargis/branches/new_hl_jobs/ruby/ant_man.rb	2007-04-29 17:39:46 UTC (rev 1075)
+@@ -110,6 +110,7 @@
+ 			@signed=true
+ 		end
+ 		if @boss
++			assert{@boss.getEnergy&gt;0}
+ 			@boss.assignJob(self)
+ 		end
+ 	end	
+
+Modified: antargis/branches/new_hl_jobs/ruby/ant_manbase.rb
+===================================================================
+--- antargis/branches/new_hl_jobs/ruby/ant_manbase.rb	2007-04-23 18:01:28 UTC (rev 1074)
++++ antargis/branches/new_hl_jobs/ruby/ant_manbase.rb	2007-04-29 17:39:46 UTC (rev 1075)
+@@ -111,11 +111,13 @@
+ 	def eventNoJob
+ 		if @meshState==&quot;dead&quot;
+ 			getMap.removeEntity(self)
++			return
+ 		end
+ 		super
+ 	end
+ 
+ 	def eventDie
++		assert{@dead!=true}
+ 		simDeath
+ 		#eventDefeated
+ 		newRestJob(20)
+
+Modified: antargis/branches/new_hl_jobs/ruby/ant_new_hljobs.rb
+===================================================================
+--- antargis/branches/new_hl_jobs/ruby/ant_new_hljobs.rb	2007-04-23 18:01:28 UTC (rev 1074)
++++ antargis/branches/new_hl_jobs/ruby/ant_new_hljobs.rb	2007-04-29 17:39:46 UTC (rev 1075)
+@@ -18,10 +18,6 @@
+ 	return true
+ end
+ 
+-# 
+-# FIXME: * add path-finding to moving
+-#        * do FIXME s ;-)
+-
+ module HLJob
+ 	def hero
+ 		@hero
+@@ -36,16 +32,21 @@
+ 
+ 
+ class AntNewHLRestJob&lt;AntNewHLJob
+-	include HLJob_FormatSit
+-	include HLJob_SitDown
+-	include HLJob_JustSitOnce
+-	include HLJob_SpreadThings
++	state :formatSit=&gt;HLJob_FormatSit
++	state :sitDown=&gt;HLJob_SitDown
++	state :justSitOnce=&gt;HLJob_JustSitOnce
++	state :spreadThings=&gt;HLJob_SpreadThings
+ 
++	startState :formatSit
++	edge :formatSit, :sitDown
++	edge :sitDown,:justSitOnce
++	edge :justSitOnce,:spreadThings,:checkSpread
++	edge :justSitOnce,:justSitOnce,:notCheckSpread
++	edge :spreadThings,:formatSit,:lastSpread
++
+ 	SPREAD_CHECK_TIME=10 # all 10 seconds spread things
+ 
+ 	def initialize(hero,time)
+-		@state=:FormatSit
+-		@workflow=[[:FormatSit,:SitDown],[:SitDown,:CheckSpread],[:SpreadThings,:FormatSit],[:JustSitOnce,:CheckSpread]] #JustSit],[:JustSit]
+ 		super(hero)
+ 	end
+ 	def image
+@@ -56,50 +57,48 @@
+ 		RestMessage.new(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">boss, at time</A>)
+ 	end
+ 
+-	def sitDown_leave
+-		if @spreadOnce.nil?
+-			@spreadTime=getTime-SPREAD_CHECK_TIME
+-			@spreadOnce=true
+-		else
+-			@spreadTime=getTime
+-		end
++	def lastSpread
++		@spreadTime=getTime
++		true
+ 	end
+-	
+ 
+-	def checkSpread_enter
++	def checkSpread
+ 		curTime=getTime
++		puts &quot;SPREADTIME: #{@spreadTime}   getTime:#{curTime}&quot;
++		return true if @spreadTime.nil?
+ 		puts &quot;#{<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">curTime- at spreadTime</A>}&gt;#{SPREAD_CHECK_TIME}&quot;
+-		if <A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">curTime- at spreadTime</A>&gt;SPREAD_CHECK_TIME
+-			switchToState(:SpreadThings)
+-		else
+-			switchToState(:JustSitOnce)
+-		end
++		return <A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">curTime- at spreadTime</A>&gt;SPREAD_CHECK_TIME
+ 	end
++
++	def notCheckSpread
++		not checkSpread
++	end
++		
+ end
+ 
++AntHeroRestJobOld=AntHeroRestJob
++AntHeroRestJob=AntNewHLRestJob
++
++
++
+ class AntNewHLMoveJob&lt;AntNewHLJob
+-	include HLJob_FormatWalk
+-	include HLJob_MoveToNextWayPoint
+-	include HLJob_FormatSit
+-	include HLJob_SitDown
+-	# FIXME: time is irrelevant here!
+-	#def initialize(hero,time)
++	state :moveComplete=&gt;	HLJob_MoveComplete
++	state :endState =&gt; HLJob_DummyState
+ 
+-	attr_reader :targetPos
++	startState :moveComplete
++	endState :endState
+ 
++	edge :moveComplete,:endState
++
++	attr_accessor :targetPos
++	attr_accessor :formatDir
++
+ 	def initialize(hero,prio,pos,dist,doFormat=true)
+ 		@targetPos=pos.dim2
+-		if doFormat
+-			@state=:FormatWalk
+-		else
+-			@state=:MoveToNextWayPoint
++		super(hero)
++		if not doFormat
++			state.moveDirectly			
+ 		end
+-		@workflow=[
+-			[:FormatWalk,:MoveToNextWayPoint],
+-# 			[:MoveToNextWayPoint,:FormatSit],
+-# 			[:FormatSit,:SitDown]
+-		]
+-		super(hero)
+ 	end
+ 	# FIXME: move this to a config-file !
+ 	def image
+@@ -112,30 +111,37 @@
+ 
+ end
+ 
++AntHeroMoveJobOld=AntHeroMoveJob
++AntHeroMoveJob=AntNewHLMoveJob
+ 
++
++
++
++
+ class AntNewHLTakeJob&lt;AntNewHLJob
+-	include HLJob_FormatWalk
+-	include HLJob_FetchStart
+-	include HLJob_GetResource
+-	include HLJob_MoveToNextWayPoint
++	state :fetchStart =&gt; HLJob_FetchStart
++	state :getResource =&gt; HLJob_GetResource
++	state :move =&gt;HLJob_MoveComplete
++	state :moveBack =&gt; HLJob_MoveComplete
++	state :endState =&gt; HLJob_DummyState
+ 
+-	attr_reader :resources, :targetPos, :near, :target
++	startState :move
++	endState :endState
+ 
++	edge :move,:fetchStart,:fetchStart
++	edge :fetchStart,:getResource,:gettingResource
++	edge :getResource, :moveBack
++	edge :moveBack, :endState
++
++	attr_accessor :targetPos, :near, :target
++
+ 	def initialize(phero,target,what=&quot;food&quot;)
+-		@resources={&quot;food&quot;=&gt;[&quot;food&quot;],&quot;weapon&quot;=&gt;[&quot;sword&quot;,&quot;bow&quot;,&quot;boat&quot;,&quot;shield&quot;]}[what]
+ 
+-		@state=:FormatWalk
+-		@workflow=[
+-			[:FormatWalk,:MoveToNextWayPoint],
+-			[:MoveToNextWayPoint,:MyStore],
+-			[:MyStore,:FetchStart],
+-			[:FetchStart,:GetResource],
+-			[:GetResource,:MoveToNextWayPoint]
+-		]
+ 		@targetPos=target.getPos2D
+ 		@target=target
+-		@near=4
+ 		super(phero)
++		@states[:move].near=4
++		@states[:getResource].resources={&quot;food&quot;=&gt;[&quot;food&quot;],&quot;weapon&quot;=&gt;[&quot;sword&quot;,&quot;bow&quot;,&quot;boat&quot;,&quot;shield&quot;]}[what]
+ 	end
+ 
+ 	def image
+@@ -146,37 +152,32 @@
+ 		end
+ 	end
+ 
+-
+-	def myStore_enter
+-		trace
+-		if @taken
+-			@finished=true
+-			return 
+-		end
++	def fetchStart
+ 		@targetPos=hero.getPos2D
+-		puts &quot;#{@targetPos} #{hero.getPos2D}&quot;
+-		@near=0
+-		@taken=true
++		true
+ 	end
++	def gettingResource
++		true
++	end
+ end
+ 
++AntHeroTakeJobOld=AntHeroTakeJob
++AntHeroTakeJob=AntNewHLTakeJob
++
++
++
++
+ class AntNewHLKillAnimal&lt;AntNewHLTakeJob
+-	def fetchStart_leave
++	inheritMachine
++
++	def gettingResource
+ 		# kill animal
+ 		playSound
+ 		killAnimal
++		super
+ 	end
+ 
+ 	
+-	def myStore_enter
+-		if @taken
+-			@finished=true
+-			return 
+-		end
+-		# no need to return to separate position
+-		@taken=true
+-	end
+-
+ 	private
+ 	def playSound
+ 		# FIXME: play eat sound
+@@ -186,30 +187,41 @@
+ 		hero.resource.takeAll(target.resource)
+ 	end
+ end
++AntHeroFightAnimalJobOld=AntHeroFightAnimalJob
++AntHeroFightAnimalJob=AntNewHLKillAnimal
+ 
++
++
+ class AntNewHLFight&lt;AntNewHLJob
+-	include HLJob_FormatWalk
+-	include HLJob_MoveToNextWayPoint
+-	include HLJob_Fight
++	state :move=&gt;HLJob_MoveComplete
++	state :fight=&gt;HLJob_Fight
++	state :endState=&gt;HLJob_DummyState
+ 
+-	attr_reader :targetPos,:near,:target
++	edge :move,:fight
++	edge :fight,:endState
+ 
++	startState :move
++	endState :endState
++
++	attr_accessor :targetPos,:near,:target
++
+ 	def initialize(hero,target,defend=false)
++		@targetPos=target.getPos2D
+ 		@target=target
++		puts &quot;DEFEND #{defend}&quot;
+ 		if defend
+-			@state=:Fight
+-			@workflow=[]
+-			#trace
++			trace
++			super(hero,:fight)
++			trace
+ 		else
+-			@state=:FormatWalk
+-			@targetPos=target.getPos2D
+-			@near=10
+-			@workflow=[
+-				[:FormatWalk,:MoveToNextWayPoint],
+-				[:MoveToNextWayPoint,:Fight]
+-			]
++			trace
++			super(hero)
++			trace
+ 		end
+-		super(hero)
++		assert{@state==:fight || defend==false}
++		@states[:move].near=10
++
++		puts &quot;STATE #{state}&quot;
+ 	end
+ 
+ 	def image
+@@ -219,8 +231,7 @@
+ 	def eventWon(opponent)
+ 	end
+ 	def eventLost(opponent)
+-		@finished=true
+-		hero.setOwner(opponent) #.getPlayer)
++		hero.setOwner(opponent)
+ 	end
+ 
+ 
+@@ -228,17 +239,15 @@
+ 
+ # rename and replace old hl-jobs
+ 
+-AntHeroRestJobOld=AntHeroRestJob
+-AntHeroRestJob=AntNewHLRestJob
+ 
+-AntHeroMoveJobOld=AntHeroMoveJob
+-AntHeroMoveJob=AntNewHLMoveJob
+ 
+-AntHeroTakeJobOld=AntHeroTakeJob
+-AntHeroTakeJob=AntNewHLTakeJob
+ 
+-AntHeroFightAnimalJobOld=AntHeroFightAnimalJob
+-AntHeroFightAnimalJob=AntNewHLKillAnimal
++# AntHeroFightAnimalJobOld=AntHeroFightAnimalJob
++# AntHeroFightAnimalJob=AntNewHLKillAnimal
++# 
++AntHeroFightJobOld=AntHeroFightJob
++AntHeroFightJob=AntNewHLFight
+ 
+-AntHeroFightJobOld=AntHeroFightJob
+-AntHeroFightJob=AntNewHLFight
+\ No newline at end of file
++if false
++
++end
+\ No newline at end of file
+
+Modified: antargis/branches/new_hl_jobs/ruby/antargislib.rb
+===================================================================
+--- antargis/branches/new_hl_jobs/ruby/antargislib.rb	2007-04-23 18:01:28 UTC (rev 1074)
++++ antargis/branches/new_hl_jobs/ruby/antargislib.rb	2007-04-29 17:39:46 UTC (rev 1075)
+@@ -136,6 +136,8 @@
+ 						@@opengl=false
+ 					when &quot;demo&quot;
+ 						$demoMode=true
++					when &quot;ruby-raise&quot;
++						setRubyRaising(true)
+ 					when &quot;gui-test&quot;
+ 						require 'ruby/tests/gui_tests.rb'
+ 						@@cursorEnabled=true
+@@ -162,6 +164,8 @@
+ 	--debug-level=x
+ 
+ 	--nogl         disable GL-mode (3d-acceleration) - THIS IS NOT YET FULLY SUPPORTED!!
++
++	--ruby-raise   raises ruby-exception when assertions fail
+ 	&quot;
+ 	
+ 						exit
+
+Modified: antargis/branches/new_hl_jobs/src/entity.cc
+===================================================================
+--- antargis/branches/new_hl_jobs/src/entity.cc	2007-04-23 18:01:28 UTC (rev 1074)
++++ antargis/branches/new_hl_jobs/src/entity.cc	2007-04-29 17:39:46 UTC (rev 1075)
+@@ -339,6 +339,7 @@
+ {
+   if(!isStarving())
+     {
++      assert(mEnergy&gt;0);
+       mEnergy+=pTime*getHealSpeed()*0.8; // only rest til 1.0
+       if(mEnergy&gt;1.0)
+ 	mEnergy=1.0;
+@@ -469,31 +470,40 @@
+ }
+ void AntEntity::newFetchJob(int p,AGVector2 &amp;pTarget,const AGString &amp;what)
+ {
++  assert(getEnergy()&gt;0);
+   setJob(new FetchJob(p,pTarget,what));
+ }
+ void AntEntity::newFetchJob(int p,AntEntity *pTarget,const AGString &amp;what)
+ {
++  assert(getEnergy()&gt;0);
+   setJob(new FetchJob(p,pTarget,what));
+ }
+ void AntEntity::newMoveJob(int p,const AGVector2 &amp;pTarget,float pnear)
+ {
++  assert(getEnergy()&gt;0);
+   setJob(new MoveJob(p,pTarget,pnear));
+ }
+ void AntEntity::newMoveJob(int p,const AGVector3 &amp;pTarget,float pnear)
+ {
++  assert(getEnergy()&gt;0);
+   setJob(new MoveJob(p,pTarget,pnear));
+ }
+ 
+ void AntEntity::newMoveJob(int p,AntEntity *pTarget,float pnear)
+ {
++  assert(getEnergy()&gt;0);
+   setJob(new MoveJob(p,pTarget,pnear));
+ }
+ 
+ 
+ void AntEntity::newFightJob(int p,AntEntity *target,float distance)
+ {
++  assert(target);
++  assert(target-&gt;canFight());
++  assert(canFight());
+   if(!canFight())
+     return;
++
+   if(mJob)
+     {
+       FightJob *f=dynamic_cast&lt;FightJob*&gt;(mJob);
+@@ -531,6 +541,7 @@
+ 
+ void AntEntity::decEnergy(float amount)
+ {
++  assert(mEnergy&gt;0);
+   mEnergy-=amount;
+   if(mEnergy&lt;0.0)
+     {
+
+Modified: antargis/branches/new_hl_jobs/src/jobs.cc
+===================================================================
+--- antargis/branches/new_hl_jobs/src/jobs.cc	2007-04-23 18:01:28 UTC (rev 1074)
++++ antargis/branches/new_hl_jobs/src/jobs.cc	2007-04-29 17:39:46 UTC (rev 1075)
+@@ -459,8 +459,11 @@
+ }
+ void RestJob::move(AntEntity *e,float ptime)
+ {
+-  e-&gt;incMorale(std::min(ptime,mTime));
+-  e-&gt;heal(std::min(ptime,mTime));
++  if(e-&gt;getEnergy()&gt;0) // check if still alive
++    {
++      e-&gt;incMorale(std::min(ptime,mTime));
++      e-&gt;heal(std::min(ptime,mTime));
++    }
+   mTime-=ptime;
+   if(mTime&lt;0)
+     jobFinished(e);
+
+Modified: antargis/branches/new_hl_jobs/src/terrain.cc
+===================================================================
+--- antargis/branches/new_hl_jobs/src/terrain.cc	2007-04-23 18:01:28 UTC (rev 1074)
++++ antargis/branches/new_hl_jobs/src/terrain.cc	2007-04-29 17:39:46 UTC (rev 1075)
+@@ -4,6 +4,12 @@
+ #include &lt;ag_profiler.h&gt;
+ #include &lt;ag_config.h&gt;
+ 
++bool use3dTextures()
++{
++  return false;
++}
++
++
+ //////////////////////////////////////////////////////////////////////////
+ // TerrainPiece
+ //////////////////////////////////////////////////////////////////////////
+@@ -70,10 +76,19 @@
+ 
+ 	n=mMap-&gt;getNormal(sx,sy);
+ 
+-	float texHeight=mMap-&gt;getTerrainScale(sx,sy);
++	if(use3dTextures())
++	  {
++	    float texHeight=mMap-&gt;getTerrainScale(sx,sy);
++	    
++	    tp3=AGVector3(-v[0]*texFactor3w,-v[1]*texFactor3w,texHeight);
++	    m3dArray.addVertex(v,white,n,tp3);
++	  }
++	else
++	  {
++	    tp=AGVector2(-v[0]*texFactor3w,-v[1]*texFactor3w);
++	    m3dArray.addVertex(v,white,n,tp);
++	  }
+ 
+-        tp3=AGVector3(-v[0]*texFactor3w,-v[1]*texFactor3w,texHeight);
+-        m3dArray.addVertex(v,white,n,tp3);
+ 
+ 	bb.include(v.dim3());
+       }
+@@ -133,8 +148,13 @@
+   STACKTRACE;
+   AGRenderContext c;
+   c.setLighting(true);
+-  c.setTexture(mTerrain-&gt;get3dTexture()-&gt;glTexture());
+-  mTerrain-&gt;get3dTexture()-&gt;setFilter(GL_LINEAR,GL_LINEAR);
++  if(use3dTextures())
++    {
++      c.setTexture(mTerrain-&gt;get3dTexture()-&gt;glTexture());
++      mTerrain-&gt;get3dTexture()-&gt;setFilter(GL_LINEAR,GL_LINEAR);
++    }
++  else
++    c.setTexture(mTerrain-&gt;getGrassTexture()-&gt;glTexture());
+ 
+   c.begin();
+ 
+
+Modified: antargis/branches/new_hl_jobs/src/vertex_array.cc
+===================================================================
+--- antargis/branches/new_hl_jobs/src/vertex_array.cc	2007-04-23 18:01:28 UTC (rev 1074)
++++ antargis/branches/new_hl_jobs/src/vertex_array.cc	2007-04-29 17:39:46 UTC (rev 1075)
+@@ -37,8 +37,9 @@
+   mBuffers=GLEE_ARB_vertex_buffer_object &amp;&amp; useVBO();
+   mArrays=GLEE_EXT_vertex_array &amp;&amp; useVertexArrays();
+ 
+-  if(videoInited())
+-    assert(GLEE_EXT_vertex_array);
++  // vertex-arrays are standard from opengl 1.1 - so don't check
++  //  if(videoInited())
++  //    assert(GLEE_EXT_vertex_array);
+ 
+   displayListInited=false;
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000032.html">[Antargis-svn] r1074 - antargis/branches
+</A></li>
+	<LI>Next message: <A HREF="000034.html">[Antargis-svn] r1076 - in antargis/branches/new_hl_jobs/ruby: .	tests
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#33">[ date ]</a>
+              <a href="thread.html#33">[ thread ]</a>
+              <a href="subject.html#33">[ subject ]</a>
+              <a href="author.html#33">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,882 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1150 - in antargis/branches/rant: . build ext/basic	ext/game ext/gui ext/video ruby ruby/entities
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-July/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1150%20-%20in%20antargis/branches/rant%3A%20.%20build%20ext/basic%0A%09ext/game%20ext/gui%20ext/video%20ruby%20ruby/entities&In-Reply-To=%3C200707291013.l6TADv6Q018670%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000106.html">
+   <LINK REL="Next"  HREF="000108.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1150 - in antargis/branches/rant: . build ext/basic	ext/game ext/gui ext/video ruby ruby/entities</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1150%20-%20in%20antargis/branches/rant%3A%20.%20build%20ext/basic%0A%09ext/game%20ext/gui%20ext/video%20ruby%20ruby/entities&In-Reply-To=%3C200707291013.l6TADv6Q018670%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1150 - in antargis/branches/rant: . build ext/basic	ext/game ext/gui ext/video ruby ruby/entities">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sun Jul 29 12:13:57 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000106.html">[Antargis-svn] r1149 - in antargis/branches/rant: . build
+</A></li>
+        <LI>Next message: <A HREF="000108.html">[Antargis-svn] r1151 - antargis/branches/rant/ext/game
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#107">[ date ]</a>
+              <a href="thread.html#107">[ thread ]</a>
+              <a href="subject.html#107">[ subject ]</a>
+              <a href="author.html#107">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-07-29 12:13:56 +0200 (Sun, 29 Jul 2007)
+New Revision: 1150
+
+Added:
+   antargis/branches/rant/build/tests/
+Modified:
+   antargis/branches/rant/Rantfile
+   antargis/branches/rant/build/base_tools.rb
+   antargis/branches/rant/build/configure.rb
+   antargis/branches/rant/build/platform.rb
+   antargis/branches/rant/build/std_list.i
+   antargis/branches/rant/configure
+   antargis/branches/rant/ext/basic/ag_main.cc
+   antargis/branches/rant/ext/basic/ag_profiler.h
+   antargis/branches/rant/ext/basic/init.cc
+   antargis/branches/rant/ext/game/entity.h
+   antargis/branches/rant/ext/game/headers.hh
+   antargis/branches/rant/ext/game/height_map.cc
+   antargis/branches/rant/ext/game/map.h
+   antargis/branches/rant/ext/game/path_v2.cc
+   antargis/branches/rant/ext/game/path_v2.h
+   antargis/branches/rant/ext/game/templates.i
+   antargis/branches/rant/ext/gui/ag_application.cc
+   antargis/branches/rant/ext/video/ag_fontengine.cc
+   antargis/branches/rant/ruby/ant_tools.rb
+   antargis/branches/rant/ruby/entities/ant_hero.rb
+   antargis/branches/rant/ruby/entities/entities.rb
+   antargis/branches/rant/ruby/map.rb
+   antargis/branches/rant/ruby/view.rb
+Log:
+* some bug-fixes
+
+
+Modified: antargis/branches/rant/Rantfile
+===================================================================
+--- antargis/branches/rant/Rantfile	2007-07-22 12:25:34 UTC (rev 1149)
++++ antargis/branches/rant/Rantfile	2007-07-29 10:13:56 UTC (rev 1150)
+@@ -60,6 +60,7 @@
+ cflags+=&quot; -DGCDEBUG&quot; if $config[&quot;gcdebug&quot;]   # enable debuggin of garbage-collection
+ cflags+=&quot; -g -O0&quot;    if $config[&quot;debug&quot;]     # disable optimizations for better debugging
+ cflags+=&quot; -O2&quot;       unless $config[&quot;debug&quot;] # enable optimizations
++cflags+=&quot; -DMPROFILE&quot; if $config[&quot;profile&quot;]  # enable profiling
+ 	
+ 
+ var :CFLAGS =&gt; var[:INCLUDESTR]+cflags          # store cflags in &quot;var&quot; for later read-out while compiling
+@@ -105,17 +106,19 @@
+ 		# build command
+ 		sources=t.prerequisites
+ 		if ENV['WINDIR']
+-				puts &quot;EXTLIBS #{extlibs}&quot;
++				#puts &quot;EXTLIBS #{extlibs}&quot;
+ 				extlibs+=sources.select{|f|f=~/\.so/}.collect!{|s|s.gsub(/.*lib(.*)\.so/,'-l\1')}
+-				puts &quot;SOURCES #{sources}&quot;
+-				puts &quot;EXTLIBS #{extlibs}&quot;
++				#puts &quot;SOURCES #{sources}&quot;
++				#puts &quot;EXTLIBS #{extlibs}&quot;
+ 				sources=sources.select{|f|not f=~/\.so/}
+ 		end
+ 		cmd=makeCommand(&quot;LINK_SHARED&quot;,sys.expand_path(U2W(t.name)), (sources.collect{|f|sys.expand_path(f)}+extlibs).join(&quot; &quot;))
+-        puts &quot;------&quot;,cmd,&quot;--------------!&quot;
++        #puts &quot;------&quot;,cmd,&quot;--------------!&quot;
+ 		sys cmd
++		puts
+ 		if isWindows
+ 				sys &quot;copy #{sys.expand_path(t.name).gsub(&quot;/&quot;,Dir.separator)}.a #{sys.expand_path(t.name).sub(/\.so/,&quot;.dll&quot;).gsub(&quot;/&quot;,Dir.separator)}.a&quot;
++				puts
+ 		end
+ 	end
+ }
+@@ -151,13 +154,14 @@
+ 	}
+     #tsources+=rubyLib
+     
+-    puts &quot;TARGET:&quot;,target
+-    puts &quot;SOURES:&quot;,tsources
+-    puts &quot;---&quot;
++    #puts &quot;TARGET:&quot;,target
++    #puts &quot;SOURES:&quot;,tsources
++    #puts &quot;---&quot;
+ 	task target =&gt; tsources do |t|
+ 		cmd=makeCommand(&quot;LINK_SHARED&quot;,sys.expand_path(t.name), (t.prerequisites.collect{|f|sys.expand_path(f)}+extlibs+rubyLib).join(&quot; &quot;))
+-        puts &quot;------&quot;,cmd,&quot;--------------!&quot;
++        #puts &quot;------&quot;,cmd,&quot;--------------!&quot;
+ 		sys cmd
++		puts
+ 	end
+ }
+ ###########################################
+@@ -169,6 +173,7 @@
+ gen Rule, '.o' =&gt; '.c' do |t|
+ 	cmd=makeCommand(&quot;CC_CALL&quot;,sys.expand_path(t.name),&quot;#{var :CFLAGS} #{sys.expand_path(t.source)}&quot;)
+ 	sys cmd
++	puts
+ end
+ ###########################################
+ 
+@@ -178,6 +183,7 @@
+ gen Rule, '.oo' =&gt; '.cc' do |t|
+ 	cmd=makeCommand(&quot;CXX_CALL&quot;,sys.expand_path(t.name),&quot;#{var :CFLAGS} #{sys.expand_path(t.source)}&quot;)
+ 	sys cmd
++	puts
+ end
+ #
+ ###########################################
+@@ -188,7 +194,7 @@
+ #
+ swigSrc = lambda { |target| 
+ 	dir=getDirUnix(target)
+-    puts &quot;TARGET:#{target} DIR:#{dir}&quot;
++    #puts &quot;TARGET:#{target} DIR:#{dir}&quot;
+ 	name=makeLibName(dir)
+ 	[target.sub(name+&quot;swig.cc&quot;,&quot;interface.i&quot;)]+sys[&quot;build/*.i&quot;]+importsForInterface(target).split(&quot;:&quot;) 
+ }
+@@ -196,6 +202,7 @@
+ gen Rule, /^.*swig.(cc|h)$/ =&gt; swigSrc do |t|
+ 	cmd=makeCommand(&quot;SWIG_CALL&quot;,sys.expand_path(t.name),&quot;-DAGEXPORT -Ibuild -I#{sys.expand_path(getDir(t.name))} #{var :INCLUDESTR} #{sys.expand_path(t.source)}&quot;.gsub(&quot;/&quot;,Dir.separator))
+ 	sys cmd
++	puts
+ end
+ #
+ ###########################################
+@@ -207,7 +214,7 @@
+ #
+ 
+ def importsForInterface(name)
+-puts &quot;?==&quot;
++#puts &quot;?==&quot;
+ 	$sourceDeps.each{|t|
+ 		if name=~/#{t[0]}/
+ 			return t[1].select{|f|not f=~/-.*/}.select{|f|not f=~/external/}.collect{|f|f+&quot;/interface.i&quot;}.join(&quot;:&quot;)
+@@ -307,3 +314,5 @@
+ var[:clean].include &quot;**/marker.i&quot;   # not needed any more - managed by Rule
+ var[:clean].include &quot;ext/*.so&quot;
+ ###########################################
++
++
+
+Modified: antargis/branches/rant/build/base_tools.rb
+===================================================================
+--- antargis/branches/rant/build/base_tools.rb	2007-07-22 12:25:34 UTC (rev 1149)
++++ antargis/branches/rant/build/base_tools.rb	2007-07-29 10:13:56 UTC (rev 1150)
+@@ -53,4 +53,19 @@
+ 
+ def isWindows
+ 	(not ENV['WINDIR'].nil?)
+-end
+\ No newline at end of file
++end
++
++
++module Build
++
++	def compile(cFile)
++	end
++	
++	def link(objs,libs)
++	end
++end
++
++module Testing
++	def runCTest(cFile)
++	end
++end
+
+Modified: antargis/branches/rant/build/configure.rb
+===================================================================
+--- antargis/branches/rant/build/configure.rb	2007-07-22 12:25:34 UTC (rev 1149)
++++ antargis/branches/rant/build/configure.rb	2007-07-29 10:13:56 UTC (rev 1150)
+@@ -174,7 +174,7 @@
+             currentPath=p+Dir.separator+program
+             #puts &quot;TST #{currentPath}&quot;
+             if File.exists?(currentPath)
+-                puts &quot;FOUND! at #{currentPath}&quot;
++	#                puts &quot;FOUND! at #{currentPath}&quot;
+                 return currentPath
+             end
+         }
+
+Modified: antargis/branches/rant/build/platform.rb
+===================================================================
+--- antargis/branches/rant/build/platform.rb	2007-07-22 12:25:34 UTC (rev 1149)
++++ antargis/branches/rant/build/platform.rb	2007-07-29 10:13:56 UTC (rev 1150)
+@@ -6,6 +6,10 @@
+ 	end
+ end
+ 
++def isWindows
++	(not ENV['WINDIR'].nil?)
++end
++
+ if ENV['WINDIR']
+     CONFIG={&quot;archdir&quot;=&gt;Dir.pwd+&quot;/build/win32/usr/lib&quot;}
+     
+
+Modified: antargis/branches/rant/build/std_list.i
+===================================================================
+--- antargis/branches/rant/build/std_list.i	2007-07-22 12:25:34 UTC (rev 1149)
++++ antargis/branches/rant/build/std_list.i	2007-07-29 10:13:56 UTC (rev 1150)
+@@ -425,7 +425,7 @@
+ 		
+             void each() {
+ 		for(std::list&lt;T&gt;::iterator i=self-&gt;begin();i!=self-&gt;end();i++) // with ptr2
+-                    rb_yield(CONVERT_TO(&amp;(*i));
++                    rb_yield(CONVERT_TO(*i));
+             }
+         }
+     };
+
+Modified: antargis/branches/rant/configure
+===================================================================
+--- antargis/branches/rant/configure	2007-07-22 12:25:34 UTC (rev 1149)
++++ antargis/branches/rant/configure	2007-07-29 10:13:56 UTC (rev 1150)
+@@ -19,6 +19,12 @@
+ 		CFG.set(&quot;gcdebug&quot;,true)
+ 	end
+ 
++CFG.addOption(&quot;enable-profile&quot;,&quot;p&quot;,
++	&quot;enable c++ profiling&quot;) do  ||
++		CFG.set(&quot;profile&quot;,true)
++	end
++
++
+ CFG.addOption(&quot;prefix&quot;,&quot;&quot;,
+ 	&quot;set prefix directory&quot;,&quot;dir&quot;) do |d|
+ 		CFG.set(&quot;prefix&quot;,d)
+@@ -44,6 +50,20 @@
+ 		CFG.set(&quot;version&quot;,v)
+ 	end
+ 
++if $:.join(&quot;&quot;)=~/ruby1.8/
++	if isWindows
++		CFG.set(&quot;RUBYLIB&quot;,&quot;msvcrt-ruby18&quot;)
++	else
++		CFG.set(&quot;RUBYLIB&quot;,&quot;ruby1.8&quot;)
++	end
++else
++	if isWindows
++		CFG.set(&quot;RUBYLIB&quot;,&quot;msvcrt-ruby19&quot;)
++	else
++		CFG.set(&quot;RUBYLIB&quot;,&quot;ruby1.9&quot;)
++	end
++end
++
+ CFG.checkProgram(&quot;ccache&quot;,false)
+ CFG.checkProgram(&quot;gcc&quot;)
+ CFG.checkProgram(&quot;g++&quot;)
+@@ -74,4 +94,6 @@
+ 
+ CFG.run
+ 
++puts
++puts &quot;You should run '&gt;rant clean &amp;&amp; rant' to let changes take effect!&quot;
+ puts 
+
+Modified: antargis/branches/rant/ext/basic/ag_main.cc
+===================================================================
+--- antargis/branches/rant/ext/basic/ag_main.cc	2007-07-22 12:25:34 UTC (rev 1149)
++++ antargis/branches/rant/ext/basic/ag_main.cc	2007-07-29 10:13:56 UTC (rev 1150)
+@@ -27,6 +27,8 @@
+ #include &quot;ag_fs.h&quot;
+ #include &quot;ag_debug.h&quot;
+ 
++#include &lt;ruby.h&gt;
++
+ int lastWidth=0;
+ int lastHeight=0;
+ int lastVWidth=0;
+@@ -127,6 +129,19 @@
+       throw std::runtime_error(&quot;AGMain not initialized&quot;);
+       exit(1);
+     }
++
++
++  static bool registered=false;
++  if(!registered)
++    {
++      registered=true;
++
++      // IMPORTANT:
++      //   put it into a global variable - so that it won't get garbage collected
++      rb_eval_string(&quot;include Antargisbasic;$agMain=getMain&quot;);
++    }
++
++
+   return mAGMain;
+ }
+ 
+
+Modified: antargis/branches/rant/ext/basic/ag_profiler.h
+===================================================================
+--- antargis/branches/rant/ext/basic/ag_profiler.h	2007-07-22 12:25:34 UTC (rev 1149)
++++ antargis/branches/rant/ext/basic/ag_profiler.h	2007-07-29 10:13:56 UTC (rev 1150)
+@@ -16,6 +16,7 @@
+ #ifndef AG_PROFILER_H 
+ #define AG_PROFILER_H 
+ 
++#include &lt;ag_base.h&gt;
+ #include &lt;string&gt; 
+ #include &lt;SDL.h&gt;
+ 
+
+Modified: antargis/branches/rant/ext/basic/init.cc
+===================================================================
+--- antargis/branches/rant/ext/basic/init.cc	2007-07-22 12:25:34 UTC (rev 1149)
++++ antargis/branches/rant/ext/basic/init.cc	2007-07-29 10:13:56 UTC (rev 1150)
+@@ -18,5 +18,14 @@
+   TRACE;
+   if(!hasMain())
+     AGMain *main=new AGMain;
++
++
++  // register main in ruby-var
++
++  //  AG_NewPointerObj(result,SWIGTYPE_p_AGMain,0);
++  //  rb_eval_string(&quot;include Libantargisbasic;$agMain=getMain&quot;);
++
++  //  #error &quot;DO IT!&quot;
++
+ }
+ 
+
+Modified: antargis/branches/rant/ext/game/entity.h
+===================================================================
+--- antargis/branches/rant/ext/game/entity.h	2007-07-22 12:25:34 UTC (rev 1149)
++++ antargis/branches/rant/ext/game/entity.h	2007-07-29 10:13:56 UTC (rev 1150)
+@@ -281,5 +281,6 @@
+     void loadJob(const Node &amp;pNode);
+   };
+ 
++typedef AntEntity *PAntEntity;
+ 
+ #endif
+
+Modified: antargis/branches/rant/ext/game/headers.hh
+===================================================================
+--- antargis/branches/rant/ext/game/headers.hh	2007-07-22 12:25:34 UTC (rev 1149)
++++ antargis/branches/rant/ext/game/headers.hh	2007-07-29 10:13:56 UTC (rev 1150)
+@@ -81,8 +81,10 @@
+ #include &quot;ext/game/minimap.h&quot;
+ #include &quot;ext/game/map.h&quot;
+ #include &quot;ext/game/heuristic.h&quot;
++#include &quot;ext/game/path_weighter.h&quot;
+ #include &quot;ext/game/jobs.h&quot;
+ #include &quot;ext/game/resource.h&quot;
++#include &quot;ext/game/path_data_v3.h&quot;
+ #ifdef SWIG
+ %include &quot;ext/game/path.h&quot;
+ %include &quot;ext/game/path_v2.h&quot;
+@@ -95,7 +97,9 @@
+ %include &quot;ext/game/minimap.h&quot;
+ %include &quot;ext/game/map.h&quot;
+ %include &quot;ext/game/heuristic.h&quot;
++%include &quot;ext/game/path_weighter.h&quot;
+ %include &quot;ext/game/jobs.h&quot;
+ %include &quot;ext/game/resource.h&quot;
++%include &quot;ext/game/path_data_v3.h&quot;
+ #endif
+ #endif
+
+Modified: antargis/branches/rant/ext/game/height_map.cc
+===================================================================
+--- antargis/branches/rant/ext/game/height_map.cc	2007-07-22 12:25:34 UTC (rev 1149)
++++ antargis/branches/rant/ext/game/height_map.cc	2007-07-29 10:13:56 UTC (rev 1150)
+@@ -47,7 +47,7 @@
+ 
+ void HeightMap::initTerrainMesh()
+ {
+-  if(videoInited())
++  if(videoInited() &amp;&amp; mScene)
+     mTerrain=new Terrain(mScene,*this);
+ }
+ 
+
+Modified: antargis/branches/rant/ext/game/map.h
+===================================================================
+--- antargis/branches/rant/ext/game/map.h	2007-07-22 12:25:34 UTC (rev 1149)
++++ antargis/branches/rant/ext/game/map.h	2007-07-29 10:13:56 UTC (rev 1150)
+@@ -73,7 +73,7 @@
+ 
+   AntEntity *getNext(AntEntity *me,const AGString &amp;pType,size_t atLeast=0);
+ //  std::vector&lt;AntEntityPtr&gt; getNextList(AntEntity *me,const AGString &amp;pType,size_t atLeast=0);
+-  std::vector&lt;AntEntity*&gt; getNextList(AntEntity *me,const AGString &amp;pType,size_t atLeast=0);
++  std::vector&lt;PAntEntity&gt; getNextList(AntEntity *me,const AGString &amp;pType,size_t atLeast=0);
+ 
+   void setHeuristic(HeuristicFunction *pFunction);
+ 
+
+Modified: antargis/branches/rant/ext/game/path_v2.cc
+===================================================================
+--- antargis/branches/rant/ext/game/path_v2.cc	2007-07-22 12:25:34 UTC (rev 1149)
++++ antargis/branches/rant/ext/game/path_v2.cc	2007-07-29 10:13:56 UTC (rev 1150)
+@@ -1,105 +1,13 @@
+ #include &quot;path_v2.h&quot;
+ #include &lt;ag_debug.h&gt;
+-#include &lt;height_map.h&gt;
+-#include &lt;math.h&gt;
+ #include &lt;ag_geometry.h&gt;
+ #include &lt;set&gt;
+ 
+ 
+-DistanceComputer::DistanceComputer(HeightMap *pHeightMap,
+-				   float pStepX,float pStepY):
+-  mHeightMap(pHeightMap),
+-  mStepX(pStepX),mStepY(pStepY)
+-{
+-  assert(mHeightMap);
+-}
++#include &quot;path_vector_sort.h&quot;
+ 
+-bool DistanceComputer::isPassable(const AGVector2 &amp;pPoint) const
+-{
+-  return mHeightMap-&gt;getHeight(pPoint[0],pPoint[1])&gt;0;
+-}
+ 
+-float DistanceComputer::beginX() const
+-{
+-  return 0;
+-}
+-float DistanceComputer::beginY() const
+-{
+-  return 0;
+-}
+-float DistanceComputer::stepX() const
+-{
+-  return mStepX;
+-}
+-float DistanceComputer::stepY() const
+-{
+-  return mStepY;
+-}
+-float DistanceComputer::endX() const
+-{
+-  return mHeightMap-&gt;getW();
+-}
+-float DistanceComputer::endY() const
+-{
+-  return mHeightMap-&gt;getH();
+-}
+ 
+-// FIXME: maybe move this to other class ?
+-float DistanceComputer::simpleWeight(const AGVector2 &amp;a,const AGVector2 &amp;b) const
+-{
+-  float ha=mHeightMap-&gt;getHeight(a[0],a[1]);
+-  float hb=mHeightMap-&gt;getHeight(b[0],b[1]);
+-
+-  float d=(a-b).length();
+-  float hd=ha-hb;
+-
+-  if(hb&gt;ha) // up hill
+-    return sqrt(d*d+hd*hd);
+-  return d; // down hill - normal speed
+-}
+-
+-/**
+- * compute possible neighbors (w.r.t. to map-borders)
+- */
+-std::list&lt;AGVector2&gt; DistanceComputer::getNeighbors(const AGVector2 &amp;p) const
+-{
+-  std::list&lt;AGVector2&gt; diffList,rList;
+-  AGVector2 t;
+-
+-  diffList.push_back(AGVector2(-stepX(),0));
+-  diffList.push_back(AGVector2(+stepX(),0));
+-  diffList.push_back(AGVector2(0,-stepY()));
+-  diffList.push_back(AGVector2(0,+stepY()));
+-
+-  for(std::list&lt;AGVector2&gt;::iterator i=diffList.begin();i!=diffList.end();i++)
+-    {
+-      t=*i+p;
+-      if(t.getX() &gt;= beginX() &amp;&amp;
+-	 t.getX()&lt;=endX() &amp;&amp; 
+-	 t.getY()&gt;=beginY() &amp;&amp; 
+-	 t.getY()&lt;=endY())
+-	rList.push_back(t);
+-    }
+-
+-  return rList;
+-}
+-
+-std::map&lt;AGVector2,float&gt; DistanceComputer::getAllReachableFrom(const AGVector2 &amp;p) const
+-{
+-  float w;
+-  std::map&lt;AGVector2,float&gt; rList;
+-  std::list&lt;AGVector2&gt; nList=getNeighbors(p);
+-
+-  for(std::list&lt;AGVector2&gt;::iterator i=nList.begin();i!=nList.end();i++)
+-    {
+-      w=simpleWeight(p,*i);
+-      rList.insert(std::make_pair(*i,w));
+-    }
+-  return rList;
+-}
+-
+-
+-
+ ///////////////////////////////////////////////////////////////////////////////////
+ 
+ 
+@@ -220,24 +128,8 @@
+ 
+ 
+ 
+-///////////////////////////////////////////////////////////////////////////////////
+ 
+-class DistanceOrder
+-{
+-public:
+-  DistanceOrder(const AGVector2 &amp;pBase):mBase(pBase)
+-  {
+-  }
+-  bool operator()(const AGVector2 &amp;a,const AGVector2 &amp;b) const
+-  {
+-    return (a-mBase).length2()&lt;(b-mBase).length2();
+-  }
+-private:
+-  AGVector2 mBase;
+ 
+-};
+-
+-
+ /**
+  * PathV3Data constructor
+  */
+@@ -296,6 +188,7 @@
+ 	{
+ 	  currentPoint=*growField.begin();
+ 	  growField.erase(currentPoint);
++	  mVec2Field[currentPoint]=mFields.size();
+ 
+ 	  std::map&lt;AGVector2,float&gt; reachable=pCalc.getAllReachableFrom(currentPoint);
+ 
+@@ -324,6 +217,8 @@
+ 			  growField.insert(i-&gt;first);
+ 			  currentField.insert(i-&gt;first);
+ 			  allValidPointsSet.erase(i-&gt;first);
++
++			  mVec2Field[i-&gt;first]=mFields.size();
+ 			}
+ 		    }
+ 		}
+
+Modified: antargis/branches/rant/ext/game/path_v2.h
+===================================================================
+--- antargis/branches/rant/ext/game/path_v2.h	2007-07-22 12:25:34 UTC (rev 1149)
++++ antargis/branches/rant/ext/game/path_v2.h	2007-07-29 10:13:56 UTC (rev 1150)
+@@ -8,38 +8,8 @@
+ 
+ #include &lt;map&gt;
+ 
+-class HeightMap;
++#include &quot;path_weighter.h&quot;
+ 
+-/**
+- * Computes distances from a height field
+- */
+-class AGEXPORT DistanceComputer
+-{
+- public:
+-  DistanceComputer(HeightMap *pHeightMap,float pStepX=1,float pStepY=1);
+-
+-  float beginX() const;
+-  float beginY() const;
+-  float stepX() const;
+-  float stepY() const;
+-  float endX() const;
+-  float endY() const;
+-
+-  std::map&lt;AGVector2,float&gt; getAllReachableFrom(const AGVector2 &amp;p) const;
+-
+-  // compute weight for to neighboring points (from a to b)
+-  float simpleWeight(const AGVector2 &amp;a,const AGVector2 &amp;b) const;
+-
+-  bool isPassable(const AGVector2 &amp;pPoint) const;
+-
+-  std::list&lt;AGVector2&gt; getNeighbors(const AGVector2 &amp;p) const;
+-
+- private:
+-
+-  HeightMap *mHeightMap;
+-  float mStepX,mStepY;
+-};
+-
+ class AGEXPORT PathV3Data:public AGRubyObject
+ {
+  public:
+
+Modified: antargis/branches/rant/ext/game/templates.i
+===================================================================
+--- antargis/branches/rant/ext/game/templates.i	2007-07-22 12:25:34 UTC (rev 1149)
++++ antargis/branches/rant/ext/game/templates.i	2007-07-29 10:13:56 UTC (rev 1150)
+@@ -1,10 +1,10 @@
+ %{
+-AntEntity *SWIG_RB2AntEntity(VALUE x) {
+-	AntEntity *e=0;
++PAntEntity SWIG_RB2AntEntity(VALUE x) {
++	PAntEntity e=0;
+ 	Data_Get_Struct(x,AntEntity,e);
+-	return 0;
++	return e;
+ }
+-VALUE SWIG_AntEntity2RB(AntEntity*e ) {
++VALUE SWIG_AntEntity2RB(PAntEntity e ) {
+ 	return AG_NewPointerObj(e,SWIGTYPE_p_AntEntity,0);
+ }
+ bool SWIG_ANTENTITY_P(VALUE x) {
+@@ -16,11 +16,12 @@
+ 
+ namespace std
+ {
+-	specialize_std_vector(AntEntity,SWIG_ANTENTITY_P,SWIG_RB2AntEntity,SWIG_AntEntity2RB);
+-	specialize_std_list(AntEntity,SWIG_ANTENTITY_P,SWIG_RB2AntEntity,SWIG_AntEntity2RB);
++	specialize_std_vector(PAntEntity,SWIG_ANTENTITY_P,SWIG_RB2AntEntity,SWIG_AntEntity2RB);
++	specialize_std_list(PAntEntity,SWIG_ANTENTITY_P,SWIG_RB2AntEntity,SWIG_AntEntity2RB);
+ }
+ 
+ 
++%template(EntityPVector2) std::vector&lt;PAntEntity&gt;;
+ %template(EntityPVector) std::vector&lt;AntEntity*&gt;;
+ %template(EntityPList) std::list&lt;AntEntity*&gt;;
+ %template(EntityVector) std::vector&lt;AntEntityPtr&gt;;
+
+Modified: antargis/branches/rant/ext/gui/ag_application.cc
+===================================================================
+--- antargis/branches/rant/ext/gui/ag_application.cc	2007-07-22 12:25:34 UTC (rev 1149)
++++ antargis/branches/rant/ext/gui/ag_application.cc	2007-07-29 10:13:56 UTC (rev 1150)
+@@ -128,24 +128,24 @@
+ 	  ;
+ 	*/
+ 	clearOldMousePosition();
+-	dbout(2,&quot;loop pre-event:&quot;&lt;&lt;loopCount);
++	//	dbout(2,&quot;loop pre-event:&quot;&lt;&lt;loopCount);
+ 	event=getNewEvent();
+ 	if(eventOk(event))
+ 	  {
+ 	    do
+ 	      {
+-		dbout(2,&quot;eventok  &quot;&lt;&lt;toString(&amp;event));
++		//		dbout(2,&quot;eventok  &quot;&lt;&lt;toString(&amp;event));
+ 		doEvent(event);
+ 		if(mIdleCalls)
+ 		  {
+-		    dbout(2,&quot;getNewEvent...  (idlecalls:&quot;&lt;&lt;mIdleCalls&lt;&lt;&quot;)&quot;);
++		    //		    dbout(2,&quot;getNewEvent...  (idlecalls:&quot;&lt;&lt;mIdleCalls&lt;&lt;&quot;)&quot;);
+ 		    event=getNewEvent();
+ 		  }
+ 		else
+ 		  resetEvent(event);
+ 	      }while(eventOk(event));
+ 	  } 
+-	dbout(2,&quot;loop post-event:&quot;&lt;&lt;loopCount);
++	//	dbout(2,&quot;loop post-event:&quot;&lt;&lt;loopCount);
+ 	/*
+ 	if(mIdleCalls) 
+ 	  {
+@@ -201,7 +201,7 @@
+       last=now;
+ 
+       loopCount++;
+-      dbout(2,&quot;Running:&quot;&lt;&lt;mRunning);
++      //      dbout(2,&quot;Running:&quot;&lt;&lt;mRunning);
+     }
+   gApplication=0;
+ 
+
+Modified: antargis/branches/rant/ext/video/ag_fontengine.cc
+===================================================================
+--- antargis/branches/rant/ext/video/ag_fontengine.cc	2007-07-22 12:25:34 UTC (rev 1149)
++++ antargis/branches/rant/ext/video/ag_fontengine.cc	2007-07-29 10:13:56 UTC (rev 1150)
+@@ -24,6 +24,7 @@
+ #include &quot;ag_texture.h&quot;
+ #include &quot;ag_fs.h&quot;
+ #include &quot;ag_sgeexport.h&quot;
++#include &quot;ag_profiler.h&quot;
+ 
+ #include &lt;SDL_ttf.h&gt;
+ 
+@@ -292,6 +293,7 @@
+ 
+   if(fontCache.find(std::make_pair(pFont,pText))==fontCache.end())
+     {
++      STACKTRACE;
+       SDL_Surface *ns;
+       TTF_Font *f=getFont(pFont.getName(),pFont.getSize());
+       
+@@ -324,30 +326,33 @@
+       is-&gt;surface=ns;
+       AGSurface as(is);
+       
+-      if(pFont.getBorder()&gt;0 || pFont.getEmbossed())
++      //      if(false)
+ 	{
+-	  int move=3;
+-	  AGSurface copy(as.width()+2*move,as.height()+2*move);
+-	  copy.blit(as,AGRect2(move,move,as.width(),as.height()),as.getRect(),AGColor(0xFF,0xFF,0xFF,0xFF));
+-	  as=copy;
+-	  border(as,pFont.getBorderColor());
+-	}
+-      else
+-	{
+-	  // simply copy, so there are no more problems on PPC
+-	  AGSurface copy(as.width(),as.height());
+-	  copy.blit(as,as.getRect(),as.getRect(),AGColor(0xFF,0xFF,0xFF,0xFF));
+-	  as=copy;
++	  if(pFont.getBorder()&gt;0 || pFont.getEmbossed())
++	    {
++	      int move=3;
++	      AGSurface copy(as.width()+2*move,as.height()+2*move);
++	      copy.blit(as,AGRect2(move,move,as.width(),as.height()),as.getRect(),AGColor(0xFF,0xFF,0xFF,0xFF));
++	      as=copy;
++	      border(as,pFont.getBorderColor());
++	    }
++	  else
++	    {
++	      // simply copy, so there are no more problems on PPC
++	      AGSurface copy(as.width(),as.height());
++	      copy.blit(as,as.getRect(),as.getRect(),AGColor(0xFF,0xFF,0xFF,0xFF));
++	      as=copy;
++	      
++	    }
+ 	  
++	  if(pFont.getEmbossed())
++	    {
++	      if(pFont.getInset())
++		embossSurface(as,-1);
++	      else
++		embossSurface(as,1);
++	    }
+ 	}
+-      if(pFont.getEmbossed())
+-	{
+-	  if(pFont.getInset())
+-	    embossSurface(as,-1);
+-	  else
+-	    embossSurface(as,1);
+-	}
+-      
+       AGTexture *ms=new AGTexture(as);
+       ms-&gt;setClamp(GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
+ 	
+
+Modified: antargis/branches/rant/ruby/ant_tools.rb
+===================================================================
+--- antargis/branches/rant/ruby/ant_tools.rb	2007-07-22 12:25:34 UTC (rev 1149)
++++ antargis/branches/rant/ruby/ant_tools.rb	2007-07-29 10:13:56 UTC (rev 1150)
+@@ -25,7 +25,7 @@
+ 	return $meshes[file]
+ end
+ 
+-module Libantargis
++module Libantargisbasic
+ 	class AGVector3
+ 		def x=(p)
+ 			setX(p)
+
+Modified: antargis/branches/rant/ruby/entities/ant_hero.rb
+===================================================================
+--- antargis/branches/rant/ruby/entities/ant_hero.rb	2007-07-22 12:25:34 UTC (rev 1149)
++++ antargis/branches/rant/ruby/entities/ant_hero.rb	2007-07-29 10:13:56 UTC (rev 1150)
+@@ -177,7 +177,7 @@
+ 		men=men[0..c]
+ 		men.each{|m|
+ 			# seek new boss
+-			b=getMap.getNextList(m,&quot;house&quot;,0).collect{|e|e.get}.select{|e|e.getPlayer==getPlayer}.shuffle[0]
++			b=getMap.getNextList(m,&quot;house&quot;,0).collect{|e|puts e,e.class;e.get}.select{|e|e.getPlayer==getPlayer}.shuffle[0]
+ 			if b
+ 				m.setBoss(b)
+ 			else
+
+Modified: antargis/branches/rant/ruby/entities/entities.rb
+===================================================================
+--- antargis/branches/rant/ruby/entities/entities.rb	2007-07-22 12:25:34 UTC (rev 1149)
++++ antargis/branches/rant/ruby/entities/entities.rb	2007-07-29 10:13:56 UTC (rev 1150)
+@@ -238,6 +238,12 @@
+ 		super(mesh=AntModels.createModel(t,subtype))
+ 		return mesh
+ 	end
++
++
++	# FIXME: remove this - this is a backward-compability function 
++	def get
++		self
++	end
+ end
+ 
+ # here comes a list of all the different entity-types BoA currently uses:
+
+Modified: antargis/branches/rant/ruby/map.rb
+===================================================================
+--- antargis/branches/rant/ruby/map.rb	2007-07-22 12:25:34 UTC (rev 1149)
++++ antargis/branches/rant/ruby/map.rb	2007-07-29 10:13:56 UTC (rev 1150)
+@@ -167,7 +167,7 @@
+ 	end
+ 	
+ 	def getHousesOfVillage(name)
+-		getAllEntitiesV.collect{|e|e.get}.select{|e|e.is_a?(AntHouse)}.select{|e|e.village==name}
++		getAllEntities.collect{|e|e.get}.select{|e|e.is_a?(AntHouse)}.select{|e|e.village==name}
+ 	end
+ 
+ 	def getVillages
+
+Modified: antargis/branches/rant/ruby/view.rb
+===================================================================
+--- antargis/branches/rant/ruby/view.rb	2007-07-22 12:25:34 UTC (rev 1149)
++++ antargis/branches/rant/ruby/view.rb	2007-07-29 10:13:56 UTC (rev 1150)
+@@ -171,10 +171,10 @@
+ 			m=0
+ 			w=20
+ 			s=10
+-			{AGRect.new(0,m,w,getMain.height-m*2)=&gt;AGVector2.new(-1,0),
+-				AGRect.new(m,0,getMain.width-m*2,w)=&gt;AGVector2.new(0,1),
+-				AGRect.new(getMain.width-w-1,m,w,getMain.height-m*2)=&gt;AGVector2.new(1,0),
+-				AGRect.new(m,getMain.height-w-1,getMain.width-m*2,w)=&gt;AGVector2.new(0,-1)}.each{|r,n|
++			{AGRect.new(0,m,w,getMain.getVideo.height-m*2)=&gt;AGVector2.new(-1,0),
++				AGRect.new(m,0,getMain.getVideo.width-m*2,w)=&gt;AGVector2.new(0,1),
++				AGRect.new(getMain.getVideo.width-w-1,m,w,getMain.getVideo.height-m*2)=&gt;AGVector2.new(1,0),
++				AGRect.new(m,getMain.getVideo.height-w-1,getMain.getVideo.width-m*2,w)=&gt;AGVector2.new(0,-1)}.each{|r,n|
+ 				if r.contains(p)
+ 					setCamera(getCamera+n*t*s) # FIXME: Include time
+ 				end
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000106.html">[Antargis-svn] r1149 - in antargis/branches/rant: . build
+</A></li>
+	<LI>Next message: <A HREF="000108.html">[Antargis-svn] r1151 - antargis/branches/rant/ext/game
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#107">[ date ]</a>
+              <a href="thread.html#107">[ thread ]</a>
+              <a href="subject.html#107">[ subject ]</a>
+              <a href="author.html#107">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

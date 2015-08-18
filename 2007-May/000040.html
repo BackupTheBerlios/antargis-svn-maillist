@@ -1,0 +1,464 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1082 - in antargis/branches/branch_2d:	data/textures/2d/terrain ruby ruby/tests src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-May/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1082%20-%20in%20antargis/branches/branch_2d%3A%0A%09data/textures/2d/terrain%20ruby%20ruby/tests%20src&In-Reply-To=%3C200705021905.l42J50aF029030%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000039.html">
+   <LINK REL="Next"  HREF="000041.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1082 - in antargis/branches/branch_2d:	data/textures/2d/terrain ruby ruby/tests src</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1082%20-%20in%20antargis/branches/branch_2d%3A%0A%09data/textures/2d/terrain%20ruby%20ruby/tests%20src&In-Reply-To=%3C200705021905.l42J50aF029030%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1082 - in antargis/branches/branch_2d:	data/textures/2d/terrain ruby ruby/tests src">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Wed May  2 21:05:00 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000039.html">[Antargis-svn] r1081 - in antargis/branches/branch_2d: data/models	ruby/tests src
+</A></li>
+        <LI>Next message: <A HREF="000041.html">[Antargis-svn] r1083 - in antargis/branches/branch_2d:	data/textures/2d data/textures/2d/terrain gui/src ruby	ruby/tests src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#40">[ date ]</a>
+              <a href="thread.html#40">[ thread ]</a>
+              <a href="subject.html#40">[ subject ]</a>
+              <a href="author.html#40">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-05-02 21:04:59 +0200 (Wed, 02 May 2007)
+New Revision: 1082
+
+Added:
+   antargis/branches/branch_2d/data/textures/2d/terrain/base_terrain.xcf
+   antargis/branches/branch_2d/data/textures/2d/terrain/basic_grass.png
+Modified:
+   antargis/branches/branch_2d/ruby/ant_models.rb
+   antargis/branches/branch_2d/ruby/tests/scene_2d.rb
+   antargis/branches/branch_2d/src/height_map.cc
+   antargis/branches/branch_2d/src/height_map.h
+   antargis/branches/branch_2d/src/nantmarker.hh
+   antargis/branches/branch_2d/src/terrain.cc
+   antargis/branches/branch_2d/src/terrain.h
+Log:
+* preparations for 2d-terrain
+
+
+Added: antargis/branches/branch_2d/data/textures/2d/terrain/base_terrain.xcf
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/terrain/base_terrain.xcf
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/branch_2d/data/textures/2d/terrain/basic_grass.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/terrain/basic_grass.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Modified: antargis/branches/branch_2d/ruby/ant_models.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_models.rb	2007-05-02 18:19:49 UTC (rev 1081)
++++ antargis/branches/branch_2d/ruby/ant_models.rb	2007-05-02 19:04:59 UTC (rev 1082)
+@@ -236,11 +236,18 @@
+ 	
+ 		if @@useImpostors
+ 			# FIXME:replace by impostor
+-			if entityType!=:sack
+-				return createModel(:sack)
++			if entityType!=:fish
++				return createModel(:fish)
+ 			end
+ 		end
+ 	
+ 		return scenenode
+ 	end
+ end
++
++module Libantargis
++class Mesh
++	def setAnimation(name)
++	end
++end
++end
+\ No newline at end of file
+
+Modified: antargis/branches/branch_2d/ruby/tests/scene_2d.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/tests/scene_2d.rb	2007-05-02 18:19:49 UTC (rev 1081)
++++ antargis/branches/branch_2d/ruby/tests/scene_2d.rb	2007-05-02 19:04:59 UTC (rev 1082)
+@@ -10,7 +10,10 @@
+ 	mesh=Mesh2D.new(scene,data,AGVector4.new(0,0,0,1),0)
+ end
+ 
++class MyTerrain&lt;SceneNode
++end
+ 
++
+ class My2dWidget&lt;AGWidget
+ 	def initialize(p,r)
+ 		super
+
+Modified: antargis/branches/branch_2d/src/height_map.cc
+===================================================================
+--- antargis/branches/branch_2d/src/height_map.cc	2007-05-02 18:19:49 UTC (rev 1081)
++++ antargis/branches/branch_2d/src/height_map.cc	2007-05-02 19:04:59 UTC (rev 1082)
+@@ -24,11 +24,10 @@
+   for(int t=FIRSTTERRAIN;t&lt;LASTTERRAIN; t++)
+     mTerrainTypes[TerrainType(t)]=genSomeHeights(w+2,h+2,1);
+ 
+-  if(videoInited())
+-    mTerrain=new Terrain(mScene,*this);
+-  else
+-    mTerrain=0;
++  mTerrain=0;
++  initTerrainMesh();
+ 
++
+   setTerrainScale(WATER,0);
+   setTerrainScale(SAND,8/32.0);
+   setTerrainScale(EARTH,12/32.0);
+@@ -44,6 +43,13 @@
+   delete mTerrain;
+ }
+ 
++void HeightMap::initTerrainMesh()
++{
++  if(videoInited())
++    mTerrain=new Terrain(mScene,*this);
++}
++
++
+ void HeightMap::setHeight(float height)
+ {
+   for(size_t y=0;y&lt;mH+2;y++)
+
+Modified: antargis/branches/branch_2d/src/height_map.h
+===================================================================
+--- antargis/branches/branch_2d/src/height_map.h	2007-05-02 18:19:49 UTC (rev 1081)
++++ antargis/branches/branch_2d/src/height_map.h	2007-05-02 19:04:59 UTC (rev 1082)
+@@ -81,6 +81,8 @@
+ 
+   Scene *getScene();
+ 
++  /// override this function to include another terrain-mesh-type (like 2d-terrain)
++  virtual void initTerrainMesh();
+ 
+  private:
+ 
+
+Modified: antargis/branches/branch_2d/src/nantmarker.hh
+===================================================================
+--- antargis/branches/branch_2d/src/nantmarker.hh	2007-05-02 18:19:49 UTC (rev 1081)
++++ antargis/branches/branch_2d/src/nantmarker.hh	2007-05-02 19:04:59 UTC (rev 1082)
+@@ -3541,6 +3541,11 @@
+  Data_Get_Struct($input,Terrain,b);
+  $result=*b;
+ }
++%typemap(directorout) TerrainBase {
++ TerrainBase *b;
++ Data_Get_Struct($input,TerrainBase,b);
++ $result=*b;
++}
+ %typemap(directorout) TerrainPiece {
+  TerrainPiece *b;
+  Data_Get_Struct($input,TerrainPiece,b);
+
+Modified: antargis/branches/branch_2d/src/terrain.cc
+===================================================================
+--- antargis/branches/branch_2d/src/terrain.cc	2007-05-02 18:19:49 UTC (rev 1081)
++++ antargis/branches/branch_2d/src/terrain.cc	2007-05-02 19:04:59 UTC (rev 1082)
+@@ -4,6 +4,12 @@
+ #include &lt;ag_profiler.h&gt;
+ #include &lt;ag_config.h&gt;
+ 
++bool use3dTextures()
++{
++  return false;
++}
++
++
+ //////////////////////////////////////////////////////////////////////////
+ // TerrainPiece
+ //////////////////////////////////////////////////////////////////////////
+@@ -70,10 +76,19 @@
+ 
+ 	n=mMap-&gt;getNormal(sx,sy);
+ 
+-	float texHeight=mMap-&gt;getTerrainScale(sx,sy);
++	if(use3dTextures())
++	  {
++	    float texHeight=mMap-&gt;getTerrainScale(sx,sy);
++	    
++	    tp3=AGVector3(-v[0]*texFactor3w,-v[1]*texFactor3w,texHeight);
++	    m3dArray.addVertex(v,white,n,tp3);
++	  }
++	else
++	  {
++	    tp=AGVector2(-v[0]*texFactor3w,-v[1]*texFactor3w);
++	    m3dArray.addVertex(v,white,n,tp);
++	  }
+ 
+-        tp3=AGVector3(-v[0]*texFactor3w,-v[1]*texFactor3w,texHeight);
+-        m3dArray.addVertex(v,white,n,tp3);
+ 
+ 	bb.include(v.dim3());
+       }
+@@ -133,8 +148,13 @@
+   STACKTRACE;
+   AGRenderContext c;
+   c.setLighting(true);
+-  c.setTexture(mTerrain-&gt;get3dTexture()-&gt;glTexture());
+-  mTerrain-&gt;get3dTexture()-&gt;setFilter(GL_LINEAR,GL_LINEAR);
++  if(use3dTextures())
++    {
++      c.setTexture(mTerrain-&gt;get3dTexture()-&gt;glTexture());
++      mTerrain-&gt;get3dTexture()-&gt;setFilter(GL_LINEAR,GL_LINEAR);
++    }
++  else
++    c.setTexture(mTerrain-&gt;getGrassTexture()-&gt;glTexture());
+ 
+   c.begin();
+ 
+@@ -191,20 +211,63 @@
+ }
+ 
+ ////////////////////////////////////////////////////////////////////////////
+-// TerrainMesh
++// TerrainBase
+ ////////////////////////////////////////////////////////////////////////////
+ 
+ 
++TerrainBase::TerrainBase(Scene *pScene,HeightMap &amp;map):
++  mMap(&amp;map),mScene(pScene)
++{
++  map.sigMapChanged.connect(slot(this,&amp;TerrainBase::slotMapChanged));
++  map.sigMapChangedComplete.connect(slot(this,&amp;TerrainBase::slotMapChangedComplete));
++}
++
++TerrainBase::~TerrainBase()
++{
++}
++
++bool TerrainBase::slotMapChanged(AGEvent *e)
++{
++  mapChanged();
++  return false;
++}
++bool TerrainBase::slotMapChangedComplete(AGEvent *e)
++{
++  mapChangedComplete();
++  return false;
++}
++
++
++Scene *TerrainBase::getScene()
++{
++  return mScene;
++}
++
++HeightMap *TerrainBase::getMap()
++{
++  return mMap;
++}
++
++void TerrainBase::mapChanged()
++{
++}
++
++void TerrainBase::mapChangedComplete()
++{
++}
++
++
++////////////////////////////////////////////////////////////////////////////
++// Terrain
++////////////////////////////////////////////////////////////////////////////
++
+ Terrain::Terrain(Scene *pScene,HeightMap &amp;map):
++  TerrainBase(pScene,map),
+   m3D(getTextureCache()-&gt;get3D(&quot;data/textures/terrain/new3d.png&quot;,getTerrainDownScale(),getTerrainDownScaleZ())),
+-  mGrass(getTextureCache()-&gt;get(&quot;data/textures/terrain/grass4.png&quot;)),
+-  mMap(&amp;map),
+-  mScene(pScene)
++  mGrass(getTextureCache()-&gt;get(&quot;data/textures/terrain/grass4.png&quot;))
+ {
+   init();
+ 
+-  map.sigMapChanged.connect(slot(this,&amp;Terrain::slotMapChanged));
+-  map.sigMapChangedComplete.connect(slot(this,&amp;Terrain::slotMapChangedComplete));
+ }
+ 
+ void Terrain::init()
+@@ -213,11 +276,13 @@
+   int tilesize=16;
+   size_t tiles=0;
+ 
+-  for(y=0; y&lt;mMap-&gt;getH();y+=tilesize)
+-    for(x=0;x&lt;mMap-&gt;getW();x+=tilesize)
++  HeightMap *map=getMap();
++
++  for(y=0; y&lt;map-&gt;getH();y+=tilesize)
++    for(x=0;x&lt;map-&gt;getW();x+=tilesize)
+       {
+-	TerrainPiece *t=new TerrainPiece(getScene(),this,*mMap,x,y,tilesize,tilesize,AGVector4(x,y,0,0),getTerrainTriangleSize());
+-	WaterPiece *w=new WaterPiece(getScene(),*mMap,x,y,tilesize,tilesize,AGVector4(x,y,0,0));
++	TerrainPiece *t=new TerrainPiece(getScene(),this,*map,x,y,tilesize,tilesize,AGVector4(x,y,0,0),getTerrainTriangleSize());
++	WaterPiece *w=new WaterPiece(getScene(),*map,x,y,tilesize,tilesize,AGVector4(x,y,0,0));
+ 	pieces.push_front(t); // at least it's correct at the beginning
+ 	water.push_front(w);
+ 	mNodes.push_back(w);
+@@ -225,8 +290,8 @@
+ 	tiles++;
+       }
+ 
+-  w=mMap-&gt;getW();
+-  h=mMap-&gt;getH();
++  w=map-&gt;getW();
++  h=map-&gt;getH();
+ }
+ 
+ void Terrain::mapChangedComplete()
+@@ -273,18 +338,3 @@
+   return &mGrass;
+ }
+ 
+-bool Terrain::slotMapChanged(AGEvent *e)
+-{
+-  mapChanged();
+-  return false;
+-}
+-bool Terrain::slotMapChangedComplete(AGEvent *e)
+-{
+-  mapChangedComplete();
+-  return false;
+-}
+-
+-Scene *Terrain::getScene()
+-{
+-  return mScene;
+-}
+
+Modified: antargis/branches/branch_2d/src/terrain.h
+===================================================================
+--- antargis/branches/branch_2d/src/terrain.h	2007-05-02 18:19:49 UTC (rev 1081)
++++ antargis/branches/branch_2d/src/terrain.h	2007-05-02 19:04:59 UTC (rev 1082)
+@@ -55,13 +55,40 @@
+   VertexArray m3dArray;
+ };
+ 
++
++class TerrainBase
++{
++ public:
++  TerrainBase(Scene *pScene,HeightMap &amp;map);
++  virtual ~TerrainBase();
++
++  HeightMap *getMap();
++  Scene *getScene();
++
++  /// some parts of the map are changed
++  virtual void mapChanged();
++  /// the whole map is changed - so better take care of this (texture-upload instead of repainting on GPU)
++  virtual void mapChangedComplete();
++
++
++  virtual bool slotMapChanged(AGEvent *e);
++  virtual bool slotMapChangedComplete(AGEvent *e);
++
++
++ private:
++  /// the height-map
++  HeightMap *mMap;
++  
++  Scene *mScene;
++};
++
+ /**
+    In a game-world there exists exactly one Terrain-object.
+    This object holds references to all water- and terrain-pieces, so
+    that in case the terrain changes these will be changed,too.
+ 
+ */
+-class Terrain
++class Terrain:public TerrainBase
+ {
+   // Some containers for all the meshes
+   typedef std::list&lt;TerrainPiece*&gt; Pieces;
+@@ -79,30 +106,20 @@
+   /// some (currently not used) grass-texture
+   AGTexture mGrass;
+ 
+-  /// the height-map
+-  HeightMap *mMap;
+-  
+-  Scene *mScene;
+ 
+ public:
+   Terrain(Scene *pScene,HeightMap &amp;map);
+ 
+   virtual ~Terrain();
+ 
++  AGTexture *get3dTexture();
++  AGTexture *getGrassTexture();
++
+   /// some parts of the map are changed
+   virtual void mapChanged();
+   /// the whole map is changed - so better take care of this (texture-upload instead of repainting on GPU)
+   virtual void mapChangedComplete();
+ 
+-
+-  virtual bool slotMapChanged(AGEvent *e);
+-  virtual bool slotMapChangedComplete(AGEvent *e);
+-
+-  AGTexture *get3dTexture();
+-  AGTexture *getGrassTexture();
+-
+-  Scene *getScene();
+-
+  private:
+   void init();
+ };
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000039.html">[Antargis-svn] r1081 - in antargis/branches/branch_2d: data/models	ruby/tests src
+</A></li>
+	<LI>Next message: <A HREF="000041.html">[Antargis-svn] r1083 - in antargis/branches/branch_2d:	data/textures/2d data/textures/2d/terrain gui/src ruby	ruby/tests src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#40">[ date ]</a>
+              <a href="thread.html#40">[ thread ]</a>
+              <a href="subject.html#40">[ subject ]</a>
+              <a href="author.html#40">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

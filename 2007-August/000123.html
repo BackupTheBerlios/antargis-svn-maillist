@@ -1,0 +1,467 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1166 - in antargis/branches/rant: . ruby
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1166%20-%20in%20antargis/branches/rant%3A%20.%20ruby&In-Reply-To=%3C200708301831.l7UIVxls012821%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000122.html">
+   <LINK REL="Next"  HREF="000124.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1166 - in antargis/branches/rant: . ruby</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1166%20-%20in%20antargis/branches/rant%3A%20.%20ruby&In-Reply-To=%3C200708301831.l7UIVxls012821%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1166 - in antargis/branches/rant: . ruby">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Thu Aug 30 20:31:59 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000122.html">[Antargis-svn] r1165 - in antargis/branches/rant: build ruby	ruby/scripting
+</A></li>
+        <LI>Next message: <A HREF="000124.html">[Antargis-svn] r1167 - in antargis/branches/rant/ruby: debugging	multiplayer widgets
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#123">[ date ]</a>
+              <a href="thread.html#123">[ thread ]</a>
+              <a href="subject.html#123">[ subject ]</a>
+              <a href="author.html#123">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-08-30 20:31:59 +0200 (Thu, 30 Aug 2007)
+New Revision: 1166
+
+Added:
+   antargis/branches/rant/ruby/debugging/
+   antargis/branches/rant/ruby/multiplayer/
+Modified:
+   antargis/branches/rant/README
+   antargis/branches/rant/ruby/README
+   antargis/branches/rant/ruby/antargis.rb
+   antargis/branches/rant/ruby/mainmenu.rb
+   antargis/branches/rant/ruby/view.rb
+Log:
+* more documentation
+
+
+Modified: antargis/branches/rant/README
+===================================================================
+--- antargis/branches/rant/README	2007-08-29 18:04:59 UTC (rev 1165)
++++ antargis/branches/rant/README	2007-08-30 18:31:59 UTC (rev 1166)
+@@ -51,3 +51,7 @@
+ == Building
+ 
+ For more information on how to build Antargis and how the build-process work, please refer to link:files/build/README.html
++
++
++== Debugging
++Go to link:files/ruby/debugging/README.html
+\ No newline at end of file
+
+Modified: antargis/branches/rant/ruby/README
+===================================================================
+--- antargis/branches/rant/ruby/README	2007-08-29 18:04:59 UTC (rev 1165)
++++ antargis/branches/rant/ruby/README	2007-08-30 18:31:59 UTC (rev 1166)
+@@ -9,8 +9,10 @@
+ 
+ == Global structure
+ There are several different &quot;applications&quot; used when playing around with BoA.
+-* you begin with an intro, that's run by IntroApp
+-* after that you enter the menus, which are handled by AntMenuApp. There you can:: a) start a campaign, b) a single-map or c) load a game
++* IntroApp - BoA always begins with an intro
++* AntMenuApp - after the intro menus are displayed. There you can:: a) start a campaign, b) a single-map or c) load a game
++* Campaign - in case you selected a campaign, this class manages the its flow
++* AntGameApp - This class handles the actual game application.
+ 
+ === Campaigns
+ * For more information about campaigns go ahead to Campaign.
+
+Modified: antargis/branches/rant/ruby/antargis.rb
+===================================================================
+--- antargis/branches/rant/ruby/antargis.rb	2007-08-29 18:04:59 UTC (rev 1165)
++++ antargis/branches/rant/ruby/antargis.rb	2007-08-30 18:31:59 UTC (rev 1166)
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env ruby
+-#
++#--
+ # Copyright (c) 2005 by David Kamphausen. All rights reserved.
+ #
+ # game.rb
+@@ -17,13 +17,10 @@
+ #
+ # You should have received a copy of the GNU General Public
+ # License along with this program.
++#++
+ #
+-
+-#!/usr/bin/ruby
+-
+-#
+ # antargis.rb is the central file in antargis-level-playing.
+-# it contains the main-application object for in-game looping, etc.
++# it contains the main-application class AntGameApp for in-game looping, etc.
+ # most of the GUI-events are processed here.
+ #
+ 
+@@ -32,6 +29,7 @@
+ $programDir=Dir.pwd+&quot;/ruby&quot;
+ $:.push($programDir)
+ $:.push($programDir+&quot;/entities&quot;)
++$:.push($programDir+&quot;/widgets&quot;)
+ 
+ require 'antargislib.rb'
+ require 'dialogs.rb'
+@@ -42,13 +40,18 @@
+ require 'storyflow.rb'
+ require 'mpmap.rb'
+ 
++# get save path where savegames are stored
++# NOTE: this is combined with getWriteDir from ag_fs.h !
+ def getSavePath
+ 	&quot;savegames&quot;
+ end
+ 
+ #
+-# AntGameApp is the central class, that controls event handling of all the user interaction
+-# in-game
++# AntGameApp is the central application-class in game. It controls:
++# * event handling of all the user interaction
++# * holds all the game-objects
++# * calls the advance-function in each frame
++# * it's derived from AntRubyView, which implements/manages the (3d-)displaying in-game
+ #
+ class AntGameApp &lt;AntRubyView
+ 	attr_accessor :result
+@@ -56,6 +59,23 @@
+ 
+ 	include AGHandler
+ 
++	# creating an AntGameApp-object needs the following parameters:
++	# * *savegameText* - this is the actual level serialized in a string (the xml-text you see when you open an .antlvl-file)
++	#   it contains the height- and terrain-map, too. This has the advantage, that everything about a level is stored in one
++	#   text and can thus be transfered easily over internet 
++	# * *w* and *h* are the width and height of the screen, which is currently needed to init the underlying GLApp-class from C++
++	#   *FIXME:* this could be replaced by a call to getMain.getVideo.getWidth and such
++	# * *loadscreen* is a LoadApp-object (or nil); if it's set that indicates that a loadscreen (a progress bar) is displayed
++	# * *connection* is a network-connection to a BoA multiplayer-server for future networking-support. link:files/ruby/multiplayer/README.html
++	#
++	# this function does all the initializing of a level:
++	# * from the super-classes: create a scene (for more go to the parent-class)
++	# * display a load-screen (and set the progress)
++	# * create a AntMpMap object
++	# * create a displaying layout from data/gui/layout/ant_layout.xml
++	# * initializes some event-handlers (glue code between level-displaying and the game-world object of type AntMpMap
++	# * load the map fom *savegameText*
++	# * setup of the hero-display-list at the top of the screen
+ 	def initialize(savegameText,w,h,loadscreen=nil,connection=nil)
+ 		super(w,h)
+ 
+@@ -589,7 +609,6 @@
+ 	def selectHero(h)
+ 		@hero=h
+ 		inspectEntity(h)
+-		@buttonpanel.setName(h.getName)
+ 		@buttonpanel.setHero(h)
+ 
+ 		for i in 0..2
+@@ -615,7 +634,9 @@
+ end
+ 
+ 
+-# this function is only for starting a level directly (mostly for testing purpose)
++# this function is only for starting a level directly (single map from the mainmenu or from cli)
++# you can start BoA from the cli by giving a level-name directly
++# For more information on that topic please refer to link:files/ruby/debugging/README.html
+ def startGame(file=&quot;savegames/savegame0.antlvl&quot;,clientConnection=nil)
+ 	app=nil
+ 	if clientConnection
+
+Modified: antargis/branches/rant/ruby/mainmenu.rb
+===================================================================
+--- antargis/branches/rant/ruby/mainmenu.rb	2007-08-29 18:04:59 UTC (rev 1165)
++++ antargis/branches/rant/ruby/mainmenu.rb	2007-08-30 18:31:59 UTC (rev 1166)
+@@ -1,7 +1,7 @@
+-#
++#--
+ # Copyright (c) 2005 by David Kamphausen. All rights reserved.
+ #
+-# layout.rb
++# mainmenu.rb
+ # by David Kamphausen (<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">david.kamphausen at web.de</A>)
+ #
+ # The &quot;Antargis&quot; project, including all files needed to compile it,
+@@ -16,7 +16,7 @@
+ #
+ # You should have received a copy of the GNU General Public
+ # License along with this program.
+-#
++#++
+ 
+ require 'ruby/antargislib.rb'
+ $useMenu=true
+@@ -292,6 +292,9 @@
+ 			i+=1
+ 		}
+ 	end
++
++	# :section: Campaign Menu Event Handlers
++
+ 	def eventMission(e)
+ 		callerName=e.getCaller.getName
+ 		number=callerName[8..12].to_i
+@@ -312,7 +315,7 @@
+ 		return true
+ 	end
+ 	
+-
++	# :section: Options Menu Event handlers
+ 	
+ 	def eventTextureQuality(e)
+ 		scale={&quot;low&quot;=&gt;3,&quot;medium&quot;=&gt;2,&quot;high&quot;=&gt;1}[@optionsMenu.getChild(&quot;textureQuality&quot;).getSelected]
+@@ -421,15 +424,17 @@
+ 	# -------------------------------
+ 	# :section: Main Menu Event Handlers
+ 	# -------------------------------
++	
++	# open the credits screen
+ 	def eventCredits(e)
+ 		setMainWidget(@creditsMenu)
+ 		return true
+ 	end
++	# go to the single-game selection screen
+ 	def eventSingle(e)
+ 		setMainWidget(@singleMenu)
+ 		return true
+ 	end
+-
+ 	# start the tutorial-campaign directly for new users, so
+ 	# they won't have to deal with &quot;campaigning&quot;, where tutorial can be found, too
+ 	def eventTutorial(e)
+@@ -439,16 +444,18 @@
+ 		soundOn
+ 		return true
+ 	end
+-
++	# go to the campaign-selection screen
+ 	def eventCampaign(e)
+ 		setMainWidget(@campaignMenu)
+ 		return true
+ 	end
++	# loading a game-screen will follow after this event
+ 	def eventLoadGame(e)
+ 		updateLoadMenu
+ 		setMainWidget(@loadMenu)
+ 		return true
+ 	end
++	# go to the options-screen
+ 	def eventOptions(e)
+ 		setMainWidget(@optionsMenu)
+ 		return true
+
+Modified: antargis/branches/rant/ruby/view.rb
+===================================================================
+--- antargis/branches/rant/ruby/view.rb	2007-08-29 18:04:59 UTC (rev 1165)
++++ antargis/branches/rant/ruby/view.rb	2007-08-30 18:31:59 UTC (rev 1166)
+@@ -29,6 +29,9 @@
+ require 'ant_energy.rb'
+ require 'terrain_2d.rb' # used in 2d-display, but needed anywhere
+ 
++require 'ant_buttonpanel.rb'
++require 'ant_name_display.rb'
++
+ if (not MyAntargislib.opengl)
+ 	require 'two_d_app.rb'
+ else
+@@ -36,6 +39,10 @@
+ 	end
+ end
+ 
++
++# AntRubyView is the central view class of antargis. It contains several sub-views like:
++# * AntButtonPanel
++# * FIXME
+ class AntRubyView &lt;AntBaseMapView
+ 	def initialize(w,h)
+ 		super(w,h)
+@@ -198,148 +205,9 @@
+ 
+ 
+ 
+-class AntButtonPanel&lt;AGWidget
+-	attr_reader :job
+-	def initialize(p,r)
+-		super(p,r)
+-		setName(&quot;ButtonPanel&quot;)
+-		puts self,self.class,respond_to?(:clearHandlers),self.is_a?(AGWidget),self.methods.join(&quot;//&quot;)
+-		clearHandlers
+-		@jobButtons=[&quot;doRest&quot;,&quot;doDismiss&quot;,&quot;doDropFood&quot;,&quot;doDropWeapon&quot;,&quot;doBuild&quot;]
+-		@aggButtons={&quot;doAgg0&quot;=&gt;1,&quot;doAgg1&quot;=&gt;2,&quot;doAgg2&quot;=&gt;3}
+-		@inited=false
+-		@agg=1
+ 
+-		addSignal(&quot;sigAggressionChanged&quot;)
+-		addSignal(&quot;sigJobChanged&quot;)
+ 
+-		@hero=nil
+-	end
+-	def setHero(h)
+-		@hero=h
+-	end
+-	def initHandlers
+-		getChild(&quot;doAgg0&quot;).setChecked(true)
+-		@job=&quot;doRest&quot;
+-		@jobButtons.each {|b|
+-			c=getChild(b)
+-			addHandler(c,:sigClick,:eventJobSelected)
+-		}
+-		@aggButtons.each {|b,a|
+-			c=getChild(b)
+-			addHandler(c,:sigClick,:eventAggSelected)
+-		}
+-	end
+-	def prepareDraw
+-		updateJobView
+-		super
+-	end
+-	def setName(n)
+-		if getChild(&quot;heroName&quot;)
+-			getChild(&quot;heroName&quot;).setText(_(n))
+-		end
+-	end
+-	
+-	def eventJobSelected(e)
+-		@job=e.getCaller.getName
+-		sigJobChanged(e)
+-		return true
+-	end
+-	def eventAggSelected(e)
+-		@agg=@aggButtons[e.getCaller.getName]
+-		sigAggressionChanged(e)
+-		return true
+-	end
+-	
+-	def setAggression(l)
+-		l=l.to_i
+-		@aggButtons.each{|n,b|
+-			getChild(n).setChecked((b==l))
+-		}
+-		@agg=l
+-	end
+-	def getAggression()
+-		return @agg
+-	end
+-	def setPointing
+-		@job=&quot;doPoint&quot;
+-		getChild(&quot;doFight&quot;).setChecked(true)
+-	end
+-private
+-	def updateJobView
+-		return if @hero.nil?
+-		if @hero.getJob
+-			i=@hero.getJob.image
+-		else
+-			i=&quot;data/gui/bed.png&quot;
+-		end
+-		if @job!=i
+-			@job=i
+-			getChild(&quot;jobView&quot;).setTexture(getTextureCache.get(i))
+-		end
+-	end
+-end
+ 
+-# factory for buttonpanel-widget
+-class AntButtonPanelCreator&lt;AGLayoutCreator
+-	def create(p,r,n)
+-		setResult AntButtonPanel.new(p,r)
+-	end
+-end
+-getLayoutFactory.addCreator(&quot;antButtonPanel&quot;,AntButtonPanelCreator.new)
+-
+-
+-class AntNameDisplay&lt;AGWidget
+-	@@fontChangeCount=0
+-
+-	def initialize(p,r,hero,map)
+-		super(p,r)
+-		@map=map
+-		@hero=hero
+-		@font=getTheme.getFont(&quot;heroName.font&quot;)
+-		@oldfont=@font
+-		@name=@hero.getName
+-		addChild(@mb=AGButton.new(self,AGRect.new(0,0,width,height),_(&quot;&quot;)))
+-		
+-		@mb.setEnabled(false)
+-		addChild(@textWidget=AGText.new(self,AGRect.new(0,0,width,height),AGStringUtf8.new(@hero.getName)<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at font</A>))
+-		
+-		@fonts={true=&gt;getTheme.getFont(&quot;heroName.font&quot;),false=&gt;getTheme.getFont(&quot;enemyHero.font&quot;)}
+-		@oldPlayer=nil
+-		setCaching(true)
+-	end
+-
+-	# enforce integer position	
+-	def setRect(r)
+-		super(AGRect.new(r.x.to_i,r.y.to_i,r.w.to_i,r.h.to_i))
+-	end
+-	
+-	def getText
+-		@name
+-	end
+-
+-	def prepareDraw
+-		@font=@fonts[@hero.getPlayer==@map.getPlayer]
+-		if @font!=@oldfont
+-			puts &quot;#{@hero.getPlayer} #{@map.getPlayer} #{@oldPlayer}&quot;
+-			puts &quot;#{@font} #{@oldfont}&quot;
+-			@oldPlayer=@hero.getPlayer
+-			puts &quot;font changed&quot;
+-			@@fontChangeCount||=0
+-			@@fontChangeCount+=1
+-			if @@fontChangeCount&gt;20
+-				raise 1
+-			end
+-			@oldfont=@font
+-			@textWidget.setFont(@font)
+-			queryRedraw
+-		end
+-		super
+-	end
+-
+-	private
+-end
+-
+ class AntInfoBox&lt;AGLayout
+ 	def initialize(p,n)
+ 		super(p)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000122.html">[Antargis-svn] r1165 - in antargis/branches/rant: build ruby	ruby/scripting
+</A></li>
+	<LI>Next message: <A HREF="000124.html">[Antargis-svn] r1167 - in antargis/branches/rant/ruby: debugging	multiplayer widgets
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#123">[ date ]</a>
+              <a href="thread.html#123">[ thread ]</a>
+              <a href="subject.html#123">[ subject ]</a>
+              <a href="author.html#123">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

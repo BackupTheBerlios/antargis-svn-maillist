@@ -1,0 +1,1148 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1162 - in antargis/branches/rant: . build/configs	ext/3dengine ext/game ruby
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1162%20-%20in%20antargis/branches/rant%3A%20.%20build/configs%0A%09ext/3dengine%20ext/game%20ruby&In-Reply-To=%3C200708251926.l7PJQQQc028799%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000118.html">
+   <LINK REL="Next"  HREF="000120.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1162 - in antargis/branches/rant: . build/configs	ext/3dengine ext/game ruby</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1162%20-%20in%20antargis/branches/rant%3A%20.%20build/configs%0A%09ext/3dengine%20ext/game%20ruby&In-Reply-To=%3C200708251926.l7PJQQQc028799%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1162 - in antargis/branches/rant: . build/configs	ext/3dengine ext/game ruby">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sat Aug 25 21:26:26 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000118.html">[Antargis-svn] r1161 - in antargis/branches/rant: . build	ext/game/tests
+</A></li>
+        <LI>Next message: <A HREF="000120.html">[Antargis-svn] r1163 - in antargis/branches/rant: . ext/external	ext/game ext/gui ruby ruby/entities
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#119">[ date ]</a>
+              <a href="thread.html#119">[ thread ]</a>
+              <a href="subject.html#119">[ subject ]</a>
+              <a href="author.html#119">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-08-25 21:26:25 +0200 (Sat, 25 Aug 2007)
+New Revision: 1162
+
+Added:
+   antargis/branches/rant/ruby/ant_path.rb
+Removed:
+   antargis/branches/rant/ext/game/path_base.cc
+   antargis/branches/rant/ext/game/path_base.h
+   antargis/branches/rant/ext/game/path_v2.cc
+   antargis/branches/rant/ext/game/path_v2.h
+   antargis/branches/rant/ext/game/path_v3.h
+Modified:
+   antargis/branches/rant/Rantfile
+   antargis/branches/rant/TODO
+   antargis/branches/rant/build/configs/unix.rb
+   antargis/branches/rant/ext/3dengine/boa_3d_wireframe.cc
+   antargis/branches/rant/ext/3dengine/boa_3d_wireframe.h
+   antargis/branches/rant/ext/game/path.cc
+   antargis/branches/rant/ext/game/path.h
+   antargis/branches/rant/ruby/ant_hljobs.rb
+   antargis/branches/rant/ruby/map.rb
+Log:
+* combined path finder (water+normal)
+
+
+Modified: antargis/branches/rant/Rantfile
+===================================================================
+--- antargis/branches/rant/Rantfile	2007-08-22 17:49:56 UTC (rev 1161)
++++ antargis/branches/rant/Rantfile	2007-08-25 19:26:25 UTC (rev 1162)
+@@ -221,11 +221,18 @@
+ 
+ gen Rule, /^.*swig.(cc|h)$/ =&gt; swigSrc do |t|
+ 
+-    puts &quot;SOURCE #{t.source} #{t.name}&quot;
++	puts &quot;SOURCE #{t.source} #{t.name}&quot;
+ 
+ 	cmd=makeCommand(&quot;SWIG_CALL&quot;,sys.expand_path(t.name.gsub(/\.h$/,&quot;.cc&quot;)),&quot;-DAGEXPORT -Ibuild -I#{sys.expand_path(getDir(t.name))} #{var :INCLUDESTR} #{sys.expand_path(t.source)}&quot;.gsub(&quot;/&quot;,Dir.separator))
+ 	sys cmd
+ 	puts
++
++	incs=&quot;-DAGEXPORT -Ibuild -I#{sys.expand_path(getDir(t.name))} #{var :INCLUDESTR}&quot;
++	out=&quot;.deps&quot;+Dir.separator+sys.expand_path(t.name).gsub(&quot;/&quot;,&quot;_&quot;)
++	cmd=makeCommand(&quot;SWIGDEPS&quot;,out,incs+&quot; &quot;+sys.expand_path(t.name.gsub(/[0-9_a-z]*\.h$/,&quot;interface.i&quot;)))
++	sys cmd
++	puts
++
+ end
+ #
+ ###########################################
+@@ -345,7 +352,7 @@
+ gen AutoClean, :clean
+ var[:clean].include &quot;**/marker.i&quot;   # not needed any more - managed by Rule
+ var[:clean].include &quot;ext/*.so&quot;
+-#var[:clean].include &quot;.deps/*&quot;
++var[:clean].include &quot;.deps&quot;
+ ###########################################
+ 
+ task :check_c_prgs do
+
+Modified: antargis/branches/rant/TODO
+===================================================================
+--- antargis/branches/rant/TODO	2007-08-22 17:49:56 UTC (rev 1161)
++++ antargis/branches/rant/TODO	2007-08-25 19:26:25 UTC (rev 1162)
+@@ -1,3 +1,5 @@
++* introduce path-finder with water
++
+ * download allinoneruby.rb
+ * build allinoneruby.exe
+ * put ag_sdl*.tar.gz into svn
+@@ -4,9 +6,9 @@
+ * put up instructions into wiki
+ 
+ 
+-* docs
+-* configure
+-* &quot;contrib&quot;
+- * autopackage
+- * debian
+- * antargis.iss
+\ No newline at end of file
++* docs
++* configure
++* &quot;contrib&quot;
++ * autopackage
++ * debian
++ * antargis.iss
+
+Modified: antargis/branches/rant/build/configs/unix.rb
+===================================================================
+--- antargis/branches/rant/build/configs/unix.rb	2007-08-22 17:49:56 UTC (rev 1161)
++++ antargis/branches/rant/build/configs/unix.rb	2007-08-25 19:26:25 UTC (rev 1162)
+@@ -29,7 +29,7 @@
+ 	# generate c++-code from a swig-interface file
+ 	&quot;SWIG_CALL&quot;=&gt;&quot;$(SWIG) -v -Wall -ruby -c++ -o $(OUTPUT) $(INPUT)&quot;,
+ 	# generate dependencies for swig-interface files
+-	&quot;SWIGDEPS&quot;=&gt;&quot;$(SWIG) -ruby -c++ -M $(INPUT)&quot;,
++	&quot;SWIGDEPS&quot;=&gt;&quot;$(SWIG) -ruby -c++ -M $(INPUT)&gt;$(OUTPUT)&quot;,
+ 
+ 	# generate a swig-interface-file from the c++-sources and some other pre-defined interface-files (.i)
+ 	# go to build/*.i or ext/*/*.i for more information
+
+Modified: antargis/branches/rant/ext/3dengine/boa_3d_wireframe.cc
+===================================================================
+--- antargis/branches/rant/ext/3dengine/boa_3d_wireframe.cc	2007-08-22 17:49:56 UTC (rev 1161)
++++ antargis/branches/rant/ext/3dengine/boa_3d_wireframe.cc	2007-08-25 19:26:25 UTC (rev 1162)
+@@ -2,8 +2,9 @@
+ #include &lt;ag_rendercontext.h&gt;
+ #include &lt;ag_debug.h&gt;
+ 
+-Boa3dWireframe::Boa3dWireframe(Scene *pScene,const AGVector4 &amp;pColor):
+-  SceneNode(pScene,AGVector4(0,0,0,0),AGBox3(AGVector3(0,0,0),AGVector3(100,100,100)))
++Boa3dWireframe::Boa3dWireframe(Scene *pScene,const AGVector4 &amp;pColor,float pWidth):
++  SceneNode(pScene,AGVector4(0,0,0,0),AGBox3(AGVector3(0,0,0),AGVector3(100,100,100))),
++  mWidth(pWidth)
+ {
+   mColor=pColor;
+   mChanged=true;
+@@ -21,7 +22,7 @@
+ 
+   
+   AGRenderContext c;
+-  glLineWidth(3);
++  glLineWidth(mWidth);
+ 
+   //  c.setDepthTest(false);
+ 
+
+Modified: antargis/branches/rant/ext/3dengine/boa_3d_wireframe.h
+===================================================================
+--- antargis/branches/rant/ext/3dengine/boa_3d_wireframe.h	2007-08-22 17:49:56 UTC (rev 1161)
++++ antargis/branches/rant/ext/3dengine/boa_3d_wireframe.h	2007-08-25 19:26:25 UTC (rev 1162)
+@@ -14,7 +14,7 @@
+   };
+ 
+  public:
+-  Boa3dWireframe(Scene *pScene,const AGVector4 &amp;pColor);
++  Boa3dWireframe(Scene *pScene,const AGVector4 &amp;pColor,float pWidth);
+ 
+   void draw();
+ 
+@@ -29,6 +29,8 @@
+ 
+   bool mChanged;
+ 
++  float mWidth;
++
+ };
+ 
+ 
+
+Modified: antargis/branches/rant/ext/game/path.cc
+===================================================================
+--- antargis/branches/rant/ext/game/path.cc	2007-08-22 17:49:56 UTC (rev 1161)
++++ antargis/branches/rant/ext/game/path.cc	2007-08-25 19:26:25 UTC (rev 1162)
+@@ -109,83 +109,61 @@
+   return 0;
+ }
+ 
+-/*
+-SimpleGraph::HalfEdge *SimpleGraph::Edge::getHalfEdgeFrom(Node *n)
+-{
+-  HalfEdge *h;
+-  if(a==n)
+-    {
+-      h-&gt;a=a;
+-      h-&gt;b=b;
+-      h-&gt;w=w0;
+-    }
+-  else
+-    {
+-      h-&gt;b=a;
+-      h-&gt;a=b;
+-      h-&gt;w=w1;
+-    }
+-  return h;
+-}
+-SimpleGraph::HalfEdge *SimpleGraph::Edge::getHalfEdgeTo(Node *n)
+-{
+-  HalfEdge *h;
+-  if(a!=n)
+-    {
+-      h-&gt;a=a;
+-      h-&gt;b=b;
+-      h-&gt;w=w0;
+-    }
+-  else
+-    {
+-      h-&gt;b=a;
+-      h-&gt;a=b;
+-      h-&gt;w=w1;
+-    }
+-  return h;
+-  }*/
+ 
+-
+ ///////////////////////////////////////////////////////////////////////
+ // PathWeighter
+ ///////////////////////////////////////////////////////////////////////
+ 
++PathWeighter::PathWeighter(bool pWaterPassable):mWaterPassable(pWaterPassable)
++{
++}
++
+ PathWeighter::~PathWeighter()
+ {
+ }
+ float PathWeighter::weight(float h0,float h1)
+ {
+   if(h0&lt;0.3 || h1&lt;0.3)
+-    return 100000; // high weight for non-passable water ;-)
++    {
++      if(mWaterPassable)
++	{
++	  return 0;//fabs(std::max(h0,h1)-std::max(0.3f,std::min(h0,h1)));
++	}
++      else
++	return 100000; // high weight for non-passable water ;-)
++    }
+ 
+   return fabs(h0-h1);
+ }
+ 
++bool PathWeighter::isWaterPassable() const
++{
++  return mWaterPassable;
++}
++
+ ///////////////////////////////////////////////////////////////////////
+ // MapPathWeighter
+ ///////////////////////////////////////////////////////////////////////
+ 
+-MapPathWeighter::MapPathWeighter(HeightMap *pMap):
++MapPathWeighter::MapPathWeighter(HeightMap *pMap,bool pWaterPassable):
++  PathWeighter(pWaterPassable),
+   mMap(pMap)
+ {
+ }
+ float MapPathWeighter::weight(const AGVector2 &amp;a,const AGVector2 &amp;b)
+ {
+   return complexWeight(a,b);
++}
+ 
++/**
++   computes a weight between a and b, which can be far apart. the computed path between
++   the waypoints is linear!
+ 
++   \param a waypoint
++   \param b waypoint
++   \return weight
+ 
+-  float w=(a-b).length();
+-  if(w&gt;1)
+-    throw std::runtime_error(&quot;not implemented&quot;);
+-  float h0=mMap-&gt;getHeight(a[0],a[1]);
+-  float h1=mMap-&gt;getHeight(b[0],b[1]);
+-
+-  w+=weightHeight(h0,h1);
+-
+-  return w;
+-}
+-
++*/
+ float MapPathWeighter::complexWeight(const AGVector2 &amp;a,const AGVector2 &amp;b)
+ {
+   // simply measure all &quot;1 units&quot;
+@@ -223,7 +201,10 @@
+ {
+   float f=1; // some factor - to be estimated
+ 
++  if((a&lt;0.3 &amp;&amp; b&lt;0.3) &amp;&amp; isWaterPassable())
++    return 0; // water
+ 
++
+   if(b&lt;0.2)
+     return (0.2-b)*1000;
+ 
+@@ -236,12 +217,12 @@
+     return -(b-a)*f*0.3; 
+ }
+ 
+-
+-
+-
+ bool MapPathWeighter::accessible(const AGVector2 &amp;a)
+ {
+-  //  return true;
++  // FIXME: maybe make some terrain impassable
++
++  if(isWaterPassable())
++    return true;
+   float hmin=10;
+   for(int x=-1;x&lt;2;x++)
+     for(int y=-1;y&lt;2;y++)
+@@ -257,6 +238,9 @@
+ 
+ 
+ 
++
++
++
+ ///////////////////////////////////////////////////////////////////////
+ // Graph
+ ///////////////////////////////////////////////////////////////////////
+
+Modified: antargis/branches/rant/ext/game/path.h
+===================================================================
+--- antargis/branches/rant/ext/game/path.h	2007-08-22 17:49:56 UTC (rev 1161)
++++ antargis/branches/rant/ext/game/path.h	2007-08-25 19:26:25 UTC (rev 1162)
+@@ -7,47 +7,71 @@
+ #include &quot;heuristic.h&quot;
+ 
+ #include &lt;ag_serial.h&gt;
+-
+ #include &lt;ag_surface.h&gt;
+ 
+ /**
+-   This file is WORK-IN-PROGRESS !!!!!!!!!!!!!!!!!!!!!!
+-
+-   The purpose is some path-finding-algorithm based upon &quot;A-star&quot;. (A*)
++   The purpose of this file is some path-finding-algorithm based upon &quot;A-star&quot;. (A*)
+    
+    Because path-finding is a somewhat hard topic, we should try some
+    hierarchical approach:
+    * build some graph out of the height-map - weight come from height and terrain-type (swamp and deep sand vs. plain grass)
+-   * nodes that are near each other get eliminated (thrown together), if terrain connection is possible (and too much longer)
+-   * several levels of this graph can be used, according to the distance that has to be gone
++   * nodes that are near each other get eliminated (thrown together), if terrain connection is possible (and not too much longer)
++   * (mayto TODO: several levels of this graph can be used, according to the distance that has to be gone)
+    * for people that have boats, water can be crossed, so there has to be a different path-graph !
+ 
++   Computation goes as follows:
++   * You define a Path-Weighter, that weighs distances on a map (or without a map - for very simple cases (that we won't use here though))
++   * Feed this into a makeGraph(...)-call
++   * decimate the graph, if you want to
++   * compute a heuristic on the resulting-graph - e.g. the full-computed distance-field for all nodes (in StoredHeuristicFunction)
++   * create a Pathfinder-object using graph and heuristic
++   * use this Pathfinder to compute distances and pathes :-)
++
++   NOTE:
++   * Within the game these classes won't be used directly, but through the CombinedPathFinder-ruby-class
+ */
+ 
+ class Heuristic;
+ 
++/**
++   PathWeighter is a (not-really-used) base-class for the path-weighing-facility. It though stores, if water is
++   passable.
++   
++   FIXME: integrate PathWeighter into MapPathWeighter!
++ */
+ class AGEXPORT PathWeighter:public AGRubyObject
+ {
+  public:
++  PathWeighter(bool pWaterPassable=false);
+   virtual ~PathWeighter();
++  /// this function can be overridden - and will be
+   virtual float weight(float h0,float h1);
++
++  bool isWaterPassable() const;
++ private:
++  bool mWaterPassable;
+ };
+ 
+ class AGEXPORT MapPathWeighter:public PathWeighter
+ {
+  public:
+-  MapPathWeighter(HeightMap *pMap);
++  MapPathWeighter(HeightMap *pMap,bool pWaterPassable);
+   virtual float weight(const AGVector2 &amp;a,const AGVector2 &amp;b);
+   virtual bool accessible(const AGVector2 &amp;a);
+  private:
+ 
+   virtual float complexWeight(const AGVector2 &amp;a,const AGVector2 &amp;b);
++
++  /// compute a weight for a flank. Compares the heights a and b. used by complexWeight
+   virtual float weightHeight(float a,float b) const;
+ 
+   HeightMap *mMap;
+ };
+ 
+ 
++/**
++   AGVector2Sort is a simple sorting class for use in sorting containers, like map or set.
++ */
+ struct AGEXPORT AGVector2Sort
+ {
+   public:
+@@ -99,11 +123,6 @@
+ 
+     Node *getOther(Node *n);
+ 
+-    /*
+-    HalfEdge *getHalfEdgeFrom(Node *n);
+-
+-    HalfEdge *getHalfEdgeTo(Node *n);
+-    */
+   };
+ 
+   struct Node
+
+Deleted: antargis/branches/rant/ext/game/path_base.cc
+===================================================================
+--- antargis/branches/rant/ext/game/path_base.cc	2007-08-22 17:49:56 UTC (rev 1161)
++++ antargis/branches/rant/ext/game/path_base.cc	2007-08-25 19:26:25 UTC (rev 1162)
+@@ -1,9 +0,0 @@
+-#include &lt;path_base.h&gt;
+-
+-AGPathBase::~AGPathBase()
+-{
+-}
+-float AGPathBase::weight(const AGVector2 &amp;a,const AGVector2 &amp;b)
+-{
+-  return 0;
+-}
+
+Deleted: antargis/branches/rant/ext/game/path_base.h
+===================================================================
+--- antargis/branches/rant/ext/game/path_base.h	2007-08-22 17:49:56 UTC (rev 1161)
++++ antargis/branches/rant/ext/game/path_base.h	2007-08-25 19:26:25 UTC (rev 1162)
+@@ -1,16 +0,0 @@
+-#ifndef PATH_BASE_H
+-#define PATH_BASE_H
+-
+-// INCLUDE_SWIG - used to filter, which files are included in swig-interfacing
+-
+-#include &lt;ag_geometry.h&gt;
+-#include &lt;ag_rubyobj.h&gt;
+-
+-class AGEXPORT AGPathBase:public AGRubyObject
+-{
+- public:
+-  virtual ~AGPathBase();
+-  virtual float weight(const AGVector2 &amp;a,const AGVector2 &amp;b);
+-};
+-
+-#endif
+
+Deleted: antargis/branches/rant/ext/game/path_v2.cc
+===================================================================
+--- antargis/branches/rant/ext/game/path_v2.cc	2007-08-22 17:49:56 UTC (rev 1161)
++++ antargis/branches/rant/ext/game/path_v2.cc	2007-08-25 19:26:25 UTC (rev 1162)
+@@ -1,305 +0,0 @@
+-#include &quot;path_v2.h&quot;
+-#include &lt;ag_debug.h&gt;
+-#include &lt;ag_geometry.h&gt;
+-#include &lt;set&gt;
+-
+-
+-#include &quot;path_vector_sort.h&quot;
+-
+-
+-
+-///////////////////////////////////////////////////////////////////////////////////
+-
+-
+-/**
+- * PathV2Data constructor - does nothing yet
+- */
+-PathV2Data::PathV2Data(size_t pBaseSize):mBaseSize(pBaseSize)
+-{
+-}
+-
+-
+-void PathV2Data::compute(const DistanceComputer &amp;pCalc)
+-{
+-  mMatrices.clear();
+-
+-  float x,y;
+-  size_t ix,iy;
+-
+-  for(x=pCalc.beginX();x&lt;=pCalc.endX();x+=pCalc.stepX())
+-    {
+-      for(y=pCalc.beginY();y&lt;=pCalc.endY();y+=pCalc.stepY())
+-	{
+-	  AGVector2 start(x,y);
+-
+-	  traceFrom(pCalc,start);
+-	}
+-    }
+-
+-}
+-
+-
+-void PathV2Data::traceFrom(const DistanceComputer &amp;pCalc,const AGVector2 &amp;p)
+-{
+-  // FIXME: maybe store directly into matrix ???
+-
+-  std::map&lt;AGVector2,float&gt; distances;
+-  std::list&lt;AGVector2&gt; queue; // FIXME: use a distance-filter ????
+-
+-  float cDist,nextDist,oldDist;
+-  AGVector2 curPos;
+-
+-  queue.push_back(p);
+-  distances[p]=0;
+-
+-  while(queue.size()&gt;0)
+-    {
+-      curPos=queue.front();
+-      queue.pop_front();
+-      cDist=distances[curPos];
+-      std::vector&lt;std::pair&lt;AGVector2,float&gt; &gt; neighbors=pCalc.getAllReachableFrom(curPos);
+-
+-      for(std::vector&lt;std::pair&lt;AGVector2,float&gt; &gt;::iterator i=neighbors.begin();i!=neighbors.end();i++)
+-	{
+-	  nextDist=cDist+i-&gt;second;
+-	  oldDist=distances[i-&gt;first];
+-	  if(oldDist==0 || nextDist&lt;oldDist)
+-	    {
+-	      // store in map
+-	      distances[i-&gt;first]=nextDist;
+-	      // push into queue
+-	      queue.push_back(i-&gt;first);
+-	    }
+-	}
+-
+-    }
+-
+-  // ok, we're ready
+-  // store into matrix
+-  
+-  size_t matrixWidth=size_t((pCalc.endX()-pCalc.beginX())/pCalc.stepX()+1);
+-  size_t matrixHeight=size_t((pCalc.endY()-pCalc.beginY())/pCalc.stepY()+1);
+-
+-  AGMatrixN matrix(matrixWidth,matrixHeight);
+-
+-  for(std::map&lt;AGVector2,float&gt;::iterator i=distances.begin();i!=distances.end();i++)
+-    {
+-      size_t x=size_t((i-&gt;first[0]-pCalc.beginX())/pCalc.stepX());
+-      size_t y=size_t((i-&gt;first[1]-pCalc.beginY())/pCalc.stepY());
+-      matrix.set(x,y,i-&gt;second);
+-    }
+-
+-  //FIXME  mMatrices.push_back(matrix);
+-  
+-}
+-
+-
+-
+-
+-///////////////////////////////////////////////////////////////////////////////////
+-
+-/**
+- * PathV2 constructor
+- * \param pData the data that's used to compute distances - is owned by PathV2 later on!
+- */
+-PathV2::PathV2(PathV2Data *pData):mData(pData)
+-{
+-}
+-
+-PathV2::~PathV2()
+-{
+-  if(mData)
+-    saveDelete(mData);
+-}
+-
+-
+-float PathV2::weight(const AGVector2 &amp;a,const AGVector2 &amp;b)
+-{
+-}
+-
+-void PathV2::mark()
+-{
+-  markObject(mData);
+-}
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-/**
+- * PathV3Data constructor
+- */
+-
+-PathV3Data::PathV3Data(size_t pFieldCount):
+-  mFieldCount(pFieldCount)
+-{
+-}
+-
+-
+-void PathV3Data::compute(const DistanceComputer &amp;pCalc)
+-{
+-  std::vector&lt;AGVector2&gt; allValidPoints;
+-  std::set&lt;AGVector2&gt; allValidPointsSet;
+-  AGVector2 currentPoint;
+-  float x,y;
+-
+-  for(x=pCalc.beginX();x&lt;=pCalc.endX();x+=pCalc.stepX())
+-    {
+-      for(y=pCalc.beginY();y&lt;=pCalc.endY();y+=pCalc.stepY())
+-	{
+-	  currentPoint=AGVector2(x,y);
+-	  if(pCalc.isPassable(currentPoint))
+-	    {
+-	      allValidPoints.push_back(currentPoint);
+-	    }
+-	}
+-    }
+-
+-  std::copy(allValidPoints.begin(),allValidPoints.end(),std::inserter(allValidPointsSet,allValidPointsSet.begin()));
+-
+-  size_t estFieldSize=allValidPoints.size()/mFieldCount;
+-  // shuffle ???
+-
+-
+-  cdebug(&quot;estFieldSize:&quot;&lt;&lt;estFieldSize);
+-
+-  while(allValidPoints.size()&gt;0)
+-    {
+-      // make new field
+-      size_t randomIndex=rand()%allValidPoints.size();
+-      std::set&lt;AGVector2&gt; currentField;
+-      AGVector2 fieldMiddle=allValidPoints[randomIndex];
+-
+-      currentField.insert(fieldMiddle);
+-      allValidPointsSet.erase(fieldMiddle);
+-
+-      // grow field
+-      
+-      DistanceOrder order(fieldMiddle);
+-      std::set&lt;AGVector2,DistanceOrder&gt; growField(order);//(DistanceOrder(fieldMiddle));
+-      //      std::set&lt;AGVector2&gt; growField;
+-      growField.insert(fieldMiddle);
+-
+-      while(currentField.size()&lt;estFieldSize &amp;&amp; growField.size()&gt;0)
+-	{
+-	  currentPoint=*growField.begin();
+-	  growField.erase(currentPoint);
+-	  mVec2Field[currentPoint]=mFields.size();
+-
+-	  std::vector&lt;std::pair&lt;AGVector2,float&gt; &gt; reachable=pCalc.getAllReachableFrom(currentPoint);
+-
+-	  //	  cdebug(&quot;reachable:&quot;&lt;&lt;reachable.size()&lt;&lt;&quot; currentPoint:&quot;&lt;&lt;currentPoint);
+-
+-	  for(std::vector&lt;std::pair&lt;AGVector2,float&gt; &gt;::iterator i=reachable.begin();i!=reachable.end();i++)
+-	    {
+-	      //	      cdebug(&quot;1&quot;);
+-	      if(growField.find(i-&gt;first)==growField.end())
+-		{
+-		  //		  cdebug(&quot;2&quot;);
+-		  if(currentField.find(i-&gt;first)==currentField.end())
+-		    {
+-		      //		      cdebug(&quot;3&quot;);
+-		      //		      cdebug(&quot;allValid:&quot;&lt;&lt;allValidPointsSet.size());
+-
+-		      //		      for(  std::set&lt;AGVector2&gt;::iterator k=allValidPointsSet.begin();k!=allValidPointsSet.end();k++)
+-		      //			{
+-		      //			  cdebug(i-&gt;first&lt;&lt;&quot;:&quot;&lt;&lt;*k&lt;&lt;&quot;:&quot;&lt;&lt;(i-&gt;first==*k));
+-		      //			}
+-
+-
+-		      if(allValidPointsSet.find(i-&gt;first)!=allValidPointsSet.end())
+-			{
+-			  //  cdebug(&quot;4&quot;);
+-			  growField.insert(i-&gt;first);
+-			  currentField.insert(i-&gt;first);
+-			  allValidPointsSet.erase(i-&gt;first);
+-
+-			  mVec2Field[i-&gt;first]=mFields.size();
+-			}
+-		    }
+-		}
+-	    }
+-
+-	}
+-
+-
+-      // copy back into vector
+-      allValidPoints.clear();
+-      std::copy(allValidPointsSet.begin(),allValidPointsSet.end(),std::back_inserter(allValidPoints));
+-      std::list&lt;AGVector2&gt; resultField;
+-      std::copy(currentField.begin(),currentField.end(),std::back_inserter(resultField));
+-      mFields.push_back(resultField);
+-
+-      for(std::list&lt;AGVector2&gt;::iterator i=resultField.begin();i!=resultField.end();i++)
+-	{
+-	  cdebug(*i);
+-	}
+-      cdebug(&quot;----&quot;);
+-    }
+-  
+-}
+-
+-
+-std::list&lt;AGVector2&gt; PathV3Data::vecList(size_t field) const
+-{
+-  return mFields[field];
+-}
+-size_t PathV3Data::fieldCount() const
+-{
+-  return mFields.size();
+-}
+-
+-float PathV3Data::getDistanceFromTo(const AGVector2 &amp;pFrom,const AGVector2 &amp;pTo) const
+-{
+-  //FIXME
+-  return 0;
+-}
+-
+-
+-bool PathV3Data::isInField(const AGVector2 &amp;pPoint,size_t pField) const
+-{
+-  std::map&lt;AGVector2,size_t&gt;::const_iterator i=mVec2Field.find(pPoint);
+-
+-  if(i==mVec2Field.end())
+-    return false; //FIXME: throw exception
+-
+-  return i-&gt;second==pField;
+-}
+-
+-std::map&lt;size_t,float&gt; PathV3Data::getNeighbors(size_t pField) const
+-{
+-  std::map&lt;size_t,float&gt; x;
+-  //FIXME: implement me
+-  return x;
+-}
+-
+-
+-size_t PathV3Data::getField(const AGVector2 &amp;a) const
+-{
+-  std::map&lt;AGVector2,size_t&gt;::const_iterator i=mVec2Field.find(a);
+-
+-  if(i==mVec2Field.end())
+-    return -1;
+-
+-  return i-&gt;second;
+-}
+-
+-float PathV3Data::directNeighbors(const AGVector2 &amp;a,const AGVector2 &amp;b) const
+-{
+-  std::map&lt;AGVector2,std::map&lt;AGVector2,float&gt; &gt;::const_iterator i=mDirectMaps.find(a);
+-
+-  if(i==mDirectMaps.end())
+-    return -1;
+-  
+-  std::map&lt;AGVector2,float&gt;::const_iterator j=i-&gt;second.find(b);
+-
+-  if(j==i-&gt;second.end())
+-    return -2;
+-
+-  return j-&gt;second;
+-
+-}
+
+Deleted: antargis/branches/rant/ext/game/path_v2.h
+===================================================================
+--- antargis/branches/rant/ext/game/path_v2.h	2007-08-22 17:49:56 UTC (rev 1161)
++++ antargis/branches/rant/ext/game/path_v2.h	2007-08-25 19:26:25 UTC (rev 1162)
+@@ -1,89 +0,0 @@
+-#ifndef PATH_V2_H
+-#define PATH_V2_H
+-
+-// INCLUDE_SWIG - used to filter, which files are included in swig-interfacing
+-
+-#include &lt;path_base.h&gt;
+-#include &lt;ag_algebra.h&gt;
+-
+-#include &lt;map&gt;
+-
+-#include &quot;path_weighter.h&quot;
+-
+-class AGEXPORT PathV3Data:public AGRubyObject
+-{
+- public:
+-  PathV3Data(size_t pFieldCount=64);
+-
+-
+-  void compute(const DistanceComputer &amp;pCalc);
+-
+-  /**
+-   * \return -1 if they're no neighbors
+-   *         &gt;0 the distance when they're neighbors somehow
+-   */
+-  float directNeighbors(const AGVector2 &amp;a,const AGVector2 &amp;b) const;
+-
+-  size_t getField(const AGVector2 &amp;a) const;
+-  std::map&lt;size_t,float&gt; getNeighbors(size_t pField) const;
+-
+-  bool isInField(const AGVector2 &amp;pPoint,size_t pField) const;
+-
+-  // pFrom and pTo must be in neighboring fields
+-  float getDistanceFromTo(const AGVector2 &amp;pFrom,const AGVector2 &amp;pTo) const;
+-  
+-
+-  std::list&lt;AGVector2&gt; vecList(size_t field) const;
+-  size_t fieldCount() const;
+-
+-
+- private:
+-  
+-  size_t mFieldCount;
+-
+-
+-  std::map&lt;AGVector2,size_t&gt; mVec2Field;
+-  std::vector&lt;std::list&lt;AGVector2&gt; &gt; mFields;
+-  std::map&lt;AGVector2,std::map&lt;AGVector2,float&gt; &gt; mDirectMaps;
+-  std::map&lt;size_t,std::map&lt;size_t,float&gt; &gt; mDirectFieldMaps;
+-  
+-};
+-
+-
+-class AGEXPORT PathV2Data:public AGRubyObject
+-{
+- public:
+-  PathV2Data(size_t pBaseSize=8);
+-
+-  void compute(const DistanceComputer &amp;pCalc);
+-
+- private:
+-  void traceFrom(const DistanceComputer &amp;pCalc,const AGVector2 &amp;p);
+-
+-  
+-
+-  std::map&lt;AGVector2,AGMatrixN&gt; mMatrices;
+-  size_t mBaseSize;
+-};
+-
+-
+-
+-class AGEXPORT PathBase:public AGRubyObject
+-{
+-};
+-
+-class AGEXPORT PathV2:public PathBase
+-{
+- public:
+-  PathV2(PathV2Data *pData);
+-  ~PathV2();
+-
+-  virtual float weight(const AGVector2 &amp;a,const AGVector2 &amp;b);
+-
+-  virtual void mark();
+- private:
+-  
+-  PathV2Data *mData;
+-};
+-
+-#endif
+
+Deleted: antargis/branches/rant/ext/game/path_v3.h
+===================================================================
+--- antargis/branches/rant/ext/game/path_v3.h	2007-08-22 17:49:56 UTC (rev 1161)
++++ antargis/branches/rant/ext/game/path_v3.h	2007-08-25 19:26:25 UTC (rev 1162)
+@@ -1,7 +0,0 @@
+-#ifndef PATH_V3_H
+-#define PATH_V3_H
+-
+-#include &quot;path_data_v3.h&quot;
+-
+-
+-#endif
+
+Modified: antargis/branches/rant/ruby/ant_hljobs.rb
+===================================================================
+--- antargis/branches/rant/ruby/ant_hljobs.rb	2007-08-22 17:49:56 UTC (rev 1161)
++++ antargis/branches/rant/ruby/ant_hljobs.rb	2007-08-25 19:26:25 UTC (rev 1162)
+@@ -197,7 +197,7 @@
+ # 		puts hero.getPos2D,pos
+ # 		puts hero.getPos2D.class,pos.class
+ 		if getMap.path
+-			@waypoints=getMap.path.computePath(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">hero.getPos2D, at pos</A>)
++			@waypoints=getMap.path.computePath(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">hero.getPos2D, at pos</A><A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at hero</A>)
+ 		else
+ 			@waypoints=[]
+ 		end
+@@ -205,7 +205,7 @@
+ 		@waypoints.push(@pos)
+ 		if getMap.path
+ 			#puts &quot;FIXME: ant_hljobs.rb:207&quot;
+-			@waypoints=getMap.path.refinePath(@waypoints,MapPathWeighter.new(getMap))
++			@waypoints=getMap.path.refinePath(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">waypoints, at hero</A>)
+ 		end
+ 		@men=getMen
+ 		@moveFinished=false
+
+Added: antargis/branches/rant/ruby/ant_path.rb
+===================================================================
+--- antargis/branches/rant/ruby/ant_path.rb	2007-08-22 17:49:56 UTC (rev 1161)
++++ antargis/branches/rant/ruby/ant_path.rb	2007-08-25 19:26:25 UTC (rev 1162)
+@@ -0,0 +1,153 @@
++
++#
++# +CombinedPathFinder+ combines the C++-implemented basic funtions with
++# heuristc and path-find to a complete-pathfinder, that reacts to the
++# abilities of the calling entity.
++# It provides:
++# * loading/saving a cache of the computed data in file named after the map's hash
++# * computing a path/a distance w.r.t. to the abilities of an entity
++# ** currently it differentiates between having a boat and not
++#
++# It uses the following C++-classes:
++# * SimpleGraph/DecimatedGraph
++# * makeGraph (which produces a SimpleGraph)
++# * StoredHeuristicFunction
++# * Pathfinder
++#
++class CombinedPathFinder
++
++	# the current available modes, in which pathes will be computed. You can add some more here
++  # but you'll have to modify the functions getPathWeighter, getMode, displayPathfindingGraph
++	MODES=[:normal,:overWater]
++
++	def initialize(map)
++		@graph={}
++		@heuristic={}
++		@path={}
++		@map=map
++
++		# check Cache
++		cacheFilename=getCacheFilename(map)
++		if fileExists(findFile(cacheFilename))
++			loadFromFile(cacheFilename)
++		else
++			computeEverything(map)
++			saveToFile(cacheFilename)
++		end
++
++		# put them together
++		MODES.each{|mode|
++			@path[mode]=Pathfinder.new(@graph[mode]<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at heuristic</A>[mode])
++		}
++	end
++
++	def distance(p0,p1,entity)
++		@path[getMode(entity)].distance(p0,p1)
++	end
++
++	def computePath(p0,p1,entity)
++		@path[getMode(entity)].computePath(p0,p1)
++	end
++	def refinePath(waypoints,entity)
++		mode=getMode(entity)
++		@path[mode].refinePath(waypoints,getPathWeighter(@map,mode))
++	end
++
++
++	def displayPathfindingGraph(map,scene)
++		colors={:normal=&gt;AGVector4.new(1,0,0,1),:overWater=&gt;AGVector4.new(1,1,0,1)}
++		width=2
++		MODES.each{|mode|
++			wireframe=Boa3dWireframe.new(scene,colors[mode],width)
++			(0..(@graph[mode].edges-1)).each{|i|
++				edge=@graph[mode].getEdgePosition(i)
++				a=edge[0]
++				b=edge[1]
++				a=AGVector3.new(a.x,a.y,map.getHeight(a.x,a.y)+0.05)
++				b=AGVector3.new(b.x,b.y,map.getHeight(b.x,b.y)+0.05)
++				wireframe.addLine(a,b)
++			}
++			scene.addNode(wireframe)
++			width+=2
++		}
++	end
++
++private
++	# get path-finding mode for the given +entity+
++	def getMode(entity)
++		if entity.resource.get(&quot;boat&quot;)&gt;0
++			# if entity has boat then is can cross water - FIXME: put this into an entity-based function
++			:overWater
++		else
++			:normal
++		end
++	end
++
++	def getCacheFilename(map)
++		levelHash=map.hash # build a hash out of the height-map
++		cacheFilename=levelHash+&quot;.cache&quot;
++	end
++
++	def loadFromFile(filename)
++		content=loadFile(filename)
++		stream=BinaryStringIn.new(content)
++		MODES.each{|mode|
++			@graph[mode]=SimpleGraph.new(stream)
++			@heuristic[mode]=StoredHeuristicFunction.new(stream)
++		}
++	end
++
++	def saveToFile(filename)
++		# save everything to the cachefile
++		stream=BinaryStringOut.new
++		MODES.each{|mode|
++			@graph[mode].printTo(stream)
++			@heuristic[mode].printTo(stream)
++		}
++	
++		saveFile(filename,stream.getString)
++	end
++
++	def computeEverything(map)
++		MODES.each{|mode|computeMode(map,mode)}
++	end
++
++	def computeMode(map,mode)
++		# build a map-height/distance weighter
++		weighter=getPathWeighter(map,mode)
++
++		# set initial distance of waypoints	
++		minDist=2
++
++		begin
++			# make a path-finding graph
++			sgraph=makeGraph(map,weighter,minDist)
++			minDist*=2
++		end while(sgraph.size&gt;2000) # use a smaller resolution, if there are too many nodes in graph
++
++		# copy to a decimating graph
++		graph=DecimatedGraph.new(sgraph)
++
++		# compute a decimation-factor
++		factor=1.0-800.0/graph.size
++
++		# debugging settings
++		#factor=0.4
++		#factor=1.0-220.0/@dgraph.size
++
++		graph.decimate(factor,weighter)
++
++		# compute a distance-field and use this as a pre-computed heuristic
++		@heuristic[mode]=computeHeuristic(graph)
++		@graph[mode]=graph
++	end
++
++	def getPathWeighter(map,mode)
++		case mode
++			when :normal
++				return MapPathWeighter.new(map,false)
++			when :overWater
++				return MapPathWeighter.new(map,true)
++		end
++	end
++end
+\ No newline at end of file
+
+Modified: antargis/branches/rant/ruby/map.rb
+===================================================================
+--- antargis/branches/rant/ruby/map.rb	2007-08-22 17:49:56 UTC (rev 1161)
++++ antargis/branches/rant/ruby/map.rb	2007-08-25 19:26:25 UTC (rev 1162)
+@@ -23,6 +23,7 @@
+ require 'ant_level.rb'
+ 
+ require 'ant_ai.rb'
++require 'ant_path.rb'
+ 
+ # This class prodives support for defining target-positions in a level-file.
+ # These positions can be used for scripting. This way code and level-data is
+@@ -480,9 +481,13 @@
+ 	end
+ 
+ 
+-
+ 	def createPathfinder
++		@path=CombinedPathFinder.new(self)
++		@path.displayPathfindingGraph(self,getScene)
++	end
+ 
++	def createPathfinderOLD
++
+ 		levelHash=self.hash # build a hash out of the height-map
+ 		cacheFilename=levelHash+&quot;.cache&quot;
+ 
+@@ -532,18 +537,6 @@
+ 		
+ 		#displayPathfindingGraph
+ 	end
+-	def displayPathfindingGraph
+-		wireframe=Boa3dWireframe.new(getScene,AGVector4.new(1,0,0,1))
+-		(0..(@dgraph.edges-1)).each{|i|
+-			edge=@dgraph.getEdgePosition(i)
+-			a=edge[0]
+-			b=edge[1]
+-			a=AGVector3.new(a.x,a.y,getHeight(a.x,a.y)+0.05)
+-			b=AGVector3.new(b.x,b.y,getHeight(b.x,b.y)+0.05)
+-			wireframe.addLine(a,b)
+-		}
+-		getScene.addNode(wireframe)
+-	end
+ end
+ 
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000118.html">[Antargis-svn] r1161 - in antargis/branches/rant: . build	ext/game/tests
+</A></li>
+	<LI>Next message: <A HREF="000120.html">[Antargis-svn] r1163 - in antargis/branches/rant: . ext/external	ext/game ext/gui ruby ruby/entities
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#119">[ date ]</a>
+              <a href="thread.html#119">[ thread ]</a>
+              <a href="subject.html#119">[ subject ]</a>
+              <a href="author.html#119">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

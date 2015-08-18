@@ -1,0 +1,289 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1167 - in antargis/branches/rant/ruby: debugging	multiplayer widgets
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1167%20-%20in%20antargis/branches/rant/ruby%3A%20debugging%0A%09multiplayer%20widgets&In-Reply-To=%3C200708301832.l7UIWLLO012869%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000123.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1167 - in antargis/branches/rant/ruby: debugging	multiplayer widgets</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1167%20-%20in%20antargis/branches/rant/ruby%3A%20debugging%0A%09multiplayer%20widgets&In-Reply-To=%3C200708301832.l7UIWLLO012869%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1167 - in antargis/branches/rant/ruby: debugging	multiplayer widgets">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Thu Aug 30 20:32:21 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000123.html">[Antargis-svn] r1166 - in antargis/branches/rant: . ruby
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#124">[ date ]</a>
+              <a href="thread.html#124">[ thread ]</a>
+              <a href="subject.html#124">[ subject ]</a>
+              <a href="author.html#124">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-08-30 20:32:20 +0200 (Thu, 30 Aug 2007)
+New Revision: 1167
+
+Added:
+   antargis/branches/rant/ruby/debugging/README
+   antargis/branches/rant/ruby/multiplayer/README
+   antargis/branches/rant/ruby/widgets/ant_buttonpanel.rb
+   antargis/branches/rant/ruby/widgets/ant_name_display.rb
+Log:
+* missing files
+
+
+Added: antargis/branches/rant/ruby/debugging/README
+===================================================================
+--- antargis/branches/rant/ruby/debugging/README	2007-08-30 18:31:59 UTC (rev 1166)
++++ antargis/branches/rant/ruby/debugging/README	2007-08-30 18:32:20 UTC (rev 1167)
+@@ -0,0 +1,8 @@
++When you're debugging it's in nice, when you can start at a specific place within the game, so mustn't 
++go through all these menus and stuff. This file explains how to do this.
++
++== Running levels from CLI
++ ruby ruby/antargis.rb levels/tutorial/tutorial0
++will start the first level of the tutorial campaign.
++ ruby ruby/antargis.rb savegames/savegame0
++will start a savegame (which is normally stored in ~/.Antargis/savegames/savegame0.antlvl)
+\ No newline at end of file
+
+Added: antargis/branches/rant/ruby/multiplayer/README
+===================================================================
+--- antargis/branches/rant/ruby/multiplayer/README	2007-08-30 18:31:59 UTC (rev 1166)
++++ antargis/branches/rant/ruby/multiplayer/README	2007-08-30 18:32:20 UTC (rev 1167)
+@@ -0,0 +1 @@
++Work in progress
+\ No newline at end of file
+
+Added: antargis/branches/rant/ruby/widgets/ant_buttonpanel.rb
+===================================================================
+--- antargis/branches/rant/ruby/widgets/ant_buttonpanel.rb	2007-08-30 18:31:59 UTC (rev 1166)
++++ antargis/branches/rant/ruby/widgets/ant_buttonpanel.rb	2007-08-30 18:32:20 UTC (rev 1167)
+@@ -0,0 +1,132 @@
++# this file contains:
++# * AntButtonPanel - the button panel on the right of the game-screen containing the jobButtons
++# * AntButtonPanelCreator - a creator-class for AntButtonPanel (needed for layouts to create such a widget)
++
++
++# AntButtonPanel is the widget that's displayed on the top left of the screen.
++# It contains some (hl-)job-buttons, a display of the current job, the selected heroes is doing and
++# the name of this hero.
++# It's embedded through a layout into the screen and thus needs a creator class named AntButtonPanelCreator.
++#
++# Important note:
++# This class contains two signals named
++# * sigAggressionChanged
++# * sigJobChanged
++# You can attach your listeners to these to receive events when the aggression or a job is changed.
++class AntButtonPanel&lt;AGWidget
++	attr_reader :job
++	
++
++	def initialize(p,r)
++		super(p,r)
++		setName(&quot;ButtonPanel&quot;)
++		puts self,self.class,respond_to?(:clearHandlers),self.is_a?(AGWidget),self.methods.join(&quot;//&quot;)
++		clearHandlers
++		@jobButtons=[&quot;doRest&quot;,&quot;doDismiss&quot;,&quot;doDropFood&quot;,&quot;doDropWeapon&quot;,&quot;doBuild&quot;]
++		@aggButtons={&quot;doAgg0&quot;=&gt;1,&quot;doAgg1&quot;=&gt;2,&quot;doAgg2&quot;=&gt;3}
++		@inited=false
++		@agg=1
++
++		addSignal(&quot;sigAggressionChanged&quot;)
++		addSignal(&quot;sigJobChanged&quot;)
++
++		@hero=nil
++	end
++
++	# set the current hero *h* of class AntHero
++	def setHero(h)
++		assert{h.is_a?(AntHero) || h.nil?}
++		@hero=h
++		if @hero
++			setName(@hero.getName)
++		else
++			setName(_(&quot;no hero&quot;))
++		end
++	end
++
++
++	# event-handlers can't be initialized in the constructor initialize, because
++	# possible children are not yet created.
++	# *initHandlers* initializes event-handlers for the job- and aggression-selection buttons.
++	# FIXME: this function should only be called once ! may be check this
++	def initHandlers
++		getChild(&quot;doAgg0&quot;).setChecked(true)
++		@job=&quot;doRest&quot;
++		@jobButtons.each {|b|
++			c=getChild(b)
++			addHandler(c,:sigClick,:eventJobSelected)
++		}
++		@aggButtons.each {|b,a|
++			c=getChild(b)
++			addHandler(c,:sigClick,:eventAggSelected)
++		}
++	end
++
++	# checks if the view has to be updated
++	def prepareDraw
++		updateJobView
++		super
++	end
++
++	
++	def eventJobSelected(e)
++		@job=e.getCaller.getName
++		sigJobChanged(e)
++		return true
++	end
++
++	# another aggression was selected, so put it forward to this signal *sigAggressionChanged*
++	def eventAggSelected(e)
++		@agg=@aggButtons[e.getCaller.getName]
++		sigAggressionChanged(e)
++		return true
++	end
++	
++	# force setting an aggresion 
++	# FIXME: which aggressions are ok ??? Check this in here!
++	def setAggression(l)
++		l=l.to_i
++		@aggButtons.each{|n,b|
++			getChild(n).setChecked((b==l))
++		}
++		@agg=l
++	end
++
++	# get the current aggression
++	def getAggression
++		@agg
++	end
++	def setPointing
++		@job=&quot;doPoint&quot;
++		getChild(&quot;doFight&quot;).setChecked(true)
++	end
++private
++	def updateJobView
++		return if @hero.nil?
++		if @hero.getJob
++			i=@hero.getJob.image
++		else
++			i=&quot;data/gui/bed.png&quot;
++		end
++		if @job!=i
++			@job=i
++			getChild(&quot;jobView&quot;).setTexture(getTextureCache.get(i))
++		end
++	end
++
++	# set another name for the hero-name-display
++	def setName(n)
++		if getChild(&quot;heroName&quot;)
++			getChild(&quot;heroName&quot;).setText(_(n))
++		end
++	end
++
++end
++
++# factory for buttonpanel-widget
++class AntButtonPanelCreator&lt;AGLayoutCreator
++	def create(p,r,n)
++		setResult AntButtonPanel.new(p,r)
++	end
++end
++getLayoutFactory.addCreator(&quot;antButtonPanel&quot;,AntButtonPanelCreator.new)
+
+Added: antargis/branches/rant/ruby/widgets/ant_name_display.rb
+===================================================================
+--- antargis/branches/rant/ruby/widgets/ant_name_display.rb	2007-08-30 18:31:59 UTC (rev 1166)
++++ antargis/branches/rant/ruby/widgets/ant_name_display.rb	2007-08-30 18:32:20 UTC (rev 1167)
+@@ -0,0 +1,50 @@
++class AntNameDisplay&lt;AGWidget
++	@@fontChangeCount=0
++
++	def initialize(p,r,hero,map)
++		super(p,r)
++		@map=map
++		@hero=hero
++		@font=getTheme.getFont(&quot;heroName.font&quot;)
++		@oldfont=@font
++		@name=@hero.getName
++		addChild(@mb=AGButton.new(self,AGRect.new(0,0,width,height),_(&quot;&quot;)))
++		
++		@mb.setEnabled(false)
++		addChild(@textWidget=AGText.new(self,AGRect.new(0,0,width,height),AGStringUtf8.new(@hero.getName)<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at font</A>))
++		
++		@fonts={true=&gt;getTheme.getFont(&quot;heroName.font&quot;),false=&gt;getTheme.getFont(&quot;enemyHero.font&quot;)}
++		@oldPlayer=nil
++		setCaching(true)
++	end
++
++	# enforce integer position	
++	def setRect(r)
++		super(AGRect.new(r.x.to_i,r.y.to_i,r.w.to_i,r.h.to_i))
++	end
++	
++	def getText
++		@name
++	end
++
++	def prepareDraw
++		@font=@fonts[@hero.getPlayer==@map.getPlayer]
++		if @font!=@oldfont
++			puts &quot;#{@hero.getPlayer} #{@map.getPlayer} #{@oldPlayer}&quot;
++			puts &quot;#{@font} #{@oldfont}&quot;
++			@oldPlayer=@hero.getPlayer
++			puts &quot;font changed&quot;
++			@@fontChangeCount||=0
++			@@fontChangeCount+=1
++			if @@fontChangeCount&gt;20
++				raise 1
++			end
++			@oldfont=@font
++			@textWidget.setFont(@font)
++			queryRedraw
++		end
++		super
++	end
++
++	private
++end
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000123.html">[Antargis-svn] r1166 - in antargis/branches/rant: . ruby
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#124">[ date ]</a>
+              <a href="thread.html#124">[ thread ]</a>
+              <a href="subject.html#124">[ subject ]</a>
+              <a href="author.html#124">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

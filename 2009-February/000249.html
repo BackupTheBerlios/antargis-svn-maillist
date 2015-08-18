@@ -1,0 +1,1453 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1293 - in antargis/trunk: ext/3dengine ext/basic	ext/game ext/gui ext/math ext/sound ext/video	rookey/lib/rookey rookey/lib/rookey/cpp
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2009-February/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1293%20-%20in%20antargis/trunk%3A%20ext/3dengine%20ext/basic%0A%09ext/game%20ext/gui%20ext/math%20ext/sound%20ext/video%0A%09rookey/lib/rookey%20rookey/lib/rookey/cpp&In-Reply-To=%3C200902262003.n1QK3vaC030632%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000248.html">
+   <LINK REL="Next"  HREF="000250.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1293 - in antargis/trunk: ext/3dengine ext/basic	ext/game ext/gui ext/math ext/sound ext/video	rookey/lib/rookey rookey/lib/rookey/cpp</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1293%20-%20in%20antargis/trunk%3A%20ext/3dengine%20ext/basic%0A%09ext/game%20ext/gui%20ext/math%20ext/sound%20ext/video%0A%09rookey/lib/rookey%20rookey/lib/rookey/cpp&In-Reply-To=%3C200902262003.n1QK3vaC030632%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1293 - in antargis/trunk: ext/3dengine ext/basic	ext/game ext/gui ext/math ext/sound ext/video	rookey/lib/rookey rookey/lib/rookey/cpp">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Thu Feb 26 21:03:57 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000248.html">[Antargis-svn] r1292 - in antargis/trunk: ext/3dengine ext/basic	ext/game ext/gui ext/sound ext/video rookey/lib/rookey/cpp	ruby ruby/spec
+</A></li>
+        <LI>Next message: <A HREF="000250.html">[Antargis-svn] r1294 - antargis/trunk/ext/video
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#249">[ date ]</a>
+              <a href="thread.html#249">[ thread ]</a>
+              <a href="subject.html#249">[ subject ]</a>
+              <a href="author.html#249">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2009-02-26 21:03:54 +0100 (Thu, 26 Feb 2009)
+New Revision: 1293
+
+Modified:
+   antargis/trunk/ext/3dengine/ag_glsl.cc
+   antargis/trunk/ext/3dengine/glsl.cc
+   antargis/trunk/ext/3dengine/mesh_data.cc
+   antargis/trunk/ext/3dengine/quadtree.h
+   antargis/trunk/ext/3dengine/scene_base.cc
+   antargis/trunk/ext/3dengine/vertex_array.cc
+   antargis/trunk/ext/basic/ag_config.cc
+   antargis/trunk/ext/basic/ag_fs.cc
+   antargis/trunk/ext/basic/ag_geometry.h
+   antargis/trunk/ext/basic/ag_kill.cc
+   antargis/trunk/ext/basic/ag_kill.h
+   antargis/trunk/ext/basic/ag_message.cc
+   antargis/trunk/ext/basic/ag_messageobject.cc
+   antargis/trunk/ext/basic/ag_messageobject.h
+   antargis/trunk/ext/basic/ag_serial.cc
+   antargis/trunk/ext/basic/ag_xml.cc
+   antargis/trunk/ext/basic/templates.i
+   antargis/trunk/ext/game/entity.cc
+   antargis/trunk/ext/game/path.cc
+   antargis/trunk/ext/game/path.h
+   antargis/trunk/ext/gui/ag_button.cc
+   antargis/trunk/ext/gui/ag_frame.cc
+   antargis/trunk/ext/gui/ag_layoutcreators.cc
+   antargis/trunk/ext/gui/ag_scroller.cc
+   antargis/trunk/ext/gui/ag_widget.h
+   antargis/trunk/ext/math/ag_algebra.h
+   antargis/trunk/ext/sound/ag_mixer.cc
+   antargis/trunk/ext/video/ag_color.h
+   antargis/trunk/ext/video/ag_font.h
+   antargis/trunk/ext/video/ag_fontengine.cc
+   antargis/trunk/ext/video/ag_glscreen.cc
+   antargis/trunk/ext/video/ag_glscreen.h
+   antargis/trunk/ext/video/ag_gltexture.cc
+   antargis/trunk/ext/video/ag_painter.cc
+   antargis/trunk/ext/video/ag_png.cc
+   antargis/trunk/ext/video/ag_rendercontext.cc
+   antargis/trunk/ext/video/ag_sdlscreen.cc
+   antargis/trunk/ext/video/ag_surface.h
+   antargis/trunk/ext/video/ag_surfacemanager.cc
+   antargis/trunk/ext/video/ag_texture.cc
+   antargis/trunk/ext/video/ag_texture.h
+   antargis/trunk/rookey/lib/rookey/cpp/rk_base.h
+   antargis/trunk/rookey/lib/rookey/cpp/rk_exception.h
+   antargis/trunk/rookey/lib/rookey/cpp/rk_rubyobj.cc
+   antargis/trunk/rookey/lib/rookey/cpp/rk_rubyobj.h
+   antargis/trunk/rookey/lib/rookey/tools.rb
+Log:
+#6 Cleanup
+
+Modified: antargis/trunk/ext/3dengine/ag_glsl.cc
+===================================================================
+--- antargis/trunk/ext/3dengine/ag_glsl.cc	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/3dengine/ag_glsl.cc	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -2,6 +2,7 @@
+ #include &quot;ag_glsl.h&quot;
+ #include &quot;ag_vdebug.h&quot;
+ #include &quot;ag_main.h&quot;
++#include &quot;rk_rubyobj.h&quot;
+ 
+ std::map&lt;std::string,AGVertexProgram*&gt; mVertexPrograms;
+ std::map&lt;std::string,AGFragProgram*&gt; mFragPrograms;
+@@ -164,7 +165,7 @@
+     if(glslOk() &amp;&amp; !hasQuit())
+       glDeleteObjectARB(p);
+     cdebug(&quot;name:&quot;&lt;&lt;name);
+-    checkedDeletArray(matrixBuf); // checked - no agrubyobject
++    checkedDeleteArray(matrixBuf); // checked - no agrubyobject
+     cdebug(&quot;name:&quot;&lt;&lt;name);
+     assertGL;
+ 
+
+Modified: antargis/trunk/ext/3dengine/glsl.cc
+===================================================================
+--- antargis/trunk/ext/3dengine/glsl.cc	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/3dengine/glsl.cc	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -117,7 +117,7 @@
+   {
+     takeDown();
+ 
+-    delete [] matrixBuf; // checked - no agrubyobject
++    checkedDeleteArray(matrixBuf);
+   }
+ 
+ void AntShaderProgram::onScreenUp()
+
+Modified: antargis/trunk/ext/3dengine/mesh_data.cc
+===================================================================
+--- antargis/trunk/ext/3dengine/mesh_data.cc	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/3dengine/mesh_data.cc	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -374,5 +374,5 @@
+   {
+     VertexArray *va=::makeInstances(mArray,ts);
+     mArray=*va;
+-    delete va; // checked - no agrubyobject
++    checkedDelete(va);
+   }
+
+Modified: antargis/trunk/ext/3dengine/quadtree.h
+===================================================================
+--- antargis/trunk/ext/3dengine/quadtree.h	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/3dengine/quadtree.h	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -35,7 +35,7 @@
+  * any more ???
+    The Rectangles are defined with AGRect2.
+ 
+-   QuadTree doesn't own objects - you have to delete them yourself
++   QuadTree doesn't own objects - you have to deleete them yourself
+ 
+  */
+ template&lt;class T&gt;
+@@ -55,7 +55,7 @@
+     ~Node()
+       {
+         for(typename std::list&lt;Node*&gt;::iterator i=children.begin();i!=children.end();++i)
+-          delete *i;
++          checkedDelete(*i);
+       }
+ 
+     size_t size() const
+@@ -107,7 +107,7 @@
+         for(;i!=children.end();i++)
+           {
+             (*i)-&gt;clear();
+-            delete *i;
++            checkedDelete(*i);
+           }
+         children.clear();
+ 
+@@ -171,7 +171,7 @@
+     }
+   ~QuadTree()
+     {
+-      delete root;
++      checkedDelete(root);
+     }
+ 
+   /**
+
+Modified: antargis/trunk/ext/3dengine/scene_base.cc
+===================================================================
+--- antargis/trunk/ext/3dengine/scene_base.cc	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/3dengine/scene_base.cc	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -17,7 +17,7 @@
+     for(Nodes::iterator i=mNodes.begin();i!=mNodes.end();i++)
+       (*i)-&gt;resetScene(); 
+ 
+-    delete mTree;
++    checkedDelete(mTree);
+   }
+ 
+ 
+
+Modified: antargis/trunk/ext/3dengine/vertex_array.cc
+===================================================================
+--- antargis/trunk/ext/3dengine/vertex_array.cc	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/3dengine/vertex_array.cc	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -548,13 +548,13 @@
+     for(std::map&lt;std::string,std::vector&lt;float&gt;*&gt;::iterator i=as.begin();i!=as.end();++i)
+       {
+         if(i-&gt;second)
+-          delete i-&gt;second;
++          checkedDelete(i-&gt;second);
+       }
+ 
+     for(std::map&lt;std::string,std::vector&lt;Uint16&gt;*&gt;::iterator i=elementAs.begin();i!=elementAs.end();++i)
+       {
+         if(i-&gt;second)
+-          delete i-&gt;second;
++          checkedDelete(i-&gt;second);
+       }
+ 
+   }
+
+Modified: antargis/trunk/ext/basic/ag_config.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_config.cc	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/basic/ag_config.cc	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -1,6 +1,7 @@
+ #include &quot;ag_config.h&quot;
+ #include &quot;ag_xml.h&quot;
+ #include &quot;ag_fs.h&quot;
++#include &quot;rk_rubyobj.h&quot;
+ 
+ // TODO: AGConfig should switch to a ruby-based configuration (maybe YAML)
+ // TODO: commenting should be possible !! (no overwriting)
+@@ -97,7 +98,7 @@
+ 
+ void updateConfig()
+   {
+-    delete gConfig;
++    checkedDelete(gConfig);
+     gConfig=0;
+     //  getConfig();
+   }
+
+Modified: antargis/trunk/ext/basic/ag_fs.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_fs.cc	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/basic/ag_fs.cc	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -212,7 +212,7 @@
+     fclose(f);
+ 
+     std::string r(buffer,len);
+-    delete [] buffer;
++    checkedDeleteArray(buffer);
+     return r;
+   }
+ 
+@@ -361,7 +361,7 @@
+                       {
+                         if (!GetUserProfileDirectory(accessToken, userDir, &amp;psize))
+                           {
+-                            delete [] userDir;
++                            checkedDeleteArray(userDir);
+                             userDir = NULL;
+                           } /* if */
+                       } /* else */
+@@ -578,7 +578,7 @@
+     compress((Bytef*)buf,&amp;destlen,(Bytef*)pString.c_str(),pString.length());
+ 
+     std::string r=o.getString()+std::string(buf,destlen);
+-    delete [] buf;
++    checkedDeleteArray(buf);
+     return r;
+   }
+ AGString uncompress(const AGString &amp;pString)
+@@ -593,7 +593,7 @@
+     char *buf=new char[orig+10];
+     uncompress((Bytef*)buf,&amp;orig,(Bytef*)pString.c_str()+4,pString.length()-4);
+     std::string r(buf,orig);
+-    delete [] buf;
++    checkedDeleteArray(buf);
+ 
+     return r;
+   }
+
+Modified: antargis/trunk/ext/basic/ag_geometry.h
+===================================================================
+--- antargis/trunk/ext/basic/ag_geometry.h	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/basic/ag_geometry.h	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -109,9 +109,11 @@
+     AGVector2 operator-() const;
+     AGVector2 operator-(const AGVector2 &amp;p) const;
+     AGVector2 operator+(const AGVector2 &amp;p) const;
++#ifndef SWIG
+     AGVector2 &amp; operator+=(const AGVector2 &amp;p);
+     AGVector2 &amp; operator-=(const AGVector2 &amp;p);
+-
++#endif
++    
+     float operator*(const AGVector2 &amp;p) const;
+     AGVector2 &amp; operator*=(float f);
+     AGVector2 &amp; operator/=(float f);
+@@ -133,7 +135,9 @@
+     %rename(__getitem__) operator[](int index) const;
+ #endif
+     float operator[](int index) const;
++#ifndef SWIG
+     float &amp;operator[](int index);
++#endif
+ 
+     bool nonZero() const;
+ 
+@@ -208,8 +212,13 @@
+ 
+     AGVector3 normal() const;
+ 
++#ifdef SWIG
++    %rename(__getitem__) operator[](int index) const;
++#endif
+     float operator[](int index) const;
++#ifndef SWIG
+     float &amp;operator[](int index);
++#endif
+ 
+     bool nonZero() const;
+ 
+@@ -232,6 +241,7 @@
+     float a[3][3];
+ public:
+ 
++#ifndef SWIG
+     struct Row {
+         AGMatrix3 *matrix;
+         int y;
+@@ -244,7 +254,7 @@
+             return matrix-&gt;get(x, y);
+         }
+     };
+-
++#endif
+     AGMatrix3();
+     AGMatrix3(const AGAngle &amp;a); // rotate
+     AGMatrix3(const AGVector3 &amp;a); // transpose
+@@ -265,6 +275,7 @@
+     AGMatrix3 inverted() const throw (GeometryException);
+     AGMatrix3 transposed() const;
+ 
++
+     Row operator[](size_t y);
+     const Row operator[](size_t y) const;
+ 
+
+Modified: antargis/trunk/ext/basic/ag_kill.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_kill.cc	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/basic/ag_kill.cc	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -36,7 +36,7 @@
+ void deleteInstanceKiller()
+   {
+     assert(mInstanceKiller);
+-    delete mInstanceKiller; // checked - no agrubyobject
++    checkedDelete(mInstanceKiller);
+   }
+ 
+ AGInstanceKiller *getInstanceKiller()
+@@ -66,7 +66,7 @@
+         if(rubyObject)
+           saveDelete(rubyObject);
+         else
+-          delete *i; // checked - no agrubyobject
++          checkedDelete(*i);
+       }
+ 
+   }
+
+Modified: antargis/trunk/ext/basic/ag_kill.h
+===================================================================
+--- antargis/trunk/ext/basic/ag_kill.h	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/basic/ag_kill.h	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -48,7 +48,7 @@
+     }
+   virtual void kill()
+   {
+-    delete instance;
++    checkedDelete(instance);
+   }
+ 
+   virtual void*ptr() const
+
+Modified: antargis/trunk/ext/basic/ag_message.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_message.cc	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/basic/ag_message.cc	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -107,7 +107,7 @@
+ 
+ AGMessage::~AGMessage()
+   {
+-    delete mData;
++    checkedDelete(mData);
+   }
+ 
+ const AGMessageSource &amp;AGMessage::getSource() const
+@@ -143,7 +143,7 @@
+ 
+ /**
+  * pMessage must be created outside of send, but its ownage
+- * is transfered to AGMessageQueue. AGMessageQueue will delete it,
++ * is transfered to AGMessageQueue. AGMessageQueue will remove it,
+  * when it's ok.
+  */
+ void AGMessageQueue::send(AGMessage *pMessage)
+
+Modified: antargis/trunk/ext/basic/ag_messageobject.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_messageobject.cc	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/basic/ag_messageobject.cc	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -37,9 +37,9 @@
+ AGEvent::~AGEvent() throw()
+   {
+     if(mMousePosition)
+-      delete mMousePosition;
++      checkedDelete(mMousePosition);
+     if(mRelMousePosition)
+-      delete mRelMousePosition;
++      checkedDelete(mRelMousePosition);
+   }
+ 
+ bool AGEvent::isMouseEvent() const
+
+Modified: antargis/trunk/ext/basic/ag_messageobject.h
+===================================================================
+--- antargis/trunk/ext/basic/ag_messageobject.h	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/basic/ag_messageobject.h	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -55,7 +55,7 @@
+ 
+ /** AGEvent is the typical event which is passed when the user does anything.
+     You can however derive from it and pass it through a signal.
+-    But you shouldn't delete it for yourself.
++    But you shouldn't delet it for yourself.
+  */
+ class AGEXPORT AGEvent:public AGRubyObject
+ {
+
+Modified: antargis/trunk/ext/basic/ag_serial.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_serial.cc	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/basic/ag_serial.cc	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -1,6 +1,7 @@
+ #include &quot;ag_serial.h&quot;
+ #include &lt;iostream&gt;
+ #include &lt;rk_debug.h&gt;
++#include &quot;rk_rubyobj.h&quot;
+ 
+ // INTEL is little endian
+ 
+@@ -111,7 +112,7 @@
+ 
+ 
+     f=std::string(s,l);
+-    delete s; // checked - no agrubyobject
++    checkedDelete(s); // checked - no agrubyobject
+ 
+     return *this;
+   }
+
+Modified: antargis/trunk/ext/basic/ag_xml.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_xml.cc	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/basic/ag_xml.cc	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -22,6 +22,7 @@
+ #include &quot;ag_fs.h&quot;
+ 
+ #include &quot;rk_debug.h&quot;
++#include &quot;rk_rubyobj.h&quot;
+ 
+ #include &quot;ag_profiler.h&quot;
+ 
+@@ -58,7 +59,7 @@
+   {
+     NodeVector::iterator i=mNodes.begin();
+     for(;i!=mNodes.end();i++)
+-      delete *i;
++      checkedDelete(*i);
+     mNodes.clear();
+   }
+ 
+@@ -354,7 +355,7 @@
+ 
+ Document::~Document()
+   {
+-    delete mRoot;
++    checkedDelete(mRoot);
+   }
+ 
+ bool Document::parseFile(const AGString &amp;filename)
+
+Modified: antargis/trunk/ext/basic/templates.i
+===================================================================
+--- antargis/trunk/ext/basic/templates.i	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/basic/templates.i	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -3,8 +3,7 @@
+ %template(StdVectorPNode) std::vector&lt;Node*&gt;;
+ %template(AGNodeList) std::vector&lt;Node&gt;;
+ 
+-
+-%template(StringVector) std::vector&lt;std::string&gt;;
++//%template(StringVector) std::vector&lt;std::string&gt;;
+ %template(AGStringVector) std::vector&lt;AGString&gt;;
+ %template(AGStringUtf8Vector) std::vector&lt;AGStringUtf8&gt;;
+ %template(AGVector2List) std::list&lt;AGVector2&gt;;
+
+Modified: antargis/trunk/ext/game/entity.cc
+===================================================================
+--- antargis/trunk/ext/game/entity.cc	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/game/entity.cc	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -86,7 +86,7 @@
+     for(Meshes::iterator i=mMeshes.begin();i!=mMeshes.end();i++)
+       saveDelete(*i);
+     mMeshes.clear();
+-    delete mJob; // checked - no agrubyobject
++    checkedDelete(mJob);
+     removeOldJobs();
+   }
+ 
+@@ -254,8 +254,6 @@
+               }
+             else
+               {
+-                // FIXME: Priorities are ignored for now
+-                //        throw int(); // FIXME: delete this, it's a test if priorities get handled correctly
+                 mJobFinished.push_back(mJob);
+               }
+           }
+@@ -292,7 +290,7 @@
+   {
+     std::list&lt;Job*&gt;::iterator i=mJobFinished.begin();
+     for(;i!=mJobFinished.end();i++)
+-      delete *i; // checked - no agrubyobject
++      checkedDelete(*i);
+     mJobFinished.clear();
+   }
+ 
+
+Modified: antargis/trunk/ext/game/path.cc
+===================================================================
+--- antargis/trunk/ext/game/path.cc	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/game/path.cc	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -456,7 +456,6 @@
+     e-&gt;b-&gt;edges.remove(e);
+     //  cdebug(&quot;3&quot;);
+ 
+-    //  delete e;
+   }
+ 
+ void SimpleGraph::removeNode(Node *n)
+@@ -471,9 +470,9 @@
+   {
+     CTRACE;
+     for(NodeSet::iterator i=mNodes.begin();i!=mNodes.end();i++)
+-      delete *i;
++      checkedDelete(*i);
+     for(EdgeSet::iterator i=mEdges.begin();i!=mEdges.end();i++)
+-      delete *i;
++      checkedDelete(*i);
+   }
+ 
+ SimpleGraph::Node *SimpleGraph::findNearest(const AGVector2 &amp;p)
+@@ -809,7 +808,7 @@
+ 
+ 
+ 
+-    //?????????????????&#223;
++    //?????????????????&#239;&#191;&#189;
+ 
+     for(SimpleGraph::NodeSet::iterator i=g-&gt;mNodes.begin();i!=g-&gt;mNodes.end();i++)
+       //for(SimpleGraph::NodeSet::iterator i=testSet.begin();i!=testSet.end();i++)
+
+Modified: antargis/trunk/ext/game/path.h
+===================================================================
+--- antargis/trunk/ext/game/path.h	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/game/path.h	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -91,6 +91,7 @@
+   typedef std::list&lt;Edge*&gt; Edges;
+   typedef std::list&lt;Node*&gt; Nodes;
+ 
++#ifndef SWIG
+   class NodePtrCompare
+   {
+   public:
+@@ -156,7 +157,7 @@
+       return a-&gt;w0+a-&gt;w1;
+     }
+   };
+-
++#endif
+   SimpleGraph();
+   SimpleGraph(const SimpleGraph &amp;g);
+   SimpleGraph(BinaryIn &amp;pIn);
+@@ -256,6 +257,8 @@
+   float distance(const AGVector2&amp;from);
+ };
+ 
++#ifndef  SWIG
++
+ struct AGEXPORT Path:public std::list&lt;SimpleGraph::Node*&gt;
+ {
+   float weight;
+@@ -269,8 +272,8 @@
+   void paint(const AGRect2 &amp;r,AGPaintTarget &amp;t,float scale);
+   
+ };
++#endif
+ 
+-
+ class AGEXPORT PathDebugging
+ {
+  public:
+
+Modified: antargis/trunk/ext/gui/ag_button.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_button.cc	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/gui/ag_button.cc	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -26,6 +26,7 @@
+ #include &quot;ag_image.h&quot;
+ #include &quot;ag_border.h&quot;
+ #include &quot;ag_glscreen.h&quot;
++#include &quot;ag_video.h&quot;
+ 
+ using namespace std;
+ 
+
+Modified: antargis/trunk/ext/gui/ag_frame.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_frame.cc	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/gui/ag_frame.cc	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -20,8 +20,8 @@
+ 
+ AGFrame::~AGFrame() throw()
+   {
+-    delete mBorder;
+-    delete mBg;
++    checkedDelete(mBorder);
++    checkedDelete(mBg);
+   }
+ 
+ AGRect2 AGFrame::getClientRect() const
+
+Modified: antargis/trunk/ext/gui/ag_layoutcreators.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_layoutcreators.cc	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/gui/ag_layoutcreators.cc	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -343,9 +343,10 @@
+       if(pNode.get(&quot;y&quot;).length())
+         r.setY(pNode.get(&quot;y&quot;).toFloat());
+ 
+-#warning &quot;add subsurfaces&quot;
+ 
++      // FIXME: add subsurfaces
+ 
++
+       AGImage *w;
+       
+ 
+
+Modified: antargis/trunk/ext/gui/ag_scroller.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_scroller.cc	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/gui/ag_scroller.cc	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -93,8 +93,8 @@
+ 
+ AGScroller::~AGScroller() throw()
+   {
+-    delete mBorder;
+-    delete mBackground;
++    checkedDelete(mBorder);
++    checkedDelete(mBackground);
+   }
+ 
+ void AGScroller::draw(AGPainter &amp;p)
+
+Modified: antargis/trunk/ext/gui/ag_widget.h
+===================================================================
+--- antargis/trunk/ext/gui/ag_widget.h	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/gui/ag_widget.h	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -71,7 +71,7 @@
+    \ingroup widgets
+ 
+    AGWidget is the base class for all widgets. It manages the hierarchy and memory of the widgets.
+-   You should never delete an AGWidget for yourself if you don't know exactly what you're doing.
++   You should never deletee an AGWidget for yourself if you don't know exactly what you're doing.
+    The widgets get deleted by their parents
+  */
+ 
+
+Modified: antargis/trunk/ext/math/ag_algebra.h
+===================================================================
+--- antargis/trunk/ext/math/ag_algebra.h	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/math/ag_algebra.h	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -18,8 +18,10 @@
+   void set(size_t x,size_t y,float v);
+   float get(size_t x,size_t y) const;
+ 
++#ifndef SWIG
+   AGMatrixN &amp;operator+=(const AGMatrixN &amp;p);
+   AGMatrixN &amp;operator*=(const AGMatrixN &amp;p);
++#endif
+   AGMatrixN operator*(const AGMatrixN &amp;p) const;
+   AGMatrixN operator*(float f) const;
+ 
+
+Modified: antargis/trunk/ext/sound/ag_mixer.cc
+===================================================================
+--- antargis/trunk/ext/sound/ag_mixer.cc	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/sound/ag_mixer.cc	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -141,7 +141,7 @@
+           }
+         //FIXME: readd this
+         Mix_CloseAudio();
+-        delete mSoundMutex;
++        checkedDelete(mSoundMutex);
+       }
+   }
+ 
+
+Modified: antargis/trunk/ext/video/ag_color.h
+===================================================================
+--- antargis/trunk/ext/video/ag_color.h	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/video/ag_color.h	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -45,8 +45,8 @@
+ 
+ #ifndef SWIG
+   AGColor &amp;operator=(const AGColor&amp;c);
++  AGColor &amp;operator*=(float f);
+ #endif
+-  AGColor &amp;operator*=(float f);
+ 
+   AGColor operator*(float f) const;
+   AGColor operator+(const AGColor &amp;c) const;
+
+Modified: antargis/trunk/ext/video/ag_font.h
+===================================================================
+--- antargis/trunk/ext/video/ag_font.h	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/video/ag_font.h	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -83,7 +83,9 @@
+   bool embossed;
+   bool inset;
+ 
++#ifndef SWIG
+   friend bool operator&lt;(const AGFont&amp;f1,const AGFont &amp;f2);
++#endif
+ };
+ 
+ AGEXPORT bool operator&lt;(const AGFont&amp;f1,const AGFont &amp;f2);
+
+Modified: antargis/trunk/ext/video/ag_fontengine.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_fontengine.cc	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/video/ag_fontengine.cc	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -173,8 +173,8 @@
+ 
+         }
+ 
+-    delete [] a; // checked - no agrubyobject
+-    delete [] b; // checked - no agrubyobject
++    checkedDeleteArray(a);
++    checkedDeleteArray(b);
+   }
+ 
+ void embossSurface(AGSurface &amp;s,float depth=1.0f)
+@@ -266,8 +266,8 @@
+               s.putPixel(x,y,c);
+             }
+         }
+-    delete [] a;
+-    delete [] b;
++    checkedDeleteArray(a);
++    checkedDeleteArray(b);
+ 
+     /*
+   static int i=0;
+
+Modified: antargis/trunk/ext/video/ag_glscreen.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_glscreen.cc	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/video/ag_glscreen.cc	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -272,7 +272,7 @@
+     }
+ 
+     assertGL;
+-    delete [] buffer;
++    checkedDeleteArray(buffer);
+ 
+ 
+ 
+
+Modified: antargis/trunk/ext/video/ag_glscreen.h
+===================================================================
+--- antargis/trunk/ext/video/ag_glscreen.h	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/video/ag_glscreen.h	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -125,6 +125,4 @@
+   static std::set&lt;AGGLObject*&gt; msObjects;
+ };
+ 
+-AGEXPORT bool opengl();
+-
+ #endif
+
+Modified: antargis/trunk/ext/video/ag_gltexture.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_gltexture.cc	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/video/ag_gltexture.cc	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -110,7 +110,7 @@
+     assertGL;
+ 
+     if(buffer)
+-      delete [] buffer;
++        checkedDeleteArray(buffer);
+ 
+     assertGL;
+     gUsedTexMemory+=w*h*4;
+
+Modified: antargis/trunk/ext/video/ag_painter.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_painter.cc	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/video/ag_painter.cc	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -28,6 +28,7 @@
+ #include &lt;ag_texture.h&gt;
+ #include &lt;math.h&gt;
+ #include &lt;ag_geometry.h&gt;
++#include &quot;ag_video.h&quot;
+ 
+ #include &lt;stdexcept&gt;
+ 
+
+Modified: antargis/trunk/ext/video/ag_png.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_png.cc	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/video/ag_png.cc	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -183,10 +183,10 @@
+           }
+       }
+     if (row_pointers)
+-      delete [] row_pointers;
++      checkedDeleteArray( row_pointers);
+ 
+     if (info_ptr-&gt;palette)
+-      delete [] info_ptr-&gt;palette;
++      checkedDeleteArray( info_ptr-&gt;palette);
+ 
+     png_destroy_write_struct(&amp;png_ptr, (png_infopp)NULL);
+ 
+
+Modified: antargis/trunk/ext/video/ag_rendercontext.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_rendercontext.cc	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/video/ag_rendercontext.cc	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -77,7 +77,7 @@
+ 
+ AGRenderContext::~AGRenderContext()
+   {
+-    delete mColor;
++    checkedDelete(mColor);
+     getSurfaceManager()-&gt;deregisterMe(this);
+   }
+ 
+@@ -359,12 +359,12 @@
+ 
+ void AGRenderContext::setColor(const AGVector4 &amp;pColor)
+   {
+-    delete mColor;
++    checkedDelete(mColor);
+     mColor=new AGVector4(pColor);
+   }
+ void AGRenderContext::setColor(const AGColor &amp;pColor)
+   {
+-    delete mColor;
++    checkedDelete(mColor);
+     float f=1.0/255.0f;
+     mColor=new AGVector4(pColor.r*f,
+         pColor.g*f,
+
+Modified: antargis/trunk/ext/video/ag_sdlscreen.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_sdlscreen.cc	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/video/ag_sdlscreen.cc	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -66,7 +66,7 @@
+ 
+     SDL_UpdateRects(s,rs.size(),nrs);
+ 
+-    delete [] nrs; // checked - no agrubyobject
++    checkedDeleteArray(nrs);
+   }
+ 
+ 
+
+Modified: antargis/trunk/ext/video/ag_surface.h
+===================================================================
+--- antargis/trunk/ext/video/ag_surface.h	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/video/ag_surface.h	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -78,8 +78,9 @@
+ 
+   AGSurface scale(int w,int h) const;
+   AGSurface grayed() const;
+-
++#ifndef SWIG
+   AGSurface &amp;operator=(const AGSurface &amp;p);
++  #endif
+   bool operator==(const AGSurface &amp;p) const;
+ 
+   virtual void blit(const AGSurface &amp;pSource,const AGRect2 &amp;pDest,const AGRect2 &amp;pSrc,const AGColor &amp;pColor) throw(AGSurfaceEmptyException);
+
+Modified: antargis/trunk/ext/video/ag_surfacemanager.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_surfacemanager.cc	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/video/ag_surfacemanager.cc	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -47,11 +47,11 @@
+     for(std::set&lt;AGInternalSurface*&gt;::iterator i=mSDLSurfaces.begin();i!=mSDLSurfaces.end();++i)
+       {
+         AGFreeSurface((*i)-&gt;surface);
+-        delete *i; // checked - no agrubyobject
++        checkedDelete(*i);
+       }
+     for(std::set&lt;AGGLTexture*&gt;::iterator i=mGLTextures.begin();i!=mGLTextures.end();++i)
+       {
+-        delete *i; // checked - no agrubyobject
++        checkedDelete(*i);
+       }
+ 
+     mSurfaceManagerDeleted=true;
+@@ -216,7 +216,7 @@
+             std::map&lt;AGGLTexture*,AGInternalSurface*&gt;::iterator l=smap.find(*i);
+             if(l!=smap.end())
+               l-&gt;second-&gt;glTexture=0;
+-            delete *i;
++            checkedDelete(*i);
+             i=gls.erase(i);
+             texFreed++;
+           }
+
+Modified: antargis/trunk/ext/video/ag_texture.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_texture.cc	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/video/ag_texture.cc	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -143,7 +143,7 @@
+   {
+     if(getSurfaceManager())
+       getSurfaceManager()-&gt;deregisterMe(this);
+-    delete mFBO; // checked - no agrubyobject
++    checkedDelete(mFBO);
+   }
+ 
+ int AGTexture::width() const
+@@ -176,7 +176,7 @@
+ void AGTexture::clearTexture()
+   {
+     mTexture=0;
+-    delete mFBO; // checked - no agrubyobject
++    checkedDelete(mFBO);
+     mFBO=0;
+   }
+ void AGTexture::clearTextureUsed()
+
+Modified: antargis/trunk/ext/video/ag_texture.h
+===================================================================
+--- antargis/trunk/ext/video/ag_texture.h	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/ext/video/ag_texture.h	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -38,7 +38,9 @@
+   AGTexture(int W,int H);
+   ~AGTexture() throw();
+ 
++#ifndef SWIG
+   AGTexture &amp;operator=(const AGTexture &amp;t);
++#endif
+ 
+   AGTexture copy() const; // returns a real copy
+ 
+
+Modified: antargis/trunk/rookey/lib/rookey/cpp/rk_base.h
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_base.h	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_base.h	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -35,5 +35,50 @@
+ #define AGEXPORT
+ #endif
+ 
++#include &lt;iostream&gt;
+ 
++class AGRubyObject;
++
++enum IsRubyObject {
++  RUBY_OBJECT_YES, RUBY_OBJECT_NO, RUBY_OBJECT_UNKNOWN
++};
++
++AGEXPORT IsRubyObject isRubyObject(void *o);
++AGEXPORT bool saveDelete(AGRubyObject *o);
++
++
++/** checkedDelete deletes o, but checks before if o is a AGRubyObject
++ **/
++template&lt;class T&gt;
++bool checkedDelete(T *o) {
++  IsRubyObject iro = isRubyObject((void*) o);
++  if (iro == RUBY_OBJECT_YES) {
++    std::cerr &lt;&lt; &quot;Possible error in checkedDelete(.)&quot; &lt;&lt; std::endl;
++    return false;
++  } else if (iro == RUBY_OBJECT_NO) {
++    delete o;
++    return true;
++  } else {
++    std::cerr &lt;&lt; &quot;Could not check, because rubyObjects was discarded&quot; &lt;&lt; std::endl;
++    return false;
++  }
++}
++
++/** checkedDelete deletes o, but checks before if o is a AGRubyObject
++ **/
++template&lt;class T&gt;
++bool checkedDeleteArray(T *o) {
++  IsRubyObject iro = isRubyObject((void*) o);
++  if (iro == RUBY_OBJECT_YES) {
++    std::cerr &lt;&lt; &quot;Possible error in checkedDelete(.)&quot; &lt;&lt; std::endl;
++    return false;
++  } else if (iro == RUBY_OBJECT_NO) {
++    delete[] o;
++    return true;
++  } else {
++    std::cerr &lt;&lt; &quot;Could not check, because rubyObjects was discarded&quot; &lt;&lt; std::endl;
++    return false;
++  }
++}
++
+ #endif
+
+Modified: antargis/trunk/rookey/lib/rookey/cpp/rk_exception.h
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_exception.h	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_exception.h	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -20,10 +20,12 @@
+ 
+ #ifndef __ANTARGISGUI_EXCEPTION_H__
+ #define __ANTARGISGUI_EXCEPTION_H__
+-
++
+ #include &lt;rk_base.h&gt;
+-#include &lt;stdexcept&gt;
++#include &lt;stdexcept&gt;
+ 
++// INCLUDE_SWIG - used to filter, which files are included in swig-interfacing
++
+ class AGEXPORT AGException:public std::exception
+ {
+ public:
+
+Modified: antargis/trunk/rookey/lib/rookey/cpp/rk_rubyobj.cc
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_rubyobj.cc	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_rubyobj.cc	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -12,211 +12,188 @@
+ #endif
+ #include &lt;ruby.h&gt;
+ 
+-bool mRubyQuitting=false;
++bool mRubyQuitting = false;
++bool mRubyObjectsExistant = false;
+ 
++class RubyObjects : public std::set&lt;AGRubyObject*&gt; {
++public:
++
++  RubyObjects() {
++    mRubyObjectsExistant = true;
++  }
++
++  virtual ~RubyObjects() {
++    mRubyObjectsExistant = false;
++  }
++};
++
+ // this set keeps track of all valid instances of AGRubyObject
+-std::set&lt;AGRubyObject*&gt; mRubyObjects;
++RubyObjects mRubyObjects;
+ std::set&lt;AGRubyObject*&gt; mRemovedRubyObjects;
+ 
+-void setQuitting()
+-  {
+-    mRubyQuitting=true;
+-  }
++void setQuitting() {
++  mRubyQuitting = true;
++}
+ 
+ // swig-function for handling &quot;tracked&quot; objects
+ // BEWARE: this does not support multiple libraries yet (FIXME)
+ VALUE convertCpp2Ruby(AGRubyObject *cObject);
+ 
+-AGEXPORT void *getAddressOfRubyObject(AGRubyObject *o)
+-  {
+-    return o;
+-  }
++AGEXPORT void *getAddressOfRubyObject(AGRubyObject *o) {
++  return o;
++}
+ 
+-AGEXPORT bool rubyObjectExists(void *po)
+-  {
+-    VALUE v=convertCpp2Ruby((AGRubyObject*)po);
+-    return(v!=Qnil);
+-  }
++AGEXPORT bool rubyObjectExists(void *po) {
++  VALUE v = convertCpp2Ruby((AGRubyObject*) po);
++  return (v != Qnil);
++}
+ 
+-AGRubyObject::AGRubyObject() throw()
+-  {
+-    //std::cerr&lt;&lt;&quot;AGRubyObject::new:&quot;&lt;&lt;this&lt;&lt;std::endl;
+-    assert(mRubyObjects.find(this)==mRubyObjects.end());
+-    mRubyObjects.insert(this);
+-    size_t oSize=mRemovedRubyObjects.size();
++AGRubyObject::AGRubyObject() throw () {
++  //std::cerr&lt;&lt;&quot;AGRubyObject::new:&quot;&lt;&lt;this&lt;&lt;std::endl;
++  assert(mRubyObjects.find(this) == mRubyObjects.end());
++  mRubyObjects.insert(this);
++  size_t oSize = mRemovedRubyObjects.size();
+ 
+-    mRemovedRubyObjects.erase(this);
+-    if(oSize!=mRemovedRubyObjects.size())
+-      std::cerr&lt;&lt;&quot;Collision - removed rubyobject's address is overwritten!&quot;&lt;&lt;std::endl;
++  mRemovedRubyObjects.erase(this);
++  if (oSize != mRemovedRubyObjects.size())
++    std::cerr &lt;&lt; &quot;Collision - removed rubyobject's address is overwritten!&quot; &lt;&lt; std::endl;
+ 
+-    std::cerr&lt;&lt;&quot;current ruby#:&quot;&lt;&lt;mRubyObjects.size()&lt;&lt;&quot; removed:&quot;&lt;&lt;mRemovedRubyObjects.size()&lt;&lt;std::endl;
+-  }
+-AGRubyObject::~AGRubyObject() throw()
+-  {
+-    assert(mRubyObjects.find(this)!=mRubyObjects.end());
+-    assert(mRemovedRubyObjects.find(this)==mRemovedRubyObjects.end());
+-    //std::cerr&lt;&lt;&quot;AGRubyObject::Removed:&quot;&lt;&lt;this&lt;&lt;std::endl;
+-    for(std::set&lt;AGBaseObject*&gt;::iterator i=mReferences.begin();i!=mReferences.end();i++)
+-      (*i)-&gt;baseClear();
+-    mRubyObjects.erase(this);
+-    mRemovedRubyObjects.insert(this);
+-  }
++  std::cerr &lt;&lt; &quot;current ruby#:&quot; &lt;&lt; mRubyObjects.size() &lt;&lt; &quot; removed:&quot; &lt;&lt; mRemovedRubyObjects.size() &lt;&lt; std::endl;
++}
+ 
++AGRubyObject::~AGRubyObject() throw () {
++  assert(mRubyObjects.find(this) != mRubyObjects.end());
++  assert(mRemovedRubyObjects.find(this) == mRemovedRubyObjects.end());
++  //std::cerr&lt;&lt;&quot;AGRubyObject::Removed:&quot;&lt;&lt;this&lt;&lt;std::endl;
++  for (std::set&lt;AGBaseObject*&gt;::iterator i = mReferences.begin(); i != mReferences.end(); i++)
++    (*i)-&gt;baseClear();
++  mRubyObjects.erase(this);
++  mRemovedRubyObjects.insert(this);
++}
+ 
++
+ /// override this function to mark your children
+-void AGRubyObject::mark() throw()
+-  {
+-  }
+ 
++void AGRubyObject::mark() throw () {
++}
+ 
++
+ // call this function with any object you want to mark.
+ // recursive should be set true only in one direction, otherwise you'll generate endless-loops (!!)
+-void AGRubyObject::markObject(AGRubyObject *o, bool recursive) throw()
+-  {
+-    //std::cerr&lt;&lt;&quot;markObject:&quot;&lt;&lt;o&lt;&lt;std::endl;
+-    // o must be a valid ruby-object
+-    assert(mRubyObjects.find(o)!=mRubyObjects.end());
+ 
+-    // look up, if it's registered within ruby
+-    VALUE v=convertCpp2Ruby(o);
+-    if(v!=Qnil)
+-      {
+-        assert(DATA_PTR(v)==o);
+-        //std::cout&lt;&lt;&quot;V:&quot;&lt;&lt;v&lt;&lt;std::endl;
+-        // then mark it
+-        rb_gc_mark(v);
++void AGRubyObject::markObject(AGRubyObject *o, bool recursive) throw () {
++  //std::cerr&lt;&lt;&quot;markObject:&quot;&lt;&lt;o&lt;&lt;std::endl;
++  // o must be a valid ruby-object
++  assert(mRubyObjects.find(o) != mRubyObjects.end());
+ 
+-      }
++  // look up, if it's registered within ruby
++  VALUE v = convertCpp2Ruby(o);
++  if (v != Qnil) {
++    assert(DATA_PTR(v) == o);
++    //std::cout&lt;&lt;&quot;V:&quot;&lt;&lt;v&lt;&lt;std::endl;
++    // then mark it
++    rb_gc_mark(v);
+ 
+-    assert(o);
+-    // recurse through hierarchy
+-    if(recursive)
+-      o-&gt;mark(); // call this directly
+   }
+ 
+-void AGRubyObject::clear() throw()
+-  {
+-  }
++  assert(o);
++  // recurse through hierarchy
++  if (recursive)
++    o-&gt;mark(); // call this directly
++}
+ 
+-void AGRubyObject::addRef(AGBaseObject *o)
+-  {
+-    mReferences.insert(o);
+-  }
++void AGRubyObject::clear() throw () {
++}
+ 
+-void AGRubyObject::deleteRef(AGBaseObject *o)
+-  {
+-    mReferences.erase(o);
+-  }
++void AGRubyObject::addRef(AGBaseObject *o) {
++  mReferences.insert(o);
++}
+ 
++void AGRubyObject::deleteRef(AGBaseObject *o) {
++  mReferences.erase(o);
++}
+ 
+ 
++
+ /// this is the marking function, that gets called by ruby
+ /// it handles all the AGRubyObjects
+-void general_markfunc(void *ptr)
+-  {
+-    if(!ptr)
+-      {
+-        std::cerr&lt;&lt;(&quot;WARNING: a ptr==0 was given in general_markfunc!&quot;)&lt;&lt;std::endl;
+-        return; // ignore this !
+-      }
+-    assert(ptr);
+-    // the given object must be a AGRubyObject and it must be valid (it's in mRubyObjects)
+-    AGRubyObject *o=static_cast&lt;AGRubyObject*&gt;(ptr);
+-    if(mRubyObjects.find(o)==mRubyObjects.end())
+-      std::cerr&lt;&lt;&quot;OLD RUBYOBJ:&quot;&lt;&lt;(mRemovedRubyObjects.find(o)!=mRemovedRubyObjects.end())&lt;&lt;&quot;:&quot;&lt;&lt;o&lt;&lt;std::endl;
+-    assert(mRubyObjects.find(o)!=mRubyObjects.end());
+ 
++void general_markfunc(void *ptr) {
++  if (!ptr) {
++    std::cerr &lt;&lt; (&quot;WARNING: a ptr==0 was given in general_markfunc!&quot;) &lt;&lt; std::endl;
++    return; // ignore this !
++  }
++  assert(ptr);
++  // the given object must be a AGRubyObject and it must be valid (it's in mRubyObjects)
++  AGRubyObject *o = static_cast&lt;AGRubyObject*&gt; (ptr);
++  if (mRubyObjects.find(o) == mRubyObjects.end())
++    std::cerr &lt;&lt; &quot;OLD RUBYOBJ:&quot; &lt;&lt; (mRemovedRubyObjects.find(o) != mRemovedRubyObjects.end()) &lt;&lt; &quot;:&quot; &lt;&lt; o &lt;&lt; std::endl;
++  assert(mRubyObjects.find(o) != mRubyObjects.end());
++
+ #ifdef GCDEBUG
+-    printf(&quot;mark: 0x%lx\n&quot;,o-&gt;mRUBY);
++  printf(&quot;mark: 0x%lx\n&quot;, o-&gt;mRUBY);
+ #endif
+ 
+-    assert(o);
+-    o-&gt;mark();
+-  }
+-
+-/** checkedDelete deletes o, but checks before if o is a AGRubyObject
+- **/
+-
+-bool checkedDelete(void *o)
+-{
+-  AGRubyObject *ro=(AGRubyObject*)o;
+-  if(mRubyObjects.find(ro)==mRubyObjects.end())
+-    {
+-    // not found - it's safe to delete it
+-    delete o;
+-    return true;
+-  }
+-  std::cerr&lt;&lt;&quot;Possible error in checkedDelete(.)&quot;&lt;&lt;std::endl;
+-
+-  return false;
++  assert(o);
++  o-&gt;mark();
+ }
+ 
+-/** checkedDelete deletes o, but checks before if o is a AGRubyObject
+- **/
++IsRubyObject isRubyObject(void *o) {
++  AGRubyObject *ro = (AGRubyObject*) o;
+ 
+-bool checkedDeleteArray(void *o)
+-{
+-  AGRubyObject *ro=(AGRubyObject*)o;
+-  if(mRubyObjects.find(ro)==mRubyObjects.end())
+-    {
+-    // not found - it's safe to delete it
+-    delete [] o;
+-    return true;
++  if (!mRubyObjectsExistant) {
++    std::cerr &lt;&lt; &quot;Could not check, because rubyObjects was discarded&quot; &lt;&lt; std::endl;
++    return RUBY_OBJECT_UNKNOWN;
+   }
+-  std::cerr&lt;&lt;&quot;Possible error in checkedDeleteArray(.)&quot;&lt;&lt;std::endl;
+ 
+-  return false;
++  if (mRubyObjects.find(ro) == mRubyObjects.end())
++    return RUBY_OBJECT_NO;
++  else
++    return RUBY_OBJECT_YES;
++
+ }
+ 
+-
+ /**
+    saveDelete is used to delete AGRubyObjects savely.
+  */
+-bool saveDelete(AGRubyObject *o)
+-  {
+-    if(mRubyQuitting)
+-      return false; // we are quitting - so memory is discarded anyway - hopefully ;-)
++bool saveDelete(AGRubyObject *o) {
++  if (mRubyQuitting)
++    return false; // we are quitting - so memory is discarded anyway - hopefully ;-)
+ 
+-    // check, if this object is existant any longer
+-    // in case we're quitting this the deletion order is not defined for ruby-objects !!
+-    if(mRubyObjects.find(o)==mRubyObjects.end())
+-      {
++  // check, if this object is existant any longer
++  // in case we're quitting this the deletion order is not defined for ruby-objects !!
++  if (mRubyObjects.find(o) == mRubyObjects.end()) {
+ #ifdef GC_DEBUG
+-        std::cerr&lt;&lt;&quot;RubyObject &quot;&lt;&lt;o&lt;&lt;&quot; no longer existant - maybe we're quitting ?!&quot;&lt;&lt;std::endl;
++    std::cerr &lt;&lt; &quot;RubyObject &quot; &lt;&lt; o &lt;&lt; &quot; no longer existant - maybe we're quitting ?!&quot; &lt;&lt; std::endl;
+ #endif
+-        return false;
+-      }
++    return false;
++  }
+ 
+-    assert(o);
+-    // send object a message, that it will be deleted. This can help with detachin connections
+-    // between objects.
+-    o-&gt;clear();
++  assert(o);
++  // send object a message, that it will be deleted. This can help with detachin connections
++  // between objects.
++  o-&gt;clear();
+ 
+-    VALUE v=convertCpp2Ruby(o);
+-    if(v!=Qnil)
+-      return false; // do not delete - it's under ruby's control!
++  VALUE v = convertCpp2Ruby(o);
++  if (v != Qnil)
++    return false; // do not delete - it's under ruby's control!
+ 
+ 
+-    delete o;
+-    return true;
+-  }
++  delete o;
++  return true;
++}
+ 
++AGBaseObject::AGBaseObject(AGRubyObject *p) throw ()
++: mp(p) {
++  if (p)
++    p-&gt;addRef(this);
++}
+ 
++AGBaseObject::~AGBaseObject() throw () {
++  if (mp)
++    mp-&gt;deleteRef(this);
++}
+ 
+-AGBaseObject::AGBaseObject(AGRubyObject *p) throw()
+-:mp(p)
+-    {
+-      if(p)
+-        p-&gt;addRef(this);
+-    }
+-
+-AGBaseObject::~AGBaseObject() throw()
+-  {
+-    if(mp)
+-      mp-&gt;deleteRef(this);
+-  }
+-
+-void AGBaseObject::baseClear() throw()
+-  {
+-    mp=0;
+-  }
++void AGBaseObject::baseClear() throw () {
++  mp = 0;
++}
+
+Modified: antargis/trunk/rookey/lib/rookey/cpp/rk_rubyobj.h
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_rubyobj.h	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_rubyobj.h	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -124,9 +124,6 @@
+ };
+ 
+ AGEXPORT void general_markfunc(void *ptr);
+-AGEXPORT bool saveDelete(AGRubyObject *o);
+-AGEXPORT bool checkedDelete(void *o);
+-AGEXPORT bool checkedDeleteArray(void *o);
+ 
+ AGEXPORT void *getAddressOfRubyObject(AGRubyObject *object);
+ AGEXPORT bool rubyObjectExists(void *o);
+
+Modified: antargis/trunk/rookey/lib/rookey/tools.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/tools.rb	2009-02-26 05:16:34 UTC (rev 1292)
++++ antargis/trunk/rookey/lib/rookey/tools.rb	2009-02-26 20:03:54 UTC (rev 1293)
+@@ -1,4 +1,6 @@
+ require 'pp'
++$:&lt;&lt;File.split(File.split(__FILE__)[0])[0]
++pp $:
+ 
+ class Array
+   
+@@ -38,7 +40,8 @@
+ 	end
+ end
+ 
+-unless methods.member?(&quot;requireRookeyOld&quot;)
++unless eval(&quot;$require_exchanged&quot;)
++  $require_exchanged=true
+   alias :requireRookeyOld :require
+   def require(file)
+     if file[0..0]==&quot;.&quot;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000248.html">[Antargis-svn] r1292 - in antargis/trunk: ext/3dengine ext/basic	ext/game ext/gui ext/sound ext/video rookey/lib/rookey/cpp	ruby ruby/spec
+</A></li>
+	<LI>Next message: <A HREF="000250.html">[Antargis-svn] r1294 - antargis/trunk/ext/video
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#249">[ date ]</a>
+              <a href="thread.html#249">[ thread ]</a>
+              <a href="subject.html#249">[ subject ]</a>
+              <a href="author.html#249">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

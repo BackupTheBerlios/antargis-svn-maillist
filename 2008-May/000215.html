@@ -1,0 +1,370 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1259 - in antargis/trunk: data/gui/layout ext/basic	ext/game ext/gui ruby ruby/ai ruby/jobs ruby/spec
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2008-May/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1259%20-%20in%20antargis/trunk%3A%20data/gui/layout%20ext/basic%0A%09ext/game%20ext/gui%20ruby%20ruby/ai%20ruby/jobs%20ruby/spec&In-Reply-To=%3C200805301554.m4UFs9oh016794%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000214.html">
+   <LINK REL="Next"  HREF="000216.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1259 - in antargis/trunk: data/gui/layout ext/basic	ext/game ext/gui ruby ruby/ai ruby/jobs ruby/spec</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1259%20-%20in%20antargis/trunk%3A%20data/gui/layout%20ext/basic%0A%09ext/game%20ext/gui%20ruby%20ruby/ai%20ruby/jobs%20ruby/spec&In-Reply-To=%3C200805301554.m4UFs9oh016794%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1259 - in antargis/trunk: data/gui/layout ext/basic	ext/game ext/gui ruby ruby/ai ruby/jobs ruby/spec">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Fri May 30 17:54:09 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000214.html">[Antargis-svn] r1258 - in antargis/trunk: . ext/basic ext/game	ext/gui ruby/entities ruby/jobs ruby/spec
+</A></li>
+        <LI>Next message: <A HREF="000216.html">[Antargis-svn] r1260 - in antargis/trunk: . ext/video rookey	rookey/configs ruby/spec
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#215">[ date ]</a>
+              <a href="thread.html#215">[ thread ]</a>
+              <a href="subject.html#215">[ subject ]</a>
+              <a href="author.html#215">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2008-05-30 17:54:07 +0200 (Fri, 30 May 2008)
+New Revision: 1259
+
+Modified:
+   antargis/trunk/data/gui/layout/ant_layout.xml
+   antargis/trunk/ext/basic/ag_message.h
+   antargis/trunk/ext/basic/ag_xml.cc
+   antargis/trunk/ext/game/jobs.cc
+   antargis/trunk/ext/gui/ag_application.cc
+   antargis/trunk/ext/gui/ag_table.h
+   antargis/trunk/ruby/ai/actions.rb
+   antargis/trunk/ruby/jobs/ant_hljob_states.rb
+   antargis/trunk/ruby/spec/spec_hljobs.rb
+   antargis/trunk/ruby/spec_helper.rb
+Log:
+Complete - task 28: Fix recruit-job 
+<A HREF="http://localhost:3000/issues/show/28">http://localhost:3000/issues/show/28</A>
+
+Modified: antargis/trunk/data/gui/layout/ant_layout.xml
+===================================================================
+--- antargis/trunk/data/gui/layout/ant_layout.xml	2008-05-30 03:46:26 UTC (rev 1258)
++++ antargis/trunk/data/gui/layout/ant_layout.xml	2008-05-30 15:54:07 UTC (rev 1259)
+@@ -210,7 +210,6 @@
+ 			&lt;/cell&gt;
+ 			
+ 			&lt;cell col=&quot;0&quot; row=&quot;3&quot;&gt;
+-					&lt;!-- FIXME: insert some background here --&gt;
+ 				&lt;frame border=&quot;button.border.normal&quot; visible=&quot;true&quot;&gt;
+ 					&lt;image filename=&quot;data/gui/wood_bg.png&quot; tile=&quot;true&quot;/&gt;
+ 				&lt;/frame&gt;
+
+Modified: antargis/trunk/ext/basic/ag_message.h
+===================================================================
+--- antargis/trunk/ext/basic/ag_message.h	2008-05-30 03:46:26 UTC (rev 1258)
++++ antargis/trunk/ext/basic/ag_message.h	2008-05-30 15:54:07 UTC (rev 1259)
+@@ -1,3 +1,5 @@
++// WARNING: This file is for documentation purpose - it's a beginning of a rewrite of the messaging-module
++
+ #ifndef AG_MESSAGE_H_
+ #define AG_MESSAGE_H_
+ 
+
+Modified: antargis/trunk/ext/basic/ag_xml.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_xml.cc	2008-05-30 03:46:26 UTC (rev 1258)
++++ antargis/trunk/ext/basic/ag_xml.cc	2008-05-30 15:54:07 UTC (rev 1259)
+@@ -21,9 +21,9 @@
+ #include &quot;ag_xml.h&quot;
+ #include &quot;ag_fs.h&quot;
+ #include &quot;ag_debug.h&quot;
+-#ifndef __WIN32__
+-#include &quot;ag_regex.h&quot;
+-#endif
++//#ifndef __WIN32__
++//#include &quot;ag_regex.h&quot;
++//#endif
+ #include &quot;ag_debug.h&quot;
+ #include &quot;ag_profiler.h&quot;
+ 
+
+Modified: antargis/trunk/ext/game/jobs.cc
+===================================================================
+--- antargis/trunk/ext/game/jobs.cc	2008-05-30 03:46:26 UTC (rev 1258)
++++ antargis/trunk/ext/game/jobs.cc	2008-05-30 15:54:07 UTC (rev 1259)
+@@ -213,6 +213,7 @@
+             if(norm&gt;mNear)
+               e-&gt;setPos(mTarget+diff.normalized()*mNear);
+             e-&gt;setDirection(-diff.getAngle().angle*180.0/M_PI);
++            
+             jobFinished(e);
+           }
+       }
+
+Modified: antargis/trunk/ext/gui/ag_application.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_application.cc	2008-05-30 03:46:26 UTC (rev 1258)
++++ antargis/trunk/ext/gui/ag_application.cc	2008-05-30 15:54:07 UTC (rev 1259)
+@@ -89,9 +89,7 @@
+  * \brief the main-loop of each application
+  *
+  * Each program has one or more application-objects.
+- * An application normally represents a single UI-screen. So it has (FIXME)
+- * 
+- * FIXME: redesign this!
++ * An application normally represents a single UI-screen.
+  */
+ 
+ bool AGApplication::run()
+@@ -102,8 +100,6 @@
+     float t;
+     mRunning=true;
+ 
+-    //gApplication=this;
+-
+     flushEventQueue();
+     last=now=SDL_GetTicks();
+ 
+@@ -112,9 +108,6 @@
+     while (mRunning)
+       {
+         STACKTRACE;
+-
+-        //gApplication=this;
+-
+           {
+             // event handling
+             STACKTRACE;
+@@ -175,8 +168,6 @@
+         loopCount++;
+         //      dbout(2,&quot;Running:&quot;&lt;&lt;mRunning);
+       }
+-    //gApplication=0;
+-
+     return true;
+   }
+ 
+
+Modified: antargis/trunk/ext/gui/ag_table.h
+===================================================================
+--- antargis/trunk/ext/gui/ag_table.h	2008-05-30 03:46:26 UTC (rev 1258)
++++ antargis/trunk/ext/gui/ag_table.h	2008-05-30 15:54:07 UTC (rev 1259)
+@@ -33,8 +33,6 @@
+    after that rows and columns are fixed.
+ 
+    Please call AGTable::arrange() whenever you changed extends and/or row/column-info.
+-   
+-   @todo children should be re-arranged whenever AGTable::arrange() is called!
+ */
+ 
+ class AGEXPORT AGTable:public AGWidget
+
+Modified: antargis/trunk/ruby/ai/actions.rb
+===================================================================
+--- antargis/trunk/ruby/ai/actions.rb	2008-05-30 03:46:26 UTC (rev 1258)
++++ antargis/trunk/ruby/ai/actions.rb	2008-05-30 15:54:07 UTC (rev 1259)
+@@ -1,33 +1,33 @@
+ module AI
+-	class Action
+-		
+-	end
++  class Action
++    
++  end
+ 
+-	class GetFoodAction
+-		def start
+-			@hero.newHLTakeFoodJob(@target)
+-		end
+-		def estimate(time)
+-			@time+=time
+-			
+-		end
++  class GetFoodAction
++    def start
++      @hero.newHLTakeFoodJob(@target)
++    end
++    def estimate(time)
++      @time+=time
++      
++    end
+ 
+-		def self.generate(player)
+-			actions=player.getHeroes.map{|hero|
+-				action=nil
+-				target=hero.findNearResource(&quot;food&quot;) # FIXME: list of possible resources ???
+-				if target
+-					action=self.new(hero,target)
+-				end
+-				action
+-			}
+-			actions.flatten.uniq-[nil]
+-		end
+-		private
+-		def initialize(hero,target)
+-			@hero=hero
+-			@target=target
+-			@time=0
+-		end
+-	end
++    def self.generate(player)
++      actions=player.getHeroes.map{|hero|
++        action=nil
++        target=hero.findNearResource(&quot;food&quot;) # FIXME: list of possible resources ???
++        if target
++          action=self.new(hero,target)
++        end
++        action
++      }
++      actions.flatten.uniq-[nil]
++    end
++    private
++    def initialize(hero,target)
++      @hero=hero
++      @target=target
++      @time=0
++    end
++  end
+ end
+\ No newline at end of file
+
+Modified: antargis/trunk/ruby/jobs/ant_hljob_states.rb
+===================================================================
+--- antargis/trunk/ruby/jobs/ant_hljob_states.rb	2008-05-30 03:46:26 UTC (rev 1258)
++++ antargis/trunk/ruby/jobs/ant_hljob_states.rb	2008-05-30 15:54:07 UTC (rev 1259)
+@@ -778,6 +778,7 @@
+ #
+ class HLJob_Recruit&lt;HLJob_BaseState
+   MAX_DIST=0.01
++  RECRUIT_DIST=1.0
+   
+   attr_reader :countRecruited
+   
+@@ -884,7 +885,7 @@
+     if target
+       assert{countRecruited+countRecruiting&lt;=howManyToRecruit}
+       man.hlJobMode[:recruitTarget]=target
+-      man.newMoveJob(0,target,1)
++      man.newMoveJob(0,target,RECRUIT_DIST)
+       #@countRecruiting=@countRecruiting+1
+       return true
+     end
+
+Modified: antargis/trunk/ruby/spec/spec_hljobs.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_hljobs.rb	2008-05-30 03:46:26 UTC (rev 1258)
++++ antargis/trunk/ruby/spec/spec_hljobs.rb	2008-05-30 15:54:07 UTC (rev 1259)
+@@ -1,7 +1,6 @@
+ 
+ require 'ruby/spec/level_testing.rb'
+ 
+-
+ class Store
+   def initialize
+     @store={}
+@@ -14,6 +13,7 @@
+   end
+ end
+ 
++
+ describe &quot;HL-MoveJob&quot; do
+   it &quot;should format correctly&quot;
+   it &quot;should use only limited count of ll-jobs&quot;
+@@ -75,9 +75,13 @@
+     @store[:oldPos]=rowen.getPos2D
+   end
+   it &quot;hero should only go fetch one man;go back and then stay at his position&quot; do
++    rowen.getJob.stateName.should==:recruit
+     rowen=hero(&quot;Rowen&quot;)
+     man=rowen.getTarget
++    man.should be_a_kind_of(AntMan)
++    rowen.getJobName.should == &quot;moveJob&quot;
+     runUntilLowLevelJobToFinish(rowen)
++    (rowen.getPos2D-man.getPos2D).length.should &lt;= HLJob_Recruit::RECRUIT_DIST+HLJob_Recruit::MAX_DIST
+     rowen.getJobName.should == &quot;moveJob&quot;
+     rowen.getTarget.should be_nil
+     trials=0
+@@ -88,6 +92,7 @@
+     end
+     (<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">rowen.getPos2D- at store</A>[:oldPos]).length.should &lt; 0.1
+   end
++  
+   it &quot;all men should stand at the sitting-position when job is finished&quot; do
+     while rowen.getJob.stateName == :recruit
+       advance
+@@ -102,7 +107,6 @@
+     }
+   end
+   
+-  
+   def rowen
+     hero(&quot;Rowen&quot;)
+   end
+@@ -163,4 +167,3 @@
+   it &quot;should let people rest at the correct position&quot;
+ end
+ 
+-
+
+Modified: antargis/trunk/ruby/spec_helper.rb
+===================================================================
+--- antargis/trunk/ruby/spec_helper.rb	2008-05-30 03:46:26 UTC (rev 1258)
++++ antargis/trunk/ruby/spec_helper.rb	2008-05-30 15:54:07 UTC (rev 1259)
+@@ -88,7 +88,14 @@
+   def run
+     method=@object.method(@methodName)
+     this=self
+-    @object.class.send(:<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">define_method, at methodName</A>) {|*s|this.ok=true;puts &quot;MUH&quot;;method.call(*s)} 
++    object=@object
++    @object.class.send(:<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">define_method, at methodName</A>) {|*s|
++      if self==object
++        this.ok=true
++        puts &quot;MUH&quot;
++      end
++      method.call(*s)
++    } 
+     yield
+     @object.class.send(:<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">define_method, at methodName</A>,method)
+     @ok
+@@ -97,7 +104,7 @@
+      @ok==false
+   end
+   def isCalled
+-     @ok
++    @ok==true
+   end
+ end  
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000214.html">[Antargis-svn] r1258 - in antargis/trunk: . ext/basic ext/game	ext/gui ruby/entities ruby/jobs ruby/spec
+</A></li>
+	<LI>Next message: <A HREF="000216.html">[Antargis-svn] r1260 - in antargis/trunk: . ext/video rookey	rookey/configs ruby/spec
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#215">[ date ]</a>
+              <a href="thread.html#215">[ thread ]</a>
+              <a href="subject.html#215">[ subject ]</a>
+              <a href="author.html#215">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

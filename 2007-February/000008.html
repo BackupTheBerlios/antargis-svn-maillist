@@ -1,0 +1,481 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1050 - in antargis/trunk: gui/src ruby
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-February/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1050%20-%20in%20antargis/trunk%3A%20gui/src%20ruby&In-Reply-To=%3C200702190948.l1J9m7ss010047%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000007.html">
+   <LINK REL="Next"  HREF="000009.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1050 - in antargis/trunk: gui/src ruby</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1050%20-%20in%20antargis/trunk%3A%20gui/src%20ruby&In-Reply-To=%3C200702190948.l1J9m7ss010047%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1050 - in antargis/trunk: gui/src ruby">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Mon Feb 19 10:48:07 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000007.html">[Antargis-svn] r1049 - in antargis/trunk: . gui/src src
+</A></li>
+        <LI>Next message: <A HREF="000009.html">[Antargis-svn] r1051 - in antargis/trunk: gui/src src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#8">[ date ]</a>
+              <a href="thread.html#8">[ thread ]</a>
+              <a href="subject.html#8">[ subject ]</a>
+              <a href="author.html#8">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-02-19 10:48:05 +0100 (Mon, 19 Feb 2007)
+New Revision: 1050
+
+Modified:
+   antargis/trunk/gui/src/ag_glsl.cc
+   antargis/trunk/gui/src/ag_painter.cc
+   antargis/trunk/gui/src/ag_painter.h
+   antargis/trunk/gui/src/ag_rubyobj.cc
+   antargis/trunk/gui/src/ag_rubyobj.h
+   antargis/trunk/ruby/ant_boss.rb
+   antargis/trunk/ruby/ant_hero.rb
+   antargis/trunk/ruby/ant_hljobs.rb
+   antargis/trunk/ruby/ant_house.rb
+   antargis/trunk/ruby/antargislib.rb
+Log:
+* villages fight as a whole
+
+
+Modified: antargis/trunk/gui/src/ag_glsl.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_glsl.cc	2007-02-11 15:16:20 UTC (rev 1049)
++++ antargis/trunk/gui/src/ag_glsl.cc	2007-02-19 09:48:05 UTC (rev 1050)
+@@ -79,7 +79,7 @@
+       glShaderSourceARB(vertexShader, 1, x,NULL);
+       glCompileShaderARB(vertexShader);
+       printInfoLog(vertexShader);
+-      
++      assertGL;
+     }
+ }
+ 
+@@ -88,6 +88,7 @@
+   CTRACE;
+   if(glslOk() &amp;&amp; !hasQuit())
+     glDeleteObjectARB(vertexShader);
++  assertGL;
+ }
+ 
+ AGFragProgram::AGFragProgram(const std::string &amp;pFile)
+@@ -104,7 +105,8 @@
+       glCompileShaderARB(fragShader);
+       printInfoLog(fragShader);
+       mValid=true;
+-      
++      assertGL;
++	
+     }
+ }
+ 
+@@ -118,6 +120,8 @@
+   CTRACE;
+   if(glslOk() &amp;&amp; !hasQuit())
+     glDeleteObjectARB(fragShader);
++  assertGL;
++
+ }
+ 
+ 
+@@ -147,6 +151,8 @@
+   on=false;
+   matrixBuf=new float[16*100];
+   name=pVertexFile+&quot;:&quot;+pFragFile;
++  assertGL;
++
+ }
+ 
+ AGShaderProgram::~AGShaderProgram()
+@@ -159,6 +165,8 @@
+   cdebug(&quot;name:&quot;&lt;&lt;name);
+   delete [] matrixBuf;
+   cdebug(&quot;name:&quot;&lt;&lt;name);
++  assertGL;
++
+ }
+ 
+ 
+@@ -168,6 +176,8 @@
+     {
+       glUseProgramObjectARB(p);
+       on=true;
++      assertGL;
++
+     }
+ }
+ void AGShaderProgram::disable()
+@@ -176,6 +186,7 @@
+     {
+       glUseProgramObjectARB(0);
+       on=false;
++      assertGL;
+     }
+ }
+ 
+@@ -186,6 +197,7 @@
+       enable();
+       doUpdate(time);
+       disable();
++      assertGL;
+     }
+ }
+ 
+@@ -196,22 +208,27 @@
+ void AGShaderProgram::sendUniform(const std::string &amp;pName,int i)
+ {
+   glUniform1iARB(getLoc(pName),i);
++  assertGL;
+ }
+ void AGShaderProgram::sendUniform(const std::string &amp;pName,float f)
+ {
+   glUniform1fARB(getLoc(pName),f);
++  assertGL;
+ }
+ void AGShaderProgram::sendUniform(const std::string &amp;pName,const AGVector3 &amp;m)
+ {
+   glUniform3fARB(getLoc(pName),m[0],m[1],m[2]);
++  assertGL;
+ }
+ void AGShaderProgram::sendUniform(const std::string &amp;pName,const AGVector4 &amp;m)
+ {
+   glUniform4fARB(getLoc(pName),m[0],m[1],m[2],m[3]);
++  assertGL;
+ }
+ void AGShaderProgram::sendUniform(const std::string &amp;pName,const AGMatrix4 &amp;m)
+ {
+   glUniformMatrix4fvARB(getLoc(pName),1,false,m);
++  assertGL;
+ }
+ void AGShaderProgram::sendUniform(const std::string &amp;pName,const std::vector&lt;AGMatrix4&gt; &amp;m)
+ {
+@@ -239,6 +256,7 @@
+   
+   GLint k=glGetUniformLocationARB(p,pName.c_str());
+   locations.insert(std::make_pair(pName,k));
++  assertGL;
+   return k;
+ }
+ 
+@@ -260,6 +278,7 @@
+     }
+   assertGL;
+   attrs.insert(std::make_pair(pName,k));
++  assertGL;
+   return k;
+ }
+ 
+
+Modified: antargis/trunk/gui/src/ag_painter.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_painter.cc	2007-02-11 15:16:20 UTC (rev 1049)
++++ antargis/trunk/gui/src/ag_painter.cc	2007-02-19 09:48:05 UTC (rev 1050)
+@@ -592,3 +592,9 @@
+ {
+   return mTarget;
+ }
++
++void AGPainter::mark()
++{
++  if(mTarget)
++    markObject(mTarget);
++}
+
+Modified: antargis/trunk/gui/src/ag_painter.h
+===================================================================
+--- antargis/trunk/gui/src/ag_painter.h	2007-02-11 15:16:20 UTC (rev 1049)
++++ antargis/trunk/gui/src/ag_painter.h	2007-02-19 09:48:05 UTC (rev 1050)
+@@ -63,7 +63,7 @@
+ #define AGEXPORT
+ #endif
+ 
+-class AGEXPORT AGPainter
++class AGEXPORT AGPainter:public AGRubyObject
+ {
+  public:
+   AGPainter();
+@@ -117,6 +117,8 @@
+ 
+   AGPaintTarget *getTarget();
+ 
++  virtual void mark();
++
+  private:
+   std::list&lt;AGProjection&gt; ps;
+ 
+
+Modified: antargis/trunk/gui/src/ag_rubyobj.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_rubyobj.cc	2007-02-11 15:16:20 UTC (rev 1049)
++++ antargis/trunk/gui/src/ag_rubyobj.cc	2007-02-19 09:48:05 UTC (rev 1050)
+@@ -25,6 +25,10 @@
+ }
+ AGRubyObject::~AGRubyObject()
+ {
++  for(std::set&lt;AGBaseObject*&gt;::iterator i=mReferences.begin();i!=mReferences.end();i++)
++    (*i)-&gt;baseClear();
++
++
+   //  cdebug(&quot;DEL:&quot;&lt;&lt;mRUBY);
+ #ifdef GCDEBUG
+   printf(&quot;DEL:%lx  %s\n&quot;,mRUBY,mObjName.c_str());
+@@ -62,6 +66,18 @@
+   CTRACE;
+ }
+ 
++void AGRubyObject::addRef(AGBaseObject *o)
++{
++  mReferences.insert(o);
++}
++
++void AGRubyObject::deleteRef(AGBaseObject *o)
++{
++  mReferences.erase(o);
++}
++
++
++
+ /// this is the marking function, that gets called by ruby
+ /// it handles all the AGRubyObjects
+ void general_markfunc(void *ptr)
+@@ -116,3 +132,28 @@
+     }
+   return false;
+ }
++
++
++
++
++
++
++
++
++AGBaseObject::AGBaseObject(AGRubyObject *p)
++  :mp(p)
++{
++  if(p)
++    p-&gt;addRef(this);
++}
++
++AGBaseObject::~AGBaseObject()
++{
++  if(mp)
++    mp-&gt;deleteRef(this);
++}
++
++void AGBaseObject::baseClear()
++{
++  mp=0;
++}
+
+Modified: antargis/trunk/gui/src/ag_rubyobj.h
+===================================================================
+--- antargis/trunk/gui/src/ag_rubyobj.h	2007-02-11 15:16:20 UTC (rev 1049)
++++ antargis/trunk/gui/src/ag_rubyobj.h	2007-02-19 09:48:05 UTC (rev 1050)
+@@ -32,8 +32,36 @@
+ */
+ 
+ #include &lt;string&gt;
++#include &lt;set&gt;
+ #include &lt;ag_base.h&gt;
+ 
++class AGRubyObject;
++
++class AGEXPORT AGBaseObject
++{
++ protected:
++  AGRubyObject *mp;
++ public:
++  AGBaseObject(AGRubyObject *p);
++
++  virtual ~AGBaseObject();
++  virtual void baseClear();
++};
++
++template&lt;class T&gt;
++class gc_ptr:public AGBaseObject
++{
++ public:
++  gc_ptr(T*t):AGBaseObject(t)
++    {
++    }
++
++  T*operator-&gt;()
++    {
++      return (T*)mp;
++    }
++};
++
+ class AGEXPORT AGRubyObject
+ {
+  public:
+@@ -66,6 +94,11 @@
+ #endif
+   friend void general_markfunc(void *ptr);
+   friend bool saveDelete(AGRubyObject *o);
++
++  void addRef(AGBaseObject *o);
++  void deleteRef(AGBaseObject *o);
++ private:
++  std::set&lt;AGBaseObject*&gt; mReferences;
+ };
+ 
+ void general_markfunc(void *ptr);
+
+Modified: antargis/trunk/ruby/ant_boss.rb
+===================================================================
+--- antargis/trunk/ruby/ant_boss.rb	2007-02-11 15:16:20 UTC (rev 1049)
++++ antargis/trunk/ruby/ant_boss.rb	2007-02-19 09:48:05 UTC (rev 1050)
+@@ -110,11 +110,12 @@
+ 		if @job
+ 			if @job.is_a?(AntHeroFightJob)
+ 				puts &quot;I'm alread fighting!&quot;
+-				return # already fighting
++				return false # already fighting
+ 			end
+ 		end
+ 		@job=AntHeroFightJob.new(self,target,true) # FIXME: change this, so that fighting is stopped as soon as other stops
+ 		assignJob2All
++		return true
+ 	end
+ 	def newHLRestJob(time)
+ 		@job=AntHeroRestJob.new(self,time)
+@@ -156,9 +157,15 @@
+ 		@player
+ 	end
+ 	
+-	def eventGotHLFight(hero)
+-		newHLDefendJob(hero)
+-		return
++# 	def eventGotHLFight(hero)
++# 		newHLDefendJob(hero)
++# 		return
++# 	end
++
++	def eventAttacked(by)
++		ret=newHLDefendJob(by)
++		AntInventory.update(self)
++		ret
+ 	end
+ 	
+ 	def eventManDefeated(man)
+
+Modified: antargis/trunk/ruby/ant_hero.rb
+===================================================================
+--- antargis/trunk/ruby/ant_hero.rb	2007-02-11 15:16:20 UTC (rev 1049)
++++ antargis/trunk/ruby/ant_hero.rb	2007-02-19 09:48:05 UTC (rev 1050)
+@@ -229,7 +229,7 @@
+ 
+ 	def eventAttacked(by)
+ 		puts &quot;eventAttacked #{by}&quot;
+-		newHLDefendJob(by)
++		super
+ 	end
+ 	
+ 	def assignJob2All
+
+Modified: antargis/trunk/ruby/ant_hljobs.rb
+===================================================================
+--- antargis/trunk/ruby/ant_hljobs.rb	2007-02-11 15:16:20 UTC (rev 1049)
++++ antargis/trunk/ruby/ant_hljobs.rb	2007-02-19 09:48:05 UTC (rev 1050)
+@@ -359,7 +359,11 @@
+ 			raise &quot;already fighting&quot;
+ 		end
+ 		@state=&quot;fighting&quot;
+-		@target.eventGotHLFight(@hero)
++
++		# REALLY FIXME: these 2 calls do the same ?????
++
++
++		#@target.eventGotHLFight(@hero)
+ 		@target.eventAttacked(@hero)
+ 		initSitpositions
+ 
+
+Modified: antargis/trunk/ruby/ant_house.rb
+===================================================================
+--- antargis/trunk/ruby/ant_house.rb	2007-02-11 15:16:20 UTC (rev 1049)
++++ antargis/trunk/ruby/ant_house.rb	2007-02-19 09:48:05 UTC (rev 1050)
+@@ -38,6 +38,7 @@
+ 
+ # AntVillage is only some small interface for reproducing &quot;village&quot; type of behaviour
+ class AntVillage
++	attr_reader :houses
+ 	def initialize(name,map)
+ 		@houses=map.getAllHousesOfVillage(name)		
+ 	end
+@@ -104,8 +105,18 @@
+ 	end
+ 	
+ 	def eventAttacked(by)
+-		newHLDefendJob(by)
+-		AntInventory.update(self)
++		return unless super
++		# FIXME: defend as village
++		if @village and @village.length
++			v=AntVillage.new(@village,getMap)
++			if v
++				v.houses.each{|h|
++					if h!=self
++						h.eventAttacked(by)
++					end
++				}
++			end
++		end
+ 	end
+ 	
+ 	def moveHome(man)
+
+Modified: antargis/trunk/ruby/antargislib.rb
+===================================================================
+--- antargis/trunk/ruby/antargislib.rb	2007-02-11 15:16:20 UTC (rev 1049)
++++ antargis/trunk/ruby/antargislib.rb	2007-02-19 09:48:05 UTC (rev 1050)
+@@ -123,6 +123,7 @@
+ 		@@noVideo||=nil	
+ 		if @@noVideo.nil?
+ 			#if xres!=1024 || yres!=768 || $fullscreen
++			dputs @@fullscreen
+ 			@@main.initVideo(xres,yres,32,@@fullscreen,true,1024,768)
+ 			#end
+ 		
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000007.html">[Antargis-svn] r1049 - in antargis/trunk: . gui/src src
+</A></li>
+	<LI>Next message: <A HREF="000009.html">[Antargis-svn] r1051 - in antargis/trunk: gui/src src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#8">[ date ]</a>
+              <a href="thread.html#8">[ thread ]</a>
+              <a href="subject.html#8">[ subject ]</a>
+              <a href="author.html#8">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

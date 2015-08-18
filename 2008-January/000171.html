@@ -1,0 +1,748 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1214 - in antargis/trunk: . build data/gui/layout	ext/3dengine ext/basic ext/game ruby ruby/editor	ruby/entities ruby/gui ruby/jobs
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2008-January/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1214%20-%20in%20antargis/trunk%3A%20.%20build%20data/gui/layout%0A%09ext/3dengine%20ext/basic%20ext/game%20ruby%20ruby/editor%0A%09ruby/entities%20ruby/gui%20ruby/jobs&In-Reply-To=%3C200801221957.m0MJv74r005043%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000170.html">
+   <LINK REL="Next"  HREF="000172.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1214 - in antargis/trunk: . build data/gui/layout	ext/3dengine ext/basic ext/game ruby ruby/editor	ruby/entities ruby/gui ruby/jobs</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1214%20-%20in%20antargis/trunk%3A%20.%20build%20data/gui/layout%0A%09ext/3dengine%20ext/basic%20ext/game%20ruby%20ruby/editor%0A%09ruby/entities%20ruby/gui%20ruby/jobs&In-Reply-To=%3C200801221957.m0MJv74r005043%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1214 - in antargis/trunk: . build data/gui/layout	ext/3dengine ext/basic ext/game ruby ruby/editor	ruby/entities ruby/gui ruby/jobs">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Tue Jan 22 20:57:07 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000170.html">[Antargis-svn] r1213 - antargis/trunk/ext
+</A></li>
+        <LI>Next message: <A HREF="000172.html">[Antargis-svn] r1215 - in antargis/trunk/ruby: . editor editor/spec
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#171">[ date ]</a>
+              <a href="thread.html#171">[ thread ]</a>
+              <a href="subject.html#171">[ subject ]</a>
+              <a href="author.html#171">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2008-01-22 20:57:06 +0100 (Tue, 22 Jan 2008)
+New Revision: 1214
+
+Added:
+   antargis/trunk/ruby/editor/test/
+Modified:
+   antargis/trunk/Rakefile
+   antargis/trunk/build/create_interface.rb
+   antargis/trunk/data/gui/layout/savedialog.xml
+   antargis/trunk/ext/3dengine/anim_mesh.cc
+   antargis/trunk/ext/3dengine/anim_mesh.h
+   antargis/trunk/ext/3dengine/headers.hh
+   antargis/trunk/ext/3dengine/mesh.cc
+   antargis/trunk/ext/3dengine/mesh.h
+   antargis/trunk/ext/3dengine/mesh_2d.cc
+   antargis/trunk/ext/3dengine/mesh_2d.h
+   antargis/trunk/ext/basic/ag_messageobject.cc
+   antargis/trunk/ext/game/ant_app.cc
+   antargis/trunk/ruby/ant_models.rb
+   antargis/trunk/ruby/ant_path.rb
+   antargis/trunk/ruby/ant_player.rb
+   antargis/trunk/ruby/ant_tools.rb
+   antargis/trunk/ruby/antargislib.rb
+   antargis/trunk/ruby/editor/dialogs.rb
+   antargis/trunk/ruby/editor/ent_list.rb
+   antargis/trunk/ruby/editview.rb
+   antargis/trunk/ruby/entities/ant_manbase.rb
+   antargis/trunk/ruby/gui/ag_tools.rb
+   antargis/trunk/ruby/jobs/ant_hljob_base.rb
+   antargis/trunk/ruby/map_generator.rb
+Log:
+* some bugfixes/improvements
+
+
+Modified: antargis/trunk/Rakefile
+===================================================================
+--- antargis/trunk/Rakefile	2008-01-06 16:10:24 UTC (rev 1213)
++++ antargis/trunk/Rakefile	2008-01-22 19:57:06 UTC (rev 1214)
+@@ -13,6 +13,7 @@
+ require 'rubygems'
+ require 'rake/gempackagetask.rb'
+ require 'rake/packagetask.rb'
++require 'spec/rake/spectask'
+ 
+ DATA_FILES=Dir[&quot;data/**/*&quot;].select{|file|not (file=~/svn/ or file=~/xcf/ or file=~/\.svg/)}
+ RUBY_FILES=Dir[&quot;ruby/**/*.rb&quot;]+Dir[&quot;*.rb&quot;]+Dir[&quot;antargis&quot;]
+@@ -97,4 +98,14 @@
+ 	p.package_files += PKG_FILES+BINARY_FILES
+ end
+ 
+-end
+\ No newline at end of file
++end
++
++
++
++# rspec
++Spec::Rake::SpecTask.new do |t|
++	t.spec_files = FileList['ruby/**/spec_*.rb']
++	t.warning = true
++	#t.rcov = true
++	t.spec_opts=[&quot;--format html:spec_output.html&quot;]
++end
+
+Modified: antargis/trunk/build/create_interface.rb
+===================================================================
+--- antargis/trunk/build/create_interface.rb	2008-01-06 16:10:24 UTC (rev 1213)
++++ antargis/trunk/build/create_interface.rb	2008-01-22 19:57:06 UTC (rev 1214)
+@@ -400,14 +400,20 @@
+ 
+ classList=parsedClasses.getAllClasses
+ # normal typemaps
+-classList.each{|c|
+-	file.puts &quot;%typemap(directorout) #{c} {&quot;
+-	file.puts &quot; #{c} *b;&quot;
+-	file.puts &quot; Data_Get_Struct($input,#{c},b);&quot;
+-	file.puts &quot; $result=*b;&quot;
+-	file.puts &quot;}&quot;
+-}
+ 
++
++# FIXME
++# 
++
++# 
++# classList.each{|c|
++# 	file.puts &quot;%typemap(directorout) #{c} {&quot;
++# 	file.puts &quot; #{c} *b;&quot;
++# 	file.puts &quot; Data_Get_Struct($input,#{c},b);&quot;
++# 	file.puts &quot; $result=*b;&quot;
++# 	file.puts &quot;}&quot;
++# }
++
+ file.puts &quot;%typemap(directorout) Uint8 {&quot;
+ file.puts &quot; $result=NUM2INT($input);&quot;
+ file.puts &quot;}&quot;
+
+Modified: antargis/trunk/data/gui/layout/savedialog.xml
+===================================================================
+--- antargis/trunk/data/gui/layout/savedialog.xml	2008-01-06 16:10:24 UTC (rev 1213)
++++ antargis/trunk/data/gui/layout/savedialog.xml	2008-01-22 19:57:06 UTC (rev 1214)
+@@ -1,5 +1,5 @@
+ &lt;?xml version=&quot;1.0&quot;?&gt;
+-&lt;layout name=&quot;OptionsMenu&quot;&gt;
++&lt;layout name=&quot;SaveDialog&quot;&gt;
+ 	&lt;table cols=&quot;3&quot; rows=&quot;3&quot;&gt;&lt;!-- center window --&gt;
+ 		&lt;colsize col=&quot;1&quot; fixed=&quot;400&quot;/&gt;
+ 		&lt;rowsize row=&quot;1&quot; fixed=&quot;90&quot;/&gt;
+
+Modified: antargis/trunk/ext/3dengine/anim_mesh.cc
+===================================================================
+--- antargis/trunk/ext/3dengine/anim_mesh.cc	2008-01-06 16:10:24 UTC (rev 1213)
++++ antargis/trunk/ext/3dengine/anim_mesh.cc	2008-01-22 19:57:06 UTC (rev 1214)
+@@ -73,7 +73,7 @@
+ 
+ 
+ AnimMesh::AnimMesh(Scene *pScene,AnimMeshData *data):
+-  SceneNode(pScene,AGVector4(),data-&gt;bbox()),
++  MeshBase(pScene,AGVector4(),data-&gt;bbox()),
+   mData(data),mMatrices(data-&gt;bones.size()+1),mShaderMatrices(20)
+ {
+   curKey=0;
+
+Modified: antargis/trunk/ext/3dengine/anim_mesh.h
+===================================================================
+--- antargis/trunk/ext/3dengine/anim_mesh.h	2008-01-06 16:10:24 UTC (rev 1213)
++++ antargis/trunk/ext/3dengine/anim_mesh.h	2008-01-22 19:57:06 UTC (rev 1214)
+@@ -4,6 +4,7 @@
+ // INCLUDE_SWIG - used to filter, which files are included in swig-interfacing
+ 
+ #include &quot;scene.h&quot;
++#include &quot;mesh_base.h&quot;
+ #include &quot;ag_surface.h&quot;
+ #include &quot;ag_geometry.h&quot;
+ #include &quot;scenenode.h&quot;
+@@ -19,7 +20,7 @@
+    AnimMesh is a skeleton animated mesh.
+    It support either shader-based and cpu-based animation.
+ */
+-class AGEXPORT AnimMesh:public SceneNode
++class AGEXPORT AnimMesh:public MeshBase
+ {
+   AnimMeshData *mData;
+   size_t curKey;
+
+Modified: antargis/trunk/ext/3dengine/headers.hh
+===================================================================
+--- antargis/trunk/ext/3dengine/headers.hh	2008-01-06 16:10:24 UTC (rev 1213)
++++ antargis/trunk/ext/3dengine/headers.hh	2008-01-22 19:57:06 UTC (rev 1214)
+@@ -62,12 +62,13 @@
+ #include &quot;ext/3dengine/scenenode.h&quot;
+ #include &quot;ext/3dengine/mesh_2d_data.h&quot;
+ #include &quot;ext/3dengine/anim_mesh_data.h&quot;
++#include &quot;ext/3dengine/mesh_base.h&quot;
++#include &quot;ext/3dengine/ant_particle.h&quot;
++#include &quot;ext/3dengine/scene.h&quot;
++#include &quot;ext/3dengine/boa_3d_wireframe.h&quot;
+ #include &quot;ext/3dengine/mesh.h&quot;
+ #include &quot;ext/3dengine/mesh_2d.h&quot;
+-#include &quot;ext/3dengine/ant_particle.h&quot;
+-#include &quot;ext/3dengine/scene.h&quot;
+ #include &quot;ext/3dengine/anim_mesh.h&quot;
+-#include &quot;ext/3dengine/boa_3d_wireframe.h&quot;
+ #include &quot;ext/3dengine/ag_glwidget.h&quot;
+ #include &quot;ext/3dengine/ant_camera.h&quot;
+ #include &quot;ext/3dengine/mesh_optimizer.h&quot;
+@@ -78,12 +79,13 @@
+ %include &quot;ext/3dengine/scenenode.h&quot;
+ %include &quot;ext/3dengine/mesh_2d_data.h&quot;
+ %include &quot;ext/3dengine/anim_mesh_data.h&quot;
++%include &quot;ext/3dengine/mesh_base.h&quot;
++%include &quot;ext/3dengine/ant_particle.h&quot;
++%include &quot;ext/3dengine/scene.h&quot;
++%include &quot;ext/3dengine/boa_3d_wireframe.h&quot;
+ %include &quot;ext/3dengine/mesh.h&quot;
+ %include &quot;ext/3dengine/mesh_2d.h&quot;
+-%include &quot;ext/3dengine/ant_particle.h&quot;
+-%include &quot;ext/3dengine/scene.h&quot;
+ %include &quot;ext/3dengine/anim_mesh.h&quot;
+-%include &quot;ext/3dengine/boa_3d_wireframe.h&quot;
+ %include &quot;ext/3dengine/ag_glwidget.h&quot;
+ %include &quot;ext/3dengine/ant_camera.h&quot;
+ %include &quot;ext/3dengine/mesh_optimizer.h&quot;
+
+Modified: antargis/trunk/ext/3dengine/mesh.cc
+===================================================================
+--- antargis/trunk/ext/3dengine/mesh.cc	2008-01-06 16:10:24 UTC (rev 1213)
++++ antargis/trunk/ext/3dengine/mesh.cc	2008-01-22 19:57:06 UTC (rev 1214)
+@@ -15,7 +15,7 @@
+ //////////////////////////////////////////////////////////////////////
+ 
+ Mesh::Mesh(Scene *pScene):
+-  SceneNode(pScene,AGVector4(),AGBox3())
++  MeshBase(pScene,AGVector4(),AGBox3())
+ {
+   mData=0;
+   mRotation=0;
+@@ -25,7 +25,7 @@
+ }
+ 
+ Mesh::Mesh(Scene *pScene,MeshData &amp;data,const AGVector4 &amp;pPos,float pRot):
+-  SceneNode(pScene,pPos,data.bbox())
++  MeshBase(pScene,pPos,data.bbox())
+ {
+   mData=&data;
+   mRotation=pRot;
+
+Modified: antargis/trunk/ext/3dengine/mesh.h
+===================================================================
+--- antargis/trunk/ext/3dengine/mesh.h	2008-01-06 16:10:24 UTC (rev 1213)
++++ antargis/trunk/ext/3dengine/mesh.h	2008-01-22 19:57:06 UTC (rev 1214)
+@@ -4,6 +4,7 @@
+ // INCLUDE_SWIG - used to filter, which files are included in swig-interfacing
+ 
+ #include &quot;scene.h&quot;
++#include &quot;mesh_base.h&quot;
+ #include &quot;vertex_array.h&quot;
+ 
+ #include &lt;map&gt;
+@@ -16,7 +17,7 @@
+     Actual drawing is done by MeshData.
+ 
+ */
+-class AGEXPORT Mesh:public SceneNode
++class AGEXPORT Mesh:public MeshBase
+ {
+   MeshData *mData;
+   float mRotation;
+
+Modified: antargis/trunk/ext/3dengine/mesh_2d.cc
+===================================================================
+--- antargis/trunk/ext/3dengine/mesh_2d.cc	2008-01-06 16:10:24 UTC (rev 1213)
++++ antargis/trunk/ext/3dengine/mesh_2d.cc	2008-01-22 19:57:06 UTC (rev 1214)
+@@ -3,11 +3,11 @@
+ #include &lt;ag_painter.h&gt;
+ 
+ Mesh2D::Mesh2D(Scene2D *pScene):
+-  SceneNode(pScene,AGVector4(),AGBox3())
++  MeshBase(pScene,AGVector4(),AGBox3())
+ {
+ }
+ Mesh2D::Mesh2D(Scene2D *pScene,Mesh2DData &amp;data,const AGVector4 &amp;pPos,float pRot):
+-  SceneNode(pScene,pPos,data.bbox()),
++  MeshBase(pScene,pPos,data.bbox()),
+   mData(&amp;data)
+ {
+ }
+
+Modified: antargis/trunk/ext/3dengine/mesh_2d.h
+===================================================================
+--- antargis/trunk/ext/3dengine/mesh_2d.h	2008-01-06 16:10:24 UTC (rev 1213)
++++ antargis/trunk/ext/3dengine/mesh_2d.h	2008-01-22 19:57:06 UTC (rev 1214)
+@@ -5,9 +5,10 @@
+ 
+ #include &quot;scenenode.h&quot;
+ #include &quot;scene_2d.h&quot;
++#include &quot;mesh_base.h&quot;
+ #include &quot;mesh_2d_data.h&quot;
+ 
+-class AGEXPORT Mesh2D:public SceneNode
++class AGEXPORT Mesh2D:public MeshBase
+ {
+  public:
+   Mesh2D(Scene2D *pScene);
+
+Modified: antargis/trunk/ext/basic/ag_messageobject.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_messageobject.cc	2008-01-06 16:10:24 UTC (rev 1213)
++++ antargis/trunk/ext/basic/ag_messageobject.cc	2008-01-22 19:57:06 UTC (rev 1214)
+@@ -255,6 +255,10 @@
+ 
+ bool AGSignal::signal(AGEvent *m)
+ {
++  CTRACE;
++  //cdebug(&quot;event:&quot;&lt;&lt;*m);
++  //  cdebug(&quot;listeners:&quot;&lt;&lt;mListeners.size());
++  // cdebug(&quot;simplelist:&quot;&lt;&lt;mSimpleListeners.size());
+   m-&gt;setName(mName);
+   std::set&lt;AGListener*&gt;::iterator i=mListeners.begin();
+   bool value=false;
+@@ -270,6 +274,7 @@
+       if((*j)-&gt;signal(m))
+ 	value=true;
+     }
++  // cdebug(&quot;value:&quot;&lt;&lt;value);
+ 
+   return value;
+ }
+
+Modified: antargis/trunk/ext/game/ant_app.cc
+===================================================================
+--- antargis/trunk/ext/game/ant_app.cc	2008-01-06 16:10:24 UTC (rev 1213)
++++ antargis/trunk/ext/game/ant_app.cc	2008-01-22 19:57:06 UTC (rev 1214)
+@@ -92,6 +92,7 @@
+ 	    {
+ 	      STACKTRACE;
+ 	      AGVector2 p=e-&gt;getMousePosition();
++        cdebug(&quot;p:&quot;&lt;&lt;p);
+ 	      PickResult nodes=scene.pick(p[0],p[1],1,1);
+ 
+ 	      eventClick(nodes,e-&gt;getButton());
+
+Modified: antargis/trunk/ruby/ant_models.rb
+===================================================================
+--- antargis/trunk/ruby/ant_models.rb	2008-01-06 16:10:24 UTC (rev 1213)
++++ antargis/trunk/ruby/ant_models.rb	2008-01-22 19:57:06 UTC (rev 1214)
+@@ -163,9 +163,9 @@
+ 			:deco=&gt;{
+ 				[:floor_deco]=&gt;[&quot;data/models/floor.ant2&quot;,0.5,&quot;data/textures/splats/stones1a.png&quot;],
+ 			},
+-			:twig=&gt;{	
+-				[]=&gt;&quot;twig&quot;
+-			},
++ 			:twig=&gt;{	
++ 				[]=&gt;&quot;twig&quot;
++ 			},
+ 			:decomesh=&gt;{ # FIXME: remove this and the class, too ??
+ 				[]=&gt;&quot;ant_coach&quot;
+ 			},
+@@ -231,6 +231,7 @@
+ 		scenenode=nil
+ 		if mesh
+ 			if mesh.is_a?(Array)
++				pp mesh
+ 				ant2name=mesh[0]
+ 				scale=mesh[1]
+ 				pngname=mesh[2]
+@@ -250,6 +251,7 @@
+ 			else
+ 				ant2name=&quot;data/models/&quot;+mesh+&quot;.ant2&quot;
+ 				pngname=&quot;data/textures/models/&quot;+mesh+&quot;.png&quot;
++				pngname=&quot;&quot; unless fileExists(pngname)
+ 				name=mesh
+ 				angle||=getStaticModelRotation(name)
+ 
+
+Modified: antargis/trunk/ruby/ant_path.rb
+===================================================================
+--- antargis/trunk/ruby/ant_path.rb	2008-01-06 16:10:24 UTC (rev 1213)
++++ antargis/trunk/ruby/ant_path.rb	2008-01-22 19:57:06 UTC (rev 1214)
+@@ -61,21 +61,21 @@
+ 
+ 	def displayPathfindingGraph(map,scene)
+ 		return
+-		colors={:normal=&gt;AGVector4.new(1,0,0,1),:overWater=&gt;AGVector4.new(1,1,0,1)}
+-		width=2
+-		MODES.each{|mode|
+-			wireframe=Boa3dWireframe.new(scene,colors[mode],width)
+-			(0..(@graph[mode].edges-1)).each{|i|
+-				edge=@graph[mode].getEdgePosition(i)
+-				a=edge[0]
+-				b=edge[1]
+-				a=AGVector3.new(a.x,a.y,map.getHeight(a.x,a.y)+0.15)
+-				b=AGVector3.new(b.x,b.y,map.getHeight(b.x,b.y)+0.15)
+-				wireframe.addLine(a,b)
+-			}
+-			scene.addNode(wireframe)
+-			width+=2
+-		}
++		# 		colors={:normal=&gt;AGVector4.new(1,0,0,1),:overWater=&gt;AGVector4.new(1,1,0,1)}
++		# 		width=2
++		# 		MODES.each{|mode|
++		# 			wireframe=Boa3dWireframe.new(scene,colors[mode],width)
++		# 			(0..(@graph[mode].edges-1)).each{|i|
++		# 				edge=@graph[mode].getEdgePosition(i)
++		# 				a=edge[0]
++		# 				b=edge[1]
++		# 				a=AGVector3.new(a.x,a.y,map.getHeight(a.x,a.y)+0.15)
++		# 				b=AGVector3.new(b.x,b.y,map.getHeight(b.x,b.y)+0.15)
++		# 				wireframe.addLine(a,b)
++		# 			}
++		# 			scene.addNode(wireframe)
++		# 			width+=2
++		# 		}
+ 	end
+ 
+ 	def displayPath(path,color=AGVector4.new(1,1,0,1))
+
+Modified: antargis/trunk/ruby/ant_player.rb
+===================================================================
+--- antargis/trunk/ruby/ant_player.rb	2008-01-06 16:10:24 UTC (rev 1213)
++++ antargis/trunk/ruby/ant_player.rb	2008-01-22 19:57:06 UTC (rev 1214)
+@@ -229,7 +229,7 @@
+ end
+ 
+ class AntOldConqueringPlayer&lt;AntComputerPlayer
+-	def initialize(name)
++	def initialize(map,name)
+ 		super
+ 		@mode=:rest
+ 	end
+@@ -246,7 +246,7 @@
+ end
+ 
+ class AntConqueringPlayer&lt;AntComputerPlayer
+-	def initialize(name)
++	def initialize(map,name)
+ 		super
+ 		@mode=:rest
+ 	end
+
+Modified: antargis/trunk/ruby/ant_tools.rb
+===================================================================
+--- antargis/trunk/ruby/ant_tools.rb	2008-01-06 16:10:24 UTC (rev 1213)
++++ antargis/trunk/ruby/ant_tools.rb	2008-01-22 19:57:06 UTC (rev 1214)
+@@ -6,6 +6,8 @@
+ 		$meshes={}
+ 	end
+ 	if not $meshes[id]
++		pp file,zoom,texture,shadow
++		raise &quot;Texture-file not found!&quot; unless (fileExists(texture) or texture==&quot;&quot;)
+ 		$meshes[id]=MeshData.new(file,zoom,texture,shadow)
+ 	end
+ 	return $meshes[id]
+
+Modified: antargis/trunk/ruby/antargislib.rb
+===================================================================
+--- antargis/trunk/ruby/antargislib.rb	2008-01-06 16:10:24 UTC (rev 1213)
++++ antargis/trunk/ruby/antargislib.rb	2008-01-22 19:57:06 UTC (rev 1214)
+@@ -255,6 +255,7 @@
+ end
+ 
+ class AGStringUtf8
++	alias  :oldIndex :[]
+ 	def [](range)
+ 		if range.is_a?(Range)
+ 			ma=range.max
+
+Modified: antargis/trunk/ruby/editor/dialogs.rb
+===================================================================
+--- antargis/trunk/ruby/editor/dialogs.rb	2008-01-06 16:10:24 UTC (rev 1213)
++++ antargis/trunk/ruby/editor/dialogs.rb	2008-01-22 19:57:06 UTC (rev 1214)
+@@ -18,8 +18,9 @@
+ # License along with this program.
+ #
+ class AntEditPropDialog&lt;AntDialog
+-	def initialize(parent,ent)
++	def initialize(parent,ent,map)
+ 		super(parent,&quot;data/gui/layout/editpropdialog.xml&quot;)
++		@map=map
+ 		@ent=ent
+ 		menCountW=getChild(&quot;MenCount&quot;)
+ 		nameW=getChild(&quot;AntName&quot;)
+@@ -34,7 +35,7 @@
+ 
+ 		# init player-list
+ 		plist=getChild(&quot;Player&quot;)
+-		players=getMap.players
++		players=@map.players
+ 		playernames=[&quot;NONE&quot;]
+ 		playernames+=players.collect{|p|p.getName} if ent.is_a?(AntBoss)
+ 		playernames.each{|n|
+@@ -113,8 +114,9 @@
+ 
+ class AntPlayerEditDialog&lt;AGLayout
+ 	include AGHandler
+-	def initialize(parent)
+-		super
++	def initialize(parent,map)
++		super(parent)
++		@map=map
+ 		loadXML(loadFile(&quot;data/gui/layout/editor_players_dialog.xml&quot;))
+ 		@players={}
+ 		@list=getChild(&quot;playerList&quot;)
+@@ -145,8 +147,8 @@
+ 			messageBox(&quot;Error&quot;,&quot;Please enter a new player-name. This already exists!&quot;,MB_OK)
+ 		else
+ 			type=eval(getChild(&quot;playerType&quot;).getSelectedID)
+-			player=type.new(name)
+-			getMap.players.push(player)
++			player=type.new(@map,name)
++			@map.players.push(player)
+ 			initPlayerNames
+ 		end
+ 		return true
+@@ -184,7 +186,7 @@
+ 	def initPlayerNames
+ 		@list.clearList
+ 		@players={}
+-		getMap.players.each{|p|
++		@map.players.each{|p|
+ 			@list.insertItem(p.name,p.name)
+ 			@players[p.name]=p
+ 		}
+
+Modified: antargis/trunk/ruby/editor/ent_list.rb
+===================================================================
+--- antargis/trunk/ruby/editor/ent_list.rb	2008-01-06 16:10:24 UTC (rev 1213)
++++ antargis/trunk/ruby/editor/ent_list.rb	2008-01-22 19:57:06 UTC (rev 1214)
+@@ -25,12 +25,6 @@
+ 		@entType=nil
+ 		@classes=getDescendantsOfClass(AntRubyEntity)
+ 		@wptrs={}
+-		if false		
+-			@classes=@classes.select{|n|
+-				fn=&quot;data/gui/editor/entities/#{n}.png&quot;
+-				File.exists?(fn)
+-			}
+-		end
+ 
+ 		group=AGRadioGroup.new(self,getRect.origin)
+ 		group.setName(&quot;EntListGroup&quot;)
+@@ -73,8 +67,6 @@
+ 	end
+ 	def eventSelected(e)
+ 		c=eval(e.getCaller.getName)
+-		puts c
+-		c
+ 		@entType=c
+ 		@selWidget=e.getCaller
+ 		sigSelected(e)
+@@ -92,19 +84,13 @@
+ end
+ 
+ class AntEntListCreator&lt;AGLayoutCreator
+-# 	def initialize()
+-# 		super(&quot;antEntList&quot;)
+-# 	end
+ 	def create(parent,rect,node)
+ 		e=AntEntListWidget.new(parent,rect)
+ 		e.setName(node.get(&quot;name&quot;))
+ 		puts node.get(&quot;name&quot;)
+ 		setResult e
+-		#raise 1
+-		#return e
+ 	end
+ end
+ getLayoutFactory.addCreator(&quot;antEntList&quot;,AntEntListCreator.new)
+ 
+ 
+-#$antEntListCreator=AntEntListCreator.new
+
+Modified: antargis/trunk/ruby/editview.rb
+===================================================================
+--- antargis/trunk/ruby/editview.rb	2008-01-06 16:10:24 UTC (rev 1213)
++++ antargis/trunk/ruby/editview.rb	2008-01-22 19:57:06 UTC (rev 1214)
+@@ -67,6 +67,7 @@
+ 		@layout.getChild(&quot;editHeight&quot;).setChecked(true)
+ 		@layout.getChild(&quot;entitiesTab&quot;).entType=AntHero
+ 		setTab(&quot;terrain&quot;)
++		puts &quot;EditView inizalizing ready.&quot;
+ 	end
+ 	
+ 	def eventNewMap
+@@ -277,6 +278,8 @@
+ 		if not c.nil?
+ 			@modifier=&quot;addEntity&quot;
+ 			@type=c
++			@layout.getChild(&quot;rubber&quot;).setChecked(false)
++			@layout.getChild(&quot;pointer&quot;).setChecked(false)
+ 		end
+ 		return true
+ 	end
+@@ -297,22 +300,18 @@
+ 			return
+ 		end
+ 		puts &quot;ADDENTITY&quot;
+-		#pos=getMarkerPos
+ 		dorand=true
+ 		if @type==AntDeco
+-			tree=@type.new(@decoType)
++			tree=@type.new(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">map, at decoType</A>)
+ 			if @decoType==&quot;floor&quot; or @decoType==&quot;block&quot;
+ 				dorand=false
+ 			end
+ 		elsif @type==AntHero
+-			tree=@type.new
++			tree=@type.new(@map)
+ 			tree.setAppearance(@appearance)
+ 		else
+-			puts &quot;TYPE:&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at type</A>
+-			tree=@type.new
++			tree=@type.new(@map)
+ 		end
+-		puts &quot;type:&quot;
+-		puts tree
+ 		tree.setPos(AGVector2.new(pos.x,pos.y))
+ 		getMap.insertEntity(tree)
+ 	end
+@@ -325,7 +324,7 @@
+ 			node=res.node
+ 			puts &quot;NODE:&quot;
+ 			puts node
+-			if node.class==Mesh
++			if node.is_a?(MeshBase)
+ 				ent=getMap.getEntity(node)
+ 				if ent
+ 					editProperties(ent)
+@@ -343,7 +342,7 @@
+ 	end
+ 	
+ 	def editProperties(ent)
+-		d=AntEditPropDialog.new($screen,ent)
++		d=AntEditPropDialog.new($<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">screen,ent, at map</A>)
+ 		$screen.addChild(d)
+ 	end
+ 	
+@@ -351,7 +350,7 @@
+ 		puts &quot;DOING RUBBER&quot;
+ 		list.each{|res|
+ 			mesh=res.node
+-			if mesh.class==Mesh
++			if mesh.is_a?(MeshBase)
+ 				ent=getMap.getEntity(mesh)
+ 				if ent
+ 					getMap.removeEntity(ent)
+
+Modified: antargis/trunk/ruby/entities/ant_manbase.rb
+===================================================================
+--- antargis/trunk/ruby/entities/ant_manbase.rb	2008-01-06 16:10:24 UTC (rev 1213)
++++ antargis/trunk/ruby/entities/ant_manbase.rb	2008-01-22 19:57:06 UTC (rev 1214)
+@@ -257,10 +257,7 @@
+ 
+ private
+ 	def sendAngel
++		# FIXME: create mesh for angels ??
+ 		return # do not send angels - they don't have meshes anyway
+-		e=AntAngel.new
+-		e.setPos(getPos2D)
+-		getMap.insertEntity(e)
+-		#getMap.endChange
+ 	end
+ end
+\ No newline at end of file
+
+Modified: antargis/trunk/ruby/gui/ag_tools.rb
+===================================================================
+--- antargis/trunk/ruby/gui/ag_tools.rb	2008-01-06 16:10:24 UTC (rev 1213)
++++ antargis/trunk/ruby/gui/ag_tools.rb	2008-01-22 19:57:06 UTC (rev 1214)
+@@ -76,8 +76,10 @@
+ 	end
+ 	# event dispatcher
+ 	def signal(e)
++		pp e
+ 		@handlers||={}
+ 		mcaller=e.getCaller
++		pp mcaller
+ 		evName=makeHandlerName(mcaller,e.getName)
+ 		#callerName=e.getCaller.getName
+ 		#evName=callerName+&quot;:&quot;+e.getName
+
+Modified: antargis/trunk/ruby/jobs/ant_hljob_base.rb
+===================================================================
+--- antargis/trunk/ruby/jobs/ant_hljob_base.rb	2008-01-06 16:10:24 UTC (rev 1213)
++++ antargis/trunk/ruby/jobs/ant_hljob_base.rb	2008-01-22 19:57:06 UTC (rev 1214)
+@@ -67,11 +67,11 @@
+ 
+ 	def trace
+ 		return
+-		if @hero.nil?
+-			puts &quot;TRACE #{caller[0]} #{self}&quot;
+-		else
+-			puts &quot;TRACE #{caller[0]} #{self} #{hero} #{getTime}&quot;
+-		end
++# 		if @hero.nil?
++# 			puts &quot;TRACE #{caller[0]} #{self}&quot;
++# 		else
++# 			puts &quot;TRACE #{caller[0]} #{self} #{hero} #{getTime}&quot;
++# 		end
+ 	end
+ 
+ 	def kill
+
+Modified: antargis/trunk/ruby/map_generator.rb
+===================================================================
+--- antargis/trunk/ruby/map_generator.rb	2008-01-06 16:10:24 UTC (rev 1213)
++++ antargis/trunk/ruby/map_generator.rb	2008-01-22 19:57:06 UTC (rev 1214)
+@@ -157,7 +157,7 @@
+ 				map.setTerrain(x,y,tt,r)
+ 				if r&gt;0.97
+ 					# add tree
+-					t=AntGrass.new
++					t=AntGrass.new(map)
+ 					t.setPos(AGVector2.new(x,y))
+ 					map.insertEntity(t)
+ 				end
+@@ -193,7 +193,7 @@
+ 				map.setTerrain(x,y,tt,r)
+ 				if r&gt;0.97 and map.getTerrain(x,y,ROCK)&lt;0.3
+ 					# add tree
+-					t=AntTree.new
++					t=AntTree.new(map)
+ 					t.setPos(AGVector2.new(x,y))
+ 					map.insertEntity(t)
+ 				end
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000170.html">[Antargis-svn] r1213 - antargis/trunk/ext
+</A></li>
+	<LI>Next message: <A HREF="000172.html">[Antargis-svn] r1215 - in antargis/trunk/ruby: . editor editor/spec
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#171">[ date ]</a>
+              <a href="thread.html#171">[ thread ]</a>
+              <a href="subject.html#171">[ subject ]</a>
+              <a href="author.html#171">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

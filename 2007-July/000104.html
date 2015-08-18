@@ -1,0 +1,1288 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1147 - in antargis/branches/rant: . build/configs	ext/3dengine ext/basic ext/external ext/game ext/gui ext/math	ext/sound ext/video
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-July/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1147%20-%20in%20antargis/branches/rant%3A%20.%20build/configs%0A%09ext/3dengine%20ext/basic%20ext/external%20ext/game%20ext/gui%20ext/math%0A%09ext/sound%20ext/video&In-Reply-To=%3C200707221027.l6MAR1K5029516%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000103.html">
+   <LINK REL="Next"  HREF="000105.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1147 - in antargis/branches/rant: . build/configs	ext/3dengine ext/basic ext/external ext/game ext/gui ext/math	ext/sound ext/video</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1147%20-%20in%20antargis/branches/rant%3A%20.%20build/configs%0A%09ext/3dengine%20ext/basic%20ext/external%20ext/game%20ext/gui%20ext/math%0A%09ext/sound%20ext/video&In-Reply-To=%3C200707221027.l6MAR1K5029516%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1147 - in antargis/branches/rant: . build/configs	ext/3dengine ext/basic ext/external ext/game ext/gui ext/math	ext/sound ext/video">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sun Jul 22 12:27:01 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000103.html">[Antargis-svn] r1146 - antargis/branches/rant/ext/basic
+</A></li>
+        <LI>Next message: <A HREF="000105.html">[Antargis-svn] r1148 - antargis/branches/rant/ext/game
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#104">[ date ]</a>
+              <a href="thread.html#104">[ thread ]</a>
+              <a href="subject.html#104">[ subject ]</a>
+              <a href="author.html#104">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-07-22 12:27:00 +0200 (Sun, 22 Jul 2007)
+New Revision: 1147
+
+Modified:
+   antargis/branches/rant/Rantfile
+   antargis/branches/rant/build/configs/unix.rb
+   antargis/branches/rant/ext/3dengine/headers.hh
+   antargis/branches/rant/ext/basic/ag_geometry.cc
+   antargis/branches/rant/ext/basic/ag_geometry.h
+   antargis/branches/rant/ext/basic/ag_main.cc
+   antargis/branches/rant/ext/basic/ag_main.h
+   antargis/branches/rant/ext/basic/ag_regex.h
+   antargis/branches/rant/ext/basic/ag_video_base.h
+   antargis/branches/rant/ext/basic/headers.hh
+   antargis/branches/rant/ext/external/headers.hh
+   antargis/branches/rant/ext/game/headers.hh
+   antargis/branches/rant/ext/game/height_map.cc
+   antargis/branches/rant/ext/gui/headers.hh
+   antargis/branches/rant/ext/math/ag_geometry.cc
+   antargis/branches/rant/ext/math/ag_geometry.h
+   antargis/branches/rant/ext/math/headers.hh
+   antargis/branches/rant/ext/sound/headers.hh
+   antargis/branches/rant/ext/video/headers.hh
+Log:
+M    build/configs/unix.rb
+M    ext/basic/ag_main.cc
+M    ext/basic/ag_main.h
+M    ext/basic/ag_geometry.cc
+M    ext/basic/ag_regex.h
+M    ext/basic/ag_geometry.h
+M    ext/basic/ag_video_base.h
+M    ext/basic/headers.hh
+M    ext/external/headers.hh
+M    ext/gui/headers.hh
+M    ext/video/headers.hh
+M    ext/sound/headers.hh
+M    ext/math/ag_geometry.cc
+M    ext/math/ag_geometry.h
+M    ext/math/headers.hh
+M    ext/game/height_map.cc
+M    ext/game/headers.hh
+M    ext/3dengine/headers.hh
+M    Rantfile
+
+
+Modified: antargis/branches/rant/Rantfile
+===================================================================
+--- antargis/branches/rant/Rantfile	2007-07-21 07:44:39 UTC (rev 1146)
++++ antargis/branches/rant/Rantfile	2007-07-22 10:27:00 UTC (rev 1147)
+@@ -14,9 +14,9 @@
+ 
+ 
+ # get library-dependencies for libSDL
+-sdlLibs=$config['LIBS'].split(&quot; &quot;)
+-
+-allSDLlibs=sdlLibs+[&quot;-lSDL_image&quot;,&quot;-lSDL_ttf&quot;,&quot;-lpng&quot;]
++sdlLibs=$config['LIBS'].split(&quot; &quot;)
++
++allSDLlibs=sdlLibs+[&quot;-lSDL_image&quot;,&quot;-lSDL_ttf&quot;,&quot;-lpng&quot;]
+ glLibs=$config[&quot;LIBGL&quot;].split(&quot; &quot;)
+ 
+ # configure source-directories.
+@@ -26,9 +26,9 @@
+ # - an external library, which then marked by &quot;-l&quot; in front, like &quot;-lz&quot; for the z-library
+ # - an internal dependency on a directory
+ # NOTE: dependencies are not automatically inherited, you have to include them yourself!
+-
+-rubyLib=[&quot;-l&quot;+$config['RUBYLIB']]
+ 
++rubyLib=[&quot;-l&quot;+$config['RUBYLIB']]
++
+ sourceDeps=[
+ 	[&quot;ext/external&quot;,[&quot;-lz&quot;]+sdlLibs],
+ 	[&quot;ext/basic&quot;,[&quot;ext/external&quot;,&quot;-lz&quot;]+sdlLibs+rubyLib],
+@@ -69,7 +69,7 @@
+ ###########################################
+ # all-target
+ buildLibs=sourceDirs.collect{|d|&quot;ext/&quot;+&quot;lib&quot;+makeLibName(d)+&quot;.so&quot;}
+-interfaceLibs=sourceDirs[1..-1].collect{|d|&quot;ext/&quot;+makeLibName(d)+&quot;.so&quot;} # exclude &quot;ext/external&quot;
++interfaceLibs=sourceDirs[1..-1].collect{|d|&quot;ext/&quot;+makeLibName(d)+&quot;.so&quot;} # exclude &quot;ext/external&quot;
+ allTargets = buildLibs + interfaceLibs
+ task :all =&gt; allTargets
+ #
+@@ -112,7 +112,7 @@
+             sources=sources.select{|f|not f=~/\.so/}
+         end
+ 		cmd=makeCommand(&quot;LINK_SHARED&quot;,sys.expand_path(U2W(t.name)), (sources.collect{|f|sys.expand_path(f)}+extlibs).join(&quot; &quot;))
+-        puts &quot;------&quot;,cmd,&quot;--------------!&quot;
++        puts &quot;------&quot;,cmd,&quot;--------------!&quot;
+ 		sys cmd
+         if ENV['WINDIR']
+             sys &quot;copy #{sys.expand_path(t.name).gsub(&quot;/&quot;,Dir.separator)}.a #{sys.expand_path(t.name).sub(/\.so/,&quot;.dll&quot;).gsub(&quot;/&quot;,Dir.separator)}.a&quot;
+@@ -130,26 +130,26 @@
+ 	dir,dep=pair
+ 	libname=makeLibName(dir)
+ 	target=&quot;ext/&quot;+makeLibName(dir)+&quot;.so&quot;
+-
+-    # FIXME:re-include this
+-    tsources=[]
+-    tsources+=[dir+&quot;/&quot;+libname+&quot;swig.cc&quot;]
++
++    # FIXME:re-include this
++    tsources=[]
++    tsources+=[dir+&quot;/&quot;+libname+&quot;swig.cc&quot;]
+ 	tsources.collect!{|f|f.sub_ext(&quot;oo&quot;)}
+-	#tsources+=[&quot;ext/lib&quot;+makeLibName(dir)+&quot;.so&quot;]
+-    extlibs=[&quot;-l&quot;+makeLibName(dir)]
++	#tsources+=[&quot;ext/lib&quot;+makeLibName(dir)+&quot;.so&quot;]
++    extlibs=[&quot;-l&quot;+makeLibName(dir)]
+     
+ 	dep.each{|d|
+ 		if d[0..0]!=&quot;-&quot; and d!=&quot;ext/external&quot;
+ 			extlibs+=[&quot;-l&quot;+makeLibName(d)]
+ 		end
+-	}
+-    #tsources+=rubyLib
++	}
++    #tsources+=rubyLib
+     
+-    puts &quot;TARGET:&quot;,target
+-    puts &quot;SOURES:&quot;,tsources
+-    puts &quot;---&quot;
++    puts &quot;TARGET:&quot;,target
++    puts &quot;SOURES:&quot;,tsources
++    puts &quot;---&quot;
+ 	task target =&gt; tsources do |t|
+-		cmd=makeCommand(&quot;LINK_SHARED&quot;,sys.expand_path(t.name), (t.prerequisites.collect{|f|sys.expand_path(f)}+extlibs+rubyLib).join(&quot; &quot;))
++		cmd=makeCommand(&quot;LINK_SHARED&quot;,sys.expand_path(t.name), (t.prerequisites.collect{|f|sys.expand_path(f)}+extlibs+rubyLib).join(&quot; &quot;))
+         puts &quot;------&quot;,cmd,&quot;--------------!&quot;
+ 		sys cmd
+ 	end
+@@ -181,7 +181,7 @@
+ # swig - interfacing for ruby
+ #
+ swigSrc = lambda { |target| 
+-	dir=getDirUnix(target)
++	dir=getDirUnix(target)
+     puts &quot;TARGET:#{target} DIR:#{dir}&quot;
+ 	name=makeLibName(dir)
+ 	[target.sub(name+&quot;swig.cc&quot;,&quot;interface.i&quot;)]+sys[&quot;build/*.i&quot;]+importsForInterface(target).split(&quot;:&quot;) 
+@@ -200,21 +200,21 @@
+ # interface-files for swig
+ #
+ 
+-def importsForInterface(name)
+-puts &quot;?==&quot;
+-	$sourceDeps.each{|t|
+-		if name=~/#{t[0]}/
++def importsForInterface(name)
++puts &quot;?==&quot;
++	$sourceDeps.each{|t|
++		if name=~/#{t[0]}/
+ 			return t[1].select{|f|not f=~/-.*/}.select{|f|not f=~/external/}.collect{|f|f+&quot;/interface.i&quot;}.join(&quot;:&quot;)
+ 		end
+ 	}
+ 	return &quot;&quot;
+ end
+ 
+-interfaceSrc = lambda { |target| 
++interfaceSrc = lambda { |target| 
+ 	list=Dir[getDirUnix(target)+&quot;/&quot;+&quot;*.h&quot;].select{|f|not f=~/swig.h/}+Dir[&quot;build/*.rb&quot;] # FIXME:replace
+-	list+=importsForInterface(target).split(&quot;:&quot;)
++	list+=importsForInterface(target).split(&quot;:&quot;)
+ 	list
+-}
++}
+ 
+ gen Rule, /^.*interface.i$/ =&gt; interfaceSrc do |t|
+     cmd=makeCommand(&quot;CREATEINTERFACE&quot;,getDirUnix(sys.expand_path(t.name)),importsForInterface(t.name))
+@@ -252,7 +252,13 @@
+ ###########################################
+ # build source-distribution
+ #
+-task :dist=&gt;[:swigSources,:rantStandAlone] do |t|
++files=(sys[&quot;build/**/*&quot;]+sys[&quot;ext/**/*&quot;]+sys[&quot;ruby/**/*.rb&quot;]+sys[&quot;data/**/*&quot;]+sys[&quot;*&quot;]).select{|f|not (f=~/~/ or f=~/.xcf/ or f=~/swig/ or f=~/packages/)}
++#puts files
++#exit
++
++sourcePkg=gen Package::Tgz, &quot;packages&quot;,&quot;antargis-source-&quot;+extendCommand($config,&quot;version&quot;), :extension =&gt; &quot;.tar.gz&quot;, :files =&gt; files
++
++task :dist=&gt;[:swigSources,:rantStandAlone,sourcePkg.path] do |t|
+ end
+ #
+ ###########################################
+
+Modified: antargis/branches/rant/build/configs/unix.rb
+===================================================================
+--- antargis/branches/rant/build/configs/unix.rb	2007-07-21 07:44:39 UTC (rev 1146)
++++ antargis/branches/rant/build/configs/unix.rb	2007-07-22 10:27:00 UTC (rev 1147)
+@@ -25,7 +25,7 @@
+ 	# a c++ compiler call with parameters (using ccache if available)
+ 	&quot;CXX_CALL&quot;=&gt;&quot;$(CCACHE) $(CXX) $(COMPILE_PARAMS)&quot;,
+ 	# build a shared library (.so or .dll)
+-	&quot;LINK_SHARED&quot;=&gt;&quot;$(LINK) -shared -o $(OUTPUT) $(INPUT)&quot;,
++	&quot;LINK_SHARED&quot;=&gt;&quot;$(LINK) -shared -o $(OUTPUT) -Lext $(INPUT)&quot;,
+ 	# generate c++-code from a swig-interface file
+ 	&quot;SWIG_CALL&quot;=&gt;&quot;$(SWIG) -v -Wall -ruby -c++ -o $(OUTPUT) $(INPUT)&quot;,
+ 	# generate dependencies for swig-interface files
+
+Modified: antargis/branches/rant/ext/3dengine/headers.hh
+===================================================================
+--- antargis/branches/rant/ext/3dengine/headers.hh	2007-07-21 07:44:39 UTC (rev 1146)
++++ antargis/branches/rant/ext/3dengine/headers.hh	2007-07-22 10:27:00 UTC (rev 1147)
+@@ -1,61 +1,61 @@
+-#ifndef __ANTARGIS_H__
+-#define __ANTARGIS_H__
+-#include &quot;ext/basic/ag_config.h&quot;
+-#include &quot;ext/basic/ag_fs.h&quot;
+-#include &quot;ext/basic/ag_geometry.h&quot;
+-#include &quot;ext/basic/ag_main.h&quot;
+-#include &quot;ext/basic/ag_messageobject.h&quot;
+-#include &quot;ext/basic/ag_rand_base.h&quot;
+-#include &quot;ext/basic/ag_rubyobj.h&quot;
+-#include &quot;ext/basic/ag_serial.h&quot;
+-#include &quot;ext/basic/ag_singleton.h&quot;
+-#include &quot;ext/basic/ag_stringstream.h&quot;
+-#include &quot;ext/basic/ag_string_utf8.h&quot;
+-#include &quot;ext/basic/ag_utf8.h&quot;
+-#include &quot;ext/basic/ag_video_base.h&quot;
+-#include &quot;ext/basic/ag_xml.h&quot;
+-#include &quot;ext/math/ag_algebra.h&quot;
+-#include &quot;ext/math/ag_geometry.h&quot;
+-#include &quot;ext/math/ag_rand.h&quot;
+-#include &quot;ext/math/ant_frustum.h&quot;
+-#include &quot;ext/video/ag_clip.h&quot;
+-#include &quot;ext/video/ag_color.h&quot;
+-#include &quot;ext/video/ag_font.h&quot;
+-#include &quot;ext/video/ag_fontengine.h&quot;
+-#include &quot;ext/video/ag_painter.h&quot;
+-#include &quot;ext/video/ag_painttarget.h&quot;
+-#include &quot;ext/video/ag_rendercontext.h&quot;
+-#include &quot;ext/video/ag_screen.h&quot;
+-#include &quot;ext/video/ag_surface.h&quot;
+-#include &quot;ext/video/ag_texture.h&quot;
+-#include &quot;ext/video/ag_texturecache.h&quot;
+-#include &quot;ext/video/ag_video.h&quot;
+-#include &quot;ext/3dengine/mesh_data.h&quot;
+-#include &quot;ext/3dengine/scene_base.h&quot;
+-#include &quot;ext/3dengine/scenenode.h&quot;
+-#include &quot;ext/3dengine/mesh_2d_data.h&quot;
+-#include &quot;ext/3dengine/anim_mesh_data.h&quot;
+-#include &quot;ext/3dengine/mesh.h&quot;
+-#include &quot;ext/3dengine/mesh_2d.h&quot;
+-#include &quot;ext/3dengine/ant_particle.h&quot;
+-#include &quot;ext/3dengine/scene.h&quot;
+-#include &quot;ext/3dengine/anim_mesh.h&quot;
+-#include &quot;ext/3dengine/ant_camera.h&quot;
+-#include &quot;ext/3dengine/mesh_optimizer.h&quot;
+-#include &quot;ext/3dengine/ant_projection.h&quot;
+-#ifdef SWIG
+-%include &quot;ext/3dengine/mesh_data.h&quot;
+-%include &quot;ext/3dengine/scene_base.h&quot;
+-%include &quot;ext/3dengine/scenenode.h&quot;
+-%include &quot;ext/3dengine/mesh_2d_data.h&quot;
+-%include &quot;ext/3dengine/anim_mesh_data.h&quot;
+-%include &quot;ext/3dengine/mesh.h&quot;
+-%include &quot;ext/3dengine/mesh_2d.h&quot;
+-%include &quot;ext/3dengine/ant_particle.h&quot;
+-%include &quot;ext/3dengine/scene.h&quot;
+-%include &quot;ext/3dengine/anim_mesh.h&quot;
+-%include &quot;ext/3dengine/ant_camera.h&quot;
+-%include &quot;ext/3dengine/mesh_optimizer.h&quot;
+-%include &quot;ext/3dengine/ant_projection.h&quot;
+-#endif
+-#endif
++#ifndef __ANTARGIS_H__
++#define __ANTARGIS_H__
++#include &quot;ext/basic/ag_config.h&quot;
++#include &quot;ext/basic/ag_fs.h&quot;
++#include &quot;ext/basic/ag_main.h&quot;
++#include &quot;ext/basic/ag_rubyobj.h&quot;
++#include &quot;ext/basic/ag_rand_base.h&quot;
++#include &quot;ext/basic/ag_string_utf8.h&quot;
++#include &quot;ext/basic/ag_stringstream.h&quot;
++#include &quot;ext/basic/ag_utf8.h&quot;
++#include &quot;ext/basic/ag_video_base.h&quot;
++#include &quot;ext/basic/ag_xml.h&quot;
++#include &quot;ext/basic/ag_singleton.h&quot;
++#include &quot;ext/basic/ag_serial.h&quot;
++#include &quot;ext/basic/ag_messageobject.h&quot;
++#include &quot;ext/basic/ag_geometry.h&quot;
++#include &quot;ext/math/ag_geometry.h&quot;
++#include &quot;ext/math/ag_rand.h&quot;
++#include &quot;ext/math/ant_frustum.h&quot;
++#include &quot;ext/math/ag_algebra.h&quot;
++#include &quot;ext/video/ag_screen.h&quot;
++#include &quot;ext/video/ag_video.h&quot;
++#include &quot;ext/video/ag_painttarget.h&quot;
++#include &quot;ext/video/ag_color.h&quot;
++#include &quot;ext/video/ag_fontengine.h&quot;
++#include &quot;ext/video/ag_font.h&quot;
++#include &quot;ext/video/ag_surface.h&quot;
++#include &quot;ext/video/ag_texture.h&quot;
++#include &quot;ext/video/ag_rendercontext.h&quot;
++#include &quot;ext/video/ag_texturecache.h&quot;
++#include &quot;ext/video/ag_clip.h&quot;
++#include &quot;ext/video/ag_painter.h&quot;
++#include &quot;ext/3dengine/mesh_data.h&quot;
++#include &quot;ext/3dengine/scene_base.h&quot;
++#include &quot;ext/3dengine/scenenode.h&quot;
++#include &quot;ext/3dengine/mesh_2d_data.h&quot;
++#include &quot;ext/3dengine/anim_mesh_data.h&quot;
++#include &quot;ext/3dengine/mesh.h&quot;
++#include &quot;ext/3dengine/mesh_2d.h&quot;
++#include &quot;ext/3dengine/ant_particle.h&quot;
++#include &quot;ext/3dengine/scene.h&quot;
++#include &quot;ext/3dengine/anim_mesh.h&quot;
++#include &quot;ext/3dengine/ant_camera.h&quot;
++#include &quot;ext/3dengine/mesh_optimizer.h&quot;
++#include &quot;ext/3dengine/ant_projection.h&quot;
++#ifdef SWIG
++%include &quot;ext/3dengine/mesh_data.h&quot;
++%include &quot;ext/3dengine/scene_base.h&quot;
++%include &quot;ext/3dengine/scenenode.h&quot;
++%include &quot;ext/3dengine/mesh_2d_data.h&quot;
++%include &quot;ext/3dengine/anim_mesh_data.h&quot;
++%include &quot;ext/3dengine/mesh.h&quot;
++%include &quot;ext/3dengine/mesh_2d.h&quot;
++%include &quot;ext/3dengine/ant_particle.h&quot;
++%include &quot;ext/3dengine/scene.h&quot;
++%include &quot;ext/3dengine/anim_mesh.h&quot;
++%include &quot;ext/3dengine/ant_camera.h&quot;
++%include &quot;ext/3dengine/mesh_optimizer.h&quot;
++%include &quot;ext/3dengine/ant_projection.h&quot;
++#endif
++#endif
+
+Modified: antargis/branches/rant/ext/basic/ag_geometry.cc
+===================================================================
+--- antargis/branches/rant/ext/basic/ag_geometry.cc	2007-07-21 07:44:39 UTC (rev 1146)
++++ antargis/branches/rant/ext/basic/ag_geometry.cc	2007-07-22 10:27:00 UTC (rev 1147)
+@@ -202,6 +202,12 @@
+   v[1]=node.get(&quot;y&quot;).toFloat();
+ }
+ 
++bool AGVector2::operator&lt;(const AGVector2 &amp;p) const
++{
++  return v[0]&lt;p.v[0] || (v[0]==p.v[0] &amp;&amp; v[1]&lt;p.v[1]);
++}
++
++
+ AGVector2 AGVector2::operator-() const
+ {
+   return AGVector2(-v[0],-v[1]);
+@@ -237,7 +243,7 @@
+ 
+ bool AGVector2::operator==(const AGVector2 &amp;a) const
+ {
+-  return v[0]==a.v[0] &amp;&amp; v[1]==a.v[1] &amp;&amp; v[2]==a.v[2];
++  return v[0]==a.v[0] &amp;&amp; v[1]==a.v[1];// &amp;&amp; v[2]==a.v[2];
+ }
+ bool AGVector2::operator!=(const AGVector2 &amp;a) const
+ {
+
+Modified: antargis/branches/rant/ext/basic/ag_geometry.h
+===================================================================
+--- antargis/branches/rant/ext/basic/ag_geometry.h	2007-07-21 07:44:39 UTC (rev 1146)
++++ antargis/branches/rant/ext/basic/ag_geometry.h	2007-07-22 10:27:00 UTC (rev 1147)
+@@ -53,7 +53,7 @@
+ 
+ /** \brief Simple structure holding an angle in degrees
+  */
+-struct AGEXPORT AGAngle
++struct AGAngle
+ {
+   float angle;
+   
+@@ -87,6 +87,9 @@
+ 
+   AGAngle getAngle() const;
+ 
++
++  bool operator&lt;(const AGVector2 &amp;p) const;
++
+   AGVector2 operator-() const;
+   AGVector2 operator-(const AGVector2 &amp;p) const;
+   AGVector2 operator+(const AGVector2 &amp;p) const;
+@@ -693,11 +696,11 @@
+   bool mValid;
+ };
+ 
+-AGEXPORT std::ostream &amp;operator&lt;&lt;(std::ostream &amp;o,const AGVector2&amp;v);
+-AGEXPORT std::ostream &amp;operator&lt;&lt;(std::ostream &amp;o,const AGVector3&amp;v);
+-AGEXPORT std::ostream &amp;operator&lt;&lt;(std::ostream &amp;o,const AGVector4&amp;v);
+-AGEXPORT std::ostream &amp;operator&lt;&lt;(std::ostream &amp;o,const AGRect2&amp;v);
+-AGEXPORT std::ostream &amp;operator&lt;&lt;(std::ostream &amp;o,const AGBox3&amp;v);
++std::ostream &amp;operator&lt;&lt;(std::ostream &amp;o,const AGVector2&amp;v);
++std::ostream &amp;operator&lt;&lt;(std::ostream &amp;o,const AGVector3&amp;v);
++std::ostream &amp;operator&lt;&lt;(std::ostream &amp;o,const AGVector4&amp;v);
++std::ostream &amp;operator&lt;&lt;(std::ostream &amp;o,const AGRect2&amp;v);
++std::ostream &amp;operator&lt;&lt;(std::ostream &amp;o,const AGBox3&amp;v);
+ 
+ #include &quot;ag_geometry_inline.cc&quot;
+ 
+
+Modified: antargis/branches/rant/ext/basic/ag_main.cc
+===================================================================
+--- antargis/branches/rant/ext/basic/ag_main.cc	2007-07-21 07:44:39 UTC (rev 1146)
++++ antargis/branches/rant/ext/basic/ag_main.cc	2007-07-22 10:27:00 UTC (rev 1147)
+@@ -188,8 +188,14 @@
+   mVideo=p;
+ }
+ 
++void AGMain::delay(int ms)
++{
++  SDL_Delay(ms);
++}
+ 
+ 
++
++
+ ///   AGRepeatedCall
+ AGRepeatedCall::AGRepeatedCall()
+ {
+
+Modified: antargis/branches/rant/ext/basic/ag_main.h
+===================================================================
+--- antargis/branches/rant/ext/basic/ag_main.h	2007-07-21 07:44:39 UTC (rev 1146)
++++ antargis/branches/rant/ext/basic/ag_main.h	2007-07-22 10:27:00 UTC (rev 1147)
+@@ -73,6 +73,8 @@
+ 
+   void repeatedCalls();
+ 
++  void delay(int ms);
++
+  protected:
+   virtual void mark();
+ 
+
+Modified: antargis/branches/rant/ext/basic/ag_regex.h
+===================================================================
+--- antargis/branches/rant/ext/basic/ag_regex.h	2007-07-21 07:44:39 UTC (rev 1146)
++++ antargis/branches/rant/ext/basic/ag_regex.h	2007-07-22 10:27:00 UTC (rev 1147)
+@@ -21,6 +21,9 @@
+ #ifndef AG_REGEX_H
+ #define AG_REGEX_H
+ 
++
++#ifdef UNDEF
++
+ #include &lt;regex.h&gt;
+ #include &lt;sys/types.h&gt;
+ #include &lt;string&gt;
+@@ -101,3 +104,5 @@
+ 
+ 
+ #endif
++
++#endif
+
+Modified: antargis/branches/rant/ext/basic/ag_video_base.h
+===================================================================
+--- antargis/branches/rant/ext/basic/ag_video_base.h	2007-07-21 07:44:39 UTC (rev 1146)
++++ antargis/branches/rant/ext/basic/ag_video_base.h	2007-07-22 10:27:00 UTC (rev 1147)
+@@ -7,14 +7,14 @@
+ 
+ class AGEXPORT AGVideoBase:public AGSingleton
+ {
+-public:
+-  virtual ~AGVideoBase();
+-  virtual int width() const;
+-  virtual int height() const;
+-
+-  virtual int realWidth() const;
+-  virtual int realHeight() const;
++ public:
++  virtual ~AGVideoBase();
++  virtual int width() const;
++  virtual int height() const;
+ 
++  virtual int realWidth() const;
++  virtual int realHeight() const;
++
+ };
+ 
+ 
+
+Modified: antargis/branches/rant/ext/basic/headers.hh
+===================================================================
+--- antargis/branches/rant/ext/basic/headers.hh	2007-07-21 07:44:39 UTC (rev 1146)
++++ antargis/branches/rant/ext/basic/headers.hh	2007-07-22 10:27:00 UTC (rev 1147)
+@@ -1,34 +1,34 @@
+-#ifndef __ANTARGIS_H__
+-#define __ANTARGIS_H__
+-
+-#include &quot;ext/basic/ag_rubyobj.h&quot;
+-#include &quot;ext/basic/ag_messageobject.h&quot;
+-#include &quot;ext/basic/ag_singleton.h&quot;
+-#include &quot;ext/basic/ag_rand_base.h&quot;
+-#include &quot;ext/basic/ag_main.h&quot;
+-#include &quot;ext/basic/ag_video_base.h&quot;
+-#include &quot;ext/basic/ag_geometry.h&quot;
+-#include &quot;ext/basic/ag_serial.h&quot;
+-#include &quot;ext/basic/ag_config.h&quot;
+-#include &quot;ext/basic/ag_xml.h&quot;
+-#include &quot;ext/basic/ag_string_utf8.h&quot;
+-#include &quot;ext/basic/ag_stringstream.h&quot;
+-#include &quot;ext/basic/ag_fs.h&quot;
+-#include &quot;ext/basic/ag_utf8.h&quot;
+-#ifdef SWIG
+-%include &quot;ext/basic/ag_rubyobj.h&quot;
+-%include &quot;ext/basic/ag_messageobject.h&quot;
+-%include &quot;ext/basic/ag_singleton.h&quot;
+-%include &quot;ext/basic/ag_rand_base.h&quot;
+-%include &quot;ext/basic/ag_main.h&quot;
+-%include &quot;ext/basic/ag_video_base.h&quot;
+-%include &quot;ext/basic/ag_geometry.h&quot;
+-%include &quot;ext/basic/ag_serial.h&quot;
+-%include &quot;ext/basic/ag_config.h&quot;
+-%include &quot;ext/basic/ag_xml.h&quot;
+-%include &quot;ext/basic/ag_string_utf8.h&quot;
+-%include &quot;ext/basic/ag_stringstream.h&quot;
+-%include &quot;ext/basic/ag_fs.h&quot;
+-%include &quot;ext/basic/ag_utf8.h&quot;
+-#endif
+-#endif
++#ifndef __ANTARGIS_H__
++#define __ANTARGIS_H__
++
++#include &quot;ext/basic/ag_rubyobj.h&quot;
++#include &quot;ext/basic/ag_messageobject.h&quot;
++#include &quot;ext/basic/ag_singleton.h&quot;
++#include &quot;ext/basic/ag_rand_base.h&quot;
++#include &quot;ext/basic/ag_main.h&quot;
++#include &quot;ext/basic/ag_video_base.h&quot;
++#include &quot;ext/basic/ag_geometry.h&quot;
++#include &quot;ext/basic/ag_serial.h&quot;
++#include &quot;ext/basic/ag_config.h&quot;
++#include &quot;ext/basic/ag_xml.h&quot;
++#include &quot;ext/basic/ag_string_utf8.h&quot;
++#include &quot;ext/basic/ag_stringstream.h&quot;
++#include &quot;ext/basic/ag_fs.h&quot;
++#include &quot;ext/basic/ag_utf8.h&quot;
++#ifdef SWIG
++%include &quot;ext/basic/ag_rubyobj.h&quot;
++%include &quot;ext/basic/ag_messageobject.h&quot;
++%include &quot;ext/basic/ag_singleton.h&quot;
++%include &quot;ext/basic/ag_rand_base.h&quot;
++%include &quot;ext/basic/ag_main.h&quot;
++%include &quot;ext/basic/ag_video_base.h&quot;
++%include &quot;ext/basic/ag_geometry.h&quot;
++%include &quot;ext/basic/ag_serial.h&quot;
++%include &quot;ext/basic/ag_config.h&quot;
++%include &quot;ext/basic/ag_xml.h&quot;
++%include &quot;ext/basic/ag_string_utf8.h&quot;
++%include &quot;ext/basic/ag_stringstream.h&quot;
++%include &quot;ext/basic/ag_fs.h&quot;
++%include &quot;ext/basic/ag_utf8.h&quot;
++#endif
++#endif
+
+Modified: antargis/branches/rant/ext/external/headers.hh
+===================================================================
+--- antargis/branches/rant/ext/external/headers.hh	2007-07-21 07:44:39 UTC (rev 1146)
++++ antargis/branches/rant/ext/external/headers.hh	2007-07-22 10:27:00 UTC (rev 1147)
+@@ -1,8 +1,8 @@
+-#ifndef __ANTARGIS_H__
+-#define __ANTARGIS_H__
+-
+-
+-#ifdef SWIG
+-
+-#endif
+-#endif
++#ifndef __ANTARGIS_H__
++#define __ANTARGIS_H__
++
++
++#ifdef SWIG
++
++#endif
++#endif
+
+Modified: antargis/branches/rant/ext/game/headers.hh
+===================================================================
+--- antargis/branches/rant/ext/game/headers.hh	2007-07-21 07:44:39 UTC (rev 1146)
++++ antargis/branches/rant/ext/game/headers.hh	2007-07-22 10:27:00 UTC (rev 1147)
+@@ -1,97 +1,101 @@
+-#ifndef __ANTARGIS_H__
+-#define __ANTARGIS_H__
+-#include &quot;ext/basic/ag_config.h&quot;
+-#include &quot;ext/basic/ag_fs.h&quot;
+-#include &quot;ext/basic/ag_geometry.h&quot;
+-#include &quot;ext/basic/ag_main.h&quot;
+-#include &quot;ext/basic/ag_messageobject.h&quot;
+-#include &quot;ext/basic/ag_rand_base.h&quot;
+-#include &quot;ext/basic/ag_rubyobj.h&quot;
+-#include &quot;ext/basic/ag_serial.h&quot;
+-#include &quot;ext/basic/ag_singleton.h&quot;
+-#include &quot;ext/basic/ag_stringstream.h&quot;
+-#include &quot;ext/basic/ag_string_utf8.h&quot;
+-#include &quot;ext/basic/ag_utf8.h&quot;
+-#include &quot;ext/basic/ag_video_base.h&quot;
+-#include &quot;ext/basic/ag_xml.h&quot;
+-#include &quot;ext/math/ag_algebra.h&quot;
+-#include &quot;ext/math/ag_geometry.h&quot;
+-#include &quot;ext/math/ag_rand.h&quot;
+-#include &quot;ext/math/ant_frustum.h&quot;
+-#include &quot;ext/video/ag_clip.h&quot;
+-#include &quot;ext/video/ag_color.h&quot;
+-#include &quot;ext/video/ag_font.h&quot;
+-#include &quot;ext/video/ag_fontengine.h&quot;
+-#include &quot;ext/video/ag_painter.h&quot;
+-#include &quot;ext/video/ag_painttarget.h&quot;
+-#include &quot;ext/video/ag_rendercontext.h&quot;
+-#include &quot;ext/video/ag_screen.h&quot;
+-#include &quot;ext/video/ag_surface.h&quot;
+-#include &quot;ext/video/ag_texture.h&quot;
+-#include &quot;ext/video/ag_texturecache.h&quot;
+-#include &quot;ext/video/ag_video.h&quot;
+-#include &quot;ext/gui/ag_application.h&quot;
+-#include &quot;ext/gui/ag_background.h&quot;
+-#include &quot;ext/gui/ag_border.h&quot;
+-#include &quot;ext/gui/ag_button.h&quot;
+-#include &quot;ext/gui/ag_caption.h&quot;
+-#include &quot;ext/gui/ag_checkbox.h&quot;
+-#include &quot;ext/gui/ag_colorbutton.h&quot;
+-#include &quot;ext/gui/ag_combo.h&quot;
+-#include &quot;ext/gui/ag_edit.h&quot;
+-#include &quot;ext/gui/ag_frame.h&quot;
+-#include &quot;ext/gui/ag_image.h&quot;
+-#include &quot;ext/gui/ag_layout.h&quot;
+-#include &quot;ext/gui/ag_layoutfactory.h&quot;
+-#include &quot;ext/gui/ag_listbox.h&quot;
+-#include &quot;ext/gui/ag_local.h&quot;
+-#include &quot;ext/gui/ag_menu.h&quot;
+-#include &quot;ext/gui/ag_menuitem.h&quot;
+-#include &quot;ext/gui/ag_radio.h&quot;
+-#include &quot;ext/gui/ag_radiogroup.h&quot;
+-#include &quot;ext/gui/ag_screenwidget.h&quot;
+-#include &quot;ext/gui/ag_scroller.h&quot;
+-#include &quot;ext/gui/ag_table.h&quot;
+-#include &quot;ext/gui/ag_text.h&quot;
+-#include &quot;ext/gui/ag_theme.h&quot;
+-#include &quot;ext/gui/ag_tooltip.h&quot;
+-#include &quot;ext/gui/ag_widget.h&quot;
+-#include &quot;ext/gui/ag_window.h&quot;
+-#include &quot;ext/3dengine/anim_mesh.h&quot;
+-#include &quot;ext/3dengine/anim_mesh_data.h&quot;
+-#include &quot;ext/3dengine/ant_camera.h&quot;
+-#include &quot;ext/3dengine/ant_particle.h&quot;
+-#include &quot;ext/3dengine/ant_projection.h&quot;
+-#include &quot;ext/3dengine/mesh.h&quot;
+-#include &quot;ext/3dengine/mesh_2d.h&quot;
+-#include &quot;ext/3dengine/mesh_2d_data.h&quot;
+-#include &quot;ext/3dengine/mesh_data.h&quot;
+-#include &quot;ext/3dengine/mesh_optimizer.h&quot;
+-#include &quot;ext/3dengine/scene.h&quot;
+-#include &quot;ext/3dengine/scenenode.h&quot;
+-#include &quot;ext/3dengine/scene_base.h&quot;
+-#include &quot;ext/game/path.h&quot;
+-#include &quot;ext/game/terrain.h&quot;
+-#include &quot;ext/game/entity.h&quot;
+-#include &quot;ext/game/water.h&quot;
+-#include &quot;ext/game/height_map.h&quot;
+-#include &quot;ext/game/ant_app.h&quot;
+-#include &quot;ext/game/minimap.h&quot;
+-#include &quot;ext/game/map.h&quot;
+-#include &quot;ext/game/heuristic.h&quot;
+-#include &quot;ext/game/jobs.h&quot;
+-#include &quot;ext/game/resource.h&quot;
+-#ifdef SWIG
+-%include &quot;ext/game/path.h&quot;
+-%include &quot;ext/game/terrain.h&quot;
+-%include &quot;ext/game/entity.h&quot;
+-%include &quot;ext/game/water.h&quot;
+-%include &quot;ext/game/height_map.h&quot;
+-%include &quot;ext/game/ant_app.h&quot;
+-%include &quot;ext/game/minimap.h&quot;
+-%include &quot;ext/game/map.h&quot;
+-%include &quot;ext/game/heuristic.h&quot;
+-%include &quot;ext/game/jobs.h&quot;
+-%include &quot;ext/game/resource.h&quot;
+-#endif
+-#endif
++#ifndef __ANTARGIS_H__
++#define __ANTARGIS_H__
++#include &quot;ext/basic/ag_config.h&quot;
++#include &quot;ext/basic/ag_fs.h&quot;
++#include &quot;ext/basic/ag_main.h&quot;
++#include &quot;ext/basic/ag_rubyobj.h&quot;
++#include &quot;ext/basic/ag_rand_base.h&quot;
++#include &quot;ext/basic/ag_string_utf8.h&quot;
++#include &quot;ext/basic/ag_stringstream.h&quot;
++#include &quot;ext/basic/ag_utf8.h&quot;
++#include &quot;ext/basic/ag_video_base.h&quot;
++#include &quot;ext/basic/ag_xml.h&quot;
++#include &quot;ext/basic/ag_singleton.h&quot;
++#include &quot;ext/basic/ag_serial.h&quot;
++#include &quot;ext/basic/ag_messageobject.h&quot;
++#include &quot;ext/basic/ag_geometry.h&quot;
++#include &quot;ext/math/ag_geometry.h&quot;
++#include &quot;ext/math/ag_rand.h&quot;
++#include &quot;ext/math/ant_frustum.h&quot;
++#include &quot;ext/math/ag_algebra.h&quot;
++#include &quot;ext/video/ag_screen.h&quot;
++#include &quot;ext/video/ag_video.h&quot;
++#include &quot;ext/video/ag_painttarget.h&quot;
++#include &quot;ext/video/ag_color.h&quot;
++#include &quot;ext/video/ag_fontengine.h&quot;
++#include &quot;ext/video/ag_font.h&quot;
++#include &quot;ext/video/ag_surface.h&quot;
++#include &quot;ext/video/ag_texture.h&quot;
++#include &quot;ext/video/ag_rendercontext.h&quot;
++#include &quot;ext/video/ag_texturecache.h&quot;
++#include &quot;ext/video/ag_clip.h&quot;
++#include &quot;ext/video/ag_painter.h&quot;
++#include &quot;ext/gui/ag_image.h&quot;
++#include &quot;ext/gui/ag_listbox.h&quot;
++#include &quot;ext/gui/ag_edit.h&quot;
++#include &quot;ext/gui/ag_scroller.h&quot;
++#include &quot;ext/gui/ag_local.h&quot;
++#include &quot;ext/gui/ag_tooltip.h&quot;
++#include &quot;ext/gui/ag_radio.h&quot;
++#include &quot;ext/gui/ag_application.h&quot;
++#include &quot;ext/gui/ag_colorbutton.h&quot;
++#include &quot;ext/gui/ag_button.h&quot;
++#include &quot;ext/gui/ag_radiogroup.h&quot;
++#include &quot;ext/gui/ag_background.h&quot;
++#include &quot;ext/gui/ag_menuitem.h&quot;
++#include &quot;ext/gui/ag_screenwidget.h&quot;
++#include &quot;ext/gui/ag_widget.h&quot;
++#include &quot;ext/gui/ag_text.h&quot;
++#include &quot;ext/gui/ag_checkbox.h&quot;
++#include &quot;ext/gui/ag_table.h&quot;
++#include &quot;ext/gui/ag_frame.h&quot;
++#include &quot;ext/gui/ag_caption.h&quot;
++#include &quot;ext/gui/ag_combo.h&quot;
++#include &quot;ext/gui/ag_theme.h&quot;
++#include &quot;ext/gui/ag_menu.h&quot;
++#include &quot;ext/gui/ag_layoutfactory.h&quot;
++#include &quot;ext/gui/ag_window.h&quot;
++#include &quot;ext/gui/ag_layout.h&quot;
++#include &quot;ext/gui/ag_border.h&quot;
++#include &quot;ext/3dengine/scene_base.h&quot;
++#include &quot;ext/3dengine/scene.h&quot;
++#include &quot;ext/3dengine/scenenode.h&quot;
++#include &quot;ext/3dengine/ant_camera.h&quot;
++#include &quot;ext/3dengine/mesh_data.h&quot;
++#include &quot;ext/3dengine/mesh.h&quot;
++#include &quot;ext/3dengine/mesh_optimizer.h&quot;
++#include &quot;ext/3dengine/anim_mesh.h&quot;
++#include &quot;ext/3dengine/anim_mesh_data.h&quot;
++#include &quot;ext/3dengine/mesh_2d.h&quot;
++#include &quot;ext/3dengine/mesh_2d_data.h&quot;
++#include &quot;ext/3dengine/ant_projection.h&quot;
++#include &quot;ext/3dengine/ant_particle.h&quot;
++#include &quot;ext/game/path.h&quot;
++#include &quot;ext/game/path_v2.h&quot;
++#include &quot;ext/game/path_base.h&quot;
++#include &quot;ext/game/terrain.h&quot;
++#include &quot;ext/game/entity.h&quot;
++#include &quot;ext/game/water.h&quot;
++#include &quot;ext/game/height_map.h&quot;
++#include &quot;ext/game/ant_app.h&quot;
++#include &quot;ext/game/minimap.h&quot;
++#include &quot;ext/game/map.h&quot;
++#include &quot;ext/game/heuristic.h&quot;
++#include &quot;ext/game/jobs.h&quot;
++#include &quot;ext/game/resource.h&quot;
++#ifdef SWIG
++%include &quot;ext/game/path.h&quot;
++%include &quot;ext/game/path_v2.h&quot;
++%include &quot;ext/game/path_base.h&quot;
++%include &quot;ext/game/terrain.h&quot;
++%include &quot;ext/game/entity.h&quot;
++%include &quot;ext/game/water.h&quot;
++%include &quot;ext/game/height_map.h&quot;
++%include &quot;ext/game/ant_app.h&quot;
++%include &quot;ext/game/minimap.h&quot;
++%include &quot;ext/game/map.h&quot;
++%include &quot;ext/game/heuristic.h&quot;
++%include &quot;ext/game/jobs.h&quot;
++%include &quot;ext/game/resource.h&quot;
++#endif
++#endif
+
+Modified: antargis/branches/rant/ext/game/height_map.cc
+===================================================================
+--- antargis/branches/rant/ext/game/height_map.cc	2007-07-21 07:44:39 UTC (rev 1146)
++++ antargis/branches/rant/ext/game/height_map.cc	2007-07-22 10:27:00 UTC (rev 1147)
+@@ -41,7 +41,8 @@
+ 
+ HeightMap::~HeightMap()
+ {
+-  saveDelete(mTerrain);
++  if(mTerrain)
++    saveDelete(mTerrain);
+ }
+ 
+ void HeightMap::initTerrainMesh()
+
+Modified: antargis/branches/rant/ext/gui/headers.hh
+===================================================================
+--- antargis/branches/rant/ext/gui/headers.hh	2007-07-21 07:44:39 UTC (rev 1146)
++++ antargis/branches/rant/ext/gui/headers.hh	2007-07-22 10:27:00 UTC (rev 1147)
+@@ -1,89 +1,89 @@
+-#ifndef __ANTARGIS_H__
+-#define __ANTARGIS_H__
+-#include &quot;ext/basic/ag_config.h&quot;
+-#include &quot;ext/basic/ag_fs.h&quot;
+-#include &quot;ext/basic/ag_geometry.h&quot;
+-#include &quot;ext/basic/ag_main.h&quot;
+-#include &quot;ext/basic/ag_messageobject.h&quot;
+-#include &quot;ext/basic/ag_rand_base.h&quot;
+-#include &quot;ext/basic/ag_rubyobj.h&quot;
+-#include &quot;ext/basic/ag_serial.h&quot;
+-#include &quot;ext/basic/ag_singleton.h&quot;
+-#include &quot;ext/basic/ag_stringstream.h&quot;
+-#include &quot;ext/basic/ag_string_utf8.h&quot;
+-#include &quot;ext/basic/ag_utf8.h&quot;
+-#include &quot;ext/basic/ag_video_base.h&quot;
+-#include &quot;ext/basic/ag_xml.h&quot;
+-#include &quot;ext/math/ag_algebra.h&quot;
+-#include &quot;ext/math/ag_geometry.h&quot;
+-#include &quot;ext/math/ag_rand.h&quot;
+-#include &quot;ext/math/ant_frustum.h&quot;
+-#include &quot;ext/video/ag_clip.h&quot;
+-#include &quot;ext/video/ag_color.h&quot;
+-#include &quot;ext/video/ag_font.h&quot;
+-#include &quot;ext/video/ag_fontengine.h&quot;
+-#include &quot;ext/video/ag_painter.h&quot;
+-#include &quot;ext/video/ag_painttarget.h&quot;
+-#include &quot;ext/video/ag_rendercontext.h&quot;
+-#include &quot;ext/video/ag_screen.h&quot;
+-#include &quot;ext/video/ag_surface.h&quot;
+-#include &quot;ext/video/ag_texture.h&quot;
+-#include &quot;ext/video/ag_texturecache.h&quot;
+-#include &quot;ext/video/ag_video.h&quot;
+-#include &quot;ext/gui/ag_layoutfactory.h&quot;
+-#include &quot;ext/gui/ag_widget.h&quot;
+-#include &quot;ext/gui/ag_application.h&quot;
+-#include &quot;ext/gui/ag_table.h&quot;
+-#include &quot;ext/gui/ag_layout.h&quot;
+-#include &quot;ext/gui/ag_colorbutton.h&quot;
+-#include &quot;ext/gui/ag_image.h&quot;
+-#include &quot;ext/gui/ag_screenwidget.h&quot;
+-#include &quot;ext/gui/ag_listbox.h&quot;
+-#include &quot;ext/gui/ag_frame.h&quot;
+-#include &quot;ext/gui/ag_text.h&quot;
+-#include &quot;ext/gui/ag_button.h&quot;
+-#include &quot;ext/gui/ag_edit.h&quot;
+-#include &quot;ext/gui/ag_radiogroup.h&quot;
+-#include &quot;ext/gui/ag_scroller.h&quot;
+-#include &quot;ext/gui/ag_tooltip.h&quot;
+-#include &quot;ext/gui/ag_combo.h&quot;
+-#include &quot;ext/gui/ag_menu.h&quot;
+-#include &quot;ext/gui/ag_caption.h&quot;
+-#include &quot;ext/gui/ag_window.h&quot;
+-#include &quot;ext/gui/ag_checkbox.h&quot;
+-#include &quot;ext/gui/ag_menuitem.h&quot;
+-#include &quot;ext/gui/ag_radio.h&quot;
+-#include &quot;ext/gui/ag_theme.h&quot;
+-#include &quot;ext/gui/ag_border.h&quot;
+-#include &quot;ext/gui/ag_background.h&quot;
+-#include &quot;ext/gui/ag_local.h&quot;
+-#ifdef SWIG
+-%include &quot;ext/gui/ag_layoutfactory.h&quot;
+-%include &quot;ext/gui/ag_widget.h&quot;
+-%include &quot;ext/gui/ag_application.h&quot;
+-%include &quot;ext/gui/ag_table.h&quot;
+-%include &quot;ext/gui/ag_layout.h&quot;
+-%include &quot;ext/gui/ag_colorbutton.h&quot;
+-%include &quot;ext/gui/ag_image.h&quot;
+-%include &quot;ext/gui/ag_screenwidget.h&quot;
+-%include &quot;ext/gui/ag_listbox.h&quot;
+-%include &quot;ext/gui/ag_frame.h&quot;
+-%include &quot;ext/gui/ag_text.h&quot;
+-%include &quot;ext/gui/ag_button.h&quot;
+-%include &quot;ext/gui/ag_edit.h&quot;
+-%include &quot;ext/gui/ag_radiogroup.h&quot;
+-%include &quot;ext/gui/ag_scroller.h&quot;
+-%include &quot;ext/gui/ag_tooltip.h&quot;
+-%include &quot;ext/gui/ag_combo.h&quot;
+-%include &quot;ext/gui/ag_menu.h&quot;
+-%include &quot;ext/gui/ag_caption.h&quot;
+-%include &quot;ext/gui/ag_window.h&quot;
+-%include &quot;ext/gui/ag_checkbox.h&quot;
+-%include &quot;ext/gui/ag_menuitem.h&quot;
+-%include &quot;ext/gui/ag_radio.h&quot;
+-%include &quot;ext/gui/ag_theme.h&quot;
+-%include &quot;ext/gui/ag_border.h&quot;
+-%include &quot;ext/gui/ag_background.h&quot;
+-%include &quot;ext/gui/ag_local.h&quot;
+-#endif
+-#endif
++#ifndef __ANTARGIS_H__
++#define __ANTARGIS_H__
++#include &quot;ext/basic/ag_config.h&quot;
++#include &quot;ext/basic/ag_fs.h&quot;
++#include &quot;ext/basic/ag_main.h&quot;
++#include &quot;ext/basic/ag_rubyobj.h&quot;
++#include &quot;ext/basic/ag_rand_base.h&quot;
++#include &quot;ext/basic/ag_string_utf8.h&quot;
++#include &quot;ext/basic/ag_stringstream.h&quot;
++#include &quot;ext/basic/ag_utf8.h&quot;
++#include &quot;ext/basic/ag_video_base.h&quot;
++#include &quot;ext/basic/ag_xml.h&quot;
++#include &quot;ext/basic/ag_singleton.h&quot;
++#include &quot;ext/basic/ag_serial.h&quot;
++#include &quot;ext/basic/ag_messageobject.h&quot;
++#include &quot;ext/basic/ag_geometry.h&quot;
++#include &quot;ext/math/ag_geometry.h&quot;
++#include &quot;ext/math/ag_rand.h&quot;
++#include &quot;ext/math/ant_frustum.h&quot;
++#include &quot;ext/math/ag_algebra.h&quot;
++#include &quot;ext/video/ag_screen.h&quot;
++#include &quot;ext/video/ag_video.h&quot;
++#include &quot;ext/video/ag_painttarget.h&quot;
++#include &quot;ext/video/ag_color.h&quot;
++#include &quot;ext/video/ag_fontengine.h&quot;
++#include &quot;ext/video/ag_font.h&quot;
++#include &quot;ext/video/ag_surface.h&quot;
++#include &quot;ext/video/ag_texture.h&quot;
++#include &quot;ext/video/ag_rendercontext.h&quot;
++#include &quot;ext/video/ag_texturecache.h&quot;
++#include &quot;ext/video/ag_clip.h&quot;
++#include &quot;ext/video/ag_painter.h&quot;
++#include &quot;ext/gui/ag_layoutfactory.h&quot;
++#include &quot;ext/gui/ag_widget.h&quot;
++#include &quot;ext/gui/ag_application.h&quot;
++#include &quot;ext/gui/ag_table.h&quot;
++#include &quot;ext/gui/ag_layout.h&quot;
++#include &quot;ext/gui/ag_colorbutton.h&quot;
++#include &quot;ext/gui/ag_image.h&quot;
++#include &quot;ext/gui/ag_screenwidget.h&quot;
++#include &quot;ext/gui/ag_listbox.h&quot;
++#include &quot;ext/gui/ag_frame.h&quot;
++#include &quot;ext/gui/ag_text.h&quot;
++#include &quot;ext/gui/ag_button.h&quot;
++#include &quot;ext/gui/ag_edit.h&quot;
++#include &quot;ext/gui/ag_radiogroup.h&quot;
++#include &quot;ext/gui/ag_scroller.h&quot;
++#include &quot;ext/gui/ag_tooltip.h&quot;
++#include &quot;ext/gui/ag_combo.h&quot;
++#include &quot;ext/gui/ag_menu.h&quot;
++#include &quot;ext/gui/ag_caption.h&quot;
++#include &quot;ext/gui/ag_window.h&quot;
++#include &quot;ext/gui/ag_checkbox.h&quot;
++#include &quot;ext/gui/ag_menuitem.h&quot;
++#include &quot;ext/gui/ag_radio.h&quot;
++#include &quot;ext/gui/ag_theme.h&quot;
++#include &quot;ext/gui/ag_border.h&quot;
++#include &quot;ext/gui/ag_background.h&quot;
++#include &quot;ext/gui/ag_local.h&quot;
++#ifdef SWIG
++%include &quot;ext/gui/ag_layoutfactory.h&quot;
++%include &quot;ext/gui/ag_widget.h&quot;
++%include &quot;ext/gui/ag_application.h&quot;
++%include &quot;ext/gui/ag_table.h&quot;
++%include &quot;ext/gui/ag_layout.h&quot;
++%include &quot;ext/gui/ag_colorbutton.h&quot;
++%include &quot;ext/gui/ag_image.h&quot;
++%include &quot;ext/gui/ag_screenwidget.h&quot;
++%include &quot;ext/gui/ag_listbox.h&quot;
++%include &quot;ext/gui/ag_frame.h&quot;
++%include &quot;ext/gui/ag_text.h&quot;
++%include &quot;ext/gui/ag_button.h&quot;
++%include &quot;ext/gui/ag_edit.h&quot;
++%include &quot;ext/gui/ag_radiogroup.h&quot;
++%include &quot;ext/gui/ag_scroller.h&quot;
++%include &quot;ext/gui/ag_tooltip.h&quot;
++%include &quot;ext/gui/ag_combo.h&quot;
++%include &quot;ext/gui/ag_menu.h&quot;
++%include &quot;ext/gui/ag_caption.h&quot;
++%include &quot;ext/gui/ag_window.h&quot;
++%include &quot;ext/gui/ag_checkbox.h&quot;
++%include &quot;ext/gui/ag_menuitem.h&quot;
++%include &quot;ext/gui/ag_radio.h&quot;
++%include &quot;ext/gui/ag_theme.h&quot;
++%include &quot;ext/gui/ag_border.h&quot;
++%include &quot;ext/gui/ag_background.h&quot;
++%include &quot;ext/gui/ag_local.h&quot;
++#endif
++#endif
+
+Modified: antargis/branches/rant/ext/math/ag_geometry.cc
+===================================================================
+--- antargis/branches/rant/ext/math/ag_geometry.cc	2007-07-21 07:44:39 UTC (rev 1146)
++++ antargis/branches/rant/ext/math/ag_geometry.cc	2007-07-22 10:27:00 UTC (rev 1147)
+@@ -202,6 +202,12 @@
+   v[1]=node.get(&quot;y&quot;).toFloat();
+ }
+ 
++bool AGVector2::operator&lt;(const AGVector2 &amp;p) const
++{
++  return v[0]&lt;p.v[0] || (v[0]==p.v[0] &amp;&amp; v[1]&lt;p.v[1]);
++}
++
++
+ AGVector2 AGVector2::operator-() const
+ {
+   return AGVector2(-v[0],-v[1]);
+@@ -237,7 +243,7 @@
+ 
+ bool AGVector2::operator==(const AGVector2 &amp;a) const
+ {
+-  return v[0]==a.v[0] &amp;&amp; v[1]==a.v[1] &amp;&amp; v[2]==a.v[2];
++  return v[0]==a.v[0] &amp;&amp; v[1]==a.v[1];// &amp;&amp; v[2]==a.v[2];
+ }
+ bool AGVector2::operator!=(const AGVector2 &amp;a) const
+ {
+
+Modified: antargis/branches/rant/ext/math/ag_geometry.h
+===================================================================
+--- antargis/branches/rant/ext/math/ag_geometry.h	2007-07-21 07:44:39 UTC (rev 1146)
++++ antargis/branches/rant/ext/math/ag_geometry.h	2007-07-22 10:27:00 UTC (rev 1147)
+@@ -87,6 +87,9 @@
+ 
+   AGAngle getAngle() const;
+ 
++
++  bool operator&lt;(const AGVector2 &amp;p) const;
++
+   AGVector2 operator-() const;
+   AGVector2 operator-(const AGVector2 &amp;p) const;
+   AGVector2 operator+(const AGVector2 &amp;p) const;
+
+Modified: antargis/branches/rant/ext/math/headers.hh
+===================================================================
+--- antargis/branches/rant/ext/math/headers.hh	2007-07-21 07:44:39 UTC (rev 1146)
++++ antargis/branches/rant/ext/math/headers.hh	2007-07-22 10:27:00 UTC (rev 1147)
+@@ -1,27 +1,27 @@
+-#ifndef __ANTARGIS_H__
+-#define __ANTARGIS_H__
+-#include &quot;ext/basic/ag_config.h&quot;
+-#include &quot;ext/basic/ag_fs.h&quot;
+-#include &quot;ext/basic/ag_geometry.h&quot;
+-#include &quot;ext/basic/ag_main.h&quot;
+-#include &quot;ext/basic/ag_messageobject.h&quot;
+-#include &quot;ext/basic/ag_rand_base.h&quot;
+-#include &quot;ext/basic/ag_rubyobj.h&quot;
+-#include &quot;ext/basic/ag_serial.h&quot;
+-#include &quot;ext/basic/ag_singleton.h&quot;
+-#include &quot;ext/basic/ag_stringstream.h&quot;
+-#include &quot;ext/basic/ag_string_utf8.h&quot;
+-#include &quot;ext/basic/ag_utf8.h&quot;
+-#include &quot;ext/basic/ag_video_base.h&quot;
+-#include &quot;ext/basic/ag_xml.h&quot;
+-#include &quot;ext/math/ag_rand.h&quot;
+-#include &quot;ext/math/ant_frustum.h&quot;
+-#include &quot;ext/math/ag_algebra.h&quot;
+-#include &quot;ext/math/ag_geometry.h&quot;
+-#ifdef SWIG
+-%include &quot;ext/math/ag_rand.h&quot;
+-%include &quot;ext/math/ant_frustum.h&quot;
+-%include &quot;ext/math/ag_algebra.h&quot;
+-%include &quot;ext/math/ag_geometry.h&quot;
+-#endif
+-#endif
++#ifndef __ANTARGIS_H__
++#define __ANTARGIS_H__
++#include &quot;ext/basic/ag_config.h&quot;
++#include &quot;ext/basic/ag_fs.h&quot;
++#include &quot;ext/basic/ag_main.h&quot;
++#include &quot;ext/basic/ag_rubyobj.h&quot;
++#include &quot;ext/basic/ag_rand_base.h&quot;
++#include &quot;ext/basic/ag_string_utf8.h&quot;
++#include &quot;ext/basic/ag_stringstream.h&quot;
++#include &quot;ext/basic/ag_utf8.h&quot;
++#include &quot;ext/basic/ag_video_base.h&quot;
++#include &quot;ext/basic/ag_xml.h&quot;
++#include &quot;ext/basic/ag_singleton.h&quot;
++#include &quot;ext/basic/ag_serial.h&quot;
++#include &quot;ext/basic/ag_messageobject.h&quot;
++#include &quot;ext/basic/ag_geometry.h&quot;
++#include &quot;ext/math/ag_rand.h&quot;
++#include &quot;ext/math/ant_frustum.h&quot;
++#include &quot;ext/math/ag_algebra.h&quot;
++#include &quot;ext/math/ag_geometry.h&quot;
++#ifdef SWIG
++%include &quot;ext/math/ag_rand.h&quot;
++%include &quot;ext/math/ant_frustum.h&quot;
++%include &quot;ext/math/ag_algebra.h&quot;
++%include &quot;ext/math/ag_geometry.h&quot;
++#endif
++#endif
+
+Modified: antargis/branches/rant/ext/sound/headers.hh
+===================================================================
+--- antargis/branches/rant/ext/sound/headers.hh	2007-07-21 07:44:39 UTC (rev 1146)
++++ antargis/branches/rant/ext/sound/headers.hh	2007-07-22 10:27:00 UTC (rev 1147)
+@@ -1,21 +1,21 @@
+-#ifndef __ANTARGIS_H__
+-#define __ANTARGIS_H__
+-#include &quot;ext/basic/ag_config.h&quot;
+-#include &quot;ext/basic/ag_fs.h&quot;
+-#include &quot;ext/basic/ag_geometry.h&quot;
+-#include &quot;ext/basic/ag_main.h&quot;
+-#include &quot;ext/basic/ag_messageobject.h&quot;
+-#include &quot;ext/basic/ag_rand_base.h&quot;
+-#include &quot;ext/basic/ag_rubyobj.h&quot;
+-#include &quot;ext/basic/ag_serial.h&quot;
+-#include &quot;ext/basic/ag_singleton.h&quot;
+-#include &quot;ext/basic/ag_stringstream.h&quot;
+-#include &quot;ext/basic/ag_string_utf8.h&quot;
+-#include &quot;ext/basic/ag_utf8.h&quot;
+-#include &quot;ext/basic/ag_video_base.h&quot;
+-#include &quot;ext/basic/ag_xml.h&quot;
+-#include &quot;ext/sound/ag_mixer.h&quot;
+-#ifdef SWIG
+-%include &quot;ext/sound/ag_mixer.h&quot;
+-#endif
+-#endif
++#ifndef __ANTARGIS_H__
++#define __ANTARGIS_H__
++#include &quot;ext/basic/ag_config.h&quot;
++#include &quot;ext/basic/ag_fs.h&quot;
++#include &quot;ext/basic/ag_main.h&quot;
++#include &quot;ext/basic/ag_rubyobj.h&quot;
++#include &quot;ext/basic/ag_rand_base.h&quot;
++#include &quot;ext/basic/ag_string_utf8.h&quot;
++#include &quot;ext/basic/ag_stringstream.h&quot;
++#include &quot;ext/basic/ag_utf8.h&quot;
++#include &quot;ext/basic/ag_video_base.h&quot;
++#include &quot;ext/basic/ag_xml.h&quot;
++#include &quot;ext/basic/ag_singleton.h&quot;
++#include &quot;ext/basic/ag_serial.h&quot;
++#include &quot;ext/basic/ag_messageobject.h&quot;
++#include &quot;ext/basic/ag_geometry.h&quot;
++#include &quot;ext/sound/ag_mixer.h&quot;
++#ifdef SWIG
++%include &quot;ext/sound/ag_mixer.h&quot;
++#endif
++#endif
+
+Modified: antargis/branches/rant/ext/video/headers.hh
+===================================================================
+--- antargis/branches/rant/ext/video/headers.hh	2007-07-21 07:44:39 UTC (rev 1146)
++++ antargis/branches/rant/ext/video/headers.hh	2007-07-22 10:27:00 UTC (rev 1147)
+@@ -1,47 +1,47 @@
+-#ifndef __ANTARGIS_H__
+-#define __ANTARGIS_H__
+-#include &quot;ext/basic/ag_config.h&quot;
+-#include &quot;ext/basic/ag_fs.h&quot;
+-#include &quot;ext/basic/ag_geometry.h&quot;
+-#include &quot;ext/basic/ag_main.h&quot;
+-#include &quot;ext/basic/ag_messageobject.h&quot;
+-#include &quot;ext/basic/ag_rand_base.h&quot;
+-#include &quot;ext/basic/ag_rubyobj.h&quot;
+-#include &quot;ext/basic/ag_serial.h&quot;
+-#include &quot;ext/basic/ag_singleton.h&quot;
+-#include &quot;ext/basic/ag_stringstream.h&quot;
+-#include &quot;ext/basic/ag_string_utf8.h&quot;
+-#include &quot;ext/basic/ag_utf8.h&quot;
+-#include &quot;ext/basic/ag_video_base.h&quot;
+-#include &quot;ext/basic/ag_xml.h&quot;
+-#include &quot;ext/math/ag_algebra.h&quot;
+-#include &quot;ext/math/ag_geometry.h&quot;
+-#include &quot;ext/math/ag_rand.h&quot;
+-#include &quot;ext/math/ant_frustum.h&quot;
+-#include &quot;ext/video/ag_painttarget.h&quot;
+-#include &quot;ext/video/ag_surface.h&quot;
+-#include &quot;ext/video/ag_texture.h&quot;
+-#include &quot;ext/video/ag_screen.h&quot;
+-#include &quot;ext/video/ag_fontengine.h&quot;
+-#include &quot;ext/video/ag_video.h&quot;
+-#include &quot;ext/video/ag_clip.h&quot;
+-#include &quot;ext/video/ag_rendercontext.h&quot;
+-#include &quot;ext/video/ag_texturecache.h&quot;
+-#include &quot;ext/video/ag_font.h&quot;
+-#include &quot;ext/video/ag_painter.h&quot;
+-#include &quot;ext/video/ag_color.h&quot;
+-#ifdef SWIG
+-%include &quot;ext/video/ag_painttarget.h&quot;
+-%include &quot;ext/video/ag_surface.h&quot;
+-%include &quot;ext/video/ag_texture.h&quot;
+-%include &quot;ext/video/ag_screen.h&quot;
+-%include &quot;ext/video/ag_fontengine.h&quot;
+-%include &quot;ext/video/ag_video.h&quot;
+-%include &quot;ext/video/ag_clip.h&quot;
+-%include &quot;ext/video/ag_rendercontext.h&quot;
+-%include &quot;ext/video/ag_texturecache.h&quot;
+-%include &quot;ext/video/ag_font.h&quot;
+-%include &quot;ext/video/ag_painter.h&quot;
+-%include &quot;ext/video/ag_color.h&quot;
+-#endif
+-#endif
++#ifndef __ANTARGIS_H__
++#define __ANTARGIS_H__
++#include &quot;ext/basic/ag_config.h&quot;
++#include &quot;ext/basic/ag_fs.h&quot;
++#include &quot;ext/basic/ag_main.h&quot;
++#include &quot;ext/basic/ag_rubyobj.h&quot;
++#include &quot;ext/basic/ag_rand_base.h&quot;
++#include &quot;ext/basic/ag_string_utf8.h&quot;
++#include &quot;ext/basic/ag_stringstream.h&quot;
++#include &quot;ext/basic/ag_utf8.h&quot;
++#include &quot;ext/basic/ag_video_base.h&quot;
++#include &quot;ext/basic/ag_xml.h&quot;
++#include &quot;ext/basic/ag_singleton.h&quot;
++#include &quot;ext/basic/ag_serial.h&quot;
++#include &quot;ext/basic/ag_messageobject.h&quot;
++#include &quot;ext/basic/ag_geometry.h&quot;
++#include &quot;ext/math/ag_geometry.h&quot;
++#include &quot;ext/math/ag_rand.h&quot;
++#include &quot;ext/math/ant_frustum.h&quot;
++#include &quot;ext/math/ag_algebra.h&quot;
++#include &quot;ext/video/ag_painttarget.h&quot;
++#include &quot;ext/video/ag_surface.h&quot;
++#include &quot;ext/video/ag_texture.h&quot;
++#include &quot;ext/video/ag_screen.h&quot;
++#include &quot;ext/video/ag_fontengine.h&quot;
++#include &quot;ext/video/ag_video.h&quot;
++#include &quot;ext/video/ag_clip.h&quot;
++#include &quot;ext/video/ag_rendercontext.h&quot;
++#include &quot;ext/video/ag_texturecache.h&quot;
++#include &quot;ext/video/ag_font.h&quot;
++#include &quot;ext/video/ag_painter.h&quot;
++#include &quot;ext/video/ag_color.h&quot;
++#ifdef SWIG
++%include &quot;ext/video/ag_painttarget.h&quot;
++%include &quot;ext/video/ag_surface.h&quot;
++%include &quot;ext/video/ag_texture.h&quot;
++%include &quot;ext/video/ag_screen.h&quot;
++%include &quot;ext/video/ag_fontengine.h&quot;
++%include &quot;ext/video/ag_video.h&quot;
++%include &quot;ext/video/ag_clip.h&quot;
++%include &quot;ext/video/ag_rendercontext.h&quot;
++%include &quot;ext/video/ag_texturecache.h&quot;
++%include &quot;ext/video/ag_font.h&quot;
++%include &quot;ext/video/ag_painter.h&quot;
++%include &quot;ext/video/ag_color.h&quot;
++#endif
++#endif
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000103.html">[Antargis-svn] r1146 - antargis/branches/rant/ext/basic
+</A></li>
+	<LI>Next message: <A HREF="000105.html">[Antargis-svn] r1148 - antargis/branches/rant/ext/game
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#104">[ date ]</a>
+              <a href="thread.html#104">[ thread ]</a>
+              <a href="subject.html#104">[ subject ]</a>
+              <a href="author.html#104">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

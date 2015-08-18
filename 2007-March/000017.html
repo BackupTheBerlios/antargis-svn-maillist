@@ -1,0 +1,1377 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1059 - in antargis/trunk: gui/src ruby ruby/tests	src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-March/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1059%20-%20in%20antargis/trunk%3A%20gui/src%20ruby%20ruby/tests%0A%09src&In-Reply-To=%3C200703141902.l2EJ273K020961%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000016.html">
+   <LINK REL="Next"  HREF="000018.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1059 - in antargis/trunk: gui/src ruby ruby/tests	src</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1059%20-%20in%20antargis/trunk%3A%20gui/src%20ruby%20ruby/tests%0A%09src&In-Reply-To=%3C200703141902.l2EJ273K020961%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1059 - in antargis/trunk: gui/src ruby ruby/tests	src">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Wed Mar 14 20:02:07 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000016.html">[Antargis-svn] r1058 - in antargis/trunk: . gui/src gui/src/mtwist	ruby/tests src
+</A></li>
+        <LI>Next message: <A HREF="000018.html">[Antargis-svn] r1060 - in antargis/trunk: gui/src ruby
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#17">[ date ]</a>
+              <a href="thread.html#17">[ thread ]</a>
+              <a href="subject.html#17">[ subject ]</a>
+              <a href="author.html#17">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-03-14 20:02:05 +0100 (Wed, 14 Mar 2007)
+New Revision: 1059
+
+Modified:
+   antargis/trunk/gui/src/ag_application.cc
+   antargis/trunk/gui/src/ag_main.cc
+   antargis/trunk/gui/src/ag_main.h
+   antargis/trunk/gui/src/ag_messageobject.cc
+   antargis/trunk/gui/src/ag_rand.cc
+   antargis/trunk/gui/src/ag_rand.h
+   antargis/trunk/ruby/ant_arrow.rb
+   antargis/trunk/ruby/ant_boss.rb
+   antargis/trunk/ruby/ant_decal.rb
+   antargis/trunk/ruby/ant_deco.rb
+   antargis/trunk/ruby/ant_field.rb
+   antargis/trunk/ruby/ant_fish.rb
+   antargis/trunk/ruby/ant_grass.rb
+   antargis/trunk/ruby/ant_hero.rb
+   antargis/trunk/ruby/ant_house.rb
+   antargis/trunk/ruby/ant_man.rb
+   antargis/trunk/ruby/ant_mine.rb
+   antargis/trunk/ruby/ant_sheep.rb
+   antargis/trunk/ruby/ant_stone.rb
+   antargis/trunk/ruby/ant_tools.rb
+   antargis/trunk/ruby/ant_tree.rb
+   antargis/trunk/ruby/ant_wolf.rb
+   antargis/trunk/ruby/antargislib.rb
+   antargis/trunk/ruby/ents.rb
+   antargis/trunk/ruby/intro.rb
+   antargis/trunk/ruby/mainmenu.rb
+   antargis/trunk/ruby/map.rb
+   antargis/trunk/ruby/tests/rand_test.rb
+   antargis/trunk/src/height_map.cc
+   antargis/trunk/src/map.cc
+   antargis/trunk/src/nantmarker.hh
+   antargis/trunk/src/path.cc
+   antargis/trunk/src/path.h
+Log:
+* demo-mode - with correct replay
+
+
+Modified: antargis/trunk/gui/src/ag_application.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_application.cc	2007-03-11 20:40:28 UTC (rev 1058)
++++ antargis/trunk/gui/src/ag_application.cc	2007-03-14 19:02:05 UTC (rev 1059)
+@@ -101,6 +101,8 @@
+   
+   flushEventQueue();
+   last=now=SDL_GetTicks();
++
++  size_t loopCount=0;
+   
+   while(mRunning)
+     {
+@@ -121,18 +123,24 @@
+ 	  ;
+ 	*/
+ 	clearOldMousePosition();
++	cdebug(&quot;loop pre-event:&quot;&lt;&lt;loopCount);
+ 	event=getNewEvent();
+ 	if(eventOk(event))
+ 	  {
+ 	    do
+ 	      {
++		cdebug(&quot;eventok  &quot;&lt;&lt;toString(&amp;event));
+ 		doEvent(event);
+ 		if(mIdleCalls)
+-		  event=getNewEvent();
++		  {
++		    cdebug(&quot;getNewEvent...  (idlecalls:&quot;&lt;&lt;mIdleCalls&lt;&lt;&quot;)&quot;);
++		    event=getNewEvent();
++		  }
+ 		else
+ 		  resetEvent(event);
+ 	      }while(eventOk(event));
+ 	  } 
++	cdebug(&quot;loop post-event:&quot;&lt;&lt;loopCount);
+ 	/*
+ 	if(mIdleCalls) 
+ 	  {
+@@ -153,10 +161,11 @@
+ 	    doEvent(&amp;event);
+ 	    }*/
+ 
+-	if(mDemoTime&gt;0)
++	if(mDemoTime&gt;=0)
+ 	  {
+ 	    t=mDemoTime;
+ 	    mDemoTime=-1;
++	    cdebug(&quot;demo time:&quot;&lt;&lt;t);
+ 	  }
+ 	else
+ 	  {
+@@ -165,6 +174,7 @@
+ 	if(mainWidget)
+ 	  mainWidget-&gt;sigTick(t);
+ 	
++	cdebug(&quot;frame events:&quot;&lt;&lt;t);
+ 	eventPrepareFrame(t);
+ 
+ 	eventFrame(t);
+@@ -184,6 +194,9 @@
+       
+       eventFrameEnd(t);
+       last=now;
++
++      loopCount++;
++      cdebug(&quot;Running:&quot;&lt;&lt;mRunning);
+     }
+   gApplication=0;
+ 
+@@ -192,6 +205,7 @@
+ 
+ void AGApplication::setDemoTime(float t)
+ {
++  cdebug(&quot;demoTime:&quot;&lt;&lt;t);
+   mDemoTime=t;
+ }
+ 
+@@ -199,6 +213,7 @@
+ SDL_Event AGApplication::getNewEvent()
+ {
+   SDL_Event mEvent;
++  resetEvent(mEvent);
+   // pull motion events (may flood the eventqueue)
+   while(SDL_PeepEvents(&amp;mEvent, 1, SDL_GETEVENT, SDL_MOUSEMOTIONMASK) &gt; 0)
+     ;
+@@ -266,6 +281,7 @@
+  
+ bool AGApplication::eventQuit(AGEvent *m)
+ {
++  CTRACE;
+   mRunning=false;
+   return false;
+ }
+@@ -377,6 +393,7 @@
+ 
+ void AGApplication::tryQuit()
+ {
++  CTRACE;
+   mRunning=false;
+ }
+ 
+@@ -426,6 +443,7 @@
+ /// delays execution for ms milliseconds. This can be used to decrease framerate and cpu-load.
+ void AGApplication::delay(int ms)
+ {
++  cdebug(&quot;delay:&quot;&lt;&lt;ms);
+   SDL_Delay(ms);
+ }
+ 
+
+Modified: antargis/trunk/gui/src/ag_main.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_main.cc	2007-03-11 20:40:28 UTC (rev 1058)
++++ antargis/trunk/gui/src/ag_main.cc	2007-03-14 19:02:05 UTC (rev 1059)
+@@ -79,11 +79,13 @@
+    creates an AGMain object.
+ */
+ AGMain::AGMain():
+-  mCollector(0)
++  mCollector(0),mRand(0)
+ {
+   assert(mAGMain==0);
+   mAGMain=this;
+ 
++  mRand=new AGRandomizer(&quot;&quot;);
++
+   newInstanceKiller();
+ 
+   // Initialize SDL
+@@ -117,7 +119,9 @@
+   SDL_Quit();
+   quited=true;
+ 
++  saveDelete(mRand);
+ 
++
+   setRubyRaising(true);
+ }
+ 
+@@ -355,9 +359,20 @@
+ void AGMain::mark()
+ {
+   markObject(getCollector());
++  markObject(mRand);
+ }
+ 
++void AGMain::setRand(AGRandomizer *pRand)
++{
++  mRand=pRand;
++}
+ 
++AGRandomizer *AGMain::getRand()
++{
++  return mRand;
++}
++
++
+ std::string gAppName=&quot;Antargis&quot;;
+ void setAppName(const std::string &amp;pName)
+ {
+
+Modified: antargis/trunk/gui/src/ag_main.h
+===================================================================
+--- antargis/trunk/gui/src/ag_main.h	2007-03-11 20:40:28 UTC (rev 1058)
++++ antargis/trunk/gui/src/ag_main.h	2007-03-14 19:02:05 UTC (rev 1059)
+@@ -24,6 +24,7 @@
+ #include &lt;string&gt;
+ #include &lt;ag_rubyobj.h&gt;
+ #include &lt;ag_collector.h&gt;
++#include &lt;ag_rand.h&gt;
+ 
+ 
+ /**
+@@ -66,6 +67,9 @@
+   bool fullscreen() const;
+   long getTicks() const;
+ 
++  void setRand(AGRandomizer *pRand);
++  AGRandomizer *getRand();
++
+   AGCollector *getCollector();
+  protected:
+   virtual void mark();
+@@ -75,6 +79,8 @@
+   AGCollector *mCollector;
+ 
+   const SDL_VideoInfo *videoInfo;
++
++  AGRandomizer *mRand;
+ };
+ 
+ bool hasMain();
+
+Modified: antargis/trunk/gui/src/ag_messageobject.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_messageobject.cc	2007-03-11 20:40:28 UTC (rev 1058)
++++ antargis/trunk/gui/src/ag_messageobject.cc	2007-03-14 19:02:05 UTC (rev 1059)
+@@ -521,12 +521,25 @@
+ 	case SDL_QUIT:
+ 	  os&lt;&lt;&quot;SDL_QUIT:&quot;;
+ 	  break;
++	case SDL_SYSWMEVENT:
++	  os&lt;&lt;&quot;SDL_DUMMY;&quot;;
++	  break;
++	case SDL_VIDEOEXPOSE:
++	  os&lt;&lt;&quot;SDL_VIDEOEXPOSE&quot;;
++	  break;
++	case SDL_NOEVENT:
++	  os&lt;&lt;&quot;SDL_NOEVENT&quot;;
++	  break;
++	default:
++	  cdebug(&quot;UNKNOWN SDL_EVENT:&quot;&lt;&lt;pEvent-&gt;type);
++	  os&lt;&lt;&quot;SDL_NOEVENT&quot;;
++	  break;
+ 	}
+       if(os.str().length())
+ 	return os.str();
+       
+     }
+-  return &quot;nil&quot;;
++  return &quot;SDL_NOEVENT&quot;;
+ }
+ 
+ 
+@@ -624,6 +637,20 @@
+       event.jbutton.button=getUntil(b,&quot;:&quot;).toUint8();
+       event.jbutton.state=getUntil(b,&quot;:&quot;).toUint8();
+     }
++  else if(t==&quot;SDL_SYSWMEVENT&quot;)
++    {
++      event.type=SDL_SYSWMEVENT;
++      // FIXME
++    }
++  else if(t==&quot;SDL_VIDEOEXPOSE&quot;)
++    {
++      event.type=SDL_VIDEOEXPOSE;
++      
++    }
++  else if(t==&quot;SDL_DUMMY&quot;)
++    {
++      event.type=SDL_USEREVENT;
++    }
+   else if(t==&quot;SDL_QUIT&quot;)
+     {
+       event.type=SDL_QUIT;
+@@ -640,7 +667,8 @@
+ }
+ bool eventOk(const SDL_Event &amp;pEvent)
+ {
+-  return pEvent.type!=SDL_NOEVENT;
++  cdebug(&quot;eventOk: check &quot;&lt;&lt;(int)pEvent.type&lt;&lt;&quot;!=&quot;&lt;&lt;SDL_NOEVENT&lt;&lt;&quot; ???&quot;);
++  return (int)pEvent.type!=SDL_NOEVENT;
+ }
+ 
+ void resetEvent(SDL_Event &amp;pEvent)
+
+Modified: antargis/trunk/gui/src/ag_rand.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_rand.cc	2007-03-11 20:40:28 UTC (rev 1058)
++++ antargis/trunk/gui/src/ag_rand.cc	2007-03-14 19:02:05 UTC (rev 1059)
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 2005 by David Kamphausen. All rights reserved.
++ * Copyright (c) 2007 by David Kamphausen. All rights reserved.
+  *
+  * ag_rand.cc
+  * by David Kamphausen (<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">david.kamphausen at web.de</A>)
+@@ -18,8 +18,10 @@
+  * License along with this program.
+  */
+ 
++#include &quot;ag_debug.h&quot;
++#include &quot;ag_main.h&quot;
++#include &quot;ag_profiler.h&quot;
+ #include &quot;ag_rand.h&quot;
+-#include &quot;ag_debug.h&quot;
+ #include &quot;mtwist.h&quot;
+ 
+ #include &lt;sstream&gt;
+@@ -71,5 +73,34 @@
+ 
+ }
+ 
++int agRand(int i)
++{
++  AGRandomizer *r=getMain()-&gt;getRand();
++  if(!r)
++    throw std::runtime_error(&quot;Randomizer not set!&quot;);
++  return (*r)(i);
++}
++float agRand(float f)
++{
++  AGRandomizer *r=getMain()-&gt;getRand();
++  if(!r)
++    throw std::runtime_error(&quot;Randomizer not set!&quot;);
++  return (*r)(f);
++}
+ 
+-
++void randSpeed()
++{
++  long m=10000000;
++  int t;
++  int max=100;
++  {
++    STACKTRACE;
++    for(long i=0;i&lt;m;i++)
++      t=rand()%max;
++  }
++  {
++    STACKTRACE;
++    for(long i=0;i&lt;m;i++)
++      t=agRand(max);
++  }
++}
+
+Modified: antargis/trunk/gui/src/ag_rand.h
+===================================================================
+--- antargis/trunk/gui/src/ag_rand.h	2007-03-11 20:40:28 UTC (rev 1058)
++++ antargis/trunk/gui/src/ag_rand.h	2007-03-14 19:02:05 UTC (rev 1059)
+@@ -22,10 +22,19 @@
+ #define __AG_RAND
+ 
+ #include &lt;string&gt;
++#include &quot;ag_rubyobj.h&quot;
+ 
+-class AGRandomizer
++// Randomizer using Mersenne Twister - it's even faster
++// than the common libc-implementation of rand()
++// Second reason to use it is the possibility to save
++// the prng (pseudo-random-number generator)'s state
++// to a string and restore it. This way we can deterministically
++// rerun a &quot;randomized&quot; game
++class AGRandomizer:public AGRubyObject
+ {
+  public:
++  // restore a randomizer from a state-string (pretty long)
++  // for an initial seed - call with pSeed==&quot;&quot;
+   AGRandomizer(const std::string &amp;pSeed);
+ #ifdef SWIG
+   %rename(randFloat) operator()(float f);
+@@ -34,9 +43,18 @@
+   float operator()(float f);
+   int operator()(int i);
+ 
++  // give state-string, to be saved
+   std::string stateToString() const;
+ 
+ };
+ 
++/// calls getMain()-&gt;getRand()-&gt;rand()
++int agRand(int i);
++/// calls getMain()-&gt;getRand()-&gt;rand()
++float agRand(float f);
+ 
++/// runs a small speed test
++void randSpeed();
++
++
+ #endif
+
+Modified: antargis/trunk/ruby/ant_arrow.rb
+===================================================================
+--- antargis/trunk/ruby/ant_arrow.rb	2007-03-11 20:40:28 UTC (rev 1058)
++++ antargis/trunk/ruby/ant_arrow.rb	2007-03-14 19:02:05 UTC (rev 1059)
+@@ -25,8 +25,8 @@
+ class AntArrow&lt;AntRubyEntity
+ 	def initialize
+ 		super(AGVector2.new(0,0))
+-		@typeID=(rand()*2).to_i
+-		setMesh(Mesh.new(getMap.getScene,getMeshData(&quot;data/models/arrow.ant2&quot;,0.1,&quot;data/textures/models/arrow.png&quot;),AGVector4.new(0,0,0,0),rand*360))
++		@typeID=(getRand*2).to_i
++		setMesh(Mesh.new(getMap.getScene,getMeshData(&quot;data/models/arrow.ant2&quot;,0.1,&quot;data/textures/models/arrow.png&quot;),AGVector4.new(0,0,0,0),getRand*360))
+ 		setSpeed(10)
+ 	end
+ 	def eventNoJob
+
+Modified: antargis/trunk/ruby/ant_boss.rb
+===================================================================
+--- antargis/trunk/ruby/ant_boss.rb	2007-03-11 20:40:28 UTC (rev 1058)
++++ antargis/trunk/ruby/ant_boss.rb	2007-03-14 19:02:05 UTC (rev 1059)
+@@ -41,6 +41,7 @@
+ 		super(node)
+ 		if node.get(&quot;men&quot;)!=&quot;&quot; then
+ 			dputs &quot;LOAD:CREATING MEN:&quot;+node.get(&quot;men&quot;)
++			dputs caller.join(&quot;\n&quot;)
+ 			if node.get(&quot;men&quot;)!=&quot;&quot;
+ 				@createMen=node.get(&quot;men&quot;).to_i
+ 			end
+@@ -90,7 +91,8 @@
+ 	end
+ 	
+ 	def eventNoJob
+-		puts &quot;eventNoJob &quot;+self.class.to_s+&quot; &quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">+ at job.to_s</A>
++		dputs &quot;eventNoJob &quot;+self.class.to_s+&quot; &quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">+ at job.to_s</A>
++		dputs caller.join(&quot;\n&quot;)
+ 		checkHLJobEnd(self)
+  		checkCreateMen
+ 	end
+
+Modified: antargis/trunk/ruby/ant_decal.rb
+===================================================================
+--- antargis/trunk/ruby/ant_decal.rb	2007-03-11 20:40:28 UTC (rev 1058)
++++ antargis/trunk/ruby/ant_decal.rb	2007-03-14 19:02:05 UTC (rev 1059)
+@@ -21,7 +21,7 @@
+ class AntDecal&lt;AntRubyEntity
+ 	def initialize()
+ 		super(AGVector2.new(0,0))
+-		@typeID=(rand()*2).to_i
++		@typeID=(getRand()*2).to_i
+ 		setProvide(&quot;decal&quot;,true)
+ 		setMesh(Mesh.new(getMap.getScene,getMeshData(&quot;data/models/floor.ant2&quot;,0.8,&quot;data/textures/gravel4.png&quot;,false),AGVector4.new(0,0,0,0),0))
+ 	end
+
+Modified: antargis/trunk/ruby/ant_deco.rb
+===================================================================
+--- antargis/trunk/ruby/ant_deco.rb	2007-03-11 20:40:28 UTC (rev 1058)
++++ antargis/trunk/ruby/ant_deco.rb	2007-03-14 19:02:05 UTC (rev 1059)
+@@ -24,7 +24,7 @@
+ 		@decoType=decoType
+ 		if @decoType==nil
+ 			a=[&quot;flower1a&quot;,&quot;flower2a&quot;,&quot;twig&quot;,&quot;gravel&quot;,&quot;small_bush&quot;,&quot;hole&quot;,&quot;grass4&quot;,&quot;grass4a&quot;,&quot;grass4b&quot;,&quot;gravel_big&quot;,&quot;gravel_big2&quot;,&quot;rock1&quot;]
+-			r=(rand()*a.size).to_i
++			r=(getRand()*a.size).to_i
+ 			@decoType=a[r]
+ 		else
+ 			b={&quot;coach&quot;=&gt;[&quot;coach2&quot;],
+@@ -39,7 +39,7 @@
+ 					&quot;block&quot;=&gt;[&quot;block2&quot;],
+ 					&quot;grassGreen&quot;=&gt;[&quot;grass3&quot;]}
+ 			a=b[@decoType]
+-			r=(rand()*a.size).to_i
++			r=(getRand()*a.size).to_i
+ 			@decoType=a[r]
+ 		end
+ 		setProvide(&quot;deco&quot;,true)
+@@ -62,9 +62,9 @@
+ class AntTwig&lt;AntRubyEntity
+ 	def initialize()
+ 		super(AGVector2.new(0,0))
+-		@typeID=(rand()*2).to_i
++		@typeID=(getRand()*2).to_i
+ 		#setType(&quot;twig&quot;)
+-		setMesh(Mesh.new(getMap.getScene,getMeshData(&quot;data/models/twig.ant2&quot;,0.7),AGVector4.new(0,0,0,0),rand*360))
++		setMesh(Mesh.new(getMap.getScene,getMeshData(&quot;data/models/twig.ant2&quot;,0.7),AGVector4.new(0,0,0,0),getRand*360))
+ 	end
+ end
+ 
+
+Modified: antargis/trunk/ruby/ant_field.rb
+===================================================================
+--- antargis/trunk/ruby/ant_field.rb	2007-03-11 20:40:28 UTC (rev 1058)
++++ antargis/trunk/ruby/ant_field.rb	2007-03-14 19:02:05 UTC (rev 1059)
+@@ -3,7 +3,7 @@
+ 	def initialize
+ 		super(AGVector2.new(0,0))
+ 		setProvide(&quot;field&quot;,true)
+-		@size=0 # (rand*3).to_i
++		@size=0
+ 		#init fieldMeshes-var
+ 		AntField.getFieldMeshData(0)
+ 		@max=@@fieldMeshes.length-1
+
+Modified: antargis/trunk/ruby/ant_fish.rb
+===================================================================
+--- antargis/trunk/ruby/ant_fish.rb	2007-03-11 20:40:28 UTC (rev 1058)
++++ antargis/trunk/ruby/ant_fish.rb	2007-03-14 19:02:05 UTC (rev 1059)
+@@ -72,7 +72,7 @@
+ 			getMap.insertEntity(fish)
+ 			getMap.endChange
+ 			newRestJob(2)
+-			@lastBirth=-rand()*10
++			@lastBirth=-getRand()*10
+ 		else
+ 			setPos(AGVector3.new(getPos2D,-0.3))
+ 			newMoveJob(0,getTargetPos,0)
+@@ -94,7 +94,7 @@
+ 		tries=10
+ 		# assure that sheep doesn't walk into water
+ 		while tries&gt;0 do
+-			d=AGVector2.new(rand-0.5,rand-0.5).normalized*2
++			d=AGVector2.new(getRand-0.5,getRand-0.5).normalized*2
+ 			t=p+d
+ 			t=getMap.truncPos(t)
+ 			tries-=1
+
+Modified: antargis/trunk/ruby/ant_grass.rb
+===================================================================
+--- antargis/trunk/ruby/ant_grass.rb	2007-03-11 20:40:28 UTC (rev 1058)
++++ antargis/trunk/ruby/ant_grass.rb	2007-03-14 19:02:05 UTC (rev 1059)
+@@ -52,7 +52,7 @@
+ 	if i==1
+ 		vadd=AGVector4.new(0,0,0,0)
+ 	else
+-		vadd=AGVector4.new(rand*2,rand*2,0,0)
++		vadd=AGVector4.new(agRand(1.0)*2,agRand(1.0)*2,0,0)
+ 	end
+ 	
+ 	mv0.v=v0+vadd
+@@ -182,9 +182,9 @@
+ 		super(AGVector2.new(0,0))
+ 		setProvide(&quot;grass&quot;,true)
+ 		if high
+-			@size=rand*0.25+0.5
++			@size=getRand*0.25+0.5
+ 		else
+-			@size=rand*0.25+0.25
++			@size=getRand*0.25+0.25
+ 		end
+ 		setupMesh
+ 	end
+@@ -210,7 +210,7 @@
+ 	def initialize()
+ 		super(AGVector2.new(0,0))
+ 		setProvide(&quot;bush&quot;,true)
+-		@size=rand*0.25+0.25
++		@size=getRand*0.25+0.25
+ 		setupMesh
+ 	end
+ 	def resourceChanged
+
+Modified: antargis/trunk/ruby/ant_hero.rb
+===================================================================
+--- antargis/trunk/ruby/ant_hero.rb	2007-03-11 20:40:28 UTC (rev 1058)
++++ antargis/trunk/ruby/ant_hero.rb	2007-03-14 19:02:05 UTC (rev 1059)
+@@ -232,10 +232,12 @@
+ 	def assignJob2All
+ 		super
+ 		puts &quot;ASSIGN JOB 2 All #{self}&quot;
++		puts &quot;---&quot;
+ 		if @job.class!=AntHeroRestJob
+ 			setFire(false)
+ 		end
+ 		doEvent(:newJobAssigned)
++		puts &quot;ASSIGN JOB ready.&quot;
+ 	end
+ 
+ 	def setMeshState(name)
+
+Modified: antargis/trunk/ruby/ant_house.rb
+===================================================================
+--- antargis/trunk/ruby/ant_house.rb	2007-03-11 20:40:28 UTC (rev 1058)
++++ antargis/trunk/ruby/ant_house.rb	2007-03-14 19:02:05 UTC (rev 1059)
+@@ -307,7 +307,7 @@
+ 		super(node)
+ 		setPos(getPos2D) # set to ground
+ 		if getName==&quot;&quot;
+-			setName(rand.to_s)
++			setName(getRand.to_s)
+ 		end
+ 		@village=node.get(&quot;village&quot;)
+ 	end	
+
+Modified: antargis/trunk/ruby/ant_man.rb
+===================================================================
+--- antargis/trunk/ruby/ant_man.rb	2007-03-11 20:40:28 UTC (rev 1058)
++++ antargis/trunk/ruby/ant_man.rb	2007-03-14 19:02:05 UTC (rev 1059)
+@@ -85,7 +85,7 @@
+ 						exit
+ 					end
+ 					@bossName=houseName
+-					newRestJob(rand()*2)
++					newRestJob(getRand*2)
+ 					#house=getMap.getRuby(house)
+ 					house.signUp(self)
+ 					@signed=true
+
+Modified: antargis/trunk/ruby/ant_mine.rb
+===================================================================
+--- antargis/trunk/ruby/ant_mine.rb	2007-03-11 20:40:28 UTC (rev 1058)
++++ antargis/trunk/ruby/ant_mine.rb	2007-03-14 19:02:05 UTC (rev 1059)
+@@ -24,7 +24,7 @@
+ 		super(AGVector2.new(0,0))
+ 		setProvide(&quot;coal&quot;,true)
+ 		setProvide(&quot;ore&quot;,true)
+-		@angle=rand*360
++		@angle=getRand*360
+ 		
+ 		setMinimapColor(AGColor.new(0,0,0))
+ 	
+
+Modified: antargis/trunk/ruby/ant_sheep.rb
+===================================================================
+--- antargis/trunk/ruby/ant_sheep.rb	2007-03-11 20:40:28 UTC (rev 1058)
++++ antargis/trunk/ruby/ant_sheep.rb	2007-03-14 19:02:05 UTC (rev 1059)
+@@ -63,8 +63,8 @@
+ 			getMap.insertEntity(sheep)
+ 			#getMap.endChange
+ 			newRestJob(2)
+-			@lastBirth=-rand()*10
+-		elsif rand&lt;0.5 then
++			@lastBirth=-getRand*10
++		elsif getRand&lt;0.5 then
+ 			newMoveJob(0,getTargetPos,0)
+ 			setMeshState(&quot;go&quot;)
+ 		else
+@@ -90,7 +90,7 @@
+ 		tries=10
+ 		# assure that sheep doesn't walk into water
+ 		while tries&gt;0 do
+-			d=AGVector2.new(rand-0.5,rand-0.5).normalized*2
++			d=AGVector2.new(getRand-0.5,getRand-0.5).normalized*2
+ 			t=p+d
+ 			t=getMap.truncPos(t)
+ 			tries-=1
+
+Modified: antargis/trunk/ruby/ant_stone.rb
+===================================================================
+--- antargis/trunk/ruby/ant_stone.rb	2007-03-11 20:40:28 UTC (rev 1058)
++++ antargis/trunk/ruby/ant_stone.rb	2007-03-14 19:02:05 UTC (rev 1059)
+@@ -21,10 +21,10 @@
+ class AntStone&lt;AntRubyEntity
+ 	def initialize()
+ 		super(AGVector2.new(0,0))
+-		@typeID=(rand()*2).to_i
++		@typeID=(getRand*2).to_i
+ 		setProvide(&quot;stone&quot;,true)
+ 		#setMesh(Mesh.new(getMeshData(&quot;data/models/floor.ant2&quot;,1,&quot;data/textures/splats/gravel_big2.png&quot;,false),AGVector4.new(0,0,0,0),0))
+-		setMesh(Mesh.new(getMap.getScene,getMeshData(&quot;data/models/big_stone.ant2&quot;,0.7,&quot;data/textures/models/big_stone.png&quot;),AGVector4.new(0,0,0,0),rand*360))
++		setMesh(Mesh.new(getMap.getScene,getMeshData(&quot;data/models/big_stone.ant2&quot;,0.7,&quot;data/textures/models/big_stone.png&quot;),AGVector4.new(0,0,0,0),getRand*360))
+ 		
+ #		setMesh(NewDecal.new(AGVector2.new(3,3),5.3,getMap,&quot;data/textures/gravel.png&quot;))
+ #		setMesh(NewDecal.new(AGVector2.new(3,3),5.3,getMap,&quot;data/textures/terrain/rough_dirt2.png&quot;))
+
+Modified: antargis/trunk/ruby/ant_tools.rb
+===================================================================
+--- antargis/trunk/ruby/ant_tools.rb	2007-03-11 20:40:28 UTC (rev 1058)
++++ antargis/trunk/ruby/ant_tools.rb	2007-03-14 19:02:05 UTC (rev 1059)
+@@ -9,17 +9,6 @@
+ 		puts &quot;LOAD MESH:&quot;+id	
+ 		$meshes[id]=MeshData.new(file,zoom,texture,shadow)
+ 
+-# 		# instancing test
+-# 		puts &quot;FILE:#{file}&quot;
+-# 		if file =~ /tree/
+-# 			ts=[]
+-# 			(0..2).each{|x|
+-# 				(0..2).each{|y|
+-# 					ts.push(AGMatrix4.new(AGVector4.new(x*2+rand*1.7,y*2+rand*1.7,0,0)))
+-# 				}
+-# 			}
+-# 			$meshes[id].makeInstances(ts)
+-# 		end
+ 	end
+ 	return $meshes[id]
+ end
+
+Modified: antargis/trunk/ruby/ant_tree.rb
+===================================================================
+--- antargis/trunk/ruby/ant_tree.rb	2007-03-11 20:40:28 UTC (rev 1058)
++++ antargis/trunk/ruby/ant_tree.rb	2007-03-14 19:02:05 UTC (rev 1059)
+@@ -65,10 +65,10 @@
+ 	def initialize(typeID=nil)
+ 		super(AGVector2.new(0,0))
+ 		@typeID=typeID
+-		@typeID||=(rand*getTreeTypes.length).to_i
++		@typeID||=(getRand*getTreeTypes.length).to_i
+ 		setProvide(&quot;wood&quot;,true)
+ 		setProvide(&quot;fruit&quot;,true)
+-		@angle=rand*360
++		@angle=getRand*360
+ 		
+ 		@maxApples=100
+ 		setMinimapColor(AGColor.new(0,0x77,0))
+@@ -117,8 +117,8 @@
+ 		@crownRadius=1.3
+ 		@applePos=[]
+ 		for i in <A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">1.. at maxApples</A>
+-			va=(rand-0.5)*Math::PI
+-			ha=(rand+1)*Math::PI  # only on front side
++			va=(getRand-0.5)*Math::PI
++			ha=(getRand+1)*Math::PI  # only on front side
+ 			z=@crownRadius*Math::sin(va)
+ 			rest=Math::sqrt(@crownRadius**2-z**2)
+ 			y=Math::sin(ha)*rest
+
+Modified: antargis/trunk/ruby/ant_wolf.rb
+===================================================================
+--- antargis/trunk/ruby/ant_wolf.rb	2007-03-11 20:40:28 UTC (rev 1058)
++++ antargis/trunk/ruby/ant_wolf.rb	2007-03-14 19:02:05 UTC (rev 1059)
+@@ -82,7 +82,7 @@
+ 			getMap.insertEntity(wolf)
+ 			#getMap.endChange
+ 			newRestJob(2)
+-			@lastBirth=-rand()*10
++			@lastBirth=-getRand*10
+ 		else
+ 			checkPackMerge
+ 			if @leader
+@@ -216,7 +216,7 @@
+ 		radius=4
+ 		# assure that sheep doesn't walk into water
+ 		while getMap.getHeight(t.x,t.y)&lt;0.1 or ok do
+-			d=AGVector2.new(rand-0.5,rand-0.5).normalized*radius
++			d=AGVector2.new(getRand-0.5,getRand-0.5).normalized*radius
+ 			t=p+d
+ 			t=getMap.truncPos(t)
+ 			ok=false
+
+Modified: antargis/trunk/ruby/antargislib.rb
+===================================================================
+--- antargis/trunk/ruby/antargislib.rb	2007-03-11 20:40:28 UTC (rev 1058)
++++ antargis/trunk/ruby/antargislib.rb	2007-03-14 19:02:05 UTC (rev 1059)
+@@ -10,7 +10,7 @@
+ 	@@antargislibinited||=false
+ 
+ 	if not @@antargislibinited
+-		puts &quot;TRY&quot;
++		puts &quot;MYTRY&quot;
+ 		# try suspending arts
+ 		if File.exists?(&quot;/usr/bin/artsshell&quot;)
+ 			File.popen(&quot;/usr/bin/artsshell suspend 2&gt;&amp;1&quot;).close
+@@ -35,12 +35,13 @@
+ 			end
+ 			@@eventDebugging||=File.open(&quot;events.txt&quot;,&quot;r&quot;)
+ 			@@nextLine||=@@eventDebugging.readline
+-			#puts &quot;NEXTLINE:#{@@nextLine}&quot;
++			puts &quot;NEXTLINE:#{@@nextLine}&quot;
+ 			if @@nextLine=~/T:.*/
+ 				time=@@nextLine.scan(/..(.*)/)[0][0].to_f
+-				#puts &quot;TIME:#{time}&quot;
++				puts &quot;TIME:#{time}&quot;
+ 				@@nextLine=nil
+ 				setDemoTime(time)
++				
+ 				return toSDLEvent(&quot;&quot;)
+ 			else
+ 				s=@@nextLine
+@@ -49,11 +50,19 @@
+ 			end
+ 		else
+ 			e=super
+-			s=toString(e)
+-			if $enableLogging
+-				@@eventDebugging||=File.open(&quot;events.txt&quot;,&quot;w&quot;)
+-				@@eventDebugging.puts s
++			if not e.nil?
++				if eventOk(e)
++					s=toString(e)
++					if $enableLogging
++						@@eventDebugging||=File.open(&quot;events.txt&quot;,&quot;w&quot;)
++						@@eventDebugging.puts s
++						puts &quot;NEWEVENT: #{self}  #{s}&quot;
++					end
++				end
+ 			end
++# 			if e.nil?
++# 				return toSDLEvent(&quot;&quot;)
++# 			end
+ 			return e
+ 		end
+ 	end
+@@ -62,7 +71,8 @@
+ 	def eventPrepareFrame(t)
+ 		if $enableLogging and not $demoMode
+ 			@@eventDebugging||=File.open(&quot;events.txt&quot;,&quot;w&quot;)
+-			@@eventDebugging.puts &quot;T:#{t}&quot;
++			@@eventDebugging.puts &quot;T: #{t}&quot;
++			puts &quot;TIME #{t}&quot;
+ 		end
+ 		return false
+ 	end
+@@ -138,6 +148,8 @@
+ 	--no-sound     disables sound for now and future uses
+ 	
+ 	--gui-test     tells BoA to use events.txt to produce GUI-events
++
++	--demo         enable demo mode - reading events from events.txt
+ 	&quot;
+ 	
+ 						exit
+@@ -197,7 +209,16 @@
+ 			puts &quot;GC ok&quot;
+ 		end
+ 	end
++
++	def MyAntargislib.demoMode
++		$demoMove
++	end
+ end
++
++def demoMode
++	MyAntargislib.demoMode
++end
++
+ #include Libantargis
+ def startGC
+ 	MyAntargislib.startGC
+@@ -222,4 +243,16 @@
+ 
+ class AntApplication&lt;AGApplication
+ 	include AntMyEventHandler
+-end
+\ No newline at end of file
++
++	def delay(ms)
++		puts &quot;DELAY  #{ms}&quot;
++		return 
++		if not demoMode
++			super
++		end
++	end
++end
++
++# def rand
++# 	raise &quot;This Function shouldn't be called at all!!!!!&quot;
++# end
+\ No newline at end of file
+
+Modified: antargis/trunk/ruby/ents.rb
+===================================================================
+--- antargis/trunk/ruby/ents.rb	2007-03-11 20:40:28 UTC (rev 1058)
++++ antargis/trunk/ruby/ents.rb	2007-03-14 19:02:05 UTC (rev 1059)
+@@ -113,7 +113,12 @@
+ 	end
+ 	def getRand
+ 		# FIXME - implement me (network code)
+-		rand
++		#rand
++# 		@mrand||=AGRandomizer.new(&quot;&quot;)
++# 		return @mrand.randFloat(1)
++		puts &quot;#{self} getRand&quot;
++		puts caller.join(&quot;\n&quot;)
++		agRand(1.0)
+ 	end
+ 
+ 	def setStrength(v)
+
+Modified: antargis/trunk/ruby/intro.rb
+===================================================================
+--- antargis/trunk/ruby/intro.rb	2007-03-11 20:40:28 UTC (rev 1058)
++++ antargis/trunk/ruby/intro.rb	2007-03-14 19:02:05 UTC (rev 1059)
+@@ -78,6 +78,7 @@
+ 	end
+ 	
+ 	def checkPhase
++		puts &quot;#{@time}&gt;#{@phases[@phase]}&quot;
+ 		if @time&gt;@phases[@phase]
+ 			@time-=@phases[@phase]
+ 			@phase+=1
+
+Modified: antargis/trunk/ruby/mainmenu.rb
+===================================================================
+--- antargis/trunk/ruby/mainmenu.rb	2007-03-11 20:40:28 UTC (rev 1058)
++++ antargis/trunk/ruby/mainmenu.rb	2007-03-14 19:02:05 UTC (rev 1059)
+@@ -397,6 +397,7 @@
+ 	end
+ 
+ 	def eventFrame(t)
++		puts &quot;evenFrame #{t}&quot;
+ 		@frameTime||=0
+ 		@frames||=0
+ 		@frameTime+=t
+
+Modified: antargis/trunk/ruby/map.rb
+===================================================================
+--- antargis/trunk/ruby/map.rb	2007-03-11 20:40:28 UTC (rev 1058)
++++ antargis/trunk/ruby/map.rb	2007-03-14 19:02:05 UTC (rev 1059)
+@@ -252,7 +252,7 @@
+ 		end
+ 		if e
+ 			e.preloadXML(node)
+-			@loadedEntities[node]=e
++			@loadedEntities&lt;&lt;[node,e]
+ 		end
+ # 	end
+ # 
+@@ -302,16 +302,18 @@
+ 	
+ 	def loadXML(n)
+ 		@loadedEntsNum=1
+-		@loadedEntities={}
++		@loadedEntities=[]
+ 		super(n)
+ # 		puts @loadedEntities.length
+ # 		puts @loadedEntsNum
+ # 		raise 1
+-		@loadedEntities.each{|node,entity|
++		@loadedEntities.each{|pair|
++			node,entity=pair
+ 			insertEntity(entity)
+ 		}
+ 
+-		@loadedEntities.each{|node,entity|
++		@loadedEntities.each{|pair|
++			node,entity=pair
+ #			loadEntityFromXML(entity,node)
+ 			entity.loadXML(node)
+ 			entity.eventMapChanged
+
+Modified: antargis/trunk/ruby/tests/rand_test.rb
+===================================================================
+--- antargis/trunk/ruby/tests/rand_test.rb	2007-03-11 20:40:28 UTC (rev 1058)
++++ antargis/trunk/ruby/tests/rand_test.rb	2007-03-14 19:02:05 UTC (rev 1059)
+@@ -10,3 +10,6 @@
+ puts a.randInt(20)
+ puts a.randInt(20)
+ 
++main=AGMain.new
++main.setRand(AGRandomizer.new(&quot;&quot;))
++randSpeed
+
+Modified: antargis/trunk/src/height_map.cc
+===================================================================
+--- antargis/trunk/src/height_map.cc	2007-03-11 20:40:28 UTC (rev 1058)
++++ antargis/trunk/src/height_map.cc	2007-03-14 19:02:05 UTC (rev 1059)
+@@ -369,14 +369,13 @@
+ std::vector&lt;float&gt; genSomeHeights(int mW,int mH,float mMaxHeight)
+ {
+   std::vector&lt;float&gt; h(mW*mH);
+-  int randMax=10000;
+ 
+   for(int i=0;i&lt;mW*mH;i++)
+     h[i]=0;
+   return h;
+   
+   for(int i=0;i&lt;mW*mH;i++)
+-    h[i]=(rand()%randMax)*mMaxHeight/randMax;
++    h[i]=agRand(mMaxHeight);
+   
+   int x,y;
+   // blur
+
+Modified: antargis/trunk/src/map.cc
+===================================================================
+--- antargis/trunk/src/map.cc	2007-03-11 20:40:28 UTC (rev 1058)
++++ antargis/trunk/src/map.cc	2007-03-14 19:02:05 UTC (rev 1059)
+@@ -19,6 +19,7 @@
+  */
+ 
+ #include &quot;scene.h&quot;
++#include &quot;ag_rand.h&quot;
+ #include &quot;map.h&quot;
+ #include &quot;entity.h&quot;
+ #include &lt;vector&gt;
+@@ -303,7 +304,7 @@
+     {
+       std::multimap&lt;float,AntEntity*&gt;::iterator j=ents.begin();
+       float nearest=j-&gt;first;
+-      int r=rand()%std::min((Uint32)ents.size(),5U);
++      int r=agRand(std::min((int)ents.size(),5));
+       while(r&gt;0 &amp;&amp; (j-&gt;first&lt;=nearest*1.3 || j-&gt;first&lt;2000*2000))
+         {
+           j++;
+
+Modified: antargis/trunk/src/nantmarker.hh
+===================================================================
+--- antargis/trunk/src/nantmarker.hh	2007-03-11 20:40:28 UTC (rev 1058)
++++ antargis/trunk/src/nantmarker.hh	2007-03-14 19:02:05 UTC (rev 1059)
+@@ -408,6 +408,16 @@
+ 	result-&gt;mRubyObject=true;
+ }
+ %markfunc AGLayoutCreator &quot;general_markfunc&quot;
++%exception AGRandomizer::AGRandomizer {
++	$action
++	result-&gt;mRUBY=self;
++#ifdef GCDEBUG
++     result-&gt;mObjName=typeid(*result).name();
++     printf(&quot;%lx   %s\n&quot;,self,typeid(*result).name());
++#endif
++	result-&gt;mRubyObject=true;
++}
++%markfunc AGRandomizer &quot;general_markfunc&quot;
+ %exception AGGLScreen::AGGLScreen {
+ 	$action
+ 	result-&gt;mRUBY=self;
+@@ -508,7 +518,7 @@
+ 	result-&gt;mRubyObject=true;
+ }
+ %markfunc AGSound &quot;general_markfunc&quot;
+-%exception AGPaintTarget::AGPaintTarget {
++%exception Mesh::Mesh {
+ 	$action
+ 	result-&gt;mRUBY=self;
+ #ifdef GCDEBUG
+@@ -517,8 +527,8 @@
+ #endif
+ 	result-&gt;mRubyObject=true;
+ }
+-%markfunc AGPaintTarget &quot;general_markfunc&quot;
+-%exception AGButton::AGButton {
++%markfunc Mesh &quot;general_markfunc&quot;
++%exception AGPaintTarget::AGPaintTarget {
+ 	$action
+ 	result-&gt;mRUBY=self;
+ #ifdef GCDEBUG
+@@ -527,8 +537,8 @@
+ #endif
+ 	result-&gt;mRubyObject=true;
+ }
+-%markfunc AGButton &quot;general_markfunc&quot;
+-%exception AGListener::AGListener {
++%markfunc AGPaintTarget &quot;general_markfunc&quot;
++%exception AGButton::AGButton {
+ 	$action
+ 	result-&gt;mRUBY=self;
+ #ifdef GCDEBUG
+@@ -537,8 +547,8 @@
+ #endif
+ 	result-&gt;mRubyObject=true;
+ }
+-%markfunc AGListener &quot;general_markfunc&quot;
+-%exception Mesh::Mesh {
++%markfunc AGButton &quot;general_markfunc&quot;
++%exception AGListener::AGListener {
+ 	$action
+ 	result-&gt;mRUBY=self;
+ #ifdef GCDEBUG
+@@ -547,7 +557,7 @@
+ #endif
+ 	result-&gt;mRubyObject=true;
+ }
+-%markfunc Mesh &quot;general_markfunc&quot;
++%markfunc AGListener &quot;general_markfunc&quot;
+ %exception TerrainPiece::TerrainPiece {
+ 	$action
+ 	result-&gt;mRUBY=self;
+@@ -568,7 +578,7 @@
+ 	result-&gt;mRubyObject=true;
+ }
+ %markfunc NewDecal &quot;general_markfunc&quot;
+-%typemap(out) AGRadio*{
++%typemap(out) MapPathWeighter*{
+  if($1)
+  {
+   if($1-&gt;mRubyObject)
+@@ -577,12 +587,12 @@
+    {
+      if(false);
+    else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGRadio,0);
++     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_MapPathWeighter,0);
+    }
+  }
+  else vresult=Qnil;
+ }
+-%typemap(directorin) AGRadio*{
++%typemap(directorin) MapPathWeighter*{
+  if($1)
+  {
+   if($1-&gt;mRubyObject)
+@@ -591,12 +601,12 @@
+    {
+      if(false);
+    else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGRadio,0);
++     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_MapPathWeighter,0);
+    }
+  }
+  else $input=Qnil;
+ }
+-%typemap(out) GLApp*{
++%typemap(out) AGRadio*{
+  if($1)
+  {
+   if($1-&gt;mRubyObject)
+@@ -605,12 +615,12 @@
+    {
+      if(false);
+    else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_GLApp,0);
++     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGRadio,0);
+    }
+  }
+  else vresult=Qnil;
+ }
+-%typemap(directorin) GLApp*{
++%typemap(directorin) AGRadio*{
+  if($1)
+  {
+   if($1-&gt;mRubyObject)
+@@ -619,12 +629,12 @@
+    {
+      if(false);
+    else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_GLApp,0);
++     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGRadio,0);
+    }
+  }
+  else $input=Qnil;
+ }
+-%typemap(out) MapPathWeighter*{
++%typemap(out) GLApp*{
+  if($1)
+  {
+   if($1-&gt;mRubyObject)
+@@ -633,12 +643,12 @@
+    {
+      if(false);
+    else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_MapPathWeighter,0);
++     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_GLApp,0);
+    }
+  }
+  else vresult=Qnil;
+ }
+-%typemap(directorin) MapPathWeighter*{
++%typemap(directorin) GLApp*{
+  if($1)
+  {
+   if($1-&gt;mRubyObject)
+@@ -647,7 +657,7 @@
+    {
+      if(false);
+    else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_MapPathWeighter,0);
++     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_GLApp,0);
+    }
+  }
+  else $input=Qnil;
+@@ -1964,6 +1974,34 @@
+  }
+  else $input=Qnil;
+ }
++%typemap(out) AGRandomizer*{
++ if($1)
++ {
++  if($1-&gt;mRubyObject)
++    $result=$1-&gt;mRUBY;
++  else
++   {
++     if(false);
++   else
++     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGRandomizer,0);
++   }
++ }
++ else vresult=Qnil;
++}
++%typemap(directorin) AGRandomizer*{
++ if($1)
++ {
++  if($1-&gt;mRubyObject)
++    $input=$1-&gt;mRUBY;
++  else
++   {
++     if(false);
++   else
++     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGRandomizer,0);
++   }
++ }
++ else $input=Qnil;
++}
+ %typemap(out) AGGLScreen*{
+  if($1)
+  {
+
+Modified: antargis/trunk/src/path.cc
+===================================================================
+--- antargis/trunk/src/path.cc	2007-03-11 20:40:28 UTC (rev 1058)
++++ antargis/trunk/src/path.cc	2007-03-14 19:02:05 UTC (rev 1059)
+@@ -19,10 +19,16 @@
+ 
+ }
+ 
+-std::map&lt;SimpleGraph::Node*,float&gt; SimpleGraph::Node::getNextNodes()
++bool SimpleGraph::NodePtrCompare::operator()(const Node *a,const Node *b)
+ {
+-  std::map&lt;SimpleGraph::Node*,float&gt; m;
++  return a-&gt;p&lt;b-&gt;p;
++}
+ 
++
++SimpleGraph::Node::NodeMap SimpleGraph::Node::getNextNodes()
++{
++  SimpleGraph::Node::NodeMap m;
++
+   for(Edges::iterator i=edges.begin();i!=edges.end();i++)
+     {
+       if((*i)-&gt;a==this)
+@@ -59,6 +65,12 @@
+ {
+ }
+ 
++bool SimpleGraph::EdgePtrCompare::operator()(const Edge *a,const Edge *b)
++{
++  return(a-&gt;a-&gt;p &lt; b-&gt;a-&gt;p || (a-&gt;a-&gt;p==b-&gt;a-&gt;p &amp;&amp; a-&gt;b-&gt;p&lt;b-&gt;b-&gt;p));
++}
++
++
+ bool SimpleGraph::Edge::operator&lt;(const Edge &amp;e) const
+ {
+   return a&lt;e.a || (a==e.a &amp;&amp; b&lt;e.b);
+@@ -620,10 +632,10 @@
+ 	  SimpleGraph::Node *n=*modified.begin();
+ 	  modified.erase(modified.begin());
+ 	  
+-	  std::map&lt;SimpleGraph::Node*,float&gt; ns=n-&gt;getNextNodes();
++	  SimpleGraph::Node::NodeMap ns=n-&gt;getNextNodes();
+ 	  float old=weights[n];
+ 
+-	  for(std::map&lt;SimpleGraph::Node*,float&gt;::iterator j=ns.begin();j!=ns.end();j++)
++	  for(SimpleGraph::Node::NodeMap::iterator j=ns.begin();j!=ns.end();j++)
+ 	    {
+ 	      float now=weights[j-&gt;first];
+ 	      //	      cdebug(&quot;now:&quot;&lt;&lt;now&lt;&lt;&quot;  old:&quot;&lt;&lt;old&lt;&lt;&quot; plus:&quot;&lt;&lt;j-&gt;second);
+@@ -843,12 +855,12 @@
+       cdebug(&quot;tries:&quot;&lt;&lt;tries);
+       
+ 
+-      std::map&lt;SimpleGraph::Node*,float&gt; nextNodes=last-&gt;getNextNodes();
++      SimpleGraph::Node::NodeMap nextNodes=last-&gt;getNextNodes();
+ 
+       std::set&lt;SimpleGraph::Node*&gt; alreadyGone;
+       std::copy(path.begin(),path.end(),std::inserter(alreadyGone,alreadyGone.begin()));
+ 
+-      for(std::map&lt;SimpleGraph::Node*,float&gt;::iterator i=nextNodes.begin();i!=nextNodes.end();i++)
++      for(SimpleGraph::Node::NodeMap::iterator i=nextNodes.begin();i!=nextNodes.end();i++)
+ 	{
+ 	  if(alreadyGone.find(i-&gt;first)==alreadyGone.end())
+ 	    {
+
+Modified: antargis/trunk/src/path.h
+===================================================================
+--- antargis/trunk/src/path.h	2007-03-11 20:40:28 UTC (rev 1058)
++++ antargis/trunk/src/path.h	2007-03-14 19:02:05 UTC (rev 1059)
+@@ -54,7 +54,6 @@
+ };
+ 
+ 
+-
+ class SimpleGraph:public AGRubyObject
+ {
+  public:
+@@ -64,6 +63,18 @@
+   typedef std::list&lt;Edge*&gt; Edges;
+   typedef std::list&lt;Node*&gt; Nodes;
+ 
++  class NodePtrCompare
++  {
++  public:
++    bool operator()(const Node *a,const Node *b);
++  };
++    
++  class EdgePtrCompare
++  {
++  public:
++    bool operator()(const Edge *a,const Edge *b);
++  };
++
+   // only used for processing and not for storing !
+   struct HalfEdge
+   {
+@@ -86,17 +97,18 @@
+     HalfEdge *getHalfEdgeFrom(Node *n);
+ 
+     HalfEdge *getHalfEdgeTo(Node *n);
++
+   };
+ 
+   struct Node
+   {
+     AGVector2 p;
+     Edges edges;
++    typedef std::map&lt;Node*,float,NodePtrCompare&gt; NodeMap;
+     
+     ~Node();
+ 
+-    std::map&lt;Node*,float&gt; getNextNodes();
+-
++    NodeMap getNextNodes();
+   };
+ 
+   struct EdgeSort
+@@ -154,7 +166,7 @@
+   // FIXME: quadtree out of nodes !!!
+ 
+   typedef std::map&lt;AGVector2,Node*,AGVector2Sort&gt; NodeMap;
+-  typedef std::set&lt;Node*&gt; NodeSet;
++  typedef std::set&lt;Node*,NodePtrCompare&gt; NodeSet;
+   typedef std::set&lt;Edge*,EdgeSort&gt; EdgeSet;
+   NodeMap mNodeMap;
+   NodeSet mNodes;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000016.html">[Antargis-svn] r1058 - in antargis/trunk: . gui/src gui/src/mtwist	ruby/tests src
+</A></li>
+	<LI>Next message: <A HREF="000018.html">[Antargis-svn] r1060 - in antargis/trunk: gui/src ruby
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#17">[ date ]</a>
+              <a href="thread.html#17">[ thread ]</a>
+              <a href="subject.html#17">[ subject ]</a>
+              <a href="author.html#17">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

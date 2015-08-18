@@ -1,0 +1,495 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1053 - antargis/trunk/ruby
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-February/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1053%20-%20antargis/trunk/ruby&In-Reply-To=%3C200702231950.l1NJo5PZ017780%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000010.html">
+   <LINK REL="Next"  HREF="000012.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1053 - antargis/trunk/ruby</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1053%20-%20antargis/trunk/ruby&In-Reply-To=%3C200702231950.l1NJo5PZ017780%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1053 - antargis/trunk/ruby">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Fri Feb 23 20:50:05 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000010.html">[Antargis-svn] r1052 - antargis/trunk/ruby
+</A></li>
+        <LI>Next message: <A HREF="000012.html">[Antargis-svn] r1054 - antargis/trunk/ruby
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#11">[ date ]</a>
+              <a href="thread.html#11">[ thread ]</a>
+              <a href="subject.html#11">[ subject ]</a>
+              <a href="author.html#11">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-02-23 20:50:05 +0100 (Fri, 23 Feb 2007)
+New Revision: 1053
+
+Modified:
+   antargis/trunk/ruby/map_generator2.rb
+Log:
+* improved map-generator
+
+
+Modified: antargis/trunk/ruby/map_generator2.rb
+===================================================================
+--- antargis/trunk/ruby/map_generator2.rb	2007-02-20 20:09:29 UTC (rev 1052)
++++ antargis/trunk/ruby/map_generator2.rb	2007-02-23 19:50:05 UTC (rev 1053)
+@@ -2,6 +2,19 @@
+ 
+ require 'ruby/antargislib.rb'
+ 
++class Array
++	def cross(p)
++		n=[]
++		self.each{|x|
++			p.each{|y|
++				n&lt;&lt;=[x,y]
++			}
++		}
++		n
++	end
++end
++
++
+ class MyBaseMap
+ 	attr_reader :w,:h
+ 	def initialize(pw,ph)
+@@ -28,14 +41,18 @@
+ 			p=AGPainter.new(i)
+ 			(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">1.. at w</A>).each{|x|
+ 				(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">1.. at h</A>).each{|y|
+-					t=get(x,y)
+-					c=toColor(t)
++					c=getColor(x,y)
+ 					p.putPixel(AGVector2.new(x-1,y-1),c)
+ 				}
+ 			}
+ 		end
+ 		i
+ 	end
++	def getColor(x,y)
++		t=get(x,y)
++		c=toColor(t)
++	end
++
+ 	def toColor(t)
+ 		case t
+ 			when :undefined
+@@ -128,22 +145,372 @@
+ 			tries+=1
+ 		end
+ 	end
++end
++
++class MyHeightMap&lt;MyMap
++	def initialize(pw,ph)
++		super
++		@hs=[]
++		@hschange=[]
++		@dist=[]
++		@ndist=[]
++		(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">1.. at w</A>).each{|x|
++			(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">1.. at h</A>).each{|y|
++				setHeight(x,y,0)
++			}
++		}
++		applyHeightChanges
++	end
++	def setHeight(x,y,v)
++		@hschange[<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">x+ at w</A>*y]=v
++	end
++	def applyHeightChanges
++		@hs=@hschange.clone
++	end
++	def getHeight(x,y)
++		return 0 unless x&gt;0 and x&lt;=@w and y&gt;0 and y&lt;=@h
++		@hs[<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">x+ at w</A>*y]
++	end
++
++
++	def computeHeights(type)
++		puts &quot;computing height #{type}&quot;
++		(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">1.. at w</A>).each{|x|
++			(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">1.. at h</A>).each{|y|
++				addRandomHeight(x,y,type)
++			}
++		}
++		applyHeightChanges
++	end
++
++	def blurHeights(w)
++		a=[1,2,1]
++		case w
++			when 5
++				a=[1,6,15,20,15,6,1]
++			when 4
++				a=[1,5,10,10,5,1]
++			when 3
++				a=[1,4,6,4,1]
++			when 2
++				a=[1,3,3,1]
++		end
++		n=crossProductVecVec(a,a)
++		arr=toIndexMap(n)
++
++		f=arr.inject(0){|a,b|a+b[2]}
+ 	
++		(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">1.. at w</A>).each{|x|
++			(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">1.. at h</A>).each{|y|
++				v=0
++				arr.each{|p|
++					v+=getHeight(x+p[0],y+p[1])*p[2]
++				}
++				v/=f
++					
++				setHeight(x,y,v)
++			}
++		}
++		applyHeightChanges
++	end
++
++	def addRandomHeight(x,y,type)
++		v=get(x,y)
++		r=range(v,type)
++		h=r[0]+(r[1]-r[0])*rand
++		setHeight(x,y,getHeight(x,y)+h)
++	end
++
++	def getShadow(x,y)
++		a=[[-1,0,-1],
++				[0,-1,-1],
++				[1,0,1],
++				[0,1,1]]
++		v=0
++		a.each{|t|
++			v+=getHeight(x+t[0],y+t[1])*t[2]
++		}
++		v=[-0.5,v,0.5].sort[1]
++		#puts v
++		0.5+v
++	end
++
++	def getColor(x,y)
++		#AGColor.new(0xFF,0xFF,0xFF)*getShadow(x,y)
++		super*getShadow(x,y)
++	end
++
++
++	def range(v,type)
++		case type
++			when :rough
++				case v
++					when :undefined
++						return [0,0]
++					when :green
++						return [0.3,0.6]
++					when :water
++						return [0,0.1]
++					when :wood
++						return [0.3,0.8]
++					when :rock
++						return [0.4,1.5]
++				end
++			else
++				case v
++					when :undefined
++						return [0,0]
++					when :green
++						return [0,0.2]
++					when :water
++						return [0,0.1]
++					when :wood
++						return [0,0.1]
++					when :rock
++						return [0,0.4]
++					else
++						return [0,0]
++				end
++		end
++	end
++
++	def rockIncreaseAbove(level,types,inc)
++		#a=[1,6,15,20,15,6,1]
++		a=[1,5,10,10,5,1]
++		n=crossProductVecVec(a,a)
++		arr=toIndexMap(n)
++
++		f=arr.inject(0){|a,b|a+b[2]}
++
++		increased=0
++		checked=0
++		#a=[-1,0,1]
++		#a=a.cross(a)
++		(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">1.. at w</A>).each{|x|
++			(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">1.. at h</A>).each{|y|
++				if types.member?(get(x,y))
++					checked+=1
++					v=0
++					arr.each{|p|
++						cx=x+p[0]
++						cy=y+p[1]
++						#if types.member?(get(cx,cy))
++							v+=getHeight(cx,cy)*p[2]
++						#end						
++					}
++					v/=f
++					#puts &quot;#{v} #{v*f} #{f} #{level}&quot;
++					if v&gt;level
++						setHeight(x,y,getHeight(x,y)+inc)
++						increased+=1
++					end
++				end
++			}
++		}
++		puts &quot;INCREASED:#{increased} CHECKED:#{checked} on level #{level}&quot;
++		applyHeightChanges
++	end
++
++	def erode(terrainTypes,amount=0.3)
++		eroded=0
++		(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">1.. at w</A>).each{|x|
++			(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">1.. at h</A>).each{|y|
++				if terrainTypes.member?(get(x,y))
++					vs=[]
++					(-1..1).each{|dy|
++						(-1..1).each{|dx|	
++							vs.push(getHeight(x+dx,y+dy))
++						}
++					}
++					ch=getHeight(x,y)
++					if ch&lt;vs.sort[4]
++						setHeight(x,y,ch-amount)
++						eroded+=1
++					end
++				end
++			}
++		}		
++		puts &quot;ERODED: #{eroded}&quot;
++		applyHeightChanges
++	end
++
++	def rockIncrease
++		h=0.6
++		while h&lt;3
++			#rockIncreaseAbove(h,[:rock,:wood],0.3)
++			rockIncreaseAbove(h,[:rock],0.15)
++			h+=0.3
++		end
++		#}
++	end
++
++	def getDistance(x,y)
++		return 0 unless x&gt;0 and x&lt;=@w and y&gt;0 and y&lt;=@h
++		d=@dist[<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">x+ at w</A>*y]
++		if d
++			return d
++		end
++		return 0
++	end
++
++	def applyDistChanges
++		@dist=@ndist.clone
++	end
++
++	def setDistance(x,y,d)
++		@ndist[<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">x+ at w</A>*y]=d
++	end
++
++	def computeDistances(myTerrain)
++		ar=[[-1,0],[1,0],[0,1],[0,-1]]
++		found=0
++		nfound=0
++		# initial run
++		(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">1.. at w</A>).each{|x|
++			(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">1.. at h</A>).each{|y|
++				if get(x,y)==myTerrain
++					test=0
++					ar.each{|p|
++						dx=x+p[0]
++						dy=y+p[1]
++						if get(dx,dy)!=myTerrain
++							setDistance(x,y,1+rand)
++							found+=1
++							test+=1
++							break
++						end
++					}
++					if test==0
++						nfound+=1
++					end
++				end
++			}
++		}
++
++		applyDistChanges
++		# fill in random valleys
++		(1..20).each{|i|
++			ok=true
++			while ok
++				x=(rand*@w).to_i+1
++				y=(rand*@h).to_i+1
++				if get(x,y)==myTerrain and getDistance(x,y)==0
++					setDistance(x,y,1+rand)
++					found+=1
++					ok=false
++				end
++			end
++		}
++
++
++
++		applyDistChanges
++		puts &quot;FOUND #{found} NFOUND #{nfound}&quot;
++		
++		modified=true
++		try=0
++		while modified
++			modified=false
++			try+=1
++			puts &quot;TRY #{try}&quot;
++			if try&gt;20
++				break
++			end
++
++			# do loop and increase distances where distance==0
++			(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">1.. at w</A>).each{|x|
++				(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">1.. at h</A>).each{|y|
++					if get(x,y)==myTerrain and getDistance(x,y)==0
++						#puts &quot;hu&quot;
++						ar.each{|p|
++							dx=x+p[0]
++							dy=y+p[1]
++							r=rand+1
++							cd=getDistance(dx,dy)
++							if cd&gt;0 and (cd+r&lt;getDistance(x,y) or getDistance(x,y)==0)
++								found+=1
++								setDistance(x,y,cd+r)
++								setHeight(x,y,getHeight(x,y)+(cd+r)*0.1)
++								modified=true
++							end
++						}			
++					end
++				}
++			}
++			puts &quot;FOUND #{found}&quot;
++			applyDistChanges
++		end
++		applyHeightChanges
++	end
++
++private
++def crossProductVecVec(a,b)
++	n=[]
++	a.each{|x|
++		l=[]
++		b.each{|y|
++			l.push(x*y)
++		}
++		n.push(l)
++	}
++	n
+ end
++
++def toIndexMap(a)
++	n=[]
++	y=0
++	h=a.length
++	w=a[0].length
++	dy=h/2
++	dx=w/2
++	a.each{|r|
++		x=0
++		r.each{|v|
++			n.push([x-dx,y-dy,v])
++			x+=1
++		}
++		y+=1
++	}
++	n
++end
++
++
++end
++
+ 	
+ 
++w=h=128
+ 
+-w=h=256
+-
+-myMap=MyMap.new(w,h)
++#myMap=MyMap.new(w,h)
++myMap=MyHeightMap.new(w,h)
+ myMap.someX(10,:water)
+ myMap.someX(10,:green)
+ myMap.someX(10,:wood)
+ myMap.someX(10,:rock)
+ myMap.blurAll
++myMap.to_surface.save(&quot;mapgen0.png&quot;)
++myMap.computeHeights(:rough)
++myMap.blurHeights(5)
++if false
++	myMap.computeHeights(:medium)
++	myMap.blurHeights(2)
++	myMap.computeHeights(:fine)
++	myMap.blurHeights(1)
++	myMap.to_surface.save(&quot;mapgen1.png&quot;)
++	myMap.rockIncrease
++	myMap.to_surface.save(&quot;mapgen2.png&quot;)
++	myMap.blurHeights(1)
++	myMap.erode([:rock])
++	myMap.erode([:rock])
++else
++	myMap.computeDistances(:rock)
++end
++myMap.to_surface.save(&quot;mapgen3.png&quot;)
+ app=AGApplication.new
+ i=myMap.to_surface
++i.save(&quot;mapgen9.png&quot;)
+ image=AGImage.new(nil,AGRect2.new(0,0,w,h),i,false)
+ app.setMainWidget(image)
+ 
+-app.run
+\ No newline at end of file
++app.run
++
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000010.html">[Antargis-svn] r1052 - antargis/trunk/ruby
+</A></li>
+	<LI>Next message: <A HREF="000012.html">[Antargis-svn] r1054 - antargis/trunk/ruby
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#11">[ date ]</a>
+              <a href="thread.html#11">[ thread ]</a>
+              <a href="subject.html#11">[ subject ]</a>
+              <a href="author.html#11">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,293 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1215 - in antargis/trunk/ruby: . editor editor/spec
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2008-January/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1215%20-%20in%20antargis/trunk/ruby%3A%20.%20editor%20editor/spec&In-Reply-To=%3C200801221958.m0MJwWHK005199%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000171.html">
+   <LINK REL="Next"  HREF="000173.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1215 - in antargis/trunk/ruby: . editor editor/spec</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1215%20-%20in%20antargis/trunk/ruby%3A%20.%20editor%20editor/spec&In-Reply-To=%3C200801221958.m0MJwWHK005199%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1215 - in antargis/trunk/ruby: . editor editor/spec">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Tue Jan 22 20:58:32 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000171.html">[Antargis-svn] r1214 - in antargis/trunk: . build data/gui/layout	ext/3dengine ext/basic ext/game ruby ruby/editor	ruby/entities ruby/gui ruby/jobs
+</A></li>
+        <LI>Next message: <A HREF="000173.html">[Antargis-svn] r1216 - in antargis/trunk: . data/gui/layout	ext/3dengine ext/gui ruby ruby/editor/spec ruby/gui ruby/spec
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#172">[ date ]</a>
+              <a href="thread.html#172">[ thread ]</a>
+              <a href="subject.html#172">[ subject ]</a>
+              <a href="author.html#172">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2008-01-22 20:58:32 +0100 (Tue, 22 Jan 2008)
+New Revision: 1215
+
+Added:
+   antargis/trunk/ruby/editor/spec/
+   antargis/trunk/ruby/editor/spec/spec_editor.rb
+   antargis/trunk/ruby/editor_app.rb
+Log:
+* missing files
+
+
+Added: antargis/trunk/ruby/editor/spec/spec_editor.rb
+===================================================================
+--- antargis/trunk/ruby/editor/spec/spec_editor.rb	2008-01-22 19:57:06 UTC (rev 1214)
++++ antargis/trunk/ruby/editor/spec/spec_editor.rb	2008-01-22 19:58:32 UTC (rev 1215)
+@@ -0,0 +1,71 @@
++Dir.chdir(File.split(File.split(File.split(File.split(File.expand_path(__FILE__))[0])[0])[0])[0])
++puts Dir.pwd
++
++require 'ruby/gui/testing.rb'
++
++require 'ruby/editor_app.rb'
++
++
++describe &quot;MapEditor&quot; do
++	include GuiTest
++	before(:all) do
++		@app=makeTestAppClass(AntEditorApp).new(1024,768)
++		@mainWidget=@app.getMainWidget
++		@app.step
++	end
++	it &quot;should run&quot; do
++		1.should == 1
++	end
++
++	it &quot;should create a clear map when using the new-dialog&quot; do
++		new=widget(&quot;new&quot;)
++		new.visible.should be_true
++		new.click
++		dialog=widget(&quot;NewDialog&quot;)
++		dialog.visible.should be_true
++
++		okButton=dialog.child(&quot;ok&quot;)
++		okButton.visible.should be_true
++		okButton.click
++		@app.step
++		widget(&quot;NewDialog&quot;).valid.should be_false
++		@app.step
++	end
++
++	it &quot;should add trees to the empty map&quot; do
++		entitiesButton=widget(&quot;entities&quot;)
++		entitiesButton.should be_a_kind_of(AGRadio)
++		entitiesButton.click
++		entitiesList=widget(&quot;entitiesTab&quot;)
++		entitiesList.should be_an_instance_of(AntEntListWidget)
++		entitiesList.should be_visible
++		fir=entitiesList.child(&quot;AntFir&quot;)
++		fir.should be_an_instance_of(AGRadio)
++		fir.isChecked.should be_false
++		fir.click
++		entitiesList.entType.should == AntFir
++		@app.getMap.should have_exactly(0).getAllEntities
++		clickScreen(700,200)
++		@app.getMap.should have_exactly(1).getAllEntities
++		clickScreen(710,210)
++		@app.getMap.should have_exactly(2).getAllEntities
++	end
++	it &quot;should display the player-dialog&quot; do
++		playerButton=widget(&quot;playerButton&quot;)
++		playerButton.should be_an_instance_of(AGButton)
++		playerButton.click
++		playerDialog=widget(&quot;PlayersDialog&quot;)
++		playerDialog.should be_visible
++	end
++
++	it &quot;should be ok to save&quot; do
++		widget(&quot;saveButton&quot;).click
++		widget(&quot;SaveDialog&quot;).should be_a_kind_of(AGWidget)
++		widget(&quot;SaveDialog&quot;).should be_visible
++		while true
++			@app.step
++		end
++	end
++
++
++end
+\ No newline at end of file
+
+Added: antargis/trunk/ruby/editor_app.rb
+===================================================================
+--- antargis/trunk/ruby/editor_app.rb	2008-01-22 19:57:06 UTC (rev 1214)
++++ antargis/trunk/ruby/editor_app.rb	2008-01-22 19:58:32 UTC (rev 1215)
+@@ -0,0 +1,136 @@
++#!/usr/bin/env ruby
++#
++# Copyright (c) 2005 by David Kamphausen. All rights reserved.
++#
++# game.rb
++# by David Kamphausen (<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">david.kamphausen at web.de</A>)
++#
++# The &quot;Antargis&quot; project, including all files needed to compile it,
++# is free software; you can redistribute it and/or use it and/or modify it
++# under the terms of the GNU General Public License as published
++# by the Free Software Foundation; either version 2 of the License,
++# or (at your option) any later version.
++#
++# This program is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
++#
++# You should have received a copy of the GNU General Public
++# License along with this program.
++#
++
++#!/usr/bin/ruby
++
++$programDir=File.split(__FILE__)[0]
++# add programdir to path
++$:.push($programDir)
++[&quot;entities&quot;,&quot;widgets&quot;].each{|subdir|
++	$:.push(File.join($programDir,subdir))
++}
++
++require 'antargislib.rb'
++
++require 'dialogs.rb'
++require 'entities.rb'
++require 'map.rb'
++require 'view.rb'
++require 'editview.rb'
++require 'map_generator.rb'
++require 'editor/dialogs.rb'
++
++
++def getSavePath
++	&quot;data/levels&quot;
++end
++
++class AntEditorApp &lt; AntRubyEditView
++	def initialize(sw,sh)
++		super(sw,sh,nil) #AntRubyMap.new(64,64))
++		$app=self	
++		@map=AntRubyMap.new(self,getScene,128,128)
++		@map.setHeight(-0.5)
++
++		addHandler(@layout.getChild(&quot;quit&quot;),:sigClick,:eventQuit)
++		
++		addHandler(@layout.getChild(&quot;doGen&quot;),:sigClick,:eventGenerateDialog)
++
++		addHandler(@layout.getChild(&quot;loadButton&quot;),:sigClick,:load)
++		addHandler(@layout.getChild(&quot;saveButton&quot;),:sigClick,:save)
++
++		addHandler(@layout.getChild(&quot;playerButton&quot;),:sigClick,:editPlayers)
++		
++		@miniMap=@layout.getChild(&quot;miniMap&quot;)
++		@miniMap.setMap(getMap)
++		@miniMap.setScene(getScene)
++		
++		$screen=@layout
++		
++		#eventGenerate
++	end
++
++	def getMap
++		@map
++	end
++
++	def eventGenerateDialog
++		@layout.addChild(dialog=AntEditGeneratorDialog.new(@layout,GeneratorParameters.new))
++		addHandler(dialog,:sigGenerate,:eventGenerate)
++		@generatorDialog=dialog
++	end
++	def eventGenerate
++		map=getMap
++		getMap.setHeight(-0.5)
++		ps=GeneratorParameters.new
++		ps.readFromDialog(@generatorDialog)
++
++		if true
++			generateMap(getMap,ps)
++		end
++		return true
++	end
++	
++	def eventFrame(time)
++		super(time)
++		getScene.advance(time)
++		return true
++	end
++	
++	def eventIdle
++		delay(20)
++		return true
++	end
++	
++	# signals	
++	def eventQuit(e)
++		@layout.addChild(AntQuitDialog.new(@layout))
++		return true
++	end
++	def eventPause(e)
++		if not getMap().paused then
++			@layout.addChild(AntPauseDialog.new(@layout))
++		else
++			getMap().unpause
++		end
++		return true
++	end
++	def eventOptions(e)
++		@layout.addChild(AntOptionsDialog.new(@layout))
++		return true
++	end
++
++	def editPlayers
++		@layout.addChild(AntPlayerEditDialog.new(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">layout, at map</A>))
++		return true
++	end
++	
++	def enableEdit
++		toEditIsoView(@layout.getChild(&quot;mainView&quot;)).toggleEdit
++	end
++	def save
++		@layout.addChild(AntSaveDialog.new(@layout))
++	end
++	def load
++		@layout.addChild(AntLoadDialog.new(@layout))
++	end
++	
++end
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000171.html">[Antargis-svn] r1214 - in antargis/trunk: . build data/gui/layout	ext/3dengine ext/basic ext/game ruby ruby/editor	ruby/entities ruby/gui ruby/jobs
+</A></li>
+	<LI>Next message: <A HREF="000173.html">[Antargis-svn] r1216 - in antargis/trunk: . data/gui/layout	ext/3dengine ext/gui ruby ruby/editor/spec ruby/gui ruby/spec
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#172">[ date ]</a>
+              <a href="thread.html#172">[ thread ]</a>
+              <a href="subject.html#172">[ subject ]</a>
+              <a href="author.html#172">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,301 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1126 - in antargis/branches/rant: . build	build/configs data/textures/terrain
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-July/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1126%20-%20in%20antargis/branches/rant%3A%20.%20build%0A%09build/configs%20data/textures/terrain&In-Reply-To=%3C200707011303.l61D35tK030570%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000084.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1126 - in antargis/branches/rant: . build	build/configs data/textures/terrain</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1126%20-%20in%20antargis/branches/rant%3A%20.%20build%0A%09build/configs%20data/textures/terrain&In-Reply-To=%3C200707011303.l61D35tK030570%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1126 - in antargis/branches/rant: . build	build/configs data/textures/terrain">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sun Jul  1 15:03:05 CEST 2007</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000084.html">[Antargis-svn] r1127 - in antargis/branches/rant: . build
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#83">[ date ]</a>
+              <a href="thread.html#83">[ thread ]</a>
+              <a href="subject.html#83">[ subject ]</a>
+              <a href="author.html#83">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-07-01 15:03:04 +0200 (Sun, 01 Jul 2007)
+New Revision: 1126
+
+Removed:
+   antargis/branches/rant/data/textures/terrain/new3d.png.0
+   antargis/branches/rant/data/textures/terrain/new3d.png.1
+Modified:
+   antargis/branches/rant/INSTALL
+   antargis/branches/rant/Rantfile
+   antargis/branches/rant/build/configs/unix.rb
+   antargis/branches/rant/build/configure.rb
+   antargis/branches/rant/configure
+Log:
+* improved build-process
+
+
+Modified: antargis/branches/rant/INSTALL
+===================================================================
+--- antargis/branches/rant/INSTALL	2007-06-30 20:56:12 UTC (rev 1125)
++++ antargis/branches/rant/INSTALL	2007-07-01 13:03:04 UTC (rev 1126)
+@@ -1,14 +1,16 @@
+ INSTALLATION of Battles of Antargis
+ ==========================================
+ Quick Start:
+-1) Install ruby, rant, libsdl, libsdl-image, libsdl-ttf, libsdl-mixer, opengl.
++1) Install ruby, libsdl, libsdl-image, libsdl-ttf, libsdl-mixer, opengl.
+ 	You need the developer-packages of all these libraries/programs!
++  If you want to do serious developing you should install rant, too!
+ 2) Don't forget to install ruby1.8-dev (or ruby1.9-dev if you use ruby 1.9)
+ 3) After this step no root-privileges are needed.
+-4) Run &quot;rant&quot; in this directory
++4) If you have installed rant in step 1: Run &quot;rant&quot; in this directory
++   Otherwise: Run &quot;ruby build.rb&quot; in the current directory
+ 5) Run &quot;./antargis&quot; in this directory
+ 
+-Essentials: Ruby, Rant
++Essentials: Ruby, (Rant)
+ This game is mostly written in Ruby (www.ruby-lang.org) and C++. It uses Rant (Rant - Flexible, Ruby based make) as build system.
+ 
+ Libraries: libSDL,libSDL_mixer libSDL_ttf, libSDL_image, opengl
+
+Modified: antargis/branches/rant/Rantfile
+===================================================================
+--- antargis/branches/rant/Rantfile	2007-06-30 20:56:12 UTC (rev 1125)
++++ antargis/branches/rant/Rantfile	2007-07-01 13:03:04 UTC (rev 1126)
+@@ -1,5 +1,7 @@
+-#import &quot;md5&quot;                          # md5 is needed for automatic checksum-check for changes in files
++#import &quot;md5&quot;                         # md5 is needed for automatic checksum-check for changes in files
+ import &quot;autoclean&quot;                    # autoclean includes the a simple facility for a clean-make-target
++import &quot;package/tgz&quot;                  # support for packaging (tar.gz, zip)
++import &quot;rubydoc&quot;
+ 
+ require 'build/base_tools.rb'
+ 
+@@ -65,16 +67,8 @@
+ 
+ 
+ 
+-###########################################
+-# configure - clean-task
+-gen AutoClean, :clean
+-var[:clean].include &quot;**/marker.i&quot;   # not needed any more - managed by Rule
+-var[:clean].include &quot;ext/*.so&quot;
+-###########################################
++   
+ 
+-
+-    
+-
+ ###########################################
+ # build libraries (without swig)
+ #
+@@ -188,5 +182,77 @@
+ #
+ ###########################################
+ 
++###########################################
++# make swig-sources
++#
++task :swigSources =&gt;sourceDirs.collect{|d|d+Dir.separator+makeLibName(d)+&quot;swig.cc&quot;} do
++end
++#
++###########################################
+ 
++###########################################
++# make rant-stand-alone
++#
++task :rantStandAlone =&gt;[] do |t|
++	`rant-import --auto build.rb`
++end
++#
++###########################################
+ 
++###########################################
++# build extensions
++#
++task :extensions=&gt;allTargets do |t|
++end
++#
++###########################################
++
++
++###########################################
++# build source-distribution
++#
++task :dist=&gt;[:swigSources,:rantStandAlone] do |t|
++end
++#
++###########################################
++
++###########################################
++# build source-distribution
++#
++binpkg=gen Package::Tgz, &quot;packages&quot;,&quot;antargis-&quot;+extendCommand($config,&quot;system&quot;)+&quot;-&quot;+extendCommand($config,&quot;version&quot;), :extension =&gt; &quot;.tar.gz&quot;, :files =&gt; (sys[&quot;ext/*.so&quot;]+sys[&quot;ruby/**/*.rb&quot;]+sys[&quot;data/**/*&quot;]+sys[&quot;*&quot;]).select{|f|not (f=~/~/ or f=~/.xcf/)}
++
++task :bindist=&gt;[:extensions,binpkg.path] do |t| #&quot;packages/antargis-&quot;+extendCommand($config,&quot;version&quot;)+&quot;.tar.gz&quot;] do |t|
++end
++#
++###########################################
++
++# # build documentation
++# task :doc do
++# 	puts &quot;running doxygen&quot;
++# 	`doxygen Doxyfile`
++# 	rubies=`find -name &quot;*.rb&quot;`.split(&quot;\n&quot;).select{|f|not (f=~/(contrib|skat|test)/)}.join(&quot; &quot;)
++# 	readmes=`find -name &quot;README&quot;`.split(&quot;\n&quot;).select{|f|not (f=~/(contrib|skat|test)/)}.join(&quot; &quot;)
++# 	headers=`find -name &quot;*.h&quot;`.split(&quot;\n&quot;).select{|f|not (f=~/(contrib|skat|test)/)}.join(&quot; &quot;)
++# 	`rdoc -m README --op docs/ruby #{rubies} #{readmes}` # --exclude &quot;(\\.cc|\\.c|skat|test\/|contrib)&quot;`
++# end
++
++desc &quot;Generate html documentation for c++-sources&quot;
++task :doxygen=&gt;[] do |t|
++			# run doxygen in here
++ 			`doxygen build/Doxyfile`
++ end
++desc &quot;Generate html documentation.&quot;
++	gen RubyDoc do |t|
++			readmes=`find -name &quot;README&quot;`.split(&quot;\n&quot;).select{|f|not (f=~/(contrib|skat|test)/)}
++			rubies=`find ruby -name &quot;*.rb&quot;`.split(&quot;\n&quot;).select{|f|not (f=~/(contrib|skat|test)/)}
++			a=(readmes+rubies)
++			t.opts = %w(--title Battles\ of\ Antargis --main README )+a
++			t.dir = &quot;docs/ruby&quot;
++	end
++
++###########################################
++# configure - clean-task
++gen AutoClean, :clean
++var[:clean].include &quot;**/marker.i&quot;   # not needed any more - managed by Rule
++var[:clean].include &quot;ext/*.so&quot;
++###########################################
+
+Modified: antargis/branches/rant/build/configs/unix.rb
+===================================================================
+--- antargis/branches/rant/build/configs/unix.rb	2007-06-30 20:56:12 UTC (rev 1125)
++++ antargis/branches/rant/build/configs/unix.rb	2007-07-01 13:03:04 UTC (rev 1126)
+@@ -6,6 +6,7 @@
+ # 
+ 
+ $config={
++	&quot;system&quot;=&gt;&quot;unix&quot;,
+ 	&quot;CXX&quot;=&gt;&quot;$(g++)&quot;,
+ 	&quot;CC&quot;=&gt;&quot;$(gcc)&quot;,
+ 	&quot;SWIG&quot;=&gt;&quot;$(swig)&quot;,
+
+Modified: antargis/branches/rant/build/configure.rb
+===================================================================
+--- antargis/branches/rant/build/configure.rb	2007-06-30 20:56:12 UTC (rev 1125)
++++ antargis/branches/rant/build/configure.rb	2007-07-01 13:03:04 UTC (rev 1126)
+@@ -17,8 +17,8 @@
+ 	@@config={}
+ 	@@checks=[]
+ 
+-	def CFG.addOption(name,short,help,param=nil,&amp;proc)
+-		@@options.push({:name=&gt;name,:short=&gt;short,:help=&gt;help,:proc=&gt;proc,:param=&gt;param})
++	def CFG.addOption(name,short,help,param=nil,default=nil,&amp;proc)
++		@@options.push({:name=&gt;name,:short=&gt;short,:help=&gt;help,:proc=&gt;proc,:param=&gt;param,:default=&gt;default})
+ 	end
+ 	def CFG.options
+ 		@@options
+@@ -72,8 +72,17 @@
+ 		}
+ 	end
+ 
++	def CFG.checkDefaults
++		@@options.each{|op|
++			if get(op[:name]).nil? and op[:default]
++				set(op[:name],op[:default])
++			end
++		}
++	end
++
+ 	def CFG.run
+ 		parseArgs
++		checkDefaults
+ 		ok=runChecks
+ 		saveConfig if ok
+ 	end
+@@ -139,7 +148,7 @@
+ 			path=get(program)
+ 			path||=findProgram(program)
+ 			r=testProgram(path)
+-			set (program,path) if r
++			set(program,path) if r
+ 			r
+ 		end
+ 	end
+
+Modified: antargis/branches/rant/configure
+===================================================================
+--- antargis/branches/rant/configure	2007-06-30 20:56:12 UTC (rev 1125)
++++ antargis/branches/rant/configure	2007-07-01 13:03:04 UTC (rev 1126)
+@@ -2,6 +2,8 @@
+ 
+ require 'build/configure.rb'
+ 
++version=&quot;0.2.1&quot;
++
+ puts &lt;&lt;EOT
+ Battle of Antargis - Configuration
+ -------------------------------------------------------------------------------
+@@ -37,6 +39,11 @@
+ 		CFG.set(&quot;drmpass&quot;,v)
+ 	end
+ 
++CFG.addOption(&quot;version&quot;,&quot;v&quot;,
++	&quot;set release version of BoA&quot;,&quot;version&quot;,version) do |v|
++		CFG.set(&quot;version&quot;,v)
++	end
++
+ CFG.checkProgram(&quot;ccache&quot;)
+ CFG.checkProgram(&quot;gcc&quot;)
+ CFG.checkProgram(&quot;g++&quot;)
+
+Deleted: antargis/branches/rant/data/textures/terrain/new3d.png.0
+===================================================================
+(Binary files differ)
+
+Deleted: antargis/branches/rant/data/textures/terrain/new3d.png.1
+===================================================================
+(Binary files differ)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000084.html">[Antargis-svn] r1127 - in antargis/branches/rant: . build
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#83">[ date ]</a>
+              <a href="thread.html#83">[ thread ]</a>
+              <a href="subject.html#83">[ subject ]</a>
+              <a href="author.html#83">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

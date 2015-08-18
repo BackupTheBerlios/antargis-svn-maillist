@@ -1,0 +1,2634 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1295 - in antargis/trunk: . dev/3dengine_v2	ext/3dengine ext/basic ext/math ext/video rookey rookey/lib	rookey/lib/rookey rookey/lib/rookey/cpp rookey/lib/rookey/cpp/spec
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2009-March/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1295%20-%20in%20antargis/trunk%3A%20.%20dev/3dengine_v2%0A%09ext/3dengine%20ext/basic%20ext/math%20ext/video%20rookey%20rookey/lib%0A%09rookey/lib/rookey%20rookey/lib/rookey/cpp%20rookey/lib/rookey/cpp/spec&In-Reply-To=%3C200903031933.n23JXHbB029934%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000252.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1295 - in antargis/trunk: . dev/3dengine_v2	ext/3dengine ext/basic ext/math ext/video rookey rookey/lib	rookey/lib/rookey rookey/lib/rookey/cpp rookey/lib/rookey/cpp/spec</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1295%20-%20in%20antargis/trunk%3A%20.%20dev/3dengine_v2%0A%09ext/3dengine%20ext/basic%20ext/math%20ext/video%20rookey%20rookey/lib%0A%09rookey/lib/rookey%20rookey/lib/rookey/cpp%20rookey/lib/rookey/cpp/spec&In-Reply-To=%3C200903031933.n23JXHbB029934%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1295 - in antargis/trunk: . dev/3dengine_v2	ext/3dengine ext/basic ext/math ext/video rookey rookey/lib	rookey/lib/rookey rookey/lib/rookey/cpp rookey/lib/rookey/cpp/spec">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Tue Mar  3 20:33:17 CET 2009</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000252.html">[Antargis-svn] r1296 - antargis/trunk/rookey/lib/rookey/cpp/spec
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#251">[ date ]</a>
+              <a href="thread.html#251">[ thread ]</a>
+              <a href="subject.html#251">[ subject ]</a>
+              <a href="author.html#251">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2009-03-03 20:33:15 +0100 (Tue, 03 Mar 2009)
+New Revision: 1295
+
+Added:
+   antargis/trunk/rookey/lib/rookey/cpp/rk_time.cc
+   antargis/trunk/rookey/lib/rookey/cpp/rk_time.h
+Modified:
+   antargis/trunk/Rakefile
+   antargis/trunk/dev/3dengine_v2/ant_gl_rotation.cc
+   antargis/trunk/dev/3dengine_v2/ant_quaternion.cc
+   antargis/trunk/ext/3dengine/anim_mesh.cc
+   antargis/trunk/ext/3dengine/ant_camera.cc
+   antargis/trunk/ext/3dengine/mesh.cc
+   antargis/trunk/ext/3dengine/scene.cc
+   antargis/trunk/ext/basic/ag_geometry.h
+   antargis/trunk/ext/math/ant_frustum.cc
+   antargis/trunk/ext/math/ant_frustum.h
+   antargis/trunk/ext/video/ag_color.h
+   antargis/trunk/ext/video/ag_fbo.cc
+   antargis/trunk/ext/video/ag_painter.cc
+   antargis/trunk/ext/video/ag_sdlpainter.cc
+   antargis/trunk/ext/video/ag_sdlscreen.cc
+   antargis/trunk/ext/video/ag_surface.cc
+   antargis/trunk/rookey/Rakefile
+   antargis/trunk/rookey/lib/rookey.rb
+   antargis/trunk/rookey/lib/rookey/config_generator.rb
+   antargis/trunk/rookey/lib/rookey/cpp/rk_debug.h
+   antargis/trunk/rookey/lib/rookey/cpp/rk_logging.cc
+   antargis/trunk/rookey/lib/rookey/cpp/rk_logging.h
+   antargis/trunk/rookey/lib/rookey/cpp/rk_rubyobj.cc
+   antargis/trunk/rookey/lib/rookey/cpp/rk_singleton.cc
+   antargis/trunk/rookey/lib/rookey/cpp/rk_singleton.h
+   antargis/trunk/rookey/lib/rookey/cpp/rk_string.cc
+   antargis/trunk/rookey/lib/rookey/cpp/rk_string.h
+   antargis/trunk/rookey/lib/rookey/cpp/spec/Rakefile
+   antargis/trunk/rookey/lib/rookey/cpp/spec/logging_spec.cc
+   antargis/trunk/rookey/lib/rookey/tasks.rb
+Log:
+Logging implemented
+
+Modified: antargis/trunk/Rakefile
+===================================================================
+--- antargis/trunk/Rakefile	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/Rakefile	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -18,11 +18,9 @@
+   &quot;game&quot;
+       ].map{|f|&quot;AG_Init_libantargis&quot;+f}
+ lib=Rookey::ruby_ext(&quot;antargis&quot;,Dir[&quot;ext/*/*.cc&quot;]+Dir[&quot;ext/*/*.c&quot;]+Dir[&quot;ext/*/*.h&quot;]+Dir[&quot;ext/*/templates.i&quot;],inits)
+-
+ ts=Rookey::compile(Dir[&quot;main/starter.cc&quot;])
+ main=Rookey::link_exe(&quot;antargis&quot;,ts)
+ 
+-
+ task :default=&gt;[lib,main] do
+   puts &quot;Done.&quot;
+ end
+@@ -95,3 +93,5 @@
+    a=a.select{|f|not (f=~/_test/ or f=~/spec/)}
+    rd.rdoc_files.include(a)
+ end
++
++
+
+Modified: antargis/trunk/dev/3dengine_v2/ant_gl_rotation.cc
+===================================================================
+--- antargis/trunk/dev/3dengine_v2/ant_gl_rotation.cc	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/dev/3dengine_v2/ant_gl_rotation.cc	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -1,7 +1,7 @@
+ #include &quot;ant_gl_rotation.h&quot;
+ #include &quot;ant_gl.h&quot;
+ #include &quot;ag_debug.h&quot;
+-#include &lt;math.h&gt;
++#include &lt;cmath&gt;
+ 
+ AntGLRotation::AntGLRotation(const AntQuaternion &amp;pRotation)
+   {
+
+Modified: antargis/trunk/dev/3dengine_v2/ant_quaternion.cc
+===================================================================
+--- antargis/trunk/dev/3dengine_v2/ant_quaternion.cc	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/dev/3dengine_v2/ant_quaternion.cc	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -1,6 +1,6 @@
+ #include &quot;ant_quaternion.h&quot;
+ 
+-#include &lt;math.h&gt;
++#include &lt;cmath&gt;
+ 
+ // no rotation
+ AntQuaternion::AntQuaternion()
+
+Modified: antargis/trunk/ext/3dengine/anim_mesh.cc
+===================================================================
+--- antargis/trunk/ext/3dengine/anim_mesh.cc	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/ext/3dengine/anim_mesh.cc	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -10,7 +10,7 @@
+ #include &quot;ag_profiler.h&quot;
+ #include &quot;entity.h&quot;
+ 
+-#include &lt;math.h&gt;
++#include &lt;cmath&gt;
+ 
+ bool useShaderAnimation(); // imported from anim_mesh_data.cc
+ 
+
+Modified: antargis/trunk/ext/3dengine/ant_camera.cc
+===================================================================
+--- antargis/trunk/ext/3dengine/ant_camera.cc	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/ext/3dengine/ant_camera.cc	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -21,7 +21,7 @@
+ #include &quot;ant_camera.h&quot;
+ #include &quot;ant_renderer.h&quot;
+ #include &lt;SDL_opengl.h&gt;
+-#include &lt;math.h&gt;
++#include &lt;cmath&gt;
+ 
+ #include &quot;rk_debug.h&quot;
+ 
+
+Modified: antargis/trunk/ext/3dengine/mesh.cc
+===================================================================
+--- antargis/trunk/ext/3dengine/mesh.cc	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/ext/3dengine/mesh.cc	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -2,7 +2,7 @@
+ 
+ #include &lt;map&gt;
+ #include &lt;vector&gt;
+-#include &lt;math.h&gt;
++#include &lt;cmath&gt;
+ #include &lt;ag_vdebug.h&gt;
+ #include &lt;ag_texturecache.h&gt;
+ #include &lt;ag_profiler.h&gt;
+
+Modified: antargis/trunk/ext/3dengine/scene.cc
+===================================================================
+--- antargis/trunk/ext/3dengine/scene.cc	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/ext/3dengine/scene.cc	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -9,7 +9,7 @@
+ #include &lt;ag_rendercontext.h&gt;
+ #include &lt;algorithm&gt;
+ 
+-#include &lt;math.h&gt;
++#include &lt;cmath&gt;
+ 
+ #include &quot;quadtree.h&quot;
+ #include &quot;ag_profiler.h&quot;
+
+Modified: antargis/trunk/ext/basic/ag_geometry.h
+===================================================================
+--- antargis/trunk/ext/basic/ag_geometry.h	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/ext/basic/ag_geometry.h	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -55,103 +55,103 @@
+ /** \brief Simple structure holding an angle in degrees
+  */
+ struct AGEXPORT AGAngle {
+-    float angle;
++  float angle;
+ 
+-    /// @param an angle in degrees
+-    explicit AGAngle(float a);
++  /// @param an angle in degrees
++  explicit AGAngle(float a);
+ };
+ 
+ class GeometryException {
+ public:
+ 
+-    GeometryException(const std::string &amp;p) : s(p) {
+-    }
++  GeometryException(const std::string &amp;p) : s(p) {
++  }
+ #ifdef SWIG
+-    %rename(to_s) what() const;
++  %rename(to_s) what() const;
+ #endif
+ 
+-    std::string what() const {
+-        return s;
+-    }
++  std::string what() const {
++    return s;
++  }
+ 
+ private:
+-    std::string s;
++  std::string s;
+ };
+ 
+ class AGEXPORT AGVector2 {
+ public:
+-    float v[2];
++  float v[2];
+ 
+-    AGVector2(const AGString &amp;s);
+-    AGVector2(float pX, float pY);
+-    AGVector2(const AGAngle &amp;a);
+-    AGVector2(const AGVector2 &amp;a);
+-    AGVector2();
++  AGVector2(const AGString &amp;s);
++  AGVector2(float pX, float pY);
++  AGVector2(const AGAngle &amp;a);
++  AGVector2(const AGVector2 &amp;a);
++  AGVector2();
+ 
+-    void setX(float pX);
+-    void setY(float pY);
++  void setX(float pX);
++  void setY(float pY);
+ 
+-    AGVector2 dim2() const;
++  AGVector2 dim2() const;
+ 
+ 
+ #ifdef SWIG
+-    %rename(x) getX() const;
+-    %rename(y) getY() const;
++  %rename(x) getX() const;
++  %rename(y) getY() const;
+ #endif
+-    float getX() const;
+-    float getY() const;
++  float getX() const;
++  float getY() const;
+ 
+-    AGAngle getAngle() const;
++  AGAngle getAngle() const;
+ 
+ 
+-    bool operator&lt;(const AGVector2 &amp;p) const;
++  bool operator&lt;(const AGVector2 &amp;p) const;
+ 
+-    AGVector2 operator-() const;
+-    AGVector2 operator-(const AGVector2 &amp;p) const;
+-    AGVector2 operator+(const AGVector2 &amp;p) const;
++  AGVector2 operator-() const;
++  AGVector2 operator-(const AGVector2 &amp;p) const;
++  AGVector2 operator+(const AGVector2 &amp;p) const;
+ #ifndef SWIG
+-    AGVector2 &amp; operator+=(const AGVector2 &amp;p);
+-    AGVector2 &amp; operator-=(const AGVector2 &amp;p);
++  AGVector2 &amp; operator+=(const AGVector2 &amp;p);
++  AGVector2 &amp; operator-=(const AGVector2 &amp;p);
+ #endif
+-    
+-    float operator*(const AGVector2 &amp;p) const;
+-    AGVector2 &amp; operator*=(float f);
+-    AGVector2 &amp; operator/=(float f);
+-    AGVector2 operator*(float f) const;
+-    AGVector2 operator/(float f) const;
+ 
+-    bool operator==(const AGVector2 &amp;a) const;
+-    bool operator!=(const AGVector2 &amp;a) const;
++  float operator*(const AGVector2 &amp;p) const;
++  AGVector2 &amp; operator*=(float f);
++  AGVector2 &amp; operator/=(float f);
++  AGVector2 operator*(float f) const;
++  AGVector2 operator/(float f) const;
+ 
+-    float length() const;
+-    float length2() const;
++  bool operator==(const AGVector2 &amp;a) const;
++  bool operator!=(const AGVector2 &amp;a) const;
+ 
+-    AGVector2 normalized() const;
+-    void normalize();
++  float length() const;
++  float length2() const;
+ 
+-    AGVector2 normal() const;
++  AGVector2 normalized() const;
++  void normalize();
+ 
++  AGVector2 normal() const;
++
+ #ifdef SWIG
+-    %rename(__getitem__) operator[](int index) const;
++  %rename(__getitem__) operator[](int index) const;
+ #endif
+-    float operator[](int index) const;
++  float operator[](int index) const;
+ #ifndef SWIG
+-    float &amp;operator[](int index);
++  float &amp;operator[](int index);
+ #endif
+ 
+-    bool nonZero() const;
++  bool nonZero() const;
+ 
+-    void saveXML(Node &amp;node) const;
+-    void loadXML(const Node &amp;node);
++  void saveXML(Node &amp;node) const;
++  void loadXML(const Node &amp;node);
+ 
+ #ifdef SWIG
+-    %rename(to_s) toString() const;
++  %rename(to_s) toString() const;
+ #endif
+-    AGString toString() const;
++  AGString toString() const;
+ 
+ #ifndef SWIG
+-    (operator float*) ();
+-    (operator const float*) () const;
++  (operator float*) ();
++  (operator const float*) () const;
+ #endif
+ };
+ 
+@@ -159,199 +159,203 @@
+ 
+ class AGEXPORT AGVector3 {
+ public:
+-    float v[3];
++  float v[3];
+ 
+-    AGVector3(const AGVector2 &amp;p, float h = 1.0f);
+-    AGVector3(float pX, float pY, float pZ = 0.0f);
+-    AGVector3(const AGAngle &amp;a);
+-    AGVector3(const AGVector3 &amp;a);
+-    AGVector3();
++  AGVector3(const AGVector2 &amp;p, float h = 1.0f);
++  AGVector3(float pX, float pY, float pZ = 0.0f);
++  AGVector3(const AGAngle &amp;a);
++  AGVector3(const AGVector3 &amp;a);
++  AGVector3();
+ 
+-    void setX(float pX);
+-    void setY(float pY);
+-    void setZ(float pZ);
++  void setX(float pX);
++  void setY(float pY);
++  void setZ(float pZ);
+ 
+ 
+ #ifdef SWIG
+-    %rename(x) getX() const;
+-    %rename(y) getY() const;
+-    %rename(z) getZ() const;
++  %rename(x) getX() const;
++  %rename(y) getY() const;
++  %rename(z) getZ() const;
+ #endif
+-    float getX() const;
+-    float getY() const;
+-    float getZ() const;
++  float getX() const;
++  float getY() const;
++  float getZ() const;
+ 
+-    AGAngle getAngle() const;
++  AGAngle getAngle() const;
+ 
+-    AGVector3 operator-() const;
++  AGVector3 operator-() const;
+ 
+-    AGVector3 operator-(const AGVector3 &amp;p) const;
+-    AGVector3 operator+(const AGVector3 &amp;p) const;
++  AGVector3 operator-(const AGVector3 &amp;p) const;
++  AGVector3 operator+(const AGVector3 &amp;p) const;
+ #ifdef SWIG
+-    %rename(add) operator+=(const AGVector3 &amp;p);
+-    %rename(sub) operator-=(const AGVector3 &amp;p);
++  %rename(add) operator+=(const AGVector3 &amp;p);
++  %rename(sub) operator-=(const AGVector3 &amp;p);
+ #endif
+-    AGVector3 &amp; operator+=(const AGVector3 &amp;p);
+-    AGVector3 &amp; operator-=(const AGVector3 &amp;p);
++  AGVector3 &amp; operator+=(const AGVector3 &amp;p);
++  AGVector3 &amp; operator-=(const AGVector3 &amp;p);
+ 
+-    float operator*(const AGVector3 &amp;p) const;
+-    AGVector3 &amp; operator*=(float f);
+-    AGVector3 &amp; operator/=(float f);
+-    AGVector3 operator*(float f) const;
+-    AGVector3 operator/(float f) const;
+-    AGVector3 operator%(const AGVector3 &amp;a) const;
++  float operator*(const AGVector3 &amp;p) const;
++  AGVector3 &amp; operator*=(float f);
++  AGVector3 &amp; operator/=(float f);
++  AGVector3 operator*(float f) const;
++  AGVector3 operator/(float f) const;
++  AGVector3 operator%(const AGVector3 &amp;a) const;
+ 
+-    bool operator==(const AGVector3 &amp;a) const;
+-    bool operator!=(const AGVector3 &amp;a) const;
++  bool operator==(const AGVector3 &amp;a) const;
++  bool operator!=(const AGVector3 &amp;a) const;
+ 
+-    float length() const;
+-    float length2() const;
++  float length() const;
++  float length2() const;
+ 
+-    AGVector3 normalized() const;
+-    void normalize();
++  AGVector3 normalized() const;
++  void normalize();
+ 
+-    AGVector3 normal() const;
++  AGVector3 normal() const;
+ 
+ #ifdef SWIG
+-    %rename(__getitem__) operator[](int index) const;
++  %rename(__getitem__) operator[](int index) const;
+ #endif
+-    float operator[](int index) const;
++  float operator[](int index) const;
+ #ifndef SWIG
+-    float &amp;operator[](int index);
++  float &amp;operator[](int index);
+ #endif
+ 
+-    bool nonZero() const;
++  bool nonZero() const;
+ 
+-    void saveXML(Node &amp;node) const;
+-    void loadXML(const Node &amp;node);
++  void saveXML(Node &amp;node) const;
++  void loadXML(const Node &amp;node);
+ 
+-    AGVector2 dim2() const;
++  AGVector2 dim2() const;
+ 
+ #ifdef SWIG
+-    %rename(to_s) toString() const;
++  %rename(to_s) toString() const;
+ #endif
+-    AGString toString() const;
++  AGString toString() const;
+ 
+ #ifndef SWIG
+-    (operator float*) ();
++  (operator float*) ();
+ #endif
+ };
+ 
+ class AGEXPORT AGMatrix3 {
+-    float a[3][3];
++  float a[3][3];
+ public:
+ 
+ #ifndef SWIG
+-    struct Row {
+-        AGMatrix3 *matrix;
+-        int y;
+ 
+-        float &amp;operator[](size_t x) {
+-            return matrix-&gt;get(x, y);
+-        }
++  struct Row {
++    AGMatrix3 *matrix;
++    int y;
+ 
+-        float operator[](size_t x) const {
+-            return matrix-&gt;get(x, y);
+-        }
+-    };
++    float &amp;operator[](size_t x) {
++      return matrix-&gt;get(x, y);
++    }
++
++    float operator[](size_t x) const {
++      return matrix-&gt;get(x, y);
++    }
++  };
+ #endif
+-    AGMatrix3();
+-    AGMatrix3(const AGAngle &amp;a); // rotate
+-    AGMatrix3(const AGVector3 &amp;a); // transpose
+-    AGMatrix3(float x, float y); // scale
+-    AGMatrix3(const AGMatrix3 &amp;m);
+-    void set(size_t x, size_t y, float f);
+-    float get(size_t x, size_t y) const;
+-    float &amp;get(size_t x, size_t y);
++  AGMatrix3();
++  AGMatrix3(const AGAngle &amp;a); // rotate
++  AGMatrix3(const AGVector3 &amp;a); // transpose
++  AGMatrix3(float x, float y); // scale
++  AGMatrix3(const AGMatrix3 &amp;m);
++  void set(size_t x, size_t y, float f);
++  float get(size_t x, size_t y) const;
++  float &amp;get(size_t x, size_t y);
+ 
+-    AGMatrix3 operator*(const AGMatrix3 &amp;m) const;
+-    AGMatrix3 &amp; operator*=(const AGMatrix3 &amp;m);
++  AGMatrix3 operator*(const AGMatrix3 &amp;m) const;
++  AGMatrix3 &amp; operator*=(const AGMatrix3 &amp;m);
+ 
+-    AGVector3 operator*(const AGVector3 &amp;v) const;
+-    //  AGVector2 operator*(const AGVector2 &amp;v) const;
++  AGVector3 operator*(const AGVector3 &amp;v) const;
++  //  AGVector2 operator*(const AGVector2 &amp;v) const;
+ 
+-    AGMatrix3 operator-() const;
++  AGMatrix3 operator-() const;
+ 
+-    AGMatrix3 inverted() const throw (GeometryException);
+-    AGMatrix3 transposed() const;
++  AGMatrix3 inverted() const throw (GeometryException);
++  AGMatrix3 transposed() const;
+ 
+ 
+-    Row operator[](size_t y);
+-    const Row operator[](size_t y) const;
++#ifndef SWIG
++  Row operator[](size_t y);
++  const Row operator[](size_t y) const;
+ 
+-    void swapRows(size_t a, size_t b);
+-    void swapCols(size_t a, size_t b);
++#endif
+ 
+-    bool operator==(const AGMatrix3&amp;p) const;
++  void swapRows(size_t a, size_t b);
++  void swapCols(size_t a, size_t b);
+ 
++  bool operator==(const AGMatrix3&amp;p) const;
+ 
++
+ #ifdef SWIG
+-    %rename(to_s) toString() const;
++  %rename(to_s) toString() const;
+ #endif
+-    AGString toString() const;
++  AGString toString() const;
+ };
+ 
+ class AGEXPORT AGLine2 {
+-    AGVector2 v0, v1;
++  AGVector2 v0, v1;
+ public:
+-    AGLine2();
+-    AGLine2(const AGVector2 &amp;pv0, const AGVector2 &amp;pv1);
++  AGLine2();
++  AGLine2(const AGVector2 &amp;pv0, const AGVector2 &amp;pv1);
+ 
+-    AGVector2 getV0() const;
+-    AGVector2 getV1() const;
++  AGVector2 getV0() const;
++  AGVector2 getV1() const;
+ 
+-    bool has(const AGVector2 &amp;v) const;
++  bool has(const AGVector2 &amp;v) const;
+ 
+-    bool collide(const AGLine2 &amp;l) const;
+-    AGVector2 collisionPoint(const AGLine2 &amp;l) const;
+-    AGVector2 collisionPointNI(const AGLine2 &amp;l) const; // no inclusion test
+-    bool includes(const AGVector2 &amp;v) const;
++  bool collide(const AGLine2 &amp;l) const;
++  AGVector2 collisionPoint(const AGLine2 &amp;l) const;
++  AGVector2 collisionPointNI(const AGLine2 &amp;l) const; // no inclusion test
++  bool includes(const AGVector2 &amp;v) const;
+ 
+-    AGRect2 getBBox() const;
++  AGRect2 getBBox() const;
+ 
+-    AGVector2 normal() const;
+-    AGVector2 direction() const;
++  AGVector2 normal() const;
++  AGVector2 direction() const;
+ 
+-    float distance(const AGVector2 &amp;v) const;
++  float distance(const AGVector2 &amp;v) const;
+ 
+-    AGVector2 &amp; operator[](size_t i);
+-    AGVector2 operator[](size_t i) const;
++  AGVector2 &amp; operator[](size_t i);
++  AGVector2 operator[](size_t i) const;
+ 
+ #ifdef SWIG
+-    %rename(to_s) toString() const;
++  %rename(to_s) toString() const;
+ #endif
+-    AGString toString() const;
++  AGString toString() const;
+ };
+ 
+ class AGEXPORT AGLine3 {
+-    AGVector3 v0, v1;
++  AGVector3 v0, v1;
+ public:
+-    AGLine3();
+-    AGLine3(const AGVector3 &amp;pv0, const AGVector3 &amp;pv1);
++  AGLine3();
++  AGLine3(const AGVector3 &amp;pv0, const AGVector3 &amp;pv1);
+ 
+-    AGVector3 getV0() const;
+-    AGVector3 getV1() const;
++  AGVector3 getV0() const;
++  AGVector3 getV1() const;
+ 
+-    bool has(const AGVector3 &amp;v) const;
+-    /*
+-  bool collide(const AGLine3 &amp;l) const;
+-  AGVector3 collisionPoint(const AGLine3 &amp;l) const;
+-  AGVector3 collisionPointNI(const AGLine3 &amp;l) const; // no inclusion test
+-  bool includes(const AGVector3 &amp;v) const;
+-     */
+-    //  AGBox3 getBBox() const;
++  bool has(const AGVector3 &amp;v) const;
++  /*
++bool collide(const AGLine3 &amp;l) const;
++AGVector3 collisionPoint(const AGLine3 &amp;l) const;
++AGVector3 collisionPointNI(const AGLine3 &amp;l) const; // no inclusion test
++bool includes(const AGVector3 &amp;v) const;
++   */
++  //  AGBox3 getBBox() const;
+ 
+-    //  AGVector3 normal() const;
+-    AGVector3 direction() const;
++  //  AGVector3 normal() const;
++  AGVector3 direction() const;
+ 
+-    float distance(const AGVector3 &amp;p) const;
++  float distance(const AGVector3 &amp;p) const;
+ 
+-    //  float distance(const AGVector3 &amp;v) const;
++  //  float distance(const AGVector3 &amp;v) const;
+ 
+ #ifdef SWIG
+-    %rename(to_s) toString() const;
++  %rename(to_s) toString() const;
+ #endif
+-    AGString toString() const;
++  AGString toString() const;
+ };
+ 
+ class AGEXPORT AGCollisionData {
+@@ -360,374 +364,374 @@
+ class AGRect2;
+ 
+ class AGEXPORT AGTriangle2 {
+-    AGVector2 p[3];
++  AGVector2 p[3];
+ public:
+-    AGTriangle2();
+-    AGTriangle2(const AGVector2 &amp;v0, const AGVector2 &amp;v1, const AGVector2 &amp;v2);
++  AGTriangle2();
++  AGTriangle2(const AGVector2 &amp;v0, const AGVector2 &amp;v1, const AGVector2 &amp;v2);
+ 
+-    AGVector2 operator[](int index) const;
++  AGVector2 operator[](int index) const;
+ 
+-    AGVector2 get(int index) const;
++  AGVector2 get(int index) const;
+ 
+-    bool collide(const AGTriangle2 &amp;t) const;
++  bool collide(const AGTriangle2 &amp;t) const;
+ 
+-    // FIXME: sweep-based test
+-    //  AGCollisionData collide(const AGTriangle &amp;t,const AGVector &amp;v0,const AGVector &amp;v1) const;
++  // FIXME: sweep-based test
++  //  AGCollisionData collide(const AGTriangle &amp;t,const AGVector &amp;v0,const AGVector &amp;v1) const;
+ 
+-    std::vector&lt;AGVector2&gt; getNormals() const;
++  std::vector&lt;AGVector2&gt; getNormals() const;
+ 
+-    void apply(const AGMatrix3 &amp;m);
+-    AGTriangle2 applied(const AGMatrix3 &amp;m) const;
++  void apply(const AGMatrix3 &amp;m);
++  AGTriangle2 applied(const AGMatrix3 &amp;m) const;
+ 
+-    // estimate touching point (or middle of touching area)
+-    AGVector2 touchPoint(const AGTriangle2 &amp;t) const;
+-    AGVector2 touchVector(const AGTriangle2 &amp;t) const;
++  // estimate touching point (or middle of touching area)
++  AGVector2 touchPoint(const AGTriangle2 &amp;t) const;
++  AGVector2 touchVector(const AGTriangle2 &amp;t) const;
+ 
+-    std::vector&lt;AGVector2&gt; collisionPoints(const AGLine2 &amp;l) const;
++  std::vector&lt;AGVector2&gt; collisionPoints(const AGLine2 &amp;l) const;
+ 
+-    bool contains(const AGVector2 &amp;p) const;
++  bool contains(const AGVector2 &amp;p) const;
+ 
+-    AGRect2 getBBox() const;
++  AGRect2 getBBox() const;
+ 
+-    AGLine2 nearestLine(const AGVector2 &amp;v) const;
++  AGLine2 nearestLine(const AGVector2 &amp;v) const;
+ 
+-    std::vector&lt;AGLine2&gt; getLines() const;
++  std::vector&lt;AGLine2&gt; getLines() const;
+ 
+-    void flip();
++  void flip();
+ #ifdef SWIG
+-    %rename(to_s) toString() const;
++  %rename(to_s) toString() const;
+ #endif
+-    AGString toString() const;
++  AGString toString() const;
+ };
+ 
+ class AGEXPORT AGCircle2 {
+-    AGVector2 p;
+-    float radius;
++  AGVector2 p;
++  float radius;
+ public:
+-    AGCircle2(const AGVector2 &amp;v, float rad);
++  AGCircle2(const AGVector2 &amp;v, float rad);
+ 
+-    bool inCircle(const AGTriangle2 &amp;t) const;
+-    bool outCircle(const AGTriangle2 &amp;t) const;
+-    bool inCircle(const AGVector2 &amp;v) const;
+-    bool outCircle(const AGVector2 &amp;v) const;
++  bool inCircle(const AGTriangle2 &amp;t) const;
++  bool outCircle(const AGTriangle2 &amp;t) const;
++  bool inCircle(const AGVector2 &amp;v) const;
++  bool outCircle(const AGVector2 &amp;v) const;
+ 
+-    AGVector2 getPos() const;
+-    float getRadius() const;
++  AGVector2 getPos() const;
++  float getRadius() const;
+ 
+-    std::list&lt;AGVector2&gt; collide(const AGLine2 &amp;pLine) const;
++  std::list&lt;AGVector2&gt; collide(const AGLine2 &amp;pLine) const;
+ };
+ 
+ class AGVector4;
+ 
+ class AGEXPORT AGTriangle3 {
+-    AGVector3 p[3];
++  AGVector3 p[3];
+ public:
+-    AGTriangle3(const AGVector3 &amp;v0, const AGVector3 &amp;v1, const AGVector3 &amp;v2);
++  AGTriangle3(const AGVector3 &amp;v0, const AGVector3 &amp;v1, const AGVector3 &amp;v2);
+ 
+-    // (x,y,z,0) for no collision
+-    // (x,y,z,1) for collision in point (x,y,z)
+-    AGVector4 collide(const AGLine3 &amp;pLine) const;
++  // (x,y,z,0) for no collision
++  // (x,y,z,1) for collision in point (x,y,z)
++  AGVector4 collide(const AGLine3 &amp;pLine) const;
+ #ifdef SWIG
+-    %rename(to_s) toString() const;
++  %rename(to_s) toString() const;
+ #endif
+ 
+-    AGString toString() const;
++  AGString toString() const;
+ 
+-    AGVector3 operator[](int index) const;
++  AGVector3 operator[](int index) const;
+ 
+-    void flip();
++  void flip();
+ };
+ 
+ class AGEXPORT AGRect2 {
+-    AGVector2 v0, v1;
++  AGVector2 v0, v1;
+ public:
+-    AGRect2();
+-    AGRect2(const AGVector2 &amp;pv0, const AGVector2 &amp;pv1);
+-    AGRect2(float x, float y, float w, float h);
+-    AGRect2(const AGString &amp;ps);
+-    AGRect2(const SDL_Rect &amp;r);
++  AGRect2();
++  AGRect2(const AGVector2 &amp;pv0, const AGVector2 &amp;pv1);
++  AGRect2(float x, float y, float w, float h);
++  AGRect2(const AGString &amp;ps);
++  AGRect2(const SDL_Rect &amp;r);
+ 
+-    bool collide(const AGRect2 &amp;r) const;
++  bool collide(const AGRect2 &amp;r) const;
+ 
+-    void include(const AGVector2 &amp;v);
++  void include(const AGVector2 &amp;v);
+ 
+-    AGRect2 operator+(const AGVector2 &amp;v) const;
+-    AGRect2 operator-(const AGVector2 &amp;v) const;
+-    AGRect2 &amp; operator+=(const AGVector2 &amp;v);
+-    AGRect2 &amp; operator-=(const AGVector2 &amp;v);
++  AGRect2 operator+(const AGVector2 &amp;v) const;
++  AGRect2 operator-(const AGVector2 &amp;v) const;
++  AGRect2 &amp; operator+=(const AGVector2 &amp;v);
++  AGRect2 &amp; operator-=(const AGVector2 &amp;v);
+ 
+-    AGRect2 &amp; operator+=(const AGRect2 &amp;r);
++  AGRect2 &amp; operator+=(const AGRect2 &amp;r);
+ 
+-    bool contains(const AGVector2 &amp;v) const;
+-    bool contains(const AGRect2 &amp;v) const;
++  bool contains(const AGVector2 &amp;v) const;
++  bool contains(const AGRect2 &amp;v) const;
+ 
+-    std::list&lt;AGRect2&gt; split() const;
++  std::list&lt;AGRect2&gt; split() const;
+ 
+-    AGVector2 operator[](size_t i) const;
+-    AGVector2 &amp; operator[](size_t i);
++  AGVector2 operator[](size_t i) const;
++  AGVector2 &amp; operator[](size_t i);
+ 
+-    AGVector2 getV0() const;
+-    AGVector2 getV1() const;
+-    AGVector2 getV01() const;
+-    AGVector2 getV10() const;
++  AGVector2 getV0() const;
++  AGVector2 getV1() const;
++  AGVector2 getV01() const;
++  AGVector2 getV10() const;
+ 
+-    AGVector2 getMiddle() const;
++  AGVector2 getMiddle() const;
+ 
+-    AGRect2 shrink(float f) const;
+-    AGRect2 shrink(float w, float h) const;
+-    AGRect2 shrinkToTopLeft(float w, float h) const;
+-    AGRect2 grow(float f) const;
++  AGRect2 shrink(float f) const;
++  AGRect2 shrink(float w, float h) const;
++  AGRect2 shrinkToTopLeft(float w, float h) const;
++  AGRect2 grow(float f) const;
+ 
+-    void setX(float p);
+-    void setY(float p);
++  void setX(float p);
++  void setY(float p);
+ 
+-    void setLeft(float p); // attention - modifies right, too
+-    void setTop(float p); // attention - modifies bottom, too
++  void setLeft(float p); // attention - modifies right, too
++  void setTop(float p); // attention - modifies bottom, too
+ 
+-    void setRight(float p);
+-    void setBottom(float p);
++  void setRight(float p);
++  void setBottom(float p);
+ 
+-    float setWidth(float w);
+-    float setHeight(float w);
++  float setWidth(float w);
++  float setHeight(float w);
+ 
+-    float x() const;
+-    float y() const;
+-    float w() const;
+-    float h() const;
++  float x() const;
++  float y() const;
++  float w() const;
++  float h() const;
+ 
+-    float width() const;
+-    float height() const;
++  float width() const;
++  float height() const;
+ 
+-    float x0() const;
+-    float y0() const;
+-    float x1() const;
+-    float y1() const;
++  float x0() const;
++  float y0() const;
++  float x1() const;
++  float y1() const;
+ 
+-    AGVector2 clip(const AGVector2 &amp;v) const;
++  AGVector2 clip(const AGVector2 &amp;v) const;
+ 
+-    AGRect2 origin() const;
++  AGRect2 origin() const;
+ 
+-    AGRect2 intersect(const AGRect2 &amp;r) const;
++  AGRect2 intersect(const AGRect2 &amp;r) const;
+ 
+-    //result=this-r
+-    std::vector&lt;AGRect2&gt; difference(const AGRect2 &amp;r) const;
+-    std::vector&lt;AGRect2&gt; tile(size_t x, size_t y) const;
++  //result=this-r
++  std::vector&lt;AGRect2&gt; difference(const AGRect2 &amp;r) const;
++  std::vector&lt;AGRect2&gt; tile(size_t x, size_t y) const;
+ 
+-    SDL_Rect sdl() const;
++  SDL_Rect sdl() const;
+ 
+-    bool operator==(const AGRect2 &amp;r) const;
++  bool operator==(const AGRect2 &amp;r) const;
+ #ifndef SWIG
+-    bool operator!=(const AGRect2 &amp;r) const;
++  bool operator!=(const AGRect2 &amp;r) const;
+ #endif
+ 
+-    void check() const;
++  void check() const;
+ 
+-    AGRect2 alignGrid() const; // align to integer grid
++  AGRect2 alignGrid() const; // align to integer grid
+ 
+-    float content() const;
++  float content() const;
+ 
+ #ifdef SWIG
+-    %rename(to_s) toString() const;
++  %rename(to_s) toString() const;
+ #endif
+-    AGString toString() const;
++  AGString toString() const;
+ };
+ 
+ class AGEXPORT AGVector4 {
+ public:
+-    float v[4];
++  float v[4];
+ 
+-    AGVector4(float pX, float pY, float pZ, float pW = 1.0f);
+-    AGVector4(const AGVector4 &amp;a);
+-    AGVector4(const AGVector3 &amp;a, float h);
+-    AGVector4();
++  AGVector4(float pX, float pY, float pZ, float pW = 1.0f);
++  AGVector4(const AGVector4 &amp;a);
++  AGVector4(const AGVector3 &amp;a, float h);
++  AGVector4();
+ 
+-    void setX(float pX);
+-    void setY(float pY);
+-    void setZ(float pZ);
+-    void setW(float pW);
++  void setX(float pX);
++  void setY(float pY);
++  void setZ(float pZ);
++  void setW(float pW);
+ 
+ 
+ #ifdef SWIG
+-    %rename(x) getX() const;
+-    %rename(y) getY() const;
+-    %rename(z) getZ() const;
+-    %rename(w) getW() const;
++  %rename(x) getX() const;
++  %rename(y) getY() const;
++  %rename(z) getZ() const;
++  %rename(w) getW() const;
+ #endif
+-    float getX() const;
+-    float getY() const;
+-    float getZ() const;
+-    float getW() const;
++  float getX() const;
++  float getY() const;
++  float getZ() const;
++  float getW() const;
+ 
+-    AGVector4 operator-(const AGVector4 &amp;p) const;
+-    AGVector4 operator+(const AGVector4 &amp;p) const;
++  AGVector4 operator-(const AGVector4 &amp;p) const;
++  AGVector4 operator+(const AGVector4 &amp;p) const;
+ #ifdef SWIG
+-    %rename(add) operator+=(const AGVector4 &amp;p);
+-    %rename(sub) operator-=(const AGVector4 &amp;p);
++  %rename(add) operator+=(const AGVector4 &amp;p);
++  %rename(sub) operator-=(const AGVector4 &amp;p);
+ #endif
+-    AGVector4 &amp; operator+=(const AGVector4 &amp;p);
+-    AGVector4 &amp; operator-=(const AGVector4 &amp;p);
++  AGVector4 &amp; operator+=(const AGVector4 &amp;p);
++  AGVector4 &amp; operator-=(const AGVector4 &amp;p);
+ 
+-    float operator*(const AGVector4 &amp;p) const;
+-    AGVector4 &amp; operator*=(float f);
+-    AGVector4 &amp; operator/=(float f);
+-    AGVector4 operator*(float f) const;
+-    AGVector4 operator/(float f) const;
+-    AGVector4 operator-() const;
++  float operator*(const AGVector4 &amp;p) const;
++  AGVector4 &amp; operator*=(float f);
++  AGVector4 &amp; operator/=(float f);
++  AGVector4 operator*(float f) const;
++  AGVector4 operator/(float f) const;
++  AGVector4 operator-() const;
+ 
+-    bool operator==(const AGVector4 &amp;a) const;
+-    bool operator!=(const AGVector4 &amp;a) const;
++  bool operator==(const AGVector4 &amp;a) const;
++  bool operator!=(const AGVector4 &amp;a) const;
+ 
+-    float length() const;
+-    // length^2
+-    float length2() const;
++  float length() const;
++  // length^2
++  float length2() const;
+ 
+-    // length 3-dim vector
+-    float length3() const;
++  // length 3-dim vector
++  float length3() const;
+ 
+ 
+-    AGVector4 normalized() const;
+-    void normalize();
++  AGVector4 normalized() const;
++  void normalize();
+ 
+-    // 3-dimensional
+-    AGVector4 normalized3() const;
+-    void normalize3();
++  // 3-dimensional
++  AGVector4 normalized3() const;
++  void normalize3();
+ 
+ 
+-    float operator[](int index) const;
+-    float &amp;operator[](int index);
++  float operator[](int index) const;
++  float &amp;operator[](int index);
+ 
+-    bool nonZero() const;
++  bool nonZero() const;
+ 
+-    // vector-cross-product
+-    // ignores 4th coordinate
+-    AGVector4 operator%(const AGVector4 &amp;a) const;
++  // vector-cross-product
++  // ignores 4th coordinate
++  AGVector4 operator%(const AGVector4 &amp;a) const;
+ 
+-    AGVector4 cross(const AGVector4 &amp;a) const {
+-        return operator%(a);
+-    }
++  AGVector4 cross(const AGVector4 &amp;a) const {
++    return operator%(a);
++  }
+ 
+ 
+-    AGVector3 dim3() const;
+-    AGVector2 dim2() const;
++  AGVector3 dim3() const;
++  AGVector2 dim2() const;
+ 
+ #ifdef SWIG
+-    %rename(to_s) toString() const;
++  %rename(to_s) toString() const;
+ #endif
+-    AGString toString() const;
++  AGString toString() const;
+ 
+ #ifndef SWIG
+-    (operator float*) ();
+-    (operator const float*) () const;
++  (operator float*) ();
++  (operator const float*) () const;
+ #endif
+ };
+ 
+ class AGEXPORT AGMatrix4 {
+-    float a[16];
++  float a[16];
+ public:
+ 
+-    struct MRow {
+-        AGMatrix4 *matrix;
+-        int y;
++  struct MRow {
++    AGMatrix4 *matrix;
++    int y;
+ 
+-        float &amp;operator[](size_t x) {
+-            return matrix-&gt;get(x, y);
+-        }
++    float &amp;operator[](size_t x) {
++      return matrix-&gt;get(x, y);
++    }
+ 
+-        float operator[](size_t x) const {
+-            return matrix-&gt;get(x, y);
+-        }
+-    };
++    float operator[](size_t x) const {
++      return matrix-&gt;get(x, y);
++    }
++  };
+ 
+-    AGMatrix4();
+-    AGMatrix4(float v[16]);
+-    AGMatrix4(float angle, const AGVector3 &amp;d);
+-    AGMatrix4(const AGVector4 &amp;a);
+-    void set(size_t x, size_t y, float f);
+-    float get(size_t x, size_t y) const;
+-    float &amp;get(size_t x, size_t y);
++  AGMatrix4();
++  AGMatrix4(float v[16]);
++  AGMatrix4(float angle, const AGVector3 &amp;d);
++  AGMatrix4(const AGVector4 &amp;a);
++  void set(size_t x, size_t y, float f);
++  float get(size_t x, size_t y) const;
++  float &amp;get(size_t x, size_t y);
+ 
+-    AGMatrix4 operator*(const AGMatrix4 &amp;m) const;
+-    AGMatrix4 &amp; operator*=(const AGMatrix4 &amp;m);
+-    AGMatrix4 &amp; operator+=(const AGMatrix4 &amp;m);
++  AGMatrix4 operator*(const AGMatrix4 &amp;m) const;
++  AGMatrix4 &amp; operator*=(const AGMatrix4 &amp;m);
++  AGMatrix4 &amp; operator+=(const AGMatrix4 &amp;m);
+ 
+-    AGMatrix3 get3x3(size_t x, size_t y) const;
++  AGMatrix3 get3x3(size_t x, size_t y) const;
+ 
+-    AGVector4 operator*(const AGVector4 &amp;v) const;
++  AGVector4 operator*(const AGVector4 &amp;v) const;
+ 
+-    float operator()(size_t x, size_t y) const;
+-    float &amp;operator()(size_t x, size_t y);
++  float operator()(size_t x, size_t y) const;
++  float &amp;operator()(size_t x, size_t y);
+ 
+-    AGMatrix4 inverted() const;
+-    AGMatrix4 transposed() const;
++  AGMatrix4 inverted() const;
++  AGMatrix4 transposed() const;
+ 
+-    MRow operator[](size_t y);
+-    //  const Row operator[](size_t y) const;
++  MRow operator[](size_t y);
++  //  const Row operator[](size_t y) const;
+ 
+-    void swapRows(size_t a, size_t b);
+-    void swapCols(size_t a, size_t b);
++  void swapRows(size_t a, size_t b);
++  void swapCols(size_t a, size_t b);
+ 
+ #ifdef SWIG
+-    %rename(to_s) toString() const;
++  %rename(to_s) toString() const;
+ #endif
+-    AGString toString() const;
++  AGString toString() const;
+ 
+ #ifndef SWIG
+-    (operator float*) ();
+-    (operator const float*) () const;
+-    //  (operator const double*)() const;
++  (operator float*) ();
++  (operator const float*) () const;
++  //  (operator const double*)() const;
+ #endif
+ 
+-    AGVector4 getRow(size_t i) const;
++  AGVector4 getRow(size_t i) const;
+ };
+ 
+ // axis-aligned
+ 
+ class AGEXPORT AGRect3 {
+-    AGVector3 base, dir;
++  AGVector3 base, dir;
+ public:
+-    AGRect3(const AGVector3 &amp;pBase, const AGVector3 &amp;pDir);
++  AGRect3(const AGVector3 &amp;pBase, const AGVector3 &amp;pDir);
+ 
+-    bool collides(const AGLine3&amp;pLine) const;
++  bool collides(const AGLine3&amp;pLine) const;
+ 
+-    AGString toString() const;
++  AGString toString() const;
+ };
+ 
+ // axis-aligned
+ 
+ class AGEXPORT AGBox3 {
+ public:
+-    AGVector3 base, dir;
++  AGVector3 base, dir;
+ 
+-    AGBox3();
+-    AGBox3(const AGVector3 &amp;pBase, const AGVector3 &amp;pDir);
++  AGBox3();
++  AGBox3(const AGVector3 &amp;pBase, const AGVector3 &amp;pDir);
+ 
+-    void include(const AGVector3&amp;p);
+-    bool includes(const AGBox3 &amp;b);
+-    bool collides(const AGVector3&amp;p) const;
++  void include(const AGVector3&amp;p);
++  bool includes(const AGBox3 &amp;b);
++  bool collides(const AGVector3&amp;p) const;
+ 
+-    bool collides(const AGLine3&amp;p) const;
+-    bool collides(const AGBox3 &amp;b) const;
++  bool collides(const AGLine3&amp;p) const;
++  bool collides(const AGBox3 &amp;b) const;
+ 
+-    bool contains(const AGTriangle3 &amp;t) const;
++  bool contains(const AGTriangle3 &amp;t) const;
+ 
+-    std::vector&lt;AGRect3&gt; getSides() const;
++  std::vector&lt;AGRect3&gt; getSides() const;
+ 
+-    AGString toString() const;
++  AGString toString() const;
+ 
+-    std::vector&lt;AGBox3&gt; split() const;
++  std::vector&lt;AGBox3&gt; split() const;
+ 
+-    bool collides(const AGMatrix4 &amp;frustum) const;
++  bool collides(const AGMatrix4 &amp;frustum) const;
+ 
+-    std::vector&lt;AGVector3&gt; getVertices() const;
+-    void calcVertices(std::vector&lt;AGVector3&gt; &amp;vs) const;
++  std::vector&lt;AGVector3&gt; getVertices() const;
++  void calcVertices(std::vector&lt;AGVector3&gt; &amp;vs) const;
+ 
+-    AGBox3 operator+(const AGVector3 &amp;v) const;
+-    AGBox3 operator-(const AGVector3 &amp;v) const;
++  AGBox3 operator+(const AGVector3 &amp;v) const;
++  AGBox3 operator-(const AGVector3 &amp;v) const;
+ 
+-    bool valid() const;
++  bool valid() const;
+ 
+ private:
+-    bool mValid;
++  bool mValid;
+ };
+ 
+ #ifndef SWIG
+
+Modified: antargis/trunk/ext/math/ant_frustum.cc
+===================================================================
+--- antargis/trunk/ext/math/ant_frustum.cc	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/ext/math/ant_frustum.cc	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -26,86 +26,89 @@
+ // AntPlane
+ /////////////////////////////////////////////////////////////////////
+ 
+-AntPlane::AntPlane(const AGVector3 &amp;dir,float offset):
+-  mDir(dir),
+-  mOffset(offset)
+-  {
+-  }
++AntPlane::AntPlane(const AGVector3 &amp;dir, float offset) :
++mDir(dir),
++mOffset(offset) {
++}
+ 
+-AntPlane makePlane(const AGVector3 &amp;p0,const AGVector3 &amp;p1,const AGVector3 &amp;p2)
+-  {
+-    AGVector3 up=p1-p0;
+-    AGVector3 right=p2-p0;
+-    up/=up.length();
+-    right/=right.length();
++AntPlane makePlane(const AGVector3 &amp;p0, const AGVector3 &amp;p1, const AGVector3 &amp;p2) {
++  AGVector3 up = p1 - p0;
++  AGVector3 right = p2 - p0;
++  up /= up.length();
++  right /= right.length();
+ #warning &quot;maybe this must be swapped!&quot;
+-    AGVector3 dir=up%right;
++  AGVector3 dir = up % right;
+ 
+-    return AntPlane(dir,dir*p0);
+-  }
++  return AntPlane(dir, dir * p0);
++}
+ 
++AGString AntPlane::toString() const {
++  std::ostringstream os;
++  os &lt;&lt; &quot;(&quot; &lt;&lt; mDir &lt;&lt; &quot;,&quot; &lt;&lt; mOffset &lt;&lt; &quot;)&quot;;
++  return os.str();
++}
+ 
+ /////////////////////////////////////////////////////////////////////
+ // AntFrustum
+ /////////////////////////////////////////////////////////////////////
+-AntFrustum::AntFrustum()
+-  {
+-    throw std::runtime_error(&quot;Possible error in AntFrustum::AntFrustum(): this function shouldn't be called!&quot;);
+-  }
+ 
+-AntFrustum::AntFrustum(const std::vector&lt;AntPlane&gt; &amp;pPlanes):
+-  mPlanes(pPlanes)
+-  {
+-    assert(mPlanes.size()==6);
++AntFrustum::AntFrustum() {
++  throw std::runtime_error(&quot;Possible error in AntFrustum::AntFrustum(): this function shouldn't be called!&quot;);
++}
+ 
+-    //  cdebug(*this);
+-  }
++AntFrustum::AntFrustum(const std::vector&lt;AntPlane&gt; &amp;pPlanes) :
++mPlanes(pPlanes) {
++  assert(mPlanes.size() == 6);
+ 
+-bool AntFrustum::inside(const AGVector3 &amp;v) const
+-{
+-  for(std::vector&lt;AntPlane&gt;::const_iterator i=mPlanes.begin();i!=mPlanes.end();++i)
+-    if(!i-&gt;inside(v))
++  //  cdebug(*this);
++}
++
++bool AntFrustum::inside(const AGVector3 &amp;v) const {
++  for (std::vector&lt;AntPlane&gt;::const_iterator i = mPlanes.begin(); i != mPlanes.end(); ++i)
++    if (!i-&gt;inside(v))
+       return false;
+   return true;
+ }
+ 
+-bool AntFrustum::collides(const AGBox3 &amp;b) const
+-{
++bool AntFrustum::collides(const AGBox3 &amp;b) const {
+   static std::vector&lt;AGVector3&gt; vs(8);
+-    {
+-      b.calcVertices(vs);
+-    }
+-    static bool outside;
+-    static std::vector&lt;AntPlane&gt;::const_iterator i;
+-    static std::vector&lt;AGVector3&gt;::iterator j;
++  {
++    b.calcVertices(vs);
++  }
++  static bool outside;
++  static std::vector&lt;AntPlane&gt;::const_iterator i;
++  static std::vector&lt;AGVector3&gt;::iterator j;
+ 
+ 
+-    for(i=mPlanes.begin();i!=mPlanes.end();++i)
+-      {
+-        outside=true;
+-        for(j=vs.begin();j!=vs.end();++j)
+-          {
+-            if(i-&gt;inside(*j))
+-              {
+-                outside=false;
+-                break;
+-              }
+-          }
+-        if(outside)
+-          return false;
++  for (i = mPlanes.begin(); i != mPlanes.end(); ++i) {
++    outside = true;
++    for (j = vs.begin(); j != vs.end(); ++j) {
++      if (i-&gt;inside(*j)) {
++        outside = false;
++        break;
+       }
+-    return true;
++    }
++    if (outside)
++      return false;
++  }
++  return true;
+ }
+ 
++AGString AntFrustum::toString() const {
++  std::ostringstream os;
++  for (std::vector&lt;AntPlane&gt;::const_iterator i = mPlanes.begin(); i != mPlanes.end(); ++i)
++    os &lt;&lt; *i &lt;&lt; &quot;;&quot;;
++  return os.str();
+ 
+-std::ostream &amp;operator&lt;&lt;(std::ostream &amp;o,const AntPlane &amp;p)
+-  {
+-    o&lt;&lt;&quot;(&quot;&lt;&lt;p.mDir&lt;&lt;&quot;,&quot;&lt;&lt;p.mOffset&lt;&lt;&quot;)&quot;;
+-    return o;
+-  }
+-std::ostream &amp;operator&lt;&lt;(std::ostream &amp;o,const AntFrustum &amp;p)
+-  {
+-    for(std::vector&lt;AntPlane&gt;::const_iterator i=p.mPlanes.begin();i!=p.mPlanes.end();++i)
+-      o&lt;&lt;*i&lt;&lt;&quot;;&quot;;
+-    return o;
+-  }
++
++}
++
++std::ostream &amp; operator&lt;&lt;(std::ostream &amp;o, const AntPlane &amp;p) {
++  o &lt;&lt; p.toString();
++  return o;
++}
++
++std::ostream &amp; operator&lt;&lt;(std::ostream &amp;o, const AntFrustum &amp;p) {
++  o&lt;&lt;p;
++  return o;
++}
+
+Modified: antargis/trunk/ext/math/ant_frustum.h
+===================================================================
+--- antargis/trunk/ext/math/ant_frustum.h	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/ext/math/ant_frustum.h	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -32,7 +32,7 @@
+ 
+   bool inside(const AGVector3 &amp;v) const;
+ 
+-  friend std::ostream &amp;operator&lt;&lt;(std::ostream &amp;o,const AntPlane &amp;p);
++  AGString toString() const;
+  private:
+   AGVector3 mDir;
+   float mOffset;
+@@ -50,7 +50,7 @@
+   bool inside(const AGVector3 &amp;v) const;
+   bool collides(const AGBox3 &amp;v) const;
+ 
+-  friend std::ostream &amp;operator&lt;&lt;(std::ostream &amp;o,const AntFrustum &amp;p);
++  AGString toString() const;
+  private:
+   std::vector&lt;AntPlane&gt; mPlanes;
+ };
+
+Modified: antargis/trunk/ext/video/ag_color.h
+===================================================================
+--- antargis/trunk/ext/video/ag_color.h	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/ext/video/ag_color.h	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -71,11 +71,13 @@
+   Uint8 a;
+ };
+ 
++#ifndef SWIG
+ bool operator&lt;(const AGColor &amp;c1,const AGColor &amp;c2);
+ bool operator==(const AGColor &amp;c1,const AGColor &amp;c2);
+ bool operator!=(const AGColor &amp;c1,const AGColor &amp;c2);
+ 
+ std::ostream &amp;operator&lt;&lt;(std::ostream &amp;o,const AGColor &amp;c);
++#endif
+ 
+ inline int toInt(Uint8 u)
+ {
+
+Modified: antargis/trunk/ext/video/ag_fbo.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_fbo.cc	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/ext/video/ag_fbo.cc	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -29,137 +29,133 @@
+ 
+ #define USE_FBO
+ 
+-AGFBO::AGFBO(AGGLTexture *pTexture, bool withDepth):
+-  mTexture(pTexture),
+-  mWithDepth(withDepth)
+-  {
+-    mTextureID=mTexture-&gt;id();
+-    w=mTexture-&gt;width();
+-    h=mTexture-&gt;height();
+-    fb=depth_rb=0;
++AGFBO::AGFBO(AGGLTexture *pTexture, bool withDepth) :
++mTexture(pTexture),
++mWithDepth(withDepth) {
++  mTextureID = mTexture-&gt;id();
++  w = mTexture-&gt;width();
++  h = mTexture-&gt;height();
++  fb = depth_rb = 0;
+ 
+-    std::cerr&lt;&lt;&quot;WARNING: FBOs can make problems on some cards and drivers. Disable them in ~/.Antargis/config.xml !&quot;&lt;&lt;std::endl;
++  std::cerr &lt;&lt; &quot;WARNING: FBOs can make problems on some cards and drivers. Disable them in ~/.Antargis/config.xml !&quot; &lt;&lt; std::endl;
+ 
+-    init();
+-  }
++  init();
++}
+ 
+ 
+ // init for depth-only writing
+-AGFBO::AGFBO(GLuint pTexture, size_t pW,size_t pH):
+-  mTexture(0),mTextureID(pTexture),
+-  mWithDepth(false)
+-  {
+-    fb=depth_rb=0;
+-    w=pW;
+-    h=pH;
+-    std::cerr&lt;&lt;&quot;WARNING: FBOs can make problems on some cards and drivers. Disable them in ~/.Antargis/config.xml !&quot;&lt;&lt;std::endl;
+ 
++AGFBO::AGFBO(GLuint pTexture, size_t pW, size_t pH) :
++mTexture(0), mTextureID(pTexture),
++mWithDepth(false) {
++  fb = depth_rb = 0;
++  w = pW;
++  h = pH;
++  std::cerr &lt;&lt; &quot;WARNING: FBOs can make problems on some cards and drivers. Disable them in ~/.Antargis/config.xml !&quot; &lt;&lt; std::endl;
+ 
++
+ #ifdef USE_FBO
+ 
+-    glGenFramebuffersEXT(1, &amp;fb);
+-    if(mWithDepth)
+-      glGenFramebuffersEXT(1, &amp;depth_rb);  // FIXME: this should read glGenRenderbuffersEXT
++  glGenFramebuffersEXT(1, &amp;fb);
++  if (mWithDepth)
++    glGenFramebuffersEXT(1, &amp;depth_rb); // FIXME: this should read glGenRenderbuffersEXT
+ 
+-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fb);
++  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fb);
+ 
+ 
+-    glBindTexture(GL_TEXTURE_2D,mTextureID);
++  glBindTexture(GL_TEXTURE_2D, mTextureID);
+ 
+-    assertGL;
+-    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, mTextureID, 0);
+-    assertGL;
++  assertGL;
++  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, mTextureID, 0);
++  assertGL;
+ 
+-      {
+-        // add a renderbuffer as color attachment 
++  {
++    // add a renderbuffer as color attachment
+ 
+-        glGenRenderbuffersEXT(1,&amp;depth_rb);
++    glGenRenderbuffersEXT(1, &amp;depth_rb);
+ 
+-        glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depth_rb);
+-        glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_RGBA, w,h);
+-        glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_RENDERBUFFER_EXT, depth_rb);
++    glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depth_rb);
++    glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_RGBA, w, h);
++    glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_RENDERBUFFER_EXT, depth_rb);
+ 
+ 
+-      }
++  }
+ 
+-      glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
++  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+ 
+ #endif
+-  }
++}
+ 
+-
+-void AGFBO::init()
+-  {
++void AGFBO::init() {
+ #ifdef USE_FBO
+-    glGenFramebuffersEXT(1, &amp;fb);
+-    if(mWithDepth)
+-      glGenFramebuffersEXT(1, &amp;depth_rb);
++  glGenFramebuffersEXT(1, &amp;fb);
++  if (mWithDepth)
++    glGenFramebuffersEXT(1, &amp;depth_rb);
+ 
+-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fb);
++  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fb);
+ 
+ 
+-    glBindTexture(GL_TEXTURE_2D,mTextureID);
++  glBindTexture(GL_TEXTURE_2D, mTextureID);
+ 
+-    assertGL;
+-    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, mTextureID, 0);
+-    assertGL;
++  assertGL;
++  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, mTextureID, 0);
++  assertGL;
+ 
+-    if(mWithDepth)
+-      {
+-        throw std::runtime_error(&quot;AGFBO:not supported yet!&quot;);
+-        // initialize depth renderbuffer
+-        glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depth_rb);
+-        glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT16, w,h);//pTexture-&gt;width(), pTexture-&gt;height());
+-        glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, depth_rb);
+-      }
+-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+-    assertGL;
+-#endif
++  if (mWithDepth) {
++    throw std::runtime_error(&quot;AGFBO:not supported yet!&quot;);
++    // initialize depth renderbuffer
++    glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depth_rb);
++    glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT16, w, h); //pTexture-&gt;width(), pTexture-&gt;height());
++    glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, depth_rb);
+   }
++  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
++  assertGL;
++#endif
++}
+ 
+-AGFBO::~AGFBO()
+-  {
++AGFBO::~AGFBO() {
+ #ifdef USE_FBO
+-    CTRACE;
+-    if(fb)
+-      glDeleteFramebuffersEXT(1,&amp;fb);
+-    if(depth_rb)
+-      glDeleteRenderbuffersEXT(1,&amp;depth_rb);
++  CTRACE;
++  if (fb)
++    glDeleteFramebuffersEXT(1, &amp;fb);
++  if (depth_rb)
++    glDeleteRenderbuffersEXT(1, &amp;depth_rb);
+ #endif
+-  }
++}
+ 
+-
+-void AGFBO::beginDraw()
+-  {
++void AGFBO::beginDraw() {
+ #ifdef USE_FBO
+-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fb);
+-    assertGL;
++  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fb);
++  assertGL;
+ 
+ #endif
+-  }
++}
+ 
+-void AGFBO::endDraw()
+-  {
++void AGFBO::endDraw() {
+ #ifdef USE_FBO
+-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+-    assertGL;
++  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
++  assertGL;
+ 
+ #endif
+-  }
++}
+ 
+ 
+ 
+ 
+ #warning &quot;add global var for this!&quot;
+-bool canFBO()
+-  {
++
++bool canFBO() {
++  static int meCanFBO = -1;
++  if (meCanFBO &lt; 0) {
+ #ifndef USE_FBO
+-    return false; // FIXME: FBO painting does not work yet
++    meCanFBO = 0; // FIXME: FBO painting does not work yet
+ #else
+ 
+-    if(getConfig()-&gt;get(&quot;useFBO&quot;,&quot;false&quot;,&quot;&lt;!--enable Frame-Buffer-Objects - can make problems on some drivers. options:true,false --&gt;&quot;)==&quot;true&quot;)
+-      return GLEE_EXT_framebuffer_object;
++    if (getConfig()-&gt;get(&quot;useFBO&quot;, &quot;false&quot;, &quot;&lt;!--enable Frame-Buffer-Objects - can make problems on some drivers. options:true,false --&gt;&quot;) == &quot;true&quot;)
++      meCanFBO = GLEE_EXT_framebuffer_object ? 1 : 0;
+     else
+-      return false;
++      meCanFBO = 0;
+ #endif
+   }
++  return meCanFBO &gt; 0;
++}
+
+Modified: antargis/trunk/ext/video/ag_painter.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_painter.cc	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/ext/video/ag_painter.cc	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -26,7 +26,7 @@
+ #include &lt;ag_profiler.h&gt;
+ #include &lt;ag_sdlsurface.h&gt;
+ #include &lt;ag_texture.h&gt;
+-#include &lt;math.h&gt;
++#include &lt;cmath&gt;
+ #include &lt;ag_geometry.h&gt;
+ #include &quot;ag_video.h&quot;
+ 
+
+Modified: antargis/trunk/ext/video/ag_sdlpainter.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_sdlpainter.cc	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/ext/video/ag_sdlpainter.cc	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -1,5 +1,5 @@
+ #include &quot;ag_sdlpainter.h&quot;
+-#include &lt;math.h&gt;
++#include &lt;cmath&gt;
+ #include &quot;ag_sgeexport.h&quot;
+ 
+ namespace AGSDLPainter
+
+Modified: antargis/trunk/ext/video/ag_sdlscreen.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_sdlscreen.cc	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/ext/video/ag_sdlscreen.cc	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -27,7 +27,7 @@
+ 
+ #include &quot;SDL_image.h&quot;
+ #include &quot;ag_sgeexport.h&quot;
+-#include &lt;math.h&gt;
++#include &lt;cmath&gt;
+ 
+ #include &quot;ag_sdlpainter.h&quot;
+ 
+
+Modified: antargis/trunk/ext/video/ag_surface.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_surface.cc	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/ext/video/ag_surface.cc	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -36,7 +36,7 @@
+ #include &lt;SDL_image.h&gt;
+ 
+ #include &lt;sstream&gt;
+-#include &lt;math.h&gt;
++#include &lt;cmath&gt;
+ 
+ #include &lt;ag_fs.h&gt;
+ 
+
+Modified: antargis/trunk/rookey/Rakefile
+===================================================================
+--- antargis/trunk/rookey/Rakefile	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/rookey/Rakefile	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -50,9 +50,12 @@
+ PKG_FILES=dir(&quot;.&quot;) do
+   files &quot;README&quot;,&quot;Rakefile&quot;
+   dirs(&quot;spec&quot;,&quot;lib&quot;,&quot;maintenance&quot;,&quot;examples&quot;) do
+-    files(&quot;**/*&quot;)
+  end 
++    files(&quot;**/*&quot;)
++  end 
+   dir(&quot;externals&quot;) do
+-    files(&quot;ext_config.rb&quot;,&quot;tools.rb&quot;)
+  end
+end
++    files(&quot;ext_config.rb&quot;,&quot;tools.rb&quot;)
++  end
++end
+ 
+ Rake::RDocTask.new do |rd|
+ 	 rd.main = &quot;README&quot;
+@@ -108,4 +111,8 @@
+ CLEAN &lt;&lt; Dir[&quot;docs/ruby&quot;]
+ CLEAN &lt;&lt; Dir[&quot;pkg&quot;]
+ 
+-task :default=&gt;:spec
+\ No newline at end of file
++task :default=&gt;:spec
++
++
++
++
+
+Modified: antargis/trunk/rookey/lib/rookey/config_generator.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/config_generator.rb	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/rookey/lib/rookey/config_generator.rb	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -127,9 +127,8 @@
+   end
+ 
+   CLEAN &lt;&lt; File.join(Compiler::rookeyWorkingDir,&quot;rookey.log&quot;)
+-  CLEAN += [&quot;test.c&quot;,&quot;test.o&quot;,&quot;test&quot;,&quot;test.exe&quot;].map{|f|File.join(Compiler.rookeyWorkingDir,&quot;test&quot;,f)}
+-  pp CLEAN
+-
++  CLEAN &lt;&lt; [&quot;test.c&quot;,&quot;test.o&quot;,&quot;test&quot;,&quot;test.exe&quot;].map{|f|File.join(Compiler.rookeyWorkingDir,&quot;test&quot;,f)}
++  CLEAN &lt;&lt; File.join(Compiler.rookeyWorkingDir,&quot;test&quot;)
+  
+   def Rookey.getDescendantsOfClass(p)
+     c=[]
+
+Modified: antargis/trunk/rookey/lib/rookey/cpp/rk_debug.h
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_debug.h	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_debug.h	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -31,6 +31,7 @@
+ #include &quot;rk_exception.h&quot;
+ #include &quot;rk_tools.h&quot;
+ #include &quot;rk_base.h&quot;
++#include &quot;rk_logging.h&quot;
+ 
+ 
+ AGEXPORT void setQuiet();
+@@ -47,23 +48,19 @@
+ 
+ #else
+ 
+-std::ostream &amp; AGEXPORT getDebug();
+-
+ #define debug(c) mydebug(::toString(__FILE__),::toString(__LINE__),c)
+ 
+ template&lt;class T&gt;
+ inline void mydebug(std::string f,std::string l,const T&amp;t)
+ {
+-  getDebug()&lt;&lt;&quot;File &quot;&lt;&lt;f&lt;&lt;&quot; Line &quot;&lt;&lt;l&lt;&lt;&quot; : &quot;&lt;&lt;t&lt;&lt;std::endl;
++  logger::debug&lt;&lt;&quot;File &quot;&lt;&lt;f&lt;&lt;&quot; Line &quot;&lt;&lt;l&lt;&lt;&quot; : &quot;&lt;&lt;t&lt;&lt;logger::endl;
+ }
+ 
+-using std::endl;
++#define debugout(x) logger::debug&lt;&lt;x
+ 
+-#define debugout(x) getDebug()&lt;&lt;x
++#define cdebug(x) debugout(&quot;(&quot;&lt;&lt;__FILE__&lt;&lt;&quot;:&quot;&lt;&lt;__LINE__&lt;&lt;&quot;:&quot;&lt;&lt;__PRETTY_FUNCTION__&lt;&lt;&quot;):&quot;&lt;&lt;x&lt;&lt;logger::endl)
++#define ccdebug(x) debugout(&quot;(&quot;&lt;&lt;__FILE__&lt;&lt;&quot;:&quot;&lt;&lt;__LINE__&lt;&lt;&quot;:&quot;&lt;&lt;__PRETTY_FUNCTION__&lt;&lt;&quot;:&quot;&lt;&lt;((void*)this)&lt;&lt;&quot;):&quot;&lt;&lt;x&lt;&lt;logger::endl)
+ 
+-#define cdebug(x) debugout(&quot;(&quot;&lt;&lt;__FILE__&lt;&lt;&quot;:&quot;&lt;&lt;__LINE__&lt;&lt;&quot;:&quot;&lt;&lt;__PRETTY_FUNCTION__&lt;&lt;&quot;):&quot;&lt;&lt;x&lt;&lt;endl)
+-#define ccdebug(x) debugout(&quot;(&quot;&lt;&lt;__FILE__&lt;&lt;&quot;:&quot;&lt;&lt;__LINE__&lt;&lt;&quot;:&quot;&lt;&lt;__PRETTY_FUNCTION__&lt;&lt;&quot;:&quot;&lt;&lt;((void*)this)&lt;&lt;&quot;):&quot;&lt;&lt;x&lt;&lt;endl)
+-
+ AGEXPORT size_t getDebugIndex();
+ AGEXPORT size_t getDebugLevel();
+ AGEXPORT void setDebugLevel(size_t t);
+
+Modified: antargis/trunk/rookey/lib/rookey/cpp/rk_logging.cc
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_logging.cc	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_logging.cc	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -1,45 +1,169 @@
+ 
+ #include &quot;rk_logging.h&quot;
++#include &quot;rk_time.h&quot;
+ 
+ #include &lt;sstream&gt;
+ #include &lt;iostream&gt;
+ 
+ 
++std::string operator*(const std::string &amp;s,size_t i)
++{
++  std::ostringstream os;
++
++  for(size_t k=0;k&lt;i;k++)
++    os&lt;&lt;s;
++
++  return os.str();
++}
++
++
+ template
+ class RKSingleton&lt;RKLogging&gt;;
+ 
+-RKLogging::RKLogging() : output(&quot;rk_log.txt&quot;,std::ios_base::app) {
++RKLogging::RKLogging() : output(&quot;rk_log.txt&quot;, std::ios_base::app) {
++  mLastLevel = &quot;init&quot;;
++
++  std::string eq(&quot;=&quot;);
++  logLine(eq * 60, &quot;intrn&quot;);
++  logLine(&quot;Starting Logging&quot;, &quot;intrn&quot;);
++  logLine(eq * 60, &quot;intrn&quot;);
+ }
+ 
+ RKLogging::~RKLogging() {
+-    output.flush();
+-    output.close();
++  flush();
++  logLine(std::string(&quot;=&quot;)*60, &quot;intrn&quot;);
++  logLine(&quot;Stopping Logging&quot;, &quot;intrn&quot;);
++  logLine(std::string(&quot;=&quot;)*60, &quot;intrn&quot;);
++  output.flush();
++  output.close();
+ }
+ 
+-void RKLogging::log(const std::string &amp;s) {
+-    output &lt;&lt; s;
++void RKLogging::log(const std::string &amp;s, const std::string &amp;pLevel) {
++
++  // FIXME: do not start a new line each time !!
++
++  if(mLastLevel!=pLevel)
++    startLine(pLevel);
++
++  size_t last = 0, i;
++  std::string sub;
++  for (i = s.find(&quot;\n&quot;); i &lt; s.length(); i = s.find(&quot;\n&quot;, i + 1)) {
++    sub = s.substr(last, i - last);
++    last = i;
++    if (last &gt; 0)
++      logLine(sub, pLevel);
++    else
++      logDirect(sub);
++  }
++  sub = s.substr(last, i - last);
++  if (last &gt; 0)
++    logLine(sub, pLevel);
++  else
++    logDirect(sub);
++  mLastLevel=pLevel;
++}
++
++void RKLogging::startLine(const std::string &amp;pLevel) {
++  RKTime mtime;
++  output &lt;&lt; &quot;[&quot; &lt;&lt; mtime.toString() &lt;&lt; &quot;] [&quot; &lt;&lt; pLevel &lt;&lt; &quot;] &quot;;
++}
++
++void RKLogging::flush() {
++  if (mLastLevel.length() &gt; 0) {
++    output &lt;&lt; std::endl;
+     output.flush();
++    mLastLevel = &quot;&quot;;
++  }
+ }
+ 
+-void RKLogging::clear()
+-{
+-    output.close();
+-    output.open(&quot;rk_log.txt&quot;);
++void RKLogging::logLine(const std::string &amp;s, const std::string &amp;pLevel) {
++  flush();
++  startLine(pLevel);
++  output &lt;&lt; s;
++  output &lt;&lt; std::endl;
++  output.flush();
++  mLastLevel = &quot;&quot;;
+ }
+ 
++void RKLogging::logDirect(const std::string &amp;s) {
++  output &lt;&lt; s;
++  output.flush();
++  mLastLevel = &quot;internal&quot;;
++}
+ 
+-std::string RKLogging::getLog()  {
+-    output.flush();
++void RKLogging::clear() {
++  output.close();
++  output.open(&quot;rk_log.txt&quot;);
++}
+ 
+-    std::ifstream ifs(&quot;rk_log.txt&quot;);
+-    std::ostringstream os;
+-    std::string buf;
++std::string RKLogging::getLog() {
++  output.flush();
+ 
+-    while (!ifs.eof()) {
+-        ifs&gt;&gt;buf;
+-        os &lt;&lt; buf;
++  std::ifstream ifs(&quot;rk_log.txt&quot;);
++  std::ostringstream os;
++  std::string buf;
++
++  while (!ifs.eof()) {
++    ifs &gt;&gt; buf;
++    os &lt;&lt; buf;
++  }
++  return os.str();
++}
++
++namespace logger {
++
++  Channel out(Channel::OUT);
++  Channel debug(Channel::DEBUG);
++  Channel warn(Channel::WARN);
++  Channel err(Channel::ERR);
++
++  Special endl(Special::ENDL);
++
++  Special::Special(const Type &amp;pType) : mType(pType) {
++
++  }
++
++  Special::Type Special::getType() const {
++    return mType;
++  }
++
++  Channel::Channel(const Type &amp;pType) : mType(pType) {
++
++  }
++
++  Channel::~Channel() {
++    flush();
++
++  }
++
++  void Channel::flush() {
++    RKLogging *instance=RKLogging::getInstance();
++    if(instance)
++      instance-&gt;flush();
++
++  }
++
++  Channel::Type Channel::getType() const {
++    return mType;
++  }
++
++  Channel &amp;Channel::operator&lt;&lt;(const Special &amp;s) {
++    if (s.getType() == Special::ENDL)
++      flush();
++  }
++
++  Channel &amp;Channel::operator&lt;&lt;(const std::string &amp;s) {
++    RKLogging::getInstance()-&gt;log(s, getType(mType));
++  }
++
++  std::string Channel::getType(const Type &amp;pType) {
++    switch (pType) {
++      case OUT:return &quot;out  &quot;;
++      case ERR:return &quot;error&quot;;
++      case DEBUG:return &quot;debug&quot;;
++      case WARN:return &quot;warn &quot;;
++      default: return &quot;CRITICAL&quot;;
+     }
+-    std::cout&lt;&lt;&quot;OS:&quot;&lt;&lt;os.str()&lt;&lt;std::endl;
+-    return os.str();
++  }
++}
+ 
+-}
+
+Modified: antargis/trunk/rookey/lib/rookey/cpp/rk_logging.h
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_logging.h	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_logging.h	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -8,28 +8,98 @@
+ #ifndef _RK_LOGGING_H
+ #define	_RK_LOGGING_H
+ 
++// INCLUDE_SWIG - used to filter, which files are included in swig-interfacing
++
++#include &quot;rk_base.h&quot;
+ #include &quot;rk_singleton.h&quot;
+ 
+ #include &lt;fstream&gt;
++#include &lt;sstream&gt;
+ 
+-class RKLogging:public RKSingleton&lt;RKLogging&gt;
+-{
++class RKLogging : public RKSingleton&lt;RKLogging&gt; {
+ public:
+-    virtual ~RKLogging();
++  virtual ~RKLogging();
+ 
+-    void log(const std::string &amp;s);
++  void logDirect(const std::string &amp;s);
+ 
+-    std::string getLog();
+-    void clear();
++  void logLine(const std::string &amp;s, const std::string &amp;pLevel);
++
++  void log(const std::string &amp;s, const std::string &amp;pLevel);
++
++  void finishLine();
++
++  std::string getLog();
++  void clear();
++  void flush();
+ protected:
+-    RKLogging();
++  RKLogging();
+ 
+ private:
+-    std::ofstream output;
+-    friend class RKSingleton&lt;RKLogging&gt;;
+ 
++  void startLine(const std::string &amp;pLevel);
++
++  std::ofstream output;
++  friend class RKSingleton&lt;RKLogging&gt;;
++  std::string mLastLevel;
++
+ };
+ 
++namespace logger {
+ 
++  class Special {
++  public:
++
++    enum Type {
++      ENDL
++    };
++    Special(const Type &amp;pType);
++
++    Type getType() const;
++  private:
++    Type mType;
++  };
++
++  class Channel {
++  public:
++
++    enum Type {
++      OUT, ERR, DEBUG, WARN
++    };
++
++    Channel(const Type &amp;pType);
++    ~Channel();
++
++    Channel &amp; operator&lt;&lt;(const std::string &amp;s);
++
++    Type getType() const;
++
++    Channel &amp; operator&lt;&lt;(const Special &amp;pSpecial);
++
++    template&lt;class T&gt;
++    Channel &amp; operator&lt;&lt;(const T&amp;t) {
++      std::ostringstream os;
++      os &lt;&lt; t;
++      (*this) &lt;&lt; os.str();
++      return *this;
++    };
++
++    void flush();
++
++    static std::string getType(const Type &amp;pType);
++  private:
++    Type mType;
++  };
++
++
++  extern AGEXPORT Channel out;
++  extern AGEXPORT Channel debug;
++  extern AGEXPORT Channel warn;
++  extern AGEXPORT Channel err;
++
++  extern AGEXPORT Special endl;
++}
++#define Log(str) RKLogging::log()
++
++
+ #endif	/* _RK_LOGGING_H */
+ 
+
+Modified: antargis/trunk/rookey/lib/rookey/cpp/rk_rubyobj.cc
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_rubyobj.cc	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_rubyobj.cc	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -5,6 +5,7 @@
+ #include &lt;set&gt;
+ #include &lt;map&gt;
+ #include &lt;iostream&gt;
++#include &quot;rk_logging.h&quot;
+ 
+ 
+ #ifdef __WIN32__
+@@ -56,9 +57,9 @@
+ 
+   mRemovedRubyObjects.erase(this);
+   if (oSize != mRemovedRubyObjects.size())
+-    std::cerr &lt;&lt; &quot;Collision - removed rubyobject's address is overwritten!&quot; &lt;&lt; std::endl;
++    logger::debug&lt;&lt; &quot;Collision - removed rubyobject's address is overwritten!&quot; &lt;&lt; logger::endl;
+ 
+-  std::cerr &lt;&lt; &quot;current ruby#:&quot; &lt;&lt; mRubyObjects.size() &lt;&lt; &quot; removed:&quot; &lt;&lt; mRemovedRubyObjects.size() &lt;&lt; std::endl;
++  logger::debug &lt;&lt; &quot;current ruby#:&quot; &lt;&lt; mRubyObjects.size() &lt;&lt; &quot; removed:&quot; &lt;&lt; mRemovedRubyObjects.size() &lt;&lt; logger::endl;
+ }
+ 
+ AGRubyObject::~AGRubyObject() throw () {
+@@ -120,14 +121,14 @@
+ 
+ void general_markfunc(void *ptr) {
+   if (!ptr) {
+-    std::cerr &lt;&lt; (&quot;WARNING: a ptr==0 was given in general_markfunc!&quot;) &lt;&lt; std::endl;
++    logger::err &lt;&lt; (&quot;WARNING: a ptr==0 was given in general_markfunc!&quot;) &lt;&lt; logger::endl;
+     return; // ignore this !
+   }
+   assert(ptr);
+   // the given object must be a AGRubyObject and it must be valid (it's in mRubyObjects)
+   AGRubyObject *o = static_cast&lt;AGRubyObject*&gt; (ptr);
+   if (mRubyObjects.find(o) == mRubyObjects.end())
+-    std::cerr &lt;&lt; &quot;OLD RUBYOBJ:&quot; &lt;&lt; (mRemovedRubyObjects.find(o) != mRemovedRubyObjects.end()) &lt;&lt; &quot;:&quot; &lt;&lt; o &lt;&lt; std::endl;
++    logger::err &lt;&lt; &quot;OLD RUBYOBJ:&quot; &lt;&lt; (mRemovedRubyObjects.find(o) != mRemovedRubyObjects.end()) &lt;&lt; &quot;:&quot; &lt;&lt; o &lt;&lt; logger::endl;
+   assert(mRubyObjects.find(o) != mRubyObjects.end());
+ 
+ #ifdef GCDEBUG
+@@ -142,7 +143,7 @@
+   AGRubyObject *ro = (AGRubyObject*) o;
+ 
+   if (!mRubyObjectsExistant) {
+-    std::cerr &lt;&lt; &quot;Could not check, because rubyObjects was discarded&quot; &lt;&lt; std::endl;
++    logger::err &lt;&lt; &quot;Could not check, because rubyObjects was discarded&quot; &lt;&lt; logger::endl;
+     return RUBY_OBJECT_UNKNOWN;
+   }
+ 
+
+Modified: antargis/trunk/rookey/lib/rookey/cpp/rk_singleton.cc
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_singleton.cc	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_singleton.cc	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -9,24 +9,61 @@
+ #include &lt;set&gt;
+ #include &lt;typeinfo&gt;
+ 
+-std::map&lt;std::string,RKSingletonBase*&gt; RKSingletonBase::mSingletons;
++std::map&lt;std::string, RKSingletonBase*&gt; RKSingletonBase::mSingletons;
+ 
+-RKSingletonBase::RKSingletonBase()
++static bool firstUse = true;
++static bool everythingDestroyed=false;
++
++void removeEverything();
++
++RKSingletonBase::RKSingletonBase() {
++  if (firstUse) {
++    firstUse = false;
++    atexit(&amp;removeEverything);
++  }
++}
++
++
++bool RKSingletonBase::allDestroyed()
+ {
+-    std::string name(typeid(this).name());
+-    mSingletons.insert(std::make_pair(name,this));
++  return everythingDestroyed;
+ }
+ 
+-RKSingletonBase* RKSingletonBase::getInstance(const std::string &amp;pName)
++void RKSingletonBase::destroyAll()
+ {
+-    std::map&lt;std::string,RKSingletonBase*&gt;::iterator i=mSingletons.find(pName);
+-    if(i==mSingletons.end())
+-        return NULL;
+-    return i-&gt;second;
++  std::cout&lt;&lt;&quot;destroyAll&quot;&lt;&lt;std::endl;
++  everythingDestroyed=true;
++  for(std::map&lt;std::string, RKSingletonBase*&gt;::iterator i = mSingletons.begin();i!=mSingletons.end();i++)
++    delete i-&gt;second;
++}
+ 
++void RKSingletonBase::registerClass() {
++  if(everythingDestroyed)
++    return;
++  std::string name(typeid (*this).name());
++  mSingletons.insert(std::make_pair(name, this));
+ }
+ 
++RKSingletonBase* RKSingletonBase::getInstance(const std::string &amp;pName) {
++  if(everythingDestroyed)
++    return 0;
+ 
++  std::map&lt;std::string, RKSingletonBase*&gt;::iterator i = mSingletons.find(pName);
++
++  if (i == mSingletons.end()) {
++    return NULL;
++  }
++  return i-&gt;second;
++
++}
++
++void removeEverything() {
++  std::cout &lt;&lt; &quot;RMOVE ALL&quot; &lt;&lt; std::endl;
++  RKSingletonBase::destroyAll();
++}
++
++
++
+ /*
+ template&lt;class Base&gt;
+ RKSingleton&lt;Base&gt;::RKSingleton() {
+@@ -44,4 +81,4 @@
+         b=new Base();
+     return b;
+ }
+-*/
+\ No newline at end of file
++ */
+\ No newline at end of file
+
+Modified: antargis/trunk/rookey/lib/rookey/cpp/rk_singleton.h
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_singleton.h	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_singleton.h	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -11,45 +11,57 @@
+ #include &lt;string&gt;
+ #include &lt;map&gt;
+ #include &lt;typeinfo&gt;
++#include &lt;iostream&gt;
+ 
+ template&lt;class Base&gt;
+ class RKSingleton;
+ 
+-class RKSingletonBase
+-{
++class RKSingletonBase {
+ public:
+ protected:
+-    RKSingletonBase();
+-    virtual ~RKSingletonBase()
+-    {}
++  RKSingletonBase();
+ 
+-    static std::map&lt;std::string,RKSingletonBase*&gt; mSingletons;
++  virtual ~RKSingletonBase() {
++  }
+ 
++  static std::map&lt;std::string, RKSingletonBase*&gt; mSingletons;
++
++  static bool allDestroyed();
++
+ private:
+-    static RKSingletonBase* getInstance(const std::string &amp;pName);
++  static RKSingletonBase* getInstance(const std::string &amp;pName);
++  void registerClass();
++  static void destroyAll();
+ 
+-    template&lt;class Base&gt;
+-    friend class RKSingleton;
++  template&lt;class Base&gt;
++  friend class RKSingleton;
++  friend void removeEverything();
++
+ };
+ 
+ template&lt;class Base&gt;
+-class RKSingleton:public RKSingletonBase {
++class RKSingleton : public RKSingletonBase {
+ public:
+-    virtual ~RKSingleton()
+-    {}
+ 
+-    static Base *getInstance()
+-    {
+-        std::string name=typeid(Base).name();
+-        Base *b=dynamic_cast&lt;Base*&gt;(RKSingletonBase::getInstance(name));
+-        if(b==0)
+-            b=new Base();
+-        return b;
++  virtual ~RKSingleton() {
++  }
++
++  static Base *getInstance() {
++    if(allDestroyed())
++      return 0;
++    std::string name = typeid (Base).name();
++    Base *b = dynamic_cast&lt;Base*&gt; (RKSingletonBase::getInstance(name));
++    if (b == 0) {
++      b = new Base();
++      b-&gt;registerClass();
+     }
++    return b;
++  }
+ protected:
+-    RKSingleton()
+-            {}
+ 
++  RKSingleton() {
++  }
++
+ };
+ 
+ #endif	/* _RKSINGLETON_H */
+
+Modified: antargis/trunk/rookey/lib/rookey/cpp/rk_string.cc
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_string.cc	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_string.cc	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -218,7 +218,16 @@
+   return false;
+ }
+ 
++AGString AGString::operator*(size_t p) const
++{
++  std::ostringstream os;
++  for(size_t i=0;i&lt;p;i++)
++    os&lt;&lt;(*this);
++  return AGString(os.str());
++}
+ 
++
++
+ bool AGString::matches(const std::string &amp;regex) const
+ {
+   return rubyMatchRegex(*this,regex);
+
+Modified: antargis/trunk/rookey/lib/rookey/cpp/rk_string.h
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_string.h	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_string.h	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -1,6 +1,6 @@
+ #ifndef AG_STRING
+ #define AG_STRING
+-
++
+ #include &lt;rk_base.h&gt;
+ #include &lt;string&gt;
+ #include &lt;vector&gt;
+@@ -46,6 +46,8 @@
+   AGString operator+(const char *s) const;
+   AGString operator+(const std::string &amp;s) const;
+ 
++  AGString operator*(size_t p) const;
++
+   int toInt() const;
+   long toLong() const;
+   float toFloat() const;
+
+Added: antargis/trunk/rookey/lib/rookey/cpp/rk_time.cc
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_time.cc	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_time.cc	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -0,0 +1,31 @@
++#include &quot;rk_base.h&quot;
++#include &quot;rk_time.h&quot;
++
++RKTime::RKTime() {
++  time_t *cTime=new time_t;
++
++  mTime=(void*)cTime;
++
++  time(cTime);
++}
++
++RKTime::~RKTime()
++        {
++  time_t *cTime=(time_t*)mTime;
++  delete cTime;
++  
++}
++
++
++std::string RKTime::toString() {
++  time_t *cTime=(time_t*)mTime;
++  struct tm * timeinfo;
++  char buffer [80];
++
++  timeinfo = localtime ( cTime );
++
++//  strftime (buffer,80,&quot;Now it's %I:%M%p.&quot;,timeinfo);
++  strftime (buffer,80,&quot;%Y-%m-%d %H:%M:%S&quot;,timeinfo);
++  return std::string(buffer);
++}
++
+
+Added: antargis/trunk/rookey/lib/rookey/cpp/rk_time.h
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_time.h	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_time.h	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -0,0 +1,16 @@
++#ifndef RK_TIME_H
++#define RK_TIME_H
++
++#include &lt;string&gt;
++
++class RKTime
++{
++public:
++  RKTime();
++  ~RKTime();
++  std::string toString();
++private:
++  void *mTime;
++};
++
++#endif
+
+Modified: antargis/trunk/rookey/lib/rookey/cpp/spec/Rakefile
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/spec/Rakefile	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/rookey/lib/rookey/cpp/spec/Rakefile	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -1,8 +1,8 @@
+-require 'rookey.rb'
++require File.expand_path('../../../../rookey.rb',__FILE__)
+ 
+ tests=Dir[&quot;*_spec.cc&quot;]
+ 
+-baseFiles=[&quot;../rk_singleton.cc&quot;,&quot;../rk_logging.cc&quot;]
++baseFiles=[&quot;../rk_singleton.cc&quot;,&quot;../rk_logging.cc&quot;,&quot;../rk_time.cc&quot;,&quot;../rk_logging.cc&quot;]
+ 
+ test_exes=tests.map{|test|
+   name=test.sub(/_spec.cc/,&quot;&quot;)
+@@ -11,6 +11,14 @@
+   Rookey::link_exe(name, objs)
+ }
+ 
++
++files=[]
++basicLib=Rookey::ruby_ext(&quot;basiclib&quot;,files)
++
++task :libTest=&gt;basicLib do
++  ruby &quot;./libtest.rb&quot;
++end
++
+ task :runTests=&gt;test_exes do
+   test_exes.each{|exe|
+     sh &quot;./&quot;+exe
+@@ -19,7 +27,6 @@
+ 
+ CLEAN &lt;&lt; &quot;rk_log.txt&quot;
+ 
++task :default=&gt;[:libTest,:runTests] do
+ 
+-task :default=&gt;:runTests do
+-
+ end
+\ No newline at end of file
+
+Modified: antargis/trunk/rookey/lib/rookey/cpp/spec/logging_spec.cc
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/spec/logging_spec.cc	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/rookey/lib/rookey/cpp/spec/logging_spec.cc	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -1,9 +1,24 @@
+ #include &quot;rk_logging.h&quot;
+ 
++void testClear() {
++  RKLogging::getInstance()-&gt;clear();
++  RKLogging::getInstance()-&gt;logDirect(&quot;muh&quot;);
++
++  assert(RKLogging::getInstance()-&gt;getLog() == &quot;muh&quot;);
++
++}
++
++void testEasyLog()
++{
++  logger::err&lt;&lt;&quot;myMUH&quot;&lt;&lt;logger::endl;
++
++  
++}
++
+ int main(int argc, char *argv[]) {
+-    RKLogging::getInstance()-&gt;clear();
+-    RKLogging::getInstance()-&gt;log(&quot;muh&quot;);
++  testClear();
+ 
+-    assert(RKLogging::getInstance()-&gt;getLog() == &quot;muh&quot;);
+-    return 0;
++  testEasyLog();
++
++  return 0;
+ }
+\ No newline at end of file
+
+Modified: antargis/trunk/rookey/lib/rookey/tasks.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/tasks.rb	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/rookey/lib/rookey/tasks.rb	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -52,7 +52,7 @@
+ 	    interfaceBuilder=SwigInterfaceBuilder.new(file,target,classes,files,source.select{|f|f=~/i$/},inits,templates)
+ 	    interfaceBuilder.create(parser)
+     end
+-    CLEAN &lt;&lt; file
++    ::CLEAN &lt;&lt; file
+     [file]
+   end
+   
+@@ -76,7 +76,7 @@
+ 	  rule output=&gt;Swig.getDeps(interface) do |t|
+ 	    swigCompiler.swig(t,interface)
+ 	  end
+-	  CLEAN &lt;&lt; output &lt;&lt; output.gsub(/\.cc?/,&quot;.h&quot;)
++	  ::CLEAN &lt;&lt; output &lt;&lt; output.gsub(/\.cc?/,&quot;.h&quot;)
+ 	  getRookeyCPPSources+[output] #getAGRubyObjectSource
+ 	end
+ 
+@@ -111,7 +111,7 @@
+ 	    end
+ 	  }
+ 	  targets=files.map{|file|compiler.makeObject(file)}
+-	  CLEAN &lt;&lt; targets &lt;&lt; compiler.getBuildDir &lt;&lt; Compiler.getDepsDir
++	  ::CLEAN &lt;&lt; [targets, compiler.getBuildDir, Compiler.getDepsDir].flatten
+ 	  targets
+ 	end
+ 	
+@@ -129,7 +129,7 @@
+     task target=&gt;files do |t|
+       linker.linkDLL(t)
+     end
+-    CLEAN &lt;&lt; target
++    ::CLEAN &lt;&lt; target
+     
+     target
+ 	end
+@@ -139,7 +139,7 @@
+   def Rookey.link_exe(name,files,config=nil)
+     files.flatten!
+     if files.select{|file|file=~/swig_.*/}.length&gt;0
+-      [&quot;rk_rubyobj.cc&quot;,&quot;rk_string.cc&quot;,&quot;rk_rtools.cc&quot;].each{|f|
++      [&quot;rk_rubyobj.cc&quot;,&quot;rk_string.cc&quot;,&quot;rk_rtools.cc&quot;,&quot;rk_logging.cc&quot;].each{|f|
+         files &lt;&lt; compile(File.join(File.split(__FILE__)[0],&quot;cpp&quot;,f),config)
+       }
+       files &lt;&lt; compile(File.join(File.split(__FILE__)[0],&quot;cpp&quot;,&quot;swig_dummy.cc&quot;),config) if files.select{|f|f=~/swig/}.length==0
+@@ -155,7 +155,7 @@
+     task target=&gt;files do |t|
+       linker.linkEXE(t.name,t.prerequisites)
+     end
+-    CLEAN &lt;&lt; target
++    ::CLEAN &lt;&lt; target
+     
+     target    
+   end 
+@@ -165,7 +165,9 @@
+   # * name is the name of the resulting extension
+   # * files are the .h, .c and .cc (or .cpp) source-files 
+   def Rookey.ruby_ext(name,files,inits=[],fallbackInterface=nil)
+-    headerFiles=files.select{|f|f=~/h$/}
++    headerFiles=files.select{|f|f=~/h$/}+[File.expand_path(&quot;../cpp/rk_logging.h&quot;,__FILE__)]
++
++    
+     libs=files.select{|f|f=~/so$/ or f=~/bundle/}
+ 
+     cppFiles=files.select{|f|f=~/c$/}
+
+Modified: antargis/trunk/rookey/lib/rookey.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey.rb	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/rookey/lib/rookey.rb	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -3,7 +3,6 @@
+ require File.join(File.split(File.expand_path(__FILE__))[0],'rookey','tools.rb')
+ require './rookey/tasks.rb'
+ 
+-
+ task :allclean=&gt;:clean do
+   ALLCLEAN.each{|f|
+     begin
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000252.html">[Antargis-svn] r1296 - antargis/trunk/rookey/lib/rookey/cpp/spec
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#251">[ date ]</a>
+              <a href="thread.html#251">[ thread ]</a>
+              <a href="subject.html#251">[ subject ]</a>
+              <a href="author.html#251">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

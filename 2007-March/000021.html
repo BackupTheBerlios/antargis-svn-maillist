@@ -1,0 +1,1136 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1063 - in antargis/trunk: ruby src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-March/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1063%20-%20in%20antargis/trunk%3A%20ruby%20src&In-Reply-To=%3C200703251613.l2PGDXui023394%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000020.html">
+   <LINK REL="Next"  HREF="000022.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1063 - in antargis/trunk: ruby src</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1063%20-%20in%20antargis/trunk%3A%20ruby%20src&In-Reply-To=%3C200703251613.l2PGDXui023394%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1063 - in antargis/trunk: ruby src">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sun Mar 25 18:13:33 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000020.html">[Antargis-svn] r1062 - in antargis/trunk: gui/src ruby
+</A></li>
+        <LI>Next message: <A HREF="000022.html">[Antargis-svn] r1064 - website/contact
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#21">[ date ]</a>
+              <a href="thread.html#21">[ thread ]</a>
+              <a href="subject.html#21">[ subject ]</a>
+              <a href="author.html#21">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-03-25 18:13:32 +0200 (Sun, 25 Mar 2007)
+New Revision: 1063
+
+Added:
+   antargis/trunk/ruby/ant_hljob_base.rb
+   antargis/trunk/ruby/ant_hljob_states.rb
+   antargis/trunk/ruby/ant_to_xml.rb
+Modified:
+   antargis/trunk/ruby/ant_boss.rb
+   antargis/trunk/ruby/ant_hljobs.rb
+   antargis/trunk/ruby/ant_inventory.rb
+   antargis/trunk/ruby/ant_local.rb
+   antargis/trunk/ruby/ant_man.rb
+   antargis/trunk/ruby/ant_new_hljobs.rb
+   antargis/trunk/src/path.cc
+Log:
+* some fixes
+* some changes for new hl-jobs
+
+
+Modified: antargis/trunk/ruby/ant_boss.rb
+===================================================================
+--- antargis/trunk/ruby/ant_boss.rb	2007-03-21 19:31:00 UTC (rev 1062)
++++ antargis/trunk/ruby/ant_boss.rb	2007-03-25 16:13:32 UTC (rev 1063)
+@@ -198,11 +198,12 @@
+ 	end
+ 
+ 	def underAttack
+-		@job.is_a?(AntHeroFightJob)
++		(@job.is_a?(AntHeroFightJob) and (not @job.finished))
+ 	end
+ 
+ 
+ 	def setOwner(owner)
++		trace
+ 		@owner=owner
+ 		dputs &quot;RESETING PLAYER:&quot;
+ 		if @player
+@@ -213,7 +214,10 @@
+ 			@player.add(self)
+ 		end
+ 		getMap.eventOwnerChanged(self)
++		trace
+ 		AntInventory.update(self)
++		trace
++		#resourceChanged
+ 	end
+ 	def getOwner
+ 		@owner
+@@ -326,6 +330,10 @@
+ 	end
+ 
+ 	def eventHaveDefeated(e)
++		if newHLJobs
++			eventNoJob
++			return
++		end
+ 		puts &quot;#{getName} has defeated #{e.getName}&quot;
+ 		if @job.is_a?(AntHeroFightJob)
+ 			@job.haveDefeated(e)
+
+Added: antargis/trunk/ruby/ant_hljob_base.rb
+===================================================================
+--- antargis/trunk/ruby/ant_hljob_base.rb	2007-03-21 19:31:00 UTC (rev 1062)
++++ antargis/trunk/ruby/ant_hljob_base.rb	2007-03-25 16:13:32 UTC (rev 1063)
+@@ -0,0 +1,96 @@
++class AntNewHLJob
++	attr_reader :finished
++	# some magic here
++	def initialize(hero)
++		@hero=hero
++
++		@finished=false
++
++		firstCall
++	end
++	def getTime
++		@hero.getMap.getTime
++	end
++	def allMen
++		if @hero.is_a?(AntHero)
++			@hero.getMen
++		else
++			@hero.getMen-[@hero]
++		end
++	end
++	def hero
++		@hero
++	end
++
++	def check(man)
++		return if @state.nil?
++		call2(@state,&quot;assign&quot;,man)
++		while call(@state,&quot;ready&quot;)
++			call(@state,&quot;leave&quot;)
++			goToNextState
++			break if @state.nil? or @finished
++		end
++		puts &quot;FINISHED: #{@finished}&quot;
++	end
++
++	# override this one
++	def goToNextState
++		@workflow.each{|p|
++			if p[0]==@state
++				@state=p[1]
++				call(@state,&quot;enter&quot;)
++				return
++			end
++		}
++		@finished=true
++	end
++
++	def switchToState(state)
++		call(@state,&quot;leave&quot;)
++		@state=state
++		call(@state,&quot;enter&quot;)
++	end
++
++	def firstCall
++		call(@state,&quot;enter&quot;)
++	end
++
++	def call(state,event)
++		m=methodName(state,event)
++		print &quot;CALL #{state} #{event} #{m}  #{getTime} -- &quot;
++		if self.class.method_defined?(m)
++			v=send(m)
++			puts v
++			return v
++		else
++			puts &quot;UNKNOWN&quot;
++			true
++		end
++	end
++	def xmlName
++		self.class.to_s
++	end
++
++	def call2(state,event,man)
++		m=methodName(state,event)
++		print &quot;CALL2 #{state} #{event} #{m} #{man} #{getTime} -- &quot;
++		if self.class.method_defined?(m)
++			v=send(m,man)
++			puts v
++			return v
++		else
++			puts &quot;UNKNOWN&quot;
++			true
++		end
++	end
++
++	def methodName(state,event)
++		m=state.to_s+&quot;_&quot;+event
++		m=m[0..0].downcase+m[1..-1]
++	end
++
++	def trace
++		puts &quot;TRACE #{caller[0]} #{getTime}&quot;
++	end
++		
++end
+
+Added: antargis/trunk/ruby/ant_hljob_states.rb
+===================================================================
+--- antargis/trunk/ruby/ant_hljob_states.rb	2007-03-21 19:31:00 UTC (rev 1062)
++++ antargis/trunk/ruby/ant_hljob_states.rb	2007-03-25 16:13:32 UTC (rev 1063)
+@@ -0,0 +1,562 @@
++# Does the walk-formation
++# 
++#
++module HLJob_FormatWalk
++	# needed: getTime
++
++	# wait 5 seconds at max for formatting
++	FORMAT_MAX_TIME=5
++
++	def formatWalk_enter
++		trace
++		hero.formation=AntFormationBlock.new(@hero,formatDir)
++		heroPos=@hero.getPos2D
++		allMen.each{|man|
++			pos=@hero.getFormation(man,heroPos)
++			man.walkTo(pos)
++			man.hlJobMode[:formatting]=true
++		}
++		@formatStart=getTime
++	end
++
++	def formatWalk_assign(man)
++		man.setDirection(180-(targetPos-hero.getPos2D).normalized.getAngle.angle*180.0/Math::PI)
++		man.standStill
++		man.hlJobMode.delete(:formatting)
++	end
++
++	def formatWalk_ready
++		if <A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">getTime- at formatStart</A>&gt;FORMAT_MAX_TIME
++			return true
++		end
++		allMen.each{|man|
++			if man.hlJobMode[:formatting]
++				return false
++			end
++		}
++		return true
++	end
++
++private
++	def formatDir
++		(targetPos-hero.getPos2D).normalized
++	end
++
++end
++
++module HLJob_FormatSit
++	# needed: getTime
++
++	# wait 5 seconds at max for formatting
++	FORMAT_MAX_TIME=15
++
++	def formatSit_enter
++		trace
++		hero.formation=AntFormationRest.new(@hero)
++		heroPos=@hero.getPos2D
++		allMen.each{|man|
++			pos=@hero.getFormation(man,heroPos)
++			man.walkTo(pos)
++			man.hlJobMode[:formatting]=true
++			#puts &quot;formatSit_enter: #{man} to #{pos}  (heroPos:#{heroPos})&quot;
++		}
++		@formatStart=getTime
++	end
++
++	def formatSit_assign(man)
++		man.setDirection(180-(hero.getPos2D-man.getPos2D).normalized.getAngle.angle*180.0/Math::PI)
++		man.standStill
++		man.hlJobMode.delete(:formatting)
++	end
++
++	def formatSit_ready
++		if <A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">getTime- at formatStart</A>&gt;FORMAT_MAX_TIME
++			# FIXME:rest deserts
++			return true
++		end
++		allMen.each{|man|
++			#puts &quot;formatSit_ready: #{man}:#{man.hlJobMode[:formatting]}&quot;
++			if man.hlJobMode[:formatting]
++				return false
++			end
++		}
++		return true
++	end
++end
++
++module HLJob_MoveToNextWayPoint
++	# needed: hero,allMen,targetPos, near
++	def near
++		0
++	end
++
++	def moveToNextWayPoint_enter
++		hero.formation=AntFormationBlock.new(@hero,formatDir)
++		allMen.each{|man|
++			pos=@hero.getFormation(man,targetPos)
++			man.newMoveJob(0,pos,near)
++			man.hlJobMode[:walking]=true
++		}
++	end
++
++	def moveToNextWayPoint_assign(man)
++		man.standStill
++		man.hlJobMode.delete(:walking)
++
++		# FIXME: maybe let him desert if this is called too often ?
++	end
++
++	def moveToNextWayPoint_ready
++		allMen.each{|man|
++			if man.hlJobMode[:walking]
++				return false
++			end
++		}
++		return true
++	end
++
++end
++
++module HLJob_SitDown
++	def sitDown_enter
++		allMen.each{|man|
++			man.setDirection(180-(hero.getPos2D-man.getPos2D).normalized.getAngle.angle*180.0/Math::PI)
++			man.sitDown
++			man.hlJobMode[:sitting]=true
++		}
++	end
++
++	def sitDown_assign(man)
++		man.sitStill
++		man.hlJobMode.delete(:sitting)
++	end
++
++	def sitDown_ready
++		allMen.each{|man|
++			if man.hlJobMode[:sitting]
++				return false
++			end
++		}
++		return true
++	end
++end
++
++module HLJob_JustSit
++	def justSit_enter
++		allMen.each{|man|
++			man.sitStill
++		}
++	end
++	def justSit_assign(man)
++		man.sitStill # and rest
++	end
++
++	def justSit_ready
++		return false
++	end
++end
++
++module HLJob_JustSitOnce
++	def justSitOnce_enter
++		allMen.each{|man|
++			man.sitStill
++			man.hlJobMode[:justSitting]=true
++		}
++	end
++	def justSitOnce_assign(man)
++		man.hlJobMode.delete(:justSitting)
++	end
++	def justSitOnce_ready
++		allMen.each{|man|
++			if man.hlJobMode[:justSitting]
++				return false
++			else
++				return true
++			end
++		}
++	end
++end
++	
++
++module HLJob_FetchStart
++	# needed a target-entity
++	def fetchStart_enter
++		trace
++		fetchPoint=target.getPos2D
++		puts &quot;fetchPoint:#{fetchPoint}  heroPos:#{hero.getPos2D}&quot;
++		allMen.each{|man|
++			man.walkTo(fetchPoint)
++			man.hlJobMode[:fetching]=true
++			puts &quot;set to fetching: #{man}&quot;
++		}
++		
++	end
++
++	def fetchStart_assign(man)
++		trace
++		man.standStill
++		man.hlJobMode.delete(:fetching)
++	end
++
++	def fetchStart_ready
++		trace
++		allMen.each{|man|
++			puts &quot;fetchStart_ready check: #{man} : #{man.hlJobMode[:fetching]}&quot;
++			if man.hlJobMode[:fetching]
++				return false
++			end
++			puts &quot;false&quot;
++		}
++		puts &quot;return true ??&quot;
++		return true
++	end
++end
++
++module HLJob_GetResource
++	# needed: resources return array of resource-strings
++	def getResource_enter
++		allMen.each{|man|
++			resources.each{|r|
++				a=target.resource.get(r)
++				if a&gt;1
++					man.resource.add(r,1)
++					target.resource.sub(r,1)
++				end
++			}
++		}
++	end
++	def getResource_ready
++		return true
++	end
++end
++
++module HLJob_KillAnimal
++	def killAnimal_enter
++		target.eventDie
++		hero.resource.takeAll(target.resource)
++	end
++end
++
++# spread things among team-members
++module HLJob_SpreadThings
++	RESOURCES_TO_SPREAD=[&quot;sword&quot;,&quot;shield&quot;,&quot;bow&quot;,&quot;boat&quot;]
++
++	def spreadThings_enter
++		allMen.each{|man|
++			man.walkTo(hero.getPos2D)
++			man.hlJobMode[:gatherToSpread]=true
++		}
++		@alreadySpread=false
++	end
++
++	def spreadThings_assign(man)
++		man.standStillShort
++		if man.hlJobMode[:gatherToSpread]
++			man.hlJobMode.delete(:gatherToSpread)
++			man.hlJobMode[:waitForSpread]=true
++		elsif man.hlJobMode[:waitForSpread]
++			man.hlJobMode.delete(:waitForSpread)
++		else
++			# nothing for now
++		end
++	end
++
++	def spreadThings_ready
++		return true if @alreadySpread		
++		allMen.each{|man|
++			return false if man.hlJobMode[:gatherToSpread] or man.hlJobMode[:waitForSpread]
++		}
++		# we can spread now
++		doSpreading
++		@alreadySpread=true
++		return true
++	end
++	private
++	
++	def doSpreading
++		# FIXME: maybe this can be done more easily ???
++		trace
++	
++		all={}
++		RESOURCES_TO_SPREAD.each{|r|	
++			all=0
++			allMen.each{|m|
++				c=m.resource.get(r)
++				all+=c
++			}
++			if all&gt;=allMen.length
++				# give everyone 1 of these and put the rest on the hero
++				allMen.each{|m|
++					m.resource.set(r,1)
++				}
++				hero.resource.add(r,all-allMen.length)
++			else
++				men=allMen.sort {|b,a|a.resource.get(r)&lt;=&gt;b.resource.get(r)} # sort descending
++				# put hero at first
++				men.delete(hero)
++				men=[hero]+men
++				men.each{|m|m.resource.set(r,0)} # reset
++				for i in 1..all # now give to those who had a weapon and to hero (at first)
++					men[i-1].resource.set(r,1)
++				end
++			end
++		}
++		# spread food equally
++		food=0
++		allMen.each{|m|food+=m.resource.get(&quot;food&quot;)}
++		min=(food/allMen.length).to_i
++		allMen.each{|m|m.resource.set(&quot;food&quot;,min)}
++		# spread rest on first
++		food-=min*allMen.length
++		for i in 1..food
++			allMen[i-1].resource.add(&quot;food&quot;,1)
++		end
++	end
++	
++end
++
++class HLJob_FightData
++
++	attr_reader :inited
++	# only attacker creates fightData
++	def initialize(fightJob)
++		@parties={:attacker=&gt;[fightJob],:defender=&gt;[]}
++		@oldparties=@parties.dup
++	end
++	def add(fightJob)
++		@parties[getFightType(fightJob)].push(fightJob)
++		@oldparties[getFightType(fightJob)].push(fightJob)
++		reshuffle
++	end
++
++	def remove(fightJob)
++		@parties[fightJob.fightType].delete(fightJob)
++		@oldparties[fightJob.fightType].delete(fightJob)
++		reshuffle
++	end
++
++	def removeLost(fightJob)
++		@parties[fightJob.fightType].delete(fightJob)
++		reshuffle
++	end
++
++	def getFightType(fightJob)
++		target=fightJob.target
++		[:attacker,:defender].each{|t| 
++			return otherType(t) if @parties[t].collect{|a|a.hero}.member?(target)
++		}
++		raise &quot;Target #{fightJob} (target:#{target}) not found in getFightType!&quot;
++	end
++
++	def getNewOpponent(man,fightJob)
++		assert{man.is_a?(AntHero) or man.is_a?(AntMan)}
++		assert{man.getHero==fightJob.hero}
++	
++		# for a start: get next opponent
++		# (maybe take next free opponent ??)
++		# (maybe: find weakest friend and help him ???)
++
++		myType=fightJob.fightType
++		oType=otherType(myType)
++
++		opponent=@parties[oType].collect{|job|job.undefeatedMen}.flatten.uniq.shuffle[0]
++		if opponent.nil?
++			# we won ???
++			#eventWon(myType)
++			return nil
++		else
++			return opponent
++		end
++	end
++
++# 	def eventWon(whichType)
++# 		trace
++# 		
++# 
++# 		# FIXME: should be parted !!!
++# 		owners=@oldparties[whichType].collect{|j|j.hero}
++# 		i=0
++# 		puts &quot;whichType:#{whichType}&quot;
++# 		assert{owners.length&gt;0}
++# 		@oldparties[otherType(whichType)].each{|p|
++# 			newOwner=owners[i]
++# 			p.hero.setOwner(newOwner)
++# 			i+=1
++# 			i%=owners.length
++# 		}
++# 	end
++# 	def eventLost(type)
++# 		eventWon(otherType(type))
++# 	end
++	private
++
++	def otherType(my)
++		{:attacker=&gt;:defender,:defender=&gt;:attacker}[my]
++	end
++
++	def reshuffle
++		# reinit and assign
++
++		menGroup={}
++		@parties.each{|type,jobs|
++			puts &quot;parties: #{type}:#{jobs}&quot;
++			menGroup[type]=jobs.collect{|job|job.undefeatedMen}.flatten.uniq
++			return if @inited and menGroup[type].length==0 # a fightjob is leaving
++		}
++	
++		# check that each group has more than 0 members
++		assert{menGroup.select{|k,v|v.length==0}.length==0}
++
++		defenders=menGroup[:defender].dup
++
++		defenders.each{|d|d.hlJobMode.delete(:fightTarget)}
++		
++		assert{defenders.length&gt;0}
++
++		# each attacker gets an opponent - if all defenders are used - restart them agaim
++		menGroup[:attacker].each{|attacker|
++			defender=defenders.min{|a,b|(a.getPos2D-attacker.getPos2D).length&lt;=&gt;(b.getPos2D-attacker.getPos2D).length}
++
++			assert{not defender.nil?}
++
++			attacker.hlJobMode[:fightTarget]=defender
++			if not defender.hlJobMode.member?(:fightTarget)
++				defender.hlJobMode[:fightTarget]=attacker
++			end
++
++			defenders.delete(defender)
++
++			defenders=menGroup[:defender].dup if defenders.length==0
++		}
++		menGroup[:defender].each{|defender|
++			if not defender.hlJobMode.member?(:fightTarget)
++				# assign remaining defenders to attackers
++				attacker=menGroup[:attacker].min{|a,b|(a.getPos2D-defender.getPos2D).length&lt;=&gt;(b.getPos2D-defender.getPos2D).length}
++				defender.hlJobMode[:fightTarget]=attacker
++			end
++		}
++		@inited=true
++	end
++
++
++end
++
++module HLJob_Fight
++	# needed: hero,target, undefeatedMen
++
++	attr_reader :fightType, :fightData, :won
++
++	def fight_enter
++
++		targetHadFightData=target.hlJobMode[:fightData].nil?
++		
++		puts &quot;fightData: #{target.hlJobMode[:fightData]}&quot;
++		checkForFightData
++		if targetHadFightData
++			puts &quot;NOT YET INITED #{self} hero:#{hero} target:#{target}&quot;
++			target.newHLDefendJob(hero)
++		end
++		#@fightData.init
++		assignAllJobs
++	end
++
++	def fight_assign(man)
++		if man.is_a?(AntHouse)
++			man.newRestJob(20)
++			return
++		end
++
++		if man.hlJobMode[:defeated]
++			# FIXME:send away
++			# FIXME: maybe flee ?
++			if hero.is_a?(AntHouse)
++				if man.hlJobMode[:homing]
++					man.standStill
++				else
++					man.hlJobMode[:homing]
++					man.walkTo(hero.getPos2D)
++				end
++			else
++				# FIXME
++			end
++			man.hlJobMode[:defeated]=true
++			man.hlJobMode.delete(:fighting)
++		else
++			opponent=@fightData.getNewOpponent(man,self)
++			if opponent.nil?
++				# won
++				@won=true
++			else
++				man.hlJobMode[:fightTarget]=opponent
++				man.newFightJob(0,man.hlJobMode[:fightTarget])
++			end
++		end
++	end
++
++	def fight_leave
++		if lost
++			@fightData.removeLost(self)
++		else
++			@fightData.remove(self)
++		end
++		@fightData=nil
++		@fightType=nil
++		hero.hlJobMode.delete(:fightType)
++		hero.hlJobMode.delete(:fightData)
++
++		allMen.each{|man|
++			man.hlJobMode.delete(:defeated)
++			man.hlJobMode.delete(:fighting)
++			man.hlJobMode.delete(:homing)
++		}
++	end
++
++	def fight_ready
++		if won 
++			eventWon(target)
++			return true
++		elsif lost
++			eventLost(target)
++			return true
++		end
++		return false
++	end
++
++	def lost
++		(not @won) and undefeatedMen.length==0
++	end
++
++	def undefeatedMen
++		allMen.select{|man|man.hlJobMode[:defeated].nil?}
++	end
++
++	private
++	# return true if fightData already exists
++	def checkForFightData
++		if target.hlJobMode[:fightData]
++			@fightData=target.hlJobMode[:fightData]
++			@fightData.add(self)
++			@fightType=@fightData.getFightType(self)
++			return true
++		else
++			@fightData=HLJob_FightData.new(self)
++			@fightType=:attacker
++		end
++		puts &quot;assigned fightData!&quot;
++		hero.hlJobMode[:fightData]=@fightData # store so that it's avaiable above
++	end
++	def assignAllJobs
++		# FIXME:assign a fight-job to every member (undefeatedMen)
++
++		undefeatedMen.each{|man|
++			assert{not man.hlJobMode[:fightTarget].nil?}
++			man.newFightJob(0,man.hlJobMode[:fightTarget])
++			# FIXME: check if morale is high enough
++			man.hlJobMode.delete(:defeated)
++			man.hlJobMode[:fighting]=true
++		}
++	end
++
++
++end
++
+
+Modified: antargis/trunk/ruby/ant_hljobs.rb
+===================================================================
+--- antargis/trunk/ruby/ant_hljobs.rb	2007-03-21 19:31:00 UTC (rev 1062)
++++ antargis/trunk/ruby/ant_hljobs.rb	2007-03-25 16:13:32 UTC (rev 1063)
+@@ -1117,4 +1117,4 @@
+ 	return false
+ end
+ 
+-#require 'ant_new_hljobs.rb'
+\ No newline at end of file
++require 'ant_new_hljobs.rb'
+\ No newline at end of file
+
+Modified: antargis/trunk/ruby/ant_inventory.rb
+===================================================================
+--- antargis/trunk/ruby/ant_inventory.rb	2007-03-21 19:31:00 UTC (rev 1062)
++++ antargis/trunk/ruby/ant_inventory.rb	2007-03-25 16:13:32 UTC (rev 1063)
+@@ -59,28 +59,34 @@
+ 	end
+ 
+ 	def update(e)
++		trace
+ 		if @inspect==e
++			trace
+ 			updateInspection
+ 		end
+ 	end
+ private
+ 	def checkFriend
++		trace
+ 		if @inspect.nil?
+ 			return
+ 		end
+ 		friend=(@inspect.getPlayer==getMap.getPlayer)
+ 		enemy=(not friend)
++		puts &quot;friend #{friend}&quot;
+ 		getChild(&quot;friend_true&quot;).setVisible(friend)
+ 		getChild(&quot;friend_false&quot;).setVisible(enemy)
+ 		getChild(&quot;enemy_true&quot;).setVisible(enemy)
+ 		getChild(&quot;enemy_false&quot;).setVisible(friend)
+ 	end
+ 	def checkButtons
++		trace	
+ 		my=(@inspect.getPlayer==getMap.getPlayer and @inspect!=$app.hero)
+ 		
++		#myok=my # reenable other options when under attack
+ 		myok=(my and (not @inspect.underAttack))
+ 
+-			
++		puts &quot;my #{my} myok #{myok}&quot;
+ 		getChild(&quot;doRecruit&quot;).setVisible(((not my) or (not @inspect.underAttack)))
+ 		getChild(&quot;doRecruit&quot;).setEnabled(myok)
+ 		getChild(&quot;doTakeFood&quot;).setEnabled(myok)
+@@ -123,7 +129,9 @@
+ 		end
+ 	end
+ 	def updateInspection
++		trace
+ 		if @inspect then
++			trace
+ 			checkButtons
+ 			checkFriend
+ 			res=@inspect.resource.getAll
+@@ -157,7 +165,9 @@
+ 		@@inventory.inspectEntity(entity) if @@inventory
+ 	end
+ 	def AntInventory.update(entity)
++		trace
+ 		@@inventory.update(entity) if @@inventory
++		trace
+ 	end
+ 	def AntInventory.resetPointer
+ 		@@inventory=nil
+
+Modified: antargis/trunk/ruby/ant_local.rb
+===================================================================
+--- antargis/trunk/ruby/ant_local.rb	2007-03-21 19:31:00 UTC (rev 1062)
++++ antargis/trunk/ruby/ant_local.rb	2007-03-25 16:13:32 UTC (rev 1063)
+@@ -34,9 +34,11 @@
+ 		# windows - try estimating thruogh &quot;Program Files&quot;-dir name
+ 		known={&quot;Programme&quot;=&gt;&quot;de&quot;,
+ 		 &quot;Archivos de programa&quot;=&gt;&quot;es&quot;}
+-		n=$ENV[&quot;CommonProgramFiles&quot;].split(&quot;\\&quot;)[1]
+-		if known[n]
+-			return known[n]
++		if $ENV.has_key?(&quot;CommonProgramFiles&quot;)
++			n=$ENV[&quot;CommonProgramFiles&quot;].split(&quot;\\&quot;)[1]
++			if known[n]
++				return known[n]
++			end
+ 		end
+ 		return &quot;en&quot;
+ 	end
+
+Modified: antargis/trunk/ruby/ant_man.rb
+===================================================================
+--- antargis/trunk/ruby/ant_man.rb	2007-03-21 19:31:00 UTC (rev 1062)
++++ antargis/trunk/ruby/ant_man.rb	2007-03-25 16:13:32 UTC (rev 1063)
+@@ -115,8 +115,12 @@
+ 	end	
+ 
+ 	def eventHaveDefeated(e)
+-		puts &quot;#{getName} has defeated #{e.getName}&quot;
+-		@boss.eventHaveDefeated(e)
++		if newHLJobs
++			eventNoJob
++		else
++			puts &quot;#{getName} has defeated #{e.getName}&quot;
++			@boss.eventHaveDefeated(e)
++		end
+ 	end
+ 
+ 	def getPlayer
+
+Modified: antargis/trunk/ruby/ant_new_hljobs.rb
+===================================================================
+--- antargis/trunk/ruby/ant_new_hljobs.rb	2007-03-21 19:31:00 UTC (rev 1062)
++++ antargis/trunk/ruby/ant_new_hljobs.rb	2007-03-25 16:13:32 UTC (rev 1063)
+@@ -15,7 +15,7 @@
+ # 
+ 
+ def newHLJobs
+-	return false
++	return true
+ end
+ 
+ # 
+@@ -198,6 +198,7 @@
+ 		@target=target
+ 		if defend
+ 			@state=:Fight
++			@workflow=[]
+ 			#trace
+ 		else
+ 			@state=:FormatWalk
+@@ -215,7 +216,13 @@
+ 		&quot;data/gui/sword.png&quot;
+ 	end
+ 
++	def eventWon(opponent)
++	end
++	def eventLost(opponent)
++		hero.setOwner(opponent) #.getPlayer)
++	end
+ 
++
+ end
+ 
+ # rename and replace old hl-jobs
+
+Added: antargis/trunk/ruby/ant_to_xml.rb
+===================================================================
+--- antargis/trunk/ruby/ant_to_xml.rb	2007-03-21 19:31:00 UTC (rev 1062)
++++ antargis/trunk/ruby/ant_to_xml.rb	2007-03-25 16:13:32 UTC (rev 1063)
+@@ -0,0 +1,172 @@
++require 'libantargis.so'
++include Libantargis
++
++# def addToXmlMarshal
++# 	puts caller
++# 	exit
++# 	XmlMarshal.addClass(caller)
++# end
++# 
++# class Integer
++# 	addToXmlMarshal
++# 
++# 	def to_xml(parentNode,myName)
++# 		n=parentNode.addChild(&quot;Integer&quot;)
++# 		n.set(&quot;name&quot;,myName)
++# 		n.set(&quot;value&quot;,to_s)
++# 		n
++# 	end
++# 	def from_xml(node)
++# 		self=node.get(&quot;value&quot;).to_i
++# 	end
++# end
++# 
++# class Float
++# 	def to_xml(parentNode,myName)
++# 		n=parentNode.addChild(&quot;Integer&quot;)
++# 		n.set(&quot;name&quot;,myName)
++# 		n.set(&quot;value&quot;,to_s)
++# 		n
++# 	end
++# 	def from_xml(node)
++# 		self=node.get(&quot;value&quot;).to_f
++# 	end
++# end
++# 
++# 
++# class String
++# 	def to_xml(parentNode,myName)
++# 		n=parentNode.addChild(&quot;String&quot;)
++# 		n.set(&quot;name&quot;,myName)
++# 		n.set(&quot;value&quot;,self)
++# 		n
++# 	end
++# 
++# 	def from_xml(node)
++# 		self=node.get(&quot;value&quot;)
++# 	end
++# end
++
++# class Array
++# 	def to_xml(parentNode,myName)
++# 		n=parentNode.addChild(&quot;String&quot;)
++# 		n.set(&quot;name&quot;,myName)
++# 		n.set(&quot;value&quot;,self)
++# 		n
++# 	end
++# 
++# 	def from_xml(node)
++# 		self=node.get(&quot;value&quot;)
++# 	end
++# end
++
++
++
++class XmlMarshal
++	@@classes=[]
++	
++	def XmlMarshal.dump(v,node)
++		node.set(&quot;type&quot;,v.class.to_s)
++		if v.class.method_defined?(:to_xml)
++			v.to_xml(node,&quot;&quot;)
++		else
++			case v
++				when Numeric,String
++					node.set(&quot;value&quot;,v.to_s)
++				when Array
++					v.each{|i|
++						n=node.addChild(&quot;element&quot;)
++						XmlMarshal.dump(i,n)
++					}
++				when Hash
++					v.each{|a,b|
++						p=node.addChild(&quot;pair&quot;)
++						k=p.addChild(&quot;key&quot;)
++						m=p.addChild(&quot;value&quot;)
++						XmlMarshal.dump(a,k)
++						XmlMarshal.dump(b,m)
++					}
++			end
++		end
++	end
++	def XmlMarshal.load(node)
++		v=nil
++		type=node.get(&quot;type&quot;)
++		cl=ObjectSpace.const_get(type)
++		if cl.method_defined?(:from_xml)
++			v=cl.from_xml(node)
++		else
++			case type
++				when &quot;Fixnum&quot;,&quot;Bignum&quot;
++					v=node.get(&quot;value&quot;).to_i
++				when &quot;Float&quot;
++					v=node.get(&quot;value&quot;).to_f
++				when &quot;String&quot;
++					v=node.get(&quot;value&quot;).to_s
++				when &quot;Hash&quot;
++					puts &quot;:&quot;+type
++					v={}
++					node.getChildren(&quot;pair&quot;).each{|p|
++						ks=p.getChildren(&quot;key&quot;)
++						vs=p.getChildren(&quot;value&quot;)
++						if ks.length==1 and vs.length==1
++							k=XmlMarshal.load(ks[0])
++							m=XmlMarshal.load(vs[0])
++							v[k]=m
++						end
++						
++					}
++				when &quot;Array&quot;
++					v=[]
++					node.getChildren(&quot;element&quot;).each{|e|
++						m=XmlMarshal.load(e)
++						v.push(m)
++					}
++			end
++		end
++		v
++	end
++end
++
++
++def printDbgMy(v)
++	case v
++		when String
++			'&quot;'+v+'&quot;'
++		when Numeric
++			v.to_s
++		when Array
++			&quot;[&quot;+v.collect{|i|printDbgMy(i)}.join(&quot;,&quot;)+&quot;]&quot;
++		when Hash
++			&quot;{&quot;+v.collect{|k,v|printDbgMy(k)+&quot;=&gt;&quot;+printDbgMy(v)}.join(&quot;,&quot;)+&quot;}&quot;
++	end
++end
++
++def printDbg(v)
++	puts printDbgMy(v)
++end
++
++def test
++	doc=Document.new
++
++	root=doc.root
++	
++	root.setName(&quot;root_a&quot;)
++	a={&quot;a&quot;=&gt;[1,2,3],&quot;huhu&quot;=&gt;[&quot;hallo&quot;,2.222]}
++
++	XmlMarshal.dump(a,root)
++
++
++	b=XmlMarshal.load(root)
++
++
++	puts root.toString
++
++
++	#puts b
++	printDbg(a)
++	printDbg(b)
++
++end
++
++#test
+\ No newline at end of file
+
+Modified: antargis/trunk/src/path.cc
+===================================================================
+--- antargis/trunk/src/path.cc	2007-03-21 19:31:00 UTC (rev 1062)
++++ antargis/trunk/src/path.cc	2007-03-25 16:13:32 UTC (rev 1063)
+@@ -459,7 +459,7 @@
+ {
+   size_t m=(size_t)(mNodes.size()*(1.0-amount));
+ 
+-  m=std::max(m,2U);
++  m=std::max((unsigned int)m,2U);
+ 
+   while(mNodes.size()&gt;m)
+     {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000020.html">[Antargis-svn] r1062 - in antargis/trunk: gui/src ruby
+</A></li>
+	<LI>Next message: <A HREF="000022.html">[Antargis-svn] r1064 - website/contact
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#21">[ date ]</a>
+              <a href="thread.html#21">[ thread ]</a>
+              <a href="subject.html#21">[ subject ]</a>
+              <a href="author.html#21">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

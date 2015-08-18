@@ -1,0 +1,199 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1291 - in antargis/trunk/ext: basic sound video
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2009-February/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1291%20-%20in%20antargis/trunk/ext%3A%20basic%20sound%20video&In-Reply-To=%3C200902242050.n1OKouh4009823%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000246.html">
+   <LINK REL="Next"  HREF="000248.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1291 - in antargis/trunk/ext: basic sound video</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1291%20-%20in%20antargis/trunk/ext%3A%20basic%20sound%20video&In-Reply-To=%3C200902242050.n1OKouh4009823%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1291 - in antargis/trunk/ext: basic sound video">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Tue Feb 24 21:50:56 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000246.html">[Antargis-svn] r1290 - in antargis/trunk: . rookey/lib	rookey/lib/rookey rookey/lib/rookey/cpp	rookey/lib/rookey/cpp/spec ruby/editor/campaign
+</A></li>
+        <LI>Next message: <A HREF="000248.html">[Antargis-svn] r1292 - in antargis/trunk: ext/3dengine ext/basic	ext/game ext/gui ext/sound ext/video rookey/lib/rookey/cpp	ruby ruby/spec
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#247">[ date ]</a>
+              <a href="thread.html#247">[ thread ]</a>
+              <a href="subject.html#247">[ subject ]</a>
+              <a href="author.html#247">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2009-02-24 21:50:56 +0100 (Tue, 24 Feb 2009)
+New Revision: 1291
+
+Added:
+   antargis/trunk/ext/basic/ag_decryptor.cc
+   antargis/trunk/ext/basic/ag_decryptor.h
+Modified:
+   antargis/trunk/ext/sound/ag_mixer.h
+   antargis/trunk/ext/video/ag_surface.h
+Log:
+moved decryptor in its own file
+
+Added: antargis/trunk/ext/basic/ag_decryptor.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_decryptor.cc	2009-02-23 15:26:47 UTC (rev 1290)
++++ antargis/trunk/ext/basic/ag_decryptor.cc	2009-02-24 20:50:56 UTC (rev 1291)
+@@ -0,0 +1,24 @@
++/* 
++ * File:   agdecryptor.cpp
++ * Author: davidkamphausen
++ * 
++ * Created on 24. Februar 2009, 05:47
++ */
++
++#include &quot;ag_decryptor.h&quot;
++
++#include &lt;string&gt;
++
++AGDecryptor::AGDecryptor() {
++}
++
++AGDecryptor::AGDecryptor(const AGDecryptor&amp; orig) {
++}
++
++AGDecryptor::~AGDecryptor() {
++}
++
++std::string AGDecryptor::decrypt(const std::string &amp;s, const std::string &amp;n)
++{
++    return s;
++}
+
+Added: antargis/trunk/ext/basic/ag_decryptor.h
+===================================================================
+--- antargis/trunk/ext/basic/ag_decryptor.h	2009-02-23 15:26:47 UTC (rev 1290)
++++ antargis/trunk/ext/basic/ag_decryptor.h	2009-02-24 20:50:56 UTC (rev 1291)
+@@ -0,0 +1,33 @@
++/* 
++ * File:   agdecryptor.h
++ * Author: davidkamphausen
++ *
++ * Created on 24. Februar 2009, 05:47
++ */
++
++#ifndef _AGDECRYPTOR_H
++#define	_AGDECRYPTOR_H
++
++#include &quot;rk_base.h&quot;
++
++#include &lt;string&gt;
++
++/**
++   AGDecryptor provides functionaliy for DRM-plugged images and music-files.
++   You have to derive from this class and give an instance when loading a surface.
++   When you have done so saving is disabled afterwards.
++ */
++class AGEXPORT AGDecryptor {
++public:
++    AGDecryptor();
++    AGDecryptor(const AGDecryptor&amp; orig);
++    virtual ~AGDecryptor();
++
++    virtual std::string decrypt(const std::string &amp;s, const std::string &amp;n);
++
++private:
++
++};
++
++#endif	/* _AGDECRYPTOR_H */
++
+
+Modified: antargis/trunk/ext/sound/ag_mixer.h
+===================================================================
+--- antargis/trunk/ext/sound/ag_mixer.h	2009-02-23 15:26:47 UTC (rev 1290)
++++ antargis/trunk/ext/sound/ag_mixer.h	2009-02-24 20:50:56 UTC (rev 1291)
+@@ -24,12 +24,10 @@
+ #define AG_SOUND_H
+ 
+ #include &lt;string&gt;
+-#include &lt;ag_widget.h&gt;
+-#include &lt;ag_surface.h&gt; // for decryptor
++#include &quot;ag_messageobject.h&quot;
++#include &quot;ag_decryptor.h&quot; // for decryptor
+ 
+-// use widget, though this isn't one, because it provides useable functions
+ class AGEXPORT AGSound:public AGMessageObject
+-// #Widget
+ {
+  public:
+   AGSound(); // NEVER use this! - it's only provided due to swig
+
+Modified: antargis/trunk/ext/video/ag_surface.h
+===================================================================
+--- antargis/trunk/ext/video/ag_surface.h	2009-02-23 15:26:47 UTC (rev 1290)
++++ antargis/trunk/ext/video/ag_surface.h	2009-02-24 20:50:56 UTC (rev 1291)
+@@ -35,6 +35,7 @@
+ #include &quot;ag_gltexture.h&quot;
+ #include &quot;rk_exception.h&quot;
+ #include &lt;ag_plugin.h&gt;
++#include &quot;ag_decryptor.h&quot;
+ 
+ class AGColor;
+ class AGSurface;
+@@ -60,22 +61,6 @@
+ };
+ 
+ 
+-/**
+-   AGDecryptor provides functionaliy for DRM-plugged images and music-files.
+-   You have to derive from this class and give an instance when loading a surface.
+-   When you have done so saving is disabled afterwards.
+- */
+-class AGEXPORT AGDecryptor
+-{
+- public:
+-  virtual ~AGDecryptor()
+-    {
+-    }
+-  virtual std::string decrypt(const std::string &amp;s,const std::string &amp;n)
+-    {
+-      return s;
+-    }
+-};
+ 
+ class AGSurfaceEmptyException:public AGException
+ {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000246.html">[Antargis-svn] r1290 - in antargis/trunk: . rookey/lib	rookey/lib/rookey rookey/lib/rookey/cpp	rookey/lib/rookey/cpp/spec ruby/editor/campaign
+</A></li>
+	<LI>Next message: <A HREF="000248.html">[Antargis-svn] r1292 - in antargis/trunk: ext/3dengine ext/basic	ext/game ext/gui ext/sound ext/video rookey/lib/rookey/cpp	ruby ruby/spec
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#247">[ date ]</a>
+              <a href="thread.html#247">[ thread ]</a>
+              <a href="subject.html#247">[ subject ]</a>
+              <a href="author.html#247">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

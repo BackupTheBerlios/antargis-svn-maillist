@@ -1,0 +1,151 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1200 - antargis/trunk
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1200%20-%20antargis/trunk&In-Reply-To=%3C200712221146.lBMBkvHY014924%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000156.html">
+   <LINK REL="Next"  HREF="000158.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1200 - antargis/trunk</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1200%20-%20antargis/trunk&In-Reply-To=%3C200712221146.lBMBkvHY014924%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1200 - antargis/trunk">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sat Dec 22 12:46:57 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000156.html">[Antargis-svn] r1199 - in antargis/trunk: . ext
+</A></li>
+        <LI>Next message: <A HREF="000158.html">[Antargis-svn] r1201 - in antargis/trunk: ext/math ext/sound ruby
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#157">[ date ]</a>
+              <a href="thread.html#157">[ thread ]</a>
+              <a href="subject.html#157">[ subject ]</a>
+              <a href="author.html#157">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-12-22 12:46:57 +0100 (Sat, 22 Dec 2007)
+New Revision: 1200
+
+Added:
+   antargis/trunk/antargis
+   antargis/trunk/oldStarter.rb
+Removed:
+   antargis/trunk/antargis
+   antargis/trunk/runAntargis.rb
+Modified:
+   antargis/trunk/Rakefile
+Log:
+* some minor modifications
+
+
+Modified: antargis/trunk/Rakefile
+===================================================================
+--- antargis/trunk/Rakefile	2007-12-22 11:45:35 UTC (rev 1199)
++++ antargis/trunk/Rakefile	2007-12-22 11:46:57 UTC (rev 1200)
+@@ -28,7 +28,6 @@
+     s.files = PKG_FILES
+ 		s.bindir=&quot;.&quot; #File.join(&quot;build&quot;,&quot;bin&quot;)
+ 		s.executables &lt;&lt; &quot;antargis&quot;
+-		#s.extensions=
+     s.description = &lt;&lt;EOF
+ Battles of Antargis is a medieval-like realtime strategy game. 
+ You are a hero who was betrayed and you have to unify the kingdom 
+
+Deleted: antargis/trunk/antargis
+===================================================================
+--- antargis/trunk/antargis	2007-12-22 11:45:35 UTC (rev 1199)
++++ antargis/trunk/antargis	2007-12-22 11:46:57 UTC (rev 1200)
+@@ -1,34 +0,0 @@
+-#!/usr/bin/env ruby
+-#
+-# This is a starter-program. It's run in a ruby-interpreter, because that's easiest.
+-# Because we have to load DLLs which may not be in the standard-search-path, we'll
+-# start another ruby-interpreter in a sub-process and before we do so, we set
+-# the LD_LIBRARY_PATH environment variable, that will add the extension-directory to
+-# the path
+-#
+-
+-# the path, where this program lies (fully expanded)
+-base=File.expand_path(File.split(__FILE__)[0])
+-
+-# for Debugging
+-require 'pp'
+-# for parsing the mkmf-CONFIG-global
+-require File.join(base,'build','mkmf_support.rb')
+-# get the actual mkmf-CONFIG
+-require 'mkmf'
+-
+-# read-out where the ruby-interpreter is
+-rubyExe=checkMkmf(&quot;$(bindir)/$(ruby_install_name)&quot;,CONFIG)
+-
+-# add the extension-path (for the non-extension dlls) to the ld-search-path
+-path=File.join(base,&quot;ext&quot;)
+-seperator=&quot;:&quot;
+-separator=&quot;;&quot; if File.join(&quot;a&quot;,&quot;b&quot;)!=&quot;a/b&quot;
+-old_path=ENV['LD_LIBRARY_PATH']||&quot;&quot;
+-ENV['LD_LIBRARY_PATH']=(old_path.split(separator).map{|dir|File.expand_path(dir)}+[path]).uniq.join(separator)
+-
+-# run ruby with path as an extension dir
+-call=rubyExe+&quot; -I#{path} &quot;+File.join(File.split(__FILE__)[0],'runAntargis.rb')
+-
+-pp call,base,path,ENV
+-system call
+
+Copied: antargis/trunk/antargis (from rev 1198, antargis/trunk/runAntargis.rb)
+
+Copied: antargis/trunk/oldStarter.rb (from rev 1198, antargis/trunk/antargis)
+
+Deleted: antargis/trunk/runAntargis.rb
+===================================================================
+--- antargis/trunk/runAntargis.rb	2007-12-22 11:45:35 UTC (rev 1199)
++++ antargis/trunk/runAntargis.rb	2007-12-22 11:46:57 UTC (rev 1200)
+@@ -1,10 +0,0 @@
+-#!/usr/bin/env ruby
+-
+-# run intro - mainmenu will be called automatically
+-
+-Dir.chdir(File.split(__FILE__)[0])
+-
+-require 'ruby/intro.rb'
+-
+-
+-MyLocalizer.finalize
+\ No newline at end of file
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000156.html">[Antargis-svn] r1199 - in antargis/trunk: . ext
+</A></li>
+	<LI>Next message: <A HREF="000158.html">[Antargis-svn] r1201 - in antargis/trunk: ext/math ext/sound ruby
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#157">[ date ]</a>
+              <a href="thread.html#157">[ thread ]</a>
+              <a href="subject.html#157">[ subject ]</a>
+              <a href="author.html#157">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

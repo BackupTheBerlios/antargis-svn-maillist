@@ -1,0 +1,3407 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1229 - in antargis/trunk: . ext ext/3dengine	ext/game ext/video main ruby ruby/entities ruby/gui ruby/jobs	ruby/spec ruby/widgets
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2008-February/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1229%20-%20in%20antargis/trunk%3A%20.%20ext%20ext/3dengine%0A%09ext/game%20ext/video%20main%20ruby%20ruby/entities%20ruby/gui%20ruby/jobs%0A%09ruby/spec%20ruby/widgets&In-Reply-To=%3C200802152044.m1FKiKAK000857%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000185.html">
+   <LINK REL="Next"  HREF="000187.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1229 - in antargis/trunk: . ext ext/3dengine	ext/game ext/video main ruby ruby/entities ruby/gui ruby/jobs	ruby/spec ruby/widgets</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1229%20-%20in%20antargis/trunk%3A%20.%20ext%20ext/3dengine%0A%09ext/game%20ext/video%20main%20ruby%20ruby/entities%20ruby/gui%20ruby/jobs%0A%09ruby/spec%20ruby/widgets&In-Reply-To=%3C200802152044.m1FKiKAK000857%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1229 - in antargis/trunk: . ext ext/3dengine	ext/game ext/video main ruby ruby/entities ruby/gui ruby/jobs	ruby/spec ruby/widgets">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Fri Feb 15 21:44:20 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000185.html">[Antargis-svn] r1228 - in antargis/trunk: ext/3dengine ext/basic	ext/game ext/gui ext/math ext/sound ext/test ext/video ruby	ruby/entities ruby/gui ruby/spec
+</A></li>
+        <LI>Next message: <A HREF="000187.html">[Antargis-svn] r1230 - in antargis/trunk: . build/swig/tests	data/levels/tutorial ext/3dengine ext/basic ext/game ext/gui	main ruby ruby/entities ruby/jobs ruby/meshes ruby/spec
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#186">[ date ]</a>
+              <a href="thread.html#186">[ thread ]</a>
+              <a href="subject.html#186">[ subject ]</a>
+              <a href="author.html#186">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2008-02-15 21:44:14 +0100 (Fri, 15 Feb 2008)
+New Revision: 1229
+
+Added:
+   antargis/trunk/ruby/spec/level_testing.rb
+   antargis/trunk/ruby/spec/spec_formation.rb
+   antargis/trunk/ruby/spec/spec_game_gui.rb
+   antargis/trunk/ruby/spec/spec_hljobs.rb
+   antargis/trunk/ruby/spec/story_test.rb
+Modified:
+   antargis/trunk/Rakefile
+   antargis/trunk/TODO
+   antargis/trunk/ext/
+   antargis/trunk/ext/3dengine/ag_glsl.cc
+   antargis/trunk/ext/3dengine/glsl.cc
+   antargis/trunk/ext/3dengine/vertex_array.cc
+   antargis/trunk/ext/3dengine/vertex_array.h
+   antargis/trunk/ext/game/entity.cc
+   antargis/trunk/ext/game/entity.h
+   antargis/trunk/ext/game/jobs.cc
+   antargis/trunk/ext/game/jobs.h
+   antargis/trunk/ext/video/ag_glscreen.cc
+   antargis/trunk/main/Rakefile
+   antargis/trunk/ruby/ant_application.rb
+   antargis/trunk/ruby/ant_formations.rb
+   antargis/trunk/ruby/entities/ant_hero.rb
+   antargis/trunk/ruby/entities/ant_manbase.rb
+   antargis/trunk/ruby/entities/entity.rb
+   antargis/trunk/ruby/gui/ag_tools.rb
+   antargis/trunk/ruby/gui/testing.rb
+   antargis/trunk/ruby/jobs/ant_hljob_states.rb
+   antargis/trunk/ruby/jobs/ant_new_hljobs.rb
+   antargis/trunk/ruby/jobs/ant_state_machine.rb
+   antargis/trunk/ruby/spec/spec_run_tutorial.rb
+   antargis/trunk/ruby/spec_helper.rb
+   antargis/trunk/ruby/widgets/ant_name_display.rb
+Log:
+* many specs and bugfixes - esp. for macosx
+
+Modified: antargis/trunk/Rakefile
+===================================================================
+--- antargis/trunk/Rakefile	2008-02-06 20:02:44 UTC (rev 1228)
++++ antargis/trunk/Rakefile	2008-02-15 20:44:14 UTC (rev 1229)
+@@ -54,7 +54,7 @@
+ 		s.platform = Gem::Platform::WIN32
+ 		s.name = 'antargis-win32'
+ 	else
+-		s.platform = Gem::Platform::LINUX_586
++		s.platform = Gem::Platform::CURRENT
+ 		s.name = 'antargis-linux'
+ 	end
+ 	s.summary = &quot;A real-time strategy game.&quot;
+@@ -130,5 +130,5 @@
+ 
+ 
+ desc &quot;Build all&quot;
+-task :default=&gt;[:starter,:library] do
++task :default=&gt;[:starterPrg,:library] do
+ end
+
+Modified: antargis/trunk/TODO
+===================================================================
+--- antargis/trunk/TODO	2008-02-06 20:02:44 UTC (rev 1228)
++++ antargis/trunk/TODO	2008-02-15 20:44:14 UTC (rev 1229)
+@@ -1,12 +1,14 @@
+ * bug-report at apple site on glTexSubImage issue 
+ * fix shadows on mac (on shadow-extension ?)
+ * check mingw on macosx
++* toggling fullscreen destroys animated meshes (and textures partly)
+ 
+ * fix saving - problem occurs only if game is loaded ? (in editor, too)
+ ** hljobs can't be saved right now
+ 
+ * move build/*.rb files to build/unused_tools/* if they're not used
+-* google for &quot;/tmp/cciSLVG5.s:932678: Warning: .stabs: description field '1c216' too big, try a different debug format&quot;
++* issue with mingw: 
++** google for &quot;/tmp/cciSLVG5.s:932678: Warning: .stabs: description field '1c216' too big, try a different debug format&quot;
+ 
+ * check how many times AG_NewPointer is called !!!! - not so often - could be replaced by traceobjects from swig
+ ** check if it's any good to switch over to standard-swig ??? seems so.
+
+
+Property changes on: antargis/trunk/ext
+___________________________________________________________________
+Name: svn:ignore
+   - *.so
+*.a
+
+   + *.so
+*.a
+swig.*
+interface.i
+
+
+Modified: antargis/trunk/ext/3dengine/ag_glsl.cc
+===================================================================
+--- antargis/trunk/ext/3dengine/ag_glsl.cc	2008-02-06 20:02:44 UTC (rev 1228)
++++ antargis/trunk/ext/3dengine/ag_glsl.cc	2008-02-15 20:44:14 UTC (rev 1229)
+@@ -7,123 +7,123 @@
+ std::map&lt;std::string,AGFragProgram*&gt; mFragPrograms;
+ 
+ AGVertexProgram *getVertexProgram(const std::string &amp;pFile)
+-{
+-  std::map&lt;std::string,AGVertexProgram*&gt;::iterator i=mVertexPrograms.find(pFile);
++  {
++    std::map&lt;std::string,AGVertexProgram*&gt;::iterator i=mVertexPrograms.find(pFile);
+ 
+-  if(i==mVertexPrograms.end())
+-    {
+-      AGVertexProgram *p=new AGVertexProgram(pFile);
+-      mVertexPrograms[pFile]=p;
+-      return p;
+-    }
+-  return i-&gt;second;
+-}
++    if(i==mVertexPrograms.end())
++      {
++        AGVertexProgram *p=new AGVertexProgram(pFile);
++        mVertexPrograms[pFile]=p;
++        return p;
++      }
++    return i-&gt;second;
++  }
+ 
+ AGFragProgram *getFragProgram(const std::string &amp;pFile)
+-{
+-  std::map&lt;std::string,AGFragProgram*&gt;::iterator i=mFragPrograms.find(pFile);
++  {
++    std::map&lt;std::string,AGFragProgram*&gt;::iterator i=mFragPrograms.find(pFile);
+ 
+-  if(i==mFragPrograms.end())
+-    {
+-      AGFragProgram *p=new AGFragProgram(pFile);
+-      mFragPrograms[pFile]=p;
+-      return p;
+-    }
+-  return i-&gt;second;
+-}
++    if(i==mFragPrograms.end())
++      {
++        AGFragProgram *p=new AGFragProgram(pFile);
++        mFragPrograms[pFile]=p;
++        return p;
++      }
++    return i-&gt;second;
++  }
+ 
+ int GLSL_ok=-1;
+ bool glslOk()
+-{
+-//  return false;
+-  // do not check in each call, because this is slow!!!
+-  if(GLSL_ok&lt;0)
+-    {
+-      GLeeInit();
+-      GLSL_ok=(GLEE_ARB_vertex_shader &amp;&amp; GLEE_ARB_fragment_shader &amp;&amp; GLEE_ARB_shading_language_100);
+-    }
+-  
+-  return GLSL_ok;
+-}
++  {
++    //  return false;
++    // do not check in each call, because this is slow!!!
++    if(GLSL_ok&lt;0)
++      {
++        GLeeInit();
++        GLSL_ok=(GLEE_ARB_vertex_shader &amp;&amp; GLEE_ARB_fragment_shader &amp;&amp; GLEE_ARB_shading_language_100);
++      }
+ 
++    return GLSL_ok;
++  }
++
+ void printInfoLog(GLhandleARB obj)
+-{
++  {
+     int infologLength = 0;
+     int charsWritten  = 0;
+     char *infoLog;
+ 
+-        glGetObjectParameterivARB(obj, GL_OBJECT_INFO_LOG_LENGTH_ARB,
+-                                         &amp;infologLength);
++    glGetObjectParameterivARB(obj, GL_OBJECT_INFO_LOG_LENGTH_ARB,
++        &amp;infologLength);
+ 
+     if (infologLength &gt; 0)
+-    {
+-      cdebug(&quot;GLSL ERROR:&quot;);
+-      infoLog = (char *)malloc(infologLength);
+-      glGetInfoLogARB(obj, infologLength, &amp;charsWritten, infoLog);
+-      if(infoLog)
+-	cdebug(infoLog);
+-      free(infoLog);
+-    }
+-}
++      {
++        cdebug(&quot;GLSL ERROR:&quot;);
++        infoLog = (char *)malloc(infologLength);
++        glGetInfoLogARB(obj, infologLength, &amp;charsWritten, infoLog);
++        if(infoLog)
++          cdebug(infoLog);
++        free(infoLog);
++      }
++  }
+ 
+ 
+ AGVertexProgram::AGVertexProgram(const std::string &amp;pFile)
+-{
+-  //  CTRACE;
+-  if(glslOk())
+-    {
+-      vertexShader = glCreateShaderObjectARB(GL_VERTEX_SHADER_ARB);
+-      std::string s=loadFile(pFile);
+-      
+-      const char*a=s.c_str();
+-      const GLcharARB**x=&a;
+-      glShaderSourceARB(vertexShader, 1, x,NULL);
+-      glCompileShaderARB(vertexShader);
+-      printInfoLog(vertexShader);
+-      assertGL;
+-    }
+-}
++  {
++    //  CTRACE;
++    if(glslOk())
++      {
++        vertexShader = glCreateShaderObjectARB(GL_VERTEX_SHADER_ARB);
++        std::string s=loadFile(pFile);
+ 
++        const char*a=s.c_str();
++        const GLcharARB**x=&a;
++        glShaderSourceARB(vertexShader, 1, x,NULL);
++        glCompileShaderARB(vertexShader);
++        printInfoLog(vertexShader);
++        assertGL;
++      }
++  }
++
+ AGVertexProgram::~AGVertexProgram()
+-{
+-  CTRACE;
+-  if(glslOk() &amp;&amp; !hasQuit())
+-    glDeleteObjectARB(vertexShader);
+-  assertGL;
+-}
++  {
++    CTRACE;
++    if(glslOk() &amp;&amp; !hasQuit())
++      glDeleteObjectARB(vertexShader);
++    assertGL;
++  }
+ 
+ AGFragProgram::AGFragProgram(const std::string &amp;pFile)
+-{
+-  mValid=false;
+-  //  CTRACE;
+-  if(glslOk() &amp;&amp; pFile.length()&gt;0)
+-    {
+-      fragShader = glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
+-      std::string s=loadFile(pFile);
+-      const char*a=s.c_str();
+-      const GLcharARB**x=&a;
+-      glShaderSourceARB(fragShader, 1, x,NULL);
+-      glCompileShaderARB(fragShader);
+-      printInfoLog(fragShader);
+-      mValid=true;
+-      assertGL;
+-	
+-    }
+-}
++  {
++    mValid=false;
++    //  CTRACE;
++    if(glslOk() &amp;&amp; pFile.length()&gt;0)
++      {
++        fragShader = glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
++        std::string s=loadFile(pFile);
++        const char*a=s.c_str();
++        const GLcharARB**x=&a;
++        glShaderSourceARB(fragShader, 1, x,NULL);
++        glCompileShaderARB(fragShader);
++        printInfoLog(fragShader);
++        mValid=true;
++        assertGL;
+ 
++      }
++  }
++
+ AGFragProgram::AGFragProgram()
+-{
+-  mValid=false;
+-}
++  {
++    mValid=false;
++  }
+ 
+ AGFragProgram::~AGFragProgram()
+-{
+-  CTRACE;
+-  if(glslOk() &amp;&amp; !hasQuit())
+-    glDeleteObjectARB(fragShader);
+-  assertGL;
++  {
++    CTRACE;
++    if(glslOk() &amp;&amp; !hasQuit())
++      glDeleteObjectARB(fragShader);
++    assertGL;
+ 
+-}
++  }
+ 
+ 
+ bool AGFragProgram::valid() const
+@@ -135,165 +135,165 @@
+ AGShaderProgram::AGShaderProgram(const std::string &amp;pVertexFile,const std::string &amp;pFragFile):
+   //  vertex(getVertexProgram(pVertexFile)),frag(getFragProgram(pFragFile))
+   vertex(pVertexFile),frag(pFragFile)
+-{
+-  //  CTRACE;
+-  if(glslOk())
+-    {
+-      p = glCreateProgramObjectARB();
+-      glAttachObjectARB(p,vertex.vertexShader);
+-      if(frag.valid())
+-	glAttachObjectARB(p,frag.fragShader);
+-      
+-      glLinkProgramARB(p);
+-      printInfoLog(p);
++  {
++    //  CTRACE;
++    if(glslOk())
++      {
++        p = glCreateProgramObjectARB();
++        glAttachObjectARB(p,vertex.vertexShader);
++        if(frag.valid())
++          glAttachObjectARB(p,frag.fragShader);
+ 
+-      assert(p);
+-    }
+-  on=false;
+-  matrixBuf=new float[16*100];
+-  name=pVertexFile+&quot;:&quot;+pFragFile;
+-  assertGL;
++        glLinkProgramARB(p);
++        printInfoLog(p);
+ 
+-}
++        assert(p);
++      }
++    on=false;
++    matrixBuf=new float[16*100];
++    name=pVertexFile+&quot;:&quot;+pFragFile;
++    assertGL;
+ 
++  }
++
+ AGShaderProgram::~AGShaderProgram()
+-{
+-  disable();
+-  CTRACE;
+-  cdebug(&quot;name:&quot;&lt;&lt;name);
+-  if(glslOk() &amp;&amp; !hasQuit())
+-    glDeleteObjectARB(p);
+-  cdebug(&quot;name:&quot;&lt;&lt;name);
+-  delete [] matrixBuf;
+-  cdebug(&quot;name:&quot;&lt;&lt;name);
+-  assertGL;
++  {
++    disable();
++    CTRACE;
++    cdebug(&quot;name:&quot;&lt;&lt;name);
++    if(glslOk() &amp;&amp; !hasQuit())
++      glDeleteObjectARB(p);
++    cdebug(&quot;name:&quot;&lt;&lt;name);
++    delete [] matrixBuf;
++    cdebug(&quot;name:&quot;&lt;&lt;name);
++    assertGL;
+ 
+-}
++  }
+ 
+ 
+ void AGShaderProgram::enable()
+-{
+-  if(glslOk())
+-    {
+-      glUseProgramObjectARB(p);
+-      on=true;
+-      assertGL;
++  {
++    if(glslOk())
++      {
++        glUseProgramObjectARB(p);
++        on=true;
++        assertGL;
+ 
+-    }
+-}
++      }
++  }
+ void AGShaderProgram::disable()
+-{
+-  if(glslOk())
+-    {
+-      glUseProgramObjectARB(0);
+-      on=false;
+-      assertGL;
+-    }
+-}
++  {
++    if(glslOk())
++      {
++        glUseProgramObjectARB(0);
++        on=false;
++        assertGL;
++      }
++  }
+ 
+ void AGShaderProgram::update(float time)
+-{
+-  if(glslOk())
+-    {
+-      enable();
+-      doUpdate(time);
+-      disable();
+-      assertGL;
+-    }
+-}
++  {
++    if(glslOk())
++      {
++        enable();
++        doUpdate(time);
++        disable();
++        assertGL;
++      }
++  }
+ 
+ void AGShaderProgram::doUpdate(float time)
+-{
+-}
++  {
++  }
+ 
+ void AGShaderProgram::sendUniform(const std::string &amp;pName,int i)
+-{
+-  glUniform1iARB(getLoc(pName),i);
+-  assertGL;
+-}
++  {
++    glUniform1iARB(getLoc(pName),i);
++    assertGL;
++  }
+ void AGShaderProgram::sendUniform(const std::string &amp;pName,float f)
+-{
+-  glUniform1fARB(getLoc(pName),f);
+-  assertGL;
+-}
++  {
++    glUniform1fARB(getLoc(pName),f);
++    assertGL;
++  }
+ void AGShaderProgram::sendUniform(const std::string &amp;pName,const AGVector3 &amp;m)
+-{
+-  glUniform3fARB(getLoc(pName),m[0],m[1],m[2]);
+-  assertGL;
+-}
++  {
++    glUniform3fARB(getLoc(pName),m[0],m[1],m[2]);
++    assertGL;
++  }
+ void AGShaderProgram::sendUniform(const std::string &amp;pName,const AGVector4 &amp;m)
+-{
+-  glUniform4fARB(getLoc(pName),m[0],m[1],m[2],m[3]);
+-  assertGL;
+-}
++  {
++    glUniform4fARB(getLoc(pName),m[0],m[1],m[2],m[3]);
++    assertGL;
++  }
+ void AGShaderProgram::sendUniform(const std::string &amp;pName,const AGMatrix4 &amp;m)
+-{
+-  glUniformMatrix4fvARB(getLoc(pName),1,false,m);
+-  assertGL;
+-}
++  {
++    glUniformMatrix4fvARB(getLoc(pName),1,false,m);
++    assertGL;
++  }
+ void AGShaderProgram::sendUniform(const std::string &amp;pName,const std::vector&lt;AGMatrix4&gt; &amp;m)
+-{
+-  assert(m.size()&lt;100);
+-  float *p=matrixBuf;
++  {
++    assert(m.size()&lt;100);
++    float *p=matrixBuf;
+ 
+-  for(size_t i=0;i&lt;m.size();i++)
+-    {
+-      const float *s=m[i];
+-      for(size_t j=0;j&lt;16;j++)
+-	*(p++)=*(s++);
+-    }
+-  assertGL;
+-  glUniformMatrix4fvARB(getLoc(pName),m.size(),false,matrixBuf);
+-  assertGL;
+-}
++    for(size_t i=0;i&lt;m.size();i++)
++      {
++        const float *s=m[i];
++        for(size_t j=0;j&lt;16;j++)
++          *(p++)=*(s++);
++      }
++    assertGL;
++    glUniformMatrix4fvARB(getLoc(pName),m.size(),false,matrixBuf);
++    assertGL;
++  }
+ 
+ GLint AGShaderProgram::getLoc(const std::string &amp;pName)
+-{
+-  // register only once !
+-  
+-  std::map&lt;std::string,GLint&gt;::iterator i=locations.find(pName);
+-  if(i!=locations.end())
+-    return i-&gt;second;
+-  
+-  GLint k=glGetUniformLocationARB(p,pName.c_str());
+-  locations.insert(std::make_pair(pName,k));
+-  assertGL;
+-  return k;
+-}
++  {
++    // register only once !
+ 
++    std::map&lt;std::string,GLint&gt;::iterator i=locations.find(pName);
++    if(i!=locations.end())
++      return i-&gt;second;
++
++    GLint k=glGetUniformLocationARB(p,pName.c_str());
++    locations.insert(std::make_pair(pName,k));
++    assertGL;
++    return k;
++  }
++
+ GLint AGShaderProgram::getAttr(const std::string &amp;pName)
+-{
+-  //  TRACE;
+-  // register only once !
+-  assert(on);
+-  std::map&lt;std::string,GLint&gt;::iterator i=attrs.find(pName);
+-  if(i!=attrs.end())
+-    return i-&gt;second;
+-  
+-  assertGL;
+-  GLint k=glGetAttribLocationARB(p,pName.c_str());
+-  //  cdebug(&quot;k:&quot;&lt;&lt;k);
+-  if(k&lt;0)
+-    {
+-      cdebug(&quot;ERROR:attribute could be get! Maybe it was not defined in the vertex-shader? :&quot;&lt;&lt;pName);
+-    }
+-  assertGL;
+-  attrs.insert(std::make_pair(pName,k));
+-  assertGL;
+-  return k;
+-}
++  {
++    //  TRACE;
++    // register only once !
++    assert(on);
++    std::map&lt;std::string,GLint&gt;::iterator i=attrs.find(pName);
++    if(i!=attrs.end())
++      return i-&gt;second;
+ 
++    assertGL;
++    GLint k=glGetAttribLocationARB(p,pName.c_str());
++    //  cdebug(&quot;k:&quot;&lt;&lt;k);
++    if(k&lt;0)
++      {
++        cdebug(&quot;ERROR:attribute could be get! Maybe it was not defined in the vertex-shader? :&quot;&lt;&lt;pName);
++      }
++    assertGL;
++    attrs.insert(std::make_pair(pName,k));
++    assertGL;
++    return k;
++  }
++
+ void AGShaderProgram::sendAttribute(const std::string &amp;pName,const std::vector&lt;float&gt; &amp;vf)
+-{
+-  assertGL;
+-  GLint loc=getAttr(pName);
+-  assertGL;
+-  glEnableClientState(GL_VERTEX_ARRAY);
+-  assertGL;
+-  glEnableVertexAttribArrayARB(loc); // add array
+-  assertGL;
++  {
++    assertGL;
++    GLint loc=getAttr(pName);
++    assertGL;
++    glEnableClientState(GL_VERTEX_ARRAY);
++    assertGL;
++    glEnableVertexAttribArrayARB(loc); // add array
++    assertGL;
+ 
+-  glVertexAttribPointerARB(loc,1,GL_FLOAT,0,0,&amp;vf[0]); // set attributes (for each vertex an attribute)
+-  assertGL;
+-}
++    glVertexAttribPointerARB(loc,1,GL_FLOAT,0,0,&amp;vf[0]); // set attributes (for each vertex an attribute)
++    assertGL;
++  }
+ 
+
+Modified: antargis/trunk/ext/3dengine/glsl.cc
+===================================================================
+--- antargis/trunk/ext/3dengine/glsl.cc	2008-02-06 20:02:44 UTC (rev 1228)
++++ antargis/trunk/ext/3dengine/glsl.cc	2008-02-15 20:44:14 UTC (rev 1229)
+@@ -136,6 +136,8 @@
+ {
+  if(glslOk())
+     {
++	  locations.clear();
++	  attrs.clear();
+       vertex=new AntVertexProgram(mVertexFile);
+       frag=new AntFragProgram(mFragFile);
+ 
+@@ -161,6 +163,7 @@
+   //  cdebug(&quot;name:&quot;&lt;&lt;name);
+   delete vertex;
+   delete frag;
++  locations.clear();
+ }
+ 
+ 
+
+Modified: antargis/trunk/ext/3dengine/vertex_array.cc
+===================================================================
+--- antargis/trunk/ext/3dengine/vertex_array.cc	2008-02-06 20:02:44 UTC (rev 1228)
++++ antargis/trunk/ext/3dengine/vertex_array.cc	2008-02-15 20:44:14 UTC (rev 1229)
+@@ -7,28 +7,28 @@
+ #include &lt;ag_main.h&gt;
+ 
+ static bool useVBO()
+-{
+-  AGString s=getConfig()-&gt;get(&quot;useVBO&quot;);
+-  //cdebug(&quot;useVBO:&quot;&lt;&lt;s);
+-  if(s!=&quot;true&quot; &amp;&amp; s!=&quot;false&quot;)
+-    {
+-      cdebug(&quot;useVBO:&quot;&lt;&lt;s);
+-      s=&quot;true&quot;;
+-      getConfig()-&gt;set(&quot;useVBO&quot;,s);
+-    }
+-  return s==&quot;true&quot;;
+-}
++  {
++    AGString s=getConfig()-&gt;get(&quot;useVBO&quot;);
++    //cdebug(&quot;useVBO:&quot;&lt;&lt;s);
++    if(s!=&quot;true&quot; &amp;&amp; s!=&quot;false&quot;)
++      {
++        cdebug(&quot;useVBO:&quot;&lt;&lt;s);
++        s=&quot;true&quot;;
++        getConfig()-&gt;set(&quot;useVBO&quot;,s);
++      }
++    return s==&quot;true&quot;;
++  }
+ 
+ static bool useVertexArrays()
+-{
+-  AGString s=getConfig()-&gt;get(&quot;useVertexArrays&quot;);
+-  if(s!=&quot;true&quot; &amp;&amp; s!=&quot;false&quot;)
+-    {
+-      s=&quot;true&quot;;
+-      getConfig()-&gt;set(&quot;useVertexArrays&quot;,s);
+-    }
+-  return s==&quot;true&quot;;
+-}
++  {
++    AGString s=getConfig()-&gt;get(&quot;useVertexArrays&quot;);
++    if(s!=&quot;true&quot; &amp;&amp; s!=&quot;false&quot;)
++      {
++        s=&quot;true&quot;;
++        getConfig()-&gt;set(&quot;useVertexArrays&quot;,s);
++      }
++    return s==&quot;true&quot;;
++  }
+ 
+ 
+ VertexArray::VertexArray(bool pDynamic):mDynamic(pDynamic),bbox(AGVector3(),AGVector3())
+@@ -53,373 +53,373 @@
+ }
+ 
+ VertexArray::~VertexArray()
+-{
+-  //  CTRACE;
+-  if(mBuffers &amp;&amp; mVertexBuffer!=0) //mChanged==false)
+-    {
+-      glDeleteBuffersARB( 1, &amp;mVertexBuffer );
+-      glDeleteBuffersARB( 1, &amp;mColorBuffer );
+-      glDeleteBuffersARB( 1, &amp;mNormalBuffer );
+-      glDeleteBuffersARB( 1, &amp;mTexBuffer );
+-      if(!mDynamic)
+-	glDeleteBuffersARB( 1, &amp;mIndexBuffer );
+-    }
+-}
++  {
++    //  CTRACE;
++    if(mBuffers &amp;&amp; mVertexBuffer!=0) //mChanged==false)
++      {
++        glDeleteBuffersARB( 1, &amp;mVertexBuffer );
++        glDeleteBuffersARB( 1, &amp;mColorBuffer );
++        glDeleteBuffersARB( 1, &amp;mNormalBuffer );
++        glDeleteBuffersARB( 1, &amp;mTexBuffer );
++        if(!mDynamic)
++          glDeleteBuffersARB( 1, &amp;mIndexBuffer );
++      }
++  }
+ 
+ 
+ void VertexArray::addVertex(AGVector4 pVertex, AGVector4 pColor, AGVector3 pNormal, AGVector2 pTex)
+-{
+-  mVertices.push_back(pVertex);
+-  mColors.push_back(pColor);
+-  mNormals.push_back(pNormal);
+-  mTexCoords.push_back(pTex);
+-  mChanged=true;
+-  if(mVertices.size()==1)
+-    bbox=AGBox3(pVertex.dim3(),AGVector3(0,0,0));
+-  else
+-    bbox.include(pVertex.dim3());
+-}
++  {
++    mVertices.push_back(pVertex);
++    mColors.push_back(pColor);
++    mNormals.push_back(pNormal);
++    mTexCoords.push_back(pTex);
++    mChanged=true;
++    if(mVertices.size()==1)
++      bbox=AGBox3(pVertex.dim3(),AGVector3(0,0,0));
++    else
++      bbox.include(pVertex.dim3());
++  }
+ 
+ void VertexArray::addVertex(AGVector4 pVertex, AGVector4 pColor, AGVector3 pNormal, AGVector3 pTex)
+-{
+-  assert(mTextures3D || mVertices.size()==0);
+-  mTextures3D=true;
+-  mVertices.push_back(pVertex);
+-  mColors.push_back(pColor);
+-  mNormals.push_back(pNormal);
+-  mTexCoords3D.push_back(pTex);
+-  mChanged=true;
+-  if(mVertices.size()==1)
+-    bbox=AGBox3(pVertex.dim3(),AGVector3(0,0,0));
+-  else
+-    bbox.include(pVertex.dim3());
+-}
++  {
++    assert(mTextures3D || mVertices.size()==0);
++    mTextures3D=true;
++    mVertices.push_back(pVertex);
++    mColors.push_back(pColor);
++    mNormals.push_back(pNormal);
++    mTexCoords3D.push_back(pTex);
++    mChanged=true;
++    if(mVertices.size()==1)
++      bbox=AGBox3(pVertex.dim3(),AGVector3(0,0,0));
++    else
++      bbox.include(pVertex.dim3());
++  }
+ 
+ void VertexArray::addTriangle(size_t p0,size_t p1,size_t p2)
+-{
+-  assert(p0&lt;mVertices.size());
+-  assert(p1&lt;mVertices.size());
+-  assert(p2&lt;mVertices.size());
+-  mIndices.push_back(p0);
+-  mIndices.push_back(p1);
+-  mIndices.push_back(p2);
+-  mChanged=true;
+-}
++  {
++    assert(p0&lt;mVertices.size());
++    assert(p1&lt;mVertices.size());
++    assert(p2&lt;mVertices.size());
++    mIndices.push_back(p0);
++    mIndices.push_back(p1);
++    mIndices.push_back(p2);
++    mChanged=true;
++  }
+ 
+ void VertexArray::init()
+-{
+-  if(mBuffers)
+-    {
+-      STACKTRACE;
+-      glGenBuffersARB( 1, &amp;mVertexBuffer );
+-      glBindBufferARB( GL_ARRAY_BUFFER_ARB, mVertexBuffer );
+-      glBufferDataARB( GL_ARRAY_BUFFER_ARB, mVertices.size()*sizeof(AGVector4), &amp;(mVertices[0]), GL_STATIC_DRAW_ARB );
+-      
+-      glGenBuffersARB( 1, &amp;mColorBuffer );
+-      glBindBufferARB( GL_ARRAY_BUFFER_ARB, mColorBuffer );
+-      glBufferDataARB( GL_ARRAY_BUFFER_ARB, mColors.size()*sizeof(AGVector4), &amp;(mColors[0]), GL_STATIC_DRAW_ARB );
+-      
+-      glGenBuffersARB( 1, &amp;mNormalBuffer );
+-      glBindBufferARB( GL_ARRAY_BUFFER_ARB, mNormalBuffer );
+-      glBufferDataARB( GL_ARRAY_BUFFER_ARB, mNormals.size()*sizeof(AGVector3), &amp;(mNormals[0]), GL_STATIC_DRAW_ARB );
+-      
+-      glGenBuffersARB( 1, &amp;mTexBuffer );
+-      glBindBufferARB( GL_ARRAY_BUFFER_ARB, mTexBuffer );
+-      if(mTextures3D)
+-	glBufferDataARB( GL_ARRAY_BUFFER_ARB, mTexCoords3D.size()*sizeof(AGVector3), &amp;(mTexCoords3D[0]), GL_STATIC_DRAW_ARB );
+-      else
+-	glBufferDataARB( GL_ARRAY_BUFFER_ARB, mTexCoords.size()*sizeof(AGVector2), &amp;(mTexCoords[0]), GL_STATIC_DRAW_ARB );
++  {
++    if(mBuffers)
++      {
++        STACKTRACE;
++        glGenBuffersARB( 1, &amp;mVertexBuffer );
++        glBindBufferARB( GL_ARRAY_BUFFER_ARB, mVertexBuffer );
++        glBufferDataARB( GL_ARRAY_BUFFER_ARB, mVertices.size()*sizeof(AGVector4), &amp;(mVertices[0]), GL_STATIC_DRAW_ARB );
+ 
+-      if(!mDynamic)
+-	{
+-	  glGenBuffersARB( 1, &amp;mIndexBuffer );
+-	  glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, mIndexBuffer );
+-	  glBufferDataARB( GL_ELEMENT_ARRAY_BUFFER_ARB, mIndices.size()*sizeof(Uint16), &amp;(mIndices[0]), GL_STATIC_DRAW_ARB );
+-	}
++        glGenBuffersARB( 1, &amp;mColorBuffer );
++        glBindBufferARB( GL_ARRAY_BUFFER_ARB, mColorBuffer );
++        glBufferDataARB( GL_ARRAY_BUFFER_ARB, mColors.size()*sizeof(AGVector4), &amp;(mColors[0]), GL_STATIC_DRAW_ARB );
+ 
+-      glBindBufferARB( GL_ARRAY_BUFFER_ARB, 0);
+-      glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
++        glGenBuffersARB( 1, &amp;mNormalBuffer );
++        glBindBufferARB( GL_ARRAY_BUFFER_ARB, mNormalBuffer );
++        glBufferDataARB( GL_ARRAY_BUFFER_ARB, mNormals.size()*sizeof(AGVector3), &amp;(mNormals[0]), GL_STATIC_DRAW_ARB );
+ 
++        glGenBuffersARB( 1, &amp;mTexBuffer );
++        glBindBufferARB( GL_ARRAY_BUFFER_ARB, mTexBuffer );
++        if(mTextures3D)
++          glBufferDataARB( GL_ARRAY_BUFFER_ARB, mTexCoords3D.size()*sizeof(AGVector3), &amp;(mTexCoords3D[0]), GL_STATIC_DRAW_ARB );
++        else
++          glBufferDataARB( GL_ARRAY_BUFFER_ARB, mTexCoords.size()*sizeof(AGVector2), &amp;(mTexCoords[0]), GL_STATIC_DRAW_ARB );
+ 
+-    }
+-  mChanged=false;
+-}
++        if(!mDynamic)
++          {
++            glGenBuffersARB( 1, &amp;mIndexBuffer );
++            glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, mIndexBuffer );
++            glBufferDataARB( GL_ELEMENT_ARRAY_BUFFER_ARB, mIndices.size()*sizeof(Uint16), &amp;(mIndices[0]), GL_STATIC_DRAW_ARB );
++          }
+ 
++        glBindBufferARB( GL_ARRAY_BUFFER_ARB, 0);
++        glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
++
++
++      }
++    mChanged=false;
++  }
++
+ void VertexArray::setColors(bool color)
+-{
+-  bColor=color;
+-}
++  {
++    bColor=color;
++  }
+ 
+ void VertexArray::draw()
+-{
+-  assertGL;
+-  if(mChanged)
+-    init();
++  {
++    assertGL;
++    if(mChanged)
++      init();
+ 
+-  assertGL;
++    assertGL;
+ 
+-  if(mBuffers||mArrays)
+-    {
+-      glEnableClientState(GL_VERTEX_ARRAY);
+-      glEnableClientState(GL_NORMAL_ARRAY);
+-      if(bColor)
+-	glEnableClientState(GL_COLOR_ARRAY);
+-      else
+-	glDisableClientState(GL_COLOR_ARRAY);
+-      glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+-    }
++    if(mBuffers||mArrays)
++      {
++        glEnableClientState(GL_VERTEX_ARRAY);
++        glEnableClientState(GL_NORMAL_ARRAY);
++        if(bColor)
++          glEnableClientState(GL_COLOR_ARRAY);
++        else
++          glDisableClientState(GL_COLOR_ARRAY);
++        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
++      }
+ 
+-  if(mBuffers)
+-    {
+-      glBindBufferARB( GL_ARRAY_BUFFER_ARB, mNormalBuffer );
+-      glNormalPointer(GL_FLOAT, 0, 0);
++    if(mBuffers)
++      {
++        glBindBufferARB( GL_ARRAY_BUFFER_ARB, mNormalBuffer );
++        glNormalPointer(GL_FLOAT, 0, 0);
+ 
+-      /*
++        /*
+       glClientActiveTexture(GL_TEXTURE1);
+       glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+       glBindBufferARB( GL_ARRAY_BUFFER_ARB, mTexBuffer);
+       glTexCoordPointer(2, GL_FLOAT, 0, 0);
+-      */
+-      glClientActiveTexture(GL_TEXTURE0);
++         */
++        glClientActiveTexture(GL_TEXTURE0);
+ 
+-      glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+-      glBindBufferARB( GL_ARRAY_BUFFER_ARB, mTexBuffer);
+-      if(mTextures3D)
+-	glTexCoordPointer(3, GL_FLOAT, 0, 0);
+-      else
+-	glTexCoordPointer(2, GL_FLOAT, 0, 0);
++        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
++        glBindBufferARB( GL_ARRAY_BUFFER_ARB, mTexBuffer);
++        if(mTextures3D)
++          glTexCoordPointer(3, GL_FLOAT, 0, 0);
++        else
++          glTexCoordPointer(2, GL_FLOAT, 0, 0);
+ 
+-      glBindBufferARB( GL_ARRAY_BUFFER_ARB, mVertexBuffer);
+-      glVertexPointer(4, GL_FLOAT, 0, 0);
+-      if(bColor)
+-	{
+-	  glBindBufferARB( GL_ARRAY_BUFFER_ARB, mColorBuffer);
+-	  glColorPointer(4, GL_FLOAT, 0, 0);
+-	}
++        glBindBufferARB( GL_ARRAY_BUFFER_ARB, mVertexBuffer);
++        glVertexPointer(4, GL_FLOAT, 0, 0);
++        if(bColor)
++          {
++            glBindBufferARB( GL_ARRAY_BUFFER_ARB, mColorBuffer);
++            glColorPointer(4, GL_FLOAT, 0, 0);
++          }
+ 
+-      if(mDynamic)
+-	{
+-	  glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_SHORT,
+-			 &amp;(mIndices[0]));
+-	}
+-      else
+-	{
+-	  glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, mIndexBuffer);
+-	  glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_SHORT,0);
+-	}
+-    }
+-  else if(mArrays)
+-    {
+-      //      cdebug(&quot;too much work&quot;);
+-      glNormalPointer(GL_FLOAT, 0, &amp;(mNormals[0]));
+-      glClientActiveTexture(GL_TEXTURE0);
+-      if(mTextures3D)
+-	glTexCoordPointer(3, GL_FLOAT, 0, &amp;(mTexCoords3D[0]));
+-      else
+-	glTexCoordPointer(2, GL_FLOAT, 0, &amp;(mTexCoords[0]));
+-      glVertexPointer(4, GL_FLOAT, 0, &amp;(mVertices[0]));
+-      if(bColor)
+-	glColorPointer(4, GL_FLOAT, 0, &amp;(mColors[0]));
+-      glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_SHORT,
+-		     &amp;(mIndices[0]));
+-  }
+-  else
+-    {
+-      glClientActiveTexture(GL_TEXTURE0);
+-      glBegin(GL_TRIANGLES);
+-      for(std::vector&lt;Uint16&gt;::iterator i=mIndices.begin();i!=mIndices.end();i++)
+-	{
+-	  glNormal3fv(mNormals[*i]);
+-	  if(mTextures3D)
+-	    glTexCoord3fv(mTexCoords3D[*i]);
+-	  else
+-	    glTexCoord2fv(mTexCoords[*i]);
+-	  if(bColor)
+-	    glColor4fv(mColors[*i]);
+-	  glVertex4fv(mVertices[*i]);
+-	}
+-      glEnd();
+-      
+-    }
++        if(mDynamic)
++          {
++            glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_SHORT,
++                &amp;(mIndices[0]));
++          }
++        else
++          {
++            glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, mIndexBuffer);
++            glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_SHORT,0);
++          }
++      }
++    else if(mArrays)
++      {
++        //      cdebug(&quot;too much work&quot;);
++        glNormalPointer(GL_FLOAT, 0, &amp;(mNormals[0]));
++        glClientActiveTexture(GL_TEXTURE0);
++        if(mTextures3D)
++          glTexCoordPointer(3, GL_FLOAT, 0, &amp;(mTexCoords3D[0]));
++        else
++          glTexCoordPointer(2, GL_FLOAT, 0, &amp;(mTexCoords[0]));
++        glVertexPointer(4, GL_FLOAT, 0, &amp;(mVertices[0]));
++        if(bColor)
++          glColorPointer(4, GL_FLOAT, 0, &amp;(mColors[0]));
++        glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_SHORT,
++            &amp;(mIndices[0]));
++      }
++    else
++      {
++        glClientActiveTexture(GL_TEXTURE0);
++        glBegin(GL_TRIANGLES);
++        for(std::vector&lt;Uint16&gt;::iterator i=mIndices.begin();i!=mIndices.end();i++)
++          {
++            glNormal3fv(mNormals[*i]);
++            if(mTextures3D)
++              glTexCoord3fv(mTexCoords3D[*i]);
++            else
++              glTexCoord2fv(mTexCoords[*i]);
++            if(bColor)
++              glColor4fv(mColors[*i]);
++            glVertex4fv(mVertices[*i]);
++          }
++        glEnd();
+ 
+-  if(mBuffers||mArrays)
+-    {
+-      glDisableClientState(GL_VERTEX_ARRAY);
+-      glDisableClientState(GL_NORMAL_ARRAY);
+-      glDisableClientState(GL_COLOR_ARRAY);
+-      glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+-    }
+-  assertGL;
++      }
+ 
+-}
++    if(mBuffers||mArrays)
++      {
++        glDisableClientState(GL_VERTEX_ARRAY);
++        glDisableClientState(GL_NORMAL_ARRAY);
++        glDisableClientState(GL_COLOR_ARRAY);
++        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
++      }
++    assertGL;
+ 
++  }
++
+ void VertexArray::drawPick()
+-{
+-  STACKTRACE;
+-  if(false)
+-    {
+-      // use vertex arrays
+-      glEnableClientState(GL_VERTEX_ARRAY);
++  {
++    STACKTRACE;
++    if(false)
++      {
++        // use vertex arrays
++        glEnableClientState(GL_VERTEX_ARRAY);
+ 
+-      glVertexPointer(4, GL_FLOAT, 0, &amp;(mVertices[0]));
+-      glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_SHORT,
+-		     &amp;(mIndices[0]));
+-      
+-      glDisableClientState(GL_VERTEX_ARRAY);
++        glVertexPointer(4, GL_FLOAT, 0, &amp;(mVertices[0]));
++        glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_SHORT,
++            &amp;(mIndices[0]));
+ 
+-    }
++        glDisableClientState(GL_VERTEX_ARRAY);
+ 
+-  else if(true)
+-    {
+-      if(displayListInited)
+-	{
+-	  STACKTRACE;
+-	  
+-	  glCallList(displayList);
+-	}
+-      else
+-	{
+-	  displayList=glGenLists(1);
+-	  glNewList(displayList,GL_COMPILE);
+-	  {
+-	    // paint in software - because this is faster for picking
+-	    glBegin(GL_TRIANGLES);
+-	    for(std::vector&lt;Uint16&gt;::iterator i=mIndices.begin();i!=mIndices.end();i++)
+-	      glVertex4fv(mVertices[*i]);
+-	    glEnd();
+-	  }
+-	  glEndList();
+-	  glCallList(displayList);
++      }
+ 
+-	  displayListInited=true;
+-	}
+-    }
+-  else
+-    {
+-      // FIXME: some this doesn't - what the heck!
+-      if(mChanged)
+-	init();
+-      
+-      
+-      glEnableClientState(GL_VERTEX_ARRAY);
+-      
+-      
+-      // disable textures
+-      glClientActiveTexture(GL_TEXTURE1);
+-      glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+-      glClientActiveTexture(GL_TEXTURE0);
+-      
+-      glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+-      
++    else if(true)
+       {
+-	cdebug(mVertices.size());
+-	cdebug(mIndices.size());
+-	glBindBufferARB( GL_ARRAY_BUFFER_ARB,0);
+-	glNormalPointer(GL_FLOAT,0,0);
+-	glBindBufferARB( GL_ARRAY_BUFFER_ARB,0);
+-	glTexCoordPointer(2,GL_FLOAT,0,0);
+-	glVertexPointer(4, GL_FLOAT, 0, &amp;(mVertices[0]));
+-	glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_SHORT,
+-		       &amp;(mIndices[0]));
++        if(displayListInited)
++          {
++            STACKTRACE;
++
++            glCallList(displayList);
++          }
++        else
++          {
++            displayList=glGenLists(1);
++            glNewList(displayList,GL_COMPILE);
++              {
++                // paint in software - because this is faster for picking
++                glBegin(GL_TRIANGLES);
++                for(std::vector&lt;Uint16&gt;::iterator i=mIndices.begin();i!=mIndices.end();i++)
++                  glVertex4fv(mVertices[*i]);
++                glEnd();
++              }
++              glEndList();
++              glCallList(displayList);
++
++              displayListInited=true;
++          }
+       }
+-      
+-      glDisableClientState(GL_VERTEX_ARRAY);
+-    }
+-}
++    else
++      {
++        // FIXME: some this doesn't - what the heck!
++        if(mChanged)
++          init();
+ 
+ 
++        glEnableClientState(GL_VERTEX_ARRAY);
+ 
++
++        // disable textures
++        glClientActiveTexture(GL_TEXTURE1);
++        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
++        glClientActiveTexture(GL_TEXTURE0);
++
++        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
++
++          {
++            cdebug(mVertices.size());
++            cdebug(mIndices.size());
++            glBindBufferARB( GL_ARRAY_BUFFER_ARB,0);
++            glNormalPointer(GL_FLOAT,0,0);
++            glBindBufferARB( GL_ARRAY_BUFFER_ARB,0);
++            glTexCoordPointer(2,GL_FLOAT,0,0);
++            glVertexPointer(4, GL_FLOAT, 0, &amp;(mVertices[0]));
++            glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_SHORT,
++                &amp;(mIndices[0]));
++          }
++
++          glDisableClientState(GL_VERTEX_ARRAY);
++      }
++  }
++
++
++
+ void VertexArray::drawDepth()
+-{
++  {
+ #ifdef OLD
+-  if(mChanged)
+-    init();
++    if(mChanged)
++      init();
+ 
+-  glEnableClientState(GL_VERTEX_ARRAY);
++    glEnableClientState(GL_VERTEX_ARRAY);
+ 
+ 
+-  //  glDisable(GL_TEXTURE_2D);
++    //  glDisable(GL_TEXTURE_2D);
+ 
+-  if(mBuffers)
+-    {
+-      glBindBufferARB( GL_ARRAY_BUFFER_ARB, mVertexBuffer);
+-      glVertexPointer(4, GL_FLOAT, 0, 0);
++    if(mBuffers)
++      {
++        glBindBufferARB( GL_ARRAY_BUFFER_ARB, mVertexBuffer);
++        glVertexPointer(4, GL_FLOAT, 0, 0);
+ 
+-      if(mDynamic)
+-	{
+-	  glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_SHORT,
+-			 &amp;(mIndices[0]));
+-	}
+-      else
+-	{
+-	  glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, mIndexBuffer);
+-	  glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_SHORT,0);
+-	}
++        if(mDynamic)
++          {
++            glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_SHORT,
++                &amp;(mIndices[0]));
++          }
++        else
++          {
++            glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, mIndexBuffer);
++            glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_SHORT,0);
++          }
+ 
+-    }
+-  else
+-    {
+-      //      cdebug(&quot;too much work&quot;);
+-      glVertexPointer(4, GL_FLOAT, 0, &amp;(mVertices[0]));
++      }
++    else
++      {
++        //      cdebug(&quot;too much work&quot;);
++        glVertexPointer(4, GL_FLOAT, 0, &amp;(mVertices[0]));
+ 
+-      glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_SHORT,
+-		     &amp;(mIndices[0]));
+-  }
++        glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_SHORT,
++            &amp;(mIndices[0]));
++      }
+ 
+-  //  glEnable(GL_TEXTURE_2D);
++    //  glEnable(GL_TEXTURE_2D);
+ 
+-  glDisableClientState(GL_VERTEX_ARRAY);
++    glDisableClientState(GL_VERTEX_ARRAY);
+ #else
+-  if(mChanged)
+-    init();
++    if(mChanged)
++      init();
+ 
+-  glEnableClientState(GL_VERTEX_ARRAY);
++    glEnableClientState(GL_VERTEX_ARRAY);
+ 
+-  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
++    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+ 
+ 
+-  if(mBuffers)
+-    {
+-      glClientActiveTexture(GL_TEXTURE0);
++    if(mBuffers)
++      {
++        glClientActiveTexture(GL_TEXTURE0);
+ 
+-      glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+-      glBindBufferARB( GL_ARRAY_BUFFER_ARB, mTexBuffer);
+-      if(mTextures3D)
+-	glTexCoordPointer(3, GL_FLOAT, 0, 0);
+-      else
+-	glTexCoordPointer(2, GL_FLOAT, 0, 0);
++        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
++        glBindBufferARB( GL_ARRAY_BUFFER_ARB, mTexBuffer);
++        if(mTextures3D)
++          glTexCoordPointer(3, GL_FLOAT, 0, 0);
++        else
++          glTexCoordPointer(2, GL_FLOAT, 0, 0);
+ 
+-      glBindBufferARB( GL_ARRAY_BUFFER_ARB, mVertexBuffer);
+-      glVertexPointer(4, GL_FLOAT, 0, 0);
++        glBindBufferARB( GL_ARRAY_BUFFER_ARB, mVertexBuffer);
++        glVertexPointer(4, GL_FLOAT, 0, 0);
+ 
+-      if(mDynamic)
+-	{
+-	  glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_SHORT,
+-			 &amp;(mIndices[0]));
+-	}
+-      else
+-	{
+-	  glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, mIndexBuffer);
+-	  glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_SHORT,0);
+-	}
++        if(mDynamic)
++          {
++            glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_SHORT,
++                &amp;(mIndices[0]));
++          }
++        else
++          {
++            glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, mIndexBuffer);
++            glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_SHORT,0);
++          }
+ 
+-    }
+-  else
+-    {
+-      if(mTextures3D)
+-	glTexCoordPointer(3, GL_FLOAT, 0, &amp;(mTexCoords3D[0]));
+-      else
+-	glTexCoordPointer(2, GL_FLOAT, 0, &amp;(mTexCoords[0]));
+-      glVertexPointer(4, GL_FLOAT, 0, &amp;(mVertices[0]));
++      }
++    else
++      {
++        if(mTextures3D)
++          glTexCoordPointer(3, GL_FLOAT, 0, &amp;(mTexCoords3D[0]));
++        else
++          glTexCoordPointer(2, GL_FLOAT, 0, &amp;(mTexCoords[0]));
++        glVertexPointer(4, GL_FLOAT, 0, &amp;(mVertices[0]));
+ 
+-      glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_SHORT,
+-		     &amp;(mIndices[0]));
+-  }
++        glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_SHORT,
++            &amp;(mIndices[0]));
++      }
+ 
+-  glDisableClientState(GL_VERTEX_ARRAY);
+-  glDisableClientState(GL_TEXTURE_COORD_ARRAY);
++    glDisableClientState(GL_VERTEX_ARRAY);
++    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+ #endif
+-}
++  }
+ 
+ 
+ 
+@@ -440,77 +440,69 @@
+       AGVector4 r;
+       r=t.collide(pLine);
+       if(r[3]==1)
+-	{
+-	  return r;
+-	}
++        {
++          return r;
++        }
+     }
+   return mfalse;
+ }
+ 
+ void VertexArray::update()
+-{
+-  if(mBuffers &amp;&amp; mVertexBuffer!=0) //mChanged==false)
+-    {
+-      glDeleteBuffersARB( 1, &amp;mVertexBuffer );
+-      glDeleteBuffersARB( 1, &amp;mColorBuffer );
+-      glDeleteBuffersARB( 1, &amp;mNormalBuffer );
+-      glDeleteBuffersARB( 1, &amp;mTexBuffer );
+-      glDeleteBuffersARB( 1, &amp;mIndexBuffer );
+-      mVertexBuffer=0;
+-    }
+-  mChanged=true;
+-}
++  {
++    if(mBuffers &amp;&amp; mVertexBuffer!=0) //mChanged==false)
++      {
++        glDeleteBuffersARB( 1, &amp;mVertexBuffer );
++        glDeleteBuffersARB( 1, &amp;mColorBuffer );
++        glDeleteBuffersARB( 1, &amp;mNormalBuffer );
++        glDeleteBuffersARB( 1, &amp;mTexBuffer );
++        glDeleteBuffersARB( 1, &amp;mIndexBuffer );
++        mVertexBuffer=0;
++      }
++    mChanged=true;
++  }
+ void VertexArray::clear()
+-{
+-  /*  if(mBuffers &amp;&amp; mVertexBuffer!=0) //mChanged==false)
+-    {
+-      glDeleteBuffersARB( 1, &amp;mVertexBuffer );
+-      glDeleteBuffersARB( 1, &amp;mColorBuffer );
+-      glDeleteBuffersARB( 1, &amp;mNormalBuffer );
+-      glDeleteBuffersARB( 1, &amp;mTexBuffer );
+-      glDeleteBuffersARB( 1, &amp;mIndexBuffer );
+-      }*/
+-  mVertices.clear();
+-  mColors.clear();
+-  mNormals.clear();
+-  mTexCoords.clear();
+-  mTexCoords3D.clear();
+-  mIndices.clear();
+-  update();
+-}
++  {
++    mVertices.clear();
++    mColors.clear();
++    mNormals.clear();
++    mTexCoords.clear();
++    mTexCoords3D.clear();
++    mIndices.clear();
++    update();
++  }
+ 
+ void VertexArray::setBuffers(bool pBuffers)
+-{
+-  mBuffers=false;
+-}
++  {
++    mBuffers=false;
++  }
+ 
+ 
+ size_t VertexArray::getIndex(size_t i)
+-{
+-  return mIndices[i];
+-}
++  {
++    return mIndices[i];
++  }
+ AGVector4 VertexArray::getVertex(size_t i)
+-{
+-  return mVertices[i];
+-}
++  {
++    return mVertices[i];
++  }
+ AGVector4 VertexArray::getColor(size_t i)
+-{
+-  return mColors[i];
+-}
++  {
++    return mColors[i];
++  }
+ AGVector3 VertexArray::getNormal(size_t i)
+-{
+-  return mNormals[i];
+-}
+-  AGVector2 VertexArray::getTexCoord(size_t i)
+-{
+-  return mTexCoords[i];
+-}
++  {
++    return mNormals[i];
++  }
++AGVector2 VertexArray::getTexCoord(size_t i)
++  {
++    return mTexCoords[i];
++  }
+ 
+ void VertexArray::setTexCoord(size_t i,const AGVector2 &amp;t)
+-{
+-  mTexCoords[i]=t;
+-  update();
+-}
++  {
++    mTexCoords[i]=t;
++    update();
++  }
+ 
+ bool VertexArray::useVertexArrays() const
+ {
+@@ -519,23 +511,23 @@
+ 
+ 
+ void VertexArray::onScreenUp()
+-{
++  {
+     init();
+-}
++  }
+ 
+ void VertexArray::onScreenDown()
+-{
+-  if(mBuffers &amp;&amp; mVertexBuffer!=0) //mChanged==false)
+-    {
+-      glDeleteBuffersARB( 1, &amp;mVertexBuffer );
+-      glDeleteBuffersARB( 1, &amp;mColorBuffer );
+-      glDeleteBuffersARB( 1, &amp;mNormalBuffer );
+-      glDeleteBuffersARB( 1, &amp;mTexBuffer );
+-      if(!mDynamic)
+-	glDeleteBuffersARB( 1, &amp;mIndexBuffer );
+-    }
+-  mVertexBuffer=mColorBuffer=mNormalBuffer=mTexBuffer=mIndexBuffer=0;
+-}
++  {
++    if(mBuffers &amp;&amp; mVertexBuffer!=0) //mChanged==false)
++      {
++        glDeleteBuffersARB( 1, &amp;mVertexBuffer );
++        glDeleteBuffersARB( 1, &amp;mColorBuffer );
++        glDeleteBuffersARB( 1, &amp;mNormalBuffer );
++        glDeleteBuffersARB( 1, &amp;mTexBuffer );
++        if(!mDynamic)
++          glDeleteBuffersARB( 1, &amp;mIndexBuffer );
++      }
++    mVertexBuffer=mColorBuffer=mNormalBuffer=mTexBuffer=mIndexBuffer=0;
++  }
+ 
+ 
+ 
+@@ -551,155 +543,170 @@
+   aInited=false;
+ }
+ VertexArrayShader::~VertexArrayShader()
+-{
+-  for(std::map&lt;std::string,std::vector&lt;float&gt;*&gt;::iterator i=as.begin();i!=as.end();++i)
+-    {
+-      if(i-&gt;second)
+-	delete i-&gt;second;
+-    }
++  {
++    for(std::map&lt;std::string,std::vector&lt;float&gt;*&gt;::iterator i=as.begin();i!=as.end();++i)
++      {
++        if(i-&gt;second)
++          delete i-&gt;second;
++      }
+ 
+-  for(std::map&lt;std::string,std::vector&lt;Uint16&gt;*&gt;::iterator i=elementAs.begin();i!=elementAs.end();++i)
+-    {
+-      if(i-&gt;second)
+-	delete i-&gt;second;
+-    }
++    for(std::map&lt;std::string,std::vector&lt;Uint16&gt;*&gt;::iterator i=elementAs.begin();i!=elementAs.end();++i)
++      {
++        if(i-&gt;second)
++          delete i-&gt;second;
++      }
+ 
+-}
++  }
+ 
+ void VertexArrayShader::addAttribute(const std::string &amp;pName,const std::vector&lt;float&gt; &amp;a)
+-{
+-  as[pName]=new std::vector&lt;float&gt;(a);
+-  aInited=false;
+-}
++  {
++    as[pName]=new std::vector&lt;float&gt;(a);
++    aInited=false;
++  }
+ 
+ void VertexArrayShader::addAttribute(const std::string &amp;pName,const std::vector&lt;Uint16&gt; &amp;a)
+-{
+-  elementAs[pName]=new std::vector&lt;Uint16&gt;(a);
+-  aInited=false;
+-}
++  {
++    elementAs[pName]=new std::vector&lt;Uint16&gt;(a);
++    aInited=false;
++  }
+ 
+ 
++void VertexArrayShader::onScreenUp()
++  {
++    CTRACE;
++    VertexArray::onScreenUp();
++    
++  }
++void VertexArrayShader::onScreenDown()
++  {
++    CTRACE;
++    VertexArray::onScreenDown();
++    aInited=false;
++    // FIXME: cleanup gl-objects
++  }
++
++
+ void VertexArrayShader::draw()
+-{
+-  assertGL;
+-  p-&gt;enable();
+-  assertGL;
+-  if(!aInited)
+-    aInit();
+-  assertGL;
+-  attach();
+-  assertGL;
+-  VertexArray::draw();
+-  p-&gt;disable();
+-}
++  {
++    assertGL;
++    p-&gt;enable();
++    assertGL;
++    if(!aInited)
++      aInit();
++    assertGL;
++    attach();
++    assertGL;
++    VertexArray::draw();
++    p-&gt;disable();
++  }
+ 
+ void VertexArrayShader::attach()
+-{
+-  //  if(useVertexArrays())
+-    {
+-      for(std::map&lt;std::string,unsigned int&gt;::iterator i=aids.begin();i!=aids.end();i++)
+-	{
+-	  GLint loc=p-&gt;getAttr(i-&gt;first);
+-	  glEnableClientState(GL_VERTEX_ARRAY);
+-	  glEnableVertexAttribArrayARB(loc); // add array
+-	  glBindBufferARB( GL_ARRAY_BUFFER_ARB, i-&gt;second);
+-	  glVertexAttribPointerARB(loc,1,GL_FLOAT,0,0,0);
+-	  //      glTexCoordPointer(2, GL_FLOAT, 0, 0);
+-	}
++  {
++    //  if(useVertexArrays())
++      {
++        for(std::map&lt;std::string,unsigned int&gt;::iterator i=aids.begin();i!=aids.end();i++)
++          {
++            GLint loc=p-&gt;getAttr(i-&gt;first);
++            glEnableClientState(GL_VERTEX_ARRAY);
++            glEnableVertexAttribArrayARB(loc); // add array
++            glBindBufferARB( GL_ARRAY_BUFFER_ARB, i-&gt;second);
++            glVertexAttribPointerARB(loc,1,GL_FLOAT,0,0,0);
++            //      glTexCoordPointer(2, GL_FLOAT, 0, 0);
++          }
+ 
+-      for(std::map&lt;std::string,unsigned int&gt;::iterator i=elementIds.begin();i!=elementIds.end();i++)
+-	{
+-  assertGL;
+-	  GLint loc=p-&gt;getAttr(i-&gt;first);
+-  assertGL;
+-	  glEnableClientState(GL_VERTEX_ARRAY);
+-  assertGL;
+-	  glEnableVertexAttribArrayARB(loc); // add array
+-  assertGL;
+-	  glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, i-&gt;second);
+-  assertGL;
+-	  glVertexAttribPointerARB(loc,1,GL_UNSIGNED_SHORT,0,0,0);
+-  assertGL;
+-	  //      glTexCoordPointer(2, GL_FLOAT, 0, 0);
+-	}
++        for(std::map&lt;std::string,unsigned int&gt;::iterator i=elementIds.begin();i!=elementIds.end();i++)
++          {
++            assertGL;
++            GLint loc=p-&gt;getAttr(i-&gt;first);
++            assertGL;
++            glEnableClientState(GL_VERTEX_ARRAY);
++            assertGL;
++            glEnableVertexAttribArrayARB(loc); // add array
++            assertGL;
++            glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, i-&gt;second);
++            assertGL;
++            glVertexAttribPointerARB(loc,1,GL_UNSIGNED_SHORT,0,0,0);
++            assertGL;
++            //      glTexCoordPointer(2, GL_FLOAT, 0, 0);
++          }
+ 
+-    }
+-}
++      }
++  }
+ 
+ void VertexArrayShader::aInit()
+-{
+-  for(std::map&lt;std::string,std::vector&lt;float&gt;*&gt;::iterator i=as.begin();i!=as.end();i++)
+-    {
+-      unsigned int id;
++  {
++    for(std::map&lt;std::string,std::vector&lt;float&gt;*&gt;::iterator i=as.begin();i!=as.end();i++)
++      {
++        unsigned int id;
+ 
+-      glGenBuffersARB( 1, &amp;id);
+-      glBindBufferARB( GL_ARRAY_BUFFER_ARB, id);
+-      glBufferDataARB( GL_ARRAY_BUFFER_ARB, i-&gt;second-&gt;size()*sizeof(float), &amp;((*i-&gt;second)[0]), GL_STATIC_DRAW_ARB );
++        glGenBuffersARB( 1, &amp;id);
++        glBindBufferARB( GL_ARRAY_BUFFER_ARB, id);
++        glBufferDataARB( GL_ARRAY_BUFFER_ARB, i-&gt;second-&gt;size()*sizeof(float), &amp;((*i-&gt;second)[0]), GL_STATIC_DRAW_ARB );
+ 
+-      aids[i-&gt;first]=id;
+-    }
++        aids[i-&gt;first]=id;
++      }
+ 
+-  for(std::map&lt;std::string,std::vector&lt;Uint16&gt;*&gt;::iterator i=elementAs.begin();i!=elementAs.end();i++)
+-    {
+-      unsigned int id;
++    for(std::map&lt;std::string,std::vector&lt;Uint16&gt;*&gt;::iterator i=elementAs.begin();i!=elementAs.end();i++)
++      {
++        unsigned int id;
+ 
+-      glGenBuffersARB( 1, &amp;id);
+-      glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, id);
+-      glBufferDataARB( GL_ELEMENT_ARRAY_BUFFER_ARB, i-&gt;second-&gt;size()*sizeof(Uint16), &amp;((*i-&gt;second)[0]), GL_STATIC_DRAW_ARB );
++        glGenBuffersARB( 1, &amp;id);
++        glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, id);
++        glBufferDataARB( GL_ELEMENT_ARRAY_BUFFER_ARB, i-&gt;second-&gt;size()*sizeof(Uint16), &amp;((*i-&gt;second)[0]), GL_STATIC_DRAW_ARB );
+ 
+-      elementIds[i-&gt;first]=id;
+-    }
++        elementIds[i-&gt;first]=id;
++      }
+ 
+ 
+-  aInited=true;
+-}
++    aInited=true;
++  }
+ 
+ 
+ VertexArray *makeInstances(const VertexArray &amp;va,const std::vector&lt;AGMatrix4&gt; &amp;ts)
+-{
+-  VertexArray *na=new VertexArray;
+-  size_t start=0;
+-  size_t ci;
++  {
++    VertexArray *na=new VertexArray;
++    size_t start=0;
++    size_t ci;
+ 
+-  for(std::vector&lt;AGMatrix4&gt;::const_iterator i=ts.begin();i!=ts.end();i++)
+-    {
+-      assert(va.mVertices.size()==va.mNormals.size());
+-      // transform normals and vertices
+-      for(size_t j=0;j&lt;va.mVertices.size();j++)
+-	{
+-	  AGVector4 v=va.mVertices[j];
+-	  AGVector3 n=va.mNormals[j];
++    for(std::vector&lt;AGMatrix4&gt;::const_iterator i=ts.begin();i!=ts.end();i++)
++      {
++        assert(va.mVertices.size()==va.mNormals.size());
++        // transform normals and vertices
++        for(size_t j=0;j&lt;va.mVertices.size();j++)
++          {
++            AGVector4 v=va.mVertices[j];
++            AGVector3 n=va.mNormals[j];
+ 
+-	  v=*i*v;
+-	  n=(*i*AGVector4(n,0)).dim3();
+-	  
+-	  na-&gt;mVertices.push_back(v);
+-	  na-&gt;mNormals.push_back(n);
+-	}
++            v=*i*v;
++            n=(*i*AGVector4(n,0)).dim3();
+ 
+-      std::copy(va.mColors.begin(),va.mColors.end(),std::back_inserter(na-&gt;mColors));
+-      std::copy(va.mTexCoords.begin(),va.mTexCoords.end(),std::back_inserter(na-&gt;mTexCoords));
+-      std::copy(va.mTexCoords3D.begin(),va.mTexCoords3D.end(),std::back_inserter(na-&gt;mTexCoords3D));
+-      for(std::vector&lt;Uint16&gt;::const_iterator j=va.mIndices.begin();j!=va.mIndices.end();j++)
+-	{
+-	  ci=*j+start;
+-	  assert(ci&gt;=start);
+-	  assert(ci&lt;na-&gt;mVertices.size());
+-	  assert(ci&lt;na-&gt;mColors.size());
+-	  assert(ci&lt;na-&gt;mNormals.size());
+-	    
+-	  na-&gt;mIndices.push_back(*j+start);
+-	}
+-      start+=va.mVertices.size();
+-    }
++            na-&gt;mVertices.push_back(v);
++            na-&gt;mNormals.push_back(n);
++          }
+ 
+-  na-&gt;bColor=va.bColor;
+-  na-&gt;mChanged=true;
++        std::copy(va.mColors.begin(),va.mColors.end(),std::back_inserter(na-&gt;mColors));
++        std::copy(va.mTexCoords.begin(),va.mTexCoords.end(),std::back_inserter(na-&gt;mTexCoords));
++        std::copy(va.mTexCoords3D.begin(),va.mTexCoords3D.end(),std::back_inserter(na-&gt;mTexCoords3D));
++        for(std::vector&lt;Uint16&gt;::const_iterator j=va.mIndices.begin();j!=va.mIndices.end();j++)
++          {
++            ci=*j+start;
++            assert(ci&gt;=start);
++            assert(ci&lt;na-&gt;mVertices.size());
++            assert(ci&lt;na-&gt;mColors.size());
++            assert(ci&lt;na-&gt;mNormals.size());
+ 
+-  // calc bbox
+-  na-&gt;bbox=AGBox3(AGVector3(),AGVector3());
++            na-&gt;mIndices.push_back(*j+start);
++          }
++        start+=va.mVertices.size();
++      }
+ 
+-  
++    na-&gt;bColor=va.bColor;
++    na-&gt;mChanged=true;
+ 
+-  return na;
+-}
++    // calc bbox
++    na-&gt;bbox=AGBox3(AGVector3(),AGVector3());
++
++
++
++    return na;
++  }
+
+Modified: antargis/trunk/ext/3dengine/vertex_array.h
+===================================================================
+--- antargis/trunk/ext/3dengine/vertex_array.h	2008-02-06 20:02:44 UTC (rev 1228)
++++ antargis/trunk/ext/3dengine/vertex_array.h	2008-02-15 20:44:14 UTC (rev 1229)
+@@ -83,8 +83,8 @@
+   bool useVertexArrays() const;
+   friend VertexArray *makeInstances(const VertexArray &amp;va,const std::vector&lt;AGMatrix4&gt; &amp;ts);
+ 
+-  void onScreenUp();
+-  void onScreenDown();
++  virtual void onScreenUp();
++  virtual void onScreenDown();
+ 
+ };
+ 
+@@ -118,6 +118,9 @@
+ 
+   virtual void draw();
+ 
++  virtual void onScreenUp();
++  virtual void onScreenDown();
++
+  private:
+   void aInit();
+   void attach();
+
+Modified: antargis/trunk/ext/game/entity.cc
+===================================================================
+--- antargis/trunk/ext/game/entity.cc	2008-02-06 20:02:44 UTC (rev 1228)
++++ antargis/trunk/ext/game/entity.cc	2008-02-15 20:44:14 UTC (rev 1229)
+@@ -870,6 +870,17 @@
+   return dynamic_cast&lt;MoveJob*&gt;(mJob);
+ }
+ 
++AGVector2 AntEntity::getTargetPos2D()
++{
++	if(mJob) {
++		MoveJob *m=dynamic_cast&lt;MoveJob*&gt;(mJob);
++		if(m)
++			return m-&gt;getTargetPos2D();
++	}
++	return getPos2D();
++}
++
++
+ AntEntity *AntEntity::getTarget()
+ {
+   if(mJob)
+
+Modified: antargis/trunk/ext/game/entity.h
+===================================================================
+--- antargis/trunk/ext/game/entity.h	2008-02-06 20:02:44 UTC (rev 1228)
++++ antargis/trunk/ext/game/entity.h	2008-02-15 20:44:14 UTC (rev 1229)
+@@ -276,6 +276,7 @@
+     AntMap *getMap();
+ 
+     AntEntity *getTarget();
++    AGVector2 getTargetPos2D();
+ 
+   private:
+     void init();
+
+Modified: antargis/trunk/ext/game/jobs.cc
+===================================================================
+--- antargis/trunk/ext/game/jobs.cc	2008-02-06 20:02:44 UTC (rev 1228)
++++ antargis/trunk/ext/game/jobs.cc	2008-02-15 20:44:14 UTC (rev 1229)
+@@ -145,6 +145,12 @@
+   
+ }
+ 
++AGVector2 MoveJob::getTargetPos2D() const
++{
++	return mTarget;
++}
++
++
+ AGVector2 MoveJob::getDirection(const AntEntity *e) const
+ {
+   return (mTarget-e-&gt;getPos2D()).normalized();
+
+Modified: antargis/trunk/ext/game/jobs.h
+===================================================================
+--- antargis/trunk/ext/game/jobs.h	2008-02-06 20:02:44 UTC (rev 1228)
++++ antargis/trunk/ext/game/jobs.h	2008-02-15 20:44:14 UTC (rev 1229)
+@@ -96,6 +96,7 @@
+     {
+       return mTargetEntity;
+     }
++  AGVector2 getTargetPos2D() const;
+   
+  private:
+   void moveBy(AntEntity *e,float ptime,float aspeed);
+
+Modified: antargis/trunk/ext/video/ag_glscreen.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_glscreen.cc	2008-02-06 20:02:44 UTC (rev 1228)
++++ antargis/trunk/ext/video/ag_glscreen.cc	2008-02-15 20:44:14 UTC (rev 1229)
+@@ -55,37 +55,37 @@
+ 
+ void initDraw()
+ {
+-  glEnable( GL_BLEND );
+-  glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
++	glEnable( GL_BLEND );
++	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+ 
+-  glDisable(GL_DEPTH_TEST); // enable depth test
+-  glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT); // clear screen and depth buffer
+-  glLoadIdentity();
+-  glDepthMask(false);
+-  //  glTranslatef(0.375, 0.375, 0.0);
+-  glEnable(GL_CULL_FACE);
+-  glCullFace(GL_BACK);
++	glDisable(GL_DEPTH_TEST); // enable depth test
++	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT); // clear screen and depth buffer
++	glLoadIdentity();
++	glDepthMask(false);
++	//  glTranslatef(0.375, 0.375, 0.0);
++	glEnable(GL_CULL_FACE);
++	glCullFace(GL_BACK);
+ }
+ 
+ void initGUIView(int w,int h)
+ {
+-  glMatrixMode( GL_PROJECTION );
+-  glLoadIdentity( );
++	glMatrixMode( GL_PROJECTION );
++	glLoadIdentity( );
+ 
+-  GLfloat ratio;
++	GLfloat ratio;
+ 
+-  ratio = ( float )w / ( float )h;
++	ratio = ( float )w / ( float )h;
+ 
+-  gluOrtho2D(0,w,0,h);
++	gluOrtho2D(0,w,0,h);
+ 
+-  glMatrixMode( GL_MODELVIEW );
+-  glLoadIdentity( );
++	glMatrixMode( GL_MODELVIEW );
++	glLoadIdentity( );
+ 
+ }
+ 
+ void myFlip()
+ {
+-  SDL_GL_SwapBuffers();
++	SDL_GL_SwapBuffers();
+ }
+ 
+ ////////////////////////////////////////////////////////////////////////
+@@ -95,12 +95,12 @@
+ 
+ AGGLObject::AGGLObject()
+ {
+-  AGGLScreen::addGLObject(this);
++	AGGLScreen::addGLObject(this);
+ }
+ 
+ AGGLObject::~AGGLObject()
+ {
+-  AGGLScreen::removeGLObject(this);
++	AGGLScreen::removeGLObject(this);
+ }
+ 
+ void AGGLObject::onScreenDown()
+@@ -118,43 +118,43 @@
+ 
+ 
+ AGGLScreen::AGGLScreen(int W,int H,int VW,int VH):
+-  w(VW),h(VH),
+-  rw(W),rh(H)
+-{
+-  if(w&lt;rw)
+-    w=rw;
+-  if(h&lt;rh)
+-    h=rh;
++	w(VW),h(VH),
++	rw(W),rh(H)
++	{
++	if(w&lt;rw)
++		w=rw;
++	if(h&lt;rh)
++		h=rh;
+ 
+-  mLineWidth=2;
++	mLineWidth=2;
+ 
+-  cdebug(&quot;w:&quot;&lt;&lt;w&lt;&lt;&quot; h:&quot;&lt;&lt;h);
++	cdebug(&quot;w:&quot;&lt;&lt;w&lt;&lt;&quot; h:&quot;&lt;&lt;h);
+ 
+-  // init GL
+-  glEnable(GL_TEXTURE_2D);
+-  glShadeModel(GL_SMOOTH);
+-  glClearColor(0.0f,0.0f,0.0f,0.0f); // clear bgcolor
+-  glClearDepth(1.0f);      // clear depth buffer
+-  glEnable(GL_DEPTH_TEST); // enable depth test
+-  glDepthFunc(GL_LEQUAL); // set type depth test
+-  glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); // GL_NICEST // best perspective correction
+-  glEnable(GL_BLEND);
++	// init GL
++	glEnable(GL_TEXTURE_2D);
++	glShadeModel(GL_SMOOTH);
++	glClearColor(0.0f,0.0f,0.0f,0.0f); // clear bgcolor
++	glClearDepth(1.0f);      // clear depth buffer
++	glEnable(GL_DEPTH_TEST); // enable depth test
++	glDepthFunc(GL_LEQUAL); // set type depth test
++	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); // GL_NICEST // best perspective correction
++	glEnable(GL_BLEND);
+ 
+-  glViewport( 0, 0, rw, rh );
+-  glMatrixMode( GL_PROJECTION );
+-  glLoadIdentity( );
++	glViewport( 0, 0, rw, rh );
++	glMatrixMode( GL_PROJECTION );
++	glLoadIdentity( );
+ 
+-  GLfloat ratio;
++	GLfloat ratio;
+ 
+-  ratio = ( float )w / ( float )h;
++	ratio = ( float )w / ( float )h;
+ 
+-  //  gluPerspective( 45.0f, ratio, 1.0f, 100.0f );
++	//  gluPerspective( 45.0f, ratio, 1.0f, 100.0f );
+ 
+-  gluOrtho2D(0,w,0,h);
++	gluOrtho2D(0,w,0,h);
+ 
+-  glMatrixMode( GL_MODELVIEW );
+-  glLoadIdentity( );
+-}
++	glMatrixMode( GL_MODELVIEW );
++	glLoadIdentity( );
++	}
+ 
+ 
+ 
+@@ -165,276 +165,277 @@
+ 
+ AGSurface AGGLScreen::screenshot(bool frontBuffer)
+ {
+-  AGSurface s(getWidth(),getHeight());
++	AGSurface s(getWidth(),getHeight());
+ 
+-  //  SDL_Surface *surface=s.surface()-&gt;surface;
++	//  SDL_Surface *surface=s.surface()-&gt;surface;
+ 
+-  unsigned char *buffer=new unsigned char[getWidth()*getHeight()*4];
++	unsigned char *buffer=new unsigned char[getWidth()*getHeight()*4];
+ 
+-  if(frontBuffer)
+-    glReadBuffer(GL_FRONT);
+-  else
+-    glReadBuffer(GL_BACK);
++	if(frontBuffer)
++		glReadBuffer(GL_FRONT);
++	else
++		glReadBuffer(GL_BACK);
+ 
+-  cdebug(s.surface());
+-  cdebug(s.surface()-&gt;surface);
++	cdebug(s.surface());
++	cdebug(s.surface()-&gt;surface);
+ 
+-  glPixelStorei(GL_PACK_ALIGNMENT, 2);
+-  assertGL;
+-  glPixelStorei(GL_PACK_ROW_LENGTH, getWidth());
+-  //                surface-&gt;pitch / surface-&gt;format-&gt;BytesPerPixel);
+-  assertGL;
++	glPixelStorei(GL_PACK_ALIGNMENT, 2);
++	assertGL;
++	glPixelStorei(GL_PACK_ROW_LENGTH, getWidth());
++	//                surface-&gt;pitch / surface-&gt;format-&gt;BytesPerPixel);
++	assertGL;
+ 
+ 
+-  {
+-    TRACE;
+-    glReadPixels(0,0,getWidth(),getHeight(),GL_RGBA,GL_UNSIGNED_BYTE,buffer);//s.surface()-&gt;surface);
+-    glReadBuffer(GL_BACK);
+-  }
++	{
++		TRACE;
++		glReadPixels(0,0,getWidth(),getHeight(),GL_RGBA,GL_UNSIGNED_BYTE,buffer);//s.surface()-&gt;surface);
++		glReadBuffer(GL_BACK);
++	}
+ 
+-  {
+-    // copy
+-    TRACE;
+-    int h=getHeight()-1;
+-    for(int x=0;x&lt;(int)getWidth();x++)
+-      for(int y=0;y&lt;(int)getHeight();y++)
+ 	{
+-	  unsigned char*p=buffer+((x+(h-y)*getWidth())*4);
+-	  AGColor c(p[0],p[1],p[2],p[3]);
+-	  s.putPixel(x,y,c);
++		// copy
++		TRACE;
++		int h=getHeight()-1;
++		for(int x=0;x&lt;(int)getWidth();x++)
++			for(int y=0;y&lt;(int)getHeight();y++)
++			{
++				unsigned char*p=buffer+((x+(h-y)*getWidth())*4);
++				AGColor c(p[0],p[1],p[2],p[3]);
++				s.putPixel(x,y,c);
++			}
+ 	}
+-  }
+-  
+ 
+-  delete [] buffer;
+-  return s;
++
++	delete [] buffer;
++	return s;
+ }
+ 
+ 
+ void AGGLScreen::begin()
+ {
+-  glViewport( 0, 0, rw, rh );
+-  glDisable(GL_LIGHTING);
+-  glEnable(GL_TEXTURE_2D);
+-  glShadeModel(GL_SMOOTH);
++	glViewport( 0, 0, rw, rh );
++	glDisable(GL_LIGHTING);
++	glEnable(GL_TEXTURE_2D);
++	glShadeModel(GL_SMOOTH);
+ 
+-  glEnable(GL_DEPTH_TEST); // enable depth test
+-  glDepthFunc(GL_LEQUAL); // set type depth test
+-  glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); // GL_NICEST // best perspective correction
+-  glEnable(GL_BLEND);
++	glEnable(GL_DEPTH_TEST); // enable depth test
++	glDepthFunc(GL_LEQUAL); // set type depth test
++	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); // GL_NICEST // best perspective correction
++	glEnable(GL_BLEND);
+ 
+-  glViewport( 0, 0, rw, rh );
+-  glMatrixMode( GL_PROJECTION );
+-  glLoadIdentity( );
++	glViewport( 0, 0, rw, rh );
++	glMatrixMode( GL_PROJECTION );
++	glLoadIdentity( );
+ 
+-  GLfloat ratio;
++	GLfloat ratio;
+ 
+-  ratio = ( float )w / ( float )h;
++	ratio = ( float )w / ( float )h;
+ 
+-  gluOrtho2D(0,w,0,h);
++	gluOrtho2D(0,w,0,h);
+ 
+-  glMatrixMode( GL_MODELVIEW );
+-  glLoadIdentity( );
++	glMatrixMode( GL_MODELVIEW );
++	glLoadIdentity( );
+ 
+-  glEnable( GL_BLEND );
+-  glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
++	glEnable( GL_BLEND );
++	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+ 
+-  glDisable(GL_DEPTH_TEST); // enable depth test
++	glDisable(GL_DEPTH_TEST); // enable depth test
+ 
+-  glDepthMask(false);
++	glDepthMask(false);
+ }
+ 
+ void AGGLScreen::flip()
+ {
+-  myFlip();
+-  getSurfaceManager()-&gt;cleanup(); // FIXME: maybe delete it - or do cleanup in 2 stages
+-  initDraw();
++	myFlip();
++	getSurfaceManager()-&gt;cleanup(); // FIXME: maybe delete it - or do cleanup in 2 stages
++	initDraw();
+ 
+-  initGUIView(w,h);
++	initGUIView(w,h);
+ }
+ void AGGLScreen::update(const std::list&lt;AGRect2&gt; &amp;rs)
+ {
+-  flip();
++	flip();
+ }
+ 
+ 
+ size_t next2pow(size_t i)
+ {
+-  size_t j=1;
+-  while(j&lt;i)
+-    j&lt;&lt;=1;
++	size_t j=1;
++	while(j&lt;i)
++		j&lt;&lt;=1;
+ 
+-  return j;
++	return j;
+ }
+ 
+ 
+ bool AGGLScreen::inScreen(const AGRect2 &amp;r) const
+ {
+-  return AGRect2(0,0,w,h).contains(r);
++	return AGRect2(0,0,w,h).contains(r);
+ }
+ 
+ void AGGLScreen::blit(const AGTexture &amp;pSource,const AGRect2 &amp;pRect,const AGRect2 &amp;pSrc)
+ {
+-  blit(pSource,pRect,pSrc,AGColor(0xFF,0xFF,0xFF,0xFF));
++	blit(pSource,pRect,pSrc,AGColor(0xFF,0xFF,0xFF,0xFF));
+ }
+ 
+ void AGGLScreen::blit(const AGTexture &amp;pSource,const AGRect2 &amp;pRect,const AGRect2 &amp;pSrc,const AGColor &amp;pColor)
+ {
+-  AGGLPainter::blit(pSource,pRect,pSrc,pColor);
++	AGGLPainter::blit(pSource,pRect,pSrc,pColor);
+ }
+ 
+ 
+ void AGGLScreen::blit(const AGTexture &amp;pSource,const std::vector&lt;std::pair&lt;AGRect2,AGRect2&gt; &gt; &amp;pSrcDestRects,const AGColor &amp;pColor)
+ {
+-  AGGLPainter::blit(pSource,pSrcDestRects,pColor);
++	AGGLPainter::blit(pSource,pSrcDestRects,pColor);
+ }
+ 
+ 
+ void AGGLScreen::tile(const AGTexture &amp;pSource,const AGRect2 &amp;pTarget,const AGColor &amp;pColor)
+ {
+-  AGGLPainter::tile(pSource,pTarget,pColor);
++	AGGLPainter::tile(pSource,pTarget,pColor);
+ }
+ 
+ 
+ void AGGLScreen::fillRect(const AGRect2 &amp;pRect,const AGColor &amp;c)
+ {
+-  AGGLPainter::fillRect(pRect,c);
++	AGGLPainter::fillRect(pRect,c);
+ }
+ 
+ void AGGLScreen::fillRects(const std::vector&lt;std::pair&lt;AGRect2,AGVector4&gt; &gt; &amp;pRects)
+ {
+-  AGGLPainter::fillRects(pRects);
++	AGGLPainter::fillRects(pRects);
+ }
+ 
+ 
+ AGRect2 AGGLScreen::getRect() const
+ {
+-  return AGRect2(0,0,w,h);
++	return AGRect2(0,0,w,h);
+ }
+ 
+ void glColor(const AGColor &amp;c)
+ {
+-  glColor4f(c.r/255.0,c.g/255.0,c.b/255.0,c.a/255.0);
++	glColor4f(c.r/255.0,c.g/255.0,c.b/255.0,c.a/255.0);
+ }
+ 
+ void AGGLScreen::drawGradientAlpha(const AGRect2&amp; pRect, const AGColor&amp; ul, const AGColor&amp; ur, const AGColor&amp; dl, const AGColor&amp; dr)
+ {
+-  AGGLPainter::drawGradientAlpha(pRect,ul,ur,dl,dr);
++	AGGLPainter::drawGradientAlpha(pRect,ul,ur,dl,dr);
+ }
+ 
+ void AGGLScreen::drawBorder(const AGRect2&amp; rect,int W, const AGColor&amp; c1, const AGColor&amp; c2)
+ {
+-  AGGLPainter::drawBorder(rect,W,c1,c2);
++	AGGLPainter::drawBorder(rect,W,c1,c2);
+ }
+ 
+ void AGGLScreen::putPixel(int x,int y,const AGColor &amp;pc)
+ {
+-  AGGLPainter::putPixel(x,y,pc);
++	AGGLPainter::putPixel(x,y,pc);
+ }
+ 
+ void AGGLScreen::drawGradient(const AGRect2&amp; rect, const AGColor&amp; ul, const AGColor&amp; ur, const AGColor&amp; dl, const AGColor&amp; dr)
+ {
+-  drawGradientAlpha(rect,ul,ur,dl,dr);
++	drawGradientAlpha(rect,ul,ur,dl,dr);
+ }
+ 
+ void AGGLScreen::drawLine(const AGVector2 &amp;p0,const AGVector2 &amp;p1,const AGColor &amp;c)
+ {
+-  AGGLPainter::drawLine(p0,p1,c,mLineWidth);
++	AGGLPainter::drawLine(p0,p1,c,mLineWidth);
+ }
+ 
+ void AGGLScreen::blitTri(const AGTexture &amp;pSource,const AGTriangle2 &amp;pSrc,const AGTriangle2 &amp;pDest)
+ {
+-  AGGLPainter::blitTri(pSource,pSrc,pDest);
++	AGGLPainter::blitTri(pSource,pSrc,pDest);
+ }
+ 
+ size_t AGGLScreen::getWidth() const
+ {
+-  return w;
++	return w;
+ }
+ size_t AGGLScreen::getHeight() const
+ {
+-  return h;
++	return h;
+ }
+ void AGGLScreen::clip(const AGRect2 &amp;r)
+ {
+-  //return;
++	//return;
+ #warning &quot;insert clipping facility for opengl&quot;
+ 
+-  AGRect2 x=AGRect2(0,0,w,h);
+-  AGRect2 m=x.intersect(r);
++	AGRect2 x=AGRect2(0,0,w,h);
++	AGRect2 m=x.intersect(r);
+ 
+-  GLint x0,y0,cw,ch;
++	GLint x0,y0,cw,ch;
+ 
+-  x0=(GLint)m.x0();
+-  y0=(GLint)(h-m.y1()); // -1
+-  cw=(GLint)m.width();
+-  ch=(GLint)m.height(); // +2
++	x0=(GLint)m.x0();
++	y0=(GLint)(h-m.y1()); // -1
++	cw=(GLint)m.width();
++	ch=(GLint)m.height(); // +2
+ 
+-  //  cdebug(x0&lt;&lt;&quot;;&quot;&lt;&lt;y0&lt;&lt;&quot;;&quot;&lt;&lt;cw&lt;&lt;&quot;;&quot;&lt;&lt;ch);
++	//  cdebug(x0&lt;&lt;&quot;;&quot;&lt;&lt;y0&lt;&lt;&quot;;&quot;&lt;&lt;cw&lt;&lt;&quot;;&quot;&lt;&lt;ch);
+ 
+-  glScissor(x0,y0,cw,ch);
+-  /*
++	glScissor(x0,y0,cw,ch);
++	/*
+ 
+   glScissor((GLint)(m.x0()),
+ 	    (GLint)(h-1-m.y1()),
+ 	    (GLint)(m.width()),
+ 	    (GLint)(m.height()));
+-  */
+-  assertGL;
+-  glEnable(GL_SCISSOR_TEST);
+-  assertGL;
++	 */
++	assertGL;
++	glEnable(GL_SCISSOR_TEST);
++	assertGL;
+ }
+ void AGGLScreen::unclip()
+ {
+-  glDisable(GL_SCISSOR_TEST);
+-  assertGL;
++	glDisable(GL_SCISSOR_TEST);
++	assertGL;
+ }
+ 
+ 
+ void AGGLScreen::beginPaint()
+ {
+-  //  CTRACE;
+-  glMatrixMode(GL_MODELVIEW);
+-  glLoadIdentity();
+-  glTranslatef(0,getHeight(),0);
+-  glScalef(1,-1,1);
++	//  CTRACE;
++	glMatrixMode(GL_MODELVIEW);
++	glLoadIdentity();
++	glTranslatef(0,getHeight(),0);
++	glScalef(1,-1,1);
+ }
+ 
+ void AGGLScreen::endPaint()
+ {
+-  glMatrixMode(GL_MODELVIEW);
+-  glLoadIdentity();
++	glMatrixMode(GL_MODELVIEW);
++	glLoadIdentity();
+ }
+ 
+ void AGGLScreen::setLineWidth(float w)
+ {
+-  mLineWidth=w;
++	mLineWidth=w;
+ }
+ 
+ void AGGLScreen::addGLObject(AGGLObject *pObject)
+ {
+-  msObjects.insert(pObject);
++	msObjects.insert(pObject);
+ }
+ 
+ void AGGLScreen::removeGLObject(AGGLObject *pObject)
+ {
+-  msObjects.erase(pObject);
++	msObjects.erase(pObject);
+ }
+ 
+ void AGGLScreen::screenDown()
+ {
+-  for(std::set&lt;AGGLObject*&gt;::iterator i=msObjects.begin();i!=msObjects.end();i++)
+-    (*i)-&gt;onScreenDown();
++	CTRACE;
++	for(std::set&lt;AGGLObject*&gt;::iterator i=msObjects.begin();i!=msObjects.end();i++)
++		(*i)-&gt;onScreenDown();
+ 
+ }
+ void AGGLScreen::screenUp()
+ {
+-  for(std::set&lt;AGGLObject*&gt;::iterator i=msObjects.begin();i!=msObjects.end();i++)
+-    (*i)-&gt;onScreenUp();
++	for(std::set&lt;AGGLObject*&gt;::iterator i=msObjects.begin();i!=msObjects.end();i++)
++		(*i)-&gt;onScreenUp();
+ }
+ 
+ 
+ bool opengl()
+ {
+-  return dynamic_cast&lt;AGGLScreen*&gt;(&amp;getScreen());
++	return dynamic_cast&lt;AGGLScreen*&gt;(&amp;getScreen());
+ }
+
+Modified: antargis/trunk/main/Rakefile
+===================================================================
+--- antargis/trunk/main/Rakefile	2008-02-06 20:02:44 UTC (rev 1228)
++++ antargis/trunk/main/Rakefile	2008-02-15 20:44:14 UTC (rev 1229)
+@@ -4,13 +4,13 @@
+ Dir.chdir(File.split(File.split(__FILE__)[0])[0])
+ 
+ 
+-task 'starter'=&gt;&quot;main/starter.cc&quot; do
++task './starter'=&gt;File.join(&quot;main&quot;,&quot;starter.cc&quot;) do
+ 	require 'antconfig.rb'
+ 	cmd=&quot;g++ -o starter main/starter.cc &quot;+$CONFIG[&quot;CFLAGS&quot;]+&quot; &quot;+$CONFIG[&quot;INCLUDEPATH&quot;]+&quot; &quot;+`sdl-config --libs`.chomp+&quot; -l&quot;+CONFIG[&quot;RUBY_SO_NAME&quot;]
+ 	cmd.gsub!(&quot;-arch ppc&quot;,&quot;&quot;)
+ 	sh cmd
+ end
+ 
+-#task :starter=&gt;'starter'
++task :starterPrg=&gt;'./starter'
+ 
+ CLEAN &lt;&lt; Dir[&quot;starter&quot;]
+\ No newline at end of file
+
+Modified: antargis/trunk/ruby/ant_application.rb
+===================================================================
+--- antargis/trunk/ruby/ant_application.rb	2008-02-06 20:02:44 UTC (rev 1228)
++++ antargis/trunk/ruby/ant_application.rb	2008-02-15 20:44:14 UTC (rev 1229)
+@@ -314,8 +314,7 @@
+ 		@elapsTime+=time
+ 
+ 
+-# 		# move entities in game-engine
+-		#getMap().move(time*@speed)
++ 		# move entities in game-engine
+ 		moveMap(time*@speed)
+ 
+ 		# advance animations
+
+Modified: antargis/trunk/ruby/ant_formations.rb
+===================================================================
+--- antargis/trunk/ruby/ant_formations.rb	2008-02-06 20:02:44 UTC (rev 1228)
++++ antargis/trunk/ruby/ant_formations.rb	2008-02-15 20:44:14 UTC (rev 1229)
+@@ -28,10 +28,16 @@
+ 	end
+ 	def calcFormation
+ 	end
++	
++	
+ 	def getPosition(man,pos)
+ 		if pos.nil?
+ 			raise &quot;pos nil&quot;
+ 		end
++		# clear cache if men have changed
++		if changedMen
++		  @cache={}
++	    end
+ 		if @cache.member?(man)
+ 			return @cache[man]+pos
+ 		end
+@@ -50,7 +56,9 @@
+ 			end
+ 		end
+ 		@cache[man]=r
+-		return r+pos
++		ret= r+pos
++		puts &quot;RET:#{ret}=#{r}+#{pos}&quot;
++		ret
+ 	end
+ 	def getSortedMen
+ 		if @sorted.nil?
+@@ -61,8 +69,16 @@
+ 	def sort(men)
+ 		raise &quot;not implemented&quot;
+ 	end
++	
++
++    def changedMen
++        nmen=sort(@boss.getMen-[@boss])
++        @men!=nmen
++    end	
+ end
+ 
++#
++# *a* has better weaponry than *b*
+ def betterWeapons(a,b)
+ 	weapons=[&quot;bow&quot;,&quot;sword&quot;]
+ 	weapons.each{|w|
+@@ -72,15 +88,18 @@
+ 		end
+ 	}
+ 	return 0
++
+ end
+ 
+ 
+ class AntFormationRest&lt;AntFormation
+ 	def initialize(boss)
+ 		super(boss)
++		puts &quot;new formation&quot;
+ 	end
+ 
+ 	def calcFormation
++		puts &quot;calcFormation&quot;
+ 		@rpos={} # real positions as map from man to AGVector2
+ 		vpos={}  # virtual positions as map from man to pair of [row,line (circle)]
+ 
+@@ -105,6 +124,7 @@
+ 			row,line=vpos[m]
+ 			radius=line*1.2
+ 			angle=row.to_f/linesizes[line]*Math::PI*2
++			puts &quot;#{m} #{row} #{line} #{angle} #{radius} #{linesizes[line]}&quot;
+ 			@rpos[m]=AGVector2.new(Math::cos(angle)*radius,Math::sin(angle)*radius)
+ 			#puts &quot;SET:#{m}&quot;
+ 		}
+@@ -112,14 +132,22 @@
+ 		if @men.length&gt;0
+ 			@inited=true
+ 		end
++		
++		@rpos.keys.each{|key|
++			puts &quot;FORMAT #{key} : #{@rpos[key]}&quot;
++		}
++		
+ 	end
+ 	def getPositionReal(man)
+-		if (not @inited)
++		if (not @inited) or changedMen
+ 			calcFormation
+ 		end
+ 		return @rpos[man]
+ 	end
++		
+ 	private
++	
++
+ 	def getRowsOfLine(line)
+ 		{1=&gt;10,2=&gt;14,3=&gt;20,4=&gt;40}[line]
+ 	end
+
+Modified: antargis/trunk/ruby/entities/ant_hero.rb
+===================================================================
+--- antargis/trunk/ruby/entities/ant_hero.rb	2008-02-06 20:02:44 UTC (rev 1228)
++++ antargis/trunk/ruby/entities/ant_hero.rb	2008-02-15 20:44:14 UTC (rev 1229)
+@@ -163,14 +163,17 @@
+ 	end
+ 	def newHLBuildJob(pos,type)
+ 		@job.stopJob if @job
+-		if true
++		puts &quot;POSHL:#{pos} #{pos.class}&quot;
++		if pos.is_a?(AGVector2) or pos.is_a?(AGVector3)
++			assert{pos.is_a?(AGVector2) or pos.is_a?(AGVector3)}
+ 			target=AntBuildingSite.new(getMap)
+ 			target.setPos(pos)
+ 			target.building=type
+ 			getMap.insertEntity(target)
+ 			@job=AntHeroBuildJob.new(self,target) #pos,type)
+ 		else
+-			@job=AntHeroBuildJob.new(self,pos,type)
++			assert{pos.is_a?(AntBuildingSite)}
++			@job=AntHeroBuildJob.new(self,pos)
+ 		end
+ 		assignJob2All
+ 	end
+
+Modified: antargis/trunk/ruby/entities/ant_manbase.rb
+===================================================================
+--- antargis/trunk/ruby/entities/ant_manbase.rb	2008-02-06 20:02:44 UTC (rev 1228)
++++ antargis/trunk/ruby/entities/ant_manbase.rb	2008-02-15 20:44:14 UTC (rev 1229)
+@@ -76,7 +76,7 @@
+ 	end
+ 
+ 	def standStillShort
+-		newRestJob(0.2)
++		newRestJob(0.1)
+ 		setMeshState(&quot;stand&quot;)
+ 	end
+ 
+
+Modified: antargis/trunk/ruby/entities/entity.rb
+===================================================================
+--- antargis/trunk/ruby/entities/entity.rb	2008-02-06 20:02:44 UTC (rev 1228)
++++ antargis/trunk/ruby/entities/entity.rb	2008-02-15 20:44:14 UTC (rev 1229)
+@@ -8,7 +8,7 @@
+ # This should be used for all the entity-types.
+ class AntRubyEntity&lt;AntEntity
+ 	attr_accessor :birthday
+-	attr_reader :uid
++	attr_reader :uid, :selected
+ 
+ 	# get the 3d-scene-object out of the Map-object
+ 	def getScene
+
+Modified: antargis/trunk/ruby/gui/ag_tools.rb
+===================================================================
+--- antargis/trunk/ruby/gui/ag_tools.rb	2008-02-06 20:02:44 UTC (rev 1228)
++++ antargis/trunk/ruby/gui/ag_tools.rb	2008-02-15 20:44:14 UTC (rev 1229)
+@@ -57,10 +57,8 @@
+ 	end
+ 	# event dispatcher
+ 	def signal(e)
+-		pp e
+ 		@handlers||={}
+ 		mcaller=e.getCaller
+-		pp mcaller
+ 		evName=makeHandlerName(mcaller,e.getName)
+ 		#callerName=e.getCaller.getName
+ 		#evName=callerName+&quot;:&quot;+e.getName
+
+Modified: antargis/trunk/ruby/gui/testing.rb
+===================================================================
+--- antargis/trunk/ruby/gui/testing.rb	2008-02-06 20:02:44 UTC (rev 1228)
++++ antargis/trunk/ruby/gui/testing.rb	2008-02-15 20:44:14 UTC (rev 1229)
+@@ -2,9 +2,11 @@
+ 	attr_reader :quitCounter
+ 	def step
+ 		run
++		puts &quot;step end&quot;
+ 	end
+ 	def eventFrame(t)
+ 		super
++		puts &quot;FRAME - try Quit...&quot;
+ 		tryQuit
+ 		true
+ 	end
+
+Modified: antargis/trunk/ruby/jobs/ant_hljob_states.rb
+===================================================================
+--- antargis/trunk/ruby/jobs/ant_hljob_states.rb	2008-02-06 20:02:44 UTC (rev 1228)
++++ antargis/trunk/ruby/jobs/ant_hljob_states.rb	2008-02-15 20:44:14 UTC (rev 1229)
+@@ -782,6 +782,7 @@
+ 	end
+ 
+ 	def ready
++		#return false
+ 		recruitedEnough=((@countRecruited&gt;=howManyToRecruit) or nonToRecruitLeft)
+ 		everyoneIsAtHisPlace=(hero.getMen).map{|man|(man.getPos2D-hero.getFormation(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">man, at myPos</A>)).length}.max&lt;MAX_DIST
+ 		heroIsAtHisPlace=(hero.getPos2D-hero.getFormation(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">hero, at myPos</A>)).length&lt;MAX_DIST
+@@ -837,10 +838,13 @@
+ 
+ 	def returnToStart(man)
+ 		pos=hero.getFormation(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">man, at myPos</A>)
++		puts &quot;RETURN to start: mypos:#{@myPos} diffHero:#{@myPos-hero.getPos2D} manpos:#{man.getPos2D} tposman:#{pos} diff:#{pos-man.getPos2D}&quot;
++		
++		
+ 		if (man.getPos2D-pos).length&lt;MAX_DIST
+ 			man.lookTo(@myPos)
+ 			man.standStillShort # FIXME: really short ?
+-			puts &quot;standStill #{man}&quot;
++			puts &quot;standStill #{man} #{pos}==#{man.getPos2D}  ---#{@myPos} &quot;
+ 		else
+ 			man.walkTo(pos)
+ 			puts &quot;walkTo #{pos} #{man}&quot;
+
+Modified: antargis/trunk/ruby/jobs/ant_new_hljobs.rb
+===================================================================
+--- antargis/trunk/ruby/jobs/ant_new_hljobs.rb	2008-02-06 20:02:44 UTC (rev 1228)
++++ antargis/trunk/ruby/jobs/ant_new_hljobs.rb	2008-02-15 20:44:14 UTC (rev 1229)
+@@ -334,12 +334,13 @@
+ 	attr_accessor :targetPos
+ 	attr_accessor :formatDir
+ 	attr_accessor :target
+-
++    attr_accessor :near
++	
+ 	def initialize(hero,target)
+ 		@targetPos=target.getPos2D
+ 		@target=target
++        @near=4
+ 		super(hero)
+-		@states[:moveComplete].near=4
+ 		
+ 		if (hero.getPos2D-target.getPos2D).length&lt;4
+ 			state.moveDirectly			
+
+Modified: antargis/trunk/ruby/jobs/ant_state_machine.rb
+===================================================================
+--- antargis/trunk/ruby/jobs/ant_state_machine.rb	2008-02-06 20:02:44 UTC (rev 1228)
++++ antargis/trunk/ruby/jobs/ant_state_machine.rb	2008-02-15 20:44:14 UTC (rev 1229)
+@@ -78,6 +78,10 @@
+ 		end
+ 		raise &quot;no state defined!&quot;
+ 	end
++	
++	def stateName
++		@state
++	end
+ 
+ 	def stateCall(*s)
+ 		if @state
+
+Added: antargis/trunk/ruby/spec/level_testing.rb
+===================================================================
+--- antargis/trunk/ruby/spec/level_testing.rb	2008-02-06 20:02:44 UTC (rev 1228)
++++ antargis/trunk/ruby/spec/level_testing.rb	2008-02-15 20:44:14 UTC (rev 1229)
+@@ -0,0 +1,106 @@
++require 'ruby/spec_helper.rb'
++require 'ruby/gui/testing.rb'
++require 'ruby/ant_application.rb'
++
++module LevelTesting
++	class TestEntity
++		class ClickNode
++			attr_accessor :node
++		end
++
++		def initialize(entity,app)
++			@entity=entity
++			@app=app
++		end
++		def click(button=1)
++			n=ClickNode.new
++			n.node=@entity.getMesh[0]
++			@app.eventEntitiesClicked([n],button)
++		end
++		def method_missing(*s)
++			@entity.send(*s)
++		end
++	end
++	
++	def entities(type)
++		map.getByType(type).collect{|e|TestEntity.new(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">e, at app</A>)}
++	end
++	
++	include GuiTest
++	def getTestApp(testLevelName)
++		case testLevelName
++			when :tutorial0
++				file=&quot;data/levels/tutorial/tutorial0.antlvl&quot;
++			when :tutorial3
++				file=&quot;data/levels/tutorial/tutorial3.antlvl&quot;
++	    end
++	    clientConnection=nil
++	    @app=makeTestAppClass(AntGameApp).new(loadFile(file),getVideo.width,getVideo.height,nil,clientConnection)
++	end
++	
++	def runUntilLowLevelJobToFinish(entity)
++		observe(entity,:eventJobFinished) do |observer|
++			while observer.isNotCalled
++				advance
++			end
++		end
++	end
++	
++    def clickAwayStory
++        telltaleWidget=widget(&quot;TellTale&quot;)
++		raise if telltaleWidget.nil?
++        return if telltaleWidget.nil?
++
++        telltaleWidget.should_not be_nil
++        telltaleWidget.should be_visible
++        okButton=telltaleWidget.child(&quot;ok&quot;)
++        okButton.should_not be_nil
++        okButton.click
++        trials=0
++		
++        while telltaleWidget.visible?
++            okButton.click
++            @app.step
++            trials+=1
++            trials.should &lt;10
++        end
++
++    end
++	
++	
++	def advance(time=nil)
++		step=0.3
++		time||=0
++		begin
++			@app.getMap.move(step)
++			@app.step
++			time-=step
++		end while time&gt;step
++	end	
++
++    def hero(name)
++    	h=map.getByName(name)
++		h.should_not be_nil
++		h.should be_a_kind_of(AntHero)
++		h
++    end
++	def building(name)
++		b=map.getByName(name)
++		b.should_not be_nil
++		b.should be_a_kind_of(AntHouse)
++		b
++	end
++	def map
++		@app.getMap
++	end
++	
++	def clickMap(pos2d,button=1)
++		@app.eventMapClicked(pos2d,button)
++	end
++	
++	def waitForStory
++		while not (widget(&quot;TellTale&quot;).valid and widget(&quot;TellTale&quot;).visible?)
++			advance
++		 end
++	end		
++end
+\ No newline at end of file
+
+Added: antargis/trunk/ruby/spec/spec_formation.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_formation.rb	2008-02-06 20:02:44 UTC (rev 1228)
++++ antargis/trunk/ruby/spec/spec_formation.rb	2008-02-15 20:44:14 UTC (rev 1229)
+@@ -0,0 +1,68 @@
++require 'ruby/spec/level_testing.rb'
++
++class MockResource
++	def get(*s)
++		0
++	end
++end
++
++class MockMan
++    def initialize(pos)
++        @pos=pos
++    end
++	def getPos2D
++		@pos
++	end
++	def resource
++		MockResource.new
++	end
++end
++
++class MockHero&lt;MockMan
++	def initialize(pos)
++		super
++		@men=[]
++	end
++	def add(man)
++		@men &lt;&lt; man
++	end
++	def getMen
++		@men+[self]
++	end
++end
++
++
++describe 'SitFormation' do
++	it &quot;should center on heroes position with hero only&quot; do
++		hero=MockHero.new(AGVector2.new(0,0))
++		AntFormationRest.new(hero).getPosition(hero,hero.getPos2D).should == hero.getPos2D
++	end
++	
++	(2..25).step(3){|count|
++		it &quot;should center on heroes with #{count} men in range of 1&quot; do
++			middle=AGVector2.new(0,0)
++			some=AGVector2.new(100,100)
++			hero=MockHero.new(middle)
++			null=AGVector2.new(0,0)
++			(1...count).each{|i|
++				hero.add(MockMan.new(some))
++			}
++			formation=AntFormationRest.new(hero)
++			poss=hero.getMen.collect{|man|
++				pos=formation.getPosition(man,hero.getPos2D)
++				puts pos
++				pos
++			}
++			sum=poss.inject(null){|a,b|a+b}
++			(sum/poss.length-middle).length.should &lt; 1
++		end
++	}
++end
++
++describe 'WalkFormation' do
++	it &quot;should work correctly with only the hero&quot;
++	it &quot;should work correctly with a single trooper&quot;
++	it &quot;should work correctly with 5 troopers&quot;
++    it &quot;should work correctly with 15 troopers&quot;
++    it &quot;should work correctly with 35 troopers&quot;
++end
+\ No newline at end of file
+
+Added: antargis/trunk/ruby/spec/spec_game_gui.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_game_gui.rb	2008-02-06 20:02:44 UTC (rev 1228)
++++ antargis/trunk/ruby/spec/spec_game_gui.rb	2008-02-15 20:44:14 UTC (rev 1229)
+@@ -0,0 +1,71 @@
++require 'ruby/spec/level_testing.rb'
++
++describe &quot;Aggression buttons&quot; do
++	include LevelTesting
++	before(:all) do
++	  getTestApp(:tutorial0)
++	end
++	it &quot;should not call pp&quot; do
++		lambda {widget(&quot;doAgg0&quot;).click}.should_not cross(:pp)
++	end
++end
++
++describe &quot;Gui-Selecting&quot; do
++    include LevelTesting
++    before(:all) do
++      getTestApp(:tutorial0)
++      waitForStory
++      clickAwayStory
++    end
++	
++	it &quot;should be possible to select tower&quot; do
++		tower=entities(AntTower)[0]
++		lambda{tower.click}.should change(tower,:selected)
++	end
++	
++end
++
++describe &quot;Building with gui interaction&quot; do
++    include LevelTesting
++    before(:all) do
++      getTestApp(:tutorial3)
++	  waitForStory
++	  clickAwayStory
++    end
++	it &quot;should start at all&quot; do
++		widget(&quot;doBuild&quot;).click
++		advance
++		clickMap(hero(&quot;Rowen&quot;).getPos2D+AGVector2.new(-5,10))
++        widget(&quot;AntTower&quot;).should be_a_kind_of(AGButton)
++        widget(&quot;AntTower&quot;).click
++		hero(&quot;Rowen&quot;).getJob.should be_a_kind_of(AntHeroBuildJob)
++		advance(15)
++		map.getByType(AntBuildingSite).should have(1).item
++	end
++	it &quot;should be possible to stop and rest&quot; do
++		widget(&quot;doRest&quot;).click
++        hero(&quot;Rowen&quot;).getJob.should_not be_a_kind_of(AntHeroBuildJob)
++        hero(&quot;Rowen&quot;).getJob.should be_a_kind_of(AntHeroRestJob)
++	end
++	it &quot;should be possible to continue building a tower&quot; do
++		site=entities(AntBuildingSite)[0]
++		lambda{site.click}.should change(site,:selected)
++		widget(&quot;doContinue&quot;).click
++		hero(&quot;Rowen&quot;).getJob.should be_a_kind_of(AntHeroBuildJob)
++		advance(100)
++        hero(&quot;Rowen&quot;).getJob.should be_a_kind_of(AntHeroRestJob)
++		entities(AntBuildingSite).should have(0).items
++		entities(AntTower).should have(1).item
++		entities(AntTower)[0].getPlayer.should == hero(&quot;Rowen&quot;).getPlayer
++
++	end
++	
++	it &quot;toggling fullscreen should'nt destroy anim-meshes&quot;
++end
++
++describe AntNameDisplay do
++	it &quot;should display a red text for enemies&quot;
++	it &quot;should display a yellow text for friends&quot;
++	it &quot;should switch text color when enemy is pwned&quot;
++end
++
+
+Added: antargis/trunk/ruby/spec/spec_hljobs.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_hljobs.rb	2008-02-06 20:02:44 UTC (rev 1228)
++++ antargis/trunk/ruby/spec/spec_hljobs.rb	2008-02-15 20:44:14 UTC (rev 1229)
+@@ -0,0 +1,127 @@
++require 'ruby/spec/level_testing.rb'
++
++
++class Store
++	def initialize
++		@store={}
++	end
++	def [](name)
++		@store[name]
++	end
++	def []=(name,value)
++		@store[name]=value
++	end
++end
++
++describe &quot;HL-MoveJob&quot; do
++	it &quot;should format correctly&quot;
++	it &quot;should use only limited count of ll-jobs&quot;
++end
++
++describe &quot;Recruit job - run through&quot; do
++  include LevelTesting
++  before(:all) do
++    getTestApp(:tutorial0)
++	@store=Store.new
++  end
++  it &quot;should start off with hero with no men&quot; do
++  	advance
++  	clickAwayStory
++  	hero(&quot;Rowen&quot;).getMen.length.should == 1
++  end
++  it &quot;starting recruit-job should work&quot; do
++  	rowen=hero(&quot;Rowen&quot;)
++	rowen.newHLRecruitJob(building(&quot;Keep&quot;))
++	rowen.getJob.should be_a_kind_of(AntHeroRecruitJob)
++  end
++
++  it &quot;should then send hero to tower (at most 10 low-level move-jobs for format and move)&quot; do
++    rowen=hero(&quot;Rowen&quot;)
++  keep=building(&quot;Keep&quot;)
++
++  	# format
++    while rowen.getJob.stateName==:moveComplete
++	  advance
++    end
++	
++	rowen.getJobName.should ==&quot;moveJob&quot;
++	rowen.getTarget.should be_a_kind_of(AntMan)
++	@store[:oldPos]=rowen.getPos2D
++  end
++  it &quot;hero should only go fetch one man;go back and then stay at his position&quot; do
++  	rowen=hero(&quot;Rowen&quot;)
++	man=rowen.getTarget
++  	runUntilLowLevelJobToFinish(rowen)
++	rowen.getJobName.should == &quot;moveJob&quot;
++	rowen.getTarget.should be_nil
++	trials=0
++	while rowen.getJobName==&quot;moveJob&quot;
++        runUntilLowLevelJobToFinish(rowen)
++		trials+=1
++		raise &quot;too many trials&quot; if trials&gt;10
++	end
++	(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">rowen.getPos2D- at store</A>[:oldPos]).length.should &lt; 0.1
++  end
++  it &quot;all men should stand at the sitting-position when job is finished&quot; do
++  	while rowen.getJob.stateName == :recruit
++  		advance
++	end
++ 
++	
++	clickAwayStory
++	rowen.getJob.should_not be_a_kind_of(AntHeroRecruitJob)
++	rowen.formation.should be_a_kind_of(AntFormationRest)
++	rowen.getMen.each{|man|
++		(man.getPos2D-rowen.getFormation(man,rowen.getPos2D)).length.should &lt; 0.1
++	}
++  end
++  
++  def rowen
++  	hero(&quot;Rowen&quot;)
++  end
++end
++
++
++describe &quot;Recruit job - aggression&quot; do
++	it &quot;men should fetch a few men if aggression is low&quot;
++    it &quot;men should fetch all men if aggression if high&quot;
++end
++
++
++describe &quot;Build job&quot; do
++	include LevelTesting
++	before(:all) do
++	  getTestApp(:tutorial3)
++	  @store=Store.new
++	end
++    it &quot;should run at all&quot; do
++    	waitForStory
++		clickAwayStory
++    	rowen=hero(&quot;Rowen&quot;)
++		dist=AGVector2.new(-5,8)
++		rowen.newHLBuildJob(rowen.getPos2D+dist,AntTower)
++		map.getBuildings.length.should ==0
++		steps=0
++		while rowen.getJob and rowen.getJob.is_a?(AntHeroBuildJob)
++			advance
++			steps.should &lt; 100
++		end
++		map.getBuildings.length.should == 1
++		map.getBuildings[0].should be_a_kind_of(AntTower)
++    end
++	it &quot;- the tower should be of Rowen&quot; do
++		hero(&quot;Rowen&quot;).getPlayer.should equal(map.getBuildings[0].getPlayer)
++	end
++	it &quot;should not work on water&quot; do
++		getTestApp(:tutorial3)
++		rowen=hero(&quot;Rowen&quot;)
++		waitForStory
++		clickAwayStory
++		rowen.newHLBuildJob(rowen.getPos2D+AGVector2.new(-5,-10),AntTower)
++		rowen.getJob.should_not be_a_kind_of(AntHeroBuildJob)
++	end
++	describe &quot;Continue a build job&quot; do
++		it &quot;should work correctly&quot;
++	end
++	
++end
+
+Modified: antargis/trunk/ruby/spec/spec_run_tutorial.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_run_tutorial.rb	2008-02-06 20:02:44 UTC (rev 1228)
++++ antargis/trunk/ruby/spec/spec_run_tutorial.rb	2008-02-15 20:44:14 UTC (rev 1229)
+@@ -91,19 +91,36 @@
+ 		end
+ 		it &quot;should be possible to defeat enemy&quot; do
+ 	       clickAwayStory
+-					hero=getHero
++			hero=getHero
+ 			enemy=getEnemy
+ 			hero.newHLFightJob(enemy)
+ 			hero.getJob.should be_a_kind_of(AntHeroFightJob)
+ 			enemy.hasHLJob.should be_false
+ 			while hero.hasHLJob
+ 				puts hero.getJob
+-					advance
++				advance
+ 			end
+ 			clickAwayStory
++			advance
+ 		    @app.result.won.should == &quot;won&quot;
+             map.getOwnHeroes.length.should == 2
+ 		end
++		
++		
++		it &quot;should be possible to dismiss some people&quot; do
++			hero=getHero
++			hero.setAggression(1)
++			oldMenCount=hero.getMen.length
++			oldMenCount.should &gt; 1
++			hero.newHLDismissJob
++			while hero.hasHLJob
++				advance
++			end
++			menCount=hero.getMen.length
++			menCount.should &lt; oldMenCount
++		end
++		
++		
+ 	
+ 		def getEnemies
+ 			enemies=map.getHeroes-map.getOwnHeroes
+
+Added: antargis/trunk/ruby/spec/story_test.rb
+===================================================================
+--- antargis/trunk/ruby/spec/story_test.rb	2008-02-06 20:02:44 UTC (rev 1228)
++++ antargis/trunk/ruby/spec/story_test.rb	2008-02-15 20:44:14 UTC (rev 1229)
+@@ -0,0 +1,11 @@
++require 'rubygems'
++require 'spec/story/runner/plain_text_story_runner.rb'
++
++include Spec::Story::Runner
++
++PlainTextStoryRunner.new('path/to/file')
++
++ # PlainTextStoryRunner.new do |runner|
++ #   runner.load 'path/to/file'
++ # end
++  
+\ No newline at end of file
+
+Modified: antargis/trunk/ruby/spec_helper.rb
+===================================================================
+--- antargis/trunk/ruby/spec_helper.rb	2008-02-06 20:02:44 UTC (rev 1228)
++++ antargis/trunk/ruby/spec_helper.rb	2008-02-15 20:44:14 UTC (rev 1229)
+@@ -25,6 +25,7 @@
+ 	end
+ 	class Cross
+ 		@@called={}
++		@@backtrace={}
+ 		def initialize(target,function)
+ 			@target=target
+ 			@function=function
+@@ -50,6 +51,7 @@
+ 				return @@called[callName]&gt;0
+ 	
+ 			end
++			@callName=callName
+ 			mclass=@target
+ 			mclass=@target.class unless @target.is_a?(Class)
+ 	
+@@ -65,10 +67,13 @@
+ 			&quot;expected #{@proc.inspect} to call #{@expected}&quot;
+ 		end
+ 		def negative_failure_message
+-			&quot;expected #{@proc.inspect} not to call #{@expected}&quot;
++			bt=&quot;&quot;
++			bt=@@backtrace[@callName].join(&quot;\n&quot;) if @@backtrace[@callName] 
++			&quot;expected #{@proc.inspect} not to call #{@expected} BT:#{bt}&quot;
+ 		end
+ 		def Cross.symCall(name)
+ 			@@called[name]+=1
++			@@backtrace[name]=caller
+ 			nil
+ 		end
+ 	end
+@@ -82,3 +87,43 @@
+ 		Cross.new(target,function)
+ 	end
+ #end
++	
++	
++class Observer
++	attr_accessor :ok
++	def initialize(object,methodName)
++		@methodName=methodName
++		@object=object
++		@ok=false
++	end
++	def run
++		method=@object.method(@methodName)
++		this=self
++		@object.class.send(:<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">define_method, at methodName</A>) {|*s|this.ok=true;puts &quot;MUH&quot;;method.call(*s)} 
++		yield
++		@object.class.send(:<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">define_method, at methodName</A>,method)
++		@ok
++	end
++	def isNotCalled
++	   @ok==false
++	end
++	def isCalled
++	   @ok
++	end
++end	
++
++def observe(object,method,&amp;block)
++	observer=Observer.new(object,method)
++	
++	observer.run {block.call(observer)}
++end
++
++#class A
++#	def b
++#		puts &quot;B&quot;
++#	end
++#end
++#
++#a=A.new
++#call=CalledIn.new(a,:b)
++#call.run {}
+
+Modified: antargis/trunk/ruby/widgets/ant_name_display.rb
+===================================================================
+--- antargis/trunk/ruby/widgets/ant_name_display.rb	2008-02-06 20:02:44 UTC (rev 1228)
++++ antargis/trunk/ruby/widgets/ant_name_display.rb	2008-02-15 20:44:14 UTC (rev 1229)
+@@ -1,6 +1,16 @@
++
++# the AntNameDisplay shows the name of a hero some place above the actual hero
++# mesh. It consists of a button with a custom text-display. 
++# It checks if the hero's player' changed in each frame. TODO: here's some possiblity for optimization.
++# Enemy heroes' names are displayed in red - your own heroes are display in yellow.
++# the position on the screen must be given from outside (from the application e.g.)
+ class AntNameDisplay&lt;AGWidget
+ 	@@fontChangeCount=0
+ 
++	# p - the parent widget
++	# r - the surrounding rectangle
++	# hero - the inspected hero
++	# map - the containing map-object
+ 	def initialize(p,r,hero,map)
+ 		super(p,r)
+ 		@map=map
+@@ -10,15 +20,19 @@
+ 		@name=@hero.getName
+ 		addChild(@mb=AGButton.new(self,AGRect.new(0,0,width,height),_(&quot;&quot;)))
+ 		
++		# disable button - so it can't be clicked anymore (no hovering either)
+ 		@mb.setEnabled(false)
+ 		addChild(@textWidget=AGText.new(self,AGRect.new(0,0,width,height),AGStringUtf8.new(@hero.getName)<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at font</A>))
+ 		
++		# assign font-types
+ 		@fonts={true=&gt;getTheme.getFont(&quot;heroName.font&quot;),false=&gt;getTheme.getFont(&quot;enemyHero.font&quot;)}
+-		@oldPlayer=nil
++		
++		# enable caching of widget texture - this improves drawing performance (slightly)
+ 		setCaching(true)
+ 	end
+ 
+ 	# enforce integer position	
++	# 
+ 	def setRect(r)
+ 		super(AGRect.new(r.x.to_i,r.y.to_i,r.w.to_i,r.h.to_i))
+ 	end
+@@ -28,23 +42,15 @@
+ 	end
+ 
+ 	def prepareDraw
++		# check if @hero's player changed
+ 		@font=@fonts[@hero.getPlayer==@map.getPlayer]
+ 		if @font!=@oldfont
+-			puts &quot;#{@hero.getPlayer} #{@map.getPlayer} #{@oldPlayer}&quot;
+-			puts &quot;#{@font} #{@oldfont}&quot;
+-			@oldPlayer=@hero.getPlayer
+-			puts &quot;font changed&quot;
+-			@@fontChangeCount||=0
+-			@@fontChangeCount+=1
+-			if @@fontChangeCount&gt;20
+-				raise 1
+-			end
++			# this is the case - so assign new font to textWidget
+ 			@oldfont=@font
+ 			@textWidget.setFont(@font)
++			# query redraw of (possibly) cached widget texture
+ 			queryRedraw
+ 		end
+ 		super
+ 	end
+-
+-	private
+ end
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000185.html">[Antargis-svn] r1228 - in antargis/trunk: ext/3dengine ext/basic	ext/game ext/gui ext/math ext/sound ext/test ext/video ruby	ruby/entities ruby/gui ruby/spec
+</A></li>
+	<LI>Next message: <A HREF="000187.html">[Antargis-svn] r1230 - in antargis/trunk: . build/swig/tests	data/levels/tutorial ext/3dengine ext/basic ext/game ext/gui	main ruby ruby/entities ruby/jobs ruby/meshes ruby/spec
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#186">[ date ]</a>
+              <a href="thread.html#186">[ thread ]</a>
+              <a href="subject.html#186">[ subject ]</a>
+              <a href="author.html#186">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

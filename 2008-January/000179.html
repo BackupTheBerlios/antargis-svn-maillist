@@ -1,0 +1,270 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1222 - in antargis/trunk: . data/campaigns	ext/3dengine ext/basic ruby ruby/editor/spec ruby/spec
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2008-January/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1222%20-%20in%20antargis/trunk%3A%20.%20data/campaigns%0A%09ext/3dengine%20ext/basic%20ruby%20ruby/editor/spec%20ruby/spec&In-Reply-To=%3C200801301928.m0UJS0pF019216%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000178.html">
+   <LINK REL="Next"  HREF="000180.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1222 - in antargis/trunk: . data/campaigns	ext/3dengine ext/basic ruby ruby/editor/spec ruby/spec</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1222%20-%20in%20antargis/trunk%3A%20.%20data/campaigns%0A%09ext/3dengine%20ext/basic%20ruby%20ruby/editor/spec%20ruby/spec&In-Reply-To=%3C200801301928.m0UJS0pF019216%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1222 - in antargis/trunk: . data/campaigns	ext/3dengine ext/basic ruby ruby/editor/spec ruby/spec">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Wed Jan 30 20:28:00 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000178.html">[Antargis-svn] r1221 - in antargis/trunk: . ext/3dengine ext/basic	ext/game ext/gui ext/math ext/sound ext/video
+</A></li>
+        <LI>Next message: <A HREF="000180.html">[Antargis-svn] r1223 - in antargis/trunk: . main
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#179">[ date ]</a>
+              <a href="thread.html#179">[ thread ]</a>
+              <a href="subject.html#179">[ subject ]</a>
+              <a href="author.html#179">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2008-01-30 20:27:59 +0100 (Wed, 30 Jan 2008)
+New Revision: 1222
+
+Modified:
+   antargis/trunk/Rakefile
+   antargis/trunk/TODO
+   antargis/trunk/configure
+   antargis/trunk/data/campaigns/birth.xml
+   antargis/trunk/data/campaigns/tutorial.xml
+   antargis/trunk/ext/3dengine/vertex_array.cc
+   antargis/trunk/ext/basic/init.cc
+   antargis/trunk/ruby/campaign.rb
+   antargis/trunk/ruby/editor/spec/spec_editor.rb
+   antargis/trunk/ruby/spec/spec_campaign.rb
+Log:
+* some fixes for mac
+
+Modified: antargis/trunk/Rakefile
+===================================================================
+--- antargis/trunk/Rakefile	2008-01-30 19:24:40 UTC (rev 1221)
++++ antargis/trunk/Rakefile	2008-01-30 19:27:59 UTC (rev 1222)
+@@ -1,5 +1,16 @@
+ #!/usr/bin/env ruby
+ 
++alias :oldSystem :system
++def system(cmd)
++  if cmd=~/ruby .*/
++    cmd.gsub!(/^ruby/,&quot;./starter&quot;)
++  end
++  puts cmd
++  #exit
++  oldSystem(cmd)
++end
++
++
+ Dir.chdir(File.split(__FILE__)[0])
+ 
+ # build extension
+
+Modified: antargis/trunk/TODO
+===================================================================
+--- antargis/trunk/TODO	2008-01-30 19:24:40 UTC (rev 1221)
++++ antargis/trunk/TODO	2008-01-30 19:27:59 UTC (rev 1222)
+@@ -1,3 +1,5 @@
++* checkin editor !
++
+ * check for ccache in configure and only use it if available!
+ 
+ 
+
+Modified: antargis/trunk/configure
+===================================================================
+--- antargis/trunk/configure	2008-01-30 19:24:40 UTC (rev 1221)
++++ antargis/trunk/configure	2008-01-30 19:27:59 UTC (rev 1222)
+@@ -235,6 +235,7 @@
+ 			puts &quot;#{k.ljust(10)} found at #{config[k].value.ljust(25)} #{info}&quot;
+ 		else
+ 			puts &quot;#{k.ljust(10)} not found!&quot;
++			config[k]=&quot;&quot;
+ 		end
+ 	}
+ 	config
+@@ -314,9 +315,14 @@
+ 	file.close
+ end
+ 
+-$LDFLAGS+=&quot; -L/usr/X11R6/lib -L/opt/local/lib&quot;
++# FIXME: add check for darwin
++unless CONFIG[&quot;host_os&quot;]=~/darwin
++  $LDFLAGS+=&quot; -L/usr/X11R6/lib&quot;
++end
+ 
++$LDFLAGS+=&quot; -L/opt/local/lib&quot;
+ 
++
+ userInput=getUserInput
+ config=generateHardConfiguration(userInput)
+ config=searchPrograms(config)
+
+Modified: antargis/trunk/data/campaigns/birth.xml
+===================================================================
+--- antargis/trunk/data/campaigns/birth.xml	2008-01-30 19:24:40 UTC (rev 1221)
++++ antargis/trunk/data/campaigns/birth.xml	2008-01-30 19:27:59 UTC (rev 1222)
+@@ -1,4 +1,4 @@
+-&lt;campaign image=&quot;data/gui/map1.png&quot; name=&quot;A hero is born.&quot; description=&quot;The story of Antargis begins&quot;&gt;
++&lt;campaign image=&quot;data/gui/map1.png&quot; name=&quot;A hero is born.&quot; description=&quot;The story of Antargis begins&quot; order=&quot;1&quot;&gt;
+ 	&lt;cutscene&gt;
+ 		&lt;screen&gt;
+ 			&lt;text text=&quot;Strange visions cross your mind.&quot;/&gt;
+
+Modified: antargis/trunk/data/campaigns/tutorial.xml
+===================================================================
+--- antargis/trunk/data/campaigns/tutorial.xml	2008-01-30 19:24:40 UTC (rev 1221)
++++ antargis/trunk/data/campaigns/tutorial.xml	2008-01-30 19:27:59 UTC (rev 1222)
+@@ -1,4 +1,4 @@
+-&lt;campaign image=&quot;data/gui/map1.png&quot; name=&quot;Tutorial&quot; description=&quot;Here is where you learn how to play the game.&quot;&gt;
++&lt;campaign image=&quot;data/gui/map1.png&quot; name=&quot;Tutorial&quot; description=&quot;Here is where you learn how to play the game.&quot; order=&quot;0&quot;&gt;
+ 	&lt;level file=&quot;data/levels/tutorial/tutorial0.antlvl&quot;&gt;
+ 		&lt;failscene&gt;
+ 			&lt;screen&gt;
+
+Modified: antargis/trunk/ext/3dengine/vertex_array.cc
+===================================================================
+--- antargis/trunk/ext/3dengine/vertex_array.cc	2008-01-30 19:24:40 UTC (rev 1221)
++++ antargis/trunk/ext/3dengine/vertex_array.cc	2008-01-30 19:27:59 UTC (rev 1222)
+@@ -38,7 +38,7 @@
+   mArrays=GLEE_EXT_vertex_array &amp;&amp; useVertexArrays();
+ 
+   if(videoInited())
+-    assert(GLEE_EXT_vertex_array);
++    assert(GLEE_EXT_vertex_array || GLEE_VERSION_1_2); //FIXME: check if this really version 1.2
+ 
+   displayListInited=false;
+ 
+
+Modified: antargis/trunk/ext/basic/init.cc
+===================================================================
+--- antargis/trunk/ext/basic/init.cc	2008-01-30 19:24:40 UTC (rev 1221)
++++ antargis/trunk/ext/basic/init.cc	2008-01-30 19:27:59 UTC (rev 1222)
+@@ -16,10 +16,16 @@
+ AGEXPORT void AG_Init_libantargisbasic()
+ {
+   TRACE;
++  cdebug(&quot;SDL_Init...&quot;);
+   SDL_Init(SDL_INIT_VIDEO);
++  cdebug(&quot;hasMain?&quot;);
+   if(!hasMain())
+-    AGMain *main=new AGMain;
++  {
++	  cdebug(&quot;new AGMain..&quot;);
+ 
++	  AGMain *main=new AGMain;
++	  cdebug(&quot;new AGMAin!&quot;);
++  }
+ 
+   // register main in ruby-var
+ 
+
+Modified: antargis/trunk/ruby/campaign.rb
+===================================================================
+--- antargis/trunk/ruby/campaign.rb	2008-01-30 19:24:40 UTC (rev 1221)
++++ antargis/trunk/ruby/campaign.rb	2008-01-30 19:27:59 UTC (rev 1222)
+@@ -16,7 +16,7 @@
+ end
+ 
+ def getCampaigns
+-	$campaigns||=getCampaignFiles.collect{|f|Campaign.new(f)}.select{|f|f.enabled}
++	$campaigns||=getCampaignFiles.collect{|f|Campaign.new(f)}.select{|f|f.enabled}.sort_by{|campaign|campaign.order}
+ end
+ 
+ class CampaignLevel
+@@ -217,7 +217,7 @@
+ end
+ 
+ class Campaign
+-	attr_reader :name, :image, :imageName, :description, :texture, :enabled
++	attr_reader :name, :image, :imageName, :description, :texture, :enabled, :order
+ 	def initialize(filename)
+ 		if not fileExists(filename)
+ 			raise &quot;file not found #{filename}&quot;
+@@ -226,6 +226,7 @@
+ 		@xmlRoot=@doc.root
+ 		@enabled=(@xmlRoot.get(&quot;enabled&quot;)!=&quot;false&quot;)
+ 		@name=@xmlRoot.get(&quot;name&quot;)
++		@order=@xmlRoot.get(&quot;order&quot;).to_i
+ 		@imageName=@xmlRoot.get(&quot;image&quot;)
+ 		@image=AGSurface.load(@imageName)
+ 		@texture=AGTexture.new(@image)
+
+Modified: antargis/trunk/ruby/editor/spec/spec_editor.rb
+===================================================================
+--- antargis/trunk/ruby/editor/spec/spec_editor.rb	2008-01-30 19:24:40 UTC (rev 1221)
++++ antargis/trunk/ruby/editor/spec/spec_editor.rb	2008-01-30 19:27:59 UTC (rev 1222)
+@@ -1,4 +1,4 @@
+-if false
++#if false
+ Dir.chdir(File.split(File.split(File.split(File.split(File.expand_path(__FILE__))[0])[0])[0])[0])
+ puts Dir.pwd
+ 
+@@ -82,4 +82,4 @@
+ 
+ 
+ end
+-end
+\ No newline at end of file
++#end
+\ No newline at end of file
+
+Modified: antargis/trunk/ruby/spec/spec_campaign.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_campaign.rb	2008-01-30 19:24:40 UTC (rev 1221)
++++ antargis/trunk/ruby/spec/spec_campaign.rb	2008-01-30 19:27:59 UTC (rev 1222)
+@@ -13,6 +13,14 @@
+ 	it &quot;first campaign is tutorial&quot; do
+ 		@tutorial.name.should == &quot;Tutorial&quot;
+ 	end
++	
++	it &quot;tutorial has lower order than birth-campaign&quot; do
++		tut=@campaigns.find{|c|c.name==&quot;Tutorial&quot;}
++		tut.should_not be_nil
++		birth=@campaigns.find{|c|c.name==&quot;A hero is born.&quot;}
++		birth.should_not be_nil
++		tut.order.should &lt; birth.order
++	end
+ 
+ 	it &quot;tutorial starts with level&quot; do
+ 		@tutorial.getCurrentPart.should be_a_kind_of(CampaignLevel)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000178.html">[Antargis-svn] r1221 - in antargis/trunk: . ext/3dengine ext/basic	ext/game ext/gui ext/math ext/sound ext/video
+</A></li>
+	<LI>Next message: <A HREF="000180.html">[Antargis-svn] r1223 - in antargis/trunk: . main
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#179">[ date ]</a>
+              <a href="thread.html#179">[ thread ]</a>
+              <a href="subject.html#179">[ subject ]</a>
+              <a href="author.html#179">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

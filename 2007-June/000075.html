@@ -1,0 +1,488 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1118 - in antargis/branches/rant: . build ext	ext/basic ext/external ext/game ext/gui ext/math ext/ruby	ext/sound ext/video
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-June/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1118%20-%20in%20antargis/branches/rant%3A%20.%20build%20ext%0A%09ext/basic%20ext/external%20ext/game%20ext/gui%20ext/math%20ext/ruby%0A%09ext/sound%20ext/video&In-Reply-To=%3C200706261823.l5QIN1ib016657%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000074.html">
+   <LINK REL="Next"  HREF="000076.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1118 - in antargis/branches/rant: . build ext	ext/basic ext/external ext/game ext/gui ext/math ext/ruby	ext/sound ext/video</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1118%20-%20in%20antargis/branches/rant%3A%20.%20build%20ext%0A%09ext/basic%20ext/external%20ext/game%20ext/gui%20ext/math%20ext/ruby%0A%09ext/sound%20ext/video&In-Reply-To=%3C200706261823.l5QIN1ib016657%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1118 - in antargis/branches/rant: . build ext	ext/basic ext/external ext/game ext/gui ext/math ext/ruby	ext/sound ext/video">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Tue Jun 26 20:23:01 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000074.html">[Antargis-svn] r1117 - antargis/branches/rant/ext/3dengine
+</A></li>
+        <LI>Next message: <A HREF="000076.html">[Antargis-svn] r1119 - in antargis/branches/rant/ext: 3dengine	basic external game gui math ruby sound video
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#75">[ date ]</a>
+              <a href="thread.html#75">[ thread ]</a>
+              <a href="subject.html#75">[ subject ]</a>
+              <a href="author.html#75">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-06-26 20:23:01 +0200 (Tue, 26 Jun 2007)
+New Revision: 1118
+
+Modified:
+   antargis/branches/rant/Rantfile
+   antargis/branches/rant/build/create_interface.rb
+   antargis/branches/rant/ext/
+   antargis/branches/rant/ext/basic/
+   antargis/branches/rant/ext/external/
+   antargis/branches/rant/ext/game/
+   antargis/branches/rant/ext/gui/
+   antargis/branches/rant/ext/math/
+   antargis/branches/rant/ext/ruby/
+   antargis/branches/rant/ext/sound/
+   antargis/branches/rant/ext/video/
+Log:
+* small changes and set svn:ignore
+
+
+Modified: antargis/branches/rant/Rantfile
+===================================================================
+--- antargis/branches/rant/Rantfile	2007-06-26 18:21:49 UTC (rev 1117)
++++ antargis/branches/rant/Rantfile	2007-06-26 18:23:01 UTC (rev 1118)
+@@ -68,7 +68,8 @@
+ ###########################################
+ # configure - clean-task
+ gen AutoClean, :clean
+-#var[:clean].include &quot;**/marker.i&quot;   # not needed any more - managed by Rule
++var[:clean].include &quot;**/marker.i&quot;   # not needed any more - managed by Rule
++var[:clean].include &quot;ext/*.so&quot;
+ ###########################################
+ 
+ 
+@@ -91,7 +92,7 @@
+ 			tsources+=[&quot;ext&quot;+Dir.separator+&quot;lib&quot;+makeLibName(d)+&quot;.so&quot;]             # gather internal deps like (ext/libantargisbasic.so)
+ 		end
+ 	}
+-	gen Rule, target =&gt; tsources do |t|
++	task target =&gt; tsources do |t|
+ 		# build command
+ 		cmd=makeCommand($antConfig[&quot;LINKSHARED&quot;],sys.expand_path(t.name), (t.prerequisites.collect{|f|sys.expand_path(f)}+extlibs).join(&quot; &quot;))
+ 		sys cmd
+@@ -116,7 +117,7 @@
+ 			tsources+=[&quot;ext&quot;+Dir.separator+makeLibName(d)+&quot;.so&quot;]
+ 		end
+ 	}
+-	gen Rule, target =&gt; tsources do |t|
++	task target =&gt; tsources do |t|
+ 		cmd=makeCommand($antConfig[&quot;LINKSHARED&quot;],sys.expand_path(t.name), t.prerequisites.collect{|f|sys.expand_path(f)}.join(&quot; &quot;))
+ 		sys cmd
+ 	end
+@@ -180,7 +181,7 @@
+ 	list+=importsForInterface(target).split(&quot;:&quot;)
+ 	list
+ }
+-gen Rule, /^.*(marker|interface).i$/ =&gt; interfaceSrc do |t|
++gen Rule, /^.*interface.i$/ =&gt; interfaceSrc do |t|
+ 	cmd=makeCommand($antConfig[&quot;CREATEINTERFACE&quot;],getDir(sys.expand_path(t.name)),importsForInterface(t.name))
+ 	sys cmd
+ end
+
+Modified: antargis/branches/rant/build/create_interface.rb
+===================================================================
+--- antargis/branches/rant/build/create_interface.rb	2007-06-26 18:21:49 UTC (rev 1117)
++++ antargis/branches/rant/build/create_interface.rb	2007-06-26 18:23:01 UTC (rev 1118)
+@@ -19,6 +19,12 @@
+ # License along with this program.
+ #
+ 
++# = Short Description =
++# 
++
++
++
++
+ require 'build/interface_template.rb'
+ require 'build/base_tools.rb'
+ 
+@@ -69,42 +75,23 @@
+ 	end
+ end
+ 
+-class MClass
+-  def initialize(name,superClass)
+-    @name=name
+-    @superClass=superClass
+-  end
+-end
+-
+-class SimpleParser
+-	@mclasses=[]
+-	def initialize(files)
+-	end
+-	
+-end
+-
+-def getDirs
+-  files=`find ext -type d`.gsub(&quot;\r&quot;,&quot;&quot;).split(&quot;\n&quot;)
+-end
+-
+ def getFiles(dir)
+ 	Dir[dir+Dir.separator+&quot;*.h&quot;].select{|f|not f=~/swig.h/} #-[dir+Dir.separator+&quot;swig.h&quot;]
+ end
+ 
++## check if the given string is contained in the file specified by filename
+ def grepBool(filename,string)
+ 	File.open(filename).each_line{|l|return true if l=~/#{string}/}
+ 	false
+ end
+ 
++## select those files that are set be exported through swig
+ def getSwigInterfaceFiles(files)
+ 	files.select{|f|
+ 		grepBool(f,&quot;INCLUDE_SWIG&quot;)
+ 	}
+ end
+ 
+-def getClasses
+-end
+-
+ class ParsedClasses
+ 
+ 	attr_reader :deriveList
+@@ -150,6 +137,7 @@
+ 		@classList=@class2File.keys
+ 	end
+ 
++	# check which classes are derived from AGRubyObject and thus handled specifically
+ 	def processDerivations
+ 		@rubyClasses &lt;&lt; &quot;AGRubyObject&quot;
+ 		@classList.sort!.uniq!
+@@ -165,31 +153,12 @@
+ 				end
+ 			}
+ 		end
+-# 		puts &quot;-------------------------&quot;
+-# 		puts &quot;CLASSLIST:&quot;
+-# 		puts @classList
+-# 
+-# 		puts &quot;-------------------------&quot;
+-# 		puts &quot;RUBY CLASSLIST:&quot;
+-# 		puts @rubyClasses
+-# 
+-# 		puts &quot;-------------------------&quot;
+-# 		puts &quot;DERIVATIONS:&quot;
+-# 			@deriveList.each {|x,y|
+-# 				puts &quot;#{x} #{y} #{@class2File[x]} &quot;
+-# 			}
+-# 		puts &quot;-------------------------&quot;
+-# 		puts &quot;my ruby:&quot;
+-# 		puts getMyRubyClasses
+-# 		puts &quot;-------------------------&quot;
+ 	end
+ 
+-	def initLevels
+-		puts &quot;initLevels...&quot;
+-		@levels={}
+-		@levels[&quot;AGRubyObject&quot;]=0
++	## through derivations
++	def spreadLevels
+ 		changed=true
+-		l=0
++		l=@levels.values.max
+ 		while changed
+ 			changed=false
+ 			@deriveList.each{|x,y|
+@@ -200,17 +169,15 @@
+ 			}
+ 			l+=1
+ 		end
++	end
+ 
+-		(0..l).each{|i|
+-			@levels.each{|n,level|
+-				if level==i
+-					puts &quot;#{i} #{n}&quot;
+-				end
+-			}
+-		}
+-	#if false
+-		puts &quot;-------------&quot;		
+-		# give classes with no parent next level
++	def initLevels
++		puts &quot;initLevels...&quot;
++		@levels={}
++		@levels[&quot;AGRubyObject&quot;]=0
++		spreadLevels
++
++		# give classes with no extisting parent next level
+ 		@classList.each{|c|
+ 			if @levels[c].nil?
+ 				if (not @deriveList.keys.member?(c)) 
+@@ -219,43 +186,24 @@
+ 			end
+ 		}
+ 
+-		# repeat process
+-		changed=true
+-		while changed
+-			changed=false
+-			@deriveList.each{|x,y|
+-				if @levels[y]==l and @levels[x].nil?
+-					@levels[x]=l+1
+-					changed=true
+-				end
+-			}
+-			l+=1
+-		end
++		spreadLevels
+ 
+-		puts &quot;-------------&quot;		
+-		# give classes with no parent next level
+-		@classList.each{|c|
+-			if @levels[c].nil?
+-				if (@deriveList[@deriveList[c]].nil?)
+-					@levels[c]=l
++		if true
++			l=@levels.values.max+1
++			# give classes with no parent next level
++			@classList.each{|c|
++				if @levels[c].nil?
++					if (@deriveList[@deriveList[c]].nil?)
++						@levels[c]=l
++					end
+ 				end
+-			end
+-		}
+-
+-		# repeat process
+-		changed=true
+-		while changed
+-			changed=false
+-			@deriveList.each{|x,y|
+-				if @levels[y]==l and @levels[x].nil?
+-					@levels[x]=l+1
+-					changed=true
+-				end
+ 			}
+-			l+=1
++	
++			spreadLevels
+ 		end
+ 
+-#end
++		l=@levels.values.max
++
+ 		(0..l).each{|i|
+ 			@levels.each{|n,level|
+ 				if level==i
+@@ -263,18 +211,20 @@
+ 				end
+ 			}
+ 		}
++		failed=false
+ 		@classList.each{|c|
+ 			if @levels[c].nil?
+ 				puts &quot;-- #{c}&quot;
++				failed=true
+ 			end
+ 		}
+-
+-		puts &quot;initLevels...ok&quot;
+-
++		raise &quot;Non processes classes found!&quot; if failed
+ 	end
+ 
+ 	# in correct order
+ 	def getFileList
++
++		# build file list out of class-order (files may appear several times)
+ 		files=[]
+ 		l=@levels.values.max
+ 		(0..l).each{|i|
+@@ -285,32 +235,21 @@
+ 			}
+ 		}
+ 
+-		puts &quot;getFileList:&quot;
+-		puts files,files.class
+-		puts &quot;---------&quot;
+-
++		# add files of classes with unknown level
+ 		@classList.each{|c|
+ 			if @levels[c].nil? and @class2File[c]
+ 				files &lt;&lt; @class2File[c]
+ 			end
+ 		}
+ 
+-		puts &quot;getFileList:&quot;
+-		puts files,files.class
+-		puts &quot;---------&quot;
+-		files=files.select{|f|@myfiles.member?(f)}
++		files=files.select{|f|@myfiles.member?(f)} # select only &quot;my&quot; files - those included in this directory
+ 		addfiles=@files-files
+-		files+=addfiles
++		files+=addfiles                            # add files that are in other directories
+ 
+-
+-		puts &quot;getFileList:&quot;
+-		puts files,files.class
+-		puts &quot;---------&quot;
++		# unique the array
+ 		if files.length&gt;0
+ 			files.uniq!
+ 		end
+-		puts files,files.class
+-		puts &quot;---------&quot;
+ 		files
+ 	end
+ 
+@@ -326,12 +265,8 @@
+ 
+ def generateInterfaceFile(myInput,files,addfiles)
+ 	filename=myInput.interfaceName
+-	puts &quot;filename:&quot;,filename
+ 	interfaceI=File.open(filename,&quot;w&quot;)
+ 	
+-	
+-	puts &quot;SWIGINPUTS:&quot;,myInput.swigInput,&quot;--------------&quot;
+-	
+ 	interfaceI.puts interface_template(myInput.moduleName,files,myInput.swigInput,addfiles,myInput.outputDir)
+ 	
+ 	interfaceI.close
+@@ -357,12 +292,6 @@
+ parsedClasses=ParsedClasses.new(files,`find $(pwd) -name &quot;*.h&quot;|grep -v swig`.split(&quot;\n&quot;))
+ files=parsedClasses.getFileList
+ 
+-#exit
+-
+-puts &quot;GETFILES:&quot;,files,files.class
+-
+-puts files.join(&quot;|&quot;)
+-
+ addfiles=[]
+ myInput.swigInput.each{|inDir|
+ 	pattern=getDir(inDir)+Dir.separator+&quot;*.h&quot;
+@@ -522,9 +451,6 @@
+ 
+ myClasses=myClasses.sort.uniq
+ 
+-puts &quot;rubyClasses:&quot;,rubyClasses
+-puts &quot;myClasses:&quot;,myClasses
+-
+ file.puts &lt;&lt;EOT
+ %{
+ // cast-function map
+
+
+Property changes on: antargis/branches/rant/ext
+___________________________________________________________________
+Name: svn:ignore
+   + marker.i
+
+
+
+Property changes on: antargis/branches/rant/ext/basic
+___________________________________________________________________
+Name: svn:ignore
+   + *.oo
+marker.i
+interface.i
+
+
+
+Property changes on: antargis/branches/rant/ext/external
+___________________________________________________________________
+Name: svn:ignore
+   + *.oo
+marker.i
+interface.i
+
+
+
+Property changes on: antargis/branches/rant/ext/game
+___________________________________________________________________
+Name: svn:ignore
+   + *.oo
+marker.i
+interface.i
+
+
+
+Property changes on: antargis/branches/rant/ext/gui
+___________________________________________________________________
+Name: svn:ignore
+   + *.oo
+marker.i
+interface.i
+
+
+
+Property changes on: antargis/branches/rant/ext/math
+___________________________________________________________________
+Name: svn:ignore
+   + *.oo
+marker.i
+interface.i
+
+
+
+Property changes on: antargis/branches/rant/ext/ruby
+___________________________________________________________________
+Name: svn:ignore
+   + *.oo
+marker.i
+interface.i
+
+
+
+Property changes on: antargis/branches/rant/ext/sound
+___________________________________________________________________
+Name: svn:ignore
+   + *.oo
+marker.i
+interface.i
+
+
+
+Property changes on: antargis/branches/rant/ext/video
+___________________________________________________________________
+Name: svn:ignore
+   + *.oo
+marker.i
+interface.i
+
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000074.html">[Antargis-svn] r1117 - antargis/branches/rant/ext/3dengine
+</A></li>
+	<LI>Next message: <A HREF="000076.html">[Antargis-svn] r1119 - in antargis/branches/rant/ext: 3dengine	basic external game gui math ruby sound video
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#75">[ date ]</a>
+              <a href="thread.html#75">[ thread ]</a>
+              <a href="subject.html#75">[ subject ]</a>
+              <a href="author.html#75">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

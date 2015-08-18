@@ -1,0 +1,3278 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1156 - in antargis/branches/rant: . build	ext/3dengine ext/basic ext/game ext/gui ext/math ext/ruby	ext/sound ext/video ruby ruby/entities ruby/tests ruby/tests/path
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1156%20-%20in%20antargis/branches/rant%3A%20.%20build%0A%09ext/3dengine%20ext/basic%20ext/game%20ext/gui%20ext/math%20ext/ruby%0A%09ext/sound%20ext/video%20ruby%20ruby/entities%20ruby/tests%20ruby/tests/path&In-Reply-To=%3C200708151733.l7FHXJsu025590%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000114.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1156 - in antargis/branches/rant: . build	ext/3dengine ext/basic ext/game ext/gui ext/math ext/ruby	ext/sound ext/video ruby ruby/entities ruby/tests ruby/tests/path</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1156%20-%20in%20antargis/branches/rant%3A%20.%20build%0A%09ext/3dengine%20ext/basic%20ext/game%20ext/gui%20ext/math%20ext/ruby%0A%09ext/sound%20ext/video%20ruby%20ruby/entities%20ruby/tests%20ruby/tests/path&In-Reply-To=%3C200708151733.l7FHXJsu025590%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1156 - in antargis/branches/rant: . build	ext/3dengine ext/basic ext/game ext/gui ext/math ext/ruby	ext/sound ext/video ruby ruby/entities ruby/tests ruby/tests/path">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Wed Aug 15 19:33:19 CEST 2007</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000114.html">[Antargis-svn] r1157 - in antargis/branches/rant: . build	build/configs ext/3dengine ext/basic ext/game ext/game/tests	ext/gui ext/math ext/sound ext/video ruby ruby/tests/3d_engine
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#113">[ date ]</a>
+              <a href="thread.html#113">[ thread ]</a>
+              <a href="subject.html#113">[ subject ]</a>
+              <a href="author.html#113">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-08-15 19:33:15 +0200 (Wed, 15 Aug 2007)
+New Revision: 1156
+
+Added:
+   antargis/branches/rant/ext/basic/ag_rtools.cc
+   antargis/branches/rant/ext/basic/ag_rtools.h
+   antargis/branches/rant/ruby/tests/3d_engine/
+Removed:
+   antargis/branches/rant/ext/ruby/ag_rtools.cc
+   antargis/branches/rant/ext/ruby/ag_rtools.h
+Modified:
+   antargis/branches/rant/ChangeLog
+   antargis/branches/rant/Rantfile
+   antargis/branches/rant/build/base_tools.rb
+   antargis/branches/rant/build/create_interface.rb
+   antargis/branches/rant/build/platform.rb
+   antargis/branches/rant/configure
+   antargis/branches/rant/ext/3dengine/headers.hh
+   antargis/branches/rant/ext/basic/ag_serial.cc
+   antargis/branches/rant/ext/basic/ag_serial.h
+   antargis/branches/rant/ext/basic/headers.hh
+   antargis/branches/rant/ext/game/headers.hh
+   antargis/branches/rant/ext/game/height_map.cc
+   antargis/branches/rant/ext/game/height_map.h
+   antargis/branches/rant/ext/game/heuristic.cc
+   antargis/branches/rant/ext/game/heuristic.h
+   antargis/branches/rant/ext/game/path.cc
+   antargis/branches/rant/ext/game/path.h
+   antargis/branches/rant/ext/game/path_data_v3.cc
+   antargis/branches/rant/ext/game/path_data_v3.h
+   antargis/branches/rant/ext/game/path_v2.cc
+   antargis/branches/rant/ext/game/path_vector_sort.h
+   antargis/branches/rant/ext/game/path_weighter.cc
+   antargis/branches/rant/ext/game/path_weighter.h
+   antargis/branches/rant/ext/game/templates.i
+   antargis/branches/rant/ext/gui/headers.hh
+   antargis/branches/rant/ext/math/ag_serial_vec.cc
+   antargis/branches/rant/ext/math/ag_serial_vec.h
+   antargis/branches/rant/ext/math/headers.hh
+   antargis/branches/rant/ext/ruby/headers.hh
+   antargis/branches/rant/ext/sound/headers.hh
+   antargis/branches/rant/ext/video/headers.hh
+   antargis/branches/rant/ruby/ant_hljobs.rb
+   antargis/branches/rant/ruby/entities/ant_deco.rb
+   antargis/branches/rant/ruby/entities/ant_hero.rb
+   antargis/branches/rant/ruby/entities/ant_man.rb
+   antargis/branches/rant/ruby/map.rb
+   antargis/branches/rant/ruby/tests/path/fields_test2.rb
+Log:
+* many changes concerning path-finding
+
+
+Modified: antargis/branches/rant/ChangeLog
+===================================================================
+--- antargis/branches/rant/ChangeLog	2007-07-29 17:39:54 UTC (rev 1155)
++++ antargis/branches/rant/ChangeLog	2007-08-15 17:33:15 UTC (rev 1156)
+@@ -1,3 +1,18 @@
++
++
++
++0.2.1.2 (2007-08-09)
++	- increased performance on heuristic-computation
++	- included saving and thus caching of heuristic
++
++0.2.1.1 (about 2007-07)
++	- refactoring
++	- switched over to rant (from rake) as a build-system
++	- it's now possible to compile BoA on Windows (for Windows), that's more comfortable, because you test it there
++
++
++Very old changes:
++
+ 0.2
+ 	- major refactoring and documentation effort
+ 	- many bugs fixed
+
+Modified: antargis/branches/rant/Rantfile
+===================================================================
+--- antargis/branches/rant/Rantfile	2007-07-29 17:39:54 UTC (rev 1155)
++++ antargis/branches/rant/Rantfile	2007-08-15 17:33:15 UTC (rev 1156)
+@@ -1,11 +1,11 @@
+ import &quot;md5&quot;                         # md5 is needed for automatic checksum-check for changes in files
+ import &quot;autoclean&quot;                    # autoclean includes the a simple facility for a clean-make-target
+-import &quot;package/tgz&quot;                  # support for packaging (tar.gz, zip)
+-import &quot;package/zip&quot;                  # support for packaging (tar.gz, zip)
++import &quot;package/tgz&quot;                  # support for packaging (tar.gz, zip)
++import &quot;package/zip&quot;                  # support for packaging (tar.gz, zip)
+ import &quot;rubydoc&quot;
+ import &quot;c/dependencies&quot;
+ 
+-#gen C::Dependencies
++#gen C::Dependencies, :sources=&gt; (sys[&quot;**/*.cc&quot;]+sys[&quot;**/*.c&quot;]+sys[&quot;**/*.h&quot;]).select{|f|not (f=~/packages/ or f=~/build/)}
+ 
+ require 'build/base_tools.rb'
+ 
+@@ -37,7 +37,7 @@
+ 	[&quot;ext/video&quot;,[&quot;ext/external&quot;,&quot;ext/basic&quot;,&quot;ext/math&quot;]+glLibs+allSDLlibs],
+ 	[&quot;ext/gui&quot;,[&quot;ext/basic&quot;,&quot;ext/math&quot;,&quot;ext/video&quot;]+allSDLlibs],
+ 	[&quot;ext/sound&quot;,[&quot;ext/basic&quot;,&quot;-lSDL_mixer&quot;]+sdlLibs],
+-	[&quot;ext/3dengine&quot;,[&quot;ext/external&quot;,&quot;ext/basic&quot;,&quot;ext/math&quot;,&quot;ext/video&quot;]+glLibs+sdlLibs],
++	[&quot;ext/3dengine&quot;,[&quot;ext/external&quot;,&quot;ext/basic&quot;,&quot;ext/math&quot;,&quot;ext/video&quot;,&quot;ext/gui&quot;]+glLibs+sdlLibs],
+ 	[&quot;ext/game&quot;,[&quot;ext/basic&quot;,&quot;ext/math&quot;,&quot;ext/video&quot;,&quot;ext/gui&quot;,&quot;ext/3dengine&quot;]+glLibs+sdlLibs],
+ ]
+ 
+@@ -52,7 +52,7 @@
+ rubyIncDir=getConfig(&quot;archdir&quot;)
+     
+ # gather include-directories (separately from other cflags, so they can be used for swig later on
+-var :INCLUDES =&gt; sourceDirs+[rubyIncDir,&quot;.&quot;]
++var :INCLUDES =&gt; sourceDirs+[rubyIncDir,&quot;.&quot;]
+ 
+ var :INCLUDESTR =&gt; var[:INCLUDES].collect{|d|&quot;-I#{d}&quot;}.join(&quot; &quot;)+&quot; &quot;+externalIncludes    # build include-string (-I...)
+ 
+@@ -105,14 +105,14 @@
+ 	}
+ 	task target =&gt; tsources do |t|
+ 		# build command
+-		sources=t.prerequisites
++		sources=t.prerequisites
+         
+ 		if ENV['WINDIR']
+-                extlibs=extlibs.collect{|s|s.gsub(/.*lib(.*)\.so/,'-l\1')}
+-                
++                extlibs=extlibs.collect{|s|s.gsub(/.*lib(.*)\.so/,'-l\1')}
+                 
++                
+ 				#puts &quot;SOURCES #{sources}&quot;
+-				#puts &quot;EXTLIBS #{extlibs}&quot;
++				#puts &quot;EXTLIBS #{extlibs}&quot;
+ 				sources=sources.select{|f|not f=~/\.so/}
+ 		end
+ 		cmd=makeCommand(&quot;LINK_SHARED&quot;,sys.expand_path(U2W(t.name)), (sources.collect{|f|sys.expand_path(f)}+extlibs).join(&quot; &quot;))
+@@ -142,11 +142,11 @@
+ 	tsources+=[dir+&quot;/&quot;+libname+&quot;swig.cc&quot;]
+ 	tsources.collect!{|f|f.sub_ext(&quot;oo&quot;)}
+ 	#tsources+=[&quot;ext/lib&quot;+makeLibName(dir)+&quot;.so&quot;]
+-	extlibs=[] #[&quot;-l&quot;+makeLibName(dir)]
+-    
++	extlibs=[] #[&quot;-l&quot;+makeLibName(dir)]
++    
+     if isWindows
+-	    extlibs+=[&quot;-l&quot;+makeLibName(dir)]
+-    end
++	    extlibs+=[&quot;-l&quot;+makeLibName(dir)]
++    end
+     
+ 	dep.each{|d|
+ 		if d[0..0]!=&quot;-&quot; and d!=&quot;ext/external&quot;
+@@ -158,8 +158,8 @@
+ 				extlibs+=[&quot;ext/lib&quot;+makeLibName(dir)+&quot;.so&quot;]
+ 			end
+ 		end
+-	}
+-    
++	}
++    
+     puts &quot;EXTLIBS:#{extlibs}&quot;
+     #tsources+=rubyLib
+     
+@@ -205,18 +205,18 @@
+ 	dir=getDirUnix(target)
+     #puts &quot;TARGET:#{target} DIR:#{dir}&quot;
+ 	name=makeLibName(dir)
+-	a=[target.sub(name+&quot;swig.cc&quot;,&quot;interface.i&quot;)]+sys[&quot;build/*.i&quot;]+importsForInterface(target).split(&quot;:&quot;) 
+-    puts &quot;A: #{a}&quot;
+-    puts &quot;name: #{name}&quot;
+-    puts &quot;dir: #{dir}&quot;
+-    puts &quot;target: #{target}&quot;
++	a=[target.sub(name+&quot;swig.cc&quot;,&quot;interface.i&quot;)]+sys[&quot;build/*.i&quot;]+importsForInterface(target).split(&quot;:&quot;) 
++    puts &quot;A: #{a}&quot;
++    puts &quot;name: #{name}&quot;
++    puts &quot;dir: #{dir}&quot;
++    puts &quot;target: #{target}&quot;
+     a
+ }
+ 
+-gen Rule, /^.*swig.(cc|h)$/ =&gt; swigSrc do |t|
+-
+-    puts &quot;SOURCE #{t.source} #{t.name}&quot;
++gen Rule, /^.*swig.(cc|h)$/ =&gt; swigSrc do |t|
+ 
++    puts &quot;SOURCE #{t.source} #{t.name}&quot;
++
+ 	cmd=makeCommand(&quot;SWIG_CALL&quot;,sys.expand_path(t.name),&quot;-DAGEXPORT -Ibuild -I#{sys.expand_path(getDir(t.name))} #{var :INCLUDESTR} #{sys.expand_path(t.source)}&quot;.gsub(&quot;/&quot;,Dir.separator))
+ 	sys cmd
+ 	puts
+@@ -265,7 +265,7 @@
+ # make rant-stand-alone
+ #
+ task :rantStandAlone =&gt;[] do |t|
+-	cmd=&quot;rant-import --auto build.rb&quot;
++	cmd=&quot;rant-import --force --auto build.rb&quot;
+     sys cmd
+ end
+ #
+@@ -286,12 +286,12 @@
+ files=(sys[&quot;build/**/*&quot;]+sys[&quot;ext/**/*&quot;]+sys[&quot;ruby/**/*.rb&quot;]+sys[&quot;data/**/*&quot;]+sys[&quot;*&quot;]).select{|f|not (f=~/~/ or f=~/.xcf/ or f=~/swig/ or f=~/packages/ or f=~/\.o/ or f=~/\.so/)}
+ #puts files
+ #exit
+-
++
+ if isWindows
+-    sourcePkg=gen Package::Zip, &quot;packages&quot;,&quot;antargis-source-&quot;+extendCommand($config,&quot;version&quot;), :files =&gt; files
+-else
+-    sourcePkg=gen Package::Tgz, &quot;packages&quot;,&quot;antargis-source-&quot;+extendCommand($config,&quot;version&quot;), :extension =&gt; &quot;.tar.gz&quot;, :files =&gt; files
+-end
++    sourcePkg=gen Package::Zip, &quot;packages&quot;,&quot;antargis-source-&quot;+extendCommand($config,&quot;version&quot;), :files =&gt; files
++else
++    sourcePkg=gen Package::Tgz, &quot;packages&quot;,&quot;antargis-source-&quot;+extendCommand($config,&quot;version&quot;), :extension =&gt; &quot;.tar.gz&quot;, :files =&gt; files
++end
+ 
+ task :dist=&gt;[:swigSources,:rantStandAlone,sourcePkg.path] do |t|
+ end
+@@ -300,12 +300,12 @@
+ 
+ ###########################################
+ # build source-distribution
+-#
++#
+ if isWindows
+-    binpkg=gen Package::Zip, &quot;packages&quot;,&quot;antargis-&quot;+extendCommand($config,&quot;system&quot;)+&quot;-&quot;+extendCommand($config,&quot;version&quot;), :files =&gt; (sys[&quot;ext/*.so&quot;]+sys[&quot;ruby/**/*.rb&quot;]+sys[&quot;data/**/*&quot;]+sys[&quot;*&quot;]).select{|f|not (f=~/~/ or f=~/.xcf/)}
+-else
+-    binpkg=gen Package::Tgz, &quot;packages&quot;,&quot;antargis-&quot;+extendCommand($config,&quot;system&quot;)+&quot;-&quot;+extendCommand($config,&quot;version&quot;), :extension =&gt; &quot;.tar.gz&quot;, :files =&gt; (sys[&quot;ext/*.so&quot;]+sys[&quot;ruby/**/*.rb&quot;]+sys[&quot;data/**/*&quot;]+sys[&quot;*&quot;]).select{|f|not (f=~/~/ or f=~/.xcf/)}
+-end
++    binpkg=gen Package::Zip, &quot;packages&quot;,&quot;antargis-&quot;+extendCommand($config,&quot;system&quot;)+&quot;-&quot;+extendCommand($config,&quot;version&quot;), :files =&gt; (sys[&quot;ext/*.so&quot;]+sys[&quot;ruby/**/*.rb&quot;]+sys[&quot;data/**/*&quot;]+sys[&quot;*&quot;]).select{|f|not (f=~/~/ or f=~/.xcf/)}
++else
++    binpkg=gen Package::Tgz, &quot;packages&quot;,&quot;antargis-&quot;+extendCommand($config,&quot;system&quot;)+&quot;-&quot;+extendCommand($config,&quot;version&quot;), :extension =&gt; &quot;.tar.gz&quot;, :files =&gt; (sys[&quot;ext/*.so&quot;]+sys[&quot;ruby/**/*.rb&quot;]+sys[&quot;data/**/*&quot;]+sys[&quot;*&quot;]).select{|f|not (f=~/~/ or f=~/.xcf/)}
++end
+ 
+ task :bindist=&gt;[:extensions,binpkg.path] do |t| #&quot;packages/antargis-&quot;+extendCommand($config,&quot;version&quot;)+&quot;.tar.gz&quot;] do |t|
+ end
+
+Modified: antargis/branches/rant/build/base_tools.rb
+===================================================================
+--- antargis/branches/rant/build/base_tools.rb	2007-07-29 17:39:54 UTC (rev 1155)
++++ antargis/branches/rant/build/base_tools.rb	2007-08-15 17:33:15 UTC (rev 1156)
+@@ -1,6 +1,7 @@
+ #require 'mkmf'                        # mkmf holds information about the compiler-settings while compiling ruby (by the maintainer)
+ 
+ require 'build/platform.rb'
++require 'config.rb'                   # include build-options
+ 
+ def getDir(path)
+ 	# FIXME: check for windows
+@@ -55,17 +56,46 @@
+ 	(not ENV['WINDIR'].nil?)
+ end
+ 
++module Cmd
++	def Cmd.sys(cmd)
++		puts cmd
++		#as=`#{cmd}`
++		
++		#puts &quot;-#{cmd}-&quot;,cmd.class
++		res=system(cmd)
++		#puts a
++		raise 1 unless res
++		
++	end
++end
+ 
++
+ module Build
++	include Cmd
+ 
+-	def compile(cFile)
++	def Build.includes
++		includes=Dir.glob(File.join(&quot;ext&quot;,&quot;**&quot;,&quot;*.h&quot;)).collect{|f|f.sub(/\/[^\/]*$/,&quot;&quot;)}.uniq+[getConfig(&quot;archdir&quot;)]
++		includes.collect{|i|&quot;-I#{i}&quot;}.join(&quot; &quot;)
+ 	end
++
++	def Build.cflags
++		includes+&quot; &quot;+getConfig(&quot;CFLAGS&quot;)+&quot; &quot;+$config[&quot;CFLAGS&quot;]
++	end
++
++	def Build.compile(cFile)
++		cObj=cFileToObj(cFile)
++		cmd=makeCommand(&quot;CXX_CALL&quot;,cObj,cflags+&quot; &quot;+cFile)
++		Cmd.sys cmd
++	end
+ 	
+-	def link(objs,libs)
++	def Build.linkToLib(target,objs,libs)
++		cmd=makeCommand(&quot;LINK_SHARED&quot;,target,(objs+libs).join(&quot; &quot;))
++		Cmd.sys cmd
+ 	end
+-end
+ 
+-module Testing
+-	def runCTest(cFile)
++	def Build.cFileToObj(filename)
++		filename.sub(/\.cc$/,&quot;.oo&quot;).sub(/\.c$/,&quot;.o&quot;)
+ 	end
++
+ end
++
+
+Modified: antargis/branches/rant/build/create_interface.rb
+===================================================================
+--- antargis/branches/rant/build/create_interface.rb	2007-07-29 17:39:54 UTC (rev 1155)
++++ antargis/branches/rant/build/create_interface.rb	2007-08-15 17:33:15 UTC (rev 1156)
+@@ -26,7 +26,7 @@
+ 
+ 
+ require 'build/interface_template.rb'
+-require 'build/base_tools.rb'
++require 'build/base_tools.rb'
+ require 'find.rb'
+ 
+ class MyInput
+@@ -76,10 +76,10 @@
+ 	end
+ end
+ 
+-def getFiles(dir)
++def getFiles(dir)
+     pattern=dir+&quot;/&quot;+&quot;*.h&quot;
+-	files=Dir[pattern].select{|f|not f=~/swig.h/} #-[dir+Dir.separator+&quot;swig.h&quot;]
+-    #puts &quot;getFiles #{dir}&quot;,pattern,&quot;--&quot;,files,&quot;----&quot;
++	files=Dir[pattern].select{|f|not f=~/swig.h/} #-[dir+Dir.separator+&quot;swig.h&quot;]
++    #puts &quot;getFiles #{dir}&quot;,pattern,&quot;--&quot;,files,&quot;----&quot;
+     files  
+ end
+ 
+@@ -100,7 +100,7 @@
+ 
+ 	attr_reader :deriveList
+ 
+-	def initialize(files,allfiles)
++	def initialize(files,allfiles)
+         #puts &quot;ParsedClasses:init()&quot;,files,&quot;--&quot;,allfiles,&quot;-----&quot;
+ 		@rubyClasses=[]
+ 		@files=files.collect{|f|f.gsub(/.*\/ext\//,&quot;ext/&quot;)}
+@@ -117,15 +117,17 @@
+ 		@allClasses=[]
+ 
+ 		allfiles.each{|fn|
+-			g=File.open(fn)
++			file=File.open(fn)
+ 			cn=&quot;&quot;
+-			g.each{|a|
++			content=file.read.gsub(/\/\*([^*]|\*[^\/])*\*\//,&quot;&quot;) # /*...*/ delete comments - FIXME: // comments will be ignored!!!
++
++			content.split(&quot;\n&quot;).each{|a|
+ 				abak=a
+ 				a.gsub!(&quot;AGEXPORT&quot;,&quot;&quot;)
+ 				a.gsub!(&quot;EXPORT&quot;,&quot;&quot;)
+ 				
+-				if a =~ /^class.*/ then
+-					cn=a.gsub(&quot;class &quot;,&quot;&quot;).gsub(/:.*/,&quot;&quot;).gsub(&quot;\n&quot;,&quot;&quot;).gsub(&quot; &quot;,&quot;&quot;)
++				if a =~ /^ *class.*/ then
++					cn=a.gsub(/ *class /,&quot;&quot;).gsub(/:.*/,&quot;&quot;).gsub(&quot;\n&quot;,&quot;&quot;).gsub(&quot; &quot;,&quot;&quot;)
+ 					@allClasses &lt;&lt; cn.gsub(&quot;;&quot;,&quot;&quot;)
+ 					if cn=~/^[A-Z].*/
+ 						if a=~ /.*public.*/ then
+@@ -234,19 +236,19 @@
+ 
+ 	# in correct order
+ 	def getFileList
+-
++
+ 		# build file list out of class-order (files may appear several times)
+ 		files=[]
+ 		l=@levels.values.max
+ 		(0..l).each{|i|
+-            puts &quot;LEVEL #{i}&quot;
+-			@levels.each{|n,level|
+-				if level==i and @class2File[n]
++            puts &quot;LEVEL #{i}&quot;
++			@levels.each{|n,level|
++				if level==i and @class2File[n]
+                     puts n
+ 					files &lt;&lt; @class2File[n]
+-				end
++				end
+ 			}
+-            puts &quot;----&quot;
++            puts &quot;----&quot;
+ 		}
+ 
+ 		# add files of classes with unknown level
+@@ -254,21 +256,21 @@
+ 			if @levels[c].nil? and @class2File[c]
+ 				files &lt;&lt; @class2File[c]
+ 			end
+-		}
+-        puts &quot;myfiles:&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at myfiles</A>,&quot;---&quot;
++		}
++        puts &quot;myfiles:&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at myfiles</A>,&quot;---&quot;
+         
+         puts &quot;FILES:&quot;,files,&quot;---&quot;
+ 		files=files.select{|f|@myfiles.member?(f)} # select only &quot;my&quot; files - those included in this directory
+-        puts &quot;FILES after select:&quot;,files,&quot;---&quot;
++        puts &quot;FILES after select:&quot;,files,&quot;---&quot;
+ 		addfiles=@files-files
+ 		files+=addfiles                            # add files that are in other directories
+-        puts &quot;FILES (add:&quot;,files,&quot;---&quot;
++        puts &quot;FILES (add:&quot;,files,&quot;---&quot;
+ 
+ 		# unique the array
+ 		if files.length&gt;0
+ 			files.uniq!
+-		end
+-        puts &quot;FILES (uniq):&quot;,files,&quot;---&quot;
++		end
++        puts &quot;FILES (uniq):&quot;,files,&quot;---&quot;
+ 
+ 		files
+ 	end
+@@ -287,9 +289,9 @@
+ 
+ 
+ def generateInterfaceFile(myInput,files,addfiles)
+-	filename=myInput.interfaceName
++	filename=myInput.interfaceName
+ 	interfaceI=File.open(filename,&quot;w&quot;)
+-	#puts filename
++	#puts filename
+     #raise 1
+ 	interfaceI.puts interface_template(myInput.moduleName,files,myInput.swigInput,addfiles,myInput.outputDir)
+ 	
+@@ -306,36 +308,36 @@
+ 	headersH.puts &quot;#endif&quot;
+ 	headersH.puts &quot;#endif&quot;
+ 	headersH.close
+-end
+-
+-def findFilesWith(str)
+-    files=[]
+-    Find.find(&quot;ext&quot;) {|file|files &lt;&lt; file}
+-    files=files.select{|f|f=~/\.h$/}.select{|f|not f=~/swig.h/}.select{|f|File.open(f).read=~/#{str}/}
+-    #dirs=findDirsRecursively(&quot;.&quot;)
+-    #puts &quot;findFilesWith #{str}:&quot;
+-    #puts files
+-    #puts &quot;---&quot;
+-    #exit
+-    files
+-    #Dir[&quot;*/*&quot;].collect{|f|f.gsub(/\/.*/,&quot;&quot;)}.uniq
+ end
+ 
++def findFilesWith(str)
++    files=[]
++    Find.find(&quot;ext&quot;) {|file|files &lt;&lt; file}
++    files=files.select{|f|f=~/\.h$/}.select{|f|not f=~/swig.h/}.select{|f|File.open(f).read=~/#{str}/}
++    #dirs=findDirsRecursively(&quot;.&quot;)
++    #puts &quot;findFilesWith #{str}:&quot;
++    #puts files
++    #puts &quot;---&quot;
++    #exit
++    files
++    #Dir[&quot;*/*&quot;].collect{|f|f.gsub(/\/.*/,&quot;&quot;)}.uniq
++end
+ 
++
+ myInput=MyInput.new
+ 
+ files=getSwigInterfaceFiles(getFiles(myInput.outputDir))
+-
+-
+-cfiles=findFilesWith(&quot;INCLUDE_SWIG&quot;)
+-#exit
+ 
+-#parsedClasses=ParsedClasses.new(files,`find $(pwd) -name &quot;*.h&quot;|grep -v swig`.split(&quot;\n&quot;))
+-parsedClasses=ParsedClasses.new(files,cfiles)
++
++cfiles=findFilesWith(&quot;INCLUDE_SWIG&quot;)
++#exit
++
++#parsedClasses=ParsedClasses.new(files,`find $(pwd) -name &quot;*.h&quot;|grep -v swig`.split(&quot;\n&quot;))
++parsedClasses=ParsedClasses.new(files,cfiles)
+ files=parsedClasses.getFileList
+ 
+ addfiles=[]
+-myInput.swigInput.each{|inDir|
++myInput.swigInput.each{|inDir|
+     puts &quot;inDir #{inDir}&quot;
+ 	pattern=getDirUnix(inDir)+&quot;/*.h&quot;
+ 	puts &quot;PATTERN:&quot;,pattern,&quot;!!!!&quot;
+@@ -404,11 +406,11 @@
+ myClasses=parsedClasses.getMyRubyClasses
+ 
+ file.puts &lt;&lt;EOT
+-%{
+-
+-#undef write
+-#undef read
++%{
+ 
++#undef write
++#undef read
++
+ // cast-function map
+ // it contains the mapping from parent-classes=&gt;dyn-cast-functions to child-classes
+ #include &lt;string&gt;
+
+Modified: antargis/branches/rant/build/platform.rb
+===================================================================
+--- antargis/branches/rant/build/platform.rb	2007-07-29 17:39:54 UTC (rev 1155)
++++ antargis/branches/rant/build/platform.rb	2007-08-15 17:33:15 UTC (rev 1156)
+@@ -15,4 +15,5 @@
+     
+ else
+     require 'mkmf'
++#CONFIG={&quot;archdir&quot;=&gt;Dir.pwd+&quot;/build/win32/usr/lib&quot;,&quot;CFLAGS&quot;=&gt;&quot;&quot;}
+ end
+\ No newline at end of file
+
+Modified: antargis/branches/rant/configure
+===================================================================
+--- antargis/branches/rant/configure	2007-07-29 17:39:54 UTC (rev 1155)
++++ antargis/branches/rant/configure	2007-08-15 17:33:15 UTC (rev 1156)
+@@ -2,7 +2,7 @@
+ 
+ require 'build/configure.rb'
+ 
+-version=&quot;0.2.1.1&quot;
++version=&quot;0.2.1.2&quot;
+ 
+ puts &lt;&lt;EOT
+ Battle of Antargis - Configuration
+
+Modified: antargis/branches/rant/ext/3dengine/headers.hh
+===================================================================
+--- antargis/branches/rant/ext/3dengine/headers.hh	2007-07-29 17:39:54 UTC (rev 1155)
++++ antargis/branches/rant/ext/3dengine/headers.hh	2007-08-15 17:33:15 UTC (rev 1156)
+@@ -1,60 +1,91 @@
+-#ifndef __ANTARGIS_H__
+-#define __ANTARGIS_H__
+-#include &quot;ext/basic/ag_config.h&quot;
+-#include &quot;ext/basic/ag_fs.h&quot;
+-#include &quot;ext/basic/ag_geometry.h&quot;
+-#include &quot;ext/basic/ag_main.h&quot;
+-#include &quot;ext/basic/ag_messageobject.h&quot;
+-#include &quot;ext/basic/ag_rand_base.h&quot;
+-#include &quot;ext/basic/ag_rubyobj.h&quot;
+-#include &quot;ext/basic/ag_serial.h&quot;
+-#include &quot;ext/basic/ag_singleton.h&quot;
+-#include &quot;ext/basic/ag_stringstream.h&quot;
+-#include &quot;ext/basic/ag_string_utf8.h&quot;
+-#include &quot;ext/basic/ag_utf8.h&quot;
+-#include &quot;ext/basic/ag_video_base.h&quot;
+-#include &quot;ext/basic/ag_xml.h&quot;
+-#include &quot;ext/math/ag_algebra.h&quot;
+-#include &quot;ext/math/ag_rand.h&quot;
+-#include &quot;ext/math/ant_frustum.h&quot;
+-#include &quot;ext/video/ag_clip.h&quot;
+-#include &quot;ext/video/ag_color.h&quot;
+-#include &quot;ext/video/ag_font.h&quot;
+-#include &quot;ext/video/ag_fontengine.h&quot;
+-#include &quot;ext/video/ag_painter.h&quot;
+-#include &quot;ext/video/ag_painttarget.h&quot;
+-#include &quot;ext/video/ag_rendercontext.h&quot;
+-#include &quot;ext/video/ag_screen.h&quot;
+-#include &quot;ext/video/ag_surface.h&quot;
+-#include &quot;ext/video/ag_texture.h&quot;
+-#include &quot;ext/video/ag_texturecache.h&quot;
+-#include &quot;ext/video/ag_video.h&quot;
+-#include &quot;ext/3dengine/mesh_data.h&quot;
+-#include &quot;ext/3dengine/scene_base.h&quot;
+-#include &quot;ext/3dengine/scenenode.h&quot;
+-#include &quot;ext/3dengine/mesh_2d_data.h&quot;
+-#include &quot;ext/3dengine/anim_mesh_data.h&quot;
+-#include &quot;ext/3dengine/mesh.h&quot;
+-#include &quot;ext/3dengine/mesh_2d.h&quot;
+-#include &quot;ext/3dengine/ant_particle.h&quot;
+-#include &quot;ext/3dengine/scene.h&quot;
+-#include &quot;ext/3dengine/anim_mesh.h&quot;
+-#include &quot;ext/3dengine/ant_camera.h&quot;
+-#include &quot;ext/3dengine/mesh_optimizer.h&quot;
+-#include &quot;ext/3dengine/ant_projection.h&quot;
+-#ifdef SWIG
+-%include &quot;ext/3dengine/mesh_data.h&quot;
+-%include &quot;ext/3dengine/scene_base.h&quot;
+-%include &quot;ext/3dengine/scenenode.h&quot;
+-%include &quot;ext/3dengine/mesh_2d_data.h&quot;
+-%include &quot;ext/3dengine/anim_mesh_data.h&quot;
+-%include &quot;ext/3dengine/mesh.h&quot;
+-%include &quot;ext/3dengine/mesh_2d.h&quot;
+-%include &quot;ext/3dengine/ant_particle.h&quot;
+-%include &quot;ext/3dengine/scene.h&quot;
+-%include &quot;ext/3dengine/anim_mesh.h&quot;
+-%include &quot;ext/3dengine/ant_camera.h&quot;
+-%include &quot;ext/3dengine/mesh_optimizer.h&quot;
+-%include &quot;ext/3dengine/ant_projection.h&quot;
+-#endif
+-#endif
++#ifndef __ANTARGIS_H__
++#define __ANTARGIS_H__
++#include &quot;ext/basic/ag_config.h&quot;
++#include &quot;ext/basic/ag_fs.h&quot;
++#include &quot;ext/basic/ag_main.h&quot;
++#include &quot;ext/basic/ag_rubyobj.h&quot;
++#include &quot;ext/basic/ag_rand_base.h&quot;
++#include &quot;ext/basic/ag_string_utf8.h&quot;
++#include &quot;ext/basic/ag_stringstream.h&quot;
++#include &quot;ext/basic/ag_utf8.h&quot;
++#include &quot;ext/basic/ag_video_base.h&quot;
++#include &quot;ext/basic/ag_xml.h&quot;
++#include &quot;ext/basic/ag_singleton.h&quot;
++#include &quot;ext/basic/ag_serial.h&quot;
++#include &quot;ext/basic/ag_messageobject.h&quot;
++#include &quot;ext/basic/ag_geometry.h&quot;
++#include &quot;ext/math/ag_rand.h&quot;
++#include &quot;ext/math/ant_frustum.h&quot;
++#include &quot;ext/math/ag_algebra.h&quot;
++#include &quot;ext/video/ag_screen.h&quot;
++#include &quot;ext/video/ag_video.h&quot;
++#include &quot;ext/video/ag_painttarget.h&quot;
++#include &quot;ext/video/ag_color.h&quot;
++#include &quot;ext/video/ag_fontengine.h&quot;
++#include &quot;ext/video/ag_font.h&quot;
++#include &quot;ext/video/ag_surface.h&quot;
++#include &quot;ext/video/ag_texture.h&quot;
++#include &quot;ext/video/ag_rendercontext.h&quot;
++#include &quot;ext/video/ag_texturecache.h&quot;
++#include &quot;ext/video/ag_clip.h&quot;
++#include &quot;ext/video/ag_painter.h&quot;
++#include &quot;ext/gui/ag_image.h&quot;
++#include &quot;ext/gui/ag_listbox.h&quot;
++#include &quot;ext/gui/ag_edit.h&quot;
++#include &quot;ext/gui/ag_scroller.h&quot;
++#include &quot;ext/gui/ag_local.h&quot;
++#include &quot;ext/gui/ag_tooltip.h&quot;
++#include &quot;ext/gui/ag_radio.h&quot;
++#include &quot;ext/gui/ag_application.h&quot;
++#include &quot;ext/gui/ag_colorbutton.h&quot;
++#include &quot;ext/gui/ag_button.h&quot;
++#include &quot;ext/gui/ag_radiogroup.h&quot;
++#include &quot;ext/gui/ag_background.h&quot;
++#include &quot;ext/gui/ag_menuitem.h&quot;
++#include &quot;ext/gui/ag_screenwidget.h&quot;
++#include &quot;ext/gui/ag_widget.h&quot;
++#include &quot;ext/gui/ag_text.h&quot;
++#include &quot;ext/gui/ag_checkbox.h&quot;
++#include &quot;ext/gui/ag_table.h&quot;
++#include &quot;ext/gui/ag_frame.h&quot;
++#include &quot;ext/gui/ag_caption.h&quot;
++#include &quot;ext/gui/ag_combo.h&quot;
++#include &quot;ext/gui/ag_theme.h&quot;
++#include &quot;ext/gui/ag_menu.h&quot;
++#include &quot;ext/gui/ag_layoutfactory.h&quot;
++#include &quot;ext/gui/ag_window.h&quot;
++#include &quot;ext/gui/ag_layout.h&quot;
++#include &quot;ext/gui/ag_border.h&quot;
++#include &quot;ext/3dengine/mesh_data.h&quot;
++#include &quot;ext/3dengine/scene_base.h&quot;
++#include &quot;ext/3dengine/scenenode.h&quot;
++#include &quot;ext/3dengine/mesh_2d_data.h&quot;
++#include &quot;ext/3dengine/anim_mesh_data.h&quot;
++#include &quot;ext/3dengine/mesh.h&quot;
++#include &quot;ext/3dengine/mesh_2d.h&quot;
++#include &quot;ext/3dengine/ant_particle.h&quot;
++#include &quot;ext/3dengine/scene.h&quot;
++#include &quot;ext/3dengine/anim_mesh.h&quot;
++#include &quot;ext/3dengine/boa_3d_wireframe.h&quot;
++#include &quot;ext/3dengine/ag_glwidget.h&quot;
++#include &quot;ext/3dengine/ant_camera.h&quot;
++#include &quot;ext/3dengine/mesh_optimizer.h&quot;
++#include &quot;ext/3dengine/ant_projection.h&quot;
++#ifdef SWIG
++%include &quot;ext/3dengine/mesh_data.h&quot;
++%include &quot;ext/3dengine/scene_base.h&quot;
++%include &quot;ext/3dengine/scenenode.h&quot;
++%include &quot;ext/3dengine/mesh_2d_data.h&quot;
++%include &quot;ext/3dengine/anim_mesh_data.h&quot;
++%include &quot;ext/3dengine/mesh.h&quot;
++%include &quot;ext/3dengine/mesh_2d.h&quot;
++%include &quot;ext/3dengine/ant_particle.h&quot;
++%include &quot;ext/3dengine/scene.h&quot;
++%include &quot;ext/3dengine/anim_mesh.h&quot;
++%include &quot;ext/3dengine/boa_3d_wireframe.h&quot;
++%include &quot;ext/3dengine/ag_glwidget.h&quot;
++%include &quot;ext/3dengine/ant_camera.h&quot;
++%include &quot;ext/3dengine/mesh_optimizer.h&quot;
++%include &quot;ext/3dengine/ant_projection.h&quot;
++#endif
++#endif
+
+Copied: antargis/branches/rant/ext/basic/ag_rtools.cc (from rev 1154, antargis/branches/rant/ext/ruby/ag_rtools.cc)
+
+Copied: antargis/branches/rant/ext/basic/ag_rtools.h (from rev 1154, antargis/branches/rant/ext/ruby/ag_rtools.h)
+
+Modified: antargis/branches/rant/ext/basic/ag_serial.cc
+===================================================================
+--- antargis/branches/rant/ext/basic/ag_serial.cc	2007-07-29 17:39:54 UTC (rev 1155)
++++ antargis/branches/rant/ext/basic/ag_serial.cc	2007-08-15 17:33:15 UTC (rev 1156)
+@@ -92,8 +92,31 @@
+   return *this;
+ }
+ 
++BinaryIn &amp;BinaryIn::operator&gt;&gt;(std::string &amp;f)
++{
++  Uint32 l;
++  (*this)&gt;&gt;l;
+ 
++  cdebug(&quot;L:&quot;&lt;&lt;l);
+ 
++  assert(l&lt;1000000);
++  char *s=new char[l+1];
++  char c;
++  for(Uint32 i=0;i&lt;l;i++)
++    {
++      c=read();
++      cdebug(&quot;C:&quot;&lt;&lt;(int)c);
++      s[i]=c;
++    }
++
++
++  f=std::string(s,l);
++  delete s;
++
++  return *this;
++}
++
++
+ /////////////////////////////////////////////////////////////
+ // BinaryOut
+ /////////////////////////////////////////////////////////////
+@@ -120,6 +143,15 @@
+   write((u&gt;&gt;24)&amp;0xFF);
+   return *this;
+ }
++
++BinaryOut &amp;BinaryOut::operator&lt;&lt;(const Uint16 &amp;u)
++{
++  write((u&gt;&gt;0 )&amp;0xFF);
++  write((u&gt;&gt;8 )&amp;0xFF);
++  return *this;
++}
++
++
+ BinaryOut &amp;BinaryOut::operator&lt;&lt;(const float &amp;f)
+ {
+   if(sizeof(float)!=4)
+@@ -147,6 +179,18 @@
+   return *this;
+ }
+ 
++
++BinaryOut &amp;BinaryOut::operator&lt;&lt;(const std::string &amp;s)
++{
++  assert(s.size()&lt;(1L&lt;&lt;31));
++
++  (*this)&lt;&lt;Uint32(s.size());
++
++  for(size_t i=0;i&lt;s.length();i++)
++    write(s[i]);
++  return *this;
++}
++
+ /////////////////////////////////////////////////////////////
+ // BinaryFileIn
+ /////////////////////////////////////////////////////////////
+
+Modified: antargis/branches/rant/ext/basic/ag_serial.h
+===================================================================
+--- antargis/branches/rant/ext/basic/ag_serial.h	2007-07-29 17:39:54 UTC (rev 1155)
++++ antargis/branches/rant/ext/basic/ag_serial.h	2007-08-15 17:33:15 UTC (rev 1156)
+@@ -24,6 +24,7 @@
+   BinaryIn &amp;operator&gt;&gt;(Uint32 &amp;i);
+   BinaryIn &amp;operator&gt;&gt;(Uint16 &amp;i);
+   BinaryIn &amp;operator&gt;&gt;(float &amp;f);
++  BinaryIn &amp;operator&gt;&gt;(std::string &amp;f);
+ };
+ 
+ class AGEXPORT BinaryOut
+@@ -36,7 +37,9 @@
+ 
+   BinaryOut &amp;operator&lt;&lt;(const Sint32 &amp;i);
+   BinaryOut &amp;operator&lt;&lt;(const Uint32 &amp;i);
++  BinaryOut &amp;operator&lt;&lt;(const Uint16 &amp;i);
+   BinaryOut &amp;operator&lt;&lt;(const float &amp;f);
++  BinaryOut &amp;operator&lt;&lt;(const std::string &amp;s);
+ };
+ 
+ class AGEXPORT BinaryFileIn:public BinaryIn
+
+Modified: antargis/branches/rant/ext/basic/headers.hh
+===================================================================
+--- antargis/branches/rant/ext/basic/headers.hh	2007-07-29 17:39:54 UTC (rev 1155)
++++ antargis/branches/rant/ext/basic/headers.hh	2007-08-15 17:33:15 UTC (rev 1156)
+@@ -1,34 +1,34 @@
+-#ifndef __ANTARGIS_H__
+-#define __ANTARGIS_H__
+-
+-#include &quot;ext/basic/ag_rubyobj.h&quot;
+-#include &quot;ext/basic/ag_messageobject.h&quot;
+-#include &quot;ext/basic/ag_singleton.h&quot;
+-#include &quot;ext/basic/ag_rand_base.h&quot;
+-#include &quot;ext/basic/ag_main.h&quot;
+-#include &quot;ext/basic/ag_video_base.h&quot;
+-#include &quot;ext/basic/ag_geometry.h&quot;
+-#include &quot;ext/basic/ag_serial.h&quot;
+-#include &quot;ext/basic/ag_config.h&quot;
+-#include &quot;ext/basic/ag_xml.h&quot;
+-#include &quot;ext/basic/ag_string_utf8.h&quot;
+-#include &quot;ext/basic/ag_stringstream.h&quot;
+-#include &quot;ext/basic/ag_fs.h&quot;
+-#include &quot;ext/basic/ag_utf8.h&quot;
+-#ifdef SWIG
+-%include &quot;ext/basic/ag_rubyobj.h&quot;
+-%include &quot;ext/basic/ag_messageobject.h&quot;
+-%include &quot;ext/basic/ag_singleton.h&quot;
+-%include &quot;ext/basic/ag_rand_base.h&quot;
+-%include &quot;ext/basic/ag_main.h&quot;
+-%include &quot;ext/basic/ag_video_base.h&quot;
+-%include &quot;ext/basic/ag_geometry.h&quot;
+-%include &quot;ext/basic/ag_serial.h&quot;
+-%include &quot;ext/basic/ag_config.h&quot;
+-%include &quot;ext/basic/ag_xml.h&quot;
+-%include &quot;ext/basic/ag_string_utf8.h&quot;
+-%include &quot;ext/basic/ag_stringstream.h&quot;
+-%include &quot;ext/basic/ag_fs.h&quot;
+-%include &quot;ext/basic/ag_utf8.h&quot;
+-#endif
+-#endif
++#ifndef __ANTARGIS_H__
++#define __ANTARGIS_H__
++
++#include &quot;ext/basic/ag_rubyobj.h&quot;
++#include &quot;ext/basic/ag_messageobject.h&quot;
++#include &quot;ext/basic/ag_singleton.h&quot;
++#include &quot;ext/basic/ag_rand_base.h&quot;
++#include &quot;ext/basic/ag_main.h&quot;
++#include &quot;ext/basic/ag_video_base.h&quot;
++#include &quot;ext/basic/ag_geometry.h&quot;
++#include &quot;ext/basic/ag_serial.h&quot;
++#include &quot;ext/basic/ag_config.h&quot;
++#include &quot;ext/basic/ag_xml.h&quot;
++#include &quot;ext/basic/ag_string_utf8.h&quot;
++#include &quot;ext/basic/ag_stringstream.h&quot;
++#include &quot;ext/basic/ag_fs.h&quot;
++#include &quot;ext/basic/ag_utf8.h&quot;
++#ifdef SWIG
++%include &quot;ext/basic/ag_rubyobj.h&quot;
++%include &quot;ext/basic/ag_messageobject.h&quot;
++%include &quot;ext/basic/ag_singleton.h&quot;
++%include &quot;ext/basic/ag_rand_base.h&quot;
++%include &quot;ext/basic/ag_main.h&quot;
++%include &quot;ext/basic/ag_video_base.h&quot;
++%include &quot;ext/basic/ag_geometry.h&quot;
++%include &quot;ext/basic/ag_serial.h&quot;
++%include &quot;ext/basic/ag_config.h&quot;
++%include &quot;ext/basic/ag_xml.h&quot;
++%include &quot;ext/basic/ag_string_utf8.h&quot;
++%include &quot;ext/basic/ag_stringstream.h&quot;
++%include &quot;ext/basic/ag_fs.h&quot;
++%include &quot;ext/basic/ag_utf8.h&quot;
++#endif
++#endif
+
+Modified: antargis/branches/rant/ext/game/headers.hh
+===================================================================
+--- antargis/branches/rant/ext/game/headers.hh	2007-07-29 17:39:54 UTC (rev 1155)
++++ antargis/branches/rant/ext/game/headers.hh	2007-08-15 17:33:15 UTC (rev 1156)
+@@ -1,104 +1,106 @@
+-#ifndef __ANTARGIS_H__
+-#define __ANTARGIS_H__
+-#include &quot;ext/basic/ag_config.h&quot;
+-#include &quot;ext/basic/ag_fs.h&quot;
+-#include &quot;ext/basic/ag_geometry.h&quot;
+-#include &quot;ext/basic/ag_main.h&quot;
+-#include &quot;ext/basic/ag_messageobject.h&quot;
+-#include &quot;ext/basic/ag_rand_base.h&quot;
+-#include &quot;ext/basic/ag_rubyobj.h&quot;
+-#include &quot;ext/basic/ag_serial.h&quot;
+-#include &quot;ext/basic/ag_singleton.h&quot;
+-#include &quot;ext/basic/ag_stringstream.h&quot;
+-#include &quot;ext/basic/ag_string_utf8.h&quot;
+-#include &quot;ext/basic/ag_utf8.h&quot;
+-#include &quot;ext/basic/ag_video_base.h&quot;
+-#include &quot;ext/basic/ag_xml.h&quot;
+-#include &quot;ext/math/ag_algebra.h&quot;
+-#include &quot;ext/math/ag_rand.h&quot;
+-#include &quot;ext/math/ant_frustum.h&quot;
+-#include &quot;ext/video/ag_clip.h&quot;
+-#include &quot;ext/video/ag_color.h&quot;
+-#include &quot;ext/video/ag_font.h&quot;
+-#include &quot;ext/video/ag_fontengine.h&quot;
+-#include &quot;ext/video/ag_painter.h&quot;
+-#include &quot;ext/video/ag_painttarget.h&quot;
+-#include &quot;ext/video/ag_rendercontext.h&quot;
+-#include &quot;ext/video/ag_screen.h&quot;
+-#include &quot;ext/video/ag_surface.h&quot;
+-#include &quot;ext/video/ag_texture.h&quot;
+-#include &quot;ext/video/ag_texturecache.h&quot;
+-#include &quot;ext/video/ag_video.h&quot;
+-#include &quot;ext/gui/ag_application.h&quot;
+-#include &quot;ext/gui/ag_background.h&quot;
+-#include &quot;ext/gui/ag_border.h&quot;
+-#include &quot;ext/gui/ag_button.h&quot;
+-#include &quot;ext/gui/ag_caption.h&quot;
+-#include &quot;ext/gui/ag_checkbox.h&quot;
+-#include &quot;ext/gui/ag_colorbutton.h&quot;
+-#include &quot;ext/gui/ag_combo.h&quot;
+-#include &quot;ext/gui/ag_edit.h&quot;
+-#include &quot;ext/gui/ag_frame.h&quot;
+-#include &quot;ext/gui/ag_image.h&quot;
+-#include &quot;ext/gui/ag_layout.h&quot;
+-#include &quot;ext/gui/ag_layoutfactory.h&quot;
+-#include &quot;ext/gui/ag_listbox.h&quot;
+-#include &quot;ext/gui/ag_local.h&quot;
+-#include &quot;ext/gui/ag_menu.h&quot;
+-#include &quot;ext/gui/ag_menuitem.h&quot;
+-#include &quot;ext/gui/ag_radio.h&quot;
+-#include &quot;ext/gui/ag_radiogroup.h&quot;
+-#include &quot;ext/gui/ag_screenwidget.h&quot;
+-#include &quot;ext/gui/ag_scroller.h&quot;
+-#include &quot;ext/gui/ag_table.h&quot;
+-#include &quot;ext/gui/ag_text.h&quot;
+-#include &quot;ext/gui/ag_theme.h&quot;
+-#include &quot;ext/gui/ag_tooltip.h&quot;
+-#include &quot;ext/gui/ag_widget.h&quot;
+-#include &quot;ext/gui/ag_window.h&quot;
+-#include &quot;ext/3dengine/anim_mesh.h&quot;
+-#include &quot;ext/3dengine/anim_mesh_data.h&quot;
+-#include &quot;ext/3dengine/ant_camera.h&quot;
+-#include &quot;ext/3dengine/ant_particle.h&quot;
+-#include &quot;ext/3dengine/ant_projection.h&quot;
+-#include &quot;ext/3dengine/mesh.h&quot;
+-#include &quot;ext/3dengine/mesh_2d.h&quot;
+-#include &quot;ext/3dengine/mesh_2d_data.h&quot;
+-#include &quot;ext/3dengine/mesh_data.h&quot;
+-#include &quot;ext/3dengine/mesh_optimizer.h&quot;
+-#include &quot;ext/3dengine/scene.h&quot;
+-#include &quot;ext/3dengine/scenenode.h&quot;
+-#include &quot;ext/3dengine/scene_base.h&quot;
+-#include &quot;ext/game/path.h&quot;
+-#include &quot;ext/game/path_v2.h&quot;
+-#include &quot;ext/game/path_base.h&quot;
+-#include &quot;ext/game/terrain.h&quot;
+-#include &quot;ext/game/entity.h&quot;
+-#include &quot;ext/game/water.h&quot;
+-#include &quot;ext/game/height_map.h&quot;
+-#include &quot;ext/game/ant_app.h&quot;
+-#include &quot;ext/game/minimap.h&quot;
+-#include &quot;ext/game/map.h&quot;
+-#include &quot;ext/game/heuristic.h&quot;
+-#include &quot;ext/game/path_weighter.h&quot;
+-#include &quot;ext/game/jobs.h&quot;
+-#include &quot;ext/game/resource.h&quot;
+-#include &quot;ext/game/path_data_v3.h&quot;
+-#ifdef SWIG
+-%include &quot;ext/game/path.h&quot;
+-%include &quot;ext/game/path_v2.h&quot;
+-%include &quot;ext/game/path_base.h&quot;
+-%include &quot;ext/game/terrain.h&quot;
+-%include &quot;ext/game/entity.h&quot;
+-%include &quot;ext/game/water.h&quot;
+-%include &quot;ext/game/height_map.h&quot;
+-%include &quot;ext/game/ant_app.h&quot;
+-%include &quot;ext/game/minimap.h&quot;
+-%include &quot;ext/game/map.h&quot;
+-%include &quot;ext/game/heuristic.h&quot;
+-%include &quot;ext/game/path_weighter.h&quot;
+-%include &quot;ext/game/jobs.h&quot;
+-%include &quot;ext/game/resource.h&quot;
+-%include &quot;ext/game/path_data_v3.h&quot;
+-#endif
+-#endif
++#ifndef __ANTARGIS_H__
++#define __ANTARGIS_H__
++#include &quot;ext/basic/ag_config.h&quot;
++#include &quot;ext/basic/ag_fs.h&quot;
++#include &quot;ext/basic/ag_main.h&quot;
++#include &quot;ext/basic/ag_rubyobj.h&quot;
++#include &quot;ext/basic/ag_rand_base.h&quot;
++#include &quot;ext/basic/ag_string_utf8.h&quot;
++#include &quot;ext/basic/ag_stringstream.h&quot;
++#include &quot;ext/basic/ag_utf8.h&quot;
++#include &quot;ext/basic/ag_video_base.h&quot;
++#include &quot;ext/basic/ag_xml.h&quot;
++#include &quot;ext/basic/ag_singleton.h&quot;
++#include &quot;ext/basic/ag_serial.h&quot;
++#include &quot;ext/basic/ag_messageobject.h&quot;
++#include &quot;ext/basic/ag_geometry.h&quot;
++#include &quot;ext/math/ag_rand.h&quot;
++#include &quot;ext/math/ant_frustum.h&quot;
++#include &quot;ext/math/ag_algebra.h&quot;
++#include &quot;ext/video/ag_screen.h&quot;
++#include &quot;ext/video/ag_video.h&quot;
++#include &quot;ext/video/ag_painttarget.h&quot;
++#include &quot;ext/video/ag_color.h&quot;
++#include &quot;ext/video/ag_fontengine.h&quot;
++#include &quot;ext/video/ag_font.h&quot;
++#include &quot;ext/video/ag_surface.h&quot;
++#include &quot;ext/video/ag_texture.h&quot;
++#include &quot;ext/video/ag_rendercontext.h&quot;
++#include &quot;ext/video/ag_texturecache.h&quot;
++#include &quot;ext/video/ag_clip.h&quot;
++#include &quot;ext/video/ag_painter.h&quot;
++#include &quot;ext/gui/ag_image.h&quot;
++#include &quot;ext/gui/ag_listbox.h&quot;
++#include &quot;ext/gui/ag_edit.h&quot;
++#include &quot;ext/gui/ag_scroller.h&quot;
++#include &quot;ext/gui/ag_local.h&quot;
++#include &quot;ext/gui/ag_tooltip.h&quot;
++#include &quot;ext/gui/ag_radio.h&quot;
++#include &quot;ext/gui/ag_application.h&quot;
++#include &quot;ext/gui/ag_colorbutton.h&quot;
++#include &quot;ext/gui/ag_button.h&quot;
++#include &quot;ext/gui/ag_radiogroup.h&quot;
++#include &quot;ext/gui/ag_background.h&quot;
++#include &quot;ext/gui/ag_menuitem.h&quot;
++#include &quot;ext/gui/ag_screenwidget.h&quot;
++#include &quot;ext/gui/ag_widget.h&quot;
++#include &quot;ext/gui/ag_text.h&quot;
++#include &quot;ext/gui/ag_checkbox.h&quot;
++#include &quot;ext/gui/ag_table.h&quot;
++#include &quot;ext/gui/ag_frame.h&quot;
++#include &quot;ext/gui/ag_caption.h&quot;
++#include &quot;ext/gui/ag_combo.h&quot;
++#include &quot;ext/gui/ag_theme.h&quot;
++#include &quot;ext/gui/ag_menu.h&quot;
++#include &quot;ext/gui/ag_layoutfactory.h&quot;
++#include &quot;ext/gui/ag_window.h&quot;
++#include &quot;ext/gui/ag_layout.h&quot;
++#include &quot;ext/gui/ag_border.h&quot;
++#include &quot;ext/3dengine/scene_base.h&quot;
++#include &quot;ext/3dengine/scene.h&quot;
++#include &quot;ext/3dengine/scenenode.h&quot;
++#include &quot;ext/3dengine/ant_camera.h&quot;
++#include &quot;ext/3dengine/ag_glwidget.h&quot;
++#include &quot;ext/3dengine/mesh_data.h&quot;
++#include &quot;ext/3dengine/mesh.h&quot;
++#include &quot;ext/3dengine/mesh_optimizer.h&quot;
++#include &quot;ext/3dengine/anim_mesh.h&quot;
++#include &quot;ext/3dengine/anim_mesh_data.h&quot;
++#include &quot;ext/3dengine/boa_3d_wireframe.h&quot;
++#include &quot;ext/3dengine/mesh_2d.h&quot;
++#include &quot;ext/3dengine/mesh_2d_data.h&quot;
++#include &quot;ext/3dengine/ant_projection.h&quot;
++#include &quot;ext/3dengine/ant_particle.h&quot;
++#include &quot;ext/game/path.h&quot;
++#include &quot;ext/game/path_data_v3.h&quot;
++#include &quot;ext/game/path_v2.h&quot;
++#include &quot;ext/game/path_base.h&quot;
++#include &quot;ext/game/terrain.h&quot;
++#include &quot;ext/game/entity.h&quot;
++#include &quot;ext/game/water.h&quot;
++#include &quot;ext/game/height_map.h&quot;
++#include &quot;ext/game/ant_app.h&quot;
++#include &quot;ext/game/minimap.h&quot;
++#include &quot;ext/game/map.h&quot;
++#include &quot;ext/game/heuristic.h&quot;
++#include &quot;ext/game/path_weighter.h&quot;
++#include &quot;ext/game/jobs.h&quot;
++#include &quot;ext/game/resource.h&quot;
++#ifdef SWIG
++%include &quot;ext/game/path.h&quot;
++%include &quot;ext/game/path_data_v3.h&quot;
++%include &quot;ext/game/path_v2.h&quot;
++%include &quot;ext/game/path_base.h&quot;
++%include &quot;ext/game/terrain.h&quot;
++%include &quot;ext/game/entity.h&quot;
++%include &quot;ext/game/water.h&quot;
++%include &quot;ext/game/height_map.h&quot;
++%include &quot;ext/game/ant_app.h&quot;
++%include &quot;ext/game/minimap.h&quot;
++%include &quot;ext/game/map.h&quot;
++%include &quot;ext/game/heuristic.h&quot;
++%include &quot;ext/game/path_weighter.h&quot;
++%include &quot;ext/game/jobs.h&quot;
++%include &quot;ext/game/resource.h&quot;
++#endif
++#endif
+
+Modified: antargis/branches/rant/ext/game/height_map.cc
+===================================================================
+--- antargis/branches/rant/ext/game/height_map.cc	2007-07-29 17:39:54 UTC (rev 1155)
++++ antargis/branches/rant/ext/game/height_map.cc	2007-08-15 17:33:15 UTC (rev 1156)
+@@ -4,6 +4,8 @@
+ #include &lt;ag_main.h&gt;
+ #include &lt;ag_rand.h&gt;
+ 
++#include &lt;ag_rtools.h&gt;
++
+ //////////////////////////////////////////////////////////////////////////
+ // HeightMap
+ //////////////////////////////////////////////////////////////////////////
+@@ -632,3 +634,13 @@
+   if(!mTerrain)
+     initTerrainMesh();
+ }
++
++std::string HeightMap::hash() const
++{
++  BinaryStringOut s;
++  for(std::vector&lt;float&gt;::const_iterator i=mHeights.begin();i!=mHeights.end();i++)
++    s&lt;&lt;*i;
++
++  return rubyHash(s.getString());
++
++}
+
+Modified: antargis/branches/rant/ext/game/height_map.h
+===================================================================
+--- antargis/branches/rant/ext/game/height_map.h	2007-07-29 17:39:54 UTC (rev 1155)
++++ antargis/branches/rant/ext/game/height_map.h	2007-08-15 17:33:15 UTC (rev 1156)
+@@ -91,6 +91,8 @@
+   /// to be used by initTerrainMesh() - not otherwise !!!
+   void setTerrain(TerrainBase *pTerrain);
+ 
++  std::string hash() const;
++
+  private:
+ 
+   void checkTerrain();
+
+Modified: antargis/branches/rant/ext/game/heuristic.cc
+===================================================================
+--- antargis/branches/rant/ext/game/heuristic.cc	2007-07-29 17:39:54 UTC (rev 1155)
++++ antargis/branches/rant/ext/game/heuristic.cc	2007-08-15 17:33:15 UTC (rev 1156)
+@@ -1,78 +1,119 @@
+ #include &quot;heuristic.h&quot;
+ #include &lt;ag_debug.h&gt;
++#include &quot;ag_serial_vec.h&quot;
+ 
++#include &lt;set&gt;
+ 
+ HeuristicFunction::Output HeuristicFunction::operator()(const Input &amp;input) 
+ {
+   return (input.second-input.first).length()*1.5;
+ }
+ 
+-
+-StoredHeuristicFunction::StoredHeuristicFunction(size_t res,float width):
+-  a(res*res*res*res),
+-  r(res),
+-  w(width)
++void HeuristicFunction::printTo(BinaryOut &amp;pOut)
+ {
+ }
+ 
+-void StoredHeuristicFunction::store(Input in,Output out)
++float HeuristicFunction::get(const AGVector2 &amp;a,const AGVector2 &amp;b)
+ {
+-  size_t i=getIndex(in);
+-  //  cdebug(&quot;index:&quot;&lt;&lt;i);
+-  //  cdebug(&quot;value:&quot;&lt;&lt;out);
+-  a[i]=out;
++  return (*this)(std::make_pair(a,b));
+ }
+ 
+-StoredHeuristicFunction::Output StoredHeuristicFunction::operator()(const Input &amp;input)
++
++
++StoredHeuristicFunction::StoredHeuristicFunction()
+ {
+-  size_t i=getIndex(input);
+-  //  cdebug(&quot;index:&quot;&lt;&lt;i);
+-  float v=a[i];
+-  //  cdebug(&quot;value:&quot;&lt;&lt;v);
+-
+-  return v*6;
+ }
+ 
+-size_t StoredHeuristicFunction::getIndex(const Input &amp;in)
++StoredHeuristicFunction::StoredHeuristicFunction(BinaryIn &amp;pIn)
+ {
+-  size_t a,b,c,d;
++  Uint32 s;
++  AGVector2 v;
++  Uint16 ai,bi;
++  float w;
++  pIn&gt;&gt;s;
++  cdebug(&quot;S:&quot;&lt;&lt;s);
+ 
+-  //  cdebug(in.first&lt;&lt;&quot;:::&quot;&lt;&lt;in.second);
++  assert(s&lt;10000);
+ 
+-  a=in.first[0]*r/w;
+-  b=in.first[1]*r/w;
+-  c=in.second[0]*r/w;
+-  d=in.second[1]*r/w;
++  std::vector&lt;AGVector2&gt; allVecs;
++  
++  for(size_t i=0;i&lt;s;i++)
++    {
++      pIn&gt;&gt;v;
++      allVecs.push_back(v);
++      cdebug(i&lt;&lt;&quot;:&quot;&lt;&lt;v);
++    }
+ 
+-  a=std::min(a,r-1);
+-  b=std::min(b,r-1);
+-  c=std::min(c,r-1);
+-  d=std::min(d,r-1);
+ 
+-  assert(a&lt;r);
+-  assert(b&lt;r);
+-  assert(c&lt;r);
+-  assert(d&lt;r);
++  pIn&gt;&gt;s;
+ 
+-  size_t i=((a*r+b)*r+c)*r+d;
++  cdebug(&quot;S:&quot;&lt;&lt;s);
+ 
+-  //  cdebug(i);
+-  return i;
++  assert(s&lt;2000000); // sanity check
++
++  for(size_t i=0;i&lt;s;i++)
++    {
++      pIn&gt;&gt;ai&gt;&gt;bi&gt;&gt;w;
++      //      cdebug(&quot;ai:&quot;&lt;&lt;ai&lt;&lt;&quot; bi:&quot;&lt;&lt;bi&lt;&lt;&quot; w:&quot;&lt;&lt;w);
++      mMap.insert(std::make_pair(std::make_pair(allVecs[ai],allVecs[bi]),w));
++    }
+ }
+ 
+ 
+-void StoredHeuristicFunction::display()
++void StoredHeuristicFunction::store(Input in,Output out)
+ {
+-  for(int a=0;a&lt;r;a++)
+-    for(int b=0;b&lt;r;b++)
+-      for(int c=0;c&lt;r;c++)
+-	for(int d=0;d&lt;r;d++)
+-	  {
+-	    AGVector2 p0(a*w/r,b*w/r);
+-	    AGVector2 p1(c*w/r,d*w/r);
++  mMap[in]=out;
++}
+ 
+-	    float value=operator()(std::make_pair(p0,p1));
+-	    if(value&gt;0)
+-	      std::cout&lt;&lt;a&lt;&lt;&quot;,&quot;&lt;&lt;b&lt;&lt;&quot;,&quot;&lt;&lt;c&lt;&lt;&quot;,&quot;&lt;&lt;d&lt;&lt;&quot;:&quot;&lt;&lt;value&lt;&lt;std::endl;
+-	  }
++void StoredHeuristicFunction::store(const AGVector2 &amp;from,const AGVector2 &amp;to,float value)
++{
++  mMap[std::make_pair(from,to)]=value;
+ }
++
++
++  //  void display();
++
++StoredHeuristicFunction::Output StoredHeuristicFunction::operator()(const Input &amp;input)
++{
++  return mMap[input];
++}
++
++
++
++void StoredHeuristicFunction::printTo(BinaryOut &amp;pOut)
++{
++  std::set&lt;AGVector2&gt; allVecs;
++  
++
++  for(std::map&lt;Input,Output&gt;::iterator i=mMap.begin();i!=mMap.end();i++)
++    {
++      allVecs.insert(i-&gt;first.first);
++      allVecs.insert(i-&gt;first.second);
++    }
++
++  std::vector&lt;AGVector2&gt; vecs;
++  std::copy(allVecs.begin(),allVecs.end(),std::back_inserter(vecs));
++  std::map&lt;AGVector2,size_t&gt; indices;
++
++  pOut&lt;&lt;(Uint32)vecs.size();
++
++  for(size_t i=0;i&lt;vecs.size();i++)
++    {
++      indices[vecs[i]]=i;
++      pOut&lt;&lt;vecs[i];
++    }
++
++  pOut&lt;&lt;(Uint32)mMap.size();
++
++  for(std::map&lt;Input,Output&gt;::iterator i=mMap.begin();i!=mMap.end();i++)
++    {
++      AGVector2 a=i-&gt;first.first,b=i-&gt;first.second;
++      Uint16 ai=indices[a];
++      Uint16 bi=indices[b];
++      float w=i-&gt;second;
++      pOut&lt;&lt;ai;
++      pOut&lt;&lt;bi;
++      pOut&lt;&lt;w;
++    }
++
++}
+
+Modified: antargis/branches/rant/ext/game/heuristic.h
+===================================================================
+--- antargis/branches/rant/ext/game/heuristic.h	2007-07-29 17:39:54 UTC (rev 1155)
++++ antargis/branches/rant/ext/game/heuristic.h	2007-08-15 17:33:15 UTC (rev 1156)
+@@ -5,6 +5,8 @@
+ 
+ #include &lt;ag_geometry.h&gt;
+ 
++#include &lt;map&gt;
++
+ class AGEXPORT HeuristicFunction
+ {
+  public:
+@@ -15,28 +17,33 @@
+     {
+     }
+ 
++  virtual void printTo(BinaryOut &amp;pOut);
++
+   virtual Output operator()(const Input &amp;input);
++
++  float get(const AGVector2 &amp;a,const AGVector2 &amp;b);
+ };
+ 
+ class AGEXPORT StoredHeuristicFunction:public HeuristicFunction
+ {
+-  // FIXME: maybe store measure-count, too - and average!!!
+-
+-  std::vector&lt;float&gt; a;
+-  size_t r;
+-  float w;
+  public:
+-  StoredHeuristicFunction(size_t res,float width);
++  StoredHeuristicFunction();
++  StoredHeuristicFunction(BinaryIn &amp;pIn);
+ 
+   void store(Input in,Output out);
+ 
+-  void display();
++  void store(const AGVector2 &amp;from,const AGVector2 &amp;to,float value);
+ 
++  //  void display();
++
+   virtual Output operator()(const Input &amp;input);
++
++  void printTo(BinaryOut &amp;pOut);
++
+  private:
+-  size_t getIndex(const Input &amp;in);
++  std::map&lt;Input,Output&gt; mMap;
++  
+ };
+ 
+-
+ #endif
+ 
+
+Modified: antargis/branches/rant/ext/game/path.cc
+===================================================================
+--- antargis/branches/rant/ext/game/path.cc	2007-07-29 17:39:54 UTC (rev 1155)
++++ antargis/branches/rant/ext/game/path.cc	2007-08-15 17:33:15 UTC (rev 1156)
+@@ -40,6 +40,19 @@
+   return m;
+ }
+ 
++bool SimpleGraph::Node::hasEdge(Edge *e)
++{
++  for(Edges::iterator i=edges.begin();i!=edges.end();i++)
++    {
++      if(**i==*e)
++	return true;
++    }
++  return false;
++  //  EdgePtrCompare cmp;
++  //  return(std::find(edges.begin(),edges.end(),e,cmp)!=edges.end());
++}
++
++
+ ///////////////////////////////////////////////////////////////////////
+ // Edge
+ ///////////////////////////////////////////////////////////////////////
+@@ -76,6 +89,12 @@
+   return a&lt;e.a || (a==e.a &amp;&amp; b&lt;e.b);
+ }
+ 
++bool SimpleGraph::Edge::operator==(const Edge &amp;e) const
++{
++  return (a==e.a &amp;&amp; b==e.b) || (a==e.b &amp;&amp; b==e.a);
++}
++
++
+ float SimpleGraph::Edge::maxWeight() const
+ {
+   return std::max(w0,w1);
+@@ -345,7 +364,28 @@
+   return mNodes.size();
+ }
+ 
++size_t SimpleGraph::edges() const
++{
++  return mEdges.size();
++}
+ 
++std::pair&lt;AGVector2,AGVector2&gt; SimpleGraph::getEdgePosition(size_t i)
++{
++  assert(i&lt;mEdges.size());
++
++  size_t j=0;
++  Edge *e=0;
++  for(EdgeSet::iterator k=mEdges.begin();k!=mEdges.end() &amp;&amp; j&lt;=i;k++,j++)
++    e=*k;
++
++  cdebug(&quot;i:&quot;&lt;&lt;i&lt;&lt;&quot;  size:&quot;&lt;&lt;mEdges.size());
++  assert(e);
++
++  return std::make_pair(e-&gt;a-&gt;p,e-&gt;b-&gt;p);
++}
++
++
++
+ SimpleGraph::Edge *SimpleGraph::addEdge(Node *a, Node *b,float w0,float w1)
+ {
+   Node *n1=a;
+@@ -354,10 +394,16 @@
+   assert(n2);
+   Edge *e=new Edge(n1,n2,w0,w1);
+ 
++  assert(!n1-&gt;hasEdge(e));
++  assert(!n2-&gt;hasEdge(e));
++  //#error add check, if edge already exists
++
+   n1-&gt;edges.push_back(e);
+ 
+   n2-&gt;edges.push_back(e);
+ 
++  assert(e);
++
+   mEdges.insert(e);
+ 
+   return e;
+@@ -498,9 +544,10 @@
+ 
+   while(mNodes.size()&gt;m)
+     {
+-      cdebug(mNodes.size()&lt;&lt;&quot; vs. &quot;&lt;&lt;m);
+-
+-      tryRemove(*mEdges.begin(),pWeighter);
++      Edge *e=*mEdges.begin();
++      cdebug(mNodes.size()&lt;&lt;&quot; vs. &quot;&lt;&lt;m&lt;&lt;&quot; edge:&quot;&lt;&lt;e);
++      assert(e);
++      tryRemove(e,pWeighter);
+     }
+ 
+ }
+@@ -520,14 +567,17 @@
+ {
+   if(mNodes.size()&lt;=2)
+     return;
+-  
+ 
++  assert(e);
++
+   AGVector2 np=(e-&gt;a-&gt;p+e-&gt;b-&gt;p)*0.5;
+   //  e-&gt;a-&gt;p=np;
+ 
++  // create a new node in the middle of the edge
+   Node *nn=addNode(np);
+ 
+   Edges all;
++  // collect all neighbring edges
+   std::copy(e-&gt;a-&gt;edges.begin(),e-&gt;a-&gt;edges.end(),std::back_inserter(all));
+   std::copy(e-&gt;b-&gt;edges.begin(),e-&gt;b-&gt;edges.end(),std::back_inserter(all));
+ 
+@@ -535,10 +585,13 @@
+ 
+   std::set&lt;Edge&gt; nedges; // collect edges and sort out doubles
+ 
++  // create new edges for the neighboring edges now going to the new node
+   for(Edges::iterator i=all.begin();i!=all.end();i++)
+     {
+       if(*i!=e)
+ 	{
++	  if(((*i)-&gt;a==e-&gt;a &amp;&amp; (*i)-&gt;b==e-&gt;b) || ((*i)-&gt;a==e-&gt;b &amp;&amp; (*i)-&gt;b==e-&gt;a))
++	    continue;
+ 	  if((*i)-&gt;a==e-&gt;a)
+ 	    {
+ 	      // X &lt;- a -&gt; b
+@@ -580,6 +633,8 @@
+   for(Edges::iterator i=all.begin();i!=all.end();i++)
+     removeEdge(*i);
+ 
++  removeEdge(e);
++
+   //  cdebug(&quot;ok........&quot;);
+   
+ }
+@@ -591,11 +646,33 @@
+ }
+ 
+ 
++std::list&lt;std::pair&lt;size_t,size_t&gt; &gt; getPossibleNeighbors(size_t w,size_t h,const std::pair&lt;size_t,size_t&gt; &amp;curPos)
++{
++  std::list&lt;std::pair&lt;size_t,size_t&gt; &gt; result;
++  int x,y,dx,dy;
++  int r=5;
++  for(x=-r+1;x&lt;r;x++)
++    for(y=0;y&lt;r;y++)
++      if(x&gt;0 || y&gt;0)
++	//	if(x!=y) // FIXME
++	  {
++	    dx=x+curPos.first;
++	    dy=y+curPos.second;
+ 
++	    if(dx&lt;w-1 &amp;&amp; dy&lt;h-1 &amp;&amp; dx&gt;=0 &amp;&amp; dy&gt;=0)
++	      result.push_back(std::make_pair(dx,dy));
++	  }
++
++  return result;
++}
++
++
+ ///////////////////////////////////////////////////////////////////////
+ // Graph generation
+ ///////////////////////////////////////////////////////////////////////
+ 
++
++
+ SimpleGraph *makeGraph(HeightMap *pMap, MapPathWeighter *pWeighter,size_t res)
+ {
+   size_t x,y;
+@@ -618,6 +695,7 @@
+   for(x=0;x&lt;w;x+=res)
+     for(y=0;y&lt;h;y+=res)
+       {
++#if false
+ 	std::pair&lt;size_t,size_t&gt; p(x,y);
+ 	std::pair&lt;size_t,size_t&gt; p1(x+res,y);
+ 	std::pair&lt;size_t,size_t&gt; p2(x,y+res);
+@@ -635,14 +713,52 @@
+ 	    if(a &amp;&amp; b)
+ 	      graph-&gt;addEdge(a,b,pWeighter-&gt;weight(AGVector2(x,y),AGVector2(x,y+res)),pWeighter-&gt;weight(AGVector2(x,y+res),AGVector2(x,y)));
+ 	  }
++#else
++	std::pair&lt;size_t,size_t&gt; p(x,y);
++	std::list&lt;std::pair&lt;size_t,size_t&gt; &gt; l=getPossibleNeighbors(w,h,std::make_pair(x,y));
++	SimpleGraph::Node *a=nodes[p];
++	for(std::list&lt;std::pair&lt;size_t,size_t&gt; &gt;::iterator i=l.begin();i!=l.end();i++)
++	  {
++	    //	    cdebug(i-&gt;first&lt;&lt;&quot;:&quot;&lt;&lt;i-&gt;second);
++	    SimpleGraph::Node *b=nodes[*i];
++	    if(a &amp;&amp; b)
++	      {
++		graph-&gt;addEdge(a,b,pWeighter-&gt;weight(AGVector2(x,y),AGVector2(i-&gt;first,i-&gt;second)),pWeighter-&gt;weight(AGVector2(i-&gt;first,i-&gt;second),AGVector2(x,y)));
++	      }
++	  }
++#endif
++
+       }
+   return graph;
+ 
+ }
+ 
++struct NodeInfo
++{
++  SimpleGraph::Node *node;
++
++  NodeInfo(SimpleGraph::Node *p):node(p)
++  {
++  }
++
++  bool operator&lt;(const NodeInfo &amp;i) const
++  {
++    bool result=false;
++    if(node-&gt;tmpWeight&lt;i.node-&gt;tmpWeight)
++      result=true;
++    else if(node-&gt;tmpWeight==i.node-&gt;tmpWeight)
++      result=node&lt;i.node;
++    //    cdebug(&quot;operator&lt;:&quot;&lt;&lt;node&lt;&lt;&quot;(&quot;&lt;&lt;node-&gt;tmpWeight&lt;&lt;&quot;)&lt;&quot;&lt;&lt;i.node&lt;&lt;&quot;(&quot;&lt;&lt;i.node-&gt;tmpWeight&lt;&lt;&quot;)  &quot;&lt;&lt;result);
++    return result;
++  }
++};
++
++#if false
++
+ HeuristicFunction *computeHeuristic(SimpleGraph *g)
+ {
+-  StoredHeuristicFunction *h=new StoredHeuristicFunction(32,g-&gt;width());
++  //  StoredHeuristicFunction *h=new StoredHeuristicFunction(32,g-&gt;width());
++  StoredHeuristicFunction *h=new StoredHeuristicFunction;
+ 
+   size_t c=0;
+ 
+@@ -726,6 +842,93 @@
+   return h;
+ }
+ 
++
++
++#else
++
++
++HeuristicFunction *computeHeuristic(SimpleGraph *g)
++{
++  STACKTRACE;
++  StoredHeuristicFunction *h=new StoredHeuristicFunction;
++
++  size_t c=0;
++
++  for(SimpleGraph::NodeSet::iterator i=g-&gt;mNodes.begin();i!=g-&gt;mNodes.end();i++)
++    {
++      STACKTRACE;
++
++      // clear all weights in nodes
++      for(SimpleGraph::NodeSet::iterator k=g-&gt;mNodes.begin();k!=g-&gt;mNodes.end();k++)
++	{
++	  STACKTRACE;
++
++	  (*k)-&gt;tmpWeight=0;
++	}
++
++
++      std::set&lt;NodeInfo&gt; weights;
++      std::list&lt;NodeInfo&gt; completed;
++      weights.insert(NodeInfo(*i));
++      size_t tries=0;
++      float minWeight=0;
++
++      while(weights.size())
++	{
++	  STACKTRACE;
++	  NodeInfo info=*weights.begin();
++	  weights.erase(weights.begin());
++	  
++	  SimpleGraph::Node *n=info.node;
++
++	  SimpleGraph::Node::NodeMap ns=n-&gt;getNextNodes();
++	  float old=n-&gt;tmpWeight;
++
++	  assert(old&gt;=minWeight);
++	  minWeight=old;
++
++	  for(SimpleGraph::Node::NodeMap::iterator j=ns.begin();j!=ns.end();j++)
++	    {
++	      float now=j-&gt;first-&gt;tmpWeight;
++	      float compare=j-&gt;second+old;
++
++	      if(now==0 || (now&gt;compare))
++		{
++		  if(now!=0)
++		    weights.erase(j-&gt;first);
++		  j-&gt;first-&gt;tmpWeight=compare;
++		  weights.insert(j-&gt;first);
++		}
++	    }
++	  completed.push_back(n);
++	  tries++;
++	}
++
++      //FIXME: store data !!
++
++      for(std::list&lt;NodeInfo&gt;::iterator j=completed.begin();j!=completed.end();j++)
++	{
++	  STACKTRACE;
++	  h-&gt;store(std::make_pair((*i)-&gt;p,j-&gt;node-&gt;p),j-&gt;node-&gt;tmpWeight);
++	}
++
++      h-&gt;store(std::make_pair((*i)-&gt;p,(*i)-&gt;p),0);
++
++      c++;
++      cdebug(c&lt;&lt;&quot; out of &quot;&lt;&lt;g-&gt;mNodes.size()&lt;&lt;&quot; completed:&quot;&lt;&lt;completed.size()&lt;&lt;&quot; tries:&quot;&lt;&lt;tries);
++    }
++
++  return h;
++}
++
++
++
++
++#endif
++
++
++
++
+ ///////////////////////////////////////////////////////////////////////
+ // Path
+ ///////////////////////////////////////////////////////////////////////
+
+Modified: antargis/branches/rant/ext/game/path.h
+===================================================================
+--- antargis/branches/rant/ext/game/path.h	2007-07-29 17:39:54 UTC (rev 1155)
++++ antargis/branches/rant/ext/game/path.h	2007-08-15 17:33:15 UTC (rev 1156)
+@@ -92,6 +92,7 @@
+     ~Edge();
+ 
+     bool operator&lt;(const Edge &amp;e) const;
++    bool operator==(const Edge &amp;e) const;
+     float maxWeight() const;
+ 
+     Node *getOther(Node *n);
+@@ -107,11 +108,16 @@
+   {
+     AGVector2 p;
+     Edges edges;
++    float tmpWeight;
++
+     typedef std::map&lt;Node*,float,NodePtrCompare&gt; NodeMap;
+     
+     ~Node();
+ 
+     NodeMap getNextNodes();
++
++    bool hasEdge(Edge *e);
++
+   };
+ 
+   struct EdgeSort
+@@ -156,8 +162,19 @@
+ 
+   float width() const;
+ 
++  /**
++     @return count of nodes
++  */
+   size_t size() const;
+ 
++  /**
++     @return edge count
++  */
++  size_t edges() const;
++
++  std::pair&lt;AGVector2,AGVector2&gt; getEdgePosition(size_t i);
++
++
+   void paint(const AGRect2&amp; r,AGPaintTarget &amp;t,Heuristic &amp;heuristic);
+   void paintNode(const AGRect2&amp; r,AGPaintTarget &amp;t,const AGVector2 &amp;p,const AGColor &amp;c);
+ 
+
+Modified: antargis/branches/rant/ext/game/path_data_v3.cc
+===================================================================
+--- antargis/branches/rant/ext/game/path_data_v3.cc	2007-07-29 17:39:54 UTC (rev 1155)
++++ antargis/branches/rant/ext/game/path_data_v3.cc	2007-08-15 17:33:15 UTC (rev 1156)
+@@ -1,27 +1,33 @@
+ #include &quot;path_data_v3.h&quot;
+ #include &quot;path_vector_sort.h&quot;
+ 
++#include &lt;ag_profiler.h&gt;
++
+ #include &lt;ag_debug.h&gt;
+ #include &lt;algorithm&gt;
+ 
+ #include &lt;math.h&gt;
+ 
+-namespace PathFinding
+-{
++//namespace PathFinding
++//{
+ 
+   Field::Field(const AGVector2 &amp;pMiddle,size_t pID):mID(pID),
+ 						    mMiddle(pMiddle)
+   {
+   }
+ 
++  Field::~Field()
++  {
++  }
++
+   void Field::insert(const AGVector2 &amp;v,DistanceComputer &amp;pDist)
+   {
+     mVectors.insert(v);
+     mNeighbors.erase(v);
+     
+-    std::list&lt;AGVector2&gt; neighbors=pDist.getNeighbors(v);
++    std::vector&lt;AGVector2&gt; neighbors=pDist.getNeighbors(v);
+ 
+-    for(std::list&lt;AGVector2&gt;::iterator i=neighbors.begin();i!=neighbors.end();i++)
++    for(std::vector&lt;AGVector2&gt;::iterator i=neighbors.begin();i!=neighbors.end();i++)
+       {
+ 	if(mVectors.find(*i)==mVectors.end())
+ 	  mNeighbors.insert(*i);
+@@ -44,17 +50,45 @@
+     return mMiddle;
+   }
+ 
++  std::vector&lt;AGVector2&gt; Field::getVectors() const
++  {
++    std::vector&lt;AGVector2&gt; v;
++    std::copy(mVectors.begin(),mVectors.end(),std::back_inserter(v));
++    return v;
++  }
+ 
++  std::vector&lt;AGVector2&gt; Field::getNeighbors() const
++  {
++    std::vector&lt;AGVector2&gt; v;
++    std::copy(mNeighbors.begin(),mNeighbors.end(),std::back_inserter(v));
++    return v;
++  }
+ 
+ 
+ 
+ 
+ 
++////////////////////////////////////////////////////////
++// FieldCollection
++////////////////////////////////////////////////////////
++
++
++  FieldCollection::~FieldCollection()
++  {
++  }
++
++  Field *FieldCollection::createField(const AGVector2 &amp;pMiddle,size_t pId)
++  {
++    return new FieldWithDistances(pMiddle,pId);
++  }
++  
++
++  //
+   void FieldCollection::assign(const AGVector2 &amp;v,size_t pField,DistanceComputer &amp;pDist)
+   {
+     assert(pField&lt;mFields.size());
+ 
+-    mFields[pField].insert(v,pDist);
++    mFields[pField]-&gt;insert(v,pDist);
+     mVec2Field[v]=pField;
+   }
+ 
+@@ -62,13 +96,13 @@
+   size_t FieldCollection::newField(const AGVector2 &amp;pMiddle)
+   {
+     size_t id=mFields.size();
+-    mFields.push_back(Field(pMiddle,id));
++    mFields.push_back(createField(pMiddle,id));
+     return id;
+   }
+ 
+ Field *FieldCollection::getField(size_t pField)
+ {
+-  return &amp;(mFields[pField]);
++  return mFields[pField];
+ }
+ 
+   size_t FieldCollection::getFieldId(const AGVector2 &amp;pVector) const
+@@ -86,6 +120,12 @@
+     return mFields.size();
+   }
+ 
++  void FieldCollection::mark()
++  {
++    CTRACE;
++    for(std::vector&lt;Field*&gt;::iterator i=mFields.begin();i!=mFields.end();i++)
++      markObject(*i);
++  }
+ 
+ 
+ 
+@@ -108,10 +148,13 @@
+ 
+   void assignFields(FieldCollection &amp;pCollection,DistanceComputer &amp;pDist,size_t pFieldCount)
+   {
+-    std::list&lt;AGVector2&gt; allVectorList=pDist.getAllPassable();
++    std::vector&lt;AGVector2&gt; allVectorList=pDist.getAllPassable();
+ 
+-    float maxFieldWidth=sqrt(pDist.width()*pDist.height()/pFieldCount);
++    float maxFieldWidth=sqrt(allVectorList.size()/pFieldCount)*0.7;
+ 
++
++    //    maxFieldWidth=3;
++
+     std::set&lt;AGVector2&gt; restOfVectors;
+ 
+     std::copy(allVectorList.begin(),allVectorList.end(),std::inserter(restOfVectors,restOfVectors.begin()));
+@@ -132,7 +175,7 @@
+ 	size_t k=0;
+ 	for(std::set&lt;AGVector2,DistanceOrder&gt;::iterator i=growField.begin();i!=growField.end() &amp;&amp; k&lt;30;i++,k++)
+ 	  {
+-	    cdebug(&quot; &quot;&lt;&lt;*i&lt;&lt;&quot;  &quot;&lt;&lt;(*i-fieldMiddle).length());
++	    //	    cdebug(&quot; &quot;&lt;&lt;*i&lt;&lt;&quot;  &quot;&lt;&lt;(*i-fieldMiddle).length());
+ 	  }
+ 
+ 	do
+@@ -157,4 +200,243 @@
+ 
+ 
+ 
++
++  // FieldWithDistances
++
++
++  FieldWithDistances::FieldWithDistances(const AGVector2 &amp;pMiddle,size_t pID):
++    Field(pMiddle,pID)
++  {
++  }
++
++void FieldWithDistances::initLocalDistances(const DistanceComputer &amp;pComputer,const std::vector&lt;AGVector2&gt; &amp;pVectors)
++  {
++    STACKTRACE;
++    AGVector2 m=getMiddle();
++    std::set&lt;AGVector2&gt; baseVectors;
++    std::copy(pVectors.begin(),pVectors.end(),std::inserter(baseVectors,baseVectors.begin()));
++
++    std::vector&lt;AGVector2&gt; vectors=getVectors();
++
++    for(std::vector&lt;AGVector2&gt;::iterator i=vectors.begin();i!=vectors.end();i++)
++      {
++	STACKTRACE;
++	std::map&lt;AGVector2,float&gt; curDists;
++
++	// compute distances for paths starting at *i
++	DistanceOrder order(*i);
++	std::set&lt;AGVector2,DistanceOrder&gt; vecSet(order);
++	vecSet.insert(*i);
++	//	cdebug(&quot;VEC:&quot;&lt;&lt;*i);
++	while(vecSet.size()&gt;0)
++	  {
++	    STACKTRACE;
++	    AGVector2 currentVec=*vecSet.begin();
++	    vecSet.erase(vecSet.begin());
++	    std::vector&lt;std::pair&lt;AGVector2,float&gt; &gt; newVecs;
++	    {
++	      STACKTRACE;
++	      newVecs=pComputer.getAllReachableFrom(currentVec);
++	    }
++	    //	    cdebug(&quot;newVecs:&quot;&lt;&lt;newVecs.size());
++	    for(std::vector&lt;std::pair&lt;AGVector2,float&gt; &gt;::iterator ni=newVecs.begin();ni!=newVecs.end();ni++)
++	      {
++		STACKTRACE;
++		// FIXME: check if in &quot;my Field&quot; or neighbor !!!
++		if(ni-&gt;first!=*i) // don't store initial vector
++		  {
++		    STACKTRACE;
++		    if(baseVectors.find(ni-&gt;first)!=baseVectors.end())
++		      {
++			STACKTRACE;
++			std::map&lt;AGVector2,float&gt;::iterator found=curDists.find(ni-&gt;first);
++			if(ni-&gt;second&gt;0)
++			  if(found==curDists.end() || (found-&gt;second&gt;ni-&gt;second))
++			    //			if((curDists[ni-&gt;first]&gt;ni-&gt;second || curDists[ni-&gt;first]==0) &amp;&amp; ni-&gt;second&gt;0)
++			    {
++			      STACKTRACE;
++			      curDists[ni-&gt;first]=ni-&gt;second;
++			      vecSet.insert(ni-&gt;first);
++			    }
++		      }
++		  }
++	      }
++
++	  }
++	
++
++
++	// store them into the distance-field
++
++	for(std::map&lt;AGVector2,float&gt;::iterator di=curDists.begin();di!=curDists.end();di++)
++	  {
++	    STACKTRACE;
++	    mDistances.insert(std::make_pair(std::make_pair(*i,di-&gt;first),di-&gt;second));
++	  }
++	
++      }
++  }
++
++  // FIXME: make this const !
++  float FieldWithDistances::getDistance(const AGVector2 &amp;a,const AGVector2 &amp;b)
++  {
++    return mDistances[std::make_pair(a,b)];
++  }
++
++
++
++////////////////////////////////////////////////////////
++// FieldWithNeighborDistances
++////////////////////////////////////////////////////////
++FieldWithNeighborDistances::FieldWithNeighborDistances(const AGVector2 &amp;pMiddle,size_t pID):
++  FieldWithDistances(pMiddle,pID)
++{
+ }
++
++// from my a to b, that is in neighbor field
++void FieldWithNeighborDistances::setNeighborDistance(const AGVector2 &amp;a,const AGVector2 &amp;b,float value)
++{
++  mNeighborDistances[std::make_pair(a,b)]=value;
++}
++float FieldWithNeighborDistances::getNeighborDistance(const AGVector2 &amp;a,const AGVector2 &amp;b)
++{
++  return mNeighborDistances[std::make_pair(a,b)];
++}
++
++void FieldWithNeighborDistances::setFieldDistance(const AGVector2 &amp;a,size_t pField,float value)
++{
++  mFieldDistances[std::make_pair(a,pField)]=value;
++}
++float FieldWithNeighborDistances::getFieldDistance(const AGVector2 &amp;a,size_t pField)
++{
++  return mFieldDistances[std::make_pair(a,pField)];
++}
++
++
++
++
++
++
++
++////////////////////////////////////////////////////////
++// FieldCollectionWithDistances
++////////////////////////////////////////////////////////
++
++
++
++Field *FieldCollectionWithDistances::createField(const AGVector2 &amp;pMiddle,size_t pId)
++{
++  return new FieldWithNeighborDistances(pMiddle,pId);
++}
++
++
++void FieldCollectionWithDistances::computeFieldNeighbors()
++{
++  if(mFieldNeighbors.size()&gt;0)
++    return;
++  for(size_t i=0;i&lt;getFieldCount();i++)
++    {
++      std::set&lt;size_t&gt; ns;
++      std::vector&lt;AGVector2&gt; vs=getField(i)-&gt;getNeighbors();
++      for(std::vector&lt;AGVector2&gt;::iterator j=vs.begin();j!=vs.end();j++)
++	{
++	  size_t id=getFieldId(*j);
++	  if(id&lt;getFieldCount())
++	    ns.insert(id);
++	}
++      mFieldNeighbors[i]=ns;
++    }
++}
++
++std::set&lt;size_t&gt; FieldCollectionWithDistances::getNeighborFields(size_t fieldNum)
++{
++  return mFieldNeighbors[fieldNum];
++}
++
++
++void FieldCollectionWithDistances::computeDistances(const DistanceComputer &amp;pDist)
++{
++
++  computeFieldNeighbors();
++
++  for(size_t fieldNum=0;fieldNum&lt;getFieldCount();fieldNum++)
++    {
++      STACKTRACE;
++      std::set&lt;size_t&gt; fields;
++
++      if(true)
++	fields=getNeighborFields(fieldNum);
++      else
++	fields.insert(fieldNum);
++
++      std::vector&lt;AGVector2&gt; vectors;
++
++      fields.insert(fieldNum);
++
++      for(std::set&lt;size_t&gt;::iterator i=fields.begin();i!=fields.end();i++)
++	{
++	  assert(*i&lt;getFieldCount());
++	  std::vector&lt;AGVector2&gt; tmp=getField(*i)-&gt;getVectors();
++	  std::copy(tmp.begin(),tmp.end(),std::back_inserter(vectors));
++	}
++      Field *f=getField(fieldNum);
++      FieldWithDistances *df=dynamic_cast&lt;FieldWithDistances*&gt;(f);
++      assert(df);
++      cdebug(&quot;FIELD:&quot;&lt;&lt;fieldNum&lt;&lt;&quot; vecs:&quot;&lt;&lt;vectors.size());
++      df-&gt;initLocalDistances(pDist,vectors);
++    }
++
++
++
++
++  /*
++  for(size_t fieldNum=0;fieldNum&lt;getFieldCount();fieldNum++)
++    {
++      cdebug(&quot;fieldNum:&quot;&lt;&lt;fieldNum&lt;&lt;&quot; of &quot;&lt;&lt;getFieldCount());
++      FieldWithNeighborDistances *curField=dynamic_cast&lt;FieldWithNeighborDistances*&gt;(getField(fieldNum));
++      assert(curField);
++      if(curField)
++	{
++	  std::vector&lt;AGVector2&gt; curVectors=curField-&gt;getVectors();
++	  std::vector&lt;AGVector2&gt; curNeighbors=curField-&gt;getNeighbors();
++	  std::map&lt;std::pair&lt;AGVector2,AGVector2&gt;,float&gt; distances;
++	  
++	  cdebug(&quot;curVectors:&quot;&lt;&lt;curVectors.size());
++	  cdebug(&quot;curNeighbors:&quot;&lt;&lt;curNeighbors.size());
++
++	  for(std::vector&lt;AGVector2&gt;::iterator curVector=curVectors.begin();curVector!=curVectors.end();curVector++)
++	    {
++	      for(std::vector&lt;AGVector2&gt;::iterator curNeighbor=curNeighbors.begin();curNeighbor!=curNeighbors.end();curNeighbor++)
++		{
++		  size_t neighborField=getFieldId(*curNeighbor);
++
++		  if(neighborField&lt;getFieldCount()) // check if field is valid
++		    {
++		      FieldWithNeighborDistances *curField2=dynamic_cast&lt;FieldWithNeighborDistances*&gt;(getField(neighborField));
++		      assert(curField2);
++		      if(curField2)
++			{
++			  std::vector&lt;AGVector2&gt; field2Vecs=curField2-&gt;getVectors();
++			  for(std::vector&lt;AGVector2&gt;::iterator field2Vec=field2Vecs.begin();field2Vec!=field2Vecs.end();field2Vec++)
++			    {
++			      float nDist=curField-&gt;getDistance(*curVector,*curNeighbor)+curField2-&gt;getDistance(*curNeighbor,*field2Vec);
++			      std::pair&lt;AGVector2,AGVector2&gt; index(*curVector,*field2Vec);
++			      float oldDist=distances[index];
++			      if(oldDist==0 || oldDist&gt;nDist)
++				distances[index]=nDist;
++			    }
++			}
++		    }
++		}
++	    }
++	}
++    }
++
++  */
++}
++
++
++
++
++
++//}
+
+Modified: antargis/branches/rant/ext/game/path_data_v3.h
+===================================================================
+--- antargis/branches/rant/ext/game/path_data_v3.h	2007-07-29 17:39:54 UTC (rev 1155)
++++ antargis/branches/rant/ext/game/path_data_v3.h	2007-08-15 17:33:15 UTC (rev 1156)
+@@ -10,14 +10,16 @@
+ #include &lt;vector&gt;
+ #include &lt;map&gt;
+ #include &lt;set&gt;
++#include &lt;ag_rubyobj.h&gt;
+ 
+-namespace PathFinding
+-{
++//namespace PathFinding
++//{
+ 
+-  class AGEXPORT Field
++  class AGEXPORT Field:public AGRubyObject
+   {
+   public:
+     Field(const AGVector2 &amp;pMiddle,size_t pID);
++    virtual ~Field();
+ 
+     void insert(const AGVector2 &amp;v,DistanceComputer &amp;pDist);
+ 
+@@ -26,18 +28,24 @@
+ 
+     AGVector2 getMiddle() const;
+ 
++    std::vector&lt;AGVector2&gt; getVectors() const;
++    std::vector&lt;AGVector2&gt; getNeighbors() const;
++
+   private:
+     size_t mID;
++  protected:
+     std::set&lt;AGVector2&gt; mVectors;
+ 
+     std::set&lt;AGVector2&gt; mNeighbors;
+-
++  private:
+     AGVector2 mMiddle;
+   };
+ 
+-  class AGEXPORT FieldCollection
++  class AGEXPORT FieldCollection:public AGRubyObject
+   {
+   public:
++    virtual ~FieldCollection();
++
+     void assign(const AGVector2 &amp;v,size_t pField,DistanceComputer &amp;pDist);
+     size_t newField(const AGVector2 &amp;pMiddle);
+ 
+@@ -47,21 +55,86 @@
+ 
+     size_t getFieldCount() const;
+ 
++    void mark();
++
++  protected:
++    virtual Field *createField(const AGVector2 &amp;pMiddle,size_t pId);
++
+   private:
+-    std::vector&lt;Field&gt; mFields;
++
++
++    std::vector&lt;Field*&gt; mFields;
+     std::map&lt;AGVector2,size_t&gt; mVec2Field;
+   };
+ 
++class AGEXPORT FieldCollectionWithDistances:public FieldCollection
++{
++ public:
++  /*
++    Does the following:
++    1) save distances from vec a =&gt; vec b (in neighboring fields) into fieldwithneighbordistances.neighbordistances
++    2) compute this.mDistances from middle to middle
++    * 3) save distances from vec a =&gt; neighbor middle from there to field x in fieldwithneighbordistances.fielddistance
++    * last is not needed necessarily
++   */
++  void computeDistances(const DistanceComputer &amp;pDist);
+ 
+-AGEXPORT void assignFields(FieldCollection &amp;pCollection,DistanceComputer &amp;pDist,size_t pFieldCount);
++  void computeFieldNeighbors();
+ 
++  std::set&lt;size_t&gt; getNeighborFields(size_t fieldNum);
+ 
++
++  protected:
++  virtual Field *createField(const AGVector2 &amp;pMiddle,size_t pId);
++    
++ private:
++  std::map&lt;size_t,size_t&gt; mDistances;
++  std::map&lt;size_t,std::set&lt;size_t&gt; &gt; mFieldNeighbors;
++};
++
++
++  AGEXPORT void assignFields(FieldCollection &amp;pCollection,DistanceComputer &amp;pDist,size_t pFieldCount);
++
++
+   class AGEXPORT FieldAssigner
+   {
+   public:
+     
+   };
+-}
+ 
++  class AGEXPORT FieldWithDistances:public Field
++  {
++  public:
++    FieldWithDistances(const AGVector2 &amp;pMiddle,size_t pID);
++
++
++    void initLocalDistances(const DistanceComputer &amp;pComputer,const std::vector&lt;AGVector2&gt; &amp;pVectors);
++    
++    float getDistance(const AGVector2 &amp;a,const AGVector2 &amp;b);
++
++    
++  private:
++    std::map&lt;std::pair&lt;AGVector2,AGVector2&gt;,float&gt; mDistances;
++  };
++
++class AGEXPORT FieldWithNeighborDistances:public FieldWithDistances
++{
++ public:
++  FieldWithNeighborDistances(const AGVector2 &amp;pMiddle,size_t pID);
++
++  // from my a to b, that is in neighbor field
++  void setNeighborDistance(const AGVector2 &amp;a,const AGVector2 &amp;b,float value);
++  float getNeighborDistance(const AGVector2 &amp;a,const AGVector2 &amp;b);
++
++  void setFieldDistance(const AGVector2 &amp;a,size_t pField,float value);
++  float getFieldDistance(const AGVector2 &amp;a,size_t pField);
++
++ private:
++  std::map&lt;std::pair&lt;AGVector2,AGVector2&gt;,float&gt; mNeighborDistances;
++  std::map&lt;std::pair&lt;AGVector2,size_t&gt;, float&gt; mFieldDistances;
++};
++
++//}
++
+ #endif
+ 
+
+Modified: antargis/branches/rant/ext/game/path_v2.cc
+===================================================================
+--- antargis/branches/rant/ext/game/path_v2.cc	2007-07-29 17:39:54 UTC (rev 1155)
++++ antargis/branches/rant/ext/game/path_v2.cc	2007-08-15 17:33:15 UTC (rev 1156)
+@@ -57,9 +57,9 @@
+       curPos=queue.front();
+       queue.pop_front();
+       cDist=distances[curPos];
+-      std::map&lt;AGVector2,float&gt; neighbors=pCalc.getAllReachableFrom(curPos);
++      std::vector&lt;std::pair&lt;AGVector2,float&gt; &gt; neighbors=pCalc.getAllReachableFrom(curPos);
+ 
+-      for(std::map&lt;AGVector2,float&gt;::iterator i=neighbors.begin();i!=neighbors.end();i++)
++      for(std::vector&lt;std::pair&lt;AGVector2,float&gt; &gt;::iterator i=neighbors.begin();i!=neighbors.end();i++)
+ 	{
+ 	  nextDist=cDist+i-&gt;second;
+ 	  oldDist=distances[i-&gt;first];
+@@ -190,11 +190,11 @@
+ 	  growField.erase(currentPoint);
+ 	  mVec2Field[currentPoint]=mFields.size();
+ 
+-	  std::map&lt;AGVector2,float&gt; reachable=pCalc.getAllReachableFrom(currentPoint);
++	  std::vector&lt;std::pair&lt;AGVector2,float&gt; &gt; reachable=pCalc.getAllReachableFrom(currentPoint);
+ 
+ 	  //	  cdebug(&quot;reachable:&quot;&lt;&lt;reachable.size()&lt;&lt;&quot; currentPoint:&quot;&lt;&lt;currentPoint);
+ 
+-	  for(std::map&lt;AGVector2,float&gt;::iterator i=reachable.begin();i!=reachable.end();i++)
++	  for(std::vector&lt;std::pair&lt;AGVector2,float&gt; &gt;::iterator i=reachable.begin();i!=reachable.end();i++)
+ 	    {
+ 	      //	      cdebug(&quot;1&quot;);
+ 	      if(growField.find(i-&gt;first)==growField.end())
+
+Modified: antargis/branches/rant/ext/game/path_vector_sort.h
+===================================================================
+--- antargis/branches/rant/ext/game/path_vector_sort.h	2007-07-29 17:39:54 UTC (rev 1155)
++++ antargis/branches/rant/ext/game/path_vector_sort.h	2007-08-15 17:33:15 UTC (rev 1156)
+@@ -1,6 +1,8 @@
+ #ifndef PATH_VECTOR_SORT_H
+ #define PATH_VECTOR_SORT_H
+ 
++#include &lt;ag_geometry.h&gt;
++
+ class DistanceOrder
+ {
+ public:
+@@ -9,7 +11,14 @@
+   }
+   bool operator()(const AGVector2 &amp;a,const AGVector2 &amp;b) const
+   {
+-    return (a-mBase).length2()&lt;(b-mBase).length2();
++    float la=(a-mBase).length2();
++    float lb=(b-mBase).length2();
++    if(la&lt;lb)
++      return true;
++    if(la&gt;lb)
++      return false;
++
++    return a&lt;b;
+   }
+ private:
+   AGVector2 mBase;
+
+Modified: antargis/branches/rant/ext/game/path_weighter.cc
+===================================================================
+--- antargis/branches/rant/ext/game/path_weighter.cc	2007-07-29 17:39:54 UTC (rev 1155)
++++ antargis/branches/rant/ext/game/path_weighter.cc	2007-08-15 17:33:15 UTC (rev 1156)
+@@ -1,6 +1,7 @@
+ #include &quot;path_weighter.h&quot;
+ 
+ #include &lt;ag_debug.h&gt;
++#include &lt;ag_profiler.h&gt;
+ #include &quot;height_map.h&quot;
+ #include &lt;math.h&gt;
+ 
+@@ -56,6 +57,7 @@
+ // FIXME: maybe move this to other class ?
+ float DistanceComputer::simpleWeight(const AGVector2 &amp;a,const AGVector2 &amp;b) const
+ {
++  STACKTRACE;
+   float ha=mHeightMap-&gt;getHeight(a[0],a[1]);
+   float hb=mHeightMap-&gt;getHeight(b[0],b[1]);
+ 
+@@ -70,9 +72,11 @@
+ /**
+  * compute possible neighbors (w.r.t. to map-borders)
+  */
+-std::list&lt;AGVector2&gt; DistanceComputer::getNeighbors(const AGVector2 &amp;p) const
++std::vector&lt;AGVector2&gt; DistanceComputer::getNeighbors(const AGVector2 &amp;p) const
+ {
+-  std::list&lt;AGVector2&gt; diffList,rList;
++  STACKTRACE;
++
++  std::vector&lt;AGVector2&gt; diffList,rList;
+   AGVector2 t;
+ 
+   diffList.push_back(AGVector2(-stepX(),0));
+@@ -80,37 +84,53 @@
+   diffList.push_back(AGVector2(0,-stepY()));
+   diffList.push_back(AGVector2(0,+stepY()));
+ 
+-  for(std::list&lt;AGVector2&gt;::iterator i=diffList.begin();i!=diffList.end();i++)
++  /*  
++  diffList.push_back(AGVector2(-stepX(),-stepY()));
++  diffList.push_back(AGVector2(+stepX(),-stepY()));
++  diffList.push_back(AGVector2(-stepX(),+stepY()));
++  diffList.push_back(AGVector2(+stepX(),+stepY()));
++  */
++  for(std::vector&lt;AGVector2&gt;::iterator i=diffList.begin();i!=diffList.end();i++)
+     {
+       t=*i+p;
+-      if(t.getX() &gt;= beginX() &amp;&amp;
+-	 t.getX()&lt;=endX() &amp;&amp; 
+-	 t.getY()&gt;=beginY() &amp;&amp; 
+-	 t.getY()&lt;=endY())
+-	rList.push_back(t);
++      {
++	STACKTRACE;
++	
++	if(t.getX() &gt;= beginX() &amp;&amp;
++	   t.getX()&lt;=endX() &amp;&amp; 
++	   t.getY()&gt;=beginY() &amp;&amp; 
++	   t.getY()&lt;=endY())
++	  rList.push_back(t);
++      }
+     }
+ 
+   return rList;
+ }
+ 
+-std::map&lt;AGVector2,float&gt; DistanceComputer::getAllReachableFrom(const AGVector2 &amp;p) const
++std::vector&lt;std::pair&lt;AGVector2,float&gt; &gt; DistanceComputer::getAllReachableFrom(const AGVector2 &amp;p) const
+ {
++  STACKTRACE;
+   float w;
+-  std::map&lt;AGVector2,float&gt; rList;
+-  std::list&lt;AGVector2&gt; nList=getNeighbors(p);
++  std::vector&lt;std::pair&lt;AGVector2,float&gt; &gt; rList;
++  std::vector&lt;AGVector2&gt; nList=getNeighbors(p);
+ 
+-  for(std::list&lt;AGVector2&gt;::iterator i=nList.begin();i!=nList.end();i++)
++  for(std::vector&lt;AGVector2&gt;::iterator i=nList.begin();i!=nList.end();i++)
+     {
+-      w=simpleWeight(p,*i);
+-      rList.insert(std::make_pair(*i,w));
++      STACKTRACE;
++
++      {
++	w=simpleWeight(p,*i);
++	STACKTRACE;
++      }
++      rList.push_back(std::make_pair(*i,w));
+     }
+   return rList;
+ }
+ 
+ 
+-std::list&lt;AGVector2&gt; DistanceComputer::getAllPassable() const
++std::vector&lt;AGVector2&gt; DistanceComputer::getAllPassable() const
+ {
+-  std::list&lt;AGVector2&gt; l;
++  std::vector&lt;AGVector2&gt; l;
+ 
+   float x,y;
+   AGVector2 v(x,y);
+
+Modified: antargis/branches/rant/ext/game/path_weighter.h
+===================================================================
+--- antargis/branches/rant/ext/game/path_weighter.h	2007-07-29 17:39:54 UTC (rev 1155)
++++ antargis/branches/rant/ext/game/path_weighter.h	2007-08-15 17:33:15 UTC (rev 1156)
+@@ -27,17 +27,17 @@
+   float width() const;
+   float height() const;
+ 
+-  std::map&lt;AGVector2,float&gt; getAllReachableFrom(const AGVector2 &amp;p) const;
++  std::vector&lt;std::pair&lt;AGVector2,float&gt; &gt; getAllReachableFrom(const AGVector2 &amp;p) const;
+ 
+   // compute weight for to neighboring points (from a to b)
+   float simpleWeight(const AGVector2 &amp;a,const AGVector2 &amp;b) const;
+ 
+   bool isPassable(const AGVector2 &amp;pPoint) const;
+ 
+-  std::list&lt;AGVector2&gt; getNeighbors(const AGVector2 &amp;p) const;
++  std::vector&lt;AGVector2&gt; getNeighbors(const AGVector2 &amp;p) const;
+ 
+ 
+-  std::list&lt;AGVector2&gt; getAllPassable() const;
++  std::vector&lt;AGVector2&gt; getAllPassable() const;
+ 
+  private:
+ 
+
+Modified: antargis/branches/rant/ext/game/templates.i
+===================================================================
+--- antargis/branches/rant/ext/game/templates.i	2007-07-29 17:39:54 UTC (rev 1155)
++++ antargis/branches/rant/ext/game/templates.i	2007-08-15 17:33:15 UTC (rev 1156)
+@@ -27,3 +27,4 @@
+ %template(EntityVector) std::vector&lt;AntEntityPtr&gt;;
+ %template(ResourceMap) std::map&lt;std::string,float&gt;;
+ %template(AGResourceMap) std::map&lt;AGString,float&gt;;
++%template(AGVector2Pair) std::pair&lt;AGVector2,AGVector2&gt;;
+\ No newline at end of file
+
+Modified: antargis/branches/rant/ext/gui/headers.hh
+===================================================================
+--- antargis/branches/rant/ext/gui/headers.hh	2007-07-29 17:39:54 UTC (rev 1155)
++++ antargis/branches/rant/ext/gui/headers.hh	2007-08-15 17:33:15 UTC (rev 1156)
+@@ -1,88 +1,88 @@
+-#ifndef __ANTARGIS_H__
+-#define __ANTARGIS_H__
+-#include &quot;ext/basic/ag_config.h&quot;
+-#include &quot;ext/basic/ag_fs.h&quot;
+-#include &quot;ext/basic/ag_geometry.h&quot;
+-#include &quot;ext/basic/ag_main.h&quot;
+-#include &quot;ext/basic/ag_messageobject.h&quot;
+-#include &quot;ext/basic/ag_rand_base.h&quot;
+-#include &quot;ext/basic/ag_rubyobj.h&quot;
+-#include &quot;ext/basic/ag_serial.h&quot;
+-#include &quot;ext/basic/ag_singleton.h&quot;
+-#include &quot;ext/basic/ag_stringstream.h&quot;
+-#include &quot;ext/basic/ag_string_utf8.h&quot;
+-#include &quot;ext/basic/ag_utf8.h&quot;
+-#include &quot;ext/basic/ag_video_base.h&quot;
+-#include &quot;ext/basic/ag_xml.h&quot;
+-#include &quot;ext/math/ag_algebra.h&quot;
+-#include &quot;ext/math/ag_rand.h&quot;
+-#include &quot;ext/math/ant_frustum.h&quot;
+-#include &quot;ext/video/ag_clip.h&quot;
+-#include &quot;ext/video/ag_color.h&quot;
+-#include &quot;ext/video/ag_font.h&quot;
+-#include &quot;ext/video/ag_fontengine.h&quot;
+-#include &quot;ext/video/ag_painter.h&quot;
+-#include &quot;ext/video/ag_painttarget.h&quot;
+-#include &quot;ext/video/ag_rendercontext.h&quot;
+-#include &quot;ext/video/ag_screen.h&quot;
+-#include &quot;ext/video/ag_surface.h&quot;
+-#include &quot;ext/video/ag_texture.h&quot;
+-#include &quot;ext/video/ag_texturecache.h&quot;
+-#include &quot;ext/video/ag_video.h&quot;
+-#include &quot;ext/gui/ag_layoutfactory.h&quot;
+-#include &quot;ext/gui/ag_widget.h&quot;
+-#include &quot;ext/gui/ag_application.h&quot;
+-#include &quot;ext/gui/ag_table.h&quot;
+-#include &quot;ext/gui/ag_layout.h&quot;
+-#include &quot;ext/gui/ag_colorbutton.h&quot;
+-#include &quot;ext/gui/ag_image.h&quot;
+-#include &quot;ext/gui/ag_screenwidget.h&quot;
+-#include &quot;ext/gui/ag_listbox.h&quot;
+-#include &quot;ext/gui/ag_frame.h&quot;
+-#include &quot;ext/gui/ag_text.h&quot;
+-#include &quot;ext/gui/ag_button.h&quot;
+-#include &quot;ext/gui/ag_edit.h&quot;
+-#include &quot;ext/gui/ag_radiogroup.h&quot;
+-#include &quot;ext/gui/ag_scroller.h&quot;
+-#include &quot;ext/gui/ag_tooltip.h&quot;
+-#include &quot;ext/gui/ag_combo.h&quot;
+-#include &quot;ext/gui/ag_menu.h&quot;
+-#include &quot;ext/gui/ag_caption.h&quot;
+-#include &quot;ext/gui/ag_window.h&quot;
+-#include &quot;ext/gui/ag_checkbox.h&quot;
+-#include &quot;ext/gui/ag_menuitem.h&quot;
+-#include &quot;ext/gui/ag_radio.h&quot;
+-#include &quot;ext/gui/ag_theme.h&quot;
+-#include &quot;ext/gui/ag_border.h&quot;
+-#include &quot;ext/gui/ag_background.h&quot;
+-#include &quot;ext/gui/ag_local.h&quot;
+-#ifdef SWIG
+-%include &quot;ext/gui/ag_layoutfactory.h&quot;
+-%include &quot;ext/gui/ag_widget.h&quot;
+-%include &quot;ext/gui/ag_application.h&quot;
+-%include &quot;ext/gui/ag_table.h&quot;
+-%include &quot;ext/gui/ag_layout.h&quot;
+-%include &quot;ext/gui/ag_colorbutton.h&quot;
+-%include &quot;ext/gui/ag_image.h&quot;
+-%include &quot;ext/gui/ag_screenwidget.h&quot;
+-%include &quot;ext/gui/ag_listbox.h&quot;
+-%include &quot;ext/gui/ag_frame.h&quot;
+-%include &quot;ext/gui/ag_text.h&quot;
+-%include &quot;ext/gui/ag_button.h&quot;
+-%include &quot;ext/gui/ag_edit.h&quot;
+-%include &quot;ext/gui/ag_radiogroup.h&quot;
+-%include &quot;ext/gui/ag_scroller.h&quot;
+-%include &quot;ext/gui/ag_tooltip.h&quot;
+-%include &quot;ext/gui/ag_combo.h&quot;
+-%include &quot;ext/gui/ag_menu.h&quot;
+-%include &quot;ext/gui/ag_caption.h&quot;
+-%include &quot;ext/gui/ag_window.h&quot;
+-%include &quot;ext/gui/ag_checkbox.h&quot;
+-%include &quot;ext/gui/ag_menuitem.h&quot;
+-%include &quot;ext/gui/ag_radio.h&quot;
+-%include &quot;ext/gui/ag_theme.h&quot;
+-%include &quot;ext/gui/ag_border.h&quot;
+-%include &quot;ext/gui/ag_background.h&quot;
+-%include &quot;ext/gui/ag_local.h&quot;
+-#endif
+-#endif
++#ifndef __ANTARGIS_H__
++#define __ANTARGIS_H__
++#include &quot;ext/basic/ag_config.h&quot;
++#include &quot;ext/basic/ag_fs.h&quot;
++#include &quot;ext/basic/ag_main.h&quot;
++#include &quot;ext/basic/ag_rubyobj.h&quot;
++#include &quot;ext/basic/ag_rand_base.h&quot;
++#include &quot;ext/basic/ag_string_utf8.h&quot;
++#include &quot;ext/basic/ag_stringstream.h&quot;
++#include &quot;ext/basic/ag_utf8.h&quot;
++#include &quot;ext/basic/ag_video_base.h&quot;
++#include &quot;ext/basic/ag_xml.h&quot;
++#include &quot;ext/basic/ag_singleton.h&quot;
++#include &quot;ext/basic/ag_serial.h&quot;
++#include &quot;ext/basic/ag_messageobject.h&quot;
++#include &quot;ext/basic/ag_geometry.h&quot;
++#include &quot;ext/math/ag_rand.h&quot;
++#include &quot;ext/math/ant_frustum.h&quot;
++#include &quot;ext/math/ag_algebra.h&quot;
++#include &quot;ext/video/ag_screen.h&quot;
++#include &quot;ext/video/ag_video.h&quot;
++#include &quot;ext/video/ag_painttarget.h&quot;
++#include &quot;ext/video/ag_color.h&quot;
++#include &quot;ext/video/ag_fontengine.h&quot;
++#include &quot;ext/video/ag_font.h&quot;
++#include &quot;ext/video/ag_surface.h&quot;
++#include &quot;ext/video/ag_texture.h&quot;
++#include &quot;ext/video/ag_rendercontext.h&quot;
++#include &quot;ext/video/ag_texturecache.h&quot;
++#include &quot;ext/video/ag_clip.h&quot;
++#include &quot;ext/video/ag_painter.h&quot;
++#include &quot;ext/gui/ag_layoutfactory.h&quot;
++#include &quot;ext/gui/ag_widget.h&quot;
++#include &quot;ext/gui/ag_application.h&quot;
++#include &quot;ext/gui/ag_table.h&quot;
++#include &quot;ext/gui/ag_layout.h&quot;
++#include &quot;ext/gui/ag_colorbutton.h&quot;
++#include &quot;ext/gui/ag_image.h&quot;
++#include &quot;ext/gui/ag_screenwidget.h&quot;
++#include &quot;ext/gui/ag_listbox.h&quot;
++#include &quot;ext/gui/ag_frame.h&quot;
++#include &quot;ext/gui/ag_text.h&quot;
++#include &quot;ext/gui/ag_button.h&quot;
++#include &quot;ext/gui/ag_edit.h&quot;
++#include &quot;ext/gui/ag_radiogroup.h&quot;
++#include &quot;ext/gui/ag_scroller.h&quot;
++#include &quot;ext/gui/ag_tooltip.h&quot;
++#include &quot;ext/gui/ag_combo.h&quot;
++#include &quot;ext/gui/ag_menu.h&quot;
++#include &quot;ext/gui/ag_caption.h&quot;
++#include &quot;ext/gui/ag_window.h&quot;
++#include &quot;ext/gui/ag_checkbox.h&quot;
++#include &quot;ext/gui/ag_menuitem.h&quot;
++#include &quot;ext/gui/ag_radio.h&quot;
++#include &quot;ext/gui/ag_theme.h&quot;
++#include &quot;ext/gui/ag_border.h&quot;
++#include &quot;ext/gui/ag_background.h&quot;
++#include &quot;ext/gui/ag_local.h&quot;
++#ifdef SWIG
++%include &quot;ext/gui/ag_layoutfactory.h&quot;
++%include &quot;ext/gui/ag_widget.h&quot;
++%include &quot;ext/gui/ag_application.h&quot;
++%include &quot;ext/gui/ag_table.h&quot;
++%include &quot;ext/gui/ag_layout.h&quot;
++%include &quot;ext/gui/ag_colorbutton.h&quot;
++%include &quot;ext/gui/ag_image.h&quot;
++%include &quot;ext/gui/ag_screenwidget.h&quot;
++%include &quot;ext/gui/ag_listbox.h&quot;
++%include &quot;ext/gui/ag_frame.h&quot;
++%include &quot;ext/gui/ag_text.h&quot;
++%include &quot;ext/gui/ag_button.h&quot;
++%include &quot;ext/gui/ag_edit.h&quot;
++%include &quot;ext/gui/ag_radiogroup.h&quot;
++%include &quot;ext/gui/ag_scroller.h&quot;
++%include &quot;ext/gui/ag_tooltip.h&quot;
++%include &quot;ext/gui/ag_combo.h&quot;
++%include &quot;ext/gui/ag_menu.h&quot;
++%include &quot;ext/gui/ag_caption.h&quot;
++%include &quot;ext/gui/ag_window.h&quot;
++%include &quot;ext/gui/ag_checkbox.h&quot;
++%include &quot;ext/gui/ag_menuitem.h&quot;
++%include &quot;ext/gui/ag_radio.h&quot;
++%include &quot;ext/gui/ag_theme.h&quot;
++%include &quot;ext/gui/ag_border.h&quot;
++%include &quot;ext/gui/ag_background.h&quot;
++%include &quot;ext/gui/ag_local.h&quot;
++#endif
++#endif
+
+Modified: antargis/branches/rant/ext/math/ag_serial_vec.cc
+===================================================================
+--- antargis/branches/rant/ext/math/ag_serial_vec.cc	2007-07-29 17:39:54 UTC (rev 1155)
++++ antargis/branches/rant/ext/math/ag_serial_vec.cc	2007-08-15 17:33:15 UTC (rev 1156)
+@@ -17,3 +17,19 @@
+ }
+ 
+ 
++BinaryOut &amp;operator&lt;&lt;(BinaryOut &amp;o,const AGVector2 &amp;v)
++{
++  o&lt;&lt;v[0]&lt;&lt;v[1];
++  return o;
++}
++
++BinaryOut &amp;operator&lt;&lt;(BinaryOut &amp;o,const AGVector3 &amp;v)
++{
++  o&lt;&lt;v[0]&lt;&lt;v[1]&lt;&lt;v[2];
++  return o;
++}
++BinaryOut &amp;operator&lt;&lt;(BinaryOut &amp;o,const AGVector4 &amp;v)
++{
++  o&lt;&lt;v[0]&lt;&lt;v[1]&lt;&lt;v[2]&lt;&lt;v[3];
++  return o;
++}
+
+Modified: antargis/branches/rant/ext/math/ag_serial_vec.h
+===================================================================
+--- antargis/branches/rant/ext/math/ag_serial_vec.h	2007-07-29 17:39:54 UTC (rev 1155)
++++ antargis/branches/rant/ext/math/ag_serial_vec.h	2007-08-15 17:33:15 UTC (rev 1156)
+@@ -8,5 +8,9 @@
+ AGEXPORT BinaryIn &amp;operator&gt;&gt;(BinaryIn &amp;i,AGVector3 &amp;v);
+ AGEXPORT BinaryIn &amp;operator&gt;&gt;(BinaryIn &amp;i,AGVector4 &amp;v);
+ 
++AGEXPORT BinaryOut &amp;operator&lt;&lt;(BinaryOut &amp;i,const AGVector2 &amp;v);
++AGEXPORT BinaryOut &amp;operator&lt;&lt;(BinaryOut &amp;i,const AGVector3 &amp;v);
++AGEXPORT BinaryOut &amp;operator&lt;&lt;(BinaryOut &amp;i,const AGVector4 &amp;v);
+ 
++
+ #endif
+
+Modified: antargis/branches/rant/ext/math/headers.hh
+===================================================================
+--- antargis/branches/rant/ext/math/headers.hh	2007-07-29 17:39:54 UTC (rev 1155)
++++ antargis/branches/rant/ext/math/headers.hh	2007-08-15 17:33:15 UTC (rev 1156)
+@@ -1,25 +1,25 @@
+-#ifndef __ANTARGIS_H__
+-#define __ANTARGIS_H__
+-#include &quot;ext/basic/ag_config.h&quot;
+-#include &quot;ext/basic/ag_fs.h&quot;
+-#include &quot;ext/basic/ag_geometry.h&quot;
+-#include &quot;ext/basic/ag_main.h&quot;
+-#include &quot;ext/basic/ag_messageobject.h&quot;
+-#include &quot;ext/basic/ag_rand_base.h&quot;
+-#include &quot;ext/basic/ag_rubyobj.h&quot;
+-#include &quot;ext/basic/ag_serial.h&quot;
+-#include &quot;ext/basic/ag_singleton.h&quot;
+-#include &quot;ext/basic/ag_stringstream.h&quot;
+-#include &quot;ext/basic/ag_string_utf8.h&quot;
+-#include &quot;ext/basic/ag_utf8.h&quot;
+-#include &quot;ext/basic/ag_video_base.h&quot;
+-#include &quot;ext/basic/ag_xml.h&quot;
+-#include &quot;ext/math/ag_rand.h&quot;
+-#include &quot;ext/math/ant_frustum.h&quot;
+-#include &quot;ext/math/ag_algebra.h&quot;
+-#ifdef SWIG
+-%include &quot;ext/math/ag_rand.h&quot;
+-%include &quot;ext/math/ant_frustum.h&quot;
+-%include &quot;ext/math/ag_algebra.h&quot;
+-#endif
+-#endif
++#ifndef __ANTARGIS_H__
++#define __ANTARGIS_H__
++#include &quot;ext/basic/ag_config.h&quot;
++#include &quot;ext/basic/ag_fs.h&quot;
++#include &quot;ext/basic/ag_main.h&quot;
++#include &quot;ext/basic/ag_rubyobj.h&quot;
++#include &quot;ext/basic/ag_rand_base.h&quot;
++#include &quot;ext/basic/ag_string_utf8.h&quot;
++#include &quot;ext/basic/ag_stringstream.h&quot;
++#include &quot;ext/basic/ag_utf8.h&quot;
++#include &quot;ext/basic/ag_video_base.h&quot;
++#include &quot;ext/basic/ag_xml.h&quot;
++#include &quot;ext/basic/ag_singleton.h&quot;
++#include &quot;ext/basic/ag_serial.h&quot;
++#include &quot;ext/basic/ag_messageobject.h&quot;
++#include &quot;ext/basic/ag_geometry.h&quot;
++#include &quot;ext/math/ag_rand.h&quot;
++#include &quot;ext/math/ant_frustum.h&quot;
++#include &quot;ext/math/ag_algebra.h&quot;
++#ifdef SWIG
++%include &quot;ext/math/ag_rand.h&quot;
++%include &quot;ext/math/ant_frustum.h&quot;
++%include &quot;ext/math/ag_algebra.h&quot;
++#endif
++#endif
+
+Deleted: antargis/branches/rant/ext/ruby/ag_rtools.cc
+===================================================================
+--- antargis/branches/rant/ext/ruby/ag_rtools.cc	2007-07-29 17:39:54 UTC (rev 1155)
++++ antargis/branches/rant/ext/ruby/ag_rtools.cc	2007-08-15 17:33:15 UTC (rev 1156)
+@@ -1,29 +0,0 @@
+-#include &lt;ag_rtools.h&gt;
+-
+-#include &lt;ruby.h&gt;
+-
+-#include &lt;iostream&gt;
+-#include &lt;sstream&gt;
+-
+-std::string rubyHash(const std::string &amp;p)
+-{
+-  // FIXME: TRY USING ruby's Digest::MD5::digest(&quot;xy&quot;)
+-  rb_eval_string(&quot;require 'digest/md5'&quot;);
+-
+-  //  VALUE l=rb_gv_get(&quot;Digest::MD5&quot;);
+-  //  VALUE r=rb_funcall(l,rb_intern(&quot;digest&quot;),1,rb_str_new2(p.c_str()));
+-
+-  std::ostringstream os;
+-  os&lt;&lt;&quot;s=''; Digest::MD5::digest('&quot;&lt;&lt;p&lt;&lt;&quot;').each_byte{|b|s+=sprintf('%X',b)};s&quot;;
+-
+-  VALUE r=rb_eval_string(os.str().c_str());
+-
+-  std::string s;
+-
+-  s=STR2CSTR(r);
+-
+-  std::cout&lt;&lt;&quot;p:&quot;&lt;&lt;p&lt;&lt;std::endl;
+-  std::cout&lt;&lt;&quot;s:&quot;&lt;&lt;s&lt;&lt;std::endl;
+-
+-  return s;
+-}
+
+Deleted: antargis/branches/rant/ext/ruby/ag_rtools.h
+===================================================================
+--- antargis/branches/rant/ext/ruby/ag_rtools.h	2007-07-29 17:39:54 UTC (rev 1155)
++++ antargis/branches/rant/ext/ruby/ag_rtools.h	2007-08-15 17:33:15 UTC (rev 1156)
+@@ -1,10 +0,0 @@
+-#ifndef AG_RTOOLS_H
+-#define AG_RTOOLS_H
+-
+-#include &lt;string&gt;
+-
+-std::string rubyHash(const std::string &amp;p);
+-
+-
+-
+-#endif
+
+Modified: antargis/branches/rant/ext/ruby/headers.hh
+===================================================================
+--- antargis/branches/rant/ext/ruby/headers.hh	2007-07-29 17:39:54 UTC (rev 1155)
++++ antargis/branches/rant/ext/ruby/headers.hh	2007-08-15 17:33:15 UTC (rev 1156)
+@@ -1,5 +1,19 @@
+ #ifndef __ANTARGIS_H__
+ #define __ANTARGIS_H__
++#include &quot;ext/basic/ag_config.h&quot;
++#include &quot;ext/basic/ag_fs.h&quot;
++#include &quot;ext/basic/ag_main.h&quot;
++#include &quot;ext/basic/ag_rubyobj.h&quot;
++#include &quot;ext/basic/ag_rand_base.h&quot;
++#include &quot;ext/basic/ag_string_utf8.h&quot;
++#include &quot;ext/basic/ag_stringstream.h&quot;
++#include &quot;ext/basic/ag_utf8.h&quot;
++#include &quot;ext/basic/ag_video_base.h&quot;
++#include &quot;ext/basic/ag_xml.h&quot;
++#include &quot;ext/basic/ag_singleton.h&quot;
++#include &quot;ext/basic/ag_serial.h&quot;
++#include &quot;ext/basic/ag_messageobject.h&quot;
++#include &quot;ext/basic/ag_geometry.h&quot;
+ 
+ #ifdef SWIG
+ 
+
+Modified: antargis/branches/rant/ext/sound/headers.hh
+===================================================================
+--- antargis/branches/rant/ext/sound/headers.hh	2007-07-29 17:39:54 UTC (rev 1155)
++++ antargis/branches/rant/ext/sound/headers.hh	2007-08-15 17:33:15 UTC (rev 1156)
+@@ -1,21 +1,21 @@
+-#ifndef __ANTARGIS_H__
+-#define __ANTARGIS_H__
+-#include &quot;ext/basic/ag_config.h&quot;
+-#include &quot;ext/basic/ag_fs.h&quot;
+-#include &quot;ext/basic/ag_geometry.h&quot;
+-#include &quot;ext/basic/ag_main.h&quot;
+-#include &quot;ext/basic/ag_messageobject.h&quot;
+-#include &quot;ext/basic/ag_rand_base.h&quot;
+-#include &quot;ext/basic/ag_rubyobj.h&quot;
+-#include &quot;ext/basic/ag_serial.h&quot;
+-#include &quot;ext/basic/ag_singleton.h&quot;
+-#include &quot;ext/basic/ag_stringstream.h&quot;
+-#include &quot;ext/basic/ag_string_utf8.h&quot;
+-#include &quot;ext/basic/ag_utf8.h&quot;
+-#include &quot;ext/basic/ag_video_base.h&quot;
+-#include &quot;ext/basic/ag_xml.h&quot;
+-#include &quot;ext/sound/ag_mixer.h&quot;
+-#ifdef SWIG
+-%include &quot;ext/sound/ag_mixer.h&quot;
+-#endif
+-#endif
++#ifndef __ANTARGIS_H__
++#define __ANTARGIS_H__
++#include &quot;ext/basic/ag_config.h&quot;
++#include &quot;ext/basic/ag_fs.h&quot;
++#include &quot;ext/basic/ag_main.h&quot;
++#include &quot;ext/basic/ag_rubyobj.h&quot;
++#include &quot;ext/basic/ag_rand_base.h&quot;
++#include &quot;ext/basic/ag_string_utf8.h&quot;
++#include &quot;ext/basic/ag_stringstream.h&quot;
++#include &quot;ext/basic/ag_utf8.h&quot;
++#include &quot;ext/basic/ag_video_base.h&quot;
++#include &quot;ext/basic/ag_xml.h&quot;
++#include &quot;ext/basic/ag_singleton.h&quot;
++#include &quot;ext/basic/ag_serial.h&quot;
++#include &quot;ext/basic/ag_messageobject.h&quot;
++#include &quot;ext/basic/ag_geometry.h&quot;
++#include &quot;ext/sound/ag_mixer.h&quot;
++#ifdef SWIG
++%include &quot;ext/sound/ag_mixer.h&quot;
++#endif
++#endif
+
+Modified: antargis/branches/rant/ext/video/headers.hh
+===================================================================
+--- antargis/branches/rant/ext/video/headers.hh	2007-07-29 17:39:54 UTC (rev 1155)
++++ antargis/branches/rant/ext/video/headers.hh	2007-08-15 17:33:15 UTC (rev 1156)
+@@ -1,46 +1,46 @@
+-#ifndef __ANTARGIS_H__
+-#define __ANTARGIS_H__
+-#include &quot;ext/basic/ag_config.h&quot;
+-#include &quot;ext/basic/ag_fs.h&quot;
+-#include &quot;ext/basic/ag_geometry.h&quot;
+-#include &quot;ext/basic/ag_main.h&quot;
+-#include &quot;ext/basic/ag_messageobject.h&quot;
+-#include &quot;ext/basic/ag_rand_base.h&quot;
+-#include &quot;ext/basic/ag_rubyobj.h&quot;
+-#include &quot;ext/basic/ag_serial.h&quot;
+-#include &quot;ext/basic/ag_singleton.h&quot;
+-#include &quot;ext/basic/ag_stringstream.h&quot;
+-#include &quot;ext/basic/ag_string_utf8.h&quot;
+-#include &quot;ext/basic/ag_utf8.h&quot;
+-#include &quot;ext/basic/ag_video_base.h&quot;
+-#include &quot;ext/basic/ag_xml.h&quot;
+-#include &quot;ext/math/ag_algebra.h&quot;
+-#include &quot;ext/math/ag_rand.h&quot;
+-#include &quot;ext/math/ant_frustum.h&quot;
+-#include &quot;ext/video/ag_painttarget.h&quot;
+-#include &quot;ext/video/ag_surface.h&quot;
+-#include &quot;ext/video/ag_texture.h&quot;
+-#include &quot;ext/video/ag_screen.h&quot;
+-#include &quot;ext/video/ag_fontengine.h&quot;
+-#include &quot;ext/video/ag_video.h&quot;
+-#include &quot;ext/video/ag_clip.h&quot;
+-#include &quot;ext/video/ag_rendercontext.h&quot;
+-#include &quot;ext/video/ag_texturecache.h&quot;
+-#include &quot;ext/video/ag_font.h&quot;
+-#include &quot;ext/video/ag_painter.h&quot;
+-#include &quot;ext/video/ag_color.h&quot;
+-#ifdef SWIG
+-%include &quot;ext/video/ag_painttarget.h&quot;
+-%include &quot;ext/video/ag_surface.h&quot;
+-%include &quot;ext/video/ag_texture.h&quot;
+-%include &quot;ext/video/ag_screen.h&quot;
+-%include &quot;ext/video/ag_fontengine.h&quot;
+-%include &quot;ext/video/ag_video.h&quot;
+-%include &quot;ext/video/ag_clip.h&quot;
+-%include &quot;ext/video/ag_rendercontext.h&quot;
+-%include &quot;ext/video/ag_texturecache.h&quot;
+-%include &quot;ext/video/ag_font.h&quot;
+-%include &quot;ext/video/ag_painter.h&quot;
+-%include &quot;ext/video/ag_color.h&quot;
+-#endif
+-#endif
++#ifndef __ANTARGIS_H__
++#define __ANTARGIS_H__
++#include &quot;ext/basic/ag_config.h&quot;
++#include &quot;ext/basic/ag_fs.h&quot;
++#include &quot;ext/basic/ag_main.h&quot;
++#include &quot;ext/basic/ag_rubyobj.h&quot;
++#include &quot;ext/basic/ag_rand_base.h&quot;
++#include &quot;ext/basic/ag_string_utf8.h&quot;
++#include &quot;ext/basic/ag_stringstream.h&quot;
++#include &quot;ext/basic/ag_utf8.h&quot;
++#include &quot;ext/basic/ag_video_base.h&quot;
++#include &quot;ext/basic/ag_xml.h&quot;
++#include &quot;ext/basic/ag_singleton.h&quot;
++#include &quot;ext/basic/ag_serial.h&quot;
++#include &quot;ext/basic/ag_messageobject.h&quot;
++#include &quot;ext/basic/ag_geometry.h&quot;
++#include &quot;ext/math/ag_rand.h&quot;
++#include &quot;ext/math/ant_frustum.h&quot;
++#include &quot;ext/math/ag_algebra.h&quot;
++#include &quot;ext/video/ag_painttarget.h&quot;
++#include &quot;ext/video/ag_surface.h&quot;
++#include &quot;ext/video/ag_texture.h&quot;
++#include &quot;ext/video/ag_screen.h&quot;
++#include &quot;ext/video/ag_fontengine.h&quot;
++#include &quot;ext/video/ag_video.h&quot;
++#include &quot;ext/video/ag_clip.h&quot;
++#include &quot;ext/video/ag_rendercontext.h&quot;
++#include &quot;ext/video/ag_texturecache.h&quot;
++#include &quot;ext/video/ag_font.h&quot;
++#include &quot;ext/video/ag_painter.h&quot;
++#include &quot;ext/video/ag_color.h&quot;
++#ifdef SWIG
++%include &quot;ext/video/ag_painttarget.h&quot;
++%include &quot;ext/video/ag_surface.h&quot;
++%include &quot;ext/video/ag_texture.h&quot;
++%include &quot;ext/video/ag_screen.h&quot;
++%include &quot;ext/video/ag_fontengine.h&quot;
++%include &quot;ext/video/ag_video.h&quot;
++%include &quot;ext/video/ag_clip.h&quot;
++%include &quot;ext/video/ag_rendercontext.h&quot;
++%include &quot;ext/video/ag_texturecache.h&quot;
++%include &quot;ext/video/ag_font.h&quot;
++%include &quot;ext/video/ag_painter.h&quot;
++%include &quot;ext/video/ag_color.h&quot;
++#endif
++#endif
+
+Modified: antargis/branches/rant/ruby/ant_hljobs.rb
+===================================================================
+--- antargis/branches/rant/ruby/ant_hljobs.rb	2007-07-29 17:39:54 UTC (rev 1155)
++++ antargis/branches/rant/ruby/ant_hljobs.rb	2007-08-15 17:33:15 UTC (rev 1156)
+@@ -204,7 +204,8 @@
+ 		@waypoints.unshift(@hero.getPos2D)
+ 		@waypoints.push(@pos)
+ 		if getMap.path
+-			@waypoints=getMap.path.refinePath(@waypoints,MapPathWeighter.new(getMap))
++			puts &quot;FIXME: ant_hljobs.rb:207&quot;
++			#@waypoints=getMap.path.refinePath(@waypoints,MapPathWeighter.new(getMap))
+ 		end
+ 		@men=getMen
+ 		@moveFinished=false
+
+Modified: antargis/branches/rant/ruby/entities/ant_deco.rb
+===================================================================
+--- antargis/branches/rant/ruby/entities/ant_deco.rb	2007-07-29 17:39:54 UTC (rev 1155)
++++ antargis/branches/rant/ruby/entities/ant_deco.rb	2007-08-15 17:33:15 UTC (rev 1156)
+@@ -79,7 +79,7 @@
+ # 			else
+ 				#setMesh(Mesh.new(getMap.getScene,getMeshData(&quot;data/models/ant_coach.ant2&quot;,0.08,&quot;data/textures/models/ant_coach.png&quot;),AGVector4.new(0,0,0,0),-50))
+ # 		end
+-		setMesh(createModel(:coach))
++		setMesh(AntModels.createModel(:coach))
+ 	end
+ 	def saveXML(node)
+ 		super
+
+Modified: antargis/branches/rant/ruby/entities/ant_hero.rb
+===================================================================
+--- antargis/branches/rant/ruby/entities/ant_hero.rb	2007-07-29 17:39:54 UTC (rev 1155)
++++ antargis/branches/rant/ruby/entities/ant_hero.rb	2007-08-15 17:33:15 UTC (rev 1156)
+@@ -264,7 +264,7 @@
+ 		case name
+ 			when &quot;row&quot;
+ 				setMesh
+-				addMesh(createModel(:boat),AGVector3.new(0,0,0))
++				addMesh(AntModels.createModel(:boat),AGVector3.new(0,0,0))
+ 			when &quot;dead&quot;
+ 				setMesh(:grave_hero)
+ 			else
+
+Modified: antargis/branches/rant/ruby/entities/ant_man.rb
+===================================================================
+--- antargis/branches/rant/ruby/entities/ant_man.rb	2007-07-29 17:39:54 UTC (rev 1155)
++++ antargis/branches/rant/ruby/entities/ant_man.rb	2007-08-15 17:33:15 UTC (rev 1156)
+@@ -253,7 +253,7 @@
+ 			when &quot;row&quot;
+ 				mesh=setMesh(&quot;sit&quot;)
+ 				mesh.setAnimation(&quot;sit&quot;)
+-				addMesh(createModel(:boat),AGVector3.new(0,0,0))
++				addMesh(AntModels.createModel(:boat),AGVector3.new(0,0,0))
+ 			when &quot;stand&quot;,&quot;axe&quot;,&quot;pick&quot;,&quot;wood&quot;,&quot;stone&quot;,&quot;flour&quot;,&quot;corn&quot;,&quot;walk&quot;,&quot;sitdown&quot;,&quot;sit&quot;
+ 				setMesh(name)
+ 				if [&quot;stand&quot;,&quot;walk&quot;,&quot;sitdown&quot;,&quot;sit&quot;].member?(name)
+
+Modified: antargis/branches/rant/ruby/map.rb
+===================================================================
+--- antargis/branches/rant/ruby/map.rb	2007-07-29 17:39:54 UTC (rev 1155)
++++ antargis/branches/rant/ruby/map.rb	2007-08-15 17:33:15 UTC (rev 1156)
+@@ -293,10 +293,6 @@
+ 		if node.getName==&quot;trigger&quot; then
+ 			@triggers.push(Trigger.new(node))
+ 		end
+-# 		if e
+-# 			e.loadXML(node)
+-# 			insertEntity(e)
+-# 		end
+ 	end
+ 	
+ 	def loadXML(n)
+@@ -322,16 +318,57 @@
+ 
+ 		# add pathfinder
+ 		@mweighter=MapPathWeighter.new(self)
+-		@sgraph=makeGraph(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">self, at mweighter</A>,4)
++		@sgraph=makeGraph(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">self, at mweighter</A>,2)
+ 		@dgraph=DecimatedGraph.new(@sgraph)
+ 
+ 		factor=0.8
+-		factor=1.0-400.0/@dgraph.size
++		factor=1.0-800.0/@dgraph.size
+ 
++		#factor=0.4
++
++		factor=1.0-220.0/@dgraph.size
++
+ 		@dgraph.decimate(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">factor, at mweighter</A>)
+-		@heuristic=computeHeuristic(@dgraph)
+-		#exit
+ 
++		if true # display dgraph
++			wireframe=Boa3dWireframe.new(getScene,AGVector4.new(1,0,0,1))
++			(0..(@dgraph.edges-1)).each{|i|
++				edge=@dgraph.getEdgePosition(i)
++				puts edge
++				a=edge[0]
++				b=edge[1]
++				a=AGVector3.new(a.x,a.y,getHeight(a.x,a.y)+0.05)
++				b=AGVector3.new(b.x,b.y,getHeight(b.x,b.y)+0.05)
++				wireframe.addLine(a,b)
++			}
++			getScene.addNode(wireframe)
++			#raise 1
++		end
++
++
++		#raise self.hash
++		# FIXME: insert hash here
++
++		hFilename=&quot;heuristic.test&quot;
++
++		if File.exists?(hFilename) and false # FIXME: reenable saving
++			fin=BinaryFileIn.new(hFilename)
++			@heuristic=StoredHeuristicFunction.new(fin)
++		else
++			@heuristic=computeHeuristic(@dgraph)
++			#exit
++	
++	
++			stream=BinaryStringOut.new
++			@heuristic.printTo(stream)
++			f=File.open(hFilename,&quot;w&quot;)
++			f.puts stream.getString
++			f.close
++		end
++
++
++		#raise &quot;FIXME&quot;
++
+ 		# FIXME: readd this when heuristics are better!!!
+ 		#setHeuristic(@heuristic)
+ 
+
+Modified: antargis/branches/rant/ruby/tests/path/fields_test2.rb
+===================================================================
+--- antargis/branches/rant/ruby/tests/path/fields_test2.rb	2007-07-29 17:39:54 UTC (rev 1155)
++++ antargis/branches/rant/ruby/tests/path/fields_test2.rb	2007-08-15 17:33:15 UTC (rev 1156)
+@@ -11,7 +11,7 @@
+ include Antargismath
+ include Antargisbasic
+ 
+-getMain.getVideo.initVideo(640,480,32,false,false)
++getMain.getVideo.initVideo(640,480,32,false,true)
+ 
+ w=16
+ h=16
+@@ -26,7 +26,8 @@
+ 
+ 
+ heightMap=AntMap.new(nil,64,64)
+-heightMap.loadMap(&quot;data/levels/birth/birth2.antlvl&quot;)
++heightMap.loadMap(&quot;data/levels/tutorial/tutorial2.antlvl&quot;)
++#heightMap.loadMap(&quot;data/levels/birth/birth3.antlvl&quot;)
+ 
+ 
+ w=heightMap.getW
+@@ -35,19 +36,24 @@
+ puts &quot;W:#{w} H:#{h}&quot;
+ #exit
+ 
+-distComputer=DistanceComputer.new(heightMap,1)
++distComputer=DistanceComputer.new(heightMap,4)
+ 
+-fieldCollection=FieldCollection.new
++puts &quot;creating FieldCollection&quot;
++fieldCollection=FieldCollectionWithDistances.new
+ 
+-assignFields(fieldCollection,distComputer,32)
++puts &quot;assigning Fields&quot;
++assignFields(fieldCollection,distComputer,64)
+ 
+-# puts &quot;ok&quot;
+-# exit
++#fieldCollection.computeDistances
+ 
+-# pathData=PathV3Data.new(8)
+-# 
+-# pathData.compute(distComputer)
++puts &quot;initing distances for field #0&quot;
+ 
++field=fieldCollection.getField(0)
++puts field
++#field.initLocalDistances(distComputer)
++
++
++
+ fsize=4
+ 
+ image=AGSurface.new(w*fsize,h*fsize)
+@@ -55,38 +61,55 @@
+ def getColor(i)
+ 	j=i%8
+ 	j+=1
+-	#puts &quot;J:#{j}&quot;
+ 	AGColor.new((j % 2)*255, ((j /2)%2)*255, (j / 4).to_i*255) #*(255.0-(i*2)/255.0)
+ end
+ 
+ 
+-(0..(w-1)).each{|x|
+-	(0..(h-1)).each{|y|
+-		#fieldnum=pathData.getField(AGVector2.new(x,y))
+-		fieldnum=fieldCollection.getFieldId(AGVector2.new(x,y))
+-		if fieldnum&lt;20000
+-			#puts &quot;field:#{fieldnum}&quot;
+-			color=getColor(fieldnum)
+-			#puts &quot;COLOR:#{color}&quot;
+-			(0..(fsize-1)).each{|dx|
+-				(0..(fsize-1)).each{|dy|
+-					image.putPixel(x*fsize+dx,y*fsize+dy,color)
++def displayFieldAssign(fieldCollection,image,w,h,fsize)
++	puts &quot;DISPLAYING DATA&quot;
++	(0..(w-1)).each{|x|
++		(0..(h-1)).each{|y|
++			fieldnum=fieldCollection.getFieldId(AGVector2.new(x,y))
++			if fieldnum&lt;20000
++				color=getColor(fieldnum)
++				(0..(fsize-1)).each{|dx|
++					(0..(fsize-1)).each{|dy|
++						image.putPixel(x*fsize+dx,y*fsize+dy,color)
++					}
+ 				}
+-			}
+-		end
++			end
++		}
+ 	}
++end
++
++def displayDistanceData(field,image)
++	m=field.getMiddle
++	field.getVectors.each{|v|
++		
++		image.putPixel(v.x.to_i,v.y.to_i,AGColor.new(0xFF,0xFF,0xFF)*(1-(v-m).length*0.3))
++	}
++end
++
++def displayNeighbors(field,image)
++	field.getNeighbors.each{|v|
++		image.putPixel(v.x.to_i,v.y.to_i,AGColor.new(0xFF,0,0))
++	}
++end
++puts &quot;COMPUTE  DISTACNES:&quot;
++fieldCollection.computeDistances(distComputer)
++puts &quot;\n\n\nok&quot;
++
++#displayFieldAssign(fieldCollection,image,w,h,fsize)
++(0..(fieldCollection.getFieldCount-1)).each{|num|
++	field=fieldCollection.getField(num)
++	#field.init
++	displayDistanceData(field,image)
++	#displayNeighbors(field,image)
+ }
+ 
+ 
+-#texture=AGTexture.new(image)
+-
+ app=AGApplication.new
+ imageW=AGImage.new(nil,AGRect2.new(0,0,w*fsize,h*fsize),image,false)
+-#imageW.setSurface(image)
+ app.setMainWidget(imageW)
+ app.run
+ 
+-#getScreen.blit(texture,AGRect2.new(0,0,w*fsize,h*fsize),AGRect2.new(0,0,w*fsize,h*fsize))
+-#getScreen.flip
+-
+-#getMain.delay(20000)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000114.html">[Antargis-svn] r1157 - in antargis/branches/rant: . build	build/configs ext/3dengine ext/basic ext/game ext/game/tests	ext/gui ext/math ext/sound ext/video ruby ruby/tests/3d_engine
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#113">[ date ]</a>
+              <a href="thread.html#113">[ thread ]</a>
+              <a href="subject.html#113">[ subject ]</a>
+              <a href="author.html#113">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

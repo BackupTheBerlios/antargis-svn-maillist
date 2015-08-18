@@ -1,0 +1,177 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1142 - in antargis/branches/rant/ruby: . editor
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-July/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1142%20-%20in%20antargis/branches/rant/ruby%3A%20.%20editor&In-Reply-To=%3C200707141327.l6EDRjjJ005439%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000098.html">
+   <LINK REL="Next"  HREF="000100.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1142 - in antargis/branches/rant/ruby: . editor</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1142%20-%20in%20antargis/branches/rant/ruby%3A%20.%20editor&In-Reply-To=%3C200707141327.l6EDRjjJ005439%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1142 - in antargis/branches/rant/ruby: . editor">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sat Jul 14 15:27:45 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000098.html">[Antargis-svn] r1141 - in antargis/branches/rant: build	ext/3dengine ext/basic ext/game ext/gui ext/math ext/sound ext/video
+</A></li>
+        <LI>Next message: <A HREF="000100.html">[Antargis-svn] r1143 - in antargis/branches/rant: ext/game	ruby/entities
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#99">[ date ]</a>
+              <a href="thread.html#99">[ thread ]</a>
+              <a href="subject.html#99">[ subject ]</a>
+              <a href="author.html#99">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-07-14 15:27:44 +0200 (Sat, 14 Jul 2007)
+New Revision: 1142
+
+Modified:
+   antargis/branches/rant/ruby/dialogs.rb
+   antargis/branches/rant/ruby/editor/dialogs.rb
+   antargis/branches/rant/ruby/editview.rb
+Log:
+* some small fixes
+
+Modified: antargis/branches/rant/ruby/dialogs.rb
+===================================================================
+--- antargis/branches/rant/ruby/dialogs.rb	2007-07-14 13:24:51 UTC (rev 1141)
++++ antargis/branches/rant/ruby/dialogs.rb	2007-07-14 13:27:44 UTC (rev 1142)
+@@ -113,11 +113,11 @@
+ 		updateText
+ 	end
+ 	def setText(text)
+-		toAGEdit(getChild(&quot;text&quot;)).setText(_(text))
++		getChild(&quot;text&quot;).setText(_(text))
+ 	end
+ 	def setTitle(text)
+ 		# it's AGText # FIXME: maybe exchange all AGText usages by AGEdit
+-		toAGText(getChild(&quot;title&quot;)).setText(_(text))
++		getChild(&quot;title&quot;).setText(_(text))
+ 	end
+ 
+ 	def setFace(s)
+@@ -253,7 +253,7 @@
+ 		super(parent,&quot;data/gui/layout/savedialog.xml&quot;)
+ 	end
+ 	def eventOk(e)
+-		filename=toAGEdit(getChild(&quot;Filename&quot;)).getText
++		filename=getChild(&quot;Filename&quot;).getText
+ 		#puts &quot;FILENAME:&quot;+filename.to_s
+ 		if not filename =~ /.*\.antlvl/ then
+ 			filename=filename.to_s+&quot;.antlvl&quot;
+@@ -277,7 +277,7 @@
+ 		getChild(&quot;window&quot;).getChild(&quot;title&quot;).setText(_(&quot;Save campaign&quot;))
+ 	end
+ 	def eventOk(e)
+-		filename=toAGEdit(getChild(&quot;Filename&quot;)).getText.to_s
++		filename=getChild(&quot;Filename&quot;).getText.to_s
+ 		puts &quot;FILENAME:&quot;+filename.to_s
+ 		if not filename =~ /.*\.antcmp/ then
+ 			filename=filename+&quot;.antcmp&quot;
+@@ -301,7 +301,7 @@
+ 	def initialize(parent)
+ 		super(parent,&quot;data/gui/layout/loaddialog.xml&quot;)
+ 		d=getDirectory(getSavePath)
+-		@lb=toAGListBox(getChild(&quot;Files&quot;))
++		@lb=getChild(&quot;Files&quot;)
+ 		puts d
+ 		d.each { |x|
+ 			if x =~ /.*\.antlvl/ then
+
+Modified: antargis/branches/rant/ruby/editor/dialogs.rb
+===================================================================
+--- antargis/branches/rant/ruby/editor/dialogs.rb	2007-07-14 13:24:51 UTC (rev 1141)
++++ antargis/branches/rant/ruby/editor/dialogs.rb	2007-07-14 13:27:44 UTC (rev 1142)
+@@ -21,14 +21,14 @@
+ 	def initialize(parent,ent)
+ 		super(parent,&quot;data/gui/layout/editpropdialog.xml&quot;)
+ 		@ent=ent
+-		menCountW=toAGEdit(getChild(&quot;MenCount&quot;))
+-		nameW=toAGEdit(getChild(&quot;AntName&quot;))
++		menCountW=getChild(&quot;MenCount&quot;)
++		nameW=getChild(&quot;AntName&quot;)
+ 		menCountW.setText(AGStringUtf8.new(@ent.getXMLProp(&quot;men&quot;)))
+ 		nameW.setText(AGStringUtf8.new(@ent.getName))
+ 		
+ 		getChild(&quot;NpcTypeView&quot;).hide if @ent.class!=AntNPC
+ 		if @ent.class==AntNPC
+-			@npcTypeW=toAGEdit(getChild(&quot;NpcType&quot;))
++			@npcTypeW=getChild(&quot;NpcType&quot;)
+ 			@npcTypeW.setText(AGStringUtf8.new(@ent.npcType))
+ 		end
+ 
+@@ -49,8 +49,8 @@
+ 
+ 	end
+ 	def eventOk(e)
+-		menCountW=toAGEdit(getChild(&quot;MenCount&quot;))
+-		nameW=toAGEdit(getChild(&quot;AntName&quot;))
++		menCountW=getChild(&quot;MenCount&quot;)
++		nameW=getChild(&quot;AntName&quot;)
+ 		@ent.setName(nameW.getText.to_s)
+ 		@ent.setXMLProp(&quot;men&quot;,menCountW.getText.to_s)
+ 		close
+
+Modified: antargis/branches/rant/ruby/editview.rb
+===================================================================
+--- antargis/branches/rant/ruby/editview.rb	2007-07-14 13:24:51 UTC (rev 1141)
++++ antargis/branches/rant/ruby/editview.rb	2007-07-14 13:27:44 UTC (rev 1142)
+@@ -73,7 +73,7 @@
+ 			@newDialog.loadXML(loadFile(&quot;data/gui/layout/newdialog.xml&quot;))
+ 			addHandler(@newDialog.getChild(&quot;ok&quot;),:sigClick,:eventNewMapEnd)
+ 			addHandler(@newDialog.getChild(&quot;cancel&quot;),:sigClick,:eventNewMapEnd)
+-			addHandler(toAGWindow(@newDialog.getChild(&quot;window&quot;)),:sigClose,:eventNewMapEnd)
++			addHandler(@newDialog.getChild(&quot;window&quot;),:sigClose,:eventNewMapEnd)
+ 		end
+ 		GC.start
+ 		return true
+@@ -87,8 +87,8 @@
+ 			@layout.removeChild(d)
+ 			#d.close
+ 			if name==&quot;ok&quot;
+-				w=toAGEdit(d.getChild(&quot;width&quot;)).getText.to_s.to_i
+-				h=toAGEdit(d.getChild(&quot;height&quot;)).getText.to_s.to_i
++				w=d.getChild(&quot;width&quot;).getText.to_s.to_i
++				h=d.getChild(&quot;height&quot;).getText.to_s.to_i
+ 				
+ 				if w and h
+ 					w=2**(Math::log(w)/Math::log(2)).to_i
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000098.html">[Antargis-svn] r1141 - in antargis/branches/rant: build	ext/3dengine ext/basic ext/game ext/gui ext/math ext/sound ext/video
+</A></li>
+	<LI>Next message: <A HREF="000100.html">[Antargis-svn] r1143 - in antargis/branches/rant: ext/game	ruby/entities
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#99">[ date ]</a>
+              <a href="thread.html#99">[ thread ]</a>
+              <a href="subject.html#99">[ subject ]</a>
+              <a href="author.html#99">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

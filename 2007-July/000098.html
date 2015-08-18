@@ -1,0 +1,2301 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1141 - in antargis/branches/rant: build	ext/3dengine ext/basic ext/game ext/gui ext/math ext/sound ext/video
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-July/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1141%20-%20in%20antargis/branches/rant%3A%20build%0A%09ext/3dengine%20ext/basic%20ext/game%20ext/gui%20ext/math%20ext/sound%20ext/video&In-Reply-To=%3C200707141324.l6EDOrKM004961%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000097.html">
+   <LINK REL="Next"  HREF="000099.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1141 - in antargis/branches/rant: build	ext/3dengine ext/basic ext/game ext/gui ext/math ext/sound ext/video</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1141%20-%20in%20antargis/branches/rant%3A%20build%0A%09ext/3dengine%20ext/basic%20ext/game%20ext/gui%20ext/math%20ext/sound%20ext/video&In-Reply-To=%3C200707141324.l6EDOrKM004961%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1141 - in antargis/branches/rant: build	ext/3dengine ext/basic ext/game ext/gui ext/math ext/sound ext/video">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sat Jul 14 15:24:53 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000097.html">[Antargis-svn] r1140 - in antargis/branches/rant: . build	build/configs ext/basic ext/gui ext/math ext/video
+</A></li>
+        <LI>Next message: <A HREF="000099.html">[Antargis-svn] r1142 - in antargis/branches/rant/ruby: . editor
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#98">[ date ]</a>
+              <a href="thread.html#98">[ thread ]</a>
+              <a href="subject.html#98">[ subject ]</a>
+              <a href="author.html#98">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-07-14 15:24:51 +0200 (Sat, 14 Jul 2007)
+New Revision: 1141
+
+Modified:
+   antargis/branches/rant/build/create_interface.rb
+   antargis/branches/rant/ext/3dengine/anim_mesh_data.h
+   antargis/branches/rant/ext/3dengine/ant_particle.h
+   antargis/branches/rant/ext/3dengine/ant_projection.h
+   antargis/branches/rant/ext/3dengine/headers.hh
+   antargis/branches/rant/ext/3dengine/init.cc
+   antargis/branches/rant/ext/3dengine/mesh.h
+   antargis/branches/rant/ext/3dengine/mesh_2d.h
+   antargis/branches/rant/ext/3dengine/mesh_2d_data.h
+   antargis/branches/rant/ext/3dengine/mesh_data.h
+   antargis/branches/rant/ext/3dengine/mesh_optimizer.h
+   antargis/branches/rant/ext/3dengine/scene.cc
+   antargis/branches/rant/ext/3dengine/scene.h
+   antargis/branches/rant/ext/3dengine/scene_2d.cc
+   antargis/branches/rant/ext/3dengine/scene_base.cc
+   antargis/branches/rant/ext/3dengine/scene_base.h
+   antargis/branches/rant/ext/3dengine/templates.i
+   antargis/branches/rant/ext/basic/headers.hh
+   antargis/branches/rant/ext/basic/init.cc
+   antargis/branches/rant/ext/game/ant_app.h
+   antargis/branches/rant/ext/game/entity.h
+   antargis/branches/rant/ext/game/entptr.h
+   antargis/branches/rant/ext/game/headers.hh
+   antargis/branches/rant/ext/game/height_map.h
+   antargis/branches/rant/ext/game/heuristic.h
+   antargis/branches/rant/ext/game/init.cc
+   antargis/branches/rant/ext/game/jobs.h
+   antargis/branches/rant/ext/game/map.h
+   antargis/branches/rant/ext/game/minimap.h
+   antargis/branches/rant/ext/game/path.h
+   antargis/branches/rant/ext/game/resource.h
+   antargis/branches/rant/ext/game/terrain.h
+   antargis/branches/rant/ext/game/water.h
+   antargis/branches/rant/ext/gui/ag_background.h
+   antargis/branches/rant/ext/gui/ag_border.h
+   antargis/branches/rant/ext/gui/ag_button.h
+   antargis/branches/rant/ext/gui/ag_caption.h
+   antargis/branches/rant/ext/gui/ag_checkbox.h
+   antargis/branches/rant/ext/gui/ag_colorbutton.h
+   antargis/branches/rant/ext/gui/ag_combo.h
+   antargis/branches/rant/ext/gui/ag_edit.h
+   antargis/branches/rant/ext/gui/ag_frame.h
+   antargis/branches/rant/ext/gui/ag_image.h
+   antargis/branches/rant/ext/gui/ag_layout.h
+   antargis/branches/rant/ext/gui/ag_listbox.h
+   antargis/branches/rant/ext/gui/ag_local.h
+   antargis/branches/rant/ext/gui/ag_menu.h
+   antargis/branches/rant/ext/gui/ag_radio.h
+   antargis/branches/rant/ext/gui/ag_radiogroup.h
+   antargis/branches/rant/ext/gui/ag_screenwidget.h
+   antargis/branches/rant/ext/gui/ag_scroller.h
+   antargis/branches/rant/ext/gui/ag_table.h
+   antargis/branches/rant/ext/gui/ag_text.h
+   antargis/branches/rant/ext/gui/ag_theme.h
+   antargis/branches/rant/ext/gui/ag_tooltip.h
+   antargis/branches/rant/ext/gui/ag_widget.h
+   antargis/branches/rant/ext/gui/ag_window.h
+   antargis/branches/rant/ext/gui/headers.hh
+   antargis/branches/rant/ext/gui/init.cc
+   antargis/branches/rant/ext/math/ag_geometry.h
+   antargis/branches/rant/ext/math/headers.hh
+   antargis/branches/rant/ext/sound/ag_mixer.h
+   antargis/branches/rant/ext/sound/ag_sound.h
+   antargis/branches/rant/ext/sound/headers.hh
+   antargis/branches/rant/ext/sound/init.cc
+   antargis/branches/rant/ext/video/headers.hh
+Log:
+* so much changes for windows-compability
+
+Modified: antargis/branches/rant/build/create_interface.rb
+===================================================================
+--- antargis/branches/rant/build/create_interface.rb	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/build/create_interface.rb	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -79,7 +79,7 @@
+ def getFiles(dir)
+     pattern=dir+&quot;/&quot;+&quot;*.h&quot;
+ 	files=Dir[pattern].select{|f|not f=~/swig.h/} #-[dir+Dir.separator+&quot;swig.h&quot;]
+-    puts &quot;getFiles #{dir}&quot;,pattern,&quot;--&quot;,files,&quot;----&quot;
++    #puts &quot;getFiles #{dir}&quot;,pattern,&quot;--&quot;,files,&quot;----&quot;
+     files  
+ end
+ 
+@@ -101,11 +101,11 @@
+ 	attr_reader :deriveList
+ 
+ 	def initialize(files,allfiles)
+-        puts &quot;ParsedClasses:init()&quot;,files,&quot;--&quot;,allfiles,&quot;-----&quot;
++        #puts &quot;ParsedClasses:init()&quot;,files,&quot;--&quot;,allfiles,&quot;-----&quot;
+ 		@rubyClasses=[]
+-		@files=files
+-		loadAllDerivations(allfiles)
+-		@myfiles=files
++		@files=files.collect{|f|f.gsub(/.*\/ext\//,&quot;ext/&quot;)}
++		loadAllDerivations(allfiles.collect{|f|f.gsub(/.*\/ext\//,&quot;ext/&quot;)})
++		@myfiles=@files #files.collect{|f|f.gsub(/.*ext/,&quot;ext&quot;)}
+ 		processDerivations
+ 		initLevels
+ 	end
+@@ -234,16 +234,19 @@
+ 
+ 	# in correct order
+ 	def getFileList
+-
++
+ 		# build file list out of class-order (files may appear several times)
+ 		files=[]
+ 		l=@levels.values.max
+ 		(0..l).each{|i|
+-			@levels.each{|n,level|
+-				if level==i and @class2File[n]
++            puts &quot;LEVEL #{i}&quot;
++			@levels.each{|n,level|
++				if level==i and @class2File[n]
++                    puts n
+ 					files &lt;&lt; @class2File[n]
+-				end
++				end
+ 			}
++            puts &quot;----&quot;
+ 		}
+ 
+ 		# add files of classes with unknown level
+@@ -251,16 +254,22 @@
+ 			if @levels[c].nil? and @class2File[c]
+ 				files &lt;&lt; @class2File[c]
+ 			end
+-		}
+-
++		}
++        puts &quot;myfiles:&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at myfiles</A>,&quot;---&quot;
++        
++        puts &quot;FILES:&quot;,files,&quot;---&quot;
+ 		files=files.select{|f|@myfiles.member?(f)} # select only &quot;my&quot; files - those included in this directory
++        puts &quot;FILES after select:&quot;,files,&quot;---&quot;
+ 		addfiles=@files-files
+ 		files+=addfiles                            # add files that are in other directories
++        puts &quot;FILES (add:&quot;,files,&quot;---&quot;
+ 
+ 		# unique the array
+ 		if files.length&gt;0
+ 			files.uniq!
+-		end
++		end
++        puts &quot;FILES (uniq):&quot;,files,&quot;---&quot;
++
+ 		files
+ 	end
+ 
+@@ -280,7 +289,7 @@
+ def generateInterfaceFile(myInput,files,addfiles)
+ 	filename=myInput.interfaceName
+ 	interfaceI=File.open(filename,&quot;w&quot;)
+-	puts filename
++	#puts filename
+     #raise 1
+ 	interfaceI.puts interface_template(myInput.moduleName,files,myInput.swigInput,addfiles,myInput.outputDir)
+ 	
+@@ -304,9 +313,9 @@
+     Find.find(&quot;ext&quot;) {|file|files &lt;&lt; file}
+     files=files.select{|f|f=~/\.h$/}.select{|f|not f=~/swig.h/}.select{|f|File.open(f).read=~/#{str}/}
+     #dirs=findDirsRecursively(&quot;.&quot;)
+-    puts &quot;findFilesWith #{str}:&quot;
+-    puts files
+-    puts &quot;---&quot;
++    #puts &quot;findFilesWith #{str}:&quot;
++    #puts files
++    #puts &quot;---&quot;
+     #exit
+     files
+     #Dir[&quot;*/*&quot;].collect{|f|f.gsub(/\/.*/,&quot;&quot;)}.uniq
+
+Modified: antargis/branches/rant/ext/3dengine/anim_mesh_data.h
+===================================================================
+--- antargis/branches/rant/ext/3dengine/anim_mesh_data.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/3dengine/anim_mesh_data.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -7,13 +7,13 @@
+ #include &quot;glsl.h&quot;
+ #include &quot;ag_texture.h&quot;
+ 
+-struct KeyFrame
++struct AGEXPORT KeyFrame
+ {
+   float time;
+   AGVector3 v;
+ };
+ 
+-struct Bone
++struct AGEXPORT Bone
+ {
+   size_t id;
+   AGVector3 pos,rot;
+@@ -30,7 +30,7 @@
+   AGVector3 interpolate(const std::vector&lt;KeyFrame&gt; &amp;frames,float t);
+ };
+ 
+-struct Animation
++struct AGEXPORT Animation
+ {
+   float begin;
+   float end;
+
+Modified: antargis/branches/rant/ext/3dengine/ant_particle.h
+===================================================================
+--- antargis/branches/rant/ext/3dengine/ant_particle.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/3dengine/ant_particle.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -10,7 +10,7 @@
+    some very simple particle engine for displaying
+    smoke and ugly fire.
+ */
+-class AntParticle:public SceneNode
++class AGEXPORT AntParticle:public SceneNode
+ {
+   /// this represents one single particle
+   struct Piece
+
+Modified: antargis/branches/rant/ext/3dengine/ant_projection.h
+===================================================================
+--- antargis/branches/rant/ext/3dengine/ant_projection.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/3dengine/ant_projection.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -7,7 +7,7 @@
+ 
+ #include &lt;ant_frustum.h&gt;
+ 
+-struct Viewport
++struct AGEXPORT Viewport
+ {
+   GLint viewport[4];
+ #ifndef SWIG
+@@ -19,7 +19,7 @@
+ };
+ 
+ 
+-class AntProjection
++class AGEXPORT AntProjection
+ {
+  public:
+   AntProjection();
+
+Modified: antargis/branches/rant/ext/3dengine/headers.hh
+===================================================================
+--- antargis/branches/rant/ext/3dengine/headers.hh	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/3dengine/headers.hh	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -1,55 +1,61 @@
+-#ifndef __ANTARGIS_H__
+-#define __ANTARGIS_H__
+-#include &quot;ext/basic/ag_base.h&quot;
+-#include &quot;ext/basic/ag_collector.h&quot;
+-#include &quot;ext/basic/ag_config.h&quot;
+-#include &quot;ext/basic/ag_debug.h&quot;
+-#include &quot;ext/basic/ag_exception.h&quot;
+-#include &quot;ext/basic/ag_fs.h&quot;
+-#include &quot;ext/basic/ag_main.h&quot;
+-#include &quot;ext/basic/ag_profiler.h&quot;
+-#include &quot;ext/basic/ag_regex.h&quot;
+-#include &quot;ext/basic/ag_rubyobj.h&quot;
+-#include &quot;ext/basic/ag_rand_base.h&quot;
+-#include &quot;ext/basic/ag_string.h&quot;
+-#include &quot;ext/basic/ag_string_utf8.h&quot;
+-#include &quot;ext/basic/ag_stringstream.h&quot;
+-#include &quot;ext/basic/ag_tools.h&quot;
+-#include &quot;ext/basic/ag_utf8.h&quot;
+-#include &quot;ext/basic/ag_video_base.h&quot;
+-#include &quot;ext/basic/ag_xml.h&quot;
+-#include &quot;ext/basic/ag_plugin.h&quot;
+-#include &quot;ext/basic/ag_singleton.h&quot;
+-#include &quot;ext/basic/ag_kill.h&quot;
+-#include &quot;ext/basic/ag_serial.h&quot;
+-#include &quot;ext/basic/ag_messageobject.h&quot;
+-#include &quot;ext/basic/ag_mutex.h&quot;
+-#include &quot;/home/david/projects/antargis/rant/ext/3dengine/mesh_data.h&quot;
+-#include &quot;/home/david/projects/antargis/rant/ext/3dengine/scene_base.h&quot;
+-#include &quot;/home/david/projects/antargis/rant/ext/3dengine/scenenode.h&quot;
+-#include &quot;/home/david/projects/antargis/rant/ext/3dengine/mesh_2d_data.h&quot;
+-#include &quot;/home/david/projects/antargis/rant/ext/3dengine/anim_mesh_data.h&quot;
+-#include &quot;/home/david/projects/antargis/rant/ext/3dengine/mesh.h&quot;
+-#include &quot;/home/david/projects/antargis/rant/ext/3dengine/mesh_2d.h&quot;
+-#include &quot;/home/david/projects/antargis/rant/ext/3dengine/ant_particle.h&quot;
+-#include &quot;/home/david/projects/antargis/rant/ext/3dengine/scene.h&quot;
+-#include &quot;/home/david/projects/antargis/rant/ext/3dengine/anim_mesh.h&quot;
+-#include &quot;/home/david/projects/antargis/rant/ext/3dengine/ant_camera.h&quot;
+-#include &quot;/home/david/projects/antargis/rant/ext/3dengine/mesh_optimizer.h&quot;
+-#include &quot;/home/david/projects/antargis/rant/ext/3dengine/ant_projection.h&quot;
+-#ifdef SWIG
+-%include &quot;/home/david/projects/antargis/rant/ext/3dengine/mesh_data.h&quot;
+-%include &quot;/home/david/projects/antargis/rant/ext/3dengine/scene_base.h&quot;
+-%include &quot;/home/david/projects/antargis/rant/ext/3dengine/scenenode.h&quot;
+-%include &quot;/home/david/projects/antargis/rant/ext/3dengine/mesh_2d_data.h&quot;
+-%include &quot;/home/david/projects/antargis/rant/ext/3dengine/anim_mesh_data.h&quot;
+-%include &quot;/home/david/projects/antargis/rant/ext/3dengine/mesh.h&quot;
+-%include &quot;/home/david/projects/antargis/rant/ext/3dengine/mesh_2d.h&quot;
+-%include &quot;/home/david/projects/antargis/rant/ext/3dengine/ant_particle.h&quot;
+-%include &quot;/home/david/projects/antargis/rant/ext/3dengine/scene.h&quot;
+-%include &quot;/home/david/projects/antargis/rant/ext/3dengine/anim_mesh.h&quot;
+-%include &quot;/home/david/projects/antargis/rant/ext/3dengine/ant_camera.h&quot;
+-%include &quot;/home/david/projects/antargis/rant/ext/3dengine/mesh_optimizer.h&quot;
+-%include &quot;/home/david/projects/antargis/rant/ext/3dengine/ant_projection.h&quot;
+-#endif
+-#endif
++#ifndef __ANTARGIS_H__
++#define __ANTARGIS_H__
++#include &quot;ext/basic/ag_config.h&quot;
++#include &quot;ext/basic/ag_fs.h&quot;
++#include &quot;ext/basic/ag_geometry.h&quot;
++#include &quot;ext/basic/ag_main.h&quot;
++#include &quot;ext/basic/ag_messageobject.h&quot;
++#include &quot;ext/basic/ag_rand_base.h&quot;
++#include &quot;ext/basic/ag_rubyobj.h&quot;
++#include &quot;ext/basic/ag_serial.h&quot;
++#include &quot;ext/basic/ag_singleton.h&quot;
++#include &quot;ext/basic/ag_stringstream.h&quot;
++#include &quot;ext/basic/ag_string_utf8.h&quot;
++#include &quot;ext/basic/ag_utf8.h&quot;
++#include &quot;ext/basic/ag_video_base.h&quot;
++#include &quot;ext/basic/ag_xml.h&quot;
++#include &quot;ext/math/ag_algebra.h&quot;
++#include &quot;ext/math/ag_geometry.h&quot;
++#include &quot;ext/math/ag_rand.h&quot;
++#include &quot;ext/math/ant_frustum.h&quot;
++#include &quot;ext/video/ag_clip.h&quot;
++#include &quot;ext/video/ag_color.h&quot;
++#include &quot;ext/video/ag_font.h&quot;
++#include &quot;ext/video/ag_fontengine.h&quot;
++#include &quot;ext/video/ag_painter.h&quot;
++#include &quot;ext/video/ag_painttarget.h&quot;
++#include &quot;ext/video/ag_rendercontext.h&quot;
++#include &quot;ext/video/ag_screen.h&quot;
++#include &quot;ext/video/ag_surface.h&quot;
++#include &quot;ext/video/ag_texture.h&quot;
++#include &quot;ext/video/ag_texturecache.h&quot;
++#include &quot;ext/video/ag_video.h&quot;
++#include &quot;ext/3dengine/mesh_data.h&quot;
++#include &quot;ext/3dengine/scene_base.h&quot;
++#include &quot;ext/3dengine/scenenode.h&quot;
++#include &quot;ext/3dengine/mesh_2d_data.h&quot;
++#include &quot;ext/3dengine/anim_mesh_data.h&quot;
++#include &quot;ext/3dengine/mesh.h&quot;
++#include &quot;ext/3dengine/mesh_2d.h&quot;
++#include &quot;ext/3dengine/ant_particle.h&quot;
++#include &quot;ext/3dengine/scene.h&quot;
++#include &quot;ext/3dengine/anim_mesh.h&quot;
++#include &quot;ext/3dengine/ant_camera.h&quot;
++#include &quot;ext/3dengine/mesh_optimizer.h&quot;
++#include &quot;ext/3dengine/ant_projection.h&quot;
++#ifdef SWIG
++%include &quot;ext/3dengine/mesh_data.h&quot;
++%include &quot;ext/3dengine/scene_base.h&quot;
++%include &quot;ext/3dengine/scenenode.h&quot;
++%include &quot;ext/3dengine/mesh_2d_data.h&quot;
++%include &quot;ext/3dengine/anim_mesh_data.h&quot;
++%include &quot;ext/3dengine/mesh.h&quot;
++%include &quot;ext/3dengine/mesh_2d.h&quot;
++%include &quot;ext/3dengine/ant_particle.h&quot;
++%include &quot;ext/3dengine/scene.h&quot;
++%include &quot;ext/3dengine/anim_mesh.h&quot;
++%include &quot;ext/3dengine/ant_camera.h&quot;
++%include &quot;ext/3dengine/mesh_optimizer.h&quot;
++%include &quot;ext/3dengine/ant_projection.h&quot;
++#endif
++#endif
+
+Modified: antargis/branches/rant/ext/3dengine/init.cc
+===================================================================
+--- antargis/branches/rant/ext/3dengine/init.cc	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/3dengine/init.cc	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -1,6 +1,6 @@
+ #include &lt;ag_debug.h&gt;
+ 
+-void AG_Init_libantargis3dengine()
++AGEXPORT void AG_Init_libantargis3dengine()
+ {
+   TRACE;
+ }
+
+Modified: antargis/branches/rant/ext/3dengine/mesh.h
+===================================================================
+--- antargis/branches/rant/ext/3dengine/mesh.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/3dengine/mesh.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -16,7 +16,7 @@
+     Actual drawing is done by MeshData.
+ 
+ */
+-class Mesh:public SceneNode
++class AGEXPORT Mesh:public SceneNode
+ {
+   MeshData *mData;
+   float mRotation;
+
+Modified: antargis/branches/rant/ext/3dengine/mesh_2d.h
+===================================================================
+--- antargis/branches/rant/ext/3dengine/mesh_2d.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/3dengine/mesh_2d.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -7,7 +7,7 @@
+ #include &quot;scene_2d.h&quot;
+ #include &quot;mesh_2d_data.h&quot;
+ 
+-class Mesh2D:public SceneNode
++class AGEXPORT Mesh2D:public SceneNode
+ {
+  public:
+   Mesh2D(Scene2D *pScene);
+
+Modified: antargis/branches/rant/ext/3dengine/mesh_2d_data.h
+===================================================================
+--- antargis/branches/rant/ext/3dengine/mesh_2d_data.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/3dengine/mesh_2d_data.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -5,7 +5,7 @@
+ 
+ #include &lt;ag_texture.h&gt;
+ 
+-class Mesh2DData:public AGRubyObject
++class AGEXPORT Mesh2DData:public AGRubyObject
+ {
+  public:
+   Mesh2DData(AGTexture *pTexture);
+
+Modified: antargis/branches/rant/ext/3dengine/mesh_data.h
+===================================================================
+--- antargis/branches/rant/ext/3dengine/mesh_data.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/3dengine/mesh_data.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -10,7 +10,7 @@
+ 
+ // Mesh organizing
+ 
+-class MeshData:public AGRubyObject
++class AGEXPORT MeshData:public AGRubyObject
+ {
+   VertexArray mArray;
+   AGTexture mTexture;
+
+Modified: antargis/branches/rant/ext/3dengine/mesh_optimizer.h
+===================================================================
+--- antargis/branches/rant/ext/3dengine/mesh_optimizer.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/3dengine/mesh_optimizer.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -18,7 +18,7 @@
+     3) get a VertexArray by calling getArray()
+ */
+ 
+-struct MeshVertex
++struct AGEXPORT MeshVertex
+ {
+   AGVector4 v,c;
+   AGVector3 n;
+@@ -29,7 +29,7 @@
+ };
+ 
+ // generates index list for same vertices (with same colors/normals..)
+-class MeshOptimizer
++class AGEXPORT MeshOptimizer
+ {
+   std::map&lt;MeshVertex,int&gt; mMap;
+   std::vector&lt;int&gt; mIndices;
+@@ -48,6 +48,6 @@
+ 
+ // some old function ???
+ // used in gen_tree ?? this gen_tree shouldn't be used anymore, too
+-MeshOptimizer loadFromText(const std::string &amp;pText, bool withTex, float zoom);
++AGEXPORT MeshOptimizer loadFromText(const std::string &amp;pText, bool withTex, float zoom);
+ 
+ #endif
+
+Modified: antargis/branches/rant/ext/3dengine/scene.cc
+===================================================================
+--- antargis/branches/rant/ext/3dengine/scene.cc	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/3dengine/scene.cc	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -114,13 +114,13 @@
+ 
+ 
+ 
+-Scene::NodeList Scene::getCurrentNodes()
++SceneNodeList Scene::getCurrentNodes()
+ {
+   STACKTRACE;
+   AGVector2 p=mCamera.getPosition().dim2();
+-  NodeList l=mTree-&gt;get(AGRect2(p+AGVector2(-30,-30),p+AGVector2(30,30)));
++  SceneNodeList l=mTree-&gt;get(AGRect2(p+AGVector2(-30,-30),p+AGVector2(30,30)));
+ 
+-  for(NodeList::iterator i=l.begin();i!=l.end();i++)
++  for(SceneNodeList::iterator i=l.begin();i!=l.end();i++)
+     {
+       if(mNodeSet.find(*i)==mNodeSet.end())
+ 	cdebug(&quot;ERROR:&quot;&lt;&lt;*i);
+@@ -141,7 +141,7 @@
+ 
+   {
+     STACKTRACE;
+-    NodeList l=getCurrentNodes();
++    SceneNodeList l=getCurrentNodes();
+     Nodes sorted;
+     std::copy(l.rbegin(),l.rend(),std::back_inserter(sorted));
+     
+@@ -266,7 +266,7 @@
+ 
+   int drawn=0;
+ 
+-  NodeList l=getCurrentNodes();
++  SceneNodeList l=getCurrentNodes();
+   Nodes sorted;
+   std::copy(l.begin(),l.end(),std::back_inserter(sorted));
+ 
+@@ -355,9 +355,9 @@
+ 
+   AntFrustum cFrustum=mCamera.getCameraProjection().getFrustum();
+   
+-  NodeList l=getCurrentNodes();
++  SceneNodeList l=getCurrentNodes();
+ 
+-  for(NodeList::iterator i=l.begin();i!=l.end();i++)
++  for(SceneNodeList::iterator i=l.begin();i!=l.end();i++)
+     {
+       STACKTRACE;
+       if((*i)-&gt;visible() &amp;&amp; (*i)-&gt;bbox().collides(frustum))
+@@ -380,7 +380,7 @@
+ /// x and y are in screen-coordinates in normal fashion
+ /// so (0,0) is the top left corner and (1023,767) bottom right.
+ /// the same for w and h
+-Scene::PickResult Scene::pick(float x,float y,float w,float h)
++PickResult Scene::pick(float x,float y,float w,float h)
+ {
+   STACKTRACE;
+   size_t bufsize=4000;
+@@ -430,7 +430,7 @@
+ }
+ 
+ /// helper function for gettin PickResult from opengl's buffers
+-Scene::PickResult Scene::processHits (int hits, GLuint *buffer,float px,float py)
++PickResult Scene::processHits (int hits, GLuint *buffer,float px,float py)
+ {
+   STACKTRACE;
+   PickResult result;
+
+Modified: antargis/branches/rant/ext/3dengine/scene.h
+===================================================================
+--- antargis/branches/rant/ext/3dengine/scene.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/3dengine/scene.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -110,7 +110,7 @@
+   /*
+   AGVector2 getPosition(const AGVector4 &amp;v) const;
+   */
+-  NodeList getCurrentNodes();
++  SceneNodeList getCurrentNodes();
+ 
+ 
+   void setEnabled(bool p);
+
+Modified: antargis/branches/rant/ext/3dengine/scene_2d.cc
+===================================================================
+--- antargis/branches/rant/ext/3dengine/scene_2d.cc	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/3dengine/scene_2d.cc	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -18,7 +18,7 @@
+ {
+   // FIXME
+   
+-  NodeList nodeList=getCurrentNodes();
++  SceneNodeList nodeList=getCurrentNodes();
+   Nodes ns;
+   std::copy(nodeList.begin(),nodeList.end(),std::back_inserter(ns));
+ 
+@@ -31,10 +31,10 @@
+     (*i)-&gt;draw();
+ }
+ 
+-SceneBase::PickResult Scene2D::pick(float x,float y,float w,float h)
++PickResult Scene2D::pick(float x,float y,float w,float h)
+ {
+   PickResult result;
+-  NodeList nodeList=getCurrentNodes();
++  SceneNodeList nodeList=getCurrentNodes();
+ 
+   Nodes ns;
+   std::copy(nodeList.begin(),nodeList.end(),std::back_inserter(ns));
+@@ -85,11 +85,11 @@
+   return v.dim2();
+ }
+ 
+-SceneBase::NodeList Scene2D::getCurrentNodes()
++SceneNodeList Scene2D::getCurrentNodes()
+ {
+   //  cdebug(&quot;FIXME&quot;);
+ 
+-  NodeList l;
++  SceneNodeList l;
+   std::copy(mNodes.begin(),mNodes.end(),std::back_inserter(l));
+ 
+   //  throw std::runtime_error(&quot;FIXME&quot;);
+
+Modified: antargis/branches/rant/ext/3dengine/scene_base.cc
+===================================================================
+--- antargis/branches/rant/ext/3dengine/scene_base.cc	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/3dengine/scene_base.cc	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -98,9 +98,9 @@
+   //    return;
+   // advance only in view
+ 
+-  NodeList l=getCurrentNodes();
++  SceneNodeList l=getCurrentNodes();
+ 
+-  for(NodeList::iterator i=l.begin();i!=l.end();i++)
++  for(SceneNodeList::iterator i=l.begin();i!=l.end();i++)
+     {
+       if((*i)-&gt;visible())
+ 	(*i)-&gt;advance(time);
+@@ -136,8 +136,8 @@
+   return mCamera;
+ }
+ 
+-SceneBase::NodeList SceneBase::getCurrentNodes()
++SceneNodeList SceneBase::getCurrentNodes()
+ {
+   throw std::runtime_error(&quot;not implemented!&quot;);
+-  return NodeList();
++  return SceneNodeList();
+ }
+
+Modified: antargis/branches/rant/ext/3dengine/scene_base.h
+===================================================================
+--- antargis/branches/rant/ext/3dengine/scene_base.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/3dengine/scene_base.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -25,12 +25,14 @@
+ template&lt;class T&gt;
+ class QuadTree;
+ 
++
++typedef std::vector&lt;PickNode&gt; PickResult;
++typedef std::list&lt;SceneNode*&gt; SceneNodeList;
+ 
+ class AGEXPORT SceneBase:public AGRubyObject
+ {
+  public:
+-  typedef std::vector&lt;PickNode&gt; PickResult;
+-  typedef std::list&lt;SceneNode*&gt; NodeList;
++  //
+ 
+   SceneBase(int w,int h);
+   virtual ~SceneBase();
+@@ -71,7 +73,7 @@
+ 
+ 
+   /** get currently visible nodes */
+-  virtual NodeList getCurrentNodes();
++  virtual SceneNodeList getCurrentNodes();
+ 
+   //  void setEnabled(bool p);
+ 
+
+Modified: antargis/branches/rant/ext/3dengine/templates.i
+===================================================================
+--- antargis/branches/rant/ext/3dengine/templates.i	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/3dengine/templates.i	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -1,4 +1,4 @@
+ %template(SceneNodeVector) std::vector&lt;SceneNodePtr&gt;;
+ %template(PickResult) std::vector&lt;PickNode&gt;;
+ %template(AGPairVec2Surface) std::pair&lt;AGVector2,AGSurface*&gt;;
+-%template(SceneNodeList) std::list&lt;SceneNode*&gt;;
+\ No newline at end of file
++%template(SceneNodeList) std::list&lt;SceneNode*&gt;;
+
+Modified: antargis/branches/rant/ext/basic/headers.hh
+===================================================================
+--- antargis/branches/rant/ext/basic/headers.hh	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/basic/headers.hh	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -1,34 +1,34 @@
+ #ifndef __ANTARGIS_H__
+ #define __ANTARGIS_H__
+ 
+-#include &quot;c:/antargis/rant/ext/basic/ag_config.h&quot;
+-#include &quot;c:/antargis/rant/ext/basic/ag_fs.h&quot;
+-#include &quot;c:/antargis/rant/ext/basic/ag_geometry.h&quot;
+-#include &quot;c:/antargis/rant/ext/basic/ag_main.h&quot;
+-#include &quot;c:/antargis/rant/ext/basic/ag_messageobject.h&quot;
+-#include &quot;c:/antargis/rant/ext/basic/ag_rand_base.h&quot;
+-#include &quot;c:/antargis/rant/ext/basic/ag_rubyobj.h&quot;
+-#include &quot;c:/antargis/rant/ext/basic/ag_serial.h&quot;
+-#include &quot;c:/antargis/rant/ext/basic/ag_singleton.h&quot;
+-#include &quot;c:/antargis/rant/ext/basic/ag_stringstream.h&quot;
+-#include &quot;c:/antargis/rant/ext/basic/ag_string_utf8.h&quot;
+-#include &quot;c:/antargis/rant/ext/basic/ag_utf8.h&quot;
+-#include &quot;c:/antargis/rant/ext/basic/ag_video_base.h&quot;
+-#include &quot;c:/antargis/rant/ext/basic/ag_xml.h&quot;
++#include &quot;ext/basic/ag_rubyobj.h&quot;
++#include &quot;ext/basic/ag_messageobject.h&quot;
++#include &quot;ext/basic/ag_singleton.h&quot;
++#include &quot;ext/basic/ag_rand_base.h&quot;
++#include &quot;ext/basic/ag_main.h&quot;
++#include &quot;ext/basic/ag_video_base.h&quot;
++#include &quot;ext/basic/ag_geometry.h&quot;
++#include &quot;ext/basic/ag_serial.h&quot;
++#include &quot;ext/basic/ag_config.h&quot;
++#include &quot;ext/basic/ag_xml.h&quot;
++#include &quot;ext/basic/ag_string_utf8.h&quot;
++#include &quot;ext/basic/ag_stringstream.h&quot;
++#include &quot;ext/basic/ag_fs.h&quot;
++#include &quot;ext/basic/ag_utf8.h&quot;
+ #ifdef SWIG
+-%include &quot;c:/antargis/rant/ext/basic/ag_config.h&quot;
+-%include &quot;c:/antargis/rant/ext/basic/ag_fs.h&quot;
+-%include &quot;c:/antargis/rant/ext/basic/ag_geometry.h&quot;
+-%include &quot;c:/antargis/rant/ext/basic/ag_main.h&quot;
+-%include &quot;c:/antargis/rant/ext/basic/ag_messageobject.h&quot;
+-%include &quot;c:/antargis/rant/ext/basic/ag_rand_base.h&quot;
+-%include &quot;c:/antargis/rant/ext/basic/ag_rubyobj.h&quot;
+-%include &quot;c:/antargis/rant/ext/basic/ag_serial.h&quot;
+-%include &quot;c:/antargis/rant/ext/basic/ag_singleton.h&quot;
+-%include &quot;c:/antargis/rant/ext/basic/ag_stringstream.h&quot;
+-%include &quot;c:/antargis/rant/ext/basic/ag_string_utf8.h&quot;
+-%include &quot;c:/antargis/rant/ext/basic/ag_utf8.h&quot;
+-%include &quot;c:/antargis/rant/ext/basic/ag_video_base.h&quot;
+-%include &quot;c:/antargis/rant/ext/basic/ag_xml.h&quot;
++%include &quot;ext/basic/ag_rubyobj.h&quot;
++%include &quot;ext/basic/ag_messageobject.h&quot;
++%include &quot;ext/basic/ag_singleton.h&quot;
++%include &quot;ext/basic/ag_rand_base.h&quot;
++%include &quot;ext/basic/ag_main.h&quot;
++%include &quot;ext/basic/ag_video_base.h&quot;
++%include &quot;ext/basic/ag_geometry.h&quot;
++%include &quot;ext/basic/ag_serial.h&quot;
++%include &quot;ext/basic/ag_config.h&quot;
++%include &quot;ext/basic/ag_xml.h&quot;
++%include &quot;ext/basic/ag_string_utf8.h&quot;
++%include &quot;ext/basic/ag_stringstream.h&quot;
++%include &quot;ext/basic/ag_fs.h&quot;
++%include &quot;ext/basic/ag_utf8.h&quot;
+ #endif
+ #endif
+
+Modified: antargis/branches/rant/ext/basic/init.cc
+===================================================================
+--- antargis/branches/rant/ext/basic/init.cc	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/basic/init.cc	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -11,7 +11,7 @@
+ 
+ typedef swig_type_info*(*CastFunction)(void**);
+ 
+-std::map&lt;std::string,std::list&lt;CastFunction&gt; &gt; agCastFunctions;
++AGEXPORT std::map&lt;std::string,std::list&lt;CastFunction&gt; &gt; agCastFunctions;
+ 
+ AGEXPORT void AG_Init_libantargisbasic()
+ {
+
+Modified: antargis/branches/rant/ext/game/ant_app.h
+===================================================================
+--- antargis/branches/rant/ext/game/ant_app.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/game/ant_app.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -36,7 +36,7 @@
+ extern std::ofstream out;
+ #endif
+ 
+-class GLApp:public AGApplication
++class AGEXPORT GLApp:public AGApplication
+ {
+   bool shadow;
+   float mx,my;
+@@ -62,8 +62,8 @@
+ 
+   bool eventFrame(float t);
+ 
+-  virtual void eventClick(const Scene::PickResult &amp;pNodes,int button);
+-  virtual void eventHover(const Scene::PickResult &amp;pNodes,int button);
++  virtual void eventClick(const PickResult &amp;pNodes,int button);
++  virtual void eventHover(const PickResult &amp;pNodes,int button);
+ 
+   virtual bool eventMouseButtonDown(AGEvent *m);
+   virtual bool eventMouseButtonUp(AGEvent *m);
+
+Modified: antargis/branches/rant/ext/game/entity.h
+===================================================================
+--- antargis/branches/rant/ext/game/entity.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/game/entity.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -39,7 +39,7 @@
+ 
+ #include &quot;resource.h&quot;
+ 
+-class AntEntity:public AGRubyObject
++class AGEXPORT AntEntity:public AGRubyObject
+   {
+   public:
+     typedef std::list&lt;SceneNode*&gt; Meshes;
+
+Modified: antargis/branches/rant/ext/game/entptr.h
+===================================================================
+--- antargis/branches/rant/ext/game/entptr.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/game/entptr.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -1,9 +1,10 @@
+ #ifndef ENTPTR_H
+ #define ENTPTR_H
+-
++
++#include &lt;ag_base.h&gt;
+ #include &quot;entity.h&quot;
+ 
+-class AntEntityPtr
++class AGEXPORT AntEntityPtr
+ {
+  public:
+   AntEntityPtr(const AntEntityPtr &amp;p);
+
+Modified: antargis/branches/rant/ext/game/headers.hh
+===================================================================
+--- antargis/branches/rant/ext/game/headers.hh	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/game/headers.hh	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -1,131 +1,97 @@
+-#ifndef __ANTARGIS_H__
+-#define __ANTARGIS_H__
+-#include &quot;ext/basic/ag_base.h&quot;
+-#include &quot;ext/basic/ag_collector.h&quot;
+-#include &quot;ext/basic/ag_config.h&quot;
+-#include &quot;ext/basic/ag_debug.h&quot;
+-#include &quot;ext/basic/ag_exception.h&quot;
+-#include &quot;ext/basic/ag_fs.h&quot;
+-#include &quot;ext/basic/ag_main.h&quot;
+-#include &quot;ext/basic/ag_profiler.h&quot;
+-#include &quot;ext/basic/ag_regex.h&quot;
+-#include &quot;ext/basic/ag_rubyobj.h&quot;
+-#include &quot;ext/basic/ag_rand_base.h&quot;
+-#include &quot;ext/basic/ag_string.h&quot;
+-#include &quot;ext/basic/ag_string_utf8.h&quot;
+-#include &quot;ext/basic/ag_stringstream.h&quot;
+-#include &quot;ext/basic/ag_tools.h&quot;
+-#include &quot;ext/basic/ag_utf8.h&quot;
+-#include &quot;ext/basic/ag_video_base.h&quot;
+-#include &quot;ext/basic/ag_xml.h&quot;
+-#include &quot;ext/basic/ag_plugin.h&quot;
+-#include &quot;ext/basic/ag_singleton.h&quot;
+-#include &quot;ext/basic/ag_kill.h&quot;
+-#include &quot;ext/basic/ag_serial.h&quot;
+-#include &quot;ext/basic/ag_messageobject.h&quot;
+-#include &quot;ext/basic/ag_mutex.h&quot;
+-#include &quot;ext/math/ag_gauss.h&quot;
+-#include &quot;ext/math/ag_geometry.h&quot;
+-#include &quot;ext/math/ag_rand.h&quot;
+-#include &quot;ext/math/ag_serial_vec.h&quot;
+-#include &quot;ext/math/ant_frustum.h&quot;
+-#include &quot;ext/math/ag_algebra.h&quot;
+-#include &quot;ext/video/ag_screen.h&quot;
+-#include &quot;ext/video/ag_video.h&quot;
+-#include &quot;ext/video/GLee.h&quot;
+-#include &quot;ext/video/ag_painttarget.h&quot;
+-#include &quot;ext/video/ag_color.h&quot;
+-#include &quot;ext/video/ag_fontengine.h&quot;
+-#include &quot;ext/video/ag_font.h&quot;
+-#include &quot;ext/video/ag_surfacemanager.h&quot;
+-#include &quot;ext/video/ag_gltexture.h&quot;
+-#include &quot;ext/video/ag_surface.h&quot;
+-#include &quot;ext/video/ag_texture.h&quot;
+-#include &quot;ext/video/ag_glscreen.h&quot;
+-#include &quot;ext/video/ag_sdlscreen.h&quot;
+-#include &quot;ext/video/ag_sgeexport.h&quot;
+-#include &quot;ext/video/ag_draw.h&quot;
+-#include &quot;ext/video/ag_png.h&quot;
+-#include &quot;ext/video/ag_sdlpainter.h&quot;
+-#include &quot;ext/video/ag_glpainter.h&quot;
+-#include &quot;ext/video/ag_fbo.h&quot;
+-#include &quot;ext/video/ag_vdebug.h&quot;
+-#include &quot;ext/video/ag_rendercontext.h&quot;
+-#include &quot;ext/video/ag_sdlsurface.h&quot;
+-#include &quot;ext/video/ag_texturecache.h&quot;
+-#include &quot;ext/video/ag_clip_painttarget.h&quot;
+-#include &quot;ext/video/ag_clip.h&quot;
+-#include &quot;ext/video/ag_projection.h&quot;
+-#include &quot;ext/video/ag_painter.h&quot;
+-#include &quot;ext/gui/ag_image.h&quot;
+-#include &quot;ext/gui/ag_listbox.h&quot;
+-#include &quot;ext/gui/ag_edit.h&quot;
+-#include &quot;ext/gui/ag_scroller.h&quot;
+-#include &quot;ext/gui/ag_local.h&quot;
+-#include &quot;ext/gui/ag_tooltip.h&quot;
+-#include &quot;ext/gui/ag_radio.h&quot;
+-#include &quot;ext/gui/ag_application.h&quot;
+-#include &quot;ext/gui/ag_colorbutton.h&quot;
+-#include &quot;ext/gui/ag_button.h&quot;
+-#include &quot;ext/gui/ag_radiogroup.h&quot;
+-#include &quot;ext/gui/ag_background.h&quot;
+-#include &quot;ext/gui/ag_menuitem.h&quot;
+-#include &quot;ext/gui/ag_screenwidget.h&quot;
+-#include &quot;ext/gui/ag_widget.h&quot;
+-#include &quot;ext/gui/ag_text.h&quot;
+-#include &quot;ext/gui/ag_checkbox.h&quot;
+-#include &quot;ext/gui/ag_table.h&quot;
+-#include &quot;ext/gui/ag_frame.h&quot;
+-#include &quot;ext/gui/ag_caption.h&quot;
+-#include &quot;ext/gui/ag_combo.h&quot;
+-#include &quot;ext/gui/ag_theme.h&quot;
+-#include &quot;ext/gui/ag_menu.h&quot;
+-#include &quot;ext/gui/ag_layoutfactory.h&quot;
+-#include &quot;ext/gui/ag_window.h&quot;
+-#include &quot;ext/gui/ag_layout.h&quot;
+-#include &quot;ext/gui/ag_border.h&quot;
+-#include &quot;ext/3dengine/scene_base.h&quot;
+-#include &quot;ext/3dengine/scene.h&quot;
+-#include &quot;ext/3dengine/scenenode.h&quot;
+-#include &quot;ext/3dengine/quadtree.h&quot;
+-#include &quot;ext/3dengine/ant_camera.h&quot;
+-#include &quot;ext/3dengine/mesh_sort.h&quot;
+-#include &quot;ext/3dengine/ant_renderer.h&quot;
+-#include &quot;ext/3dengine/mesh_data.h&quot;
+-#include &quot;ext/3dengine/mesh.h&quot;
+-#include &quot;ext/3dengine/vertex_array.h&quot;
+-#include &quot;ext/3dengine/glsl.h&quot;
+-#include &quot;ext/3dengine/mesh_optimizer.h&quot;
+-#include &quot;ext/3dengine/anim_mesh.h&quot;
+-#include &quot;ext/3dengine/anim_mesh_data.h&quot;
+-#include &quot;ext/3dengine/mesh_2d.h&quot;
+-#include &quot;ext/3dengine/scene_2d.h&quot;
+-#include &quot;ext/3dengine/mesh_2d_data.h&quot;
+-#include &quot;ext/3dengine/ant_projection.h&quot;
+-#include &quot;ext/3dengine/ag_glsl.h&quot;
+-#include &quot;ext/3dengine/ant_particle.h&quot;
+-#include &quot;/home/david/projects/antargis/rant/ext/game/path.h&quot;
+-#include &quot;/home/david/projects/antargis/rant/ext/game/terrain.h&quot;
+-#include &quot;/home/david/projects/antargis/rant/ext/game/entity.h&quot;
+-#include &quot;/home/david/projects/antargis/rant/ext/game/water.h&quot;
+-#include &quot;/home/david/projects/antargis/rant/ext/game/height_map.h&quot;
+-#include &quot;/home/david/projects/antargis/rant/ext/game/ant_app.h&quot;
+-#include &quot;/home/david/projects/antargis/rant/ext/game/minimap.h&quot;
+-#include &quot;/home/david/projects/antargis/rant/ext/game/map.h&quot;
+-#include &quot;/home/david/projects/antargis/rant/ext/game/heuristic.h&quot;
+-#include &quot;/home/david/projects/antargis/rant/ext/game/jobs.h&quot;
+-#include &quot;/home/david/projects/antargis/rant/ext/game/resource.h&quot;
+-#ifdef SWIG
+-%include &quot;/home/david/projects/antargis/rant/ext/game/path.h&quot;
+-%include &quot;/home/david/projects/antargis/rant/ext/game/terrain.h&quot;
+-%include &quot;/home/david/projects/antargis/rant/ext/game/entity.h&quot;
+-%include &quot;/home/david/projects/antargis/rant/ext/game/water.h&quot;
+-%include &quot;/home/david/projects/antargis/rant/ext/game/height_map.h&quot;
+-%include &quot;/home/david/projects/antargis/rant/ext/game/ant_app.h&quot;
+-%include &quot;/home/david/projects/antargis/rant/ext/game/minimap.h&quot;
+-%include &quot;/home/david/projects/antargis/rant/ext/game/map.h&quot;
+-%include &quot;/home/david/projects/antargis/rant/ext/game/heuristic.h&quot;
+-%include &quot;/home/david/projects/antargis/rant/ext/game/jobs.h&quot;
+-%include &quot;/home/david/projects/antargis/rant/ext/game/resource.h&quot;
+-#endif
+-#endif
++#ifndef __ANTARGIS_H__
++#define __ANTARGIS_H__
++#include &quot;ext/basic/ag_config.h&quot;
++#include &quot;ext/basic/ag_fs.h&quot;
++#include &quot;ext/basic/ag_geometry.h&quot;
++#include &quot;ext/basic/ag_main.h&quot;
++#include &quot;ext/basic/ag_messageobject.h&quot;
++#include &quot;ext/basic/ag_rand_base.h&quot;
++#include &quot;ext/basic/ag_rubyobj.h&quot;
++#include &quot;ext/basic/ag_serial.h&quot;
++#include &quot;ext/basic/ag_singleton.h&quot;
++#include &quot;ext/basic/ag_stringstream.h&quot;
++#include &quot;ext/basic/ag_string_utf8.h&quot;
++#include &quot;ext/basic/ag_utf8.h&quot;
++#include &quot;ext/basic/ag_video_base.h&quot;
++#include &quot;ext/basic/ag_xml.h&quot;
++#include &quot;ext/math/ag_algebra.h&quot;
++#include &quot;ext/math/ag_geometry.h&quot;
++#include &quot;ext/math/ag_rand.h&quot;
++#include &quot;ext/math/ant_frustum.h&quot;
++#include &quot;ext/video/ag_clip.h&quot;
++#include &quot;ext/video/ag_color.h&quot;
++#include &quot;ext/video/ag_font.h&quot;
++#include &quot;ext/video/ag_fontengine.h&quot;
++#include &quot;ext/video/ag_painter.h&quot;
++#include &quot;ext/video/ag_painttarget.h&quot;
++#include &quot;ext/video/ag_rendercontext.h&quot;
++#include &quot;ext/video/ag_screen.h&quot;
++#include &quot;ext/video/ag_surface.h&quot;
++#include &quot;ext/video/ag_texture.h&quot;
++#include &quot;ext/video/ag_texturecache.h&quot;
++#include &quot;ext/video/ag_video.h&quot;
++#include &quot;ext/gui/ag_application.h&quot;
++#include &quot;ext/gui/ag_background.h&quot;
++#include &quot;ext/gui/ag_border.h&quot;
++#include &quot;ext/gui/ag_button.h&quot;
++#include &quot;ext/gui/ag_caption.h&quot;
++#include &quot;ext/gui/ag_checkbox.h&quot;
++#include &quot;ext/gui/ag_colorbutton.h&quot;
++#include &quot;ext/gui/ag_combo.h&quot;
++#include &quot;ext/gui/ag_edit.h&quot;
++#include &quot;ext/gui/ag_frame.h&quot;
++#include &quot;ext/gui/ag_image.h&quot;
++#include &quot;ext/gui/ag_layout.h&quot;
++#include &quot;ext/gui/ag_layoutfactory.h&quot;
++#include &quot;ext/gui/ag_listbox.h&quot;
++#include &quot;ext/gui/ag_local.h&quot;
++#include &quot;ext/gui/ag_menu.h&quot;
++#include &quot;ext/gui/ag_menuitem.h&quot;
++#include &quot;ext/gui/ag_radio.h&quot;
++#include &quot;ext/gui/ag_radiogroup.h&quot;
++#include &quot;ext/gui/ag_screenwidget.h&quot;
++#include &quot;ext/gui/ag_scroller.h&quot;
++#include &quot;ext/gui/ag_table.h&quot;
++#include &quot;ext/gui/ag_text.h&quot;
++#include &quot;ext/gui/ag_theme.h&quot;
++#include &quot;ext/gui/ag_tooltip.h&quot;
++#include &quot;ext/gui/ag_widget.h&quot;
++#include &quot;ext/gui/ag_window.h&quot;
++#include &quot;ext/3dengine/anim_mesh.h&quot;
++#include &quot;ext/3dengine/anim_mesh_data.h&quot;
++#include &quot;ext/3dengine/ant_camera.h&quot;
++#include &quot;ext/3dengine/ant_particle.h&quot;
++#include &quot;ext/3dengine/ant_projection.h&quot;
++#include &quot;ext/3dengine/mesh.h&quot;
++#include &quot;ext/3dengine/mesh_2d.h&quot;
++#include &quot;ext/3dengine/mesh_2d_data.h&quot;
++#include &quot;ext/3dengine/mesh_data.h&quot;
++#include &quot;ext/3dengine/mesh_optimizer.h&quot;
++#include &quot;ext/3dengine/scene.h&quot;
++#include &quot;ext/3dengine/scenenode.h&quot;
++#include &quot;ext/3dengine/scene_base.h&quot;
++#include &quot;ext/game/path.h&quot;
++#include &quot;ext/game/terrain.h&quot;
++#include &quot;ext/game/entity.h&quot;
++#include &quot;ext/game/water.h&quot;
++#include &quot;ext/game/height_map.h&quot;
++#include &quot;ext/game/ant_app.h&quot;
++#include &quot;ext/game/minimap.h&quot;
++#include &quot;ext/game/map.h&quot;
++#include &quot;ext/game/heuristic.h&quot;
++#include &quot;ext/game/jobs.h&quot;
++#include &quot;ext/game/resource.h&quot;
++#ifdef SWIG
++%include &quot;ext/game/path.h&quot;
++%include &quot;ext/game/terrain.h&quot;
++%include &quot;ext/game/entity.h&quot;
++%include &quot;ext/game/water.h&quot;
++%include &quot;ext/game/height_map.h&quot;
++%include &quot;ext/game/ant_app.h&quot;
++%include &quot;ext/game/minimap.h&quot;
++%include &quot;ext/game/map.h&quot;
++%include &quot;ext/game/heuristic.h&quot;
++%include &quot;ext/game/jobs.h&quot;
++%include &quot;ext/game/resource.h&quot;
++#endif
++#endif
+
+Modified: antargis/branches/rant/ext/game/height_map.h
+===================================================================
+--- antargis/branches/rant/ext/game/height_map.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/game/height_map.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -20,7 +20,7 @@
+ 
+ #define FIRSTTERRAIN WATER
+ 
+-class HeightMap:public AGMessageObject
++class AGEXPORT HeightMap:public AGMessageObject
+ {
+  public:
+   HeightMap(SceneBase *pScene,int w,int h);
+
+Modified: antargis/branches/rant/ext/game/heuristic.h
+===================================================================
+--- antargis/branches/rant/ext/game/heuristic.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/game/heuristic.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -5,7 +5,7 @@
+ 
+ #include &lt;ag_geometry.h&gt;
+ 
+-class HeuristicFunction
++class AGEXPORT HeuristicFunction
+ {
+  public:
+   typedef std::pair&lt;AGVector2,AGVector2&gt; Input;
+@@ -18,7 +18,7 @@
+   virtual Output operator()(const Input &amp;input);
+ };
+ 
+-class StoredHeuristicFunction:public HeuristicFunction
++class AGEXPORT StoredHeuristicFunction:public HeuristicFunction
+ {
+   // FIXME: maybe store measure-count, too - and average!!!
+ 
+
+Modified: antargis/branches/rant/ext/game/init.cc
+===================================================================
+--- antargis/branches/rant/ext/game/init.cc	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/game/init.cc	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -2,7 +2,7 @@
+ 
+ #include &lt;minimap.h&gt;
+ 
+-void AG_Init_libantargisgame()
++AGEXPORT void AG_Init_libantargisgame()
+ {
+ 	TRACE;
+ 
+
+Modified: antargis/branches/rant/ext/game/jobs.h
+===================================================================
+--- antargis/branches/rant/ext/game/jobs.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/game/jobs.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -30,7 +30,7 @@
+    Job class won't be exported to Ruby, because their constant
+    creation and deletion fills up the GC otherwise.
+ */
+-class Job
++class AGEXPORT Job
+ {
+   int priority;
+   bool inited;
+@@ -53,7 +53,7 @@
+   bool valid() const;
+ };
+ 
+-class RestJob:public Job
++class AGEXPORT RestJob:public Job
+ {
+   float mTime;
+  public:
+@@ -68,7 +68,7 @@
+ 
+ };
+ 
+-class MoveJob:public Job
++class AGEXPORT MoveJob:public Job
+ {
+   AGVector2 mTarget;
+   AGVector3 mTarget3;
+@@ -100,7 +100,7 @@
+ };
+ 
+ // FIXME: implement near and far fighting (arrows)
+-class FightJob:public Job
++class AGEXPORT FightJob:public Job
+ {
+   AntEntity *mTarget;
+   float fightDistance;
+@@ -124,8 +124,9 @@
+   virtual AGString xmlName() const;
+   
+ };
+-
+-class FetchJob:public MoveJob
++
++// FIXME: check if this can be discarded ???
++class AGEXPORT FetchJob:public MoveJob
+ {
+   AGString mWhat;
+   AntEntity *mTarget;
+
+Modified: antargis/branches/rant/ext/game/map.h
+===================================================================
+--- antargis/branches/rant/ext/game/map.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/game/map.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -41,7 +41,7 @@
+ class AnimMesh;
+ class Mesh2D;
+ 
+-class AntMap:public HeightMap
++class AGEXPORT AntMap:public HeightMap
+ {
+  public:
+   typedef std::list&lt;AntEntity*&gt; EntityList;
+@@ -116,7 +116,7 @@
+ 
+ };
+ 
+-AntMap *getMap();
++AGEXPORT AntMap *getMap();
+ 
+ 
+ #endif
+
+Modified: antargis/branches/rant/ext/game/minimap.h
+===================================================================
+--- antargis/branches/rant/ext/game/minimap.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/game/minimap.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -22,7 +22,7 @@
+    because typically this object is created within an xml-layout-file
+ 
+  */
+-class MiniMap:public AGWidget
++class AGEXPORT MiniMap:public AGWidget
+ {
+  public:
+   MiniMap(AGWidget *p,const AGRect2 &amp;r,AntMap *pMap);
+@@ -59,8 +59,8 @@
+   AGSurface mSurface;
+ };
+ 
+-MiniMap *toMiniMap(AGWidget *w);
++//MiniMap *toMiniMap(AGWidget *w);
+ 
+-void registerMinimapCreator();
++AGEXPORT void registerMinimapCreator();
+ 
+ #endif
+
+Modified: antargis/branches/rant/ext/game/path.h
+===================================================================
+--- antargis/branches/rant/ext/game/path.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/game/path.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -24,14 +24,14 @@
+ 
+ class Heuristic;
+ 
+-class PathWeighter:public AGRubyObject
++class AGEXPORT PathWeighter:public AGRubyObject
+ {
+  public:
+   virtual ~PathWeighter();
+   virtual float weight(float h0,float h1);
+ };
+ 
+-class MapPathWeighter:public PathWeighter
++class AGEXPORT MapPathWeighter:public PathWeighter
+ {
+  public:
+   MapPathWeighter(HeightMap *pMap);
+@@ -46,7 +46,7 @@
+ };
+ 
+ 
+-struct AGVector2Sort
++struct AGEXPORT AGVector2Sort
+ {
+   public:
+   bool operator()(const AGVector2 &amp;a,const AGVector2 &amp;b)
+@@ -56,7 +56,7 @@
+ };
+ 
+ 
+-class SimpleGraph:public AGRubyObject
++class AGEXPORT SimpleGraph:public AGRubyObject
+ {
+  public:
+   struct Node;
+@@ -181,11 +181,11 @@
+ 
+ };
+ 
+-SimpleGraph *makeGraph(HeightMap *pMap, MapPathWeighter *pWeighter,size_t res=1);
+-HeuristicFunction *computeHeuristic(SimpleGraph *g);
++AGEXPORT SimpleGraph *makeGraph(HeightMap *pMap, MapPathWeighter *pWeighter,size_t res=1);
++AGEXPORT HeuristicFunction *computeHeuristic(SimpleGraph *g);
+ 
+ 
+-class DecimatedGraph:public SimpleGraph
++class AGEXPORT DecimatedGraph:public SimpleGraph
+ {
+  public:
+   DecimatedGraph();
+@@ -202,7 +202,7 @@
+ 
+ struct Path;
+ 
+-class Heuristic
++class AGEXPORT Heuristic
+ {
+   AGVector2 to;
+   HeuristicFunction *p;
+@@ -214,7 +214,7 @@
+   float distance(const AGVector2&amp;from);
+ };
+ 
+-struct Path:public std::list&lt;SimpleGraph::Node*&gt;
++struct AGEXPORT Path:public std::list&lt;SimpleGraph::Node*&gt;
+ {
+   float weight;
+   
+@@ -229,7 +229,7 @@
+ };
+ 
+ 
+-class PathDebugging
++class AGEXPORT PathDebugging
+ {
+  public:
+   virtual ~PathDebugging()
+@@ -241,7 +241,7 @@
+ };
+   
+ 
+-class Pathfinder:public AGRubyObject
++class AGEXPORT Pathfinder:public AGRubyObject
+ {
+  public:
+ 
+
+Modified: antargis/branches/rant/ext/game/resource.h
+===================================================================
+--- antargis/branches/rant/ext/game/resource.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/game/resource.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -17,7 +17,7 @@
+ FIXME: maybe remove Resource from c++??
+ 
+ */
+-class Resource
++class AGEXPORT Resource
+ {
+   std::map&lt;std::string,float&gt; r;
+  public:
+
+Modified: antargis/branches/rant/ext/game/terrain.h
+===================================================================
+--- antargis/branches/rant/ext/game/terrain.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/game/terrain.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -26,7 +26,7 @@
+    (Terrain and water is tiled for the ease of culling)
+    for more information on drawing-modes and such go to SceneNode.
+  */
+-class TerrainPiece:public SceneNode
++class AGEXPORT TerrainPiece:public SceneNode
+ {
+  public:
+   TerrainPiece(SceneBase *pScene,Terrain *t,HeightMap &amp;map,int x,int y,int w,int h,const AGVector4 &amp;pPos,int scale);
+@@ -58,7 +58,7 @@
+ };
+ 
+ 
+-class TerrainBase:public AGRubyObject
++class AGEXPORT TerrainBase:public AGRubyObject
+ {
+  public:
+   TerrainBase(SceneBase *pScene,HeightMap &amp;map);
+@@ -90,7 +90,7 @@
+    that in case the terrain changes these will be changed,too.
+ 
+ */
+-class Terrain:public TerrainBase
++class AGEXPORT Terrain:public TerrainBase
+ {
+   // Some containers for all the meshes
+   typedef std::list&lt;TerrainPiece*&gt; Pieces;
+@@ -126,7 +126,7 @@
+   void init();
+ };
+ 
+-void setUsing3dTextures(bool use3dTextures);
++AGEXPORT void setUsing3dTextures(bool use3dTextures);
+ 
+ 
+ #endif
+
+Modified: antargis/branches/rant/ext/game/water.h
+===================================================================
+--- antargis/branches/rant/ext/game/water.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/game/water.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -21,7 +21,7 @@
+    for animation.
+    In future some fragment shader using fresnel effects would be nice :-)
+ */
+-class WaterPiece:public SceneNode
++class AGEXPORT WaterPiece:public SceneNode
+ {
+   AGTexture tex;
+  public:
+
+Modified: antargis/branches/rant/ext/gui/ag_background.h
+===================================================================
+--- antargis/branches/rant/ext/gui/ag_background.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/gui/ag_background.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -34,7 +34,7 @@
+     It is used to draw gradients and tiled backgrounds of widgets.
+     It is themable.
+  */
+-class AGBackground
++class AGEXPORT AGBackground
+ {
+  public:
+   AGBackground(const AGString &amp;pThemeName=&quot;&quot;);
+
+Modified: antargis/branches/rant/ext/gui/ag_border.h
+===================================================================
+--- antargis/branches/rant/ext/gui/ag_border.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/gui/ag_border.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -30,7 +30,7 @@
+ class AGPainter;
+ 
+ 
+-class AGBorder
++class AGEXPORT AGBorder
+ {
+  public:
+   AGBorder(const AGString &amp;pTheme=&quot;&quot;);
+
+Modified: antargis/branches/rant/ext/gui/ag_button.h
+===================================================================
+--- antargis/branches/rant/ext/gui/ag_button.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/gui/ag_button.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -42,7 +42,7 @@
+    Further it can have following states:
+ */
+ 
+-class AGButton:public AGWidget
++class AGEXPORT AGButton:public AGWidget
+ {
+  public:
+   /// the different drawing states
+@@ -113,6 +113,6 @@
+   bool mEnabled;
+ };
+ 
+-AGButton &amp;toAGButton(AGWidget &amp;pWidget);
++AGEXPORT AGButton &amp;toAGButton(AGWidget &amp;pWidget);
+ 
+ #endif
+
+Modified: antargis/branches/rant/ext/gui/ag_caption.h
+===================================================================
+--- antargis/branches/rant/ext/gui/ag_caption.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/gui/ag_caption.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -26,7 +26,7 @@
+ #include &quot;ag_text.h&quot;
+ #include &quot;ag_background.h&quot;
+ 
+-class AGCaption:public AGText
++class AGEXPORT AGCaption:public AGText
+ {
+  public:
+   AGCaption(AGWidget *pParent,const AGRect2 &amp;pRect,const AGStringUtf8 &amp;pText,const AGFont &amp;pFont,const AGBackground &amp;pBG);
+
+Modified: antargis/branches/rant/ext/gui/ag_checkbox.h
+===================================================================
+--- antargis/branches/rant/ext/gui/ag_checkbox.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/gui/ag_checkbox.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -28,7 +28,7 @@
+ 
+ class AGImage;
+ 
+-class AGCheckBox:public AGButton
++class AGEXPORT AGCheckBox:public AGButton
+ {
+  public:
+   AGCheckBox(AGWidget *pParent,AGRect2 pRect);
+
+Modified: antargis/branches/rant/ext/gui/ag_colorbutton.h
+===================================================================
+--- antargis/branches/rant/ext/gui/ag_colorbutton.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/gui/ag_colorbutton.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -27,7 +27,7 @@
+ #include &quot;ag_color.h&quot;
+ #include &lt;vector&gt;
+ 
+-class AGColorButton:public AGWidget
++class AGEXPORT AGColorButton:public AGWidget
+ {
+  public:
+   AGColorButton(AGWidget *pParent,const AGRect2 &amp;r,int x,int y);
+@@ -47,6 +47,6 @@
+   AGColor mColor;
+ };
+ 
+-AGColorButton &amp;toAGColorButton(AGWidget &amp;pWidget);
++AGEXPORT AGColorButton &amp;toAGColorButton(AGWidget &amp;pWidget);
+ 
+ #endif
+
+Modified: antargis/branches/rant/ext/gui/ag_combo.h
+===================================================================
+--- antargis/branches/rant/ext/gui/ag_combo.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/gui/ag_combo.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -29,7 +29,7 @@
+ class AGButton;
+ class AGListBox;
+ 
+-class AGComboBox:public AGWidget
++class AGEXPORT AGComboBox:public AGWidget
+ {
+  public:
+   AGComboBox(AGWidget *pParent,const AGRect2 &amp;pRect);
+
+Modified: antargis/branches/rant/ext/gui/ag_edit.h
+===================================================================
+--- antargis/branches/rant/ext/gui/ag_edit.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/gui/ag_edit.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -33,7 +33,7 @@
+ enum AGAlign {EDIT_LEFT,EDIT_RIGHT,EDIT_JUSTIFY,EDIT_CENTER};
+ enum AGVAlign {EDIT_TOP,EDIT_BOTTOM,EDIT_VCENTER};
+ 
+-class AGEditLine
++class AGEXPORT AGEditLine
+ {
+  public:
+   AGEditLine(const AGStringUtf8 &amp;pText,AGFont pFont,bool pHardEnd);
+@@ -76,7 +76,7 @@
+   AGVAlign mVAlign;
+ };
+ 
+-class AGEdit:public AGWidget
++class AGEXPORT AGEdit:public AGWidget
+ {
+  public:
+   AGEdit(AGWidget *pParent,const AGRect2 &amp;pRect);
+@@ -163,6 +163,6 @@
+   int mMaxLength;
+ };
+ 
+-AGEdit &amp;toAGEdit(AGWidget &amp;w);
++//AGEdit &amp;toAGEdit(AGWidget &amp;w);
+ 
+ #endif
+
+Modified: antargis/branches/rant/ext/gui/ag_frame.h
+===================================================================
+--- antargis/branches/rant/ext/gui/ag_frame.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/gui/ag_frame.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -7,7 +7,7 @@
+ 
+ // INCLUDE_SWIG - used to filter, which files are included in swig-interfacing
+ 
+-class AGFrame:public AGWidget
++class AGEXPORT AGFrame:public AGWidget
+ {
+  public:
+   AGFrame(AGWidget *pParent,const AGRect2 &amp;pRect,size_t width); // transparent frame
+
+Modified: antargis/branches/rant/ext/gui/ag_image.h
+===================================================================
+--- antargis/branches/rant/ext/gui/ag_image.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/gui/ag_image.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -26,7 +26,7 @@
+ #include &quot;ag_widget.h&quot;
+ #include &quot;ag_texture.h&quot;
+ 
+-class AGImage:public AGWidget
++class AGEXPORT AGImage:public AGWidget
+ {
+  public:
+   AGImage(AGWidget *pParent,const AGRect2 &amp;r,AGSurface pSurface,bool pTile);
+
+Modified: antargis/branches/rant/ext/gui/ag_layout.h
+===================================================================
+--- antargis/branches/rant/ext/gui/ag_layout.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/gui/ag_layout.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -28,7 +28,7 @@
+ 
+ class AGTable;
+ 
+-class AGLayout:public AGWidget
++class AGEXPORT AGLayout:public AGWidget
+ {
+  public:
+   AGLayout(AGWidget *pgParent);
+@@ -46,9 +46,9 @@
+   std::map&lt;int,AGWidget*&gt; mTabIndices;
+ };
+ 
+-AGWidget *parseNode(AGWidget *pParent,const Node &amp;pNode);
+-void parseChildren(AGWidget *pParent,const Node &amp;pNode);
++AGEXPORT AGWidget *parseNode(AGWidget *pParent,const Node &amp;pNode);
++AGEXPORT void parseChildren(AGWidget *pParent,const Node &amp;pNode);
+ //AGTable *parseTable(AGWidget *pParent,const Node &amp;pNode,const AGRect2 &amp;geom);
+-AGRect2 getLayoutGeometry(AGWidget *pParent,const Node &amp;pNode);
++AGEXPORT AGRect2 getLayoutGeometry(AGWidget *pParent,const Node &amp;pNode);
+ 
+ #endif
+
+Modified: antargis/branches/rant/ext/gui/ag_listbox.h
+===================================================================
+--- antargis/branches/rant/ext/gui/ag_listbox.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/gui/ag_listbox.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -31,7 +31,7 @@
+ class AGEdit;
+ class AGScroller;
+ 
+-struct AGListBoxItem
++struct AGEXPORT AGListBoxItem
+ {
+   AGListBoxItem(AGString pID,AGStringUtf8 pValue);
+   AGString id;
+@@ -40,7 +40,7 @@
+ 
+ 
+ // Single selection for a start
+-class AGListBox:public AGWidget
++class AGEXPORT AGListBox:public AGWidget
+ {
+  public:
+   AGListBox(AGWidget *pParent,const AGRect2 &amp;pRect);
+@@ -83,6 +83,6 @@
+ };
+ 
+ 
+-AGListBox &amp;toAGListBox(AGWidget &amp;w);
++//AGListBox &amp;toAGListBox(AGWidget &amp;w);
+ 
+ #endif
+
+Modified: antargis/branches/rant/ext/gui/ag_local.h
+===================================================================
+--- antargis/branches/rant/ext/gui/ag_local.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/gui/ag_local.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -26,7 +26,7 @@
+ #include &lt;ag_string.h&gt;
+ #include &lt;ag_string_utf8.h&gt;
+ 
+-class AGLocalizer
++class AGEXPORT AGLocalizer
+ {
+  public:
+   virtual ~AGLocalizer();
+@@ -35,10 +35,10 @@
+   
+ };
+ 
+-void setLocalizer(AGLocalizer *p);
+-AGLocalizer *getLocalizer();
++AGEXPORT void setLocalizer(AGLocalizer *p);
++AGEXPORT AGLocalizer *getLocalizer();
+ 
+-AGStringUtf8 translate(const AGString &amp;s);
++AGEXPORT AGStringUtf8 translate(const AGString &amp;s);
+ 
+ #ifndef SWIG
+ #ifdef _
+
+Modified: antargis/branches/rant/ext/gui/ag_menu.h
+===================================================================
+--- antargis/branches/rant/ext/gui/ag_menu.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/gui/ag_menu.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -26,7 +26,7 @@
+ #include &quot;ag_table.h&quot;
+ #include &quot;ag_texture.h&quot;
+ 
+-class AGMenu:public AGTable
++class AGEXPORT AGMenu:public AGTable
+ {
+  public:
+   AGMenu(AGWidget *pParent,AGVector2 pWishPos,const AGStringUtf8 &amp;pName);
+
+Modified: antargis/branches/rant/ext/gui/ag_radio.h
+===================================================================
+--- antargis/branches/rant/ext/gui/ag_radio.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/gui/ag_radio.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -27,7 +27,7 @@
+ 
+ class AGRadioGroup;
+ 
+-class AGRadio:public AGCheckBox
++class AGEXPORT AGRadio:public AGCheckBox
+ {
+  public:
+   AGRadio(AGWidget *pParent,AGRect2 pRect);
+
+Modified: antargis/branches/rant/ext/gui/ag_radiogroup.h
+===================================================================
+--- antargis/branches/rant/ext/gui/ag_radiogroup.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/gui/ag_radiogroup.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -28,7 +28,7 @@
+ class AGRadio;
+ 
+ // derive from AGWidget, so that it can be put into the hierarchy
+-class AGRadioGroup:public AGWidget
++class AGEXPORT AGRadioGroup:public AGWidget
+ {
+  public:
+   AGRadioGroup(AGWidget *pParent,const AGRect2 &amp;pr);
+
+Modified: antargis/branches/rant/ext/gui/ag_screenwidget.h
+===================================================================
+--- antargis/branches/rant/ext/gui/ag_screenwidget.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/gui/ag_screenwidget.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -26,7 +26,7 @@
+ #include &quot;ag_widget.h&quot;
+ #include &quot;ag_texture.h&quot;
+ 
+-class AGScreenWidget:public AGWidget
++class AGEXPORT AGScreenWidget:public AGWidget
+ {
+  public:
+   AGScreenWidget();
+
+Modified: antargis/branches/rant/ext/gui/ag_scroller.h
+===================================================================
+--- antargis/branches/rant/ext/gui/ag_scroller.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/gui/ag_scroller.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -29,7 +29,7 @@
+ class AGBorder;
+ class AGBackground;
+ 
+-class AGScroller:public AGWidget
++class AGEXPORT AGScroller:public AGWidget
+ {
+  public:
+   AGScroller(AGWidget *pParent,const AGRect2 &amp;pRect,bool pHor);
+
+Modified: antargis/branches/rant/ext/gui/ag_table.h
+===================================================================
+--- antargis/branches/rant/ext/gui/ag_table.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/gui/ag_table.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -37,7 +37,7 @@
+    @todo children should be re-arranged whenever AGTable::arrange() is called!
+ */
+ 
+-class AGTable:public AGWidget
++class AGEXPORT AGTable:public AGWidget
+ {
+  public:
+   AGTable(AGWidget *pWidget,const AGRect2 &amp;pRect);
+
+Modified: antargis/branches/rant/ext/gui/ag_text.h
+===================================================================
+--- antargis/branches/rant/ext/gui/ag_text.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/gui/ag_text.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -26,7 +26,7 @@
+ #include &quot;ag_widget.h&quot;
+ #include &quot;ag_font.h&quot;
+ 
+-class AGText:public AGWidget
++class AGEXPORT AGText:public AGWidget
+ {
+  public:
+   AGText(AGWidget *pParent,const AGRect2 &amp;pRect,const AGStringUtf8 &amp;pText,const AGFont &amp;pFont);
+@@ -48,6 +48,6 @@
+   bool mFixedSize;
+ };
+ 
+-AGText &amp;toAGText(AGWidget &amp;w);
++//AGText &amp;toAGText(AGWidget &amp;w);
+ 
+ #endif
+
+Modified: antargis/branches/rant/ext/gui/ag_theme.h
+===================================================================
+--- antargis/branches/rant/ext/gui/ag_theme.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/gui/ag_theme.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -28,7 +28,7 @@
+ 
+ #include &lt;map&gt;
+ 
+-class AGTheme
++class AGEXPORT AGTheme
+ {
+  public:
+   AGTheme();
+@@ -64,11 +64,11 @@
+   std::map&lt;AGString,int&gt; mInts;
+ };
+ 
+-AGTheme *getTheme();
+-void setTheme(const AGTheme &amp;aTheme);
+-void loadTheme(const AGData &amp;pXML);
+-bool loadThemeFile(const AGFilename &amp;pFilename);
++AGEXPORT AGTheme *getTheme();
++AGEXPORT void setTheme(const AGTheme &amp;aTheme);
++AGEXPORT void loadTheme(const AGData &amp;pXML);
++AGEXPORT bool loadThemeFile(const AGFilename &amp;pFilename);
+ 
+-AGString addPoint(const AGString &amp;pTheme);
++AGEXPORT AGString addPoint(const AGString &amp;pTheme);
+ 
+ #endif
+
+Modified: antargis/branches/rant/ext/gui/ag_tooltip.h
+===================================================================
+--- antargis/branches/rant/ext/gui/ag_tooltip.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/gui/ag_tooltip.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -25,7 +25,7 @@
+ 
+ #include &lt;ag_widget.h&gt;
+ 
+-class AGTooltip:public AGWidget
++class AGEXPORT AGTooltip:public AGWidget
+ {
+  public:
+   AGTooltip(const AGRect2 &amp;pRect,const AGStringUtf8 &amp;pText);
+
+Modified: antargis/branches/rant/ext/gui/ag_widget.h
+===================================================================
+--- antargis/branches/rant/ext/gui/ag_widget.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/gui/ag_widget.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -256,8 +256,8 @@
+ 
+ //AGWidget *toAGWidget(AGMessageObject *o);
+ 
+-void setNewClippingTechnique(bool f);
+-bool getNewClippingTechnique();
++AGEXPORT void setNewClippingTechnique(bool f);
++AGEXPORT bool getNewClippingTechnique();
+ 
+ 
+ #endif
+
+Modified: antargis/branches/rant/ext/gui/ag_window.h
+===================================================================
+--- antargis/branches/rant/ext/gui/ag_window.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/gui/ag_window.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -25,7 +25,7 @@
+ 
+ #include &quot;ag_table.h&quot;
+ 
+-class AGWindow:public AGTable
++class AGEXPORT AGWindow:public AGTable
+ {
+  public:
+   AGWindow(AGWidget *pWidget,const AGRect2 &amp;pRect,const AGStringUtf8 &amp;pTitle=&quot;&quot;,const AGString &amp;pTheme=&quot;&quot;);
+@@ -54,6 +54,6 @@
+   AGWidget *mClient;
+ };
+ 
+-AGWindow &amp;toAGWindow(AGWidget &amp;w);
++//AGWindow &amp;toAGWindow(AGWidget &amp;w);
+ 
+ #endif
+
+Modified: antargis/branches/rant/ext/gui/headers.hh
+===================================================================
+--- antargis/branches/rant/ext/gui/headers.hh	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/gui/headers.hh	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -30,60 +30,60 @@
+ #include &quot;ext/video/ag_texture.h&quot;
+ #include &quot;ext/video/ag_texturecache.h&quot;
+ #include &quot;ext/video/ag_video.h&quot;
+-#include &quot;c:/antargis/rant/ext/gui/ag_application.h&quot;
+-#include &quot;c:/antargis/rant/ext/gui/ag_background.h&quot;
+-#include &quot;c:/antargis/rant/ext/gui/ag_border.h&quot;
+-#include &quot;c:/antargis/rant/ext/gui/ag_button.h&quot;
+-#include &quot;c:/antargis/rant/ext/gui/ag_caption.h&quot;
+-#include &quot;c:/antargis/rant/ext/gui/ag_checkbox.h&quot;
+-#include &quot;c:/antargis/rant/ext/gui/ag_colorbutton.h&quot;
+-#include &quot;c:/antargis/rant/ext/gui/ag_combo.h&quot;
+-#include &quot;c:/antargis/rant/ext/gui/ag_edit.h&quot;
+-#include &quot;c:/antargis/rant/ext/gui/ag_frame.h&quot;
+-#include &quot;c:/antargis/rant/ext/gui/ag_image.h&quot;
+-#include &quot;c:/antargis/rant/ext/gui/ag_layout.h&quot;
+-#include &quot;c:/antargis/rant/ext/gui/ag_layoutfactory.h&quot;
+-#include &quot;c:/antargis/rant/ext/gui/ag_listbox.h&quot;
+-#include &quot;c:/antargis/rant/ext/gui/ag_local.h&quot;
+-#include &quot;c:/antargis/rant/ext/gui/ag_menu.h&quot;
+-#include &quot;c:/antargis/rant/ext/gui/ag_menuitem.h&quot;
+-#include &quot;c:/antargis/rant/ext/gui/ag_radio.h&quot;
+-#include &quot;c:/antargis/rant/ext/gui/ag_radiogroup.h&quot;
+-#include &quot;c:/antargis/rant/ext/gui/ag_screenwidget.h&quot;
+-#include &quot;c:/antargis/rant/ext/gui/ag_scroller.h&quot;
+-#include &quot;c:/antargis/rant/ext/gui/ag_table.h&quot;
+-#include &quot;c:/antargis/rant/ext/gui/ag_text.h&quot;
+-#include &quot;c:/antargis/rant/ext/gui/ag_theme.h&quot;
+-#include &quot;c:/antargis/rant/ext/gui/ag_tooltip.h&quot;
+-#include &quot;c:/antargis/rant/ext/gui/ag_widget.h&quot;
+-#include &quot;c:/antargis/rant/ext/gui/ag_window.h&quot;
++#include &quot;ext/gui/ag_layoutfactory.h&quot;
++#include &quot;ext/gui/ag_widget.h&quot;
++#include &quot;ext/gui/ag_application.h&quot;
++#include &quot;ext/gui/ag_table.h&quot;
++#include &quot;ext/gui/ag_layout.h&quot;
++#include &quot;ext/gui/ag_colorbutton.h&quot;
++#include &quot;ext/gui/ag_image.h&quot;
++#include &quot;ext/gui/ag_screenwidget.h&quot;
++#include &quot;ext/gui/ag_listbox.h&quot;
++#include &quot;ext/gui/ag_frame.h&quot;
++#include &quot;ext/gui/ag_text.h&quot;
++#include &quot;ext/gui/ag_button.h&quot;
++#include &quot;ext/gui/ag_edit.h&quot;
++#include &quot;ext/gui/ag_radiogroup.h&quot;
++#include &quot;ext/gui/ag_scroller.h&quot;
++#include &quot;ext/gui/ag_tooltip.h&quot;
++#include &quot;ext/gui/ag_combo.h&quot;
++#include &quot;ext/gui/ag_menu.h&quot;
++#include &quot;ext/gui/ag_caption.h&quot;
++#include &quot;ext/gui/ag_window.h&quot;
++#include &quot;ext/gui/ag_checkbox.h&quot;
++#include &quot;ext/gui/ag_menuitem.h&quot;
++#include &quot;ext/gui/ag_radio.h&quot;
++#include &quot;ext/gui/ag_theme.h&quot;
++#include &quot;ext/gui/ag_border.h&quot;
++#include &quot;ext/gui/ag_background.h&quot;
++#include &quot;ext/gui/ag_local.h&quot;
+ #ifdef SWIG
+-%include &quot;c:/antargis/rant/ext/gui/ag_application.h&quot;
+-%include &quot;c:/antargis/rant/ext/gui/ag_background.h&quot;
+-%include &quot;c:/antargis/rant/ext/gui/ag_border.h&quot;
+-%include &quot;c:/antargis/rant/ext/gui/ag_button.h&quot;
+-%include &quot;c:/antargis/rant/ext/gui/ag_caption.h&quot;
+-%include &quot;c:/antargis/rant/ext/gui/ag_checkbox.h&quot;
+-%include &quot;c:/antargis/rant/ext/gui/ag_colorbutton.h&quot;
+-%include &quot;c:/antargis/rant/ext/gui/ag_combo.h&quot;
+-%include &quot;c:/antargis/rant/ext/gui/ag_edit.h&quot;
+-%include &quot;c:/antargis/rant/ext/gui/ag_frame.h&quot;
+-%include &quot;c:/antargis/rant/ext/gui/ag_image.h&quot;
+-%include &quot;c:/antargis/rant/ext/gui/ag_layout.h&quot;
+-%include &quot;c:/antargis/rant/ext/gui/ag_layoutfactory.h&quot;
+-%include &quot;c:/antargis/rant/ext/gui/ag_listbox.h&quot;
+-%include &quot;c:/antargis/rant/ext/gui/ag_local.h&quot;
+-%include &quot;c:/antargis/rant/ext/gui/ag_menu.h&quot;
+-%include &quot;c:/antargis/rant/ext/gui/ag_menuitem.h&quot;
+-%include &quot;c:/antargis/rant/ext/gui/ag_radio.h&quot;
+-%include &quot;c:/antargis/rant/ext/gui/ag_radiogroup.h&quot;
+-%include &quot;c:/antargis/rant/ext/gui/ag_screenwidget.h&quot;
+-%include &quot;c:/antargis/rant/ext/gui/ag_scroller.h&quot;
+-%include &quot;c:/antargis/rant/ext/gui/ag_table.h&quot;
+-%include &quot;c:/antargis/rant/ext/gui/ag_text.h&quot;
+-%include &quot;c:/antargis/rant/ext/gui/ag_theme.h&quot;
+-%include &quot;c:/antargis/rant/ext/gui/ag_tooltip.h&quot;
+-%include &quot;c:/antargis/rant/ext/gui/ag_widget.h&quot;
+-%include &quot;c:/antargis/rant/ext/gui/ag_window.h&quot;
++%include &quot;ext/gui/ag_layoutfactory.h&quot;
++%include &quot;ext/gui/ag_widget.h&quot;
++%include &quot;ext/gui/ag_application.h&quot;
++%include &quot;ext/gui/ag_table.h&quot;
++%include &quot;ext/gui/ag_layout.h&quot;
++%include &quot;ext/gui/ag_colorbutton.h&quot;
++%include &quot;ext/gui/ag_image.h&quot;
++%include &quot;ext/gui/ag_screenwidget.h&quot;
++%include &quot;ext/gui/ag_listbox.h&quot;
++%include &quot;ext/gui/ag_frame.h&quot;
++%include &quot;ext/gui/ag_text.h&quot;
++%include &quot;ext/gui/ag_button.h&quot;
++%include &quot;ext/gui/ag_edit.h&quot;
++%include &quot;ext/gui/ag_radiogroup.h&quot;
++%include &quot;ext/gui/ag_scroller.h&quot;
++%include &quot;ext/gui/ag_tooltip.h&quot;
++%include &quot;ext/gui/ag_combo.h&quot;
++%include &quot;ext/gui/ag_menu.h&quot;
++%include &quot;ext/gui/ag_caption.h&quot;
++%include &quot;ext/gui/ag_window.h&quot;
++%include &quot;ext/gui/ag_checkbox.h&quot;
++%include &quot;ext/gui/ag_menuitem.h&quot;
++%include &quot;ext/gui/ag_radio.h&quot;
++%include &quot;ext/gui/ag_theme.h&quot;
++%include &quot;ext/gui/ag_border.h&quot;
++%include &quot;ext/gui/ag_background.h&quot;
++%include &quot;ext/gui/ag_local.h&quot;
+ #endif
+ #endif
+
+Modified: antargis/branches/rant/ext/gui/init.cc
+===================================================================
+--- antargis/branches/rant/ext/gui/init.cc	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/gui/init.cc	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -1,7 +1,8 @@
+-#include &lt;ag_debug.h&gt;
++#include &lt;ag_base.h&gt;
++#include &lt;ag_debug.h&gt;
+ #include &lt;ag_layout.h&gt;
+ 
+-void AG_Init_libantargisgui()
++AGEXPORT void AG_Init_libantargisgui()
+ {
+ 	TRACE;
+ 
+
+Modified: antargis/branches/rant/ext/math/ag_geometry.h
+===================================================================
+--- antargis/branches/rant/ext/math/ag_geometry.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/math/ag_geometry.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -133,7 +133,7 @@
+ };
+ 
+ // 2-dim homogenous vector
+-class AGVector3
++class AGEXPORT AGVector3
+ {
+  public:
+   float v[3];
+@@ -210,7 +210,7 @@
+ };
+ 
+ 
+-class AGMatrix3
++class AGEXPORT AGMatrix3
+ {
+   float a[3][3];
+  public:
+@@ -261,7 +261,7 @@
+   AGString toString() const;
+ };
+ 
+-class AGLine2
++class AGEXPORT AGLine2
+ {
+   AGVector2 v0,v1;
+  public:
+@@ -294,7 +294,7 @@
+   AGString toString() const;
+ };
+ 
+-class AGLine3
++class AGEXPORT AGLine3
+ {
+   AGVector3 v0,v1;
+  public:
+@@ -326,13 +326,13 @@
+   AGString toString() const;
+ };
+ 
+-class AGCollisionData
++class AGEXPORT AGCollisionData
+ {
+ };
+ 
+ class AGRect2;
+ 
+-class AGTriangle2
++class AGEXPORT AGTriangle2
+ {
+   AGVector2 p[3];
+  public:
+@@ -371,7 +371,7 @@
+   AGString toString() const;
+ };
+ 
+-class AGCircle2
++class AGEXPORT AGCircle2
+ {
+   AGVector3 p;
+   float radius;
+@@ -389,7 +389,7 @@
+ };
+ 
+ class AGVector4;
+-class AGTriangle3
++class AGEXPORT AGTriangle3
+ {
+   AGVector3 p[3];
+  public:
+@@ -490,7 +490,7 @@
+ };
+ 
+ 
+-class AGVector4
++class AGEXPORT AGVector4
+ {
+  public:
+   float v[4];
+@@ -580,7 +580,7 @@
+ #endif
+ };
+ 
+-class AGMatrix4
++class AGEXPORT AGMatrix4
+ {
+   float a[16];
+  public:
+@@ -644,7 +644,7 @@
+ };
+ 
+ // axis-aligned
+-class AGRect3
++class AGEXPORT AGRect3
+ {
+   AGVector3 base,dir;
+  public:
+@@ -656,7 +656,7 @@
+ };
+ 
+ // axis-aligned
+-class AGBox3
++class AGEXPORT AGBox3
+ {
+  public:
+   AGVector3 base,dir;
+
+Modified: antargis/branches/rant/ext/math/headers.hh
+===================================================================
+--- antargis/branches/rant/ext/math/headers.hh	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/math/headers.hh	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -14,14 +14,14 @@
+ #include &quot;ext/basic/ag_utf8.h&quot;
+ #include &quot;ext/basic/ag_video_base.h&quot;
+ #include &quot;ext/basic/ag_xml.h&quot;
+-#include &quot;c:/antargis/rant/ext/math/ag_algebra.h&quot;
+-#include &quot;c:/antargis/rant/ext/math/ag_geometry.h&quot;
+-#include &quot;c:/antargis/rant/ext/math/ag_rand.h&quot;
+-#include &quot;c:/antargis/rant/ext/math/ant_frustum.h&quot;
++#include &quot;ext/math/ag_rand.h&quot;
++#include &quot;ext/math/ant_frustum.h&quot;
++#include &quot;ext/math/ag_algebra.h&quot;
++#include &quot;ext/math/ag_geometry.h&quot;
+ #ifdef SWIG
+-%include &quot;c:/antargis/rant/ext/math/ag_algebra.h&quot;
+-%include &quot;c:/antargis/rant/ext/math/ag_geometry.h&quot;
+-%include &quot;c:/antargis/rant/ext/math/ag_rand.h&quot;
+-%include &quot;c:/antargis/rant/ext/math/ant_frustum.h&quot;
++%include &quot;ext/math/ag_rand.h&quot;
++%include &quot;ext/math/ant_frustum.h&quot;
++%include &quot;ext/math/ag_algebra.h&quot;
++%include &quot;ext/math/ag_geometry.h&quot;
+ #endif
+ #endif
+
+Modified: antargis/branches/rant/ext/sound/ag_mixer.h
+===================================================================
+--- antargis/branches/rant/ext/sound/ag_mixer.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/sound/ag_mixer.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -28,7 +28,7 @@
+ #include &lt;ag_surface.h&gt; // for decryptor
+ 
+ // use widget, though this isn't one, because it provides useable functions
+-class AGSound:public AGMessageObject
++class AGEXPORT AGSound:public AGMessageObject
+ // #Widget
+ {
+  public:
+@@ -63,7 +63,7 @@
+ 
+ };
+ 
+-AGSound *getSoundManager();
++AGEXPORT AGSound *getSoundManager();
+ 
+ #endif
+ 
+
+Modified: antargis/branches/rant/ext/sound/ag_sound.h
+===================================================================
+--- antargis/branches/rant/ext/sound/ag_sound.h	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/sound/ag_sound.h	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -1,7 +1,8 @@
+ #ifndef AG_SOUND_H
+ #define AG_SOUND_H
++
++#include &lt;ag_base.h&gt;
++AGEXPORT void initSoundEngine();
+ 
+-void initSoundEngine();
+-
+ #endif
+ 
+
+Modified: antargis/branches/rant/ext/sound/headers.hh
+===================================================================
+--- antargis/branches/rant/ext/sound/headers.hh	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/sound/headers.hh	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -1,31 +1,21 @@
+-#ifndef __ANTARGIS_H__
+-#define __ANTARGIS_H__
+-#include &quot;ext/basic/ag_base.h&quot;
+-#include &quot;ext/basic/ag_collector.h&quot;
+-#include &quot;ext/basic/ag_config.h&quot;
+-#include &quot;ext/basic/ag_debug.h&quot;
+-#include &quot;ext/basic/ag_exception.h&quot;
+-#include &quot;ext/basic/ag_fs.h&quot;
+-#include &quot;ext/basic/ag_main.h&quot;
+-#include &quot;ext/basic/ag_profiler.h&quot;
+-#include &quot;ext/basic/ag_regex.h&quot;
+-#include &quot;ext/basic/ag_rubyobj.h&quot;
+-#include &quot;ext/basic/ag_rand_base.h&quot;
+-#include &quot;ext/basic/ag_string.h&quot;
+-#include &quot;ext/basic/ag_string_utf8.h&quot;
+-#include &quot;ext/basic/ag_stringstream.h&quot;
+-#include &quot;ext/basic/ag_tools.h&quot;
+-#include &quot;ext/basic/ag_utf8.h&quot;
+-#include &quot;ext/basic/ag_video_base.h&quot;
+-#include &quot;ext/basic/ag_xml.h&quot;
+-#include &quot;ext/basic/ag_plugin.h&quot;
+-#include &quot;ext/basic/ag_singleton.h&quot;
+-#include &quot;ext/basic/ag_kill.h&quot;
+-#include &quot;ext/basic/ag_serial.h&quot;
+-#include &quot;ext/basic/ag_messageobject.h&quot;
+-#include &quot;ext/basic/ag_mutex.h&quot;
+-#include &quot;/home/david/projects/antargis/rant/ext/sound/ag_mixer.h&quot;
+-#ifdef SWIG
+-%include &quot;/home/david/projects/antargis/rant/ext/sound/ag_mixer.h&quot;
+-#endif
+-#endif
++#ifndef __ANTARGIS_H__
++#define __ANTARGIS_H__
++#include &quot;ext/basic/ag_config.h&quot;
++#include &quot;ext/basic/ag_fs.h&quot;
++#include &quot;ext/basic/ag_geometry.h&quot;
++#include &quot;ext/basic/ag_main.h&quot;
++#include &quot;ext/basic/ag_messageobject.h&quot;
++#include &quot;ext/basic/ag_rand_base.h&quot;
++#include &quot;ext/basic/ag_rubyobj.h&quot;
++#include &quot;ext/basic/ag_serial.h&quot;
++#include &quot;ext/basic/ag_singleton.h&quot;
++#include &quot;ext/basic/ag_stringstream.h&quot;
++#include &quot;ext/basic/ag_string_utf8.h&quot;
++#include &quot;ext/basic/ag_utf8.h&quot;
++#include &quot;ext/basic/ag_video_base.h&quot;
++#include &quot;ext/basic/ag_xml.h&quot;
++#include &quot;ext/sound/ag_mixer.h&quot;
++#ifdef SWIG
++%include &quot;ext/sound/ag_mixer.h&quot;
++#endif
++#endif
+
+Modified: antargis/branches/rant/ext/sound/init.cc
+===================================================================
+--- antargis/branches/rant/ext/sound/init.cc	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/sound/init.cc	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -3,7 +3,7 @@
+ 
+ extern void initSoundEngine();
+ 
+-void AG_Init_libantargissound()
++AGEXPORT void AG_Init_libantargissound()
+ {
+ 	initSoundEngine();
+ }
+
+Modified: antargis/branches/rant/ext/video/headers.hh
+===================================================================
+--- antargis/branches/rant/ext/video/headers.hh	2007-07-11 18:41:46 UTC (rev 1140)
++++ antargis/branches/rant/ext/video/headers.hh	2007-07-14 13:24:51 UTC (rev 1141)
+@@ -18,30 +18,30 @@
+ #include &quot;ext/math/ag_geometry.h&quot;
+ #include &quot;ext/math/ag_rand.h&quot;
+ #include &quot;ext/math/ant_frustum.h&quot;
+-#include &quot;c:/antargis/rant/ext/video/ag_clip.h&quot;
+-#include &quot;c:/antargis/rant/ext/video/ag_color.h&quot;
+-#include &quot;c:/antargis/rant/ext/video/ag_font.h&quot;
+-#include &quot;c:/antargis/rant/ext/video/ag_fontengine.h&quot;
+-#include &quot;c:/antargis/rant/ext/video/ag_painter.h&quot;
+-#include &quot;c:/antargis/rant/ext/video/ag_painttarget.h&quot;
+-#include &quot;c:/antargis/rant/ext/video/ag_rendercontext.h&quot;
+-#include &quot;c:/antargis/rant/ext/video/ag_screen.h&quot;
+-#include &quot;c:/antargis/rant/ext/video/ag_surface.h&quot;
+-#include &quot;c:/antargis/rant/ext/video/ag_texture.h&quot;
+-#include &quot;c:/antargis/rant/ext/video/ag_texturecache.h&quot;
+-#include &quot;c:/antargis/rant/ext/video/ag_video.h&quot;
++#include &quot;ext/video/ag_painttarget.h&quot;
++#include &quot;ext/video/ag_surface.h&quot;
++#include &quot;ext/video/ag_texture.h&quot;
++#include &quot;ext/video/ag_screen.h&quot;
++#include &quot;ext/video/ag_fontengine.h&quot;
++#include &quot;ext/video/ag_video.h&quot;
++#include &quot;ext/video/ag_clip.h&quot;
++#include &quot;ext/video/ag_rendercontext.h&quot;
++#include &quot;ext/video/ag_texturecache.h&quot;
++#include &quot;ext/video/ag_font.h&quot;
++#include &quot;ext/video/ag_painter.h&quot;
++#include &quot;ext/video/ag_color.h&quot;
+ #ifdef SWIG
+-%include &quot;c:/antargis/rant/ext/video/ag_clip.h&quot;
+-%include &quot;c:/antargis/rant/ext/video/ag_color.h&quot;
+-%include &quot;c:/antargis/rant/ext/video/ag_font.h&quot;
+-%include &quot;c:/antargis/rant/ext/video/ag_fontengine.h&quot;
+-%include &quot;c:/antargis/rant/ext/video/ag_painter.h&quot;
+-%include &quot;c:/antargis/rant/ext/video/ag_painttarget.h&quot;
+-%include &quot;c:/antargis/rant/ext/video/ag_rendercontext.h&quot;
+-%include &quot;c:/antargis/rant/ext/video/ag_screen.h&quot;
+-%include &quot;c:/antargis/rant/ext/video/ag_surface.h&quot;
+-%include &quot;c:/antargis/rant/ext/video/ag_texture.h&quot;
+-%include &quot;c:/antargis/rant/ext/video/ag_texturecache.h&quot;
+-%include &quot;c:/antargis/rant/ext/video/ag_video.h&quot;
++%include &quot;ext/video/ag_painttarget.h&quot;
++%include &quot;ext/video/ag_surface.h&quot;
++%include &quot;ext/video/ag_texture.h&quot;
++%include &quot;ext/video/ag_screen.h&quot;
++%include &quot;ext/video/ag_fontengine.h&quot;
++%include &quot;ext/video/ag_video.h&quot;
++%include &quot;ext/video/ag_clip.h&quot;
++%include &quot;ext/video/ag_rendercontext.h&quot;
++%include &quot;ext/video/ag_texturecache.h&quot;
++%include &quot;ext/video/ag_font.h&quot;
++%include &quot;ext/video/ag_painter.h&quot;
++%include &quot;ext/video/ag_color.h&quot;
+ #endif
+ #endif
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000097.html">[Antargis-svn] r1140 - in antargis/branches/rant: . build	build/configs ext/basic ext/gui ext/math ext/video
+</A></li>
+	<LI>Next message: <A HREF="000099.html">[Antargis-svn] r1142 - in antargis/branches/rant/ruby: . editor
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#98">[ date ]</a>
+              <a href="thread.html#98">[ thread ]</a>
+              <a href="subject.html#98">[ subject ]</a>
+              <a href="author.html#98">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

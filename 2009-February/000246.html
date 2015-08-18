@@ -1,0 +1,521 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1290 - in antargis/trunk: . rookey/lib	rookey/lib/rookey rookey/lib/rookey/cpp	rookey/lib/rookey/cpp/spec ruby/editor/campaign
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2009-February/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1290%20-%20in%20antargis/trunk%3A%20.%20rookey/lib%0A%09rookey/lib/rookey%20rookey/lib/rookey/cpp%0A%09rookey/lib/rookey/cpp/spec%20ruby/editor/campaign&In-Reply-To=%3C200902231526.n1NFQlO9010472%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000245.html">
+   <LINK REL="Next"  HREF="000247.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1290 - in antargis/trunk: . rookey/lib	rookey/lib/rookey rookey/lib/rookey/cpp	rookey/lib/rookey/cpp/spec ruby/editor/campaign</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1290%20-%20in%20antargis/trunk%3A%20.%20rookey/lib%0A%09rookey/lib/rookey%20rookey/lib/rookey/cpp%0A%09rookey/lib/rookey/cpp/spec%20ruby/editor/campaign&In-Reply-To=%3C200902231526.n1NFQlO9010472%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1290 - in antargis/trunk: . rookey/lib	rookey/lib/rookey rookey/lib/rookey/cpp	rookey/lib/rookey/cpp/spec ruby/editor/campaign">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Mon Feb 23 16:26:47 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000245.html">[Antargis-svn] r1289 - in antargis/trunk/rookey:	examples/simplistic lib/rookey lib/rookey/cpp lib/rookey/cpp/spec
+</A></li>
+        <LI>Next message: <A HREF="000247.html">[Antargis-svn] r1291 - in antargis/trunk/ext: basic sound video
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#246">[ date ]</a>
+              <a href="thread.html#246">[ thread ]</a>
+              <a href="subject.html#246">[ subject ]</a>
+              <a href="author.html#246">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2009-02-23 16:26:47 +0100 (Mon, 23 Feb 2009)
+New Revision: 1290
+
+Added:
+   antargis/trunk/rookey/lib/rookey/cpp/spec/logging_spec.cc
+Modified:
+   antargis/trunk/
+   antargis/trunk/configure
+   antargis/trunk/rookey/lib/rookey.rb
+   antargis/trunk/rookey/lib/rookey/compile.rb
+   antargis/trunk/rookey/lib/rookey/config_generator.rb
+   antargis/trunk/rookey/lib/rookey/cpp/rk_logging.cc
+   antargis/trunk/rookey/lib/rookey/cpp/rk_logging.h
+   antargis/trunk/rookey/lib/rookey/cpp/spec/Rakefile
+   antargis/trunk/rookey/lib/rookey/cpp/spec/singleton_spec.cc
+   antargis/trunk/rookey/lib/rookey/tasks.rb
+   antargis/trunk/rookey/lib/rookey/tools.rb
+   antargis/trunk/ruby/editor/campaign/ruby_tools.rb
+Log:
+some small fixes for rookey
+
+
+Property changes on: antargis/trunk
+___________________________________________________________________
+Name: svn:ignore
+   - coverage
+*.bundle
+.build*
+starter.dSYM
+spec_output.html
+starter
+.deps
+.settings
+antconfig.rb
+events.txt
+rookey_configuration.rb
+test
+test.c
+antargis_interface.i
+savegames
+config_cache.rb
+
+   + coverage
+*.bundle
+.build*
+starter.dSYM
+spec_output.html
+starter
+.deps
+.settings
+antconfig.rb
+events.txt
+rookey_configuration.rb
+test
+test.c
+antargis_interface.i
+savegames
+config_cache.rb
+.rookey
+.configure.swp
+.git
+
+
+Modified: antargis/trunk/configure
+===================================================================
+--- antargis/trunk/configure	2009-02-17 19:14:57 UTC (rev 1289)
++++ antargis/trunk/configure	2009-02-23 15:26:47 UTC (rev 1290)
+@@ -1,6 +1,6 @@
+ #!/usr/bin/env ruby
+ 
+-require File.join(File.split(__FILE__)[0],&quot;rookey&quot;,&quot;rookey_config.rb&quot;)
++require File.join(File.split(__FILE__)[0],&quot;rookey&quot;,&quot;lib&quot;,&quot;rookey&quot;,&quot;rookey_config.rb&quot;)
+ 
+ config=Rookey::Configure.new
+ config.run do |opts|
+
+Modified: antargis/trunk/rookey/lib/rookey/compile.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/compile.rb	2009-02-17 19:14:57 UTC (rev 1289)
++++ antargis/trunk/rookey/lib/rookey/compile.rb	2009-02-23 15:26:47 UTC (rev 1290)
+@@ -10,11 +10,16 @@
+ 	    parseDepsFiles
+       
+       return t unless @@deps
+-      p=File.join(Compiler.getDepsDir,t)
++      #t=File.expand_path(t) if t=~/^../
++      p=makeDepsName(t)
+ 	    return @@deps[p] if @@deps[p]
+       t
+ 	  end
+-  
++
++    def Compiler.makeDepsName(inFile)
++      depfile=File.join(Compiler.getDepsDir,makePlainName(inFile))
++    end
++    
+ 	  def compile(target,sources)
+ 	    source=makeSource(target)
+ 	    
+@@ -41,7 +46,7 @@
+ 	    options &lt;&lt; &quot;-o &quot;+target
+       
+       
+-      depfile=File.join(Compiler.getDepsDir,source)
++      depfile=Compiler.makeDepsName(source) #File.join(Compiler.getDepsDir,source)
+       depdir=File.split(depfile)[0]
+       Rookey.mkdir(depdir)
+       
+@@ -53,7 +58,6 @@
+ 	    call=program+&quot; &quot;+options.join(&quot; &quot;)
+ 	    sh call
+       puts
+-	  
+ 	  end
+     
+     def linkEXE(name,objects)
+@@ -113,20 +117,35 @@
+       end
+       file
+ 	  end
++
++    def self.makePlainName(inName)
++      inName.gsub(&quot;/&quot;,&quot;=&quot;)
++    end
++    def self.makeRelName(inName)
++      inName.gsub(&quot;=&quot;,&quot;/&quot;)
++    end
+ 	  
+ 	  def makeSource(objectName)
+ 	    objectName.sub(/\.o$/,&quot;&quot;).sub(/^#{getBuildDir}[\/\\]/,&quot;&quot;)
+ 	  end
+-	  
++
+     def getPlainBuildDir
+-      &quot;.build_&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">+ at config</A>[&quot;host_os&quot;]
++      &quot;build_&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">+ at config</A>[&quot;host_os&quot;]
+     end
++
++    def self.rookeyWorkingDir
++      File.join(Dir.pwd,&quot;.rookey&quot;)
++    end
++
++    def self.rookeyTestDir
++      File.join(rookeyWorkingDir,&quot;test&quot;)
++    end
+     
+ 	  def getBuildDir
+-	    File.join(Dir.pwd,getPlainBuildDir)
++	    File.join(Compiler::rookeyWorkingDir,getPlainBuildDir)
+ 	  end
+-    def Compiler.getDepsDir
+-      File.join(Dir.pwd,&quot;.deps&quot;)
++    def self.getDepsDir
++      File.join(rookeyWorkingDir,&quot;deps&quot;)
+     end
+         
+     private
+
+Modified: antargis/trunk/rookey/lib/rookey/config_generator.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/config_generator.rb	2009-02-17 19:14:57 UTC (rev 1289)
++++ antargis/trunk/rookey/lib/rookey/config_generator.rb	2009-02-23 15:26:47 UTC (rev 1290)
+@@ -17,12 +17,13 @@
+ module Rookey
+   
+   
+-  CONFIG_FILENAME=&quot;config_cache.rb&quot;
++  CONFIG_FILENAME=File.join(Compiler.rookeyWorkingDir,&quot;config_cache.rb&quot;)
+   @@configured=[]
+   
+   # stores a dumpable ruby-object *what* into a file named *filename*
+   def Rookey.hibe(what,filename)
+     content=Marshal.dump(what).gsub(&quot;\&quot;&quot;,&quot;\\\&quot;&quot;)
++    mkdir(File.split(filename)[0])
+     File.open(filename,&quot;w&quot;) do |f|
+       f.puts &lt;&lt;EOT
+ module Rookey
+@@ -71,7 +72,8 @@
+       includes=includes.map{|i|&quot;#include &lt;#{i}&gt;&quot;}.join(&quot;\n&quot;)
+       source=&quot;#{includes}\nextern \&quot;C\&quot; void #{funcname}();int main(int argc,char*argv[]){return 0;}&quot;
+       pp source
+-      testSource=&quot;test.c&quot;
++      Rookey::mkdir(Compiler.rookeyTestDir)
++      testSource=File.join(Compiler.rookeyTestDir,&quot;test.c&quot;)
+       fd=File.open(testSource,&quot;w&quot;)
+       fd.puts source
+       fd.close
+@@ -79,7 +81,7 @@
+       target=compiler.makeObject(testSource)
+       compiler.compile(target,testSource)
+       libadd=&quot;-l#{lib}&quot;
+-      exeName=compiler.exeName(&quot;test&quot;)
++      exeName=File.join(Compiler.rookeyTestDir,compiler.exeName(&quot;test&quot;))
+       begin
+         compiler.linkEXE(exeName,[target,libadd])
+         `#{exeName}`
+@@ -87,10 +89,13 @@
+           config.add(&quot;LDFLAGS&quot;,libadd)
+         end
+       rescue RuntimeError =&gt; e
++        log e,e.backtrace
+         return false
+       end
+       true
+     end
++
++
+     private
+     def getPath
+       # add paths in externals/build/*/bin
+@@ -116,10 +121,15 @@
+   }
+   
+   def Rookey.log(*s)
+-    @@logFile||=File.open(&quot;rookey.log&quot;,&quot;w&quot;)
++    Rookey.mkdir(Compiler::rookeyWorkingDir)
++    @@logFile||=File.open(File.join(Compiler::rookeyWorkingDir,&quot;rookey.log&quot;),&quot;w&quot;)
+     @@logFile.puts(*s)
+   end
+-  
++
++  CLEAN &lt;&lt; File.join(Compiler::rookeyWorkingDir,&quot;rookey.log&quot;)
++  CLEAN += [&quot;test.c&quot;,&quot;test.o&quot;,&quot;test&quot;,&quot;test.exe&quot;].map{|f|File.join(Compiler.rookeyWorkingDir,&quot;test&quot;,f)}
++  pp CLEAN
++
+  
+   def Rookey.getDescendantsOfClass(p)
+     c=[]
+@@ -148,8 +158,9 @@
+ 		          c.new.run(config)
+ 		          log config.inspect
+               @@configured &lt;&lt; c
+-            rescue
++            rescue Object=&gt;e
+               log &quot;Configuration of #{c} failed !&quot;
++              log e,e.backtrace
+             end
+ 		        ok+=c.provides
+ 		        ok.uniq!
+
+Modified: antargis/trunk/rookey/lib/rookey/cpp/rk_logging.cc
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_logging.cc	2009-02-17 19:14:57 UTC (rev 1289)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_logging.cc	2009-02-23 15:26:47 UTC (rev 1290)
+@@ -1 +1,45 @@
+ 
++#include &quot;rk_logging.h&quot;
++
++#include &lt;sstream&gt;
++#include &lt;iostream&gt;
++
++
++template
++class RKSingleton&lt;RKLogging&gt;;
++
++RKLogging::RKLogging() : output(&quot;rk_log.txt&quot;,std::ios_base::app) {
++}
++
++RKLogging::~RKLogging() {
++    output.flush();
++    output.close();
++}
++
++void RKLogging::log(const std::string &amp;s) {
++    output &lt;&lt; s;
++    output.flush();
++}
++
++void RKLogging::clear()
++{
++    output.close();
++    output.open(&quot;rk_log.txt&quot;);
++}
++
++
++std::string RKLogging::getLog()  {
++    output.flush();
++
++    std::ifstream ifs(&quot;rk_log.txt&quot;);
++    std::ostringstream os;
++    std::string buf;
++
++    while (!ifs.eof()) {
++        ifs&gt;&gt;buf;
++        os &lt;&lt; buf;
++    }
++    std::cout&lt;&lt;&quot;OS:&quot;&lt;&lt;os.str()&lt;&lt;std::endl;
++    return os.str();
++
++}
+
+Modified: antargis/trunk/rookey/lib/rookey/cpp/rk_logging.h
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_logging.h	2009-02-17 19:14:57 UTC (rev 1289)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_logging.h	2009-02-23 15:26:47 UTC (rev 1290)
+@@ -10,16 +10,24 @@
+ 
+ #include &quot;rk_singleton.h&quot;
+ 
++#include &lt;fstream&gt;
++
+ class RKLogging:public RKSingleton&lt;RKLogging&gt;
+ {
+ public:
+     virtual ~RKLogging();
+ 
+     void log(const std::string &amp;s);
++
++    std::string getLog();
++    void clear();
+ protected:
+     RKLogging();
+ 
+ private:
++    std::ofstream output;
++    friend class RKSingleton&lt;RKLogging&gt;;
++
+ };
+ 
+ 
+
+Modified: antargis/trunk/rookey/lib/rookey/cpp/spec/Rakefile
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/spec/Rakefile	2009-02-17 19:14:57 UTC (rev 1289)
++++ antargis/trunk/rookey/lib/rookey/cpp/spec/Rakefile	2009-02-23 15:26:47 UTC (rev 1290)
+@@ -2,7 +2,7 @@
+ 
+ tests=Dir[&quot;*_spec.cc&quot;]
+ 
+-baseFiles=[&quot;../rk_singleton.cc&quot;]
++baseFiles=[&quot;../rk_singleton.cc&quot;,&quot;../rk_logging.cc&quot;]
+ 
+ test_exes=tests.map{|test|
+   name=test.sub(/_spec.cc/,&quot;&quot;)
+@@ -12,11 +12,14 @@
+ }
+ 
+ task :runTests=&gt;test_exes do
+-  pp test_exes
+-
++  test_exes.each{|exe|
++    sh &quot;./&quot;+exe
++  }
+ end
+ 
++CLEAN &lt;&lt; &quot;rk_log.txt&quot;
+ 
++
+ task :default=&gt;:runTests do
+ 
+ end
+\ No newline at end of file
+
+Added: antargis/trunk/rookey/lib/rookey/cpp/spec/logging_spec.cc
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/spec/logging_spec.cc	2009-02-17 19:14:57 UTC (rev 1289)
++++ antargis/trunk/rookey/lib/rookey/cpp/spec/logging_spec.cc	2009-02-23 15:26:47 UTC (rev 1290)
+@@ -0,0 +1,9 @@
++#include &quot;rk_logging.h&quot;
++
++int main(int argc, char *argv[]) {
++    RKLogging::getInstance()-&gt;clear();
++    RKLogging::getInstance()-&gt;log(&quot;muh&quot;);
++
++    assert(RKLogging::getInstance()-&gt;getLog() == &quot;muh&quot;);
++    return 0;
++}
+\ No newline at end of file
+
+Modified: antargis/trunk/rookey/lib/rookey/cpp/spec/singleton_spec.cc
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/spec/singleton_spec.cc	2009-02-17 19:14:57 UTC (rev 1289)
++++ antargis/trunk/rookey/lib/rookey/cpp/spec/singleton_spec.cc	2009-02-23 15:26:47 UTC (rev 1290)
+@@ -23,7 +23,6 @@
+ int main(int argc,char *argv[])
+ {
+     assert(Single::getInstance()-&gt;bla()==1);
+-    std::cout&lt;&lt;Single::getInstance()-&gt;bla()&lt;&lt;std::endl;
+ 
+     return 0;
+ }
+\ No newline at end of file
+
+Modified: antargis/trunk/rookey/lib/rookey/tasks.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/tasks.rb	2009-02-17 19:14:57 UTC (rev 1289)
++++ antargis/trunk/rookey/lib/rookey/tasks.rb	2009-02-23 15:26:47 UTC (rev 1290)
+@@ -185,7 +185,7 @@
+     swigInterfaces=libs.map{|f|f.sub(/\.[a-zA-Z]+$/,&quot;.i&quot;)}
+     swigInterfaces=files.select{|f|f=~/i$/}
+     swigInterface = Rookey::swig_interface(name=&gt;headerFiles+swigInterfaces,:initializers=&gt;inits)
+-    swigTarget = Rookey::swig({File.join(compiler.getPlainBuildDir,name+&quot;_swig.cc&quot;)=&gt;swigInterface},config)
++    swigTarget = Rookey::swig({File.join(compiler.getBuildDir,name+&quot;_swig.cc&quot;)=&gt;swigInterface},config)
+     
+     
+     targets = Rookey::compile(cppFiles+[swigTarget],config)
+
+Modified: antargis/trunk/rookey/lib/rookey/tools.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/tools.rb	2009-02-17 19:14:57 UTC (rev 1289)
++++ antargis/trunk/rookey/lib/rookey/tools.rb	2009-02-23 15:26:47 UTC (rev 1290)
+@@ -38,18 +38,18 @@
+ 	end
+ end
+ 
+-
+-alias :requireRookeyOld :require
+-
+-def require(file)
+-  if file[0..0]==&quot;.&quot;
+-    rel=caller[0].gsub(/:[0-9]+/,&quot;&quot;)
+-    rel=File.expand_path(rel)
+-    dir=File.split(rel)[0]
+-    file=File.join(dir,file)
+-    #pp file
++unless methods.member?(&quot;requireRookeyOld&quot;)
++  alias :requireRookeyOld :require
++  def require(file)
++    if file[0..0]==&quot;.&quot;
++      rel=caller[0].gsub(/:[0-9]+/,&quot;&quot;)
++      rel=File.expand_path(rel)
++      dir=File.split(rel)[0]
++      file=File.join(dir,file)
++      #pp file
++    end
++    requireRookeyOld(file)
+   end
+-  requireRookeyOld(file)
+ end
+ def requireRelative(f)
+   require f
+
+Modified: antargis/trunk/rookey/lib/rookey.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey.rb	2009-02-17 19:14:57 UTC (rev 1289)
++++ antargis/trunk/rookey/lib/rookey.rb	2009-02-23 15:26:47 UTC (rev 1290)
+@@ -3,6 +3,7 @@
+ require File.join(File.split(File.expand_path(__FILE__))[0],'rookey','tools.rb')
+ require './rookey/tasks.rb'
+ 
++
+ task :allclean=&gt;:clean do
+   ALLCLEAN.each{|f|
+     begin
+
+Modified: antargis/trunk/ruby/editor/campaign/ruby_tools.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/ruby_tools.rb	2009-02-17 19:14:57 UTC (rev 1289)
++++ antargis/trunk/ruby/editor/campaign/ruby_tools.rb	2009-02-23 15:26:47 UTC (rev 1290)
+@@ -22,6 +22,6 @@
+   end
+ end
+ end
+-require &quot;rookey/lib/tools.rb&quot;
++require &quot;rookey/tools.rb&quot;
+ 
+ require &quot;./ruby_layouts.rb&quot;
+\ No newline at end of file
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000245.html">[Antargis-svn] r1289 - in antargis/trunk/rookey:	examples/simplistic lib/rookey lib/rookey/cpp lib/rookey/cpp/spec
+</A></li>
+	<LI>Next message: <A HREF="000247.html">[Antargis-svn] r1291 - in antargis/trunk/ext: basic sound video
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#246">[ date ]</a>
+              <a href="thread.html#246">[ thread ]</a>
+              <a href="subject.html#246">[ subject ]</a>
+              <a href="author.html#246">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

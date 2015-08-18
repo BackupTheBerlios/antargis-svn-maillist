@@ -1,0 +1,159 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1107 - in antargis/branches/rant/ext: basic	external game gui math ruby sound video
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-June/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1107%20-%20in%20antargis/branches/rant/ext%3A%20basic%0A%09external%20game%20gui%20math%20ruby%20sound%20video&In-Reply-To=%3C200706231654.l5NGsJfw004165%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000063.html">
+   <LINK REL="Next"  HREF="000065.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1107 - in antargis/branches/rant/ext: basic	external game gui math ruby sound video</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1107%20-%20in%20antargis/branches/rant/ext%3A%20basic%0A%09external%20game%20gui%20math%20ruby%20sound%20video&In-Reply-To=%3C200706231654.l5NGsJfw004165%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1107 - in antargis/branches/rant/ext: basic	external game gui math ruby sound video">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sat Jun 23 18:54:19 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000063.html">[Antargis-svn] r1106 - in antargis/branches/rant/ext: 3dengine game	video
+</A></li>
+        <LI>Next message: <A HREF="000065.html">[Antargis-svn] r1108 - in antargis/branches/rant: build data/gui	data/gui/images data/gui/images/basic ext/game
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#64">[ date ]</a>
+              <a href="thread.html#64">[ thread ]</a>
+              <a href="subject.html#64">[ subject ]</a>
+              <a href="author.html#64">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-06-23 18:54:17 +0200 (Sat, 23 Jun 2007)
+New Revision: 1107
+
+Added:
+   antargis/branches/rant/ext/basic/templates.i
+   antargis/branches/rant/ext/external/templates.i
+   antargis/branches/rant/ext/game/templates.i
+   antargis/branches/rant/ext/gui/templates.i
+   antargis/branches/rant/ext/math/templates.i
+   antargis/branches/rant/ext/ruby/templates.i
+   antargis/branches/rant/ext/sound/templates.i
+   antargis/branches/rant/ext/video/templates.i
+Log:
+* some more files
+
+
+Added: antargis/branches/rant/ext/basic/templates.i
+===================================================================
+--- antargis/branches/rant/ext/basic/templates.i	2007-06-23 16:53:28 UTC (rev 1106)
++++ antargis/branches/rant/ext/basic/templates.i	2007-06-23 16:54:17 UTC (rev 1107)
+@@ -0,0 +1,11 @@
++%template(StdVectorPNode) std::vector&lt;Node*&gt;;
++%template(AGNodeList) std::vector&lt;Node&gt;;
++//%template(AGNodePList) std::vector&lt;Node*&gt;;
++
++
++
++%template(StringVector) std::vector&lt;std::string&gt;;
++%template(AGStringVector) std::vector&lt;AGString&gt;;
++%template(AGFilenameVector) std::vector&lt;AGFilename&gt;;
++
++
+
+Added: antargis/branches/rant/ext/external/templates.i
+===================================================================
+
+Added: antargis/branches/rant/ext/game/templates.i
+===================================================================
+--- antargis/branches/rant/ext/game/templates.i	2007-06-23 16:53:28 UTC (rev 1106)
++++ antargis/branches/rant/ext/game/templates.i	2007-06-23 16:54:17 UTC (rev 1107)
+@@ -0,0 +1,28 @@
++%{
++AntEntity *SWIG_RB2AntEntity(VALUE x) {
++	AntEntity *e=0;
++	Data_Get_Struct(x,AntEntity,e);
++	return 0;
++}
++VALUE SWIG_AntEntity2RB(AntEntity*e ) {
++	return AG_NewPointerObj(e,SWIGTYPE_p_AntEntity,0);
++}
++bool SWIG_ANTENTITY_P(VALUE x) {
++	return true; // FIXME ???
++    //return TYPE(x) == T_STRING;
++}
++
++%}
++
++namespace std
++{
++	specialize_std_vector(AntEntity*,SWIG_ANTENTITY_P,SWIG_RB2AntEntity,SWIG_AntEntity2RB);
++	specialize_std_list(AntEntity*,SWIG_ANTENTITY_P,SWIG_RB2AntEntity,SWIG_AntEntity2RB);
++}
++
++
++%template(EntityPVector) std::vector&lt;AntEntity*&gt;;
++%template(EntityPList) std::list&lt;AntEntity*&gt;;
++%template(EntityVector) std::vector&lt;AntEntityPtr&gt;;
++%template(ResourceMap) std::map&lt;std::string,float&gt;;
++%template(AGResourceMap) std::map&lt;AGString,float&gt;;
+
+Added: antargis/branches/rant/ext/gui/templates.i
+===================================================================
+
+Added: antargis/branches/rant/ext/math/templates.i
+===================================================================
+--- antargis/branches/rant/ext/math/templates.i	2007-06-23 16:53:28 UTC (rev 1106)
++++ antargis/branches/rant/ext/math/templates.i	2007-06-23 16:54:17 UTC (rev 1107)
+@@ -0,0 +1,9 @@
++%template(StdVectorAGRect2) std::vector&lt;AGRect2&gt;;
++%template(StdVectorAGVector2) std::vector&lt;AGVector2&gt;;
++%template(StdVectorAGVector3) std::vector&lt;AGVector3&gt;;
++%template(StdVectorAGVector4) std::vector&lt;AGVector4&gt;;
++
++
++%template(AGRect2List) std::list&lt;AGRect2&gt;;
++%template(AGMatrixVector) std::vector&lt;AGMatrix4&gt;;
++
+
+Added: antargis/branches/rant/ext/ruby/templates.i
+===================================================================
+
+Added: antargis/branches/rant/ext/sound/templates.i
+===================================================================
+
+Added: antargis/branches/rant/ext/video/templates.i
+===================================================================
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000063.html">[Antargis-svn] r1106 - in antargis/branches/rant/ext: 3dengine game	video
+</A></li>
+	<LI>Next message: <A HREF="000065.html">[Antargis-svn] r1108 - in antargis/branches/rant: build data/gui	data/gui/images data/gui/images/basic ext/game
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#64">[ date ]</a>
+              <a href="thread.html#64">[ thread ]</a>
+              <a href="subject.html#64">[ subject ]</a>
+              <a href="author.html#64">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

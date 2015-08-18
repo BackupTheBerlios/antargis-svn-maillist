@@ -1,0 +1,748 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1199 - in antargis/trunk: . ext
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1199%20-%20in%20antargis/trunk%3A%20.%20ext&In-Reply-To=%3C200712221145.lBMBja41012859%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000155.html">
+   <LINK REL="Next"  HREF="000157.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1199 - in antargis/trunk: . ext</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1199%20-%20in%20antargis/trunk%3A%20.%20ext&In-Reply-To=%3C200712221145.lBMBja41012859%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1199 - in antargis/trunk: . ext">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sat Dec 22 12:45:36 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000155.html">[Antargis-svn] r1198 - antargis/trunk
+</A></li>
+        <LI>Next message: <A HREF="000157.html">[Antargis-svn] r1200 - antargis/trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#156">[ date ]</a>
+              <a href="thread.html#156">[ thread ]</a>
+              <a href="subject.html#156">[ subject ]</a>
+              <a href="author.html#156">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-12-22 12:45:35 +0100 (Sat, 22 Dec 2007)
+New Revision: 1199
+
+Added:
+   antargis/trunk/ext/Rakefile
+Modified:
+   antargis/trunk/Rakefile
+   antargis/trunk/configure
+Log:
+* moved extension-targets to subdir
+
+
+Modified: antargis/trunk/Rakefile
+===================================================================
+--- antargis/trunk/Rakefile	2007-12-22 11:19:45 UTC (rev 1198)
++++ antargis/trunk/Rakefile	2007-12-22 11:45:35 UTC (rev 1199)
+@@ -1,323 +1,10 @@
+ #!/usr/bin/env ruby
+ 
+-require 'mkmf'
+-require 'build/mkmf_support.rb'
+-require 'build/shell.rb'
+-require 'pp'
+-require 'rake/clean.rb'
++Dir.chdir(File.split(__FILE__)[0])
+ 
+-# run configure if config.rb is not yet present
+-sh(checkMkmf(&quot;$(bindir)/$(ruby_install_name) configure&quot;,CONFIG)) unless File.exists?(&quot;config.rb&quot;)
++# build extension
++load 'ext/Rakefile'
+ 
+-load 'config.rb'
+-
+-
+-PKG_VERSION=$CONFIG[&quot;version&quot;]
+-
+-$SOURCEDIRS=[
+-	&quot;ext/external&quot;,
+-	&quot;ext/basic&quot;,
+-	&quot;ext/sound&quot;,
+-	&quot;ext/math&quot;,
+-	&quot;ext/video&quot;,
+-	&quot;ext/gui&quot;,
+-	&quot;ext/3dengine&quot;,
+-	&quot;ext/game&quot;,
+-]
+-
+-$LIBDEPS={&quot;ext/basic&quot;=&gt;[&quot;SDL&quot;,&quot;RUBY&quot;]}
+-
+-$BOASOURCES=$SOURCEDIRS.select{|dir|not dir=~/external/}
+-
+-MYINCLUDES=$SOURCEDIRS.map{|dir|&quot;-I#{dir}&quot;}.join(&quot; &quot;)
+-
+-def dependencies(c)
+-end
+-
+-def build(file)
+-	type=nil
+-	compiler=nil
+-	case file
+-		when /\.c$/
+-			type=:c
+-			compiler=$CONFIG[&quot;CC&quot;]
+-		when /\.c(c|pp)$/
+-			type=:c
+-			compiler=$CONFIG[&quot;CXX&quot;]
+-	end
+-	if type==:c
+-		if $CONFIG[&quot;CCACHE&quot;]
+-			compiler=$CONFIG[&quot;CCACHE&quot;]+&quot; &quot;+compiler
+-		end
+-
+-		output=file.sub(/\.c$/,&quot;.o&quot;).sub(/\.(cc|cpp)$/,&quot;.oo&quot;)
+-		Dir.mkdir(&quot;.deps&quot;) unless File.exists?(&quot;.deps&quot;)
+-		dep=&quot;.deps/&quot;+output.gsub(&quot;/&quot;,&quot;_&quot;)
+-		cmd=compiler+&quot; &quot;+$CONFIG[&quot;CFLAGS&quot;]+&quot; &quot;+$CONFIG[&quot;INCLUDEPATH&quot;]+&quot; &quot;+MYINCLUDES+&quot; -Wp,-MD,#{dep} -o &quot;+output+&quot; -c &quot;+File.expand_path(file)
+-	else
+-		raise &quot;Unknown source file&quot;
+-	end	
+-	sh cmd
+-	$?
+-end
+-
+-def generateSwigDeps(dir)
+-	output=File.join(&quot;.deps&quot;,dir.gsub(&quot;/&quot;,&quot;_&quot;)+&quot;_swig.cc&quot;)
+-	input=dir+&quot;/interface.i&quot;
+-	cflags=$CONFIG[&quot;INCLUDEPATH&quot;]+&quot; &quot;+$CONFIG[&quot;DEFINES&quot;]+&quot; -DAGEXPORT&quot;
+-	puts &quot;&quot;
+-	cmd=$CONFIG[&quot;SWIG&quot;]+&quot; #{cflags} -ruby -c++ -M #{input} &gt;#{output}&quot;
+-	sh cmd
+-	$?
+-end
+-
+-def generateSwig(dir)
+-	output=dir+&quot;/swig.cc&quot;
+-	input=dir+&quot;/interface.i&quot;
+-	cflags=$CONFIG[&quot;INCLUDEPATH&quot;]+&quot; &quot;+$CONFIG[&quot;DEFINES&quot;]+&quot; -DAGEXPORT&quot;
+-	cmd=$CONFIG[&quot;SWIG&quot;]+&quot; #{cflags} -v -Wall -ruby -c++ -o #{output} #{input}&quot;
+-	puts &quot;&quot;
+-	pp cmd
+-	sh cmd
+-	$?
+-end
+-
+-def linkLib(name,objects)
+-	name=name.to_s
+-	winadd=&quot;&quot;
+-	if $CONFIG[&quot;target_os&quot;]==&quot;windows&quot;
+-		winadd=&quot;-Wl,--enable-auto-image-base -Xlinker --out-implib -Xlinker #{name.gsub(/\.so$/,&quot;.dll&quot;)}.a&quot;
+-	end
+-
+-	cmd=$CONFIG[&quot;CXX&quot;]+&quot; -dH -shared -o #{name} -Lext #{winadd} -Wl,-\\( #{$CONFIG[&quot;LDFLAGS&quot;]} #{$CONFIG[&quot;LIBPATH&quot;]} #{objects.join(&quot; &quot;)}&quot;
+-	if $CONFIG[&quot;CCACHE&quot;]
+-		cmd=$CONFIG[&quot;CCACHE&quot;]+&quot; &quot;+cmd
+-	end
+-	puts &quot;&quot;
+-	#pp cmd
+-	sh cmd
+-	$?
+-end
+-
+-def makeDepFilename(file)
+-	File.join(&quot;.deps&quot;,file.gsub(&quot;\\&quot;,&quot;_&quot;).gsub(&quot;/&quot;,&quot;_&quot;))
+-end
+-
+-def getDepsFromCache(filename,source)
+-	depfile=makeDepFilename(filename)
+-	if File.exists?(depfile)
+-		file=File.open(depfile)
+-		content=file.read
+-		file.close
+-		content=content.gsub(&quot;\\\n&quot;,&quot; &quot;).gsub(/^[^:]*:/,&quot;&quot;).split(&quot; &quot;).map{|fn|fn.chomp}
+-		return [source]+(content-[source])
+-	end
+-	[source]
+-end
+-
+-
+-
+-desc &quot;Managing dependencies for c/++ files&quot;
+-getDeps=lambda{|args|
+-	cfile=args.sub(/\.oo$/,&quot;.cc&quot;).sub(/\.o$/,&quot;.c&quot;)
+-	getDepsFromCache(args,cfile)
+-}
+-
+-rule '.o' =&gt; getDeps do |t|
+-	source=t.sources[0]
+-	build(source)
+-end
+-rule '.oo' =&gt; getDeps do |t|
+-	source=t.sources[0]
+-	build(source)
+-end
+-
+-
+-def isWindows
+-	#return true
+-	$CONFIG[&quot;target_os&quot;]==&quot;windows&quot;
+-end
+-
+-
+-
+-libdeps=[]
+-$SOURCEDIRS.each{|dir|
+-	base=dir.split(&quot;/&quot;)[1]
+-	lib=&quot;ext/libantargis#{base}.so&quot;
+-
+-	# FIXME: check for windows
+-	if isWindows
+-		libadd=libdeps.map{|l|&quot;-l#{l.sub(/^.*\/lib(.*)\.so$/,'\1')}&quot;}
+-	else	
+-		libadd=libdeps.dup #.map{|l|&quot;-l#{l.sub(/^.*\/(.*)\.so$/,'\1')}&quot;}
+-	end
+-
+-	libadd+=$CONFIG[&quot;LIBS&quot;].split(&quot; &quot;) if libdeps.length==0
+-	libadd+=[&quot;-Lext&quot;]
+-
+-	objs=(Dir[dir+&quot;/*.cc&quot;]+Dir[dir+&quot;/*.c&quot;]).select{|file|not file=~/swig/}.map{|file|file.sub(/\.cc$/,&quot;.oo&quot;).sub(/\.c$/,&quot;.o&quot;)}
+-
+-	desc &quot;Build dynamic library #{lib}&quot;
+-	task lib=&gt;libdeps+objs do |t|
+-		linkLib(lib,libadd+objs)
+-	end
+-	libdeps &lt;&lt; lib
+-}
+-
+-
+-
+-$SOURCEDIRS.each{|dir|
+-	base=dir.split(&quot;/&quot;)[1]
+-	lib=&quot;ext/antargis#{base}.so&quot;
+-
+-	objs=[dir+&quot;/swig.oo&quot;]
+-
+-	libdeps=[]
+-	$SOURCEDIRS.each{|cdir|
+-		cbase=cdir.split(&quot;/&quot;)[1]
+-		libdeps &lt;&lt; &quot;ext/libantargis#{cbase}.so&quot;
+-		break if cdir==dir
+-	}
+-
+-	libadd=$CONFIG[&quot;LIBS&quot;].split(&quot; &quot;)+[&quot;-Lext&quot;]
+-
+-	
+-	desc &quot;Build ruby-extension library #{lib}&quot;
+-	task lib=&gt;libdeps+objs do |t|
+-		lib=t
+-		mlibdeps=t.prerequisites
+-		mlibdeps=t.prerequisites.map{|l|l.sub(/^.*\/lib(.*)\.so$/,'-l\1')} if isWindows
+-		linkLib(lib,mlibdeps+libadd)
+-	end
+-	libdeps=libdeps+[lib]
+-}
+-
+-
+-
+-
+-swigDeps=lambda{|t|
+-	dir=File.join(File.split(t)[0..-2])
+-
+-	
+-	deps=getDepsFromCache(t,dir+&quot;/interface.i&quot;)
+-	return deps if deps.length&gt;0
+-
+-	# FIXME: del this ???
+-
+-	# FIXME: include correct dependencies
+-	deps=Dir[dir+&quot;/templates.i&quot;]+Dir[dir+&quot;/*.h&quot;]+[dir+&quot;/interface.i&quot;]
+-
+-	$SOURCEDIRS.each{|ct|
+-		if ct=~/#{dir}/
+-			break
+-		else
+-			deps &lt;&lt; ct+&quot;/interface.i&quot;  unless ct=~/external/
+-		end
+-	}
+-
+-	pp &quot;DEPS2:&quot;,deps
+-	deps
+-}
+-
+-$BOASOURCES.each{|dir|
+-	swig=dir+&quot;/swig.cc&quot;
+-	myDeps=swigDeps.call(swig)
+-	#rule 'swig.cc'=&gt;swigDeps do |t|
+-	task swig=&gt;myDeps do |t|
+-		dir=File.join(File.split(t.name)[0..-2])
+-		generateSwigDeps(dir)
+-		generateSwig(dir)
+-	end
+-}
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-def importsForInterface(name)
+-	mdeps=[]
+-	$SOURCEDIRS.each{|t|
+-		if name=~/#{t}/
+-			break
+-		else
+-			mdeps &lt;&lt; t+&quot;/interface.i&quot; unless t=~/external/
+-		end
+-	}
+-	return mdeps.join(&quot;:&quot;)
+-end
+-
+-interfaceSrc = lambda { |t|
+-	dir=File.join(File.split(t)[0..-2])
+-	Dir[dir+&quot;/*.h&quot;].select{|file|not file=~/swig/}
+-}
+-
+-rule 'interface.i' =&gt; interfaceSrc do |t|
+-	output=t.name.sub(/\/interface.[a-z]*/,&quot;&quot;)
+-	input=importsForInterface(t.name)
+-	cmd=$CONFIG[&quot;RUBY&quot;]+&quot; build/create_interface.rb -d=#{output} -i=#{input}&quot;
+-	puts &quot;&quot;	
+-	sh cmd
+-end
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-$BOA_LIBRARIES=$SOURCEDIRS.map{|dir|&quot;ext/libantargis&quot;+dir.split(&quot;/&quot;)[1]+&quot;.so&quot;}+$BOASOURCES.map{|dir|&quot;ext/antargis&quot;+dir.split(&quot;/&quot;)[1]+&quot;.so&quot;}
+-task :libraries=&gt;$BOA_LIBRARIES do
+-end
+-
+-task &quot;ext/antargis.so&quot; =&gt; ((Dir[&quot;ext/*/*.cc&quot;]+Dir[&quot;ext/*/*.c&quot;]).select{|file|not file=~/[a-z]swig/}.map{|file|file.sub(&quot;.cc&quot;,&quot;.oo&quot;).sub(&quot;.c&quot;,&quot;.o&quot;)}+[&quot;ext/swig.oo&quot;]) do |t|
+-	linkLib(t.name,t.prerequisites+$CONFIG[&quot;LIBS&quot;].split(&quot; &quot;))
+-end
+-
+-
+-task :library=&gt;&quot;ext/antargis.so&quot; do
+-end
+-
+-task &quot;ext/swig.cc&quot;=&gt;($SOURCEDIRS[1..-1].map{|dir|dir+&quot;/interface.i&quot;}) do
+-	output=&quot;ext/swig.cc&quot;
+-	input=$BOASOURCES.map{|dir|File.join(dir,&quot;interface.i&quot;)}
+-	file=File.open(&quot;ext/interface.i&quot;,&quot;w&quot;)
+-	file.puts '%module(directors=&quot;1&quot;) antargis'
+-	input.each{|filename|file.puts &quot;%include \&quot;#{filename}\&quot;&quot;}
+-	file.close
+-	cflags=$CONFIG[&quot;INCLUDEPATH&quot;]+&quot; &quot;+$CONFIG[&quot;DEFINES&quot;]+&quot; -DAGEXPORT&quot;
+-	cmd=$CONFIG[&quot;SWIG&quot;]+&quot; #{cflags} -v -Wall -ruby -c++ -o #{output} ext/interface.i&quot;
+-	puts &quot;&quot;
+-	sh cmd
+-	$?
+-end
+-
+-
+-desc &quot;Build all&quot;
+-task :default=&gt;[:library] do
+-end
+-
+-
+-task :allclean=&gt;[:clobber_package] do
+-	File.delete(&quot;config.rb&quot;)
+-end
+-
+-
+-CLEAN &lt;&lt; Dir[&quot;**/*.o&quot;]+Dir[&quot;**/*.oo&quot;]+Dir[&quot;**/*.so&quot;]+Dir[&quot;ext/*/interface.i&quot;]+Dir[&quot;ext/*/swig.*&quot;]+Dir[&quot;.deps/*&quot;]+Dir[&quot;ext/*.so*&quot;]+Dir[&quot;ext/*.dll*&quot;]
+-
+-
+-
+-
+-
+-
+-
+ ##########################
+ #
+ # Gems
+
+Modified: antargis/trunk/configure
+===================================================================
+--- antargis/trunk/configure	2007-12-22 11:19:45 UTC (rev 1198)
++++ antargis/trunk/configure	2007-12-22 11:45:35 UTC (rev 1199)
+@@ -305,7 +305,7 @@
+ end
+ 
+ def saveConfigurationFile(config)
+-	file=File.open(&quot;config.rb&quot;,&quot;w&quot;)
++	file=File.open(&quot;antconfig.rb&quot;,&quot;w&quot;)
+ 	file.puts config.toRuby
+ 	file.close
+ end
+
+Added: antargis/trunk/ext/Rakefile
+===================================================================
+--- antargis/trunk/ext/Rakefile	2007-12-22 11:19:45 UTC (rev 1198)
++++ antargis/trunk/ext/Rakefile	2007-12-22 11:45:35 UTC (rev 1199)
+@@ -0,0 +1,322 @@
++#!/usr/bin/env ruby
++
++Dir.chdir(File.split(File.split(__FILE__)[0])[0])
++
++require 'mkmf'
++require 'build/mkmf_support.rb'
++require 'build/shell.rb'
++require 'pp'
++require 'rake/clean.rb'
++
++
++# run configure if config.rb is not yet present
++sh(checkMkmf(&quot;$(bindir)/$(ruby_install_name) configure&quot;,CONFIG)) unless File.exists?(&quot;antconfig.rb&quot;)
++
++load 'antconfig.rb'
++
++
++PKG_VERSION=$CONFIG[&quot;version&quot;]
++
++$SOURCEDIRS=[
++	&quot;ext/external&quot;,
++	&quot;ext/basic&quot;,
++	&quot;ext/sound&quot;,
++	&quot;ext/math&quot;,
++	&quot;ext/video&quot;,
++	&quot;ext/gui&quot;,
++	&quot;ext/3dengine&quot;,
++	&quot;ext/game&quot;,
++]
++
++$LIBDEPS={&quot;ext/basic&quot;=&gt;[&quot;SDL&quot;,&quot;RUBY&quot;]}
++
++$BOASOURCES=$SOURCEDIRS.select{|dir|not dir=~/external/}
++
++MYINCLUDES=$SOURCEDIRS.map{|dir|&quot;-I#{dir}&quot;}.join(&quot; &quot;)
++
++def dependencies(c)
++end
++
++def build(file)
++	type=nil
++	compiler=nil
++	case file
++		when /\.c$/
++			type=:c
++			compiler=$CONFIG[&quot;CC&quot;]
++		when /\.c(c|pp)$/
++			type=:c
++			compiler=$CONFIG[&quot;CXX&quot;]
++	end
++	if type==:c
++		if $CONFIG[&quot;CCACHE&quot;]
++			compiler=$CONFIG[&quot;CCACHE&quot;]+&quot; &quot;+compiler
++		end
++
++		output=file.sub(/\.c$/,&quot;.o&quot;).sub(/\.(cc|cpp)$/,&quot;.oo&quot;)
++		Dir.mkdir(&quot;.deps&quot;) unless File.exists?(&quot;.deps&quot;)
++		dep=&quot;.deps/&quot;+output.gsub(&quot;/&quot;,&quot;_&quot;)
++		cmd=compiler+&quot; &quot;+$CONFIG[&quot;CFLAGS&quot;]+&quot; &quot;+$CONFIG[&quot;INCLUDEPATH&quot;]+&quot; &quot;+MYINCLUDES+&quot; -Wp,-MD,#{dep} -o &quot;+output+&quot; -c &quot;+File.expand_path(file)
++	else
++		raise &quot;Unknown source file&quot;
++	end	
++	sh cmd
++	$?
++end
++
++def generateSwigDeps(dir)
++	output=File.join(&quot;.deps&quot;,dir.gsub(&quot;/&quot;,&quot;_&quot;)+&quot;_swig.cc&quot;)
++	input=dir+&quot;/interface.i&quot;
++	cflags=$CONFIG[&quot;INCLUDEPATH&quot;]+&quot; &quot;+$CONFIG[&quot;DEFINES&quot;]+&quot; -DAGEXPORT&quot;
++	puts &quot;&quot;
++	cmd=$CONFIG[&quot;SWIG&quot;]+&quot; #{cflags} -ruby -c++ -M #{input} &gt;#{output}&quot;
++	sh cmd
++	$?
++end
++
++def generateSwig(dir)
++	output=dir+&quot;/swig.cc&quot;
++	input=dir+&quot;/interface.i&quot;
++	cflags=$CONFIG[&quot;INCLUDEPATH&quot;]+&quot; &quot;+$CONFIG[&quot;DEFINES&quot;]+&quot; -DAGEXPORT&quot;
++	cmd=$CONFIG[&quot;SWIG&quot;]+&quot; #{cflags} -v -Wall -ruby -c++ -o #{output} #{input}&quot;
++	puts &quot;&quot;
++	pp cmd
++	sh cmd
++	$?
++end
++
++def linkLib(name,objects)
++	name=name.to_s
++	winadd=&quot;&quot;
++	if $CONFIG[&quot;target_os&quot;]==&quot;windows&quot;
++		winadd=&quot;-Wl,--enable-auto-image-base -Xlinker --out-implib -Xlinker #{name.gsub(/\.so$/,&quot;.dll&quot;)}.a&quot;
++	end
++
++	cmd=$CONFIG[&quot;CXX&quot;]+&quot; -dH -shared -o #{name} -Lext #{winadd} -Wl,-\\( #{$CONFIG[&quot;LDFLAGS&quot;]} #{$CONFIG[&quot;LIBPATH&quot;]} #{objects.join(&quot; &quot;)}&quot;
++	if $CONFIG[&quot;CCACHE&quot;]
++		cmd=$CONFIG[&quot;CCACHE&quot;]+&quot; &quot;+cmd
++	end
++	puts &quot;&quot;
++	#pp cmd
++	sh cmd
++	$?
++end
++
++def makeDepFilename(file)
++	File.join(&quot;.deps&quot;,file.gsub(&quot;\\&quot;,&quot;_&quot;).gsub(&quot;/&quot;,&quot;_&quot;))
++end
++
++def getDepsFromCache(filename,source)
++	depfile=makeDepFilename(filename)
++	if File.exists?(depfile)
++		file=File.open(depfile)
++		content=file.read
++		file.close
++		content=content.gsub(&quot;\\\n&quot;,&quot; &quot;).gsub(/^[^:]*:/,&quot;&quot;).split(&quot; &quot;).map{|fn|fn.chomp}
++		return [source]+(content-[source])
++	end
++	[source]
++end
++
++
++
++desc &quot;Managing dependencies for c/++ files&quot;
++getDeps=lambda{|args|
++	cfile=args.sub(/\.oo$/,&quot;.cc&quot;).sub(/\.o$/,&quot;.c&quot;)
++	getDepsFromCache(args,cfile)
++}
++
++rule '.o' =&gt; getDeps do |t|
++	source=t.sources[0]
++	build(source)
++end
++rule '.oo' =&gt; getDeps do |t|
++	source=t.sources[0]
++	build(source)
++end
++
++
++def isWindows
++	#return true
++	$CONFIG[&quot;target_os&quot;]==&quot;windows&quot;
++end
++
++
++
++libdeps=[]
++$SOURCEDIRS.each{|dir|
++	base=dir.split(&quot;/&quot;)[1]
++	lib=&quot;ext/libantargis#{base}.so&quot;
++
++	# FIXME: check for windows
++	if isWindows
++		libadd=libdeps.map{|l|&quot;-l#{l.sub(/^.*\/lib(.*)\.so$/,'\1')}&quot;}
++	else	
++		libadd=libdeps.dup #.map{|l|&quot;-l#{l.sub(/^.*\/(.*)\.so$/,'\1')}&quot;}
++	end
++
++	libadd+=$CONFIG[&quot;LIBS&quot;].split(&quot; &quot;) if libdeps.length==0
++	libadd+=[&quot;-Lext&quot;]
++
++	objs=(Dir[dir+&quot;/*.cc&quot;]+Dir[dir+&quot;/*.c&quot;]).select{|file|not file=~/swig/}.map{|file|file.sub(/\.cc$/,&quot;.oo&quot;).sub(/\.c$/,&quot;.o&quot;)}
++
++	desc &quot;Build dynamic library #{lib}&quot;
++	task lib=&gt;libdeps+objs do |t|
++		linkLib(lib,libadd+objs)
++	end
++	libdeps &lt;&lt; lib
++}
++
++
++
++$SOURCEDIRS.each{|dir|
++	base=dir.split(&quot;/&quot;)[1]
++	lib=&quot;ext/antargis#{base}.so&quot;
++
++	objs=[dir+&quot;/swig.oo&quot;]
++
++	libdeps=[]
++	$SOURCEDIRS.each{|cdir|
++		cbase=cdir.split(&quot;/&quot;)[1]
++		libdeps &lt;&lt; &quot;ext/libantargis#{cbase}.so&quot;
++		break if cdir==dir
++	}
++
++	libadd=$CONFIG[&quot;LIBS&quot;].split(&quot; &quot;)+[&quot;-Lext&quot;]
++
++	
++	desc &quot;Build ruby-extension library #{lib}&quot;
++	task lib=&gt;libdeps+objs do |t|
++		lib=t
++		mlibdeps=t.prerequisites
++		mlibdeps=t.prerequisites.map{|l|l.sub(/^.*\/lib(.*)\.so$/,'-l\1')} if isWindows
++		linkLib(lib,mlibdeps+libadd)
++	end
++	libdeps=libdeps+[lib]
++}
++
++
++
++
++swigDeps=lambda{|t|
++	dir=File.join(File.split(t)[0..-2])
++
++	
++	deps=getDepsFromCache(t,dir+&quot;/interface.i&quot;)
++	return deps if deps.length&gt;0
++
++	# FIXME: del this ???
++
++	# FIXME: include correct dependencies
++	deps=Dir[dir+&quot;/templates.i&quot;]+Dir[dir+&quot;/*.h&quot;]+[dir+&quot;/interface.i&quot;]
++
++	$SOURCEDIRS.each{|ct|
++		if ct=~/#{dir}/
++			break
++		else
++			deps &lt;&lt; ct+&quot;/interface.i&quot;  unless ct=~/external/
++		end
++	}
++
++	pp &quot;DEPS2:&quot;,deps
++	deps
++}
++
++$BOASOURCES.each{|dir|
++	swig=dir+&quot;/swig.cc&quot;
++	myDeps=swigDeps.call(swig)
++	#rule 'swig.cc'=&gt;swigDeps do |t|
++	task swig=&gt;myDeps do |t|
++		dir=File.join(File.split(t.name)[0..-2])
++		generateSwigDeps(dir)
++		generateSwig(dir)
++	end
++}
++
++
++
++
++
++
++
++
++
++def importsForInterface(name)
++	mdeps=[]
++	$SOURCEDIRS.each{|t|
++		if name=~/#{t}/
++			break
++		else
++			mdeps &lt;&lt; t+&quot;/interface.i&quot; unless t=~/external/
++		end
++	}
++	return mdeps.join(&quot;:&quot;)
++end
++
++interfaceSrc = lambda { |t|
++	dir=File.join(File.split(t)[0..-2])
++	Dir[dir+&quot;/*.h&quot;].select{|file|not file=~/swig/}
++}
++
++rule 'interface.i' =&gt; interfaceSrc do |t|
++	output=t.name.sub(/\/interface.[a-z]*/,&quot;&quot;)
++	input=importsForInterface(t.name)
++	cmd=$CONFIG[&quot;RUBY&quot;]+&quot; build/create_interface.rb -d=#{output} -i=#{input}&quot;
++	puts &quot;&quot;	
++	sh cmd
++end
++
++
++
++
++
++
++
++
++
++
++
++$BOA_LIBRARIES=$SOURCEDIRS.map{|dir|&quot;ext/libantargis&quot;+dir.split(&quot;/&quot;)[1]+&quot;.so&quot;}+$BOASOURCES.map{|dir|&quot;ext/antargis&quot;+dir.split(&quot;/&quot;)[1]+&quot;.so&quot;}
++task :libraries=&gt;$BOA_LIBRARIES do
++end
++
++task &quot;ext/antargis.so&quot; =&gt; ((Dir[&quot;ext/*/*.cc&quot;]+Dir[&quot;ext/*/*.c&quot;]).select{|file|not file=~/[a-z]swig/}.map{|file|file.sub(&quot;.cc&quot;,&quot;.oo&quot;).sub(&quot;.c&quot;,&quot;.o&quot;)}+[&quot;ext/swig.oo&quot;]) do |t|
++	linkLib(t.name,t.prerequisites+$CONFIG[&quot;LIBS&quot;].split(&quot; &quot;))
++end
++
++
++task :library=&gt;&quot;ext/antargis.so&quot; do
++end
++
++task &quot;ext/swig.cc&quot;=&gt;($SOURCEDIRS[1..-1].map{|dir|dir+&quot;/interface.i&quot;}) do
++	output=&quot;ext/swig.cc&quot;
++	input=$BOASOURCES.map{|dir|File.join(dir,&quot;interface.i&quot;)}
++	file=File.open(&quot;ext/interface.i&quot;,&quot;w&quot;)
++	file.puts '%module(directors=&quot;1&quot;) antargis'
++	input.each{|filename|file.puts &quot;%include \&quot;#{filename}\&quot;&quot;}
++	file.close
++	cflags=$CONFIG[&quot;INCLUDEPATH&quot;]+&quot; &quot;+$CONFIG[&quot;DEFINES&quot;]+&quot; -DAGEXPORT&quot;
++	cmd=$CONFIG[&quot;SWIG&quot;]+&quot; #{cflags} -v -Wall -ruby -c++ -o #{output} ext/interface.i&quot;
++	puts &quot;&quot;
++	sh cmd
++	$?
++end
++
++
++desc &quot;Build all&quot;
++task :default=&gt;[:library] do
++end
++
++
++task :allclean=&gt;[:clobber_package] do
++	File.delete(&quot;antconfig.rb&quot;)
++end
++
++
++CLEAN &lt;&lt; Dir[&quot;**/*.o&quot;]+Dir[&quot;**/*.oo&quot;]+Dir[&quot;**/*.so&quot;]+Dir[&quot;ext/*/interface.i&quot;]+Dir[&quot;ext/*/swig.*&quot;]+Dir[&quot;.deps/*&quot;]+Dir[&quot;ext/*.so*&quot;]+Dir[&quot;ext/*.dll*&quot;]
++
++
++
++
++
++
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000155.html">[Antargis-svn] r1198 - antargis/trunk
+</A></li>
+	<LI>Next message: <A HREF="000157.html">[Antargis-svn] r1200 - antargis/trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#156">[ date ]</a>
+              <a href="thread.html#156">[ thread ]</a>
+              <a href="subject.html#156">[ subject ]</a>
+              <a href="author.html#156">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

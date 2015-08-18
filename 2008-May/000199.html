@@ -1,0 +1,177 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1243 - antargis/trunk
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2008-May/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1243%20-%20antargis/trunk&In-Reply-To=%3C200805031745.m43HjslE024610%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000198.html">
+   <LINK REL="Next"  HREF="000200.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1243 - antargis/trunk</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1243%20-%20antargis/trunk&In-Reply-To=%3C200805031745.m43HjslE024610%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1243 - antargis/trunk">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sat May  3 19:45:54 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000198.html">[Antargis-svn] r1242 - in antargis/trunk: . data ext/basic ext/game	ext/gui ext/sound rookey
+</A></li>
+        <LI>Next message: <A HREF="000200.html">[Antargis-svn] r1244 - in antargis/trunk: .	data/gui/layout/editor/campaign ext/basic ext/game ext/gui	rookey rookey/cpp ruby ruby/editor/campaign ruby/gui ruby/spec
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#199">[ date ]</a>
+              <a href="thread.html#199">[ thread ]</a>
+              <a href="subject.html#199">[ subject ]</a>
+              <a href="author.html#199">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2008-05-03 19:45:54 +0200 (Sat, 03 May 2008)
+New Revision: 1243
+
+Removed:
+   antargis/trunk/debug.txt
+   antargis/trunk/mytest.rb
+   antargis/trunk/oldStarter.rb
+   antargis/trunk/rookey_configuration.rb
+Modified:
+   antargis/trunk/
+Log:
+cleanup
+
+
+Property changes on: antargis/trunk
+___________________________________________________________________
+Name: svn:ignore
+   - coverage
+*.bundle
+starter.dSYM
+spec_output.html
+starter
+.deps
+.settings
+antconfig.rb
+events.txt
+.cproject
+
+   + coverage
+*.bundle
+.build*
+starter.dSYM
+spec_output.html
+starter
+.deps
+.settings
+antconfig.rb
+events.txt
+.cproject
+rookey_configuration.rb
+test
+
+test.c
+
+
+Deleted: antargis/trunk/debug.txt
+===================================================================
+
+Deleted: antargis/trunk/mytest.rb
+===================================================================
+--- antargis/trunk/mytest.rb	2008-05-03 12:52:29 UTC (rev 1242)
++++ antargis/trunk/mytest.rb	2008-05-03 17:45:54 UTC (rev 1243)
+@@ -1,12 +0,0 @@
+-#!/usr/bin/env ruby
+-
+-require 'build/testing.rb'
+-
+-Cmd.setQuiet(true)
+-
+-testFiles=Dir[File.join(&quot;ext/**/tests/*.cc&quot;)]
+-
+-testFiles.each{|file|
+-	Testing.runCTest(file)
+-}
+-
+
+Deleted: antargis/trunk/oldStarter.rb
+===================================================================
+--- antargis/trunk/oldStarter.rb	2008-05-03 12:52:29 UTC (rev 1242)
++++ antargis/trunk/oldStarter.rb	2008-05-03 17:45:54 UTC (rev 1243)
+@@ -1,34 +0,0 @@
+-#!/usr/bin/env ruby
+-#
+-# This is a starter-program. It's run in a ruby-interpreter, because that's easiest.
+-# Because we have to load DLLs which may not be in the standard-search-path, we'll
+-# start another ruby-interpreter in a sub-process and before we do so, we set
+-# the LD_LIBRARY_PATH environment variable, that will add the extension-directory to
+-# the path
+-#
+-
+-# the path, where this program lies (fully expanded)
+-base=File.expand_path(File.split(__FILE__)[0])
+-
+-# for Debugging
+-require 'pp'
+-# for parsing the mkmf-CONFIG-global
+-require File.join(base,'build','mkmf_support.rb')
+-# get the actual mkmf-CONFIG
+-require 'mkmf'
+-
+-# read-out where the ruby-interpreter is
+-rubyExe=checkMkmf(&quot;$(bindir)/$(ruby_install_name)&quot;,CONFIG)
+-
+-# add the extension-path (for the non-extension dlls) to the ld-search-path
+-path=File.join(base,&quot;ext&quot;)
+-seperator=&quot;:&quot;
+-separator=&quot;;&quot; if File.join(&quot;a&quot;,&quot;b&quot;)!=&quot;a/b&quot;
+-old_path=ENV['LD_LIBRARY_PATH']||&quot;&quot;
+-ENV['LD_LIBRARY_PATH']=(old_path.split(separator).map{|dir|File.expand_path(dir)}+[path]).uniq.join(separator)
+-
+-# run ruby with path as an extension dir
+-call=rubyExe+&quot; -I#{path} &quot;+File.join(File.split(__FILE__)[0],'runAntargis.rb')
+-
+-pp call,base,path,ENV
+-system call
+
+Deleted: antargis/trunk/rookey_configuration.rb
+===================================================================
+--- antargis/trunk/rookey_configuration.rb	2008-05-03 12:52:29 UTC (rev 1242)
++++ antargis/trunk/rookey_configuration.rb	2008-05-03 17:45:54 UTC (rev 1243)
+@@ -1,3 +0,0 @@
+-ROOKEY_CONFIG={
+-
+-}
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000198.html">[Antargis-svn] r1242 - in antargis/trunk: . data ext/basic ext/game	ext/gui ext/sound rookey
+</A></li>
+	<LI>Next message: <A HREF="000200.html">[Antargis-svn] r1244 - in antargis/trunk: .	data/gui/layout/editor/campaign ext/basic ext/game ext/gui	rookey rookey/cpp ruby ruby/editor/campaign ruby/gui ruby/spec
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#199">[ date ]</a>
+              <a href="thread.html#199">[ thread ]</a>
+              <a href="subject.html#199">[ subject ]</a>
+              <a href="author.html#199">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

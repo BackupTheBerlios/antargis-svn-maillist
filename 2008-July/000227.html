@@ -1,0 +1,1701 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1271 - in antargis/trunk: data	data/gui/layout/editor/campaign ext/basic ext/gui ext/video	ruby ruby/editor/campaign
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2008-July/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1271%20-%20in%20antargis/trunk%3A%20data%0A%09data/gui/layout/editor/campaign%20ext/basic%20ext/gui%20ext/video%0A%09ruby%20ruby/editor/campaign&In-Reply-To=%3C200807071904.m67J4SfO013031%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000226.html">
+   <LINK REL="Next"  HREF="000228.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1271 - in antargis/trunk: data	data/gui/layout/editor/campaign ext/basic ext/gui ext/video	ruby ruby/editor/campaign</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1271%20-%20in%20antargis/trunk%3A%20data%0A%09data/gui/layout/editor/campaign%20ext/basic%20ext/gui%20ext/video%0A%09ruby%20ruby/editor/campaign&In-Reply-To=%3C200807071904.m67J4SfO013031%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1271 - in antargis/trunk: data	data/gui/layout/editor/campaign ext/basic ext/gui ext/video	ruby ruby/editor/campaign">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Mon Jul  7 21:04:28 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000226.html">[Antargis-svn] r1270 - in antargis/trunk: data data/gui	data/gui/images/basic data/gui/layout/editor/campaign ext/gui	ext/video ruby/editor/campaign
+</A></li>
+        <LI>Next message: <A HREF="000228.html">[Antargis-svn] r1272 - in antargis/trunk: .	data/gui/layout/editor/campaign ext/basic ext/gui ruby	ruby/editor/campaign ruby/gui ruby/spec ruby/spec/story
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#227">[ date ]</a>
+              <a href="thread.html#227">[ thread ]</a>
+              <a href="subject.html#227">[ subject ]</a>
+              <a href="author.html#227">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2008-07-07 21:04:25 +0200 (Mon, 07 Jul 2008)
+New Revision: 1271
+
+Modified:
+   antargis/trunk/data/gui/layout/editor/campaign/load_dialog.xml
+   antargis/trunk/data/gui/layout/editor/campaign/main.xml
+   antargis/trunk/data/gui/layout/editor/campaign/save_dialog.xml
+   antargis/trunk/data/theme.xml
+   antargis/trunk/ext/basic/ag_debug.cc
+   antargis/trunk/ext/basic/ag_debug.h
+   antargis/trunk/ext/gui/ag_background.h
+   antargis/trunk/ext/gui/ag_image.cc
+   antargis/trunk/ext/gui/ag_layoutcreators.cc
+   antargis/trunk/ext/gui/ag_listbox.cc
+   antargis/trunk/ext/gui/ag_listbox.h
+   antargis/trunk/ext/gui/ag_scrollingwidget.cc
+   antargis/trunk/ext/gui/ag_theme.cc
+   antargis/trunk/ext/gui/ag_theme.h
+   antargis/trunk/ext/gui/ag_widget.cc
+   antargis/trunk/ext/gui/ag_widget.h
+   antargis/trunk/ext/video/ag_gltexture.cc
+   antargis/trunk/ruby/editor/campaign/campaign_data.rb
+   antargis/trunk/ruby/editor/campaign/dialogs.rb
+   antargis/trunk/ruby/editor/campaign/drag_grid.rb
+   antargis/trunk/ruby/editor/campaign/spec_campaign_editor.rb
+   antargis/trunk/ruby/spec_helper.rb
+Log:
+Incomplete - task 11: Campaign editor 
+<A HREF="http://localhost:3000/issues/show/11">http://localhost:3000/issues/show/11</A>
+<A HREF="http://localhost:3000/issues/show/10">http://localhost:3000/issues/show/10</A>
+
+Modified: antargis/trunk/data/gui/layout/editor/campaign/load_dialog.xml
+===================================================================
+--- antargis/trunk/data/gui/layout/editor/campaign/load_dialog.xml	2008-07-02 17:22:33 UTC (rev 1270)
++++ antargis/trunk/data/gui/layout/editor/campaign/load_dialog.xml	2008-07-07 19:04:25 UTC (rev 1271)
+@@ -0,0 +1,25 @@
++&lt;?xml version=&quot;1.0&quot;?&gt;
++&lt;layout&gt;
++  &lt;frame width=&quot;200&quot;&gt;
++    &lt;window theme=&quot;blue&quot; title=&quot;Load&quot;&gt;
++      &lt;table cols=&quot;2&quot; rows=&quot;3&quot;&gt;
++        &lt;rowsize row=&quot;0&quot; fixed=&quot;0&quot;/&gt;
++        &lt;rowsize row=&quot;2&quot; fixed=&quot;60&quot;/&gt;
++        &lt;colsize col=&quot;1&quot; relative=&quot;2&quot;/&gt;
++        
++        &lt;cell col=&quot;0&quot; row=&quot;1&quot; padding=&quot;10&quot;&gt;
++          &lt;text caption=&quot;Existing&quot;/&gt;
++        &lt;/cell&gt;
++        &lt;cell col=&quot;1&quot; row=&quot;1&quot; padding=&quot;10&quot;&gt;
++          &lt;listBox name=&quot;listBox&quot;/&gt;
++        &lt;/cell&gt;
++        &lt;cell col=&quot;0&quot; row=&quot;2&quot; padding=&quot;10&quot;&gt;
++          &lt;button name=&quot;cancel&quot; caption-image=&quot;data/gui/images/basic/cross.png&quot;/&gt;
++        &lt;/cell&gt;
++        &lt;cell col=&quot;1&quot; row=&quot;2&quot; padding=&quot;10&quot;&gt;
++          &lt;button name=&quot;ok&quot; caption-image=&quot;data/gui/images/basic/checkmark.png&quot;/&gt;
++        &lt;/cell&gt;
++      &lt;/table&gt;
++    &lt;/window&gt;
++  &lt;/frame&gt;
++&lt;/layout&gt;
+\ No newline at end of file
+
+Modified: antargis/trunk/data/gui/layout/editor/campaign/main.xml
+===================================================================
+--- antargis/trunk/data/gui/layout/editor/campaign/main.xml	2008-07-02 17:22:33 UTC (rev 1270)
++++ antargis/trunk/data/gui/layout/editor/campaign/main.xml	2008-07-07 19:04:25 UTC (rev 1271)
+@@ -13,6 +13,7 @@
+           &lt;!--&lt;toolButton text=&quot;LoadOk&quot; name=&quot;loadok&quot; caption=&quot;muh&quot; caption-image=&quot;gui/images/basic/haken.png&quot; visible=&quot;true&quot;/&gt;--&gt;
+           &lt;toolEdit name=&quot;campaignName&quot; text=&quot;noname&quot; width=&quot;3&quot; maxwidth=&quot;5&quot;/&gt;
+           &lt;toolEdit name=&quot;campaignDescription&quot; text=&quot;none&quot; width=&quot;3&quot; maxwidth=&quot;6&quot; height=&quot;7&quot;/&gt;
++          &lt;toolButton text=&quot;Quit&quot; name=&quot;quit&quot; caption-image=&quot;gui/door.png&quot;/&gt;
+           &lt;!--&lt;toolCombo name=&quot;campaignFile&quot;/&gt;--&gt;
+         &lt;/toolBar&gt;
+       &lt;/cell&gt;
+
+Modified: antargis/trunk/data/gui/layout/editor/campaign/save_dialog.xml
+===================================================================
+--- antargis/trunk/data/gui/layout/editor/campaign/save_dialog.xml	2008-07-02 17:22:33 UTC (rev 1270)
++++ antargis/trunk/data/gui/layout/editor/campaign/save_dialog.xml	2008-07-07 19:04:25 UTC (rev 1271)
+@@ -17,7 +17,7 @@
+           &lt;text caption=&quot;Existing&quot;/&gt;
+         &lt;/cell&gt;
+         &lt;cell col=&quot;1&quot; row=&quot;1&quot; padding=&quot;10&quot;&gt;
+-          &lt;listBox name=&quot;listBox&quot;/&gt;
++          &lt;listBox name=&quot;listBox&quot; theme=&quot;blue&quot;/&gt;
+         &lt;/cell&gt;
+         &lt;cell col=&quot;0&quot; row=&quot;2&quot; padding=&quot;10&quot;&gt;
+           &lt;button name=&quot;cancel&quot; caption-image=&quot;data/gui/images/basic/cross.png&quot;/&gt;
+@@ -25,9 +25,7 @@
+         &lt;cell col=&quot;1&quot; row=&quot;2&quot; padding=&quot;10&quot;&gt;
+           &lt;button name=&quot;ok&quot; caption-image=&quot;data/gui/images/basic/checkmark.png&quot;/&gt;
+         &lt;/cell&gt;
+-        
+       &lt;/table&gt;
+-          
+     &lt;/window&gt;
+   &lt;/frame&gt;
+ &lt;/layout&gt;
+\ No newline at end of file
+
+Modified: antargis/trunk/data/theme.xml
+===================================================================
+--- antargis/trunk/data/theme.xml	2008-07-02 17:22:33 UTC (rev 1270)
++++ antargis/trunk/data/theme.xml	2008-07-07 19:04:25 UTC (rev 1271)
+@@ -184,22 +184,10 @@
+ 	&lt;edit&gt;
+ 		&lt;background&gt;
+       &lt;color name=&quot;color&quot; color='#11111144'/&gt;
+-&lt;!-- 					&lt;color name='gradientColor1' color='#54555b'/&gt;
+-					&lt;color name='gradientColor2' color='#3c3d41'/&gt;
+-					&lt;color name='gradientColor3' color='#3c3d41'/&gt;
+-					&lt;color name='gradientColor4' color='#12141c'/&gt; --&gt;
+-			&lt;!--  &lt;image name=&quot;image&quot; file=&quot;data/gui/bg_tile2.png&quot;/&gt;--&gt;
+ 		&lt;/background&gt;
+-    &lt;!-- &lt;font name=&quot;font&quot; file=&quot;FreeSans.ttf&quot; size=&quot;14&quot; color=&quot;#000000&quot;/&gt; --&gt;
+     &lt;font name=&quot;font&quot; file=&quot;FreeSans.ttf&quot; size=&quot;14&quot; color=&quot;#E7E7FF&quot;/&gt;
+ 	&lt;/edit&gt;
+-&lt;!--
+-	&lt;screen&gt;
+-		&lt;background&gt;
+-			&lt;image name=&quot;image&quot; file=&quot;data/gui/bigbg_tile.png&quot;/&gt;
+-		&lt;/background&gt;
+-	&lt;/screen&gt;
+-	--&gt;
++
+ 	&lt;window&gt;
+ 		&lt;border&gt;
+ 			&lt;image name=&quot;image&quot; file=&quot;data/gui/buttontest3.png&quot; file2=&quot;win_border.png&quot;/&gt;
+@@ -269,7 +257,7 @@
+         &lt;color name=&quot;color&quot; color='#000088'/&gt;
+       &lt;/background&gt;
+     &lt;/window&gt;
+-  &lt;/bluek&gt;
++  &lt;/blue&gt;
+ 	
+ 	
+ 	&lt;yellowButton&gt;
+@@ -377,18 +365,9 @@
+ 			&lt;color name='gradientColor2' color='#ee9900'/&gt;
+ 			&lt;color name='gradientColor3' color='#dd8800'/&gt;
+ 			&lt;color name='gradientColor4' color='#aa6600'/&gt;
+-&lt;!--			&lt;color name='gradientColor1' color='#f3ac0e'/&gt;
+-			&lt;color name='gradientColor2' color='#ffd272'/&gt;
+-			&lt;color name='gradientColor3' color='#f3ac0e'/&gt;
+-			&lt;color name='gradientColor4' color='#c18c1a'/&gt;--&gt;
+ 		&lt;/selected&gt;
+ 		&lt;font name=&quot;font&quot; file=&quot;FreeSans.ttf&quot; size=&quot;22&quot; color=&quot;#000000&quot;/&gt;
+ 	&lt;/listbox&gt;
+-	&lt;!--&lt;button&gt;
+-		&lt;text&gt;
+-			&lt;font name=&quot;font&quot; file=&quot;FreeSans.ttf&quot; size=&quot;16&quot; color='#FFFFFF'/&gt;
+-		&lt;/text&gt;
+-	&lt;/button&gt;--&gt;
+ 
+ 	&lt;menuButton&gt;
+ 		&lt;button&gt;
+
+Modified: antargis/trunk/ext/basic/ag_debug.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_debug.cc	2008-07-02 17:22:33 UTC (rev 1270)
++++ antargis/trunk/ext/basic/ag_debug.cc	2008-07-07 19:04:25 UTC (rev 1271)
+@@ -32,35 +32,35 @@
+ 
+ bool quietLog=false;
+ void setQuiet()
+-{
+-  quietLog=true;
+-}
++  {
++    quietLog=true;
++  }
+ 
+ static bool gRubyRaising=false;
+ void agRaise(const std::string &amp;s)
+-{
+-  cdebug(&quot;assertion failed:&quot;&lt;&lt;s);
+-  if(gRubyRaising)
+-    rb_raise(rb_eRuntimeError,s.c_str(),&quot;&quot;);
+-  else
+-    throw std::runtime_error(s);
+-}
++  {
++    cdebug(&quot;assertion failed:&quot;&lt;&lt;s);
++    if(gRubyRaising)
++      rb_raise(rb_eRuntimeError,s.c_str(),&quot;&quot;);
++    else
++      throw std::runtime_error(s);
++  }
+ 
+ void setRubyRaising(bool flag)
+-{
+-  gRubyRaising=flag;
+-}
++  {
++    gRubyRaising=flag;
++  }
+ 
+ size_t gDebugLevel=0;
+ 
+ size_t getDebugLevel()
+-{
+-  return gDebugLevel;
+-}
++  {
++    return gDebugLevel;
++  }
+ void setDebugLevel(size_t t)
+-{
+-  gDebugLevel=t;
+-}
++  {
++    gDebugLevel=t;
++  }
+ 
+ 
+ #ifndef MNDEBUG
+@@ -69,43 +69,73 @@
+ std::ofstream debugOFS(&quot;debug.txt&quot;);
+ 
+ std::ostream &amp;getDebug()
+-{
+-  if(quietLog)
+-    return debugOFS;
+-  else
+-    return std::cout;
+-}
++  {
++    if(quietLog)
++      return debugOFS;
++    else
++      return std::cout;
++  }
+ 
+ size_t gDebugIndex=0;
+ 
+ size_t getDebugIndex()
+-{
+-  return gDebugIndex;
+-}
++  {
++    return gDebugIndex;
++  }
+ 
+ 
+ 
+ D::D(std::string c):
+   m(c)
+-{
+-  indent();
+-  gDebugIndex++;
++  {
++    indent();
++    gDebugIndex++;
+ 
+-  debugout_checked(2,&quot;start of:&quot;&lt;&lt;c&lt;&lt;&quot;(&quot;&lt;&lt;gDebugIndex&lt;&lt;&quot;)&quot;&lt;&lt;std::endl);
+-  d++;
+-}
++    debugout_checked(2,&quot;start of:&quot;&lt;&lt;c&lt;&lt;&quot;(&quot;&lt;&lt;gDebugIndex&lt;&lt;&quot;)&quot;&lt;&lt;std::endl);
++    d++;
++  }
+ AGEXPORT D::~D()
+-{
+-  d--;
+-  indent();
+-  debugout_checked(2,&quot;end   of:&quot;&lt;&lt;m&lt;&lt;std::endl);
+-}
++  {
++    d--;
++    indent();
++    debugout_checked(2,&quot;end   of:&quot;&lt;&lt;m&lt;&lt;std::endl);
++  }
+ void D::indent()
+-{
+-  for(int i=0;i&lt;d;i++)
+-    debugout_checked(2,&quot;  &quot;);
+-}
++  {
++    for(int i=0;i&lt;d;i++)
++      debugout_checked(2,&quot;  &quot;);
++  }
+ 
+ 
+ #endif
+ 
++#ifdef __APPLE__
++
++//#include &lt;mach-o/nlist.h&gt;
++
++#include &quot;execinfo.h&quot;
++void printStacktrace()
++  {
++    void* callstack[128];
++    int i, frames = backtrace(callstack, 128);
++    char** strs = backtrace_symbols(callstack, frames);
++    printf(&quot;FRAMES:%d\n&quot;,frames);
++    for (i = 0; i &lt; frames; ++i) {
++      printf(&quot;%s\n&quot;, strs[i]);
++    }
++    free(strs);
++    /*
++    struct nlist *nl;
++    int result=nlist(&quot;antargis.bundle&quot;,nl);
++    std::cout&lt;&lt;&quot;RESULT:&quot;&lt;&lt;result&lt;&lt;std::endl;
++*/
++  }
++
++#else
++
++void printStacktrace()
++  {
++  }
++
++#endif
++
+
+Modified: antargis/trunk/ext/basic/ag_debug.h
+===================================================================
+--- antargis/trunk/ext/basic/ag_debug.h	2008-07-02 17:22:33 UTC (rev 1270)
++++ antargis/trunk/ext/basic/ag_debug.h	2008-07-07 19:04:25 UTC (rev 1271)
+@@ -115,6 +115,7 @@
+ #endif
+ 
+ void setRubyRaising(bool flag);
++void printStacktrace();
+ 
+ 
+ #endif
+
+Modified: antargis/trunk/ext/gui/ag_background.h
+===================================================================
+--- antargis/trunk/ext/gui/ag_background.h	2008-07-02 17:22:33 UTC (rev 1270)
++++ antargis/trunk/ext/gui/ag_background.h	2008-07-07 19:04:25 UTC (rev 1271)
+@@ -27,9 +27,9 @@
+ #include &quot;ag_geometry.h&quot;
+ #include &quot;ag_texture.h&quot;
+ #include &quot;ag_color.h&quot;
+-#include &quot;ag_theme.h&quot;
+ 
+ class AGPainter;
++class AGLocalTheme;
+ 
+ /** AGBackground is a helper class for widget-drawing
+     It is used to draw gradients and tiled backgrounds of widgets.
+
+Modified: antargis/trunk/ext/gui/ag_image.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_image.cc	2008-07-02 17:22:33 UTC (rev 1270)
++++ antargis/trunk/ext/gui/ag_image.cc	2008-07-07 19:04:25 UTC (rev 1271)
+@@ -30,7 +30,7 @@
+ 
+ AGImage::AGImage(AGWidget *pParent,const AGRect2 &amp;r,AGTexture pTexture,bool pTile):
+   AGWidget(pParent,r),
+-  mTexture(pTexture),mTile(pTile)
++  mTexture(pTexture),mTile(pTile),mScale(false)
+   {
+     mCenter=true;
+   }
+
+Modified: antargis/trunk/ext/gui/ag_layoutcreators.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_layoutcreators.cc	2008-07-02 17:22:33 UTC (rev 1270)
++++ antargis/trunk/ext/gui/ag_layoutcreators.cc	2008-07-07 19:04:25 UTC (rev 1271)
+@@ -261,7 +261,10 @@
+ 
+   virtual void create(AGWidget *pParent,const AGRect2 &amp;pRect,const Node &amp;pNode)
+     {
+-      setResult(new AGListBox(pParent,pRect));
++      AGListBox *l=new AGListBox(pParent,pRect);
++      if(pNode.get(&quot;theme&quot;).length()&gt;0)
++        l-&gt;setTheme(pNode.get(&quot;theme&quot;));
++      setResult(l);
+     }
+ };
+ IMPLEMENT_COMPONENT_FACTORY(ListBox);
+@@ -519,7 +522,6 @@
+ 
+ 
+ 
+-// AGListBox creator
+ class AGScrollingWidgetCreator:public AGLayoutCreator
+ {
+ public:
+
+Modified: antargis/trunk/ext/gui/ag_listbox.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_listbox.cc	2008-07-02 17:22:33 UTC (rev 1270)
++++ antargis/trunk/ext/gui/ag_listbox.cc	2008-07-07 19:04:25 UTC (rev 1271)
+@@ -34,11 +34,9 @@
+   }
+ 
+ AGListBox::AGListBox(AGWidget *pParent,const AGRect2 &amp;pRect):AGWidget(pParent,pRect),
+-sigSelect(this,&quot;sigSelect&quot;),
+-sigDoubleClick(this,&quot;sigDoubleClick&quot;)
++  sigSelect(this,&quot;sigSelect&quot;),
++  sigDoubleClick(this,&quot;sigDoubleClick&quot;)
+ {
+-  mBackground=AGBackground(&quot;listbox.background&quot;);
+-  mHilight=AGBackground(&quot;listbox.selected&quot;);
+   // insert AGEdits
+   int y=0;
+   int count=0;
+@@ -46,9 +44,6 @@
+   if(mItemHeight&lt;5)
+     mItemHeight=25;
+ 
+-  AGFont f=getTheme()-&gt;getFont(&quot;listbox.font&quot;);
+-
+-
+   mScroller=new AGScroller(this,AGRect2(width()-mItemHeight,0,mItemHeight,height()),false);
+   addChild(mScroller);
+ 
+@@ -57,11 +52,10 @@
+   for(;y&lt;pRect.h();y+=mItemHeight,count++)
+     {
+       AGRect2 r(0,y,pRect.w()-mItemHeight,mItemHeight);
+-      //      cdebug(r);
+       AGEdit *e=new AGEdit(this,r);
+       e-&gt;setMutable(false);
+       e-&gt;setBackground(false);
+-      e-&gt;setFont(f);
++      //e-&gt;setFont(f);
+       AGStringStream os;
+       os&lt;&lt;&quot;ListBoxItem&quot;&lt;&lt;count;
+       e-&gt;setName(os.str());
+@@ -72,8 +66,46 @@
+   mHeight=count;
+   mY=0;
+   mSelected=-1;
++  
++  setTheme(&quot;&quot;);
+ }
+ 
++void AGListBox::setTheme(const AGString &amp;pTheme)
++  {
++    AGString themeName=pTheme;
++    if(themeName.length()==0)
++      themeName=&quot;listbox&quot;;
++    else
++      themeName+=&quot;listbox&quot;;
++    
++    AGLocalTheme theme=getTheme()-&gt;getTheme(themeName);
++    mBackground=AGBackground(theme,&quot;background&quot;);
++    mHilight=AGBackground(theme,&quot;selected&quot;);
++
++    AGFont f=theme.getFont(&quot;font&quot;);
++
++    // change fonts for edits
++    for(std::vector&lt;AGEdit*&gt;::iterator i=mEdits.begin();i!=mEdits.end();i++)
++      (*i)-&gt;setFont(f);
++
++    rearrange();
++    
++    
++  }
++
++void AGListBox::rearrange()
++  {
++    mItemHeight=getTheme()-&gt;getInt(&quot;listbox.item.height&quot;);
++    if(mItemHeight&lt;5)
++      mItemHeight=25;
++
++    mScroller-&gt;setRect(AGRect2(width()-mItemHeight,0,mItemHeight,height()));
++
++    int count=0;
++    for(int y=0;y&lt;height();y+=mItemHeight,count++)
++        mEdits[count]-&gt;setRect(AGRect2(0,y,width()-mItemHeight,mItemHeight));
++  }
++
+ void AGListBox::insertItem(AGString pID,AGStringUtf8 pValue)
+   {
+     mItems.push_back(AGListBoxItem(pID,pValue));
+
+Modified: antargis/trunk/ext/gui/ag_listbox.h
+===================================================================
+--- antargis/trunk/ext/gui/ag_listbox.h	2008-07-02 17:22:33 UTC (rev 1270)
++++ antargis/trunk/ext/gui/ag_listbox.h	2008-07-07 19:04:25 UTC (rev 1271)
+@@ -70,9 +70,12 @@
+   
+   std::map&lt;AGString,AGStringUtf8&gt; getValues() const;
+ 
++  void setTheme(const AGString &amp;pTheme);
++
+  private:
+ 
+-  void arrange();
++   void rearrange();
++   void arrange();
+ 
+   int mY;
+   std::vector&lt;AGListBoxItem&gt; mItems;
+
+Modified: antargis/trunk/ext/gui/ag_scrollingwidget.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_scrollingwidget.cc	2008-07-02 17:22:33 UTC (rev 1270)
++++ antargis/trunk/ext/gui/ag_scrollingwidget.cc	2008-07-07 19:04:25 UTC (rev 1271)
+@@ -24,28 +24,11 @@
+ 
+ AGScrollingWidget::AGScrollingWidget(AGWidget *pParent, const AGRect2&amp; pRect):
+   AGWidget(pParent,pRect),
+-  //mClient(pRect.origin()),
+-  //mVector(0,0),
+   mDragging(false)
+     {
+       AGRect2 r=getRect().origin();
+       setClient(r,AGProjection2D(r,r));
+     }
+-/*
+-bool AGScrollingWidget::letChildProcess(AGWidget *pChild,AGEvent *event)
+-  {
+-    bool retValue;
+-    AGVector2 old=event-&gt;getMousePosition();
+-    
+-    event-&gt;setMousePosition(old+mVector);
+-    
+-    retValue=pChild-&gt;processEvent(event);
+-    
+-    event-&gt;setMousePosition(old);
+-    
+-    return retValue;
+-  }
+-*/
+ 
+ void AGScrollingWidget::setClientRect(const AGRect2 &amp;pRect)
+   {
+
+Modified: antargis/trunk/ext/gui/ag_theme.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_theme.cc	2008-07-02 17:22:33 UTC (rev 1270)
++++ antargis/trunk/ext/gui/ag_theme.cc	2008-07-07 19:04:25 UTC (rev 1271)
+@@ -184,8 +184,45 @@
+   return AGLocalTheme(pTheme);
+ }
+ 
++AGGradient AGTheme::getGradient(const AGString &amp;pName) const
++{
++  std::map&lt;AGString,AGGradient&gt;::const_iterator i=mGradients.find(pName);
++  if(i==mGradients.end())
++    {
++      i=mGradients.find(trunc(pName));
++      if(i==mGradients.end())
++        return AGGradient();
++    }
++  return i-&gt;second;
++}
++ 
++AGBackground AGTheme::getBackground(const AGString &amp;pName) const
++{
++  std::map&lt;AGString,AGBackground&gt;::const_iterator i=mBackgrounds.find(pName);
++  if(i==mBackgrounds.end())
++    {
++      i=mBackgrounds.find(trunc(pName));
++      if(i==mBackgrounds.end())
++        return AGBackground();
++    }
++  return i-&gt;second;
++}
+ 
++AGBorder AGTheme::getBorder(const AGString &amp;pName) const
++{
++  std::map&lt;AGString,AGBorder&gt;::const_iterator i=mBorders.find(pName);
++  if(i==mBorders.end())
++    {
++      i=mBorders.find(trunc(pName));
++      if(i==mBorders.end())
++        return AGBorder();
++    }
++  return i-&gt;second;
++}
+ 
++
++
++
+ AGLocalTheme::AGLocalTheme(const AGString &amp;pTheme):mTheme(pTheme)
+       {
+       }
+
+Modified: antargis/trunk/ext/gui/ag_theme.h
+===================================================================
+--- antargis/trunk/ext/gui/ag_theme.h	2008-07-02 17:22:33 UTC (rev 1270)
++++ antargis/trunk/ext/gui/ag_theme.h	2008-07-07 19:04:25 UTC (rev 1271)
+@@ -27,8 +27,13 @@
+ #include &quot;ag_font.h&quot;
+ #include &quot;ag_surface.h&quot;
+ 
++#include &quot;ag_border.h&quot;
++#include &quot;ag_gradient.h&quot;
++#include &quot;ag_background.h&quot;
++
+ #include &lt;map&gt;
+ 
++
+ class AGEXPORT AGLocalTheme
+   {
+   public:
+@@ -81,6 +86,15 @@
+ 
+   
+   AGLocalTheme getTheme(const AGString &amp;pTheme) const;
++  
++  
++  
++  // advanced functions
++  
++  AGGradient getGradient(const AGString &amp;pName) const;
++  AGBackground getBackground(const AGString &amp;pName) const;
++  AGBorder getBorder(const AGString &amp;pName) const;
++  
+ 
+  private:
+ 
+@@ -91,6 +105,12 @@
+   std::map&lt;AGString,AGSurface&gt; mSurfaces;
+   std::map&lt;AGString,std::string&gt; mSurfaceNames;
+   std::map&lt;AGString,int&gt; mInts;
++  
++  
++  std::map&lt;AGString,AGGradient&gt; mGradients;
++  std::map&lt;AGString,AGBackground&gt; mBackgrounds;
++  std::map&lt;AGString,AGBorder&gt; mBorders;
++  
+ };
+ 
+ AGEXPORT AGTheme *getTheme();
+
+Modified: antargis/trunk/ext/gui/ag_widget.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_widget.cc	2008-07-02 17:22:33 UTC (rev 1270)
++++ antargis/trunk/ext/gui/ag_widget.cc	2008-07-07 19:04:25 UTC (rev 1271)
+@@ -53,7 +53,9 @@
+     return gNewClippingTechnique;
+   }
+ 
++std::set&lt;AGWidget*&gt; AGWidget::allWidgets;
+ 
++
+ AGWidget::AGWidget(AGWidget *pParent,const AGRect2 &amp;r):
+   sigMouseEnter(this,&quot;sigMouseEnter&quot;),
+   sigMouseLeave(this,&quot;sigMouseLeave&quot;),
+@@ -65,24 +67,28 @@
+   mFixedWidth(false),mFixedHeight(false),mVisible(true),mCaching(false),
+   mHasFocus(false),mFocus(0)
+ 
+-    {
+-      mEventsInited=false;
+-      CTRACE;
+-      if(mParent)
+-        mParent-&gt;addChildRef(this);
++  {
++    allWidgets.insert(this);
+ 
+-      mChangeRect=AGRect2(0,0,0,0);
+-      mCache=0;
+-      mCacheTouched=false;
+-      mTooltipWidget=0;
+-      mModal=false;
++    mEventsInited=false;
++    CTRACE;
++    if(mParent)
++      mParent-&gt;addChildRef(this);
+ 
+-      getMain()-&gt;getCollector()-&gt;insertGlobal(this);
+-    }
++    mChangeRect=AGRect2(0,0,0,0);
++    mCache=0;
++    mCacheTouched=false;
++    mTooltipWidget=0;
++    mModal=false;
+ 
++    getMain()-&gt;getCollector()-&gt;insertGlobal(this);
++  }
++
+ AGWidget::~AGWidget()
+   {
++    allWidgets.erase(this);
+     CTRACE;
++    cdebug(getName());
+ 
+     if(hasMain())
+       getMain()-&gt;getCollector()-&gt;removeGlobal(this);
+@@ -90,12 +96,41 @@
+     std::list&lt;AGWidget*&gt;::iterator i=mChildren.begin();
+     for(;i!=mChildren.end();i++)
+       {
+-        (*i)-&gt;setParent(0);
++        if(valid(*i))
++          {
++            cdebug(&quot;notify child:&quot;&lt;&lt;*i);
++            (*i)-&gt;setParent(0);
++            cdebug(&quot;notify ok&quot;);
++          }
+       }
++    for(std::set&lt;AGWidget*&gt;::iterator i=mRefChildren.begin();i!=mRefChildren.end();i++)
++      {
++        if(valid(*i))
++          {
++            cdebug(&quot;notify child:&quot;&lt;&lt;*i);
++            (*i)-&gt;setParent(0);
++            cdebug(&quot;notify ok&quot;);
++          }
++      }
++
++    cdebug(mParent);
+     if(getParent())
+-      getParent()-&gt;eventChildrenDeleted(this);
++      {
++        if(valid(getParent()))
++          {
++            cdebug(&quot;notify parent:&quot;&lt;&lt;getParent());
++            getParent()-&gt;eventChildrenDeleted(this);
++          }
++      }
+   }
+ 
++bool AGWidget::valid(AGWidget *pWidget)
++  {
++    return (allWidgets.find(pWidget)!=allWidgets.end());
++
++  }
++
++
+ std::list&lt;AGWidget*&gt; AGWidget::getChildren()
+   {
+     return mChildren;
+@@ -121,7 +156,7 @@
+         if(*i==pWidget)
+           {
+             mChildren.erase(i);
+-            break;
++            //break; // do not break, beacuse a list could have this child more than once ???
+           }
+       }
+     i=mToClear.begin();
+@@ -130,9 +165,10 @@
+         if(*i==pWidget)
+           {
+             mToClear.erase(i);
+-            break;
++            // break; // same as above
+           }
+       }
++    mRefChildren.erase(pWidget);
+   }
+ 
+ 
+@@ -148,6 +184,7 @@
+         std::list&lt;AGWidget*&gt;::iterator i=mToClear.begin();
+         for(;i!=mToClear.end();i++)
+           {
++            (*i)-&gt;setParent(0); // lets play it safe 
+             saveDelete(*i);
+           }
+         mToClear.clear();
+@@ -272,11 +309,11 @@
+      */
+     event-&gt;setRelMousePosition(newP);
+     bool wasClipped=event-&gt;isClipped();
+-    
++
+     event-&gt;setClipped(wasClipped || (!getRect().contains(old)));
+ 
+     retValue=pChild-&gt;processEvent(event);
+-    
++
+     event-&gt;setClipped(wasClipped);
+     event-&gt;setRelMousePosition(old);
+ 
+@@ -448,6 +485,8 @@
+ 
+ void AGWidget::addChild(AGWidget *w)
+   {
++    if(w-&gt;getParent())
++      w-&gt;getParent()-&gt;mRefChildren.erase(w);
+     mRefChildren.erase(w);
+ 
+     mChildren.push_front(w); // set on top
+@@ -480,9 +519,31 @@
+ 
+ void AGWidget::addChildBack(AGWidget *w)
+   {
++    if(w-&gt;getParent())
++      w-&gt;getParent()-&gt;mRefChildren.erase(w);
++    mRefChildren.erase(w);
++
++    // check if children already exists
++    Children::iterator i;
++    do
++      {
++        i=std::find(mChildren.begin(),mChildren.end(),w);
++        if(i!=mChildren.end())
++          mChildren.erase(i);
++      }while(i!=mChildren.end());
++    
++    
+     mChildren.push_back(w); // set on top
+-  }
+ 
++    if(mHasFocus &amp;&amp; w-&gt;canFocus())
++      {
++        gainFocus(w);
++      }
++    if(!w-&gt;getParent())
++      w-&gt;setParent(this);
++    queryRedraw();
++}
++
+ void AGWidget::regChange()
+   {
+     AGRect2 t=getScreenRect().grow(5);
+@@ -500,17 +561,15 @@
+ 
+ void AGWidget::setRect(const AGRect2 &amp;pRect)
+   {
+-    //queryRedraw();
++    if(mCache&amp;&amp;(width()!=pRect.width()||height()!=pRect.height()))
++      setCaching(true);
+ 
+-    if(mCache)
+-      setCaching(true);
+-    
+     regChange();
+     mRect=pRect;
+     regChange();
+     if(mParent)
+       mParent-&gt;redraw();
+-    
++
+   }
+ 
+ float AGWidget::minWidth() const
+@@ -559,7 +618,7 @@
+ 
+ void AGWidget::setWidth(float w)
+   {
+-    if(mCache)
++    if(mCache &amp;&amp; width()!=w)
+       setCaching(true);
+     regChange();
+     mRect.setWidth(w);
+@@ -568,7 +627,7 @@
+   }
+ void AGWidget::setHeight(float h)
+   {
+-    if(mCache)
++    if(mCache &amp;&amp; height()!=h)
+       setCaching(true);
+     regChange();
+     mRect.setHeight(h);
+@@ -631,10 +690,17 @@
+ 
+ void AGWidget::setParent(AGWidget *pParent)
+   {
++    CTRACE;
+     //mOldMousePos.setX(-20000); // set oldmousepos invalid -- see eventMouseMotion 
+ 
++
+     if(!mParent)
+       {
++        AGWidget *old=mParent;
++        mParent=pParent;
++        cdebug(old);
++        if(mParent==0 &amp;&amp; old!=0)
++          old-&gt;eventChildrenDeleted(this);
+         if(hasMain())
+           getMain()-&gt;getCollector()-&gt;removeGlobal(this);
+       }
+@@ -658,11 +724,13 @@
+  */
+ AGRect2 AGWidget::getScreenRect() const
+ {
+-  //return toScreen(getRect());
++  CTRACE;
+   AGRect2 r=getRect();
+   if(mParent)
+     {
+-      return mParent-&gt;toScreen(getRect());
++      AGRect2 result=mParent-&gt;toScreen(getRect());
++      cdebug(getRect()&lt;&lt;&quot;::&quot;&lt;&lt;result);
++      return result;
+     }
+   return r;
+ }
+@@ -733,7 +801,7 @@
+       mFocus-&gt;eventLostFocus();
+     mHasFocus=false;
+     mFocus=0;
+-    
++
+     if(mChildren.size()&gt;0)
+       (*mChildren.begin())-&gt;eventLostFocus();
+ 
+@@ -1042,6 +1110,7 @@
+  */
+ void AGWidget::setCaching(bool pEnable)
+   {
++
+     if(getConfig()-&gt;get(&quot;widgetTextureCache&quot;)==&quot;false&quot;)
+       return;
+     getConfig()-&gt;set(&quot;widgetTextureCache&quot;,&quot;true&quot;);
+@@ -1055,8 +1124,6 @@
+       {
+         mCache=new AGTexture((int)width(),(int)height());
+ 
+-        cdebug(width()&lt;&lt;&quot;::&quot;&lt;&lt;height());
+-        
+         mCacheTouched=true;
+       }
+   }
+@@ -1156,6 +1223,7 @@
+ 
+ void AGWidget::close()
+   {
++    CTRACE;
+     if(mParent)
+       {
+         mParent-&gt;removeChild(this);
+@@ -1286,7 +1354,7 @@
+   AGRect2 m=p;
+ 
+   if(mUseClientRect)
+-      m=mClientProj.inverse().project(m);
++    m=mClientProj.inverse().project(m);
+   return m-getRect().getV0();
+ }
+ AGVector2 AGWidget::outerToInner(const AGVector2 &amp;p) const
+@@ -1309,5 +1377,5 @@
+ 
+ void AGWidget::eventInitEvents()
+   {
+-    
++
+   }
+
+Modified: antargis/trunk/ext/gui/ag_widget.h
+===================================================================
+--- antargis/trunk/ext/gui/ag_widget.h	2008-07-02 17:22:33 UTC (rev 1270)
++++ antargis/trunk/ext/gui/ag_widget.h	2008-07-07 19:04:25 UTC (rev 1271)
+@@ -97,7 +97,7 @@
+   virtual AGRect2 getClientRect() const;
+   virtual void setRect(const AGRect2 &amp;pRect);
+ 
+-  void setParent(AGWidget *pParent);
++  virtual void setParent(AGWidget *pParent);
+   AGWidget *getParent();
+   bool isParent(AGWidget *pParent);
+ 
+@@ -281,6 +281,8 @@
+   void gainFocusDown(AGWidget *pWidget);
+ 
+   void checkFocus();
++  
++  static bool valid(AGWidget *pWidget);
+ 
+   std::list&lt;AGWidget*&gt; mToClear;
+ 
+@@ -318,11 +320,15 @@
+   
+ protected:
+   std::list&lt;AGWidget*&gt; mChildren;
++  
++private:
++  static std::set&lt;AGWidget*&gt; allWidgets;
+ 
+ };
+ 
+ AGEXPORT void setNewClippingTechnique(bool f);
+ AGEXPORT bool getNewClippingTechnique();
++AGEXPORT void printStacktrace();
+ 
+ 
+ #endif
+
+Modified: antargis/trunk/ext/video/ag_gltexture.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_gltexture.cc	2008-07-02 17:22:33 UTC (rev 1270)
++++ antargis/trunk/ext/video/ag_gltexture.cc	2008-07-07 19:04:25 UTC (rev 1271)
+@@ -100,43 +100,25 @@
+ 
+         assert(buffer);
+       }
+-    cdebug(&quot;3&quot;);
+     if(buffer)
+       memset(buffer,0,bufSize);
+-    /*
+-    cdebug(&quot;5&quot;);
+-    cdebug(mTarget);
+-    cdebug(format);
+-    cdebug(&quot;rect:&quot;&lt;&lt;(mTarget==GL_TEXTURE_RECTANGLE_ARB));
+-    cdebug(&quot;2d:&quot;&lt;&lt;(mTarget==GL_TEXTURE_2D));
+-    cdebug(&quot;3d:&quot;&lt;&lt;(mTarget==GL_TEXTURE_3D));
+-    cdebug(&quot;GL_RGBA:&quot;&lt;&lt;(format==GL_RGBA));
+-    cdebug(&quot;w:&quot;&lt;&lt;w&lt;&lt;&quot; h:&quot;&lt;&lt;h);
+-    cdebug(&quot;texmem:&quot;&lt;&lt;gUsedTexMemory);
+-    cdebug((void*)buffer);
+-    */
+     assertGL;
+     glTexImage2D(mTarget, 0, format, w, h, 0, GL_RGBA,
+         GL_UNSIGNED_BYTE, buffer);
+     assertGL;
+-    //cdebug(&quot;6&quot;);
+ 
+     if(buffer)
+       delete [] buffer;
+ 
+-    //cdebug(&quot;7&quot;);
+-    //cdebug(&quot;W:&quot;&lt;&lt;w&lt;&lt;&quot; h:&quot;&lt;&lt;h);
+     assertGL;
+     gUsedTexMemory+=w*h*4;
+ 
+-    cdebug(&quot;8&quot;);
+     dbout(4,&quot;used memory:&quot;&lt;&lt;gUsedTexMemory);
+ 
+     glTexParameteri(mTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+     assertGL;
+     glTexParameteri(mTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+     assertGL;
+-    cdebug(&quot;9&quot;);
+   }
+ AGGLTexture::AGGLTexture(size_t W,size_t H,size_t D,GLint format):w(W),h(H),d(D),m3d(true),mRectTex(false),mTarget(GL_TEXTURE_3D)
+   {
+
+Modified: antargis/trunk/ruby/editor/campaign/campaign_data.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/campaign_data.rb	2008-07-02 17:22:33 UTC (rev 1270)
++++ antargis/trunk/ruby/editor/campaign/campaign_data.rb	2008-07-07 19:04:25 UTC (rev 1271)
+@@ -16,15 +16,28 @@
+ Edge=Struct.new(:from,:to,:name)
+ 
+ class Campaign
++  CampaignDir=&quot;data/campaigns&quot;
++  
+   def self.getAllFilenames
+-    dir=&quot;data/campaigns&quot;
+-    getDirectory(dir).uniq.select{|f|f=~/\.xml/}    
++    getDirectory(CampaignDir).uniq.select{|f|f=~/\.xml/}    
+   end
+   
+   def self.getAll
+-    getAllFilenames.map{|file|self.new(dir+&quot;/&quot;+file)}
++    getAllFilenames.map{|file|self.new(CampaignDir+&quot;/&quot;+file)}
+   end
+   
++  def self.loadCampaign(filename)
++    filename+=&quot;.xml&quot; unless filename=~/\.xml/
++    getAllFilenames.each{|f|
++      if f==filename
++        return self.new(CampaignDir+&quot;/&quot;+filename)
++      end
++    }
++    nil
++  end
++  
++  attr_reader :nodes, :edges
++  
+   def initialize(filename)
+     c=loadFile(filename)
+     d=Document.new(filename)
+@@ -37,7 +50,6 @@
+     varNames.each{|n|@vars[n]=d.root.get(n)}
+     
+     d.root.getChildren.each{|child|
+-      #pp child.getName
+       node=nil
+       case child.getName
+         when &quot;cutscene&quot;
+@@ -65,10 +77,10 @@
+         end
+       #raise &quot;FIXME: read position&quot;
+       
+-	      nodename=child.get(&quot;name&quot;)
+-	      
+-	      nodename=&quot;node#{@nodes.length}&quot; if nodename==&quot;&quot;
+-	      @nodes[nodename]=node
++        nodename=child.get(&quot;name&quot;)
++        
++        nodename=&quot;node#{@nodes.length}&quot; if nodename==&quot;&quot;
++        @nodes[nodename]=node
+         unless hasEdges
+           @edges&lt;&lt;Edge.new(&quot;node#{@nodes.length-2}&quot;,nodename,&quot;&quot;) if @nodes.length&gt;1
+         end
+
+Modified: antargis/trunk/ruby/editor/campaign/dialogs.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/dialogs.rb	2008-07-02 17:22:33 UTC (rev 1270)
++++ antargis/trunk/ruby/editor/campaign/dialogs.rb	2008-07-07 19:04:25 UTC (rev 1271)
+@@ -19,7 +19,7 @@
+   end
+   
+   class SaveDialog&lt;Dialog
+-    def initialize(p)
++    def initialize(p,&amp;block)
+       super
+       p.addChild(self)
+       loadXML(loadFile(&quot;data/gui/layout/editor/campaign/save_dialog.xml&quot;))
+@@ -32,9 +32,11 @@
+       }
+       
+       addHandler(listbox,:sigSelect,:eventSelected)
++      @block=block
+     end
+     def eventOk
+       super
++      @block.call(getFilename)
+     end
+     def eventFilenameChanged
+       getChild(&quot;ok&quot;).setEnabled(getChild(&quot;filename&quot;).getText.to_s.length&gt;0)
+@@ -43,8 +45,33 @@
+       getChild(&quot;filename&quot;).setText(AGStringUtf8.new(getChild(&quot;listBox&quot;).getSelectedValue))
+       eventFilenameChanged
+     end
++    private
++    def getFilename
++      getChild(&quot;filename&quot;).getText.to_s
++    end
+ 	end
+ 	
+ 	class LoadDialog&lt;Dialog
++    def initialize(p,&amp;block)
++      super
++      p.addChild(self)
++      loadXML(loadFile(&quot;data/gui/layout/editor/campaign/load_dialog.xml&quot;))
++      
++      listbox=getChild(&quot;listBox&quot;)
++      Campaign.getAllFilenames.each{|f|
++        listbox.insertItem(f,AGStringUtf8.new(f))
++      }
++      
++      @block=block
++    end
++    def eventOk
++      super
++      @block.call(getFilename)
++    end
++    private
++    def getFilename
++      getChild(&quot;listBox&quot;).getSelectedValue.to_s
++    end
++	  
+ 	end
+ end
+\ No newline at end of file
+
+Modified: antargis/trunk/ruby/editor/campaign/drag_grid.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/drag_grid.rb	2008-07-02 17:22:33 UTC (rev 1270)
++++ antargis/trunk/ruby/editor/campaign/drag_grid.rb	2008-07-07 19:04:25 UTC (rev 1271)
+@@ -4,6 +4,11 @@
+ require File.join(File.split(__FILE__)[0],&quot;dialogs.rb&quot;)
+ require File.join(File.split(__FILE__)[0],&quot;toolbar.rb&quot;)
+ 
++require File.join(File.split(__FILE__)[0],'ruby_tools.rb')
++require File.join(File.split(__FILE__)[0],'story_editor.rb')
++requireRelative('ruby_signals.rb',__FILE__)
++require File.join(File.split(__FILE__)[0],&quot;campaign_data.rb&quot;)
++
+ #setDebugLevel(0)
+ 
+ # TODO:
+@@ -106,89 +111,20 @@
+       getChildren.map{|child|[child]+child.getAllDescendants}.flatten
+     end
+     def moveToContext(to)
+-      
++      pp &quot;moveToContext&quot;
+       o=getScreenRect
+       p=getParent
+       p.removeChild(self)
+       to.addChild(self)
+-      #setParent(to)
+       setRect(o+(-to.getScreenRect.getV0))
+     end
+-  end
+-end
+-
+-class Effect&lt;AGWidget
+-  def initialize(p,r,node)
+-    super(p,r)
+-    @registered=false
+-    @running=false
+-    @duration=node[&quot;duration&quot;].to_f
+-    #run
+-  end
+-  def draw(p)
+-    if @registered==false
+-      registerEffect
++    def getChildByType(type)
++      getAllDescendants.select{|c|c.is_a?(type)}[0]
+     end
+   end
+-  def run
+-    @running=true
+-    @time=0
+-  end
+-  def eventFrame(t)
+-    if @running
+-      @time+=t
+-      @running=false if @time&gt;=@duration
+-      @time=@duration if @time&gt;@duration 
+-      step(@time/@duration)
+-    end
+-  end
+-  def step(per)
+-    pp per
+-    exit
+-  end
+-  private
+-  def registerEffect
+-    if getApp
+-      getApp.sigFrame.connect(self,:eventFrame)
+-      @registered=true
+-    end
+-  end
+ end
+ 
+-class AppearEffect&lt;Effect
+-  def initialize(p,r,node)
+-    super
+-    @name=node[&quot;name&quot;]
+-    @target=node[&quot;table&quot;]
+-    @row=node[&quot;row&quot;].to_i
+-    @size=50
+-    
+-  end
+-  def step(amount)
+-    table=getApp.getMainWidget.getChild(@target)
+-    table.modifyRow(@row,amount*@size)
+-  end
+-end
+ 
+-class HideEffect&lt;Effect
+-  def initialize(p,r,node)
+-    super
+-    @name=node[&quot;name&quot;]
+-    @target=node[&quot;table&quot;]
+-    @row=node[&quot;row&quot;].to_i
+-    #@size=50
+-    @size=nil
+-    
+-  end
+-  def step(amount)
+-    @size||=table.getRow(@row)
+-    table.modifyRow(@row,(1-amount)*@size)
+-  end
+-  def table
+-    getApp.getMainWidget.getChild(@target)
+-  end
+-end
+-
+ class AGHoverWidget&lt;AGWidget
+   attr_accessor :hoverBorder
+   def initialize(*s)
+@@ -197,25 +133,7 @@
+   end
+ end
+ 
+-class GenericLayoutCreator&lt;AGLayoutCreator
+-  def initialize(c)
+-    super()
+-    @c=c
+-  end
+-  def create(p,r,node)
+-    options=node.getAttributes
+-    pp @c
+-    setResult @c.new(p,r,options)
+-  end
+-end
+ 
+-def standardLayoutCreator(pClass)
+-  name=pClass.to_s
+-  name=name[0..0].downcase+name[1..-1]
+-  creator=GenericLayoutCreator.new(pClass)
+-  getLayoutFactory.addCreator(name,creator)
+-end
+-
+ class DragEnvironment&lt;AGWidget
+   def initialize(p,r,options)
+     super(p,r)
+@@ -263,10 +181,11 @@
+   
+   attr_accessor :text, :grid
+   attr_accessor :selected
++
+   
+-  def initialize(p,r,text)
++  def initialize(p,r,text,dragging=true)
+     super(p,r)
+-    @dragging=true
++    @dragging=dragging
+     @text=AGStringUtf8.new(text)
+     @textPos=AGVector2.new(10,10)
+     @lastCell=nil
+@@ -275,6 +194,9 @@
+     self.hoverBorder=BORDER_WIDTH
+     @@font||=AGFont.new(&quot;FreeSans.ttf&quot;,14)
+   end
++  
++  
++  
+   def draw(p)
+     r=getRect.origin.shrink(2)
+     r2=r.shrink(BORDER_WIDTH)
+@@ -308,6 +230,7 @@
+   def startDragging
+     @dragging=true
+     moveToContext(getDragEnvironment)
++    setRect(getRect.shrink(5))
+   end
+   
+   def eventMouseButtonDown(e)
+@@ -339,9 +262,15 @@
+   def eventMouseButtonUp(e)
+     return super unless @dragging
+     #moveToContext()
+-    cells=getDragEnvironment.getDragTargets
+-    scells=cells.select{|c|c.getScreenRect.shrink(10).contains(getMiddle)}
+-    cell=scells[0]
++
++    if false
++      cells=getDragEnvironment.getDragTargets
++      scells=cells.select{|c|c.getScreenRect.shrink(10).contains(getMiddle)}
++      cell=scells[0]
++    else
++      env=getDragEnvironment.getChildByType(DragGrid)
++      cell=env.cells.select{|c|c.screenRect.shrink(10).contains(getMiddle)}[0]
++    end
+     
+     if cell
+       if cell.free
+@@ -371,8 +300,10 @@
+   end
+   def assignCell(cell)
+     @lastCell=cell
+-    moveToContext(@lastCell)
+-    centerObject
++    
++    moveToContext(getDragGrid)
++    pp cell
++    setRect(cell.rect.shrink(5))
+   end
+   def centerObject
+     setRect(getRect+(getParent.getRect.origin.getMiddle-getRect.getMiddle))
+@@ -385,10 +316,12 @@
+ end
+ 
+ class DragBoxLevel&lt;DragBox
++  attr_accessor :filename
+ end
+ 
+ class DragBoxStory&lt;DragBox
+-  def initialize(p,r,text)
++  attr_accessor :story
++  def initialize(p,r,text,dragging=true)
+     super
+     @color=AGColor.new(0xFF,0xAA,0)
+   end
+@@ -398,6 +331,7 @@
+   include Arrows
+   
+   attr_accessor :selected, :text
++  attr_writer :endObject
+   
+   def initialize(p,r,startObject)
+     super(p,r)
+@@ -431,6 +365,7 @@
+     white=AGColor.new(0xFF,0xFF,0x88) if @hovered
+     black=AGColor.new(0,0,0)
+     p.setLineWidth(1)
++    assert{endP}
+     p.drawArrow(startP,endP,5,white,black)
+     middle=(endP+startP)*0.5
+     
+@@ -452,10 +387,14 @@
+   
+   def eventMouseMotion(e)
+     r=super
+-    p=@pos
+-    p=getPos(@endObject) if @endObject
++    if @endObject
++      p=getPos(@endObject)
++    else 
++      p=@pos
++    end
+     mp=e.getMousePosition-getScreenRect.getV0
+     if getArrowTriangles(getPos(@startObject),p,10).select{|t|t.contains(mp)}.length&gt;0
++      puts <A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">p, at pos</A>,getPos(@startObject),mp
+       puts &quot;HOVER&quot;
+       @hovered=true
+       return true
+@@ -474,6 +413,7 @@
+       if @hovered
+         @endObject=nil
+         @moving=true
++        @pos=e.getMousePosition+(getRect.getV0-getScreenRect.getV0)
+         r=true
+       end
+     end    
+@@ -504,9 +444,14 @@
+   end
+ end
+ 
++Cell=Struct.new(:screenRect,:rect,:node)
++class Cell
++  def free
++    @node.nil?
++  end
++end
+ 
+ 
+-
+ class DragGrid&lt;AGWidgetWithConfig
+   attr_reader :cells, :cellWidth, :selected
+   
+@@ -550,6 +495,14 @@
+   def eventMouseButtonDown(e)
+     return super
+   end
++  
++  def addChild(c)
++    super
++    getChildren.sort{|b,a|a.is_a?(DragLine)&lt;=&gt;b.is_a?(DragLine)}.each{|child|
++      addChildBack(child)
++    }    
++    
++  end
+       
+ private
+   def cellCountX
+@@ -559,6 +512,7 @@
+     height/@cellWidth
+   end
+   def genCells()
++    @cells=[]
+     w=cellWidth
+     (0..cellCountX).map{|x|
+       (0..cellCountY).map{|y|
+@@ -567,7 +521,8 @@
+     }.flatten.each{|c|newDragTarget(c)}
+   end
+   def newDragTarget(c)
+-    addChild(DragTarget.new(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">nil,c, at options</A>,self))
++    #addChild(DragTarget.new(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">nil,c, at options</A>,self))
++    @cells &lt;&lt; Cell.new(toScreen(c),c,nil)
+   end
+   def checkEdit
+     
+@@ -636,37 +591,9 @@
+ 
+ [DragGrid,DragSource,DragTrash,DragEnvironment,ToolBar,ToolButton,ToolEdit,ToolCombo,AppearEffect,HideEffect].each{|c|standardLayoutCreator(c)}
+ 
+-require File.join(File.split(__FILE__)[0],'story_editor.rb')
+ 
+-class RubySignal
+-  def initialize(name)
+-    @name=name
+-    @receivers=[]
+-  end
+-  def connect(object,method)
+-    @receivers&lt;&lt;[object,method]
+-  end
+-  def call(*s)
+-    @receivers.each{|p|
+-      object,method=p
+-      object.send(method,*s)
+-    }
+-  end  
+-end
+-def createSignal(x)
+-  signal=RubySignal.new(x)
+-  self.define_cmethod(x) {|*s|
+-    if s.length==0
+-      signal
+-    else
+-      signal.call(*s)
+-    end
+-  }
+-end
+ 
+-require File.join(File.split(__FILE__)[0],&quot;campaign_data.rb&quot;)
+ 
+-
+ class CampaignEditorApp&lt;AGApplication
+   def initialize()
+     super
+@@ -684,9 +611,13 @@
+     end
+     
+     addHandler(layout.getChild(&quot;edit&quot;),:sigClick,:eventEdit)
++    addHandler(layout.getChild(&quot;quit&quot;),:sigClick,:eventQuit)
+     
+     initSavingLoading
+   end
++  def eventQuit
++    tryQuit
++  end
+   def eventDeselect
+     @grid.select(nil) if @grid
+   end
+@@ -713,23 +644,66 @@
+   def initSavingLoading
+     addHandler(@layout.getChild(&quot;load&quot;),:sigClick,:eventLoad)    
+     addHandler(@layout.getChild(&quot;save&quot;),:sigClick,:eventSave)    
+- #   pp Campaign.getAll
+- #   exit
+   end
+   
+   def eventLoad
++    CampaignEditor::LoadDialog.new(@layout) {|filename|
++      campaign=Campaign::loadCampaign(filename)
++      viewData(campaign)
++    }
+     
+     true
+   end
+   def eventSave
+-    d=CampaignEditor::SaveDialog.new(@layout)
+-    #d.loadXML(loadFile(&quot;data/gui/layout/editor/campaign/save_dialog.xml&quot;))
+-    #@layout.addChild(d)
+-    #l=AGLayout.new(@layout)
+-    #l.loadXML(loadFile())
+-    #@layout.addChild(l)
++    CampaignEditor::SaveDialog.new(@layout) {|filename|
++      puts filename
++      exit
++    }
+     true
+   end
+   
++  
++  private
++  def viewData(campaign)
++    @grid.clear
++    
++    boxes={}
++    
++    campaign.nodes.each{|name,node|
++      x=node.x
++      y=node.y
++      c=getCell(x,y)
++      box=nil
++      case node
++        when Level
++          box=DragBoxLevel.new(@grid,c.rect.shrink(5),name,false)
++          box.filename=node.filename
++          @grid.addChild(box)
++        when Story
++          box=DragBoxStory.new(@grid,c.rect.shrink(5),name,false)
++          box.story=node.screens
++          @grid.addChild(box)
++      end
++      boxes[name]=box
++    }
++    
++    campaign.edges.each{|edge|
++      pp edge.from,edge.to
++      puts boxes[edge.from].getRect,boxes[edge.to].getRect
++      line=DragLine.new(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">grid, at grid.getRect</A>,boxes[edge.from])
++      line.endObject=boxes[edge.to]
++      @grid.addChild(line)
++    }
++    
++  end
++  
++  def getCell(x,y)
++    r=@grid.cells[0].rect
++    x+=0.5
++    y+=0.5
++    x*=r.width
++    y*=r.height
++    @grid.cells.select{|cell|cell.rect.contains(AGVector2.new(x,y))}[0]
++  end
+ end
+ 
+
+Modified: antargis/trunk/ruby/editor/campaign/spec_campaign_editor.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/spec_campaign_editor.rb	2008-07-02 17:22:33 UTC (rev 1270)
++++ antargis/trunk/ruby/editor/campaign/spec_campaign_editor.rb	2008-07-07 19:04:25 UTC (rev 1271)
+@@ -10,9 +10,25 @@
+   it &quot;should be possible to place levels on the grid&quot; do
+     drag(getSourceMiddle(&quot;levelSource&quot;),getGridPos(1,1),10)
+     grid.getAllDescendants.select{|c|c.is_a?(DragBox)}.length.should == 1
++    level=grid.getChildren[0]
++    level.should be_a_kind_of(DragBoxLevel)
++    level.getParent.should_not be_nil
+   end
+   
+   it &quot;should be possible to move the grid&quot; do
++    level=grid.getChildren[0]
++    level.getParent.should_not be_nil
++    oldPos=level.getScreenRect.getMiddle
++    delta=AGVector2.new(0,200)
++    scrollWidget=widget(&quot;dragGrid&quot;).getParent
++    ov=scrollWidget.getVector
++    middle=widget(&quot;dragGrid&quot;).getScreenRect.getMiddle
++    level.getParent.should_not be_nil
++    drag(middle,middle-delta,5) 
++    nv=scrollWidget.getVector
++    newPos=level.getScreenRect.getMiddle
++    level.getParent.should_not be_nil
++    oldPos.should == newPos+delta 
+   end
+   
+   it &quot;should not use widgets for DragTargets anymore&quot; do
+@@ -31,17 +47,20 @@
+   it &quot;should be possible to name arrows&quot;
+   
+   private
+-  def drag(from,to,frames)
++  def drag(from,to,frames,&amp;block)
+     p from,to
+     #exit
+     @app.setCursor(getTextureCache.get(&quot;blue_cursor.png&quot;))
+     
+     mouseDown(from)
++    block.call(:mouseDown) if block
+     1.upto(frames) {|f|
+       mouseMotion(from+(to-from)*f/frames)
+       @app.step
++      block.call(:mouseMotion) if block
+     }
+     mouseUp(to)
++    block.call(:mouseUp) if block
+     #@app.step while true
+   end
+   
+
+Modified: antargis/trunk/ruby/spec_helper.rb
+===================================================================
+--- antargis/trunk/ruby/spec_helper.rb	2008-07-02 17:22:33 UTC (rev 1270)
++++ antargis/trunk/ruby/spec_helper.rb	2008-07-07 19:04:25 UTC (rev 1271)
+@@ -58,6 +58,7 @@
+     def negative_failure_message
+       bt=&quot;&quot;
+       bt=@@backtrace[@callName].join(&quot;\n&quot;) if @@backtrace[@callName] 
++      printStacktrace
+       &quot;expected #{@proc.inspect} not to call #{@expected} BT:#{bt}&quot;
+     end
+     def Cross.symCall(name)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000226.html">[Antargis-svn] r1270 - in antargis/trunk: data data/gui	data/gui/images/basic data/gui/layout/editor/campaign ext/gui	ext/video ruby/editor/campaign
+</A></li>
+	<LI>Next message: <A HREF="000228.html">[Antargis-svn] r1272 - in antargis/trunk: .	data/gui/layout/editor/campaign ext/basic ext/gui ruby	ruby/editor/campaign ruby/gui ruby/spec ruby/spec/story
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#227">[ date ]</a>
+              <a href="thread.html#227">[ thread ]</a>
+              <a href="subject.html#227">[ subject ]</a>
+              <a href="author.html#227">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

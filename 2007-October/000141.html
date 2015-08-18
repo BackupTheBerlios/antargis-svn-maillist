@@ -1,0 +1,718 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1184 - in antargis/trunk: . build ext/game ext/math	ruby ruby/entities ruby/jobs ruby/meshes
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-October/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1184%20-%20in%20antargis/trunk%3A%20.%20build%20ext/game%20ext/math%0A%09ruby%20ruby/entities%20ruby/jobs%20ruby/meshes&In-Reply-To=%3C200710271920.l9RJKITW019538%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000140.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1184 - in antargis/trunk: . build ext/game ext/math	ruby ruby/entities ruby/jobs ruby/meshes</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1184%20-%20in%20antargis/trunk%3A%20.%20build%20ext/game%20ext/math%0A%09ruby%20ruby/entities%20ruby/jobs%20ruby/meshes&In-Reply-To=%3C200710271920.l9RJKITW019538%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1184 - in antargis/trunk: . build ext/game ext/math	ruby ruby/entities ruby/jobs ruby/meshes">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sat Oct 27 21:20:18 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000140.html">[Antargis-svn] r1183 - antargis
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#141">[ date ]</a>
+              <a href="thread.html#141">[ thread ]</a>
+              <a href="subject.html#141">[ subject ]</a>
+              <a href="author.html#141">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-10-27 21:20:17 +0200 (Sat, 27 Oct 2007)
+New Revision: 1184
+
+Added:
+   antargis/trunk/ruby/meshes/grass.rb
+Modified:
+   antargis/trunk/Rantfile
+   antargis/trunk/TODO
+   antargis/trunk/build/std_list.i
+   antargis/trunk/ext/game/headers.hh
+   antargis/trunk/ext/game/map.cc
+   antargis/trunk/ext/game/map.h
+   antargis/trunk/ext/math/ag_rand.cc
+   antargis/trunk/ruby/entities/ant_fish.rb
+   antargis/trunk/ruby/jobs/ant_hljob_states.rb
+   antargis/trunk/ruby/map.rb
+Log:
+* some bugfixes
+
+
+Modified: antargis/trunk/Rantfile
+===================================================================
+--- antargis/trunk/Rantfile	2007-10-27 12:55:17 UTC (rev 1183)
++++ antargis/trunk/Rantfile	2007-10-27 19:20:17 UTC (rev 1184)
+@@ -4,12 +4,12 @@
+ import &quot;package/zip&quot;                  # support for packaging (tar.gz, zip)
+ import &quot;rubydoc&quot;
+ import &quot;c/dependencies&quot;
++require 'pp'
+ 
++puts &quot;ERROR: Please run ./configure before building!&quot; unless File.exists?(&quot;config.rb&quot;)
+ require 'build/base_tools.rb'
+ 
+-puts &quot;ERROR: Please run ./configure before building!&quot; unless File.exists?(&quot;config.rb&quot;)
+ require 'config.rb'                   # include build-options
+-    
+ 
+ 
+ # get library-dependencies for libSDL
+
+Modified: antargis/trunk/TODO
+===================================================================
+--- antargis/trunk/TODO	2007-10-27 12:55:17 UTC (rev 1183)
++++ antargis/trunk/TODO	2007-10-27 19:20:17 UTC (rev 1184)
+@@ -14,3 +14,204 @@
+  * autopackage
+  * debian
+  * antargis.iss
++
++
++
++
++* check if reachable before fetching !!! (in house) - or even better use heuristic for estimating distance in getNear(...)
++* fix jobs some more
++* what's wrong with pathfinding-test ???
++
++
++==========
++
++
++
++Short Information:
++Problems are marked by priority. L is for low, M for medium and H high.
++In special cases it can be Very High (=VH).
++
++WEBSITE &amp; PR
++==================================================
++[L] List of project-parts and progress bar
++
++ARTS
++==================================================
++
++[Arts - Graphics - 3D]
++------------------------------------------------------
++[H] modify bakery a little (<A HREF="http://antargis.berlios.de/phpBB2/viewtopic.php?p=359#359">http://antargis.berlios.de/phpBB2/viewtopic.php?p=359#359</A>)
++[H] do bow animation
++
++[H] oil tower
++[M] team color
++[M] animate hero, druid and smith
++[M] some statue (monument) representing the whole village
++    it can be clicked to get information about a whole village or attacking it???
++[M] some more animals: cow, deer ??
++[L] Mesh for pigeon
++[L] improve meshes for trees, bushes, men
++[L] animate wolf
++[L] add meshes for fish
++[L] add female meshes
++[L] animated trees / falling trees
++
++[Arts - Graphics - 2D]
++------------------------------------------------------
++[VL] tools-images: pick,axe, hark
++[L] paint new portraits
++[L] paint campaign-images
++
++
++[Story]
++------------------------------------------------------
++[VL] Intro cutscene:
++	- flashback on some victory-scene:
++		- look own from some tower upon an army
++		- look back from behind some warriors holding up some weapons
++	- scene of betrayal - some dark person stands above some king (in a hall)
++	- game begins
++[L] druids:
++	- use woods and lakes as holy places
++	- druids must learn about 20 years
++	
++
++[Music]
++------------------------------------------------------
++[M] won and lost jingle
++
++
++[[Development]]
++==========================================================
++
++[Segfaults]
++------------------------------------------------------
++None known.
++
++[AI]
++------------------------------------------------------
++[H] heuristic compression for path-finding
++[H] map-weighting based on min/max of surrounding
++
++
++[Gui/View - GUI-library]
++------------------------------------------------------
++[H] fix texture-painting on GeForce - backgrounds are always black, but they should be transparent (like FPS-display)
++[M] add texture-space-saving
++[L] add Framebuffer objects for paint to texture. -- still buggy ????
++[L] fix AGMenu*. This is broken, but not used ATM.
++[L] rewrite AGEdit - without AGEditLines
++		In AGEdit2 is a beginning of a rewrite. But it's a kind of crappy approach. AGEdit2 should
++		be able to 
++		1) render quickly 
++		2) handle selections with mouse or SHIFT+CURSOR
++		3) copy/paste
++		4) insert images
++[L] add drawGradients-batcher to AGPainter
++
++
++[Graphics - 3d-engine]
++------------------------------------------------------
++[H] use AGGLWidget instead of GLApp - include generic AGApp
++
++
++[H] game crashes when toggling fullscreen (in game) -- FIXED ???? CHECK ON WINDOWS
++[H] try using GL_DYNAMIC_DRAW_ARB for dynamic vertexarrays and combine multiple meshes some how?
++[M] add support for non-3d-texture-graphic cards
++[M] increase picking speed =&gt; use kd-tree or bsp
++[M] FBO without color-attachment ????
++[M] make particle engine more generic and include shader-support
++[L] check depth of view old=(1,100) new(1,20) or so - maybe better for PSMs.
++		There is a problem, too when zoomed in, as it's the current default.
++[L] check if TSM (trapezoidal shadow maps) are any good
++[L] snow,rain which falls down. Maybe as a simple overlay?
++[L] bushes, plants, high grass, flowers. Thats means there should be possibility to include
++		several imposters into one mesh and render them effiently.
++[L] Fog of war - overlay darkness/fog
++[L] fix decals (use clamp-to-edge and original cells)
++[L] include 3d-texture-scaling into AGGLTexture-constr.
++[VL] seasons - snow,spring... Exchange or fade terrain textures.
++[VL] make shadows work on other platforms too?
++
++[Game - Game-engine and ruby-scripts]
++------------------------------------------------------
++[H] saving of new hljobs
++[H] check translation scripts
++
++[H] wolves should attack people
++
++[H] continue buildingsite function =&gt; check if already claimed
++[H] fetching in house (testai) - tries to go through water - maybe move fetching code to some common module
++
++[H] fighting should proceed when already attacked while formating!
++[H] check saving/loading of ll-jobs
++[H] remove old texts from local_* files
++
++[M] helping in houses
++
++[M] solve translation problem with descriptions
++[M] troops can't cross too steep terrain
++[M] do building continuesly and not in steps (fetching, flattening and building)
++[M] add info-bar about troops to inventory or main-view, while fighting (?)
++[M] chase enemy when he's fleeing (a little and not too far)
++[M] make finite state machine approach in entities more visible (?)
++[M] move from AntHouse to AntBoss:describe men's health and morale when inspecting
++[M] add fighting on boat
++[M] save current job :-(  high-level and low-level
++		low-level saving should be finished, but high-level makes some problems
++[M] tough breath when hero suffers
++[M] fishing (fishes)
++[L] add all config-parameters to config-file when created - and comment them a little
++[L] Trees and scenery shouldn't be represented as ruby-objects, it takes too long to mark them all!
++[L] add formations
++[L] add campaign-loading functionality to load-dialog in-game  TRICKY
++		This is a real problem, because the current AGApplication is called by the campaign-code.
++		So the AntApp must be finished and the surrounding campaign-code, too. After this the
++		loaded campaign must be started.
++[L] add aggression-leveling of non-hero bosses
++[L] add wolf, fish, bird
++[L] single games - add village generator to map generator
++[L] single games - add some menu for options
++[L] decrease morale on men when inventing and not resting
++
++[VL] very bad situation =&gt; raise heroes with a new player (rebellion)
++[VL] add females
++[VL] story-telling:
++	- browsing facility (scene=&gt;number(person)=&gt;text)
++
++[Artificial Intelligence]
++------------------------------------------------------
++[L] computer-player only attacks when stock is used up
++
++[Multiplayer]
++------------------------------------------------------
++[M] choosing/making player for multiplayer
++
++[Scripting - Levels and campaigns]
++------------------------------------------------------
++[M] finish first level of birth-campaign
++[M] add some single maps
++
++[Editor]
++------------------------------------------------------
++[H] loading doesn't remove old entities
++[H] remove load script when in editor
++[H] add painting by dragging
++[H] plain other terrain type
++[M] add directory-selector to load- and save-dialog (only in editor)
++[M] add erosion to map-generator
++[L] Trigger definition
++[L] cleanup gui - remove unused elements
++[L] fix selecting group. When you switch the &quot;tabs&quot;, the selected action should be changed, too
++
++[Packaging / Building]
++------------------------------------------------------
++[L] installer for linux. maybe some autopackage or .debs?
++
++
++DOCUMENTATION
++======================================================
++[H] Architecture
++[H] comments in ruby-scripts
++[H] comments in game-engine
++[H] comments in 3d-engine
+
+Modified: antargis/trunk/build/std_list.i
+===================================================================
+--- antargis/trunk/build/std_list.i	2007-10-27 12:55:17 UTC (rev 1183)
++++ antargis/trunk/build/std_list.i	2007-10-27 19:20:17 UTC (rev 1184)
+@@ -211,7 +211,7 @@
+         %typemap(out) list&lt;T*&gt; {
+             $result = rb_ary_new2($1.size());
+             size_t j=0;
+-             for($1_type::iterator i=$1.begin();i!=$1.end();i++) {
++             for($1_type::iterator i=$1.begin();i!=$1.end();i++,j++) {
+ 		rb_ary_store($result,j,AG_NewPointerObj(*i,$descriptor(T*),1));
+             }
+         }
+
+Modified: antargis/trunk/ext/game/headers.hh
+===================================================================
+--- antargis/trunk/ext/game/headers.hh	2007-10-27 12:55:17 UTC (rev 1183)
++++ antargis/trunk/ext/game/headers.hh	2007-10-27 19:20:17 UTC (rev 1184)
+@@ -63,14 +63,14 @@
+ #include &quot;ext/3dengine/mesh_optimizer.h&quot;
+ #include &quot;ext/3dengine/ant_particle.h&quot;
+ #include &quot;ext/3dengine/mesh_2d_data.h&quot;
++#include &quot;ext/3dengine/ag_glwidget.h&quot;
+ #include &quot;ext/3dengine/mesh_2d.h&quot;
+ #include &quot;ext/3dengine/mesh_data.h&quot;
+ #include &quot;ext/3dengine/scene_base.h&quot;
++#include &quot;ext/3dengine/boa_3d_wireframe.h&quot;
+ #include &quot;ext/3dengine/anim_mesh.h&quot;
+ #include &quot;ext/3dengine/scenenode.h&quot;
+ #include &quot;ext/3dengine/ant_projection.h&quot;
+-#include &quot;ext/3dengine/ag_glwidget.h&quot;
+-#include &quot;ext/3dengine/boa_3d_wireframe.h&quot;
+ #include &quot;ext/game/path.h&quot;
+ #include &quot;ext/game/terrain.h&quot;
+ #include &quot;ext/game/entity.h&quot;
+
+Modified: antargis/trunk/ext/game/map.cc
+===================================================================
+--- antargis/trunk/ext/game/map.cc	2007-10-27 12:55:17 UTC (rev 1183)
++++ antargis/trunk/ext/game/map.cc	2007-10-27 19:20:17 UTC (rev 1184)
+@@ -196,20 +196,6 @@
+   cdebug(&quot;type unknown:&quot;&lt;&lt;node.getName());
+   //  return e;
+ }
+-
+-/*std::vector&lt;AntEntityPtr&gt; AntMap::getByType(const AGString &amp;pType)
+-{
+-  std::vector&lt;AntEntityPtr&gt; l;
+-  EntityByType::iterator i=mByType.find(pType);
+-  if(i!=mByType.end())
+-    {
+-      std::copy(i-&gt;second.begin(),i-&gt;second.end(),std::back_inserter(l));
+-    }
+-
+-  return l;  
+-  }*/
+-
+-
+ AntMap::EntityList AntMap::getEntities(const AGRect2&amp;r)
+ {
+   return mEntQuad-&gt;get(r);
+
+Modified: antargis/trunk/ext/game/map.h
+===================================================================
+--- antargis/trunk/ext/game/map.h	2007-10-27 12:55:17 UTC (rev 1183)
++++ antargis/trunk/ext/game/map.h	2007-10-27 19:20:17 UTC (rev 1184)
+@@ -59,7 +59,7 @@
+   void newMap(int w,int h);
+   
+   EntityList getEntities(const AGRect2&amp;r);
+-  EntityList getAllEntities();
++  std::list&lt;AntEntity*&gt; getAllEntities();
+ //  std::vector&lt;AntEntityPtr&gt; getAllEntitiesV();
+ //  std::vector&lt;AntEntityPtr&gt; getEntities(const AGString &amp;pName);
+ //  std::vector&lt;AntEntity*&gt; getAllEntitiesV();
+@@ -94,8 +94,6 @@
+ 
+   virtual void mapChanged();  
+ 
+-
+-  //  std::vector&lt;AntEntityPtr&gt; getByType(const AGString &amp;pType);
+  private:
+   typedef std::map&lt;size_t,AntEntity*&gt; EntityMap;
+ 
+
+Modified: antargis/trunk/ext/math/ag_rand.cc
+===================================================================
+--- antargis/trunk/ext/math/ag_rand.cc	2007-10-27 12:55:17 UTC (rev 1183)
++++ antargis/trunk/ext/math/ag_rand.cc	2007-10-27 19:20:17 UTC (rev 1184)
+@@ -64,21 +64,21 @@
+ 
+ float AGRandomizer::operator()(float f)
+ {
+-  CTRACE;
++  //  CTRACE;
+   float d=(float)mts_drand(&amp;mState);
+-  cdebug(&quot;d:&quot;&lt;&lt;d&lt;&lt;&quot; f:&quot;&lt;&lt;f);
++  //  cdebug(&quot;d:&quot;&lt;&lt;d&lt;&lt;&quot; f:&quot;&lt;&lt;f);
+   d*=f;
+-  cdebug(&quot;d2:&quot;&lt;&lt;d);
++  //  cdebug(&quot;d2:&quot;&lt;&lt;d);
+   
+   return d;
+ }
+ int AGRandomizer::operator()(int i)
+ {
+-  CTRACE;
++  //  CTRACE;
+   int r=mts_lrand(&amp;mState);
+-  cdebug(&quot;r:&quot;&lt;&lt;r&lt;&lt;&quot; i:&quot;&lt;&lt;i);
++  //  cdebug(&quot;r:&quot;&lt;&lt;r&lt;&lt;&quot; i:&quot;&lt;&lt;i);
+   r%=i;
+-  cdebug(&quot;r2:&quot;&lt;&lt;r);
++  //  cdebug(&quot;r2:&quot;&lt;&lt;r);
+   return r;
+ }
+ 
+
+Modified: antargis/trunk/ruby/entities/ant_fish.rb
+===================================================================
+--- antargis/trunk/ruby/entities/ant_fish.rb	2007-10-27 12:55:17 UTC (rev 1183)
++++ antargis/trunk/ruby/entities/ant_fish.rb	2007-10-27 19:20:17 UTC (rev 1184)
+@@ -33,14 +33,9 @@
+ 		setOnGround(false)
+ 		setPos(AGVector3.new(0,0,-0.3))
+ 
+-		#puts &quot;FISH:#{getPos3D}&quot;
+-		
+ 		setMesh
+-		#mesh=Mesh.new(getMap.getScene,getFishMeshData,AGVector4.new(0,0,0),0)
+-		#setMesh(mesh)
+ 
+ 		resource.set(&quot;food&quot;,1)
+-		#puts &quot;FISH:#{getPos3D}&quot;
+ 	end
+ 	def saveXML(node)
+ 		super(node)
+@@ -64,21 +59,7 @@
+ 			return
+ 		end
+ 
+-		# BIRTHRATE is here:
+-		if @lastBirth&gt;40 then
+-			# make child
+-			#puts &quot;A FISH IS BORN&quot;
+-			fish=AntFish.new(getMap)
+-			fish.setPos(getPos2D)
+-			getMap.insertEntity(fish)
+-			getMap.endChange
+-			newRestJob(2)
+-			@lastBirth=-getRand()*10
+-		else
+-			setPos(AGVector3.new(getPos2D,-0.3))
+-			newMoveJob(0,getTargetPos,0)
+-			setMeshState(&quot;go&quot;)
+-		end
++		giveBirth
+ 
+ 		@foodAdd+=1
+ 		#puts &quot;FOOOOOD #{@foodAdd}&quot;
+@@ -111,4 +92,24 @@
+ 	def getName
+ 		&quot;Fish&quot;
+ 	end
++private
++	def giveBirth
++		# BIRTHRATE is here:
++		if @lastBirth&gt;40 then
++			fishList=getMap.getAllByType(self.class)
++			return if fishList.length&gt;50
++			# make child
++			#puts &quot;A FISH IS BORN&quot;
++			fish=AntFish.new(getMap)
++			fish.setPos(getPos2D)
++			getMap.insertEntity(fish)
++			getMap.endChange
++			newRestJob(2)
++			@lastBirth=-getRand()*10
++		else
++			setPos(AGVector3.new(getPos2D,-0.3))
++			newMoveJob(0,getTargetPos,0)
++			setMeshState(&quot;go&quot;)
++		end
++	end
+ end
+
+Modified: antargis/trunk/ruby/jobs/ant_hljob_states.rb
+===================================================================
+--- antargis/trunk/ruby/jobs/ant_hljob_states.rb	2007-10-27 12:55:17 UTC (rev 1183)
++++ antargis/trunk/ruby/jobs/ant_hljob_states.rb	2007-10-27 19:20:17 UTC (rev 1184)
+@@ -1192,7 +1192,7 @@
+ 		return :goResting if man.hlJobMode[:done]&gt;=man.getAggression
+ 		return :goFlatten if somethingToFlattenLeft
+ 		return :goBuilding if enoughResourceLeft and not target.ready
+-		return :goHarvesting if whatToHarvestList.length&gt;0
++		return :goHarvesting #if whatToHarvestList.length&gt;0 # always
+ 	end
+ 
+ 	# what the stock of all resources should be
+@@ -1216,7 +1216,7 @@
+ 	end
+ 
+ 	def enoughResourceLeft
+-		alreadyBuilding=hero.getMen.select{|man|man.hlJobMode[:task]==:build}.length+1
++		alreadyBuilding=hero.getMen.select{|man|[:build,:goBuilding].member?(man.hlJobMode[:task])}.length+1
+ 		puts &quot;alreadyBuilding:#{alreadyBuilding}&quot;
+ 		#return true if alreadyBuilding==0
+ 		neededResources=target.building.buildResources
+
+Modified: antargis/trunk/ruby/map.rb
+===================================================================
+--- antargis/trunk/ruby/map.rb	2007-10-27 12:55:17 UTC (rev 1183)
++++ antargis/trunk/ruby/map.rb	2007-10-27 19:20:17 UTC (rev 1184)
+@@ -474,6 +474,12 @@
+ 		@app.setupNames
+ 	end
+ 
++	def getAllByType(type)
++		getAllEntities.select{|e|
++			e.is_a?(type)
++		}
++	end
++
+ private	
+ 	def checkTriggers
+ 		@heroes.each{|h|
+
+Added: antargis/trunk/ruby/meshes/grass.rb
+===================================================================
+--- antargis/trunk/ruby/meshes/grass.rb	2007-10-27 12:55:17 UTC (rev 1183)
++++ antargis/trunk/ruby/meshes/grass.rb	2007-10-27 19:20:17 UTC (rev 1184)
+@@ -0,0 +1,175 @@
++def getGrassMeshData(size,many=4,texture=nil,bush=false)
++	size=(size*10).to_i/10.0
++
++	if not $grassdata
++		$grassdata={}
++	end
++	if $grassdata[size]
++		return $grassdata[size]
++	end
++	
++	opt=MeshOptimizer.new
++	mv0=MeshVertex.new
++	mv1=MeshVertex.new
++	mv2=MeshVertex.new
++	mv3=MeshVertex.new
++	
++	for i in 1..many
++	
++	mv0.c=AGVector4.new(1,1,1,1)
++	mv1.c=AGVector4.new(1,1,1,1)
++	mv2.c=AGVector4.new(1,1,1,1)
++	mv3.c=AGVector4.new(1,1,1,1)
++	
++	if bush
++		mv0.t=AGVector2.new(0,1-0)
++		mv1.t=AGVector2.new(1,1-0)
++		mv2.t=AGVector2.new(1,1-0.5)
++		mv3.t=AGVector2.new(0,1-0.5)
++	else
++		mv0.t=AGVector2.new(0,1-0)
++		mv1.t=AGVector2.new(1,1-0)
++		mv2.t=AGVector2.new(1,1-1)
++		mv3.t=AGVector2.new(0,1-1)
++	end
++	
++	w=size
++	h=w
++	
++	if bush
++		h*=0.6
++	end
++
++	v0=AGVector4.new(-w,0,0)
++	v1=AGVector4.new(w,0,0)
++	v2=AGVector4.new(w,0,h*2)
++	v3=AGVector4.new(-w,0,h*2)
++	
++	if i==1
++		vadd=AGVector4.new(0,0,0,0)
++	else
++		vadd=AGVector4.new(agRand(1.0)*2,agRand(1.0)*2,0,0)
++	end
++	
++	mv0.v=v0+vadd
++	mv1.v=v1+vadd
++	mv2.v=v2+vadd
++	mv3.v=v3+vadd
++	
++	mv0.n=AGVector3.new(0,-1,0)
++	mv1.n=AGVector3.new(0,-1,0)
++	mv2.n=AGVector3.new(0,-1,0)
++	mv3.n=AGVector3.new(0,-1,0)
++	
++	opt.add(mv0)
++	opt.add(mv1)
++	opt.add(mv2)
++	
++	opt.add(mv0)
++	opt.add(mv2)
++	opt.add(mv3)
++	
++	turn=AGMatrix4.new(Math::PI/3,AGVector3.new(0,0,1))
++	
++	mv0.v=turn*v0+vadd
++	mv1.v=turn*v1+vadd
++	mv2.v=turn*v2+vadd
++	mv3.v=turn*v3+vadd
++	
++ 	opt.add(mv0)
++ 	opt.add(mv1)
++ 	opt.add(mv2)
++# 	
++ 	opt.add(mv0)
++ 	opt.add(mv2)
++ 	opt.add(mv3)
++	
++	turn=AGMatrix4.new(-1*Math::PI/3,AGVector3.new(0,0,1))
++	
++	mv0.v=turn*v0+vadd
++	mv1.v=turn*v1+vadd
++	mv2.v=turn*v2+vadd
++	mv3.v=turn*v3+vadd
++	
++ 	opt.add(mv0)
++ 	opt.add(mv1)
++ 	opt.add(mv2)
++# 	
++ 	opt.add(mv0)
++ 	opt.add(mv2)
++ 	opt.add(mv3)
++	
++	if bush
++		mv0.t=AGVector2.new(0,1-0.5)
++		mv1.t=AGVector2.new(1,1-0.5)
++		mv2.t=AGVector2.new(1,1-1)
++		mv3.t=AGVector2.new(0,1-1)
++		mv0.n=AGVector3.new(0,0,1)
++		mv1.n=AGVector3.new(0,0,1)
++		mv2.n=AGVector3.new(0,0,1)
++		mv3.n=AGVector3.new(0,0,1)
++		mv0.v=AGVector4.new(-w,-w,h/3)
++		mv1.v=AGVector4.new( w,-w,h/3)
++		mv2.v=AGVector4.new( w, w,h/3)
++		mv3.v=AGVector4.new(-w, w,h/3)
++		opt.add(mv0)
++		opt.add(mv1)
++		opt.add(mv2)
++		
++		opt.add(mv0)
++		opt.add(mv2)
++		opt.add(mv3)
++		mv0.v=AGVector4.new(-w*0.7,-w*0.7,h*0.7)
++		mv1.v=AGVector4.new( w*0.7,-w*0.7,h*0.7)
++		mv2.v=AGVector4.new( w*0.7, w*0.7,h*0.7)
++		mv3.v=AGVector4.new(-w*0.7, w*0.7,h*0.7)
++		opt.add(mv0)
++		opt.add(mv1)
++		opt.add(mv2)
++		
++		opt.add(mv0)
++		opt.add(mv2)
++		opt.add(mv3)
++		
++		mv0.v=AGVector4.new(-w/2,-w/2,h/2*3)
++		mv1.v=AGVector4.new( w/2,-w/2,h/2*3)
++		mv2.v=AGVector4.new( w/2, w/2,h/2*3)
++		mv3.v=AGVector4.new(-w/2, w/2,h/2*3)
++ 		opt.add(mv0)
++ 		opt.add(mv1)
++ 		opt.add(mv2)
++ 		
++ 		opt.add(mv0)
++ 		opt.add(mv2)
++ 		opt.add(mv3)
++	end
++	
++	
++	end
++	
++	#$grassdata[size]=MeshData.new(opt.getArray,&quot;data/textures/models/high_grass2.png&quot;,true) #false)
++	$grassdata[size]=MeshData.new(opt.getArray,texture,true) #false) # last is shadow
++	$grassdata[size].setTransparent(true)
++	
++	if nil
++		$grassdata[size]=MeshData.new(opt.getArray,&quot;data/textures/terrain/reed.png&quot;,true) #false)
++		$grassdata[size].setLighting(false)
++		#$grassdata[size].setOverdraw(true)
++		$grassdata[size].setTransparent(true)
++	end
++	#$grassdata[size]=MeshData.new(opt.getArray,&quot;data/textures/models/flower1.png&quot;,false)
++	
++	return $grassdata[size]
++end
++
++def makeGrassMesh(scene,size=0.4)
++	return nil if scene.nil?
++	return Mesh.new(scene,getGrassMeshData(size,4,&quot;data/textures/models/high_grass2.png&quot;),AGVector4.new(0,0,0,0),0)
++end
++
++def makeBushMesh(scene,size=0.4)
++	return nil if scene.nil?
++	assert{scene.is_a?(Scene)}
++	assert{size.is_a?(Numeric)}
++	return Mesh.new(scene,getGrassMeshData(size,1,&quot;data/textures/models/bush5.png&quot;,true),AGVector4.new(0,0,0,0),0)
++end
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000140.html">[Antargis-svn] r1183 - antargis
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#141">[ date ]</a>
+              <a href="thread.html#141">[ thread ]</a>
+              <a href="subject.html#141">[ subject ]</a>
+              <a href="author.html#141">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

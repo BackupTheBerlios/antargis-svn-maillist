@@ -1,0 +1,1421 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1268 - in antargis/trunk: . data	data/gui/layout/editor/campaign ext/basic ext/gui ext/video	rookey ruby/editor/campaign
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2008-June/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1268%20-%20in%20antargis/trunk%3A%20.%20data%0A%09data/gui/layout/editor/campaign%20ext/basic%20ext/gui%20ext/video%0A%09rookey%20ruby/editor/campaign&In-Reply-To=%3C200806101922.m5AJMY8R025076%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000223.html">
+   <LINK REL="Next"  HREF="000225.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1268 - in antargis/trunk: . data	data/gui/layout/editor/campaign ext/basic ext/gui ext/video	rookey ruby/editor/campaign</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1268%20-%20in%20antargis/trunk%3A%20.%20data%0A%09data/gui/layout/editor/campaign%20ext/basic%20ext/gui%20ext/video%0A%09rookey%20ruby/editor/campaign&In-Reply-To=%3C200806101922.m5AJMY8R025076%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1268 - in antargis/trunk: . data	data/gui/layout/editor/campaign ext/basic ext/gui ext/video	rookey ruby/editor/campaign">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Tue Jun 10 21:22:34 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000223.html">[Antargis-svn] r1267 - antargis/trunk
+</A></li>
+        <LI>Next message: <A HREF="000225.html">[Antargis-svn] r1269 - in antargis/trunk: . data data/gui/campaign	data/gui/layout/editor/campaign ext/basic ext/gui ext/video	games games/copter games/copter/images ruby/editor/campaign ruby/gui
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#224">[ date ]</a>
+              <a href="thread.html#224">[ thread ]</a>
+              <a href="subject.html#224">[ subject ]</a>
+              <a href="author.html#224">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2008-06-10 21:22:29 +0200 (Tue, 10 Jun 2008)
+New Revision: 1268
+
+Modified:
+   antargis/trunk/Rakefile
+   antargis/trunk/data/gui/layout/editor/campaign/main.xml
+   antargis/trunk/data/theme.xml
+   antargis/trunk/ext/basic/ag_fs.h
+   antargis/trunk/ext/basic/ag_geometry.cc
+   antargis/trunk/ext/basic/ag_geometry.h
+   antargis/trunk/ext/gui/ag_background.cc
+   antargis/trunk/ext/gui/ag_border.cc
+   antargis/trunk/ext/gui/ag_frame.cc
+   antargis/trunk/ext/gui/ag_frame.h
+   antargis/trunk/ext/video/ag_glpainter.cc
+   antargis/trunk/ext/video/ag_glpainter.h
+   antargis/trunk/ext/video/ag_glscreen.cc
+   antargis/trunk/ext/video/ag_glscreen.h
+   antargis/trunk/ext/video/ag_projection.cc
+   antargis/trunk/ext/video/ag_projection.h
+   antargis/trunk/ext/video/ag_surface.cc
+   antargis/trunk/ext/video/ag_surface.h
+   antargis/trunk/rookey/config_generator.rb
+   antargis/trunk/ruby/editor/campaign/drag_grid.rb
+Log:
+Incomplete - task 11: Campaign editor 
+<A HREF="http://localhost:3000/issues/show/11">http://localhost:3000/issues/show/11</A>
+
+Modified: antargis/trunk/Rakefile
+===================================================================
+--- antargis/trunk/Rakefile	2008-06-09 18:59:40 UTC (rev 1267)
++++ antargis/trunk/Rakefile	2008-06-10 19:22:29 UTC (rev 1268)
+@@ -67,7 +67,7 @@
+ 
+     spec_filename = &quot;spec_#{file_name}.rb&quot;
+     specs = Dir[&quot;ruby/**/#{spec_filename}&quot;]
+-    pp specs
++    #pp specs
+     
+     if path = specs.detect { |f| spec_filename == File.basename(f) }
+       run_file_name = path
+
+Modified: antargis/trunk/data/gui/layout/editor/campaign/main.xml
+===================================================================
+--- antargis/trunk/data/gui/layout/editor/campaign/main.xml	2008-06-09 18:59:40 UTC (rev 1267)
++++ antargis/trunk/data/gui/layout/editor/campaign/main.xml	2008-06-10 19:22:29 UTC (rev 1268)
+@@ -1,94 +1,104 @@
+ &lt;?xml version=&quot;1.0&quot;?&gt;
+ &lt;layout name=&quot;CampaignEditorLayout&quot;&gt;
+-&lt;dragEnvironment name=&quot;dragEnvironment&quot;&gt;
+-&lt;table cols=&quot;1&quot; rows=&quot;2&quot;&gt;
+-  &lt;rowsize row=&quot;0&quot; fixed=&quot;50&quot;/&gt;
++
++  &lt;dragEnvironment name=&quot;dragEnvironment&quot;&gt;
++    &lt;table cols=&quot;1&quot; rows=&quot;2&quot;&gt;
++      &lt;rowsize row=&quot;0&quot; fixed=&quot;50&quot;/&gt;
+   
+-  &lt;cell col=&quot;0&quot; row=&quot;0&quot;&gt;
+-    &lt;toolBar name=&quot;toolbar&quot;&gt;
+-         &lt;toolButton text=&quot;Save&quot; name=&quot;save&quot; caption=&quot;muh&quot; caption-image=&quot;gui/save.png&quot;/&gt;
+-         &lt;toolButton text=&quot;Load&quot; name=&quot;load&quot; caption=&quot;muh&quot; caption-image=&quot;gui/load.png&quot;/&gt;
+-    &lt;/toolBar&gt;
+-  &lt;/cell&gt;
++      &lt;cell col=&quot;0&quot; row=&quot;0&quot;&gt;
++        &lt;toolBar name=&quot;toolbar&quot;&gt;
++          &lt;toolButton text=&quot;Save&quot; name=&quot;save&quot; caption=&quot;muh&quot; caption-image=&quot;gui/save.png&quot;/&gt;
++          &lt;toolButton text=&quot;Load&quot; name=&quot;load&quot; caption=&quot;muh&quot; caption-image=&quot;gui/load.png&quot;/&gt;
++        &lt;/toolBar&gt;
++      &lt;/cell&gt;
+   
+-  &lt;cell col=&quot;0&quot; row=&quot;1&quot;&gt;
+-  &lt;table cols=&quot;2&quot; rows=&quot;2&quot; name=&quot;bigTable&quot;&gt;
+-    &lt;colsize col=&quot;0&quot; fixed=&quot;100&quot;/&gt;
+-    &lt;rowsize row=&quot;1&quot; fixed=&quot;50&quot;/&gt;
++      &lt;cell col=&quot;0&quot; row=&quot;1&quot;&gt;
++        &lt;table cols=&quot;2&quot; rows=&quot;2&quot; name=&quot;bigTable&quot;&gt;
++          &lt;colsize col=&quot;0&quot; fixed=&quot;100&quot;/&gt;
++          &lt;rowsize row=&quot;1&quot; fixed=&quot;50&quot;/&gt;
+     
+-    &lt;cell col=&quot;0&quot; row=&quot;0&quot;&gt;
+-      &lt;table cols=&quot;1&quot; rows=&quot;4&quot;&gt;
+-        &lt;rowsize row=&quot;0&quot; fixed=&quot;100&quot;/&gt;
+-        &lt;rowsize row=&quot;1&quot; fixed=&quot;100&quot;/&gt;
+-        &lt;rowsize row=&quot;2&quot; fixed=&quot;100&quot;/&gt;
+-        &lt;cell col=&quot;0&quot; row=&quot;0&quot;&gt;
+-          &lt;dragSource name=&quot;levelSource&quot; class=&quot;DragBox&quot; text=&quot;Level&quot;/&gt;
+-        &lt;/cell&gt;
++          &lt;cell col=&quot;0&quot; row=&quot;0&quot;&gt;
++            &lt;table cols=&quot;1&quot; rows=&quot;4&quot;&gt;
++              &lt;rowsize row=&quot;0&quot; fixed=&quot;100&quot;/&gt;
++              &lt;rowsize row=&quot;1&quot; fixed=&quot;100&quot;/&gt;
++              &lt;rowsize row=&quot;2&quot; fixed=&quot;100&quot;/&gt;
++              &lt;cell col=&quot;0&quot; row=&quot;0&quot;&gt;
++                &lt;dragSource name=&quot;levelSource&quot; class=&quot;DragBox&quot; text=&quot;Level&quot;/&gt;
++              &lt;/cell&gt;
+         
+-        &lt;cell col=&quot;0&quot; row=&quot;1&quot;&gt;
+-          &lt;dragSource name =&quot;storySource&quot; class=&quot;DragBoxStory&quot; text=&quot;Story&quot;/&gt;
+-        &lt;/cell&gt;
+-        &lt;cell col=&quot;0&quot; row=&quot;2&quot;&gt;
+-          &lt;dragTrash/&gt;
+-        &lt;/cell&gt;
++              &lt;cell col=&quot;0&quot; row=&quot;1&quot;&gt;
++                &lt;dragSource name =&quot;storySource&quot; class=&quot;DragBoxStory&quot; text=&quot;Story&quot;/&gt;
++              &lt;/cell&gt;
++              &lt;cell col=&quot;0&quot; row=&quot;2&quot;&gt;
++                &lt;dragTrash/&gt;
++              &lt;/cell&gt;
+         
+-      &lt;/table&gt;
+-    &lt;/cell&gt;
++            &lt;/table&gt;
++          &lt;/cell&gt;
+     
+     
+-    &lt;cell col=&quot;1&quot; row=&quot;0&quot;&gt;
+-      &lt;scrollingWidget clientRect=&quot;(0,0,1600,1024)&quot;&gt;
+-        &lt;dragGrid name=&quot;dragGrid&quot; cellWidth=&quot;100&quot; hoverColor='#9999FF' edit=&quot;textEdit&quot;/&gt;
+-      &lt;/scrollingWidget&gt;
+-    &lt;/cell&gt;
++          &lt;cell col=&quot;1&quot; row=&quot;0&quot;&gt;
++            &lt;scrollingWidget clientRect=&quot;(0,0,1600,1024)&quot;&gt;
++              &lt;dragGrid name=&quot;dragGrid&quot; cellWidth=&quot;100&quot; hoverColor='#9999FF' edit=&quot;textEdit&quot;/&gt;
++            &lt;/scrollingWidget&gt;
++          &lt;/cell&gt;
+     
+     
+     
+-    &lt;cell col=&quot;1&quot; row=&quot;1&quot; name=&quot;a&quot;&gt;
+-      &lt;table cols=&quot;2&quot; rows=&quot;1&quot; name=&quot;b&quot;&gt;
+-        &lt;colsize col=&quot;1&quot; fixed=&quot;50&quot;/&gt;
+-        &lt;cell col=&quot;0&quot; row=&quot;0&quot;&gt;
+-          &lt;edit name=&quot;textEdit&quot;/&gt;
+-        &lt;/cell&gt;
+-        &lt;cell col=&quot;1&quot; row=&quot;0&quot;&gt;
+-          &lt;button name=&quot;weiter&quot; caption-image=&quot;data/gui/options.png&quot;/&gt;
+-        &lt;/cell&gt;
+-      &lt;/table&gt;
+-    &lt;/cell&gt;
++          &lt;cell col=&quot;1&quot; row=&quot;1&quot; name=&quot;a&quot;&gt;
++            &lt;table cols=&quot;2&quot; rows=&quot;1&quot; name=&quot;b&quot;&gt;
++              &lt;colsize col=&quot;1&quot; fixed=&quot;50&quot;/&gt;
++              &lt;cell col=&quot;0&quot; row=&quot;0&quot;&gt;
++                &lt;edit name=&quot;textEdit&quot;/&gt;
++              &lt;/cell&gt;
++              &lt;cell col=&quot;1&quot; row=&quot;0&quot;&gt;
++                &lt;button name=&quot;weiter&quot; caption-image=&quot;data/gui/options.png&quot;/&gt;
++              &lt;/cell&gt;
++            &lt;/table&gt;
++          &lt;/cell&gt;
+     
+-  &lt;/table&gt;
+-  &lt;/cell&gt;
+-  &lt;/table&gt;
+-  &lt;appearEffect name=&quot;showEdit&quot; table=&quot;bigTable&quot; row=&quot;1&quot; size=&quot;40&quot; duration=&quot;0.2&quot;/&gt;
+-  &lt;hideEffect name=&quot;hideEdit&quot; table=&quot;bigTable&quot; row=&quot;1&quot; size=&quot;40&quot; duration=&quot;0.2&quot;/&gt;
+-&lt;/dragEnvironment&gt;
+-   &lt;image filename=&quot;&quot; tile=&quot;true&quot; color=&quot;#00000099&quot;/&gt;
++        &lt;/table&gt;
++      &lt;/cell&gt;
++    &lt;/table&gt;
++    &lt;appearEffect name=&quot;showEdit&quot; table=&quot;bigTable&quot; row=&quot;1&quot; size=&quot;40&quot; duration=&quot;0.2&quot;/&gt;
++    &lt;hideEffect name=&quot;hideEdit&quot; table=&quot;bigTable&quot; row=&quot;1&quot; size=&quot;40&quot; duration=&quot;0.2&quot;/&gt;
++  &lt;/dragEnvironment&gt;
+ 
++
+   &lt;frame width=&quot;150&quot; height=&quot;70&quot;&gt;
+-    &lt;frame border=&quot;button.border.normal&quot;&gt;
+-      &lt;image filename=&quot;&quot; tile=&quot;true&quot; color=&quot;#000000FF&quot;/&gt;
+-      &lt;table rows=&quot;2&quot; cols=&quot;1&quot;&gt;
+-        &lt;rowsize row=&quot;0&quot; relative=&quot;3&quot;/&gt;
++    &lt;window&gt;
++      &lt;table rows=&quot;3&quot; cols=&quot;1&quot;&gt;
++        &lt;rowsize row=&quot;0&quot; relative=&quot;0.7&quot;/&gt;
++        &lt;rowsize row=&quot;1&quot; relative=&quot;3&quot;/&gt;
+         &lt;cell col=&quot;0&quot; row=&quot;0&quot;&gt;
++          &lt;imageList/&gt;
++        &lt;/cell&gt;
++        &lt;cell col=&quot;0&quot; row=&quot;1&quot;&gt;
+           &lt;frame width=&quot;20&quot;&gt;
+             &lt;image filename=&quot;data/gui/map1.png&quot; scale=&quot;true&quot;/&gt;
+           &lt;/frame&gt;
+         &lt;/cell&gt;
+-        &lt;cell col=&quot;0&quot; row=&quot;1&quot;&gt;
++        &lt;cell col=&quot;0&quot; row=&quot;2&quot;&gt;
+           &lt;table rows=&quot;1&quot; cols=&quot;3&quot;&gt;
+             &lt;colsize col=&quot;1&quot; relative=&quot;8&quot;/&gt;
+             &lt;cell col=&quot;1&quot; row=&quot;0&quot;&gt;
+-              &lt;edit text=&quot;caption&quot;/&gt;
++              &lt;frame width=&quot;5&quot;&gt;
++                &lt;edit text=&quot;caption&quot; multi=&quot;true&quot;/&gt;
++              &lt;/frame&gt;
+             &lt;/cell&gt;
+             &lt;cell col=&quot;0&quot; row=&quot;0&quot;&gt;
+-              &lt;button caption=&quot;Back&quot;/&gt;
++              &lt;frame width=&quot;10&quot; height=&quot;40&quot;&gt;
++                &lt;button caption-image=&quot;data/gui/arrow_left.png&quot;/&gt;
++              &lt;/frame&gt;
+             &lt;/cell&gt;
+             &lt;cell col=&quot;2&quot; row=&quot;0&quot;&gt;
+-              &lt;button caption=&quot;Next&quot;/&gt;
++              &lt;frame width=&quot;10&quot; height=&quot;40&quot;&gt;
++                &lt;button caption-image=&quot;data/gui/arrow_right.png&quot;/&gt;
++              &lt;/frame&gt;
+             &lt;/cell&gt;
+           &lt;/table&gt;
+         &lt;/cell&gt;
+       &lt;/table&gt;
+-    
++    &lt;/window&gt;
+   &lt;/frame&gt;
+ &lt;/layout&gt;
+\ No newline at end of file
+
+Modified: antargis/trunk/data/theme.xml
+===================================================================
+--- antargis/trunk/data/theme.xml	2008-06-09 18:59:40 UTC (rev 1267)
++++ antargis/trunk/data/theme.xml	2008-06-10 19:22:29 UTC (rev 1268)
+@@ -183,13 +183,15 @@
+ 	
+ 	&lt;edit&gt;
+ 		&lt;background&gt;
+-					&lt;color name='gradientColor1' color='#54555b'/&gt;
++      &lt;color name=&quot;color&quot; color='#11111144'/&gt;
++&lt;!-- 					&lt;color name='gradientColor1' color='#54555b'/&gt;
+ 					&lt;color name='gradientColor2' color='#3c3d41'/&gt;
+ 					&lt;color name='gradientColor3' color='#3c3d41'/&gt;
+-					&lt;color name='gradientColor4' color='#12141c'/&gt;
+-&lt;!--			&lt;image name=&quot;image&quot; file=&quot;bg_tile2.png&quot;/&gt;--&gt;
++					&lt;color name='gradientColor4' color='#12141c'/&gt; --&gt;
++			&lt;!--  &lt;image name=&quot;image&quot; file=&quot;data/gui/bg_tile2.png&quot;/&gt;--&gt;
+ 		&lt;/background&gt;
+-		&lt;font name=&quot;font&quot; file=&quot;FreeSans.ttf&quot; size=&quot;14&quot; color=&quot;#000000&quot;/&gt;
++    &lt;!-- &lt;font name=&quot;font&quot; file=&quot;FreeSans.ttf&quot; size=&quot;14&quot; color=&quot;#000000&quot;/&gt; --&gt;
++    &lt;font name=&quot;font&quot; file=&quot;FreeSans.ttf&quot; size=&quot;14&quot; color=&quot;#E7E7FF&quot;/&gt;
+ 	&lt;/edit&gt;
+ &lt;!--
+ 	&lt;screen&gt;
+
+Modified: antargis/trunk/ext/basic/ag_fs.h
+===================================================================
+--- antargis/trunk/ext/basic/ag_fs.h	2008-06-09 18:59:40 UTC (rev 1267)
++++ antargis/trunk/ext/basic/ag_fs.h	2008-06-10 19:22:29 UTC (rev 1268)
+@@ -28,6 +28,12 @@
+ 
+ #include &lt;ag_base.h&gt;
+ 
++struct FileNotFound
++  {
++    FileNotFound(const std::string &amp;f):filename(f){}
++    std::string filename;
++  };
++
+ AGEXPORT void initFS(const char *argv0);
+ AGEXPORT AGString loadFile(const AGString &amp;pFilename);
+ AGEXPORT bool saveFile(const AGString &amp;pFilename,const AGString &amp;pContent);
+
+Modified: antargis/trunk/ext/basic/ag_geometry.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_geometry.cc	2008-06-09 18:59:40 UTC (rev 1267)
++++ antargis/trunk/ext/basic/ag_geometry.cc	2008-06-10 19:22:29 UTC (rev 1268)
+@@ -1443,8 +1443,27 @@
+   return v0!=r.v0 || v1!=r.v1;
+ }
+ 
++std::vector&lt;AGRect2&gt; AGRect2::tile(size_t x,size_t y) const
++{
++  std::vector&lt;AGRect2&gt; l;
++  
++  if(x==0 || y==0)
++  return l;
++  
++  float w=width()/x;
++  float h=height()/y;
++  
++  for(size_t i=0;i&lt;x;i++)
++    for(size_t j=0;j&lt;y;j++)
++      {
++        l.push_back(AGRect2(x0()+w*i,y0()+h*j,w,h));
++      }
++  
++  return l;
++}
+ 
+ 
++
+ SDL_Rect AGRect2::sdl() const
+ {
+   SDL_Rect r;
+
+Modified: antargis/trunk/ext/basic/ag_geometry.h
+===================================================================
+--- antargis/trunk/ext/basic/ag_geometry.h	2008-06-09 18:59:40 UTC (rev 1267)
++++ antargis/trunk/ext/basic/ag_geometry.h	2008-06-10 19:22:29 UTC (rev 1268)
+@@ -504,6 +504,7 @@
+ 
+     //result=this-r
+     std::vector&lt;AGRect2&gt; difference(const AGRect2 &amp;r) const;
++    std::vector&lt;AGRect2&gt; tile(size_t x,size_t y) const;
+ 
+     SDL_Rect sdl() const;
+ 
+
+Modified: antargis/trunk/ext/gui/ag_background.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_background.cc	2008-06-09 18:59:40 UTC (rev 1267)
++++ antargis/trunk/ext/gui/ag_background.cc	2008-06-10 19:22:29 UTC (rev 1268)
+@@ -29,15 +29,15 @@
+     @param pColor an rgba-color. so you can use transparent backgrounds,too.
+  */
+ AGBackground::AGBackground(const AGColor &amp;pColor):mTexture(0)
+-{
+-  //  CTRACE;
+-  mColor=true;
+-  mColors[0]=pColor;
+-  mColors[1]=pColor;
+-  mColors[2]=pColor;
+-  mColors[3]=pColor;
+-  mBorder=0;
+-}
++  {
++    //  CTRACE;
++    mColor=true;
++    mColors[0]=pColor;
++    mColors[1]=pColor;
++    mColors[2]=pColor;
++    mColors[3]=pColor;
++    mBorder=0;
++  }
+ 
+ 
+ /**
+@@ -58,29 +58,37 @@
+  */
+ 
+ AGBackground::AGBackground(const AGString &amp;pThemeName):mTexture(0)
+-{
+-  //  CTRACE;
++  {
++    //  CTRACE;
+ 
+-  AGTheme *theme=getTheme();
+-  mColor=false;
+-  if(theme-&gt;hasSurface(pThemeName+&quot;.image&quot;))
+-    {
+-      //      CTRACE;
+-      cdebug(pThemeName+&quot;.image&quot;);
+-      mTexture=&amp;getTextureCache()-&gt;get(getTheme()-&gt;getSurfaceName(pThemeName+&quot;.image&quot;));
+-      //mTexture=new AGTexture(theme-&gt;getSurface(pThemeName+&quot;.image&quot;));
+-    }
+-  else if(theme-&gt;hasColor(pThemeName+&quot;.&quot;+&quot;gradientColor1&quot;))
+-    {
+-      mColor=true;
+-      mColors[0]=theme-&gt;getColor(pThemeName+&quot;.&quot;+&quot;gradientColor1&quot;);
+-      mColors[1]=theme-&gt;getColor(pThemeName+&quot;.&quot;+&quot;gradientColor2&quot;);
+-      mColors[2]=theme-&gt;getColor(pThemeName+&quot;.&quot;+&quot;gradientColor3&quot;);
+-      mColors[3]=theme-&gt;getColor(pThemeName+&quot;.&quot;+&quot;gradientColor4&quot;);
+-    }
++    AGTheme *theme=getTheme();
++    mColor=false;
++    if(theme-&gt;hasSurface(pThemeName+&quot;.image&quot;))
++      {
++        //      CTRACE;
++        cdebug(pThemeName+&quot;.image&quot;);
++        mTexture=&amp;getTextureCache()-&gt;get(getTheme()-&gt;getSurfaceName(pThemeName+&quot;.image&quot;));
++        //mTexture=new AGTexture(theme-&gt;getSurface(pThemeName+&quot;.image&quot;));
++      }
++    else if(theme-&gt;hasColor(pThemeName+&quot;.&quot;+&quot;gradientColor1&quot;))
++      {
++        mColor=true;
++        mColors[0]=theme-&gt;getColor(pThemeName+&quot;.&quot;+&quot;gradientColor1&quot;);
++        mColors[1]=theme-&gt;getColor(pThemeName+&quot;.&quot;+&quot;gradientColor2&quot;);
++        mColors[2]=theme-&gt;getColor(pThemeName+&quot;.&quot;+&quot;gradientColor3&quot;);
++        mColors[3]=theme-&gt;getColor(pThemeName+&quot;.&quot;+&quot;gradientColor4&quot;);
++      }
++    else if(theme-&gt;hasColor(pThemeName+&quot;.&quot;+&quot;color&quot;))
++      {
++        mColor=true;
++        mColors[0]=theme-&gt;getColor(pThemeName+&quot;.&quot;+&quot;color&quot;);
++        mColors[1]=theme-&gt;getColor(pThemeName+&quot;.&quot;+&quot;color&quot;);
++        mColors[2]=theme-&gt;getColor(pThemeName+&quot;.&quot;+&quot;color&quot;);
++        mColors[3]=theme-&gt;getColor(pThemeName+&quot;.&quot;+&quot;color&quot;);
++      }
+ 
+-  mBorder=theme-&gt;getInt(pThemeName+&quot;.&quot;+&quot;border&quot;);
+-}
++    mBorder=theme-&gt;getInt(pThemeName+&quot;.&quot;+&quot;border&quot;);
++  }
+ 
+ /// draws the background on painter in the given rectangle
+ void AGBackground::draw(const AGRect2 &amp;r,AGPainter &amp;p)
+
+Modified: antargis/trunk/ext/gui/ag_border.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_border.cc	2008-06-09 18:59:40 UTC (rev 1267)
++++ antargis/trunk/ext/gui/ag_border.cc	2008-06-10 19:22:29 UTC (rev 1268)
+@@ -81,25 +81,7 @@
+ 
+     float x2=d.x1();
+     float y2=d.y1();
+-    /*
+-  // corners
+-  p.blit(*mTexture,AGRect2(0,0,w,w),AGRect2(0,0,w,w));
+ 
+-  p.blit(*mTexture,AGRect2(0,y2-w,w,w),AGRect2(0,w2,w,w));
+-
+-  p.blit(*mTexture,AGRect2(x2-w,0,w,w),AGRect2(w2,0,w,w));
+-
+-  p.blit(*mTexture,AGRect2(x2-w,y2-w,w,w),AGRect2(w2,w2,w,w));
+-
+-  // borders
+-
+-  // hor
+-  p.tile(*mTexture,AGRect2(w,0,d.w()-w2,w),AGRect2(w,0,w,w));
+-  p.tile(*mTexture,AGRect2(w,y2-w,d.w()-w2,w),AGRect2(w,w2,w,w));
+-  // ver
+-  p.tile(*mTexture,AGRect2(0,w,w,d.h()-w2),AGRect2(0,w,w,w));
+-  p.tile(*mTexture,AGRect2(x2-w,w,w,d.h()-w2),AGRect2(w2,w,w,w));
+-     */
+     // skip interior
+ 
+ 
+
+Modified: antargis/trunk/ext/gui/ag_frame.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_frame.cc	2008-06-09 18:59:40 UTC (rev 1267)
++++ antargis/trunk/ext/gui/ag_frame.cc	2008-06-10 19:22:29 UTC (rev 1268)
+@@ -3,7 +3,7 @@
+ #include &quot;ag_debug.h&quot;
+ 
+ AGFrame::AGFrame(AGWidget *pParent,const AGRect2 &amp;pRect,size_t pWidth,size_t pWidthH):AGWidget(pParent,pRect),
+-mWidth(pWidth),mBorder(0),mWidthH(pWidthH==0?pWidth:pWidthH),mTexture((int)width(),(int)height())
++mWidth(pWidth),mBorder(0),mWidthH(pWidthH&lt;0?pWidth:pWidthH),mTexture((int)width(),(int)height())
+ {
+   mTextureInited=false;
+   mUseTexture=true;
+
+Modified: antargis/trunk/ext/gui/ag_frame.h
+===================================================================
+--- antargis/trunk/ext/gui/ag_frame.h	2008-06-09 18:59:40 UTC (rev 1267)
++++ antargis/trunk/ext/gui/ag_frame.h	2008-06-10 19:22:29 UTC (rev 1268)
+@@ -10,7 +10,7 @@
+ class AGEXPORT AGFrame:public AGWidget
+ {
+  public:
+-  AGFrame(AGWidget *pParent,const AGRect2 &amp;pRect,size_t width,size_t widthH=0); // transparent frame
++  AGFrame(AGWidget *pParent,const AGRect2 &amp;pRect,size_t width,size_t widthH=-1); // transparent frame
+   AGFrame(AGWidget *pParent,const AGRect2 &amp;pRect,const AGBorder &amp;pBorder);
+   ~AGFrame();
+ 
+@@ -22,8 +22,8 @@
+   void prepareDraw();
+   
+  private:
+-  size_t mWidth;
+-  size_t mWidthH;
++  int mWidth;
++  int mWidthH;
+   AGBorder *mBorder;
+   AGBackground *mBg;
+   AGTexture mTexture;
+
+Modified: antargis/trunk/ext/video/ag_glpainter.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_glpainter.cc	2008-06-09 18:59:40 UTC (rev 1267)
++++ antargis/trunk/ext/video/ag_glpainter.cc	2008-06-10 19:22:29 UTC (rev 1268)
+@@ -26,36 +26,37 @@
+ #include &quot;ag_rendercontext.h&quot;
+ #include &quot;ag_debug.h&quot;
+ #include &quot;ag_vdebug.h&quot;
++#include &quot;ag_projection.h&quot;
+ 
+ namespace AGGLPainter
+-{
+-  void glColor(const AGColor &amp;c)
+-    {
+-      glColor4f(c.r/255.0,c.g/255.0,c.b/255.0,c.a/255.0);
+-    }
+-  
+-  void fillPoly(const std::vector&lt;AGVector2&gt; &amp;pVecs,const AGColor &amp;pColor)
+-    {
+-      STACKTRACE;
++  {
++    void glColor(const AGColor &amp;c)
++      {
++        glColor4f(c.r/255.0,c.g/255.0,c.b/255.0,c.a/255.0);
++      }
+ 
+-      AGRenderContext context;
+-      context.setColor(pColor);
+-      context.setCulling(false);
+-      context.setAlpha(0,GL_NONE);
+-      context.setDepthTest(false);
+-      context.begin();
++    void fillPoly(const std::vector&lt;AGVector2&gt; &amp;pVecs,const AGColor &amp;pColor)
++      {
++        STACKTRACE;
+ 
+-      // turned
+-      glBegin(GL_POLYGON);
+-      for(std::vector&lt;AGVector2&gt;::const_iterator i=pVecs.begin();i!=pVecs.end();i++)
+-        {
+-          glVertex2fv(*i);
+-        }
+-      glEnd();
+-      
+-    } 
+-  
+-  void drawPoly(const std::vector&lt;AGVector2&gt; &amp;pVecs,const AGColor &amp;pColor,float pWidth)
++        AGRenderContext context;
++        context.setColor(pColor);
++        context.setCulling(false);
++        context.setAlpha(0,GL_NONE);
++        context.setDepthTest(false);
++        context.begin();
++
++        // turned
++        glBegin(GL_POLYGON);
++        for(std::vector&lt;AGVector2&gt;::const_iterator i=pVecs.begin();i!=pVecs.end();i++)
++          {
++            glVertex2fv(*i);
++          }
++        glEnd();
++
++      } 
++
++    void drawPoly(const std::vector&lt;AGVector2&gt; &amp;pVecs,const AGColor &amp;pColor,float pWidth)
+       {
+         STACKTRACE;
+ 
+@@ -74,279 +75,279 @@
+             glVertex2fv(*i);
+           }
+         glEnd();
+-        
++
+       }
+ 
+-  void blit(const AGTexture &amp;pSource,const AGRect2 &amp;pRect,const AGRect2 &amp;pSrc,const AGColor &amp;pColor)
+-    {
+-      STACKTRACE;
++    void blit(const AGTexture &amp;pSource,const AGRect2 &amp;pRect,const AGRect2 &amp;pSrc,const AGColor &amp;pColor)
++      {
++        STACKTRACE;
+ 
+-      float tw=pSource.getTextureWidth();
+-      float th=pSource.getTextureHeight();
++        float tw=pSource.getTextureWidth();
++        float th=pSource.getTextureHeight();
+ 
+-      AGRect2 s(pSrc.x()/tw,pSrc.y()/th,pSrc.w()/tw,pSrc.h()/th);
++        AGRect2 s(pSrc.x()/tw,pSrc.y()/th,pSrc.w()/tw,pSrc.h()/th);
+ 
+ 
+-      AGRenderContext context;
+-      context.setCulling(false);
+-      context.setTexture(const_cast&lt;AGTexture&amp;&gt;(pSource).glTexture());
+-      context.setDepthTest(false);
+-      if(pColor.a&gt;0)
+-        context.setColor(pColor);
+-      context.begin();
++        AGRenderContext context;
++        context.setCulling(false);
++        context.setTexture(const_cast&lt;AGTexture&amp;&gt;(pSource).glTexture());
++        context.setDepthTest(false);
++        if(pColor.a&gt;0)
++          context.setColor(pColor);
++        context.begin();
+ 
+-      glBegin(GL_QUADS);
+-      glTexCoord2fv(s.getV0());
+-      glVertex2fv(pRect.getV0());
++        glBegin(GL_QUADS);
++        glTexCoord2fv(s.getV0());
++        glVertex2fv(pRect.getV0());
+ 
+-      glTexCoord2fv(s.getV10());
+-      glVertex2fv(pRect.getV10());
++        glTexCoord2fv(s.getV10());
++        glVertex2fv(pRect.getV10());
+ 
+-      glTexCoord2fv(s.getV1());
+-      glVertex2fv(pRect.getV1());
++        glTexCoord2fv(s.getV1());
++        glVertex2fv(pRect.getV1());
+ 
+-      glTexCoord2fv(s.getV01());
+-      glVertex2fv(pRect.getV01());
+-      glEnd();
++        glTexCoord2fv(s.getV01());
++        glVertex2fv(pRect.getV01());
++        glEnd();
+ 
+-    }
++      }
+ 
+ 
+-  void blit(const AGTexture &amp;pSource,const std::vector&lt;std::pair&lt;AGRect2,AGRect2&gt; &gt; &amp;pSrcDestRects,const AGColor &amp;pColor)
+-    {
+-      STACKTRACE;
++    void blit(const AGTexture &amp;pSource,const std::vector&lt;std::pair&lt;AGRect2,AGRect2&gt; &gt; &amp;pSrcDestRects,const AGColor &amp;pColor)
++      {
++        STACKTRACE;
+ 
+-      float tw=pSource.getTextureWidth();
+-      float th=pSource.getTextureHeight();
++        float tw=pSource.getTextureWidth();
++        float th=pSource.getTextureHeight();
+ 
+-      float itw=1.0/tw;
+-      float ith=1.0/th;
++        float itw=1.0/tw;
++        float ith=1.0/th;
+ 
+-      AGRenderContext context;
+-      context.setCulling(false);
+-      context.setTexture(const_cast&lt;AGTexture&amp;&gt;(pSource).glTexture());
+-      context.setDepthTest(false);
+-      if(pColor.a&gt;0)
+-        context.setColor(pColor);
+-      context.begin();
++        AGRenderContext context;
++        context.setCulling(false);
++        context.setTexture(const_cast&lt;AGTexture&amp;&gt;(pSource).glTexture());
++        context.setDepthTest(false);
++        if(pColor.a&gt;0)
++          context.setColor(pColor);
++        context.begin();
+ 
+-      glBegin(GL_QUADS);
+-      for(std::vector&lt;std::pair&lt;AGRect2,AGRect2&gt; &gt;::const_iterator i=pSrcDestRects.begin();i!=pSrcDestRects.end();i++)
+-        {
+-          AGRect2 s(i-&gt;first.x()*itw,i-&gt;first.y()*ith,i-&gt;first.w()*itw,i-&gt;first.h()*ith);
+-          AGRect2 d(i-&gt;second);
++        glBegin(GL_QUADS);
++        for(std::vector&lt;std::pair&lt;AGRect2,AGRect2&gt; &gt;::const_iterator i=pSrcDestRects.begin();i!=pSrcDestRects.end();i++)
++          {
++            AGRect2 s(i-&gt;first.x()*itw,i-&gt;first.y()*ith,i-&gt;first.w()*itw,i-&gt;first.h()*ith);
++            AGRect2 d(i-&gt;second);
+ 
+-          glTexCoord2fv(s.getV0());
+-          glVertex2fv(d.getV0());
++            glTexCoord2fv(s.getV0());
++            glVertex2fv(d.getV0());
+ 
+-          glTexCoord2fv(s.getV10());
+-          glVertex2fv(d.getV10());
++            glTexCoord2fv(s.getV10());
++            glVertex2fv(d.getV10());
+ 
+-          glTexCoord2fv(s.getV1());
+-          glVertex2fv(d.getV1());
++            glTexCoord2fv(s.getV1());
++            glVertex2fv(d.getV1());
+ 
+-          glTexCoord2fv(s.getV01());
+-          glVertex2fv(d.getV01());
+-        }
+-      glEnd();
+-    }
++            glTexCoord2fv(s.getV01());
++            glVertex2fv(d.getV01());
++          }
++        glEnd();
++      }
+ 
+ 
+-  void tile(const AGTexture &amp;pSource,const AGRect2 &amp;pTarget,const AGColor &amp;pColor)
+-    {
+-      STACKTRACE;
+-      AGRenderContext context;
+-      context.setCulling(false);
+-      context.setTexture(const_cast&lt;AGTexture&amp;&gt;(pSource).glTexture());
+-      context.setDepthTest(false);
+-      if(pColor.a&gt;0)
+-        context.setColor(pColor);
+-      context.begin();
++    void tile(const AGTexture &amp;pSource,const AGRect2 &amp;pTarget,const AGColor &amp;pColor)
++      {
++        STACKTRACE;
++        AGRenderContext context;
++        context.setCulling(false);
++        context.setTexture(const_cast&lt;AGTexture&amp;&gt;(pSource).glTexture());
++        context.setDepthTest(false);
++        if(pColor.a&gt;0)
++          context.setColor(pColor);
++        context.begin();
+ 
+-      AGRect2 s(0,0,float(pTarget.width())/pSource.width(),float(pTarget.height())/pSource.height());
++        AGRect2 s(0,0,float(pTarget.width())/pSource.width(),float(pTarget.height())/pSource.height());
+ 
+-      glBegin(GL_QUADS);
+-      glTexCoord2fv(s.getV0());
+-      glVertex2fv(pTarget.getV0());
++        glBegin(GL_QUADS);
++        glTexCoord2fv(s.getV0());
++        glVertex2fv(pTarget.getV0());
+ 
+-      glTexCoord2fv(s.getV10());
+-      glVertex2fv(pTarget.getV10());
++        glTexCoord2fv(s.getV10());
++        glVertex2fv(pTarget.getV10());
+ 
+-      glTexCoord2fv(s.getV1());
+-      glVertex2fv(pTarget.getV1());
++        glTexCoord2fv(s.getV1());
++        glVertex2fv(pTarget.getV1());
+ 
+-      glTexCoord2fv(s.getV01());
+-      glVertex2fv(pTarget.getV01());
++        glTexCoord2fv(s.getV01());
++        glVertex2fv(pTarget.getV01());
+ 
+ 
+-      glEnd();
+-    }
++        glEnd();
++      }
+ 
+ 
+-  void fillRect(const AGRect2 &amp;pRect,const AGColor &amp;c)
+-    {
+-      STACKTRACE;
++    void fillRect(const AGRect2 &amp;pRect,const AGColor &amp;c)
++      {
++        STACKTRACE;
+ 
+-      AGRenderContext context;
+-      context.setColor(c);
+-      context.setCulling(false);
+-      context.setAlpha(0,GL_NONE);
+-      context.setDepthTest(false);
+-      context.begin();
++        AGRenderContext context;
++        context.setColor(c);
++        context.setCulling(false);
++        context.setAlpha(0,GL_NONE);
++        context.setDepthTest(false);
++        context.begin();
+ 
+-      // turned
+-      glBegin(GL_QUADS);
++        // turned
++        glBegin(GL_QUADS);
+ 
+-      glVertex2fv(pRect.getV0());
+-      glVertex2fv(pRect.getV10());
+-      glVertex2fv(pRect.getV1());
+-      glVertex2fv(pRect.getV01());
+-      glEnd();
+-    }
++        glVertex2fv(pRect.getV0());
++        glVertex2fv(pRect.getV10());
++        glVertex2fv(pRect.getV1());
++        glVertex2fv(pRect.getV01());
++        glEnd();
++      }
+ 
+-  void fillRects(const std::vector&lt;std::pair&lt;AGRect2,AGVector4&gt; &gt; &amp;pRects)
+-    {
+-      STACKTRACE;
++    void fillRects(const std::vector&lt;std::pair&lt;AGRect2,AGVector4&gt; &gt; &amp;pRects)
++      {
++        STACKTRACE;
+ 
+-      AGRenderContext context;
+-      context.setColor(AGColor(0,0,0));
+-      context.setCulling(false);
+-      context.setAlpha(0,GL_NONE);
+-      context.setDepthTest(false);
+-      context.begin();
++        AGRenderContext context;
++        context.setColor(AGColor(0,0,0));
++        context.setCulling(false);
++        context.setAlpha(0,GL_NONE);
++        context.setDepthTest(false);
++        context.begin();
+ 
+-      //    float x0,y0,x1,y1;
+-      // turned
+-      glBegin(GL_QUADS);
+-      for(std::vector&lt;std::pair&lt;AGRect2,AGVector4&gt; &gt;::const_iterator i=pRects.begin();i!=pRects.end();++i)
+-        {
+-          glColor4fv(i-&gt;second);
+-          glVertex2fv(i-&gt;first.getV0());
+-          glColor4fv(i-&gt;second);
+-          glVertex2fv(i-&gt;first.getV10());
+-          glColor4fv(i-&gt;second);
+-          glVertex2fv(i-&gt;first.getV1());
+-          glColor4fv(i-&gt;second);
+-          glVertex2fv(i-&gt;first.getV01());
+-        }
+-      glEnd();
+-    }
++        //    float x0,y0,x1,y1;
++        // turned
++        glBegin(GL_QUADS);
++        for(std::vector&lt;std::pair&lt;AGRect2,AGVector4&gt; &gt;::const_iterator i=pRects.begin();i!=pRects.end();++i)
++          {
++            glColor4fv(i-&gt;second);
++            glVertex2fv(i-&gt;first.getV0());
++            glColor4fv(i-&gt;second);
++            glVertex2fv(i-&gt;first.getV10());
++            glColor4fv(i-&gt;second);
++            glVertex2fv(i-&gt;first.getV1());
++            glColor4fv(i-&gt;second);
++            glVertex2fv(i-&gt;first.getV01());
++          }
++        glEnd();
++      }
+ 
+ 
+-  void drawGradientAlpha(const AGRect2&amp; pRect, const AGColor&amp; ul, const AGColor&amp; ur, const AGColor&amp; dl, const AGColor&amp; dr)
+-    {
+-      STACKTRACE;
++    void drawGradientAlpha(const AGRect2&amp; pRect, const AGColor&amp; ul, const AGColor&amp; ur, const AGColor&amp; dl, const AGColor&amp; dr)
++      {
++        STACKTRACE;
+ 
+-      AGRenderContext context;
+-      context.setColor(AGVector4(1,1,1,1));
+-      context.setCulling(false);
+-      context.setDepthTest(false);
++        AGRenderContext context;
++        context.setColor(AGVector4(1,1,1,1));
++        context.setCulling(false);
++        context.setDepthTest(false);
+ 
+ 
+-      context.begin();
++        context.begin();
+ 
+-      glBegin(GL_QUADS);
+-      glColor(ul);
+-      glVertex2fv(pRect.getV0());
++        glBegin(GL_QUADS);
++        glColor(ul);
++        glVertex2fv(pRect.getV0());
+ 
+-      glColor(ur);
+-      glVertex2fv(pRect.getV10());
++        glColor(ur);
++        glVertex2fv(pRect.getV10());
+ 
+-      glColor(dr);
+-      glVertex2fv(pRect.getV1());
++        glColor(dr);
++        glVertex2fv(pRect.getV1());
+ 
+-      glColor(dl);
+-      glVertex2fv(pRect.getV01());
+-      glEnd();
+-    }
++        glColor(dl);
++        glVertex2fv(pRect.getV01());
++        glEnd();
++      }
+ 
+-  void drawBorder(const AGRect2&amp; rect,int W, const AGColor&amp; c1, const AGColor&amp; c2)
+-    {
+-      STACKTRACE;
++    void drawBorder(const AGRect2&amp; rect,int W, const AGColor&amp; c1, const AGColor&amp; c2)
++      {
++        STACKTRACE;
+ 
+-      AGRect2 inner=rect.shrink(3);
++        AGRect2 inner=rect.shrink(3);
+ 
+-      AGRenderContext context;
+-      context.setColor(c1);
+-      context.setCulling(false);
+-      context.setDepthTest(false);
+-      context.begin();
++        AGRenderContext context;
++        context.setColor(c1);
++        context.setCulling(false);
++        context.setDepthTest(false);
++        context.begin();
+ 
+-      glBegin(GL_QUADS);
+-      glVertex2fv(rect.getV0());
+-      glVertex2fv(rect.getV10());
+-      glVertex2fv(inner.getV10());
+-      glVertex2fv(inner.getV0());
++        glBegin(GL_QUADS);
++        glVertex2fv(rect.getV0());
++        glVertex2fv(rect.getV10());
++        glVertex2fv(inner.getV10());
++        glVertex2fv(inner.getV0());
+ 
+-      glVertex2fv(rect.getV0());
+-      glVertex2fv(inner.getV0());
+-      glVertex2fv(inner.getV01());
+-      glVertex2fv(rect.getV01());
++        glVertex2fv(rect.getV0());
++        glVertex2fv(inner.getV0());
++        glVertex2fv(inner.getV01());
++        glVertex2fv(rect.getV01());
+ 
+-      glEnd();
++        glEnd();
+ 
+-      // right and //bottom
+-      context.setColor(c2);
+-      context.begin();
+-      //  glColor(c2);
+-      glBegin(GL_QUADS);
++        // right and //bottom
++        context.setColor(c2);
++        context.begin();
++        //  glColor(c2);
++        glBegin(GL_QUADS);
+ 
+-      glVertex2fv(rect.getV10());
+-      glVertex2fv(rect.getV1());
+-      glVertex2fv(inner.getV1());
+-      glVertex2fv(inner.getV10());
++        glVertex2fv(rect.getV10());
++        glVertex2fv(rect.getV1());
++        glVertex2fv(inner.getV1());
++        glVertex2fv(inner.getV10());
+ 
+-      glVertex2fv(rect.getV01());
+-      glVertex2fv(inner.getV01());
+-      glVertex2fv(inner.getV1());
+-      glVertex2fv(rect.getV1());
+-      glEnd();
+-    }
++        glVertex2fv(rect.getV01());
++        glVertex2fv(inner.getV01());
++        glVertex2fv(inner.getV1());
++        glVertex2fv(rect.getV1());
++        glEnd();
++      }
+ 
+-  void putPixel(int x,int y,const AGColor &amp;pc)
+-    {
+-      STACKTRACE;
++    void putPixel(int x,int y,const AGColor &amp;pc)
++      {
++        STACKTRACE;
+ 
+-      AGRenderContext rc;
+-      rc.begin();
+-      float f=0xFF;
+-      rc.setColor(AGVector4(pc.r/f,pc.g/f,pc.b/f,pc.a/f));
+-      rc.begin();
++        AGRenderContext rc;
++        rc.begin();
++        float f=0xFF;
++        rc.setColor(AGVector4(pc.r/f,pc.g/f,pc.b/f,pc.a/f));
++        rc.begin();
+ 
+-      glBegin(GL_POINTS);
++        glBegin(GL_POINTS);
+ 
+-      // #warning &quot;really +1 ????????????&quot;
+-      glVertex2f(x,y+1);
++        // #warning &quot;really +1 ????????????&quot;
++        glVertex2f(x,y+1);
+ 
+-      glEnd();
++        glEnd();
+ 
+-    }
++      }
+ 
+-  void drawLine(const AGVector2 &amp;p0,const AGVector2 &amp;p1,const AGColor &amp;c,float pWidth)
+-    {
+-      STACKTRACE;
+-      assertGL;
+-      AGRenderContext context;
+-      context.setColor(c);
+-      context.setDepthTest(false);
+-      context.begin();
++    void drawLine(const AGVector2 &amp;p0,const AGVector2 &amp;p1,const AGColor &amp;c,float pWidth)
++      {
++        STACKTRACE;
++        assertGL;
++        AGRenderContext context;
++        context.setColor(c);
++        context.setDepthTest(false);
++        context.begin();
+ 
+-      glLineWidth(pWidth);
+-      glEnable(GL_LINE_SMOOTH);
+-      glBegin(GL_LINES);
+-      glVertex2fv(p0);
+-      glVertex2fv(p1);
++        glLineWidth(pWidth);
++        glEnable(GL_LINE_SMOOTH);
++        glBegin(GL_LINES);
++        glVertex2fv(p0);
++        glVertex2fv(p1);
+ 
+-      glEnd();
+-      assertGL;
++        glEnd();
++        assertGL;
+ 
+-    }
++      }
+ 
+-  void blitTri(const AGTexture &amp;pSource,const AGTriangle2 &amp;pSrc,const AGTriangle2 &amp;pDest)
+-    {
+-      throw int();
+-      STACKTRACE;
+-      /*    AGRenderContext c;
++    void blitTri(const AGTexture &amp;pSource,const AGTriangle2 &amp;pSrc,const AGTriangle2 &amp;pDest)
++      {
++        throw int();
++        STACKTRACE;
++        /*    AGRenderContext c;
+     c.setTexture(const_cast&lt;AGTexture&amp;&gt;(pSource).glTexture());
+     c.setDepthTest(false);
+     c.begin();
+@@ -363,7 +364,30 @@
+     glVertex2f(pDest[0].getX(), h-1-pDest[0].getY());
+ 
+     glEnd();*/
+-    }
++      }
+ 
+ 
+-}
++    void blit3dTri(const AGTexture &amp;pSource,const AGTriangle2 &amp;pSrc,const AGTriangle3 &amp;pDest)
++      {
++        STACKTRACE;
++
++        AGRenderContext context;
++        context.setCulling(false);
++        context.setTexture(const_cast&lt;AGTexture&amp;&gt;(pSource).glTexture());
++        context.setDepthTest(false);
++        context.begin();
++        
++        AGProjection2D p(pSource.getRect(),AGRect2(0,0,1,1));
++
++        glBegin(GL_TRIANGLES);
++        for(size_t i=0;i&lt;3;i++)
++          {
++            glTexCoord2fv(p.project(pSrc.get(i)));
++            glVertex3fv(pDest[i]);
++          }
++
++        glEnd();       
++      }
++
++
++  }
+
+Modified: antargis/trunk/ext/video/ag_glpainter.h
+===================================================================
+--- antargis/trunk/ext/video/ag_glpainter.h	2008-06-09 18:59:40 UTC (rev 1267)
++++ antargis/trunk/ext/video/ag_glpainter.h	2008-06-10 19:22:29 UTC (rev 1268)
+@@ -50,6 +50,7 @@
+   void drawLine(const AGVector2 &amp;p0,const AGVector2 &amp;p1,const AGColor &amp;c,float pWidth);
+ 
+   void blitTri(const AGTexture &amp;pSource,const AGTriangle2 &amp;pSrc,const AGTriangle2 &amp;pDest);
++  void blit3dTri(const AGTexture &amp;pSource,const AGTriangle2 &amp;pSrc,const AGTriangle3 &amp;pDest);
+ 
+   void putPixel(int x,int y,const AGColor &amp;pc);
+ }
+
+Modified: antargis/trunk/ext/video/ag_glscreen.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_glscreen.cc	2008-06-09 18:59:40 UTC (rev 1267)
++++ antargis/trunk/ext/video/ag_glscreen.cc	2008-06-10 19:22:29 UTC (rev 1268)
+@@ -118,41 +118,41 @@
+ AGGLScreen::AGGLScreen(int W,int H,int VW,int VH):
+   w(VW),h(VH),
+   rw(W),rh(H)
+-          {
+-            if(w&lt;rw)
+-              w=rw;
+-            if(h&lt;rh)
+-              h=rh;
++  {
++    if(w&lt;rw)
++      w=rw;
++    if(h&lt;rh)
++      h=rh;
+ 
+-            mLineWidth=2;
++    mLineWidth=2;
+ 
+-            cdebug(&quot;w:&quot;&lt;&lt;w&lt;&lt;&quot; h:&quot;&lt;&lt;h);
++    cdebug(&quot;w:&quot;&lt;&lt;w&lt;&lt;&quot; h:&quot;&lt;&lt;h);
+ 
+-            // init GL
+-            glEnable(GL_TEXTURE_2D);
+-            glShadeModel(GL_SMOOTH);
+-            glClearColor(0.0f,0.0f,0.0f,0.0f); // clear bgcolor
+-            glClearDepth(1.0f);      // clear depth buffer
+-            glEnable(GL_DEPTH_TEST); // enable depth test
+-            glDepthFunc(GL_LEQUAL); // set type depth test
+-            glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); // GL_NICEST // best perspective correction
+-            glEnable(GL_BLEND);
++    // init GL
++    glEnable(GL_TEXTURE_2D);
++    glShadeModel(GL_SMOOTH);
++    glClearColor(0.0f,0.0f,0.0f,0.0f); // clear bgcolor
++    glClearDepth(1.0f);      // clear depth buffer
++    glEnable(GL_DEPTH_TEST); // enable depth test
++    glDepthFunc(GL_LEQUAL); // set type depth test
++    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); // GL_NICEST // best perspective correction
++    glEnable(GL_BLEND);
+ 
+-            glViewport( 0, 0, rw, rh );
+-            glMatrixMode( GL_PROJECTION );
+-            glLoadIdentity( );
++    glViewport( 0, 0, rw, rh );
++    glMatrixMode( GL_PROJECTION );
++    glLoadIdentity( );
+ 
+-            GLfloat ratio;
++    GLfloat ratio;
+ 
+-            ratio = ( float )w / ( float )h;
++    ratio = ( float )w / ( float )h;
+ 
+-            //  gluPerspective( 45.0f, ratio, 1.0f, 100.0f );
++    //  gluPerspective( 45.0f, ratio, 1.0f, 100.0f );
+ 
+-            gluOrtho2D(0,w,0,h);
++    gluOrtho2D(0,w,0,h);
+ 
+-            glMatrixMode( GL_MODELVIEW );
+-            glLoadIdentity( );
+-          }
++    glMatrixMode( GL_MODELVIEW );
++    glLoadIdentity( );
++  }
+ 
+ 
+ 
+@@ -298,7 +298,8 @@
+ 
+     ratio = ( float )w / ( float )h;
+ 
+-    gluOrtho2D(0,w,0,h);
++    //gluOrtho2D(0,w,0,h);
++    glOrtho(0,w,0,h,-1,1);
+ 
+     glMatrixMode( GL_MODELVIEW );
+     glLoadIdentity( );
+@@ -311,6 +312,7 @@
+     glDepthMask(false);
+   }
+ 
++
+ void AGGLScreen::flip()
+   {
+     myFlip();
+@@ -413,6 +415,12 @@
+     drawGradientAlpha(rect,ul,ur,dl,dr);
+   }
+ 
++void AGGLScreen::blit3dTri(const AGTexture &amp;pSource,const AGTriangle2 &amp;pSrc,const AGTriangle3 &amp;pDest)
++  {
++    AGGLPainter::blit3dTri(pSource,pSrc,pDest);
++  }
++
++
+ void AGGLScreen::drawLine(const AGVector2 &amp;p0,const AGVector2 &amp;p1,const AGColor &amp;c)
+   {
+     AGGLPainter::drawLine(p0,p1,c,mLineWidth);
+
+Modified: antargis/trunk/ext/video/ag_glscreen.h
+===================================================================
+--- antargis/trunk/ext/video/ag_glscreen.h	2008-06-09 18:59:40 UTC (rev 1267)
++++ antargis/trunk/ext/video/ag_glscreen.h	2008-06-10 19:22:29 UTC (rev 1268)
+@@ -18,6 +18,8 @@
+  * License along with this program.
+  */
+ 
++// INCLUDE_SWIG - used to filter, which files are included in swig-interfacing
++
+ #ifndef __GUI_GLSURFACE_H
+ #define __GUI_GLSURFACE_H
+ 
+@@ -71,6 +73,8 @@
+   virtual void drawPoly(const std::vector&lt;AGVector2&gt; &amp;pPoly,const AGColor &amp;pColor);
+   virtual void drawLine(const AGVector2 &amp;p0,const AGVector2 &amp;p1,const AGColor &amp;c);
+ 
++  void blit3dTri(const AGTexture &amp;pSource,const AGTriangle2 &amp;pSrc,const AGTriangle3 &amp;pDest);
++
+   virtual AGRect2 getRect() const;
+ 
+   virtual void drawGradient(const AGRect2&amp; rect, const AGColor&amp; ul, const AGColor&amp; ur, const AGColor&amp; dl, const AGColor&amp; dr);
+
+Modified: antargis/trunk/ext/video/ag_projection.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_projection.cc	2008-06-09 18:59:40 UTC (rev 1267)
++++ antargis/trunk/ext/video/ag_projection.cc	2008-06-10 19:22:29 UTC (rev 1268)
+@@ -50,6 +50,24 @@
+   return (m*p).dim2();
+ }
+ 
++/// leaves 3rd dimension untouched
++AGVector3 AGProjection2D::project(const AGVector3 &amp;p) const
++{
++  assert(mInited);
++  return AGVector3((m*p.dim2()).dim2(),p[2]);
++}
++
++AGTriangle2 AGProjection2D::project(const AGTriangle2 &amp;t) const
++{
++  return AGTriangle2(project(t.get(0)),project(t.get(1)),project(t.get(2)));
++}
++// leaves 3rd dimension untouched
++AGTriangle3 AGProjection2D::project(const AGTriangle3 &amp;t) const
++{
++  return AGTriangle3(project(t[0]),project(t[1]),project(t[2]));
++}
++
++
+ void AGProjection2D::pushProjection(const AGProjection2D &amp;p)
+   {
+     assert(mInited);
+
+Modified: antargis/trunk/ext/video/ag_projection.h
+===================================================================
+--- antargis/trunk/ext/video/ag_projection.h	2008-06-09 18:59:40 UTC (rev 1267)
++++ antargis/trunk/ext/video/ag_projection.h	2008-06-10 19:22:29 UTC (rev 1268)
+@@ -17,6 +17,9 @@
+ 
+   AGRect2 project(const AGRect2 &amp;r) const;
+   AGVector2 project(const AGVector2 &amp;p) const;
++  AGVector3 project(const AGVector3 &amp;p) const;
++  AGTriangle2 project(const AGTriangle2 &amp;t) const;
++  AGTriangle3 project(const AGTriangle3 &amp;t) const;
+   
+   AGProjection2D inverse() const throw (GeometryException);
+ 
+
+Modified: antargis/trunk/ext/video/ag_surface.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_surface.cc	2008-06-09 18:59:40 UTC (rev 1267)
++++ antargis/trunk/ext/video/ag_surface.cc	2008-06-10 19:22:29 UTC (rev 1268)
+@@ -132,26 +132,26 @@
+ ///////////////////////////////////////////////////////////////////////
+ 
+ AGSurface::AGSurface(AGInternalSurface *i):s(i)
+-    {
+-      getSurfaceManager()-&gt;registerMe(this);
+-    }
++      {
++        getSurfaceManager()-&gt;registerMe(this);
++      }
+ 
+ 
+ AGSurface::AGSurface():
+   s(0)
+-      {
+-        getSurfaceManager()-&gt;registerMe(this);
+-      }
++        {
++          getSurfaceManager()-&gt;registerMe(this);
++        }
+ AGSurface::AGSurface(int w,int h):
+   s(AGCreate32BitSurface(w,h))
+-      {
+-        getSurfaceManager()-&gt;registerMe(this);
+-      }
++        {
++          getSurfaceManager()-&gt;registerMe(this);
++        }
+ AGSurface::AGSurface(const AGSurface &amp;p):
+   s(p.s)
+-      {
+-        getSurfaceManager()-&gt;registerMe(this);
+-      }
++        {
++          getSurfaceManager()-&gt;registerMe(this);
++        }
+ 
+ bool AGSurface::valid() const
+ {
+@@ -350,13 +350,16 @@
+   return s;
+ }
+ 
+-AGSurface AGSurface::load(const std::string &amp;pFilename)
++AGSurface AGSurface::load(const std::string &amp;pFilename) throw (FileNotFound)
+   {
+     AGSurface n;
+     n.s=new AGInternalSurface;
+     std::string file=loadFile(pFilename);
+     if(file.length()==0)
+-      cdebug(&quot;File &quot;&lt;&lt;pFilename&lt;&lt;&quot; is empty!&quot;);
++      {
++        cdebug(&quot;File &quot;&lt;&lt;pFilename&lt;&lt;&quot; is empty!&quot;);
++        throw FileNotFound(pFilename);
++      }
+ 
+     SDL_RWops* rw=SDL_RWFromMem(const_cast&lt;char*&gt;(file.c_str()),file.length());
+ 
+@@ -373,7 +376,7 @@
+     return n;
+   }
+ 
+-AGSurface AGSurface::loadDRM(const std::string &amp;pName)
++AGSurface AGSurface::loadDRM(const std::string &amp;pName) throw(FileNotFound)
+   {
+     assert(mDecryptor);
+ 
+@@ -383,6 +386,8 @@
+ 
+     n.s=new AGInternalSurface;
+     std::string file=loadFile(pName);
++    if(file.length()==0)
++      throw FileNotFound(pName);
+ 
+     file=mDecryptor-&gt;decrypt(file,pName);
+     gDRM=true;
+
+Modified: antargis/trunk/ext/video/ag_surface.h
+===================================================================
+--- antargis/trunk/ext/video/ag_surface.h	2008-06-09 18:59:40 UTC (rev 1267)
++++ antargis/trunk/ext/video/ag_surface.h	2008-06-10 19:22:29 UTC (rev 1268)
+@@ -116,8 +116,8 @@
+ 
+   void save(const std::string &amp;pName) const;
+ 
+-  static AGSurface load(const std::string &amp;pName);
+-  static AGSurface loadDRM(const std::string &amp;pName);
++  static AGSurface load(const std::string &amp;pName) throw(FileNotFound);
++  static AGSurface loadDRM(const std::string &amp;pName) throw(FileNotFound);
+ 
+   AGInternalSurface *surface() const;
+ 
+
+Modified: antargis/trunk/rookey/config_generator.rb
+===================================================================
+--- antargis/trunk/rookey/config_generator.rb	2008-06-09 18:59:40 UTC (rev 1267)
++++ antargis/trunk/rookey/config_generator.rb	2008-06-10 19:22:29 UTC (rev 1268)
+@@ -109,7 +109,6 @@
+     end
+     def getEnvPath
+       p=ENV[&quot;PATH&quot;]
+-      pp p
+       if File.join(&quot;a&quot;,&quot;b&quot;)=~/\\/
+         p.split(&quot;;&quot;)
+       else
+
+Modified: antargis/trunk/ruby/editor/campaign/drag_grid.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/drag_grid.rb	2008-06-09 18:59:40 UTC (rev 1267)
++++ antargis/trunk/ruby/editor/campaign/drag_grid.rb	2008-06-10 19:22:29 UTC (rev 1268)
+@@ -686,6 +686,8 @@
+ 
+ [DragGrid,DragSource,DragTrash,DragEnvironment,ToolBar,ToolButton,AppearEffect,HideEffect].each{|c|standardLayoutCreator(c)}
+ 
++require File.join(File.split(__FILE__)[0],'image_list.rb')
++
+ class RubySignal
+   def initialize(name)
+     @name=name
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000223.html">[Antargis-svn] r1267 - antargis/trunk
+</A></li>
+	<LI>Next message: <A HREF="000225.html">[Antargis-svn] r1269 - in antargis/trunk: . data data/gui/campaign	data/gui/layout/editor/campaign ext/basic ext/gui ext/video	games games/copter games/copter/images ruby/editor/campaign ruby/gui
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#224">[ date ]</a>
+              <a href="thread.html#224">[ thread ]</a>
+              <a href="subject.html#224">[ subject ]</a>
+              <a href="author.html#224">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

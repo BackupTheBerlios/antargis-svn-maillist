@@ -1,0 +1,578 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1216 - in antargis/trunk: . data/gui/layout	ext/3dengine ext/gui ruby ruby/editor/spec ruby/gui ruby/spec
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2008-January/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1216%20-%20in%20antargis/trunk%3A%20.%20data/gui/layout%0A%09ext/3dengine%20ext/gui%20ruby%20ruby/editor/spec%20ruby/gui%20ruby/spec&In-Reply-To=%3C200801261852.m0QIqJUb010398%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000172.html">
+   <LINK REL="Next"  HREF="000174.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1216 - in antargis/trunk: . data/gui/layout	ext/3dengine ext/gui ruby ruby/editor/spec ruby/gui ruby/spec</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1216%20-%20in%20antargis/trunk%3A%20.%20data/gui/layout%0A%09ext/3dengine%20ext/gui%20ruby%20ruby/editor/spec%20ruby/gui%20ruby/spec&In-Reply-To=%3C200801261852.m0QIqJUb010398%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1216 - in antargis/trunk: . data/gui/layout	ext/3dengine ext/gui ruby ruby/editor/spec ruby/gui ruby/spec">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sat Jan 26 19:52:19 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000172.html">[Antargis-svn] r1215 - in antargis/trunk/ruby: . editor editor/spec
+</A></li>
+        <LI>Next message: <A HREF="000174.html">[Antargis-svn] r1217 - antargis/trunk/build/swig
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#173">[ date ]</a>
+              <a href="thread.html#173">[ thread ]</a>
+              <a href="subject.html#173">[ subject ]</a>
+              <a href="author.html#173">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2008-01-26 19:52:15 +0100 (Sat, 26 Jan 2008)
+New Revision: 1216
+
+Added:
+   antargis/trunk/ext/3dengine/mesh_base.cc
+   antargis/trunk/ext/3dengine/mesh_base.h
+   antargis/trunk/ruby/spec/spec_basic.rb
+   antargis/trunk/ruby/spec/spec_call.rb
+   antargis/trunk/ruby/spec/spec_campaign.rb
+   antargis/trunk/ruby/spec/spec_menu.rb
+Modified:
+   antargis/trunk/Rakefile
+   antargis/trunk/antargis
+   antargis/trunk/data/gui/layout/campaign.xml
+   antargis/trunk/data/gui/layout/options.xml
+   antargis/trunk/ext/gui/ag_application.cc
+   antargis/trunk/ext/gui/ag_application.h
+   antargis/trunk/ext/gui/ag_widget.cc
+   antargis/trunk/ext/gui/ag_widget.h
+   antargis/trunk/ruby/campaign.rb
+   antargis/trunk/ruby/editor/spec/spec_editor.rb
+   antargis/trunk/ruby/gui/ag_tools.rb
+   antargis/trunk/ruby/intro.rb
+   antargis/trunk/ruby/mainmenu.rb
+Log:
+* some fixes
+* missing files
+* some more specs
+
+
+Modified: antargis/trunk/Rakefile
+===================================================================
+--- antargis/trunk/Rakefile	2008-01-22 19:58:32 UTC (rev 1215)
++++ antargis/trunk/Rakefile	2008-01-26 18:52:15 UTC (rev 1216)
+@@ -106,6 +106,6 @@
+ Spec::Rake::SpecTask.new do |t|
+ 	t.spec_files = FileList['ruby/**/spec_*.rb']
+ 	t.warning = true
+-	#t.rcov = true
++	t.rcov = true
+ 	t.spec_opts=[&quot;--format html:spec_output.html&quot;]
+ end
+
+Modified: antargis/trunk/antargis
+===================================================================
+--- antargis/trunk/antargis	2008-01-22 19:58:32 UTC (rev 1215)
++++ antargis/trunk/antargis	2008-01-26 18:52:15 UTC (rev 1216)
+@@ -5,6 +5,17 @@
+ Dir.chdir(File.split(__FILE__)[0])
+ 
+ require 'ruby/intro.rb'
++require 'ruby/mainmenu.rb'
+ 
+ 
++if getConfig.get(&quot;intro&quot;)!=&quot;false&quot;
++	app=IntroApp.new
++	app.run
++end
++
++# run menu
++app=AntMenuApp.new
++app.run
++
++
+ MyLocalizer.finalize
+\ No newline at end of file
+
+Modified: antargis/trunk/data/gui/layout/campaign.xml
+===================================================================
+--- antargis/trunk/data/gui/layout/campaign.xml	2008-01-22 19:58:32 UTC (rev 1215)
++++ antargis/trunk/data/gui/layout/campaign.xml	2008-01-26 18:52:15 UTC (rev 1216)
+@@ -1,5 +1,5 @@
+ &lt;?xml version=&quot;1.0&quot;?&gt;
+-&lt;layout geometry=&quot;(0,0,1024,768)&quot; name=&quot;MainMenu&quot;&gt;
++&lt;layout geometry=&quot;(0,0,1024,768)&quot; name=&quot;CampaignMenu&quot;&gt;
+ 	&lt;table cols=&quot;1&quot; rows=&quot;4&quot;&gt;
+ 		&lt;colsize col=&quot;0&quot; relative=&quot;1&quot;/&gt;
+ 		&lt;rowsize row=&quot;0&quot; fixed=&quot;200&quot;/&gt;
+
+Modified: antargis/trunk/data/gui/layout/options.xml
+===================================================================
+--- antargis/trunk/data/gui/layout/options.xml	2008-01-22 19:58:32 UTC (rev 1215)
++++ antargis/trunk/data/gui/layout/options.xml	2008-01-26 18:52:15 UTC (rev 1216)
+@@ -1,5 +1,5 @@
+ &lt;?xml version=&quot;1.0&quot;?&gt;
+-&lt;layout geometry=&quot;(0,0,1024,768)&quot; name=&quot;MainMenu&quot;&gt;
++&lt;layout geometry=&quot;(0,0,1024,768)&quot; name=&quot;OptionsMenu&quot;&gt;
+ 	&lt;table cols=&quot;1&quot; rows=&quot;4&quot;&gt;
+ 		&lt;colsize col=&quot;0&quot; relative=&quot;1&quot;/&gt;
+ 		&lt;rowsize row=&quot;0&quot; fixed=&quot;200&quot;/&gt;
+
+Added: antargis/trunk/ext/3dengine/mesh_base.cc
+===================================================================
+--- antargis/trunk/ext/3dengine/mesh_base.cc	2008-01-22 19:58:32 UTC (rev 1215)
++++ antargis/trunk/ext/3dengine/mesh_base.cc	2008-01-26 18:52:15 UTC (rev 1216)
+@@ -0,0 +1,6 @@
++#include &quot;mesh_base.h&quot;
++
++MeshBase::MeshBase(SceneBase *s,const AGVector4 &amp;pPos,const AGBox3 &amp;pBox):
++  SceneNode(s,pPos,pBox)
++{
++}
+
+Added: antargis/trunk/ext/3dengine/mesh_base.h
+===================================================================
+--- antargis/trunk/ext/3dengine/mesh_base.h	2008-01-22 19:58:32 UTC (rev 1215)
++++ antargis/trunk/ext/3dengine/mesh_base.h	2008-01-26 18:52:15 UTC (rev 1216)
+@@ -0,0 +1,21 @@
++#ifndef __MESH_BASE_H
++#define __MESH_BASE_H
++
++// INCLUDE_SWIG - used to filter, which files are included in swig-interfacing
++
++#include &quot;scene.h&quot;
++
++#include &lt;map&gt;
++
++
++/** Meshbase is a common base class for all types of meshes 
++*/
++class AGEXPORT MeshBase:public SceneNode
++{
++ public:
++  MeshBase(SceneBase *s,const AGVector4 &amp;pPos,const AGBox3 &amp;pBox);
++};
++
++#endif
++
++
+
+Modified: antargis/trunk/ext/gui/ag_application.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_application.cc	2008-01-22 19:58:32 UTC (rev 1215)
++++ antargis/trunk/ext/gui/ag_application.cc	2008-01-26 18:52:15 UTC (rev 1216)
+@@ -577,3 +577,8 @@
+ {
+   return mCursor==0;
+ }
++
++bool AGApplication::isRunning() const
++{
++  return mRunning;
++}
+
+Modified: antargis/trunk/ext/gui/ag_application.h
+===================================================================
+--- antargis/trunk/ext/gui/ag_application.h	2008-01-22 19:58:32 UTC (rev 1215)
++++ antargis/trunk/ext/gui/ag_application.h	2008-01-26 18:52:15 UTC (rev 1216)
+@@ -109,6 +109,7 @@
+   void redraw();
+ 
+   virtual void tryQuit();
++  bool isRunning() const;
+ 
+   long getTicks() const;
+   void delay(int ms);
+
+Modified: antargis/trunk/ext/gui/ag_widget.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_widget.cc	2008-01-22 19:58:32 UTC (rev 1215)
++++ antargis/trunk/ext/gui/ag_widget.cc	2008-01-26 18:52:15 UTC (rev 1216)
+@@ -364,13 +364,17 @@
+ 	      if(canFocus())
+ 		gainFocus();
+ 
+-	      return (eventMouseClick(e) || sigClick(e));
++	      return doClick(e);
+ 
+ 	    }
+ 	}
+     }
+   return false;
++}
+ 
++bool AGWidget::doClick(AGEvent *e)
++{
++  return (eventMouseClick(e) || sigClick(e));
+ }
+ 
+ bool AGWidget::eventMouseClick(AGEvent *m)
+
+Modified: antargis/trunk/ext/gui/ag_widget.h
+===================================================================
+--- antargis/trunk/ext/gui/ag_widget.h	2008-01-22 19:58:32 UTC (rev 1215)
++++ antargis/trunk/ext/gui/ag_widget.h	2008-01-26 18:52:15 UTC (rev 1216)
+@@ -117,6 +117,8 @@
+ 
+   bool processEvent(AGEvent *event);
+ 
++	bool doClick(AGEvent *e);
++
+   AGSignal sigMouseEnter;
+   AGSignal sigMouseLeave;
+   AGSignal sigClick;
+
+Modified: antargis/trunk/ruby/campaign.rb
+===================================================================
+--- antargis/trunk/ruby/campaign.rb	2008-01-22 19:58:32 UTC (rev 1215)
++++ antargis/trunk/ruby/campaign.rb	2008-01-26 18:52:15 UTC (rev 1216)
+@@ -1,3 +1,4 @@
++require 'ant_local.rb'
+ 
+ # Campaigning
+ #################################
+
+Modified: antargis/trunk/ruby/editor/spec/spec_editor.rb
+===================================================================
+--- antargis/trunk/ruby/editor/spec/spec_editor.rb	2008-01-22 19:58:32 UTC (rev 1215)
++++ antargis/trunk/ruby/editor/spec/spec_editor.rb	2008-01-26 18:52:15 UTC (rev 1216)
+@@ -1,3 +1,4 @@
++if false
+ Dir.chdir(File.split(File.split(File.split(File.split(File.expand_path(__FILE__))[0])[0])[0])[0])
+ puts Dir.pwd
+ 
+@@ -59,13 +60,26 @@
+ 	end
+ 
+ 	it &quot;should be ok to save&quot; do
++
++
+ 		widget(&quot;saveButton&quot;).click
+-		widget(&quot;SaveDialog&quot;).should be_a_kind_of(AGWidget)
+-		widget(&quot;SaveDialog&quot;).should be_visible
+-		while true
+-			@app.step
+-		end
++
++
++		saveDialog=widget(&quot;SaveDialog&quot;)
++
++
++		saveDialog.should be_a_kind_of(AGWidget)
++		saveDialog.should be_visible
++		filename=saveDialog.child(&quot;Filename&quot;)
++		filename.should be_a_kind_of(AGEdit)
++		filename.setText(AGStringUtf8.new(&quot;mytestfile&quot;))
++		okButton=saveDialog.child(&quot;ok&quot;)
++		okButton.should be_a_kind_of(AGButton)
++		okButton.click
++		File.should be_exists(getWriteDir+&quot;/data/levels/mytestfile.png&quot;)
++		File.should be_exists(getWriteDir+&quot;/data/levels/mytestfile.antlvl&quot;)
+ 	end
+ 
+ 
++end
+ end
+\ No newline at end of file
+
+Modified: antargis/trunk/ruby/gui/ag_tools.rb
+===================================================================
+--- antargis/trunk/ruby/gui/ag_tools.rb	2008-01-22 19:58:32 UTC (rev 1215)
++++ antargis/trunk/ruby/gui/ag_tools.rb	2008-01-26 18:52:15 UTC (rev 1216)
+@@ -22,25 +22,6 @@
+ # This file contains some helper functions to provide easier event-Handling in ruby.
+ # Have a look at AGHandler for more information.
+ 
+-
+-# checks if libantargis is already loaded
+-def hasLibantargis
+-	begin
+-		x=eval(&quot;Antargis&quot;)
+-	rescue
+-		return false
+-	end
+-	return true
+-	#puts x
+-	#x!=nil
+-end
+-
+-# if libantargis was not yet loaded, try loading libantargisgui alone
+-if not hasLibantargis
+-	require 'antargisgui'
+-	include Antargisgui
+-end
+-
+ # some old abbrevs
+ AGPoint=AGVector2
+ AGRect=AGRect2
+
+Modified: antargis/trunk/ruby/intro.rb
+===================================================================
+--- antargis/trunk/ruby/intro.rb	2008-01-22 19:58:32 UTC (rev 1215)
++++ antargis/trunk/ruby/intro.rb	2008-01-26 18:52:15 UTC (rev 1216)
+@@ -155,11 +155,11 @@
+ 	end
+ 	
+ end
+-
+-app=IntroApp.new
+-
+-
+-if getConfig.get(&quot;intro&quot;)!=&quot;false&quot;
+-  app.run
+-end
+-require 'ruby/mainmenu.rb'
++# 
++# app=IntroApp.new
++# 
++# 
++# if getConfig.get(&quot;intro&quot;)!=&quot;false&quot;
++#   app.run
++# end
++# require 'ruby/mainmenu.rb'
+
+Modified: antargis/trunk/ruby/mainmenu.rb
+===================================================================
+--- antargis/trunk/ruby/mainmenu.rb	2008-01-22 19:58:32 UTC (rev 1215)
++++ antargis/trunk/ruby/mainmenu.rb	2008-01-26 18:52:15 UTC (rev 1216)
+@@ -343,7 +343,7 @@
+ 
+ 	def eventFullscreen
+ 		getMain.getVideo.initVideo(getMain.getVideo.realWidth,getMain.getVideo.realHeight,32,(not getMain.getVideo.fullscreen),true,1024,768)
+-		getConfig.set(&quot;fullscreen&quot;,getMain.fullscreen.to_s)
++		getConfig.set(&quot;fullscreen&quot;,getMain.getVideo.fullscreen.to_s)
+ 		return true
+ 	end
+ 
+@@ -488,7 +488,4 @@
+ 
+ end
+ 
+-app=AntMenuApp.new
+ 
+-app.run
+-
+
+Added: antargis/trunk/ruby/spec/spec_basic.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_basic.rb	2008-01-22 19:58:32 UTC (rev 1215)
++++ antargis/trunk/ruby/spec/spec_basic.rb	2008-01-26 18:52:15 UTC (rev 1216)
+@@ -0,0 +1,14 @@
++require 'ruby/antargislib.rb'
++require 'ruby/gui/ag_tools.rb'
++
++describe &quot;Array.shuffle&quot; do
++	it &quot;should really shuffle an array (in a 100 trials)&quot; do
++		tries=100
++		a=[1,2,3,4,5]
++		while tries&gt;0
++			break if a!=a.shuffle
++			tries-=1
++		end
++		tries.should &gt;0
++	end
++end
+\ No newline at end of file
+
+Added: antargis/trunk/ruby/spec/spec_call.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_call.rb	2008-01-22 19:58:32 UTC (rev 1215)
++++ antargis/trunk/ruby/spec/spec_call.rb	2008-01-26 18:52:15 UTC (rev 1216)
+@@ -0,0 +1,42 @@
++require 'ruby/spec_helper.rb'
++
++def globalTestFunction
++  &quot;myFunc&quot;
++end
++
++describe &quot;Call-predicate in spec-helper&quot; do
++  it &quot;should work with global functions&quot; do
++    globalTestFunction.should == &quot;myFunc&quot;
++    lambda {globalTestFunction.should be_nil}.should call(:globalTestFunction)
++    globalTestFunction.should == &quot;myFunc&quot;
++  end
++  it &quot;should work with methods&quot; do
++    class A
++      def y
++        &quot;hi&quot;
++      end
++    end
++    a=A.new
++		a.y.should == &quot;hi&quot;
++    lambda{a.y.should be_nil}.should call(a,:y)
++		a.y.should == &quot;hi&quot;
++  end
++	it &quot;should work with should_not&quot; do
++		lambda{}.should_not call(:globalTestFunction)
++	end
++
++	it &quot;should work with new method&quot; do
++		class A
++			attr_reader :a
++			def initialize
++				@a=10
++			end
++		end
++		
++		lambda{A.new}.should call(A,:new)
++		lambda{}.should_not call(A,:new)
++		lambda{a=A.new}.should call(A,:new)
++	end
++
++end
++
+
+Added: antargis/trunk/ruby/spec/spec_campaign.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_campaign.rb	2008-01-22 19:58:32 UTC (rev 1215)
++++ antargis/trunk/ruby/spec/spec_campaign.rb	2008-01-26 18:52:15 UTC (rev 1216)
+@@ -0,0 +1,36 @@
++require 'ruby/spec_helper.rb'
++require 'ruby/campaign.rb'
++
++describe Campaign do
++	before(:all) do
++		@campaigns=getCampaigns
++		@tutorial=@campaigns[0]
++ 		@birth=@campaigns[1]
++	end
++	it &quot;getCampaigns should return at least 2&quot; do
++		@campaigns.length.should &gt;=2
++ 	end
++	it &quot;first campaign is tutorial&quot; do
++		@tutorial.name.should == &quot;Tutorial&quot;
++	end
++
++	it &quot;tutorial starts with level&quot; do
++		@tutorial.getCurrentPart.should be_a_kind_of(CampaignLevel)
++	end
++
++ 	it &quot;birth campaign is second campaign&quot; do
++ 		#pp @birth.name
++ 		@birth.name.should == &quot;A hero is born.&quot;
++ 	end
++
++	it &quot;birth campaign starts with cutscene&quot; do
++		@birth.getCurrentPart.should be_a_kind_of(CutScene)
++	end
++	it &quot;should run a story fine&quot; do
++		cutscene=@birth.getCurrentPart
++		lambda {cutscene.play}.should_not cross(CutSceneDisplay,:new)
++		
++	end
++
++
++end
+
+Added: antargis/trunk/ruby/spec/spec_menu.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_menu.rb	2008-01-22 19:58:32 UTC (rev 1215)
++++ antargis/trunk/ruby/spec/spec_menu.rb	2008-01-26 18:52:15 UTC (rev 1216)
+@@ -0,0 +1,72 @@
++if false
++Dir.chdir(File.split(File.split(File.split(File.expand_path(__FILE__))[0])[0])[0])
++puts Dir.pwd
++
++require 'ruby/gui/testing.rb'
++require 'ruby/spec_helper.rb'
++require 'ruby/mainmenu.rb'
++
++describe 'Main-Menu' do
++	include GuiTest
++	before(:each) do
++		@app=makeTestAppClass(AntMenuApp).new
++		@app.step
++	end
++	it &quot;should display credits&quot; do
++ 		widget(&quot;ticker&quot;).should be_nil
++		credits=widget(&quot;credits&quot;)
++		credits.should be_a_kind_of(AGButton)
++		credits.click
++		widget(&quot;ticker&quot;).should be_a_kind_of(AntTicker)
++		widget(&quot;exit&quot;).click
++		widget(&quot;credits&quot;).should be_a_kind_of(AGButton)
++ 		widget(&quot;ticker&quot;).should be_nil
++	end
++	it &quot;should end when clicking on quit&quot; do
++		quit=widget(&quot;quit&quot;)
++		quit.should be_an_instance_of(AGButton)
++		@app.step
++		lambda {quit.click}.should change(@app,:quitCounter).by(1)
++	end
++	it &quot;should be possible to select tutorial and this will start this one&quot; do
++		tutorialButton=widget(&quot;tutorial&quot;)
++		tutorialButton.should be_an_instance_of(AGButton)
++		lambda {tutorialButton.click}.should call(:startCampaign)
++	end
++	it &quot;should be possible to select the tutorial in the campaign section and start it&quot; do
++		playCampaign(0)
++	end
++	it &quot;should be possible to select the birth-campaign and start it&quot; do
++		playCampaign(1)
++	end
++	it &quot;should be possible to flip fullscreen&quot; do
++		optionsButton=widget(&quot;options&quot;)
++		optionsButton.should be_an_instance_of(AGButton)
++		optionsButton.click
++		optionsMenu=widget(&quot;OptionsMenu&quot;)
++		optionsMenu.should be_a_kind_of(AGWidget)
++		optionsMenu.should be_visible
++		fullscreenButton=optionsMenu.child(&quot;fullscreen&quot;)
++		fullscreenButton.should be_an_instance_of(AGButton)
++		lambda {fullscreenButton.click}.should change(getVideo,:fullscreen).from(false).to(true)
++		lambda {fullscreenButton.click}.should change(getVideo,:fullscreen).from(true).to(false)
++	end
++	private
++	def playCampaign(number)
++		campaignButton=widget(&quot;campaign&quot;)
++		campaignButton.should_not be_nil
++		campaignButton.click
++		menu=widget(&quot;CampaignMenu&quot;)
++		menu.should be_a_kind_of(AGLayout)
++		campaignRadio=menu.child(&quot;campaign#{number}&quot;)
++		campaignRadio.should be_a_kind_of(AGRadio)
++		campaignRadio.should_not be_checked
++		campaignRadio.click
++		campaignRadio.should be_checked
++		startButton=menu.child(&quot;start&quot;)
++		startButton.should be_a_kind_of(AGButton)
++		lambda {startButton.click}.should call(:startCampaign)
++	end
++end
++
++end
+\ No newline at end of file
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000172.html">[Antargis-svn] r1215 - in antargis/trunk/ruby: . editor editor/spec
+</A></li>
+	<LI>Next message: <A HREF="000174.html">[Antargis-svn] r1217 - antargis/trunk/build/swig
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#173">[ date ]</a>
+              <a href="thread.html#173">[ thread ]</a>
+              <a href="subject.html#173">[ subject ]</a>
+              <a href="author.html#173">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

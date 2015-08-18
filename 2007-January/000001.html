@@ -1,0 +1,4165 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1043 - in antargis/trunk: . gui/src gui/src/sge
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-January/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1043%20-%20in%20antargis/trunk%3A%20.%20gui/src%20gui/src/sge&In-Reply-To=%3C200701072100.l07L0hLI009539%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000000.html">
+   <LINK REL="Next"  HREF="000002.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1043 - in antargis/trunk: . gui/src gui/src/sge</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1043%20-%20in%20antargis/trunk%3A%20.%20gui/src%20gui/src/sge&In-Reply-To=%3C200701072100.l07L0hLI009539%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1043 - in antargis/trunk: . gui/src gui/src/sge">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sun Jan  7 22:00:43 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000000.html">[Antargis-svn] r1042 - in antargis/trunk: data/levels/birth gui/src	ruby src
+</A></li>
+        <LI>Next message: <A HREF="000002.html">[Antargis-svn] r1044 - in antargis/trunk: . contrib
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1">[ date ]</a>
+              <a href="thread.html#1">[ thread ]</a>
+              <a href="subject.html#1">[ subject ]</a>
+              <a href="author.html#1">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-01-07 22:00:42 +0100 (Sun, 07 Jan 2007)
+New Revision: 1043
+
+Added:
+   antargis/trunk/gui/src/sge/
+   antargis/trunk/gui/src/sge/sge_config.h
+   antargis/trunk/gui/src/sge/sge_internal.h
+   antargis/trunk/gui/src/sge/sge_primitives.cc
+   antargis/trunk/gui/src/sge/sge_primitives.h
+   antargis/trunk/gui/src/sge/sge_surface.cc
+   antargis/trunk/gui/src/sge/sge_surface.h
+Removed:
+   antargis/trunk/gui/src/sge_config.h
+   antargis/trunk/gui/src/sge_internal.h
+   antargis/trunk/gui/src/sge_primitives.cc
+   antargis/trunk/gui/src/sge_primitives.h
+   antargis/trunk/gui/src/sge_surface.cc
+   antargis/trunk/gui/src/sge_surface.h
+Modified:
+   antargis/trunk/Rakefile
+   antargis/trunk/configure
+Log:
+* use installed sge, if available
+
+
+Modified: antargis/trunk/Rakefile
+===================================================================
+--- antargis/trunk/Rakefile	2007-01-06 17:52:40 UTC (rev 1042)
++++ antargis/trunk/Rakefile	2007-01-07 21:00:42 UTC (rev 1043)
+@@ -13,6 +13,8 @@
+ 	$CFLAGS+=&quot; &quot;
+ end
+ 
++$CFLAGS+=$incs
++
+ version=&quot;0.1.9&quot;
+ 
+ $profile=true
+@@ -92,6 +94,9 @@
+ interfaceHeaders = interfaceHeadersGUI + interfaceHeadersSRC
+ 
+ SRCS=(Dir[$GUISRC+&quot;/*.cc&quot;]+Dir[$GUISRC+&quot;/*.c&quot;]+Dir[&quot;src/*.cc&quot;]+[&quot;src/swig.cc&quot;,&quot;gui/src/guiswig.cc&quot;]).uniq
++if $internalSGE
++	SRCS+=Dir[$GUISRC+&quot;/sge/*.cc&quot;]
++end
+ OBJS=[]
+ O2S={}
+ SRCS.each{|s|
+
+Modified: antargis/trunk/configure
+===================================================================
+--- antargis/trunk/configure	2007-01-06 17:52:40 UTC (rev 1042)
++++ antargis/trunk/configure	2007-01-07 21:00:42 UTC (rev 1043)
+@@ -9,10 +9,12 @@
+ $help=false
+ $gcdebug=false
+ $xcompile=false
++$internalSGE=false
+ 
+ varnames=[]
++$incs=&quot;&quot;
+ 
+-varnames+=['$debug','$profile','$libs','$swig','$INSTALL','$ccache','$gcdebug','$xcompile','$drmuser','$drmmd5']
++varnames+=['$debug','$profile','$libs','$swig','$INSTALL','$ccache','$gcdebug','$xcompile','$drmuser','$drmmd5','$incs','$internalSGE']
+ 
+ varnames.uniq!
+ 
+@@ -89,6 +91,13 @@
+ 	if $xcompile or windows
+ 		test_library('msvcrt-ruby18')
+ 	end
++	test_library('SGE')
++	if $failed_libs.member?('SGE')
++		$failed_libs.delete('SGE')
++		# use our own files
++		$incs+=&quot;-Igui/src/sge &quot;
++		$internalSGE=true
++	end
+ 
+ 	if $failed_libs.length&gt;0
+ 		puts &quot;----------------------------------------------------------------------&quot;
+
+Copied: antargis/trunk/gui/src/sge/sge_config.h (from rev 1031, antargis/trunk/gui/src/sge_config.h)
+
+Copied: antargis/trunk/gui/src/sge/sge_internal.h (from rev 1031, antargis/trunk/gui/src/sge_internal.h)
+
+Copied: antargis/trunk/gui/src/sge/sge_primitives.cc (from rev 1031, antargis/trunk/gui/src/sge_primitives.cc)
+
+Copied: antargis/trunk/gui/src/sge/sge_primitives.h (from rev 1031, antargis/trunk/gui/src/sge_primitives.h)
+
+Copied: antargis/trunk/gui/src/sge/sge_surface.cc (from rev 1031, antargis/trunk/gui/src/sge_surface.cc)
+
+Copied: antargis/trunk/gui/src/sge/sge_surface.h (from rev 1031, antargis/trunk/gui/src/sge_surface.h)
+
+Deleted: antargis/trunk/gui/src/sge_config.h
+===================================================================
+--- antargis/trunk/gui/src/sge_config.h	2007-01-06 17:52:40 UTC (rev 1042)
++++ antargis/trunk/gui/src/sge_config.h	2007-01-07 21:00:42 UTC (rev 1043)
+@@ -1,4 +0,0 @@
+-/* SGE Config header (generated automatically) */
+-#define SGE_VER 030809
+-#define _SGE_C_AND_CPP
+-#define _SGE_HAVE_IMG
+
+Deleted: antargis/trunk/gui/src/sge_internal.h
+===================================================================
+--- antargis/trunk/gui/src/sge_internal.h	2007-01-06 17:52:40 UTC (rev 1042)
++++ antargis/trunk/gui/src/sge_internal.h	2007-01-07 21:00:42 UTC (rev 1043)
+@@ -1,152 +0,0 @@
+-/*
+-*	SDL Graphics Extension
+-*	SGE internal header
+-*
+-*	Started 000627
+-*
+-*	License: LGPL v2+ (see the file LICENSE)
+-*	(c)2000-2003 Anders Lindstr&#246;m
+-*/
+-
+-/*********************************************************************
+- *  This library is free software; you can redistribute it and/or    *
+- *  modify it under the terms of the GNU Library General Public      *
+- *  License as published by the Free Software Foundation; either     *
+- *  version 2 of the License, or (at your option) any later version. *
+- *********************************************************************/
+-
+-#ifndef sge_internal_H
+-#define sge_internal_H
+-
+-/* This header is included in all sge_*.h files */
+-
+-#include &quot;sge_config.h&quot;
+-
+-/*
+-*  C compatibility
+-*  Thanks to Ohbayashi Ippei (<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">ohai at kmc.gr.jp</A>) for this clever hack!
+-*/
+-#ifdef _SGE_C_AND_CPP
+-	#ifdef __cplusplus
+-		#define _SGE_C           /* use extern &quot;C&quot; on base functions */
+-	#else
+-		#define sge_C_ONLY       /* remove overloaded functions */
+-		#define _SGE_NO_CLASSES  /* no C++ classes */
+-	#endif
+-#endif
+-
+-
+-/*
+-*  This is traditional
+-*/
+-#ifndef PI
+-	#define PI 3.1414926535
+-#endif
+-
+-
+-/*
+-*  Bit flags
+-*/
+-#define SGE_FLAG0 0x00
+-#define SGE_FLAG1 0x01
+-#define SGE_FLAG2 0x02
+-#define SGE_FLAG3 0x04
+-#define SGE_FLAG4 0x08
+-#define SGE_FLAG5 0x10
+-#define SGE_FLAG6 0x20
+-#define SGE_FLAG7 0x40
+-#define SGE_FLAG8 0x80
+-
+-
+-/*
+-*  Define the right alpha values 
+-*  (they were fliped in SDL 1.1.5+)
+-*/
+-#ifndef SDL_ALPHA_OPAQUE
+-	#define SDL_ALPHA_OPAQUE 0
+-#endif
+-#ifndef SDL_ALPHA_TRANSPARENT
+-	#define SDL_ALPHA_TRANSPARENT 255
+-#endif
+-
+-
+-/*
+-*  Older versions of SDL doesn't have SDL_VERSIONNUM
+-*/
+-#ifndef SDL_VERSIONNUM
+-	#define SDL_VERSIONNUM(X, Y, Z)      \
+-		(X)*1000 + (Y)*100 + (Z)
+-#endif
+-
+-
+-/*
+-*  Older versions of SDL doesn't have SDL_CreateRGBSurface
+-*/
+-#ifndef SDL_AllocSurface
+-	#define SDL_CreateRGBSurface  SDL_AllocSurface
+-#endif
+-
+-
+-/*
+-*  Macro to get clipping
+-*/
+-#if SDL_VERSIONNUM(SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL) &gt;= \
+-    SDL_VERSIONNUM(1, 1, 5)
+-	#define sge_clip_xmin(pnt) pnt-&gt;clip_rect.x
+-	#define sge_clip_xmax(pnt) pnt-&gt;clip_rect.x + pnt-&gt;clip_rect.w-1
+-	#define sge_clip_ymin(pnt) pnt-&gt;clip_rect.y
+-	#define sge_clip_ymax(pnt) pnt-&gt;clip_rect.y + pnt-&gt;clip_rect.h-1
+-#else
+-	#define sge_clip_xmin(pnt) pnt-&gt;clip_minx
+-	#define sge_clip_xmax(pnt) pnt-&gt;clip_maxx
+-	#define sge_clip_ymin(pnt) pnt-&gt;clip_miny
+-	#define sge_clip_ymax(pnt) pnt-&gt;clip_maxy
+-#endif
+-
+-
+-/*
+-*  Macro to get the smallest bounding box from two (SDL_Rect) rectangles
+-*/
+-#define sge_RectUnion(dst_rect, rect1, rect2)\
+-	dst_rect.x = (rect1.x &lt; rect2.x)? rect1.x:rect2.x;\
+-	dst_rect.y = (rect1.y &lt; rect2.y)? rect1.y:rect2.y;\
+-	dst_rect.w = (rect1.x + rect1.w &gt; rect2.x + rect2.w)? rect1.x + rect1.w - dst_rect.x : rect2.x + rect2.w - dst_rect.x;\
+-	dst_rect.h = (rect1.y + rect1.h &gt; rect2.y + rect2.h)? rect1.y + rect1.h - dst_rect.y : rect2.y + rect2.h - dst_rect.y;
+-
+-
+-/*
+-*  We need to use alpha sometimes but older versions of SDL doesn't have
+-*  alpha support.
+-*/
+-#if SDL_VERSIONNUM(SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL) &gt;= \
+-    SDL_VERSIONNUM(1, 1, 5)
+-	#define sge_MapRGBA SDL_MapRGBA
+-	#define sge_GetRGBA SDL_GetRGBA
+-#else
+-	#define sge_MapRGBA(fmt, r, g, b, a) SDL_MapRGB(fmt, r, g, b)
+-	#define sge_GetRGBA(pixel, fmt, r, g, b, a) SDL_GetRGBA(pixel, fmt, r, g, b)
+-#endif
+-
+-
+-/*
+-*  Some compilers use a special export keyword
+-*  Thanks to Seung Chan Lim (<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">limsc at maya.com</A> or <A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">slim at djslim.com</A>) to pointing this out
+-*  (From SDL)
+-*/
+-#ifndef DECLSPEC
+-	#ifdef __BEOS__
+-		#if defined(__GNUC__)
+-			#define DECLSPEC __declspec(dllexport)
+-		#else
+-			#define DECLSPEC __declspec(export)
+-		#endif
+-	#else
+-		#ifdef WIN32
+-			#define DECLSPEC __declspec(dllexport)
+-		#else
+-			#define DECLSPEC
+-		#endif
+-	#endif
+-#endif
+-
+-#endif /* sge_internal_H */
+
+Deleted: antargis/trunk/gui/src/sge_primitives.cc
+===================================================================
+--- antargis/trunk/gui/src/sge_primitives.cc	2007-01-06 17:52:40 UTC (rev 1042)
++++ antargis/trunk/gui/src/sge_primitives.cc	2007-01-07 21:00:42 UTC (rev 1043)
+@@ -1,2516 +0,0 @@
+-/*
+-*	SDL Graphics Extension
+-*	Drawing primitives
+-*
+-*	Started 990815 (split from sge_draw 010611)
+-*
+-*	License: LGPL v2+ (see the file LICENSE)
+-*	(c)1999-2003 Anders Lindstr&#246;m
+-*/
+-
+-/*********************************************************************
+- *  This library is free software; you can redistribute it and/or    *
+- *  modify it under the terms of the GNU Library General Public      *
+- *  License as published by the Free Software Foundation; either     *
+- *  version 2 of the License, or (at your option) any later version. *
+- *********************************************************************/
+- 
+-/*
+-*  Some of this code is taken from the &quot;Introduction to SDL&quot; and
+-*  John Garrison's PowerPak	
+-*/
+-
+-#include &quot;SDL.h&quot;
+-#include &lt;math.h&gt;
+-#include &lt;string.h&gt;
+-#include &lt;stdarg.h&gt;
+-#include &lt;stdlib.h&gt;
+-#include &quot;sge_primitives.h&quot;
+-#include &quot;sge_surface.h&quot;
+-
+-
+-/* Globals used for sge_Update/sge_Lock (defined in sge_surface) */
+-extern Uint8 _sge_update;
+-extern Uint8 _sge_lock;
+-
+-#define SWAP(x,y,temp) temp=x;x=y;y=temp
+-
+-/**********************************************************************************/
+-/**                             Line functions                                   **/
+-/**********************************************************************************/
+-
+-//==================================================================================
+-// Internal draw horizontal line
+-//==================================================================================
+-void _HLine(SDL_Surface *Surface, Sint16 x1, Sint16 x2, Sint16 y, Uint32 Color)
+-{
+-	if(x1&gt;x2){Sint16 tmp=x1; x1=x2; x2=tmp;}
+-
+-	//Do the clipping
+-	#if SDL_VERSIONNUM(SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL) &lt; \
+-    SDL_VERSIONNUM(1, 1, 5)
+-	if(y&lt;Surface-&gt;clip_miny || y&gt;Surface-&gt;clip_maxy || x1&gt;Surface-&gt;clip_maxx || x2&lt;Surface-&gt;clip_minx)
+-		return;
+-	if(x1&lt;Surface-&gt;clip_minx)
+-		x1=Surface-&gt;clip_minx;
+-	if(x2&gt;Surface-&gt;clip_maxx)
+-		x2=Surface-&gt;clip_maxx;
+-	#endif
+-	
+-	SDL_Rect l;
+-	l.x=x1; l.y=y; l.w=x2-x1+1; l.h=1;
+-	
+-	SDL_FillRect(Surface, &amp;l, Color);
+-}
+-
+-//==================================================================================
+-// Draw horizontal line
+-//==================================================================================
+-void sge_HLine(SDL_Surface *Surface, Sint16 x1, Sint16 x2, Sint16 y, Uint32 Color)
+-{
+-	if(x1&gt;x2){Sint16 tmp=x1; x1=x2; x2=tmp;}
+-	
+-	//Do the clipping
+-	#if SDL_VERSIONNUM(SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL) &lt; \
+-    SDL_VERSIONNUM(1, 1, 5)
+-	if(y&lt;Surface-&gt;clip_miny || y&gt;Surface-&gt;clip_maxy || x1&gt;Surface-&gt;clip_maxx || x2&lt;Surface-&gt;clip_minx)
+-		return;
+-	if(x1&lt;Surface-&gt;clip_minx)
+-		x1=Surface-&gt;clip_minx;
+-	if(x2&gt;Surface-&gt;clip_maxx)
+-		x2=Surface-&gt;clip_maxx;
+-	#endif
+-	
+-	SDL_Rect l;
+-	l.x=x1; l.y=y; l.w=x2-x1+1; l.h=1;
+-	
+-	SDL_FillRect(Surface, &amp;l, Color);
+-
+-	sge_UpdateRect(Surface, x1, y, x2-x1+1, 1);
+-}
+-
+-//==================================================================================
+-// Draw horizontal line (RGB)
+-//==================================================================================
+-void sge_HLine(SDL_Surface *Surface, Sint16 x1, Sint16 x2, Sint16 y, Uint8 R, Uint8 G, Uint8 B)
+-{
+-	sge_HLine(Surface,x1,x2,y, SDL_MapRGB(Surface-&gt;format, R, G, B));
+-}
+-
+-
+-//==================================================================================
+-// Internal draw horizontal line (alpha)
+-//==================================================================================
+-void _HLineAlpha(SDL_Surface *Surface, Sint16 x1, Sint16 x2, Sint16 y, Uint32 Color, Uint8 alpha)
+-{
+-	Uint8 update = _sge_update;
+-	Uint8 lock = _sge_lock;
+-	_sge_update = 0;
+-	_sge_lock = 0;
+-	sge_FilledRectAlpha(Surface, x1,y,x2,y, Color, alpha);
+-	_sge_update = update;
+-	_sge_lock = lock;
+-}
+-
+-//==================================================================================
+-// Draw horizontal line (alpha)
+-//==================================================================================
+-void sge_HLineAlpha(SDL_Surface *Surface, Sint16 x1, Sint16 x2, Sint16 y, Uint32 Color, Uint8 alpha)
+-{
+-	sge_FilledRectAlpha(Surface, x1,y,x2,y, Color, alpha);
+-}
+-
+-//==================================================================================
+-// Draw horizontal line (alpha RGB)
+-//==================================================================================
+-void sge_HLineAlpha(SDL_Surface *Surface, Sint16 x1, Sint16 x2, Sint16 y, Uint8 R, Uint8 G, Uint8 B, Uint8 alpha)
+-{
+-	sge_HLineAlpha(Surface,x1,x2,y, SDL_MapRGB(Surface-&gt;format, R, G, B), alpha);
+-}
+-
+-
+-//==================================================================================
+-// Internal draw vertical line
+-//==================================================================================
+-void _VLine(SDL_Surface *Surface, Sint16 x, Sint16 y1, Sint16 y2, Uint32 Color)
+-{
+-	if(y1&gt;y2){Sint16 tmp=y1; y1=y2; y2=tmp;}
+-
+-	//Do the clipping
+-	#if SDL_VERSIONNUM(SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL) &lt; \
+-    SDL_VERSIONNUM(1, 1, 5)
+-	if(x&lt;Surface-&gt;clip_minx || x&gt;Surface-&gt;clip_maxx || y1&gt;Surface-&gt;clip_maxy || y2&lt;Surface-&gt;clip_miny)
+-		return;
+-	if(y1&lt;Surface-&gt;clip_miny)
+-		y1=Surface-&gt;clip_miny;
+-	if(y2&gt;Surface-&gt;clip_maxy)
+-		y2=Surface-&gt;clip_maxy;
+-	#endif
+-	
+-	SDL_Rect l;
+-	l.x=x; l.y=y1; l.w=1; l.h=y2-y1+1;
+-	
+-	SDL_FillRect(Surface, &amp;l, Color);
+-}
+-
+-//==================================================================================
+-// Draw vertical line
+-//==================================================================================
+-void sge_VLine(SDL_Surface *Surface, Sint16 x, Sint16 y1, Sint16 y2, Uint32 Color)
+-{
+-	if(y1&gt;y2){Sint16 tmp=y1; y1=y2; y2=tmp;}
+-	
+-	//Do the clipping
+-	#if SDL_VERSIONNUM(SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL) &lt; \
+-    SDL_VERSIONNUM(1, 1, 5)
+-	if(x&lt;Surface-&gt;clip_minx || x&gt;Surface-&gt;clip_maxx || y1&gt;Surface-&gt;clip_maxy || y2&lt;Surface-&gt;clip_miny)
+-		return;
+-	if(y1&lt;Surface-&gt;clip_miny)
+-		y1=Surface-&gt;clip_miny;
+-	if(y2&gt;Surface-&gt;clip_maxy)
+-		y2=Surface-&gt;clip_maxy;
+-	#endif
+-	
+-	SDL_Rect l;
+-	l.x=x; l.y=y1; l.w=1; l.h=y2-y1+1;
+-	
+-	SDL_FillRect(Surface, &amp;l, Color);
+-
+-	sge_UpdateRect(Surface, x, y1, 1, y2-y1+1);
+-}
+-
+-//==================================================================================
+-// Draw vertical line (RGB)
+-//==================================================================================
+-void sge_VLine(SDL_Surface *Surface, Sint16 x, Sint16 y1, Sint16 y2, Uint8 R, Uint8 G, Uint8 B)
+-{
+-	sge_VLine(Surface,x,y1,y2, SDL_MapRGB(Surface-&gt;format, R, G, B));
+-}
+-
+-
+-//==================================================================================
+-// Internal draw vertical line (alpha - no update)
+-//==================================================================================
+-void _VLineAlpha(SDL_Surface *Surface, Sint16 x, Sint16 y1, Sint16 y2, Uint32 Color, Uint8 alpha)
+-{
+-	Uint8 update = _sge_update;
+-	Uint8 lock = _sge_lock;
+-	_sge_update = 0;
+-	_sge_lock = 0;
+-	sge_FilledRectAlpha(Surface, x,y1,x,y2, Color, alpha);
+-	_sge_update = update;
+-	_sge_lock = lock;
+-}
+-
+-//==================================================================================
+-// Draw vertical line (alpha)
+-//==================================================================================
+-void sge_VLineAlpha(SDL_Surface *Surface, Sint16 x, Sint16 y1, Sint16 y2, Uint32 Color, Uint8 alpha)
+-{
+-	sge_FilledRectAlpha(Surface, x,y1,x,y2, Color, alpha);
+-}
+-
+-//==================================================================================
+-// Draw vertical line (alpha RGB)
+-//==================================================================================
+-void sge_VLineAlpha(SDL_Surface *Surface, Sint16 x, Sint16 y1, Sint16 y2, Uint8 R, Uint8 G, Uint8 B, Uint8 alpha)
+-{
+-	sge_VLineAlpha(Surface,x,y1,y2, SDL_MapRGB(Surface-&gt;format, R, G, B), alpha);
+-}
+-
+-
+-
+-//==================================================================================
+-// Performs Callback at each line point. (From PowerPak)
+-//==================================================================================
+-void sge_DoLine(SDL_Surface *Surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 Color, void Callback(SDL_Surface *Surf, Sint16 X, Sint16 Y, Uint32 Color))
+-{
+-	Sint16 dx, dy, sdx, sdy, x, y, px, py;
+-
+-	dx = x2 - x1;
+-	dy = y2 - y1;
+-
+-	sdx = (dx &lt; 0) ? -1 : 1;
+-	sdy = (dy &lt; 0) ? -1 : 1;
+-
+-	dx = sdx * dx + 1;
+-	dy = sdy * dy + 1;
+-
+-	x = y = 0;
+-
+-	px = x1;
+-	py = y1;
+-
+-	if (dx &gt;= dy){
+-		for (x = 0; x &lt; dx; x++){
+-			Callback(Surface, px, py, Color);
+-	
+-			y += dy;
+-			if (y &gt;= dx){
+-				y -= dx;
+-				py += sdy;
+-			}
+-			px += sdx;
+-		}
+-	}
+-	else{
+-		for (y = 0; y &lt; dy; y++){
+-			Callback(Surface, px, py, Color);
+-
+-			x += dx;
+-			if (x &gt;= dy){
+-				x -= dy;
+-				px += sdx;
+-			}
+-			py += sdy;
+-		}
+-	}
+-}
+-
+-
+-//==================================================================================
+-// Performs Callback at each line point. (RGB)
+-//==================================================================================
+-void sge_DoLine(SDL_Surface *Surface, Sint16 X1, Sint16 Y1, Sint16 X2, Sint16 Y2, Uint8 R, Uint8 G, Uint8 B, void Callback(SDL_Surface *Surf, Sint16 X, Sint16 Y, Uint32 Color))
+-{
+-	sge_DoLine(Surface,X1,Y1,X2,Y2, SDL_MapRGB(Surface-&gt;format, R, G, B),Callback);
+-}
+-
+-
+-//==================================================================================
+-// Line clipping
+-// Standard Cohen-Sutherland algorithm (from gfxPrimitives)
+-//==================================================================================
+-#define CLIP_LEFT_EDGE   0x1
+-#define CLIP_RIGHT_EDGE  0x2
+-#define CLIP_BOTTOM_EDGE 0x4
+-#define CLIP_TOP_EDGE    0x8
+-#define CLIP_INSIDE(a)   (!a)
+-#define CLIP_REJECT(a,b) (a&amp;b)
+-#define CLIP_ACCEPT(a,b) (!(a|b))
+-
+-int clipEncode(Sint16 x, Sint16 y, Sint16 left, Sint16 top, Sint16 right, Sint16 bottom)
+-{
+-	int code = 0;
+-
+-	if (x &lt; left)
+-		code |= CLIP_LEFT_EDGE;
+-	else if (x &gt; right)
+-		code |= CLIP_RIGHT_EDGE;
+-	
+-	if (y &lt; top)
+-		code |= CLIP_TOP_EDGE;
+-	else if (y &gt; bottom)
+-		code |= CLIP_BOTTOM_EDGE;
+-
+-	return code;
+-}
+-
+-int clipLine(SDL_Surface *dst, Sint16 *x1, Sint16 *y1, Sint16 *x2, Sint16 *y2)
+-{
+-	int code1, code2;
+-	bool draw = false;
+-	
+-	Sint16 tmp;
+-	float m;
+-
+-	/* Get clipping boundary */
+-	Sint16 left, right, top, bottom;
+-	left = sge_clip_xmin(dst);
+-	right = sge_clip_xmax(dst);
+-	top = sge_clip_ymin(dst);
+-	bottom = sge_clip_ymax(dst);
+-
+-	while (true){
+-		code1 = clipEncode(*x1, *y1, left, top, right, bottom);
+-		code2 = clipEncode(*x2, *y2, left, top, right, bottom);
+-		
+-		if(CLIP_ACCEPT(code1, code2)){
+-			draw = true;
+-			break;
+-		}else if(CLIP_REJECT(code1, code2))
+-			break;
+-		else{
+-			if(CLIP_INSIDE(code1)){
+-				tmp = *x2;
+-				*x2 = *x1;
+-				*x1 = tmp;
+-				tmp = *y2;
+-				*y2 = *y1;
+-				*y1 = tmp;
+-				tmp = code2;
+-				code2 = code1;
+-				code1 = tmp;
+-			}
+-			if(*x2 != *x1)
+-				m = (*y2 - *y1) / float(*x2 - *x1);
+-			else
+-				m = 1.0;
+-			
+-			
+-			if(code1 &amp; CLIP_LEFT_EDGE){
+-				*y1 += Sint16( (left - *x1) * m );
+-				*x1 = left;
+-			}else if(code1 &amp; CLIP_RIGHT_EDGE){
+-				*y1 += Sint16( (right - *x1) * m );
+-				*x1 = right;
+-			}else if(code1 &amp; CLIP_BOTTOM_EDGE){
+-				if (*x2 != *x1) {
+-					*x1 += Sint16( (bottom - *y1) / m );
+-				}
+-				*y1 = bottom;
+-			}else if(code1 &amp; CLIP_TOP_EDGE){
+-				if (*x2 != *x1) {
+-					*x1 += Sint16( (top - *y1) / m );
+-				}
+-				*y1 = top;
+-			}
+-		}
+-	}
+-
+-	return draw;
+-}
+-
+-
+-//==================================================================================
+-// Draws a line
+-//==================================================================================
+-void _Line(SDL_Surface *surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color)
+-{
+-	if( !clipLine(surface, &amp;x1, &amp;y1, &amp;x2, &amp;y2) )
+-		return;
+-
+-	Sint16 dx, dy, sdx, sdy, x, y;
+-
+-	dx = x2 - x1;
+-	dy = y2 - y1;
+-
+-	sdx = (dx &lt; 0) ? -1 : 1;
+-	sdy = (dy &lt; 0) ? -1 : 1;
+-
+-	dx = sdx * dx + 1;
+-	dy = sdy * dy + 1;
+-
+-	x = y = 0;
+-	
+-	Sint16 pixx = surface-&gt;format-&gt;BytesPerPixel;
+-  	Sint16 pixy = surface-&gt;pitch;
+-	Uint8 *pixel = (Uint8*)surface-&gt;pixels + y1*pixy + x1*pixx;
+-
+-	pixx *= sdx;
+-  	pixy *= sdy;
+-
+-	if (dx &lt; dy) {
+-		Sint32 tmp = dx; dx = dy; dy = Sint16(tmp);
+-		tmp = pixx; pixx = pixy; pixy = tmp;
+-	}	
+-	
+-	switch(surface-&gt;format-&gt;BytesPerPixel) {
+-		case 1: {
+-			for(x=0; x &lt; dx; x++) {
+-				*pixel = color;
+-				
+-				y += dy; 
+-				if (y &gt;= dx) {
+-					y -= dx; 
+-					pixel += pixy;
+-				}
+-				pixel += pixx;
+-			}
+-		}
+-		break;
+-	
+-		case 2: {
+-			for(x=0; x &lt; dx; x++) {
+-				*(Uint16*)pixel = color;
+-				
+-				y += dy; 
+-				if (y &gt;= dx) {
+-					y -= dx; 
+-					pixel += pixy;
+-				}
+-				pixel += pixx;
+-			}
+-		}
+-		break;
+-	
+-		case 3: {
+-			Uint8 rshift8 = surface-&gt;format-&gt;Rshift/8; 
+-			Uint8 gshift8 = surface-&gt;format-&gt;Gshift/8; 
+-			Uint8 bshift8 = surface-&gt;format-&gt;Bshift/8;
+-			Uint8 ashift8 = surface-&gt;format-&gt;Ashift/8;
+-			
+-			Uint8 R = (color&gt;&gt;surface-&gt;format-&gt;Rshift)&amp;0xff;
+-			Uint8 G = (color&gt;&gt;surface-&gt;format-&gt;Gshift)&amp;0xff;
+-			Uint8 B = (color&gt;&gt;surface-&gt;format-&gt;Bshift)&amp;0xff;
+-			Uint8 A = (color&gt;&gt;surface-&gt;format-&gt;Ashift)&amp;0xff;
+-		
+-			for(x=0; x &lt; dx; x++) {
+-				*(pixel+rshift8) = R;
+-  				*(pixel+gshift8) = G;
+-  				*(pixel+bshift8) = B;
+-				*(pixel+ashift8) = A;
+-				
+-				y += dy; 
+-				if (y &gt;= dx) {
+-					y -= dx; 
+-					pixel += pixy;
+-				}
+-				pixel += pixx;
+-			}
+-		}
+-		break;
+-		
+-		case 4: {
+-			for(x=0; x &lt; dx; x++) {
+-				*(Uint32*)pixel = color;
+-				
+-				y += dy; 
+-				if (y &gt;= dx) {
+-					y -= dx; 
+-					pixel += pixy;
+-				}
+-				pixel += pixx;
+-			}
+-		}
+-		break;
+-	}
+-}
+-
+-void sge_Line(SDL_Surface *Surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 Color)
+-{
+-	if (SDL_MUSTLOCK(Surface) &amp;&amp; _sge_lock) {
+-		if (SDL_LockSurface(Surface) &lt; 0)
+-			return;
+-	}
+-
+-	/* Draw the line */
+-	_Line(Surface, x1,y1, x2,y2, Color);
+-
+-	/* unlock the display */
+-	if (SDL_MUSTLOCK(Surface) &amp;&amp; _sge_lock) {
+-		SDL_UnlockSurface(Surface);
+-	}
+-
+-	sge_UpdateRect(Surface, (x1 &lt; x2)? x1 : x2, (y1 &lt; y2)? y1 : y2, ((x2-x1)&lt;0)? (x1-x2+1) : (x2-x1+1), ((y2-y1)&lt;0)? (y1-y2+1) : (y2-y1+1));
+-}
+-
+-
+-//==================================================================================
+-// Draws a line (RGB)
+-//==================================================================================
+-void sge_Line(SDL_Surface *Surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint8 R, Uint8 G, Uint8 B)
+-{
+-	sge_Line(Surface,x1,y1,x2,y2, SDL_MapRGB(Surface-&gt;format, R, G, B));
+-}
+-
+-
+-//==================================================================================
+-// A quick hack to get alpha working with callbacks
+-//==================================================================================
+-Uint8 _sge_alpha_hack = 0;
+-void callback_alpha_hack(SDL_Surface *surf, Sint16 x, Sint16 y, Uint32 color)
+-{
+-	_PutPixelAlpha(surf,x,y,color,_sge_alpha_hack);
+-}
+-
+-//==================================================================================
+-// Draws a line (alpha)
+-//==================================================================================
+-void _LineAlpha(SDL_Surface *Surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 Color, Uint8 alpha)
+-{
+-	_sge_alpha_hack = alpha;
+-
+-	/* Draw the line */
+-	sge_DoLine(Surface, x1, y1, x2, y2, Color, callback_alpha_hack);
+-}
+-
+-void sge_LineAlpha(SDL_Surface *Surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 Color, Uint8 alpha)
+-{
+-	if (SDL_MUSTLOCK(Surface) &amp;&amp; _sge_lock)
+-		if (SDL_LockSurface(Surface) &lt; 0)
+-			return;
+-
+-	_LineAlpha(Surface, x1,  y1, x2, y2, Color, alpha);
+-
+-	/* unlock the display */
+-	if (SDL_MUSTLOCK(Surface) &amp;&amp; _sge_lock) {
+-		SDL_UnlockSurface(Surface);
+-	}
+-
+-	sge_UpdateRect(Surface, (x1 &lt; x2)? x1 : x2, (y1 &lt; y2)? y1 : y2, ((x2-x1)&lt;0)? (x1-x2+1) : (x2-x1+1), ((y2-y1)&lt;0)? (y1-y2+1) : (y2-y1+1));
+-}
+-
+-//==================================================================================
+-// Draws a line (alpha - RGB)
+-//==================================================================================
+-void sge_LineAlpha(SDL_Surface *Surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint8 R, Uint8 G, Uint8 B, Uint8 alpha)
+-{
+-	sge_LineAlpha(Surface,x1,y1,x2,y2, SDL_MapRGB(Surface-&gt;format, R, G, B), alpha);
+-}
+-
+-
+-//==================================================================================
+-// Anti-aliased line
+-// From SDL_gfxPrimitives written by A. Schiffler (<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">aschiffler at home.com</A>)
+-//==================================================================================
+-#define AAbits 8
+-#define AAlevels 256  /* 2^AAbits */
+-void _AALineAlpha(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color, Uint8 alpha)
+-{
+-	Uint32 erracc=0, erradj;
+-	Uint32 erracctmp, wgt;
+-	Sint16 tmp, y0p1, x0pxdir;
+-	Uint8 a;
+-
+-	/* Keep on working with 32bit numbers */
+-	Sint32 xx0=x1;
+-	Sint32 yy0=y1;
+-	Sint32 xx1=x2;
+-	Sint32 yy1=y2;
+- 
+-	/* Reorder points if required */ 
+-	if (yy0 &gt; yy1) {
+-		SWAP(yy0, yy1, tmp);
+-		SWAP(xx0, xx1, tmp);
+-	}
+-
+-	/* Calculate distance */
+-	Sint16 dx = xx1 - xx0;
+-	Sint16 dy = yy1 - yy0;
+-
+-	/* Adjust for negative dx and set xdir */
+-	Sint16 xdir = 1;
+-	if (dx &lt; 0) {
+-		xdir=-1;
+-		dx=(-dx);
+-	}
+-
+-	/* Check for special cases */
+-	if (dx==0 || dy==0 || dx==dy) {
+-		if(alpha==SDL_ALPHA_OPAQUE)
+-			_Line(dst,x1,y1,x2,y2,color);
+-		else
+-			_LineAlpha(dst,x1,y1,x2,y2,color,alpha);
+-		return;
+-	} 
+-
+-	float alpha_pp = float(alpha)/255;  /* Used to calculate alpha level if alpha != 255 */
+-	
+-	Uint32 intshift    = 32 - AAbits;   /* # of bits by which to shift erracc to get intensity level */
+-
+-	/* Draw the initial pixel in the foreground color */
+-	if(alpha==SDL_ALPHA_OPAQUE)
+-		_PutPixel(dst,x1,y1, color);
+-	else
+-		_PutPixelAlpha(dst,x1,y1, color, alpha);
+-
+-	/* x-major or y-major? */
+-	if (dy &gt; dx) {
+-
+-		/* y-major.  Calculate 16-bit fixed point fractional part of a pixel that
+-		X advances every time Y advances 1 pixel, truncating the result so that
+-		we won't overrun the endpoint along the X axis */
+-		erradj = ((dx &lt;&lt; 16) / dy)&lt;&lt;16;
+-
+-		/* draw all pixels other than the first and last */
+-		x0pxdir=xx0+xdir;
+-		while (--dy) {
+-			erracctmp = erracc;
+-			erracc += erradj;
+-			if (erracc &lt;= erracctmp) {
+-				/* rollover in error accumulator, x coord advances */
+-				xx0=x0pxdir;
+-				x0pxdir += xdir;
+-			}
+-			yy0++;			/* y-major so always advance Y */
+-
+-			/* the AAbits most significant bits of erracc give us the intensity
+-			weighting for this pixel, and the complement of the weighting for
+-			the paired pixel. */
+-			wgt = (erracc &gt;&gt; intshift) &amp; 255;
+-			
+-			a = Uint8(255-wgt);
+-			if(alpha != SDL_ALPHA_OPAQUE)
+-				a = Uint8(a*alpha_pp);
+-				
+-			_PutPixelAlpha(dst,xx0,yy0,color,a);
+-			
+-			a = Uint8(wgt);
+-			if(alpha != SDL_ALPHA_OPAQUE)
+-				a = Uint8(a*alpha_pp);
+-				
+-			_PutPixelAlpha(dst,x0pxdir,yy0,color,a);          
+-		}
+-	} else {
+-
+-		/* x-major line.  Calculate 16-bit fixed-point fractional part of a pixel
+-		that Y advances each time X advances 1 pixel, truncating the result so
+-		that we won't overrun the endpoint along the X axis. */
+-		erradj = ((dy &lt;&lt; 16) / dx)&lt;&lt;16;
+- 
+-		/* draw all pixels other than the first and last */
+-		y0p1=yy0+1;
+-		while (--dx) {
+-
+-			erracctmp = erracc;
+-			erracc += erradj;
+-			if (erracc &lt;= erracctmp) {
+-				/* Accumulator turned over, advance y */
+-      			yy0=y0p1;
+-      			y0p1++;
+-    		}
+-			xx0 += xdir;  /* x-major so always advance X */
+-			
+-			/* the AAbits most significant bits of erracc give us the intensity
+-			weighting for this pixel, and the complement of the weighting for
+-			the paired pixel. */
+-			wgt = (erracc &gt;&gt; intshift) &amp; 255;
+-			
+-			a = Uint8(255-wgt);
+-			if(alpha != SDL_ALPHA_OPAQUE)
+-				a = Uint8(a*alpha_pp);
+-				
+-			_PutPixelAlpha(dst,xx0,yy0,color,a);
+-			
+-			a = Uint8(wgt);
+-			if(alpha != SDL_ALPHA_OPAQUE)
+-				a = Uint8(a*alpha_pp);
+-			
+-			_PutPixelAlpha(dst,xx0,y0p1,color,a);
+-		}
+-	}
+- 
+-	/* Draw final pixel, always exactly intersected by the line and doesn't
+-	need to be weighted. */
+-	if(alpha==SDL_ALPHA_OPAQUE)
+-		_PutPixel(dst,x2,y2, color); 
+-	else
+-		_PutPixelAlpha(dst,x2,y2, color, alpha);
+-	
+-}
+-
+-void sge_AALineAlpha(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color, Uint8 alpha)
+-{
+-	/* Lock surface */
+-	if ( SDL_MUSTLOCK(dst) &amp;&amp; _sge_lock )
+-		if ( SDL_LockSurface(dst) &lt; 0 )
+-			return;
+-	
+-	_AALineAlpha(dst,x1,y1,x2,y2,color,alpha);
+-	
+-	/* unlock the display */
+-	if (SDL_MUSTLOCK(dst) &amp;&amp; _sge_lock) {
+-		SDL_UnlockSurface(dst);
+-	}
+-	
+-	sge_UpdateRect(dst, (x1 &lt; x2)? x1 : x2, (y1 &lt; y2)? y1 : y2, ((x2-x1)&lt;0)? (x1-x2+1) : (x2-x1+1), ((y2-y1)&lt;0)? (y1-y2+1) : (y2-y1+1));
+-}
+-
+-void sge_AALineAlpha(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint8 r, Uint8 g, Uint8 b, Uint8 alpha)
+-{
+-	sge_AALineAlpha(dst,x1,y1,x2,y2,SDL_MapRGB(dst-&gt;format, r, g, b),alpha);
+-}
+-
+-void sge_AALine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color)
+-{
+-	sge_AALineAlpha(dst, x1,y1, x2,y2, color, SDL_ALPHA_OPAQUE);
+-}
+-
+-void sge_AALine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint8 r, Uint8 g, Uint8 b)
+-{
+-	sge_AALineAlpha(dst,x1,y1,x2,y2,SDL_MapRGB(dst-&gt;format, r, g, b),SDL_ALPHA_OPAQUE);
+-}
+-
+-
+-
+-//==================================================================================
+-// Draws a multicolored line
+-//==================================================================================
+-void sge_DomcLine(SDL_Surface *surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint8 r1, Uint8 g1, Uint8 b1, Uint8 r2, Uint8 g2, Uint8 b2, void Callback(SDL_Surface *Surf, Sint16 X, Sint16 Y, Uint32 Color))
+-{
+-	Sint16 dx, dy, sdx, sdy, x, y, px, py;
+-
+-	dx = x2 - x1;
+-	dy = y2 - y1;
+-
+-	sdx = (dx &lt; 0) ? -1 : 1;
+-	sdy = (dy &lt; 0) ? -1 : 1;
+-
+-	dx = sdx * dx + 1;
+-	dy = sdy * dy + 1;
+-
+-	x = y = 0;
+-
+-	px = x1;
+-	py = y1;
+-
+-	/* We use fixedpoint math for the color fading */
+-	Sint32 R = r1&lt;&lt;16;
+-	Sint32 G = g1&lt;&lt;16;
+-	Sint32 B = b1&lt;&lt;16;
+-	Sint32 rstep; 
+-	Sint32 gstep;
+-	Sint32 bstep;
+-	
+-	if (dx &gt;= dy){		
+-		rstep = Sint32((r2-r1)&lt;&lt;16) / Sint32(dx);
+-		gstep = Sint32((g2-g1)&lt;&lt;16) / Sint32(dx);
+-		bstep = Sint32((b2-b1)&lt;&lt;16) / Sint32(dx);
+-		
+-		for (x = 0; x &lt; dx; x++){
+-			Callback(surface, px, py, SDL_MapRGB(surface-&gt;format, Uint8(R&gt;&gt;16), Uint8(G&gt;&gt;16), Uint8(B&gt;&gt;16)) );
+-	
+-			y += dy;
+-			if (y &gt;= dx){
+-				y -= dx;
+-				py += sdy;
+-			}
+-			px += sdx;
+-			
+-			R += rstep;
+-			G += gstep;
+-			B += bstep;
+-		}
+-	}
+-	else{
+-		rstep = Sint32((r2-r1)&lt;&lt;16) / Sint32(dy);
+-		gstep = Sint32((g2-g1)&lt;&lt;16) / Sint32(dy);
+-		bstep = Sint32((b2-b1)&lt;&lt;16) / Sint32(dy);
+-		
+-		for (y = 0; y &lt; dy; y++){
+-			Callback(surface, px, py, SDL_MapRGB(surface-&gt;format, Uint8(R&gt;&gt;16), Uint8(G&gt;&gt;16), Uint8(B&gt;&gt;16)) );
+-
+-			x += dx;
+-			if (x &gt;= dy){
+-				x -= dy;
+-				px += sdx;
+-			}
+-			py += sdy;
+-			
+-			R += rstep;
+-			G += gstep;
+-			B += bstep;
+-		}
+-	}
+-}
+-
+-void sge_mcLine(SDL_Surface *Surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint8 r1, Uint8 g1, Uint8 b1, Uint8 r2, Uint8 g2, Uint8 b2)
+-{
+-	if (SDL_MUSTLOCK(Surface) &amp;&amp; _sge_lock) {
+-		if (SDL_LockSurface(Surface) &lt; 0)
+-			return;
+-	}
+-
+-	/* Draw the line */
+-	sge_DomcLine(Surface, x1,y1, x2,y2, r1,g1,b1, r2,g2,b2, _PutPixel);
+-
+-	/* unlock the display */
+-	if (SDL_MUSTLOCK(Surface) &amp;&amp; _sge_lock) {
+-		SDL_UnlockSurface(Surface);
+-	}
+-
+-	sge_UpdateRect(Surface, (x1 &lt; x2)? x1 : x2, (y1 &lt; y2)? y1 : y2, ((x2-x1)&lt;0)? (x1-x2+1) : (x2-x1+1), ((y2-y1)&lt;0)? (y1-y2+1) : (y2-y1+1));
+-}
+-
+-void sge_mcLineAlpha(SDL_Surface *Surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint8 r1, Uint8 g1, Uint8 b1, Uint8 r2, Uint8 g2, Uint8 b2, Uint8 alpha)
+-{
+-	if (SDL_MUSTLOCK(Surface) &amp;&amp; _sge_lock)
+-		if (SDL_LockSurface(Surface) &lt; 0)
+-			return;
+-
+-	_sge_alpha_hack = alpha;
+-
+-	/* Draw the line */
+-	sge_DomcLine(Surface, x1,y1, x2,y2, r1,g1,b1, r2,g2,b2, callback_alpha_hack);
+-
+-	/* unlock the display */
+-	if (SDL_MUSTLOCK(Surface) &amp;&amp; _sge_lock) {
+-		SDL_UnlockSurface(Surface);
+-	}
+-
+-	sge_UpdateRect(Surface, (x1 &lt; x2)? x1 : x2, (y1 &lt; y2)? y1 : y2, ((x2-x1)&lt;0)? (x1-x2+1) : (x2-x1+1), ((y2-y1)&lt;0)? (y1-y2+1) : (y2-y1+1));
+-}
+-
+-
+-//==================================================================================
+-// Draws a anti-aliased multicolored line
+-//==================================================================================
+-void _AAmcLineAlpha(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint8 r1, Uint8 g1, Uint8 b1, Uint8 r2, Uint8 g2, Uint8 b2, Uint8 alpha)
+-{
+-	Uint32 erracc=0, erradj;
+-	Uint32 erracctmp, wgt;
+-	Sint16 tmp, y0p1, x0pxdir;
+-	Uint8 a;
+-
+-	/* Keep on working with 32bit numbers */
+-	Sint32 xx0=x1;
+-	Sint32 yy0=y1;
+-	Sint32 xx1=x2;
+-	Sint32 yy1=y2;
+- 
+-	/* Reorder points if required */ 
+-	if (yy0 &gt; yy1) {
+-		SWAP(yy0, yy1, tmp);
+-		SWAP(xx0, xx1, tmp);
+-
+-		SWAP(r1, r2, a);
+-		SWAP(g1, g2, a);
+-		SWAP(b1, b2, a);		
+-	}
+-
+-	/* Calculate distance */
+-	Sint16 dx = xx1 - xx0;
+-	Sint16 dy = yy1 - yy0;
+-
+-	/* Adjust for negative dx and set xdir */
+-	Sint16 xdir=1;
+-	if (dx &lt; 0) {
+-		xdir=-1;
+-		dx=(-dx);
+-	}
+-
+-	/* Check for special cases */
+-	if (dx==0 || dy==0  || dx==dy) {
+-		sge_mcLineAlpha(dst, x1, y1, x2, y2, r1, g1, b1, r2, g2, b2, alpha);
+-		return;
+-	} 
+-
+-	/* We use fixedpoint math for the color fading */
+-	Sint32 R = r1&lt;&lt;16;
+-	Sint32 G = g1&lt;&lt;16;
+-	Sint32 B = b1&lt;&lt;16;
+-	Sint32 rstep; 
+-	Sint32 gstep;
+-	Sint32 bstep;
+-
+-	float alpha_pp = float(alpha)/255;  /* Used to calculate alpha level if alpha != 255 */
+-	Uint32 intshift    = 32 - AAbits;   /* # of bits by which to shift erracc to get intensity level */
+-
+-	if(alpha==255)
+-		_PutPixel(dst,x1,y1, SDL_MapRGB(dst-&gt;format, r1, g1, b1) );  /* Draw the initial pixel in the foreground color */
+-	else
+-		_PutPixelAlpha(dst,x1,y1, SDL_MapRGB(dst-&gt;format, r1, g1, b1), alpha);
+-
+-	/* x-major or y-major? */
+-	if (dy &gt; dx) {
+-
+-		/* y-major.  Calculate 16-bit fixed point fractional part of a pixel that
+-		X advances every time Y advances 1 pixel, truncating the result so that
+-		we won't overrun the endpoint along the X axis */
+-		erradj = ((dx &lt;&lt; 16) / dy)&lt;&lt;16;
+-
+-		rstep = Sint32((r2-r1)&lt;&lt;16) / Sint32(dy);
+-		gstep = Sint32((g2-g1)&lt;&lt;16) / Sint32(dy);
+-		bstep = Sint32((b2-b1)&lt;&lt;16) / Sint32(dy);
+-
+-		/* draw all pixels other than the first and last */
+-		x0pxdir=xx0+xdir;
+-		while (--dy) {
+-			R += rstep;
+-			G += gstep;
+-			B += bstep;
+-			
+-			erracctmp = erracc;
+-			erracc += erradj;
+-			if (erracc &lt;= erracctmp) {
+-				/* rollover in error accumulator, x coord advances */
+-				xx0=x0pxdir;
+-				x0pxdir += xdir;
+-			}
+-			yy0++;			/* y-major so always advance Y */
+-
+-			/* the AAbits most significant bits of erracc give us the intensity
+-			weighting for this pixel, and the complement of the weighting for
+-			the paired pixel. */
+-			wgt = (erracc &gt;&gt; intshift) &amp; 255;
+-			
+-			a = Uint8(255-wgt);
+-			if(alpha != 255)
+-				a = Uint8(a*alpha_pp);
+-				
+-			_PutPixelAlpha(dst,xx0,yy0,SDL_MapRGB(dst-&gt;format, Uint8(R&gt;&gt;16), Uint8(G&gt;&gt;16), Uint8(B&gt;&gt;16)),a);
+-			
+-			a = Uint8(wgt);
+-			if(alpha != 255)
+-				a = Uint8(a*alpha_pp);
+-				
+-			_PutPixelAlpha(dst,x0pxdir,yy0,SDL_MapRGB(dst-&gt;format, Uint8(R&gt;&gt;16), Uint8(G&gt;&gt;16), Uint8(B&gt;&gt;16)),a);         
+-		}
+-	} else {
+-
+-		/* x-major line.  Calculate 16-bit fixed-point fractional part of a pixel
+-		that Y advances each time X advances 1 pixel, truncating the result so
+-		that we won't overrun the endpoint along the X axis. */
+-		erradj = ((dy &lt;&lt; 16) / dx)&lt;&lt;16;
+- 
+- 		rstep = Sint32((r2-r1)&lt;&lt;16) / Sint32(dx);
+-		gstep = Sint32((g2-g1)&lt;&lt;16) / Sint32(dx);
+-		bstep = Sint32((b2-b1)&lt;&lt;16) / Sint32(dx);
+- 
+-		/* draw all pixels other than the first and last */
+-		y0p1=yy0+1;
+-		while (--dx) {
+-			R += rstep;
+-			G += gstep;
+-			B += bstep;
+-			
+-			erracctmp = erracc;
+-			erracc += erradj;
+-			if (erracc &lt;= erracctmp) {
+-				/* Accumulator turned over, advance y */
+-      			yy0=y0p1;
+-      			y0p1++;
+-    		}
+-			xx0 += xdir;  /* x-major so always advance X */
+-			
+-			/* the AAbits most significant bits of erracc give us the intensity
+-			weighting for this pixel, and the complement of the weighting for
+-			the paired pixel. */
+-			wgt = (erracc &gt;&gt; intshift) &amp; 255;
+-			
+-			a = Uint8(255-wgt);
+-			if(alpha != 255)
+-				a = Uint8(a*alpha_pp);
+-				
+-			_PutPixelAlpha(dst,xx0,yy0,SDL_MapRGB(dst-&gt;format, Uint8(R&gt;&gt;16), Uint8(G&gt;&gt;16), Uint8(B&gt;&gt;16)),a);
+-			
+-			a = Uint8(wgt);
+-			if(alpha != 255)
+-				a = Uint8(a*alpha_pp);
+-			
+-			_PutPixelAlpha(dst,xx0,y0p1,SDL_MapRGB(dst-&gt;format, Uint8(R&gt;&gt;16), Uint8(G&gt;&gt;16), Uint8(B&gt;&gt;16)),a);
+-		}
+-	}
+- 
+-	/* Draw final pixel, always exactly intersected by the line and doesn't
+-	need to be weighted. */
+-	if(alpha==255)
+-		_PutPixel(dst,x2,y2, SDL_MapRGB(dst-&gt;format,r2, g2, b2)); 
+-	else
+-		_PutPixelAlpha(dst,x2,y2, SDL_MapRGB(dst-&gt;format,r2, g2, b2), alpha);
+-
+-}
+-
+-void sge_AAmcLineAlpha(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint8 r1, Uint8 g1, Uint8 b1, Uint8 r2, Uint8 g2, Uint8 b2, Uint8 alpha)
+-{
+-	if ( SDL_MUSTLOCK(dst) &amp;&amp; _sge_lock )
+-		if ( SDL_LockSurface(dst) &lt; 0 )
+-			return;
+-
+-	_AAmcLineAlpha(dst, x1, y1, x2, y2, r1, g1, b1, r2, g2, b2, alpha);
+-	
+-	if (SDL_MUSTLOCK(dst) &amp;&amp; _sge_lock)
+-		SDL_UnlockSurface(dst);
+-	
+-	sge_UpdateRect(dst, (x1 &lt; x2)? x1 : x2, (y1 &lt; y2)? y1 : y2, ((x2-x1)&lt;0)? (x1-x2+1) : (x2-x1+1), ((y2-y1)&lt;0)? (y1-y2+1) : (y2-y1+1));
+-}
+-
+-void sge_AAmcLine(SDL_Surface *Surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint8 r1, Uint8 g1, Uint8 b1, Uint8 r2, Uint8 g2, Uint8 b2)
+-{
+-	sge_AAmcLineAlpha(Surface, x1,y1, x2,y2, r1,g1,b1, r2,g2,b2, SDL_ALPHA_OPAQUE);
+-}
+-
+-
+-
+-/**********************************************************************************/
+-/**                           Figure functions                                   **/
+-/**********************************************************************************/
+-
+-//==================================================================================
+-// Draws a rectangle
+-//==================================================================================
+-void sge_Rect(SDL_Surface *Surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color)
+-{
+-	_HLine(Surface,x1,x2,y1,color);
+-	_HLine(Surface,x1,x2,y2,color);
+-	_VLine(Surface,x1,y1,y2,color);
+-	_VLine(Surface,x2,y1,y2,color);
+-
+-	sge_UpdateRect(Surface, x1, y1, x2-x1, 1);
+-	sge_UpdateRect(Surface, x1, y2, x2-x1+1, 1); /* Hmm? */
+-	sge_UpdateRect(Surface, x1, y1, 1, y2-y1);
+-	sge_UpdateRect(Surface, x2, y1, 1, y2-y1);
+-}
+-
+-//==================================================================================
+-// Draws a rectangle (RGB)
+-//==================================================================================
+-void sge_Rect(SDL_Surface *Surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint8 R, Uint8 G, Uint8 B)
+-{
+-	sge_Rect(Surface,x1,y1,x2,y2, SDL_MapRGB(Surface-&gt;format, R, G, B));
+-}
+-
+-
+-//==================================================================================
+-// Draws a rectangle (alpha)
+-//==================================================================================
+-void sge_RectAlpha(SDL_Surface *Surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color, Uint8 alpha)
+-{
+-	if (SDL_MUSTLOCK(Surface) &amp;&amp; _sge_lock)
+-		if (SDL_LockSurface(Surface) &lt; 0)
+-			return;
+-
+-	_HLineAlpha(Surface,x1,x2,y1,color,alpha);
+-	_HLineAlpha(Surface,x1,x2,y2,color,alpha);
+-	_VLineAlpha(Surface,x1,y1,y2,color,alpha);
+-	_VLineAlpha(Surface,x2,y1,y2,color,alpha);
+-
+-	if (SDL_MUSTLOCK(Surface) &amp;&amp; _sge_lock) {
+-		SDL_UnlockSurface(Surface);
+-	}
+-
+-	sge_UpdateRect(Surface, x1, y1, x2-x1, 1);
+-	sge_UpdateRect(Surface, x1, y2, x2-x1+1, 1); /* Hmm? */
+-	sge_UpdateRect(Surface, x1, y1, 1, y2-y1);
+-	sge_UpdateRect(Surface, x2, y1, 1, y2-y1);
+-}
+-
+-//==================================================================================
+-// Draws a rectangle (RGB)
+-//==================================================================================
+-void sge_RectAlpha(SDL_Surface *Surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint8 R, Uint8 G, Uint8 B, Uint8 alpha)
+-{
+-	sge_RectAlpha(Surface,x1,y1,x2,y2, SDL_MapRGB(Surface-&gt;format, R, G, B), alpha);
+-}
+-
+-
+-//==================================================================================
+-// Draws a filled rectangle
+-//==================================================================================
+-void sge_FilledRect(SDL_Surface *Surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color)
+-{
+-	Sint16 tmp;
+-	if(x1&gt;x2){
+-		tmp=x1; x1=x2; x2=tmp;
+-	}
+-	if(y1&gt;y2){
+-		tmp=y1; y1=y2; y2=tmp;
+-	}
+-
+-	#if SDL_VERSIONNUM(SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL) &lt; \
+-    SDL_VERSIONNUM(1, 1, 5)
+-	if(x2&lt;Surface-&gt;clip_minx || x1&gt;Surface-&gt;clip_maxx || y2&lt;Surface-&gt;clip_miny || y1&gt;Surface-&gt;clip_maxy)
+-		return;
+-	if (x1 &lt; Surface-&gt;clip_minx)
+-  		x1=Surface-&gt;clip_minx;
+-	if (x2 &gt; Surface-&gt;clip_maxx)
+-  		x2=Surface-&gt;clip_maxx;
+-	if (y1 &lt; Surface-&gt;clip_miny)
+-  		y1=Surface-&gt;clip_miny;
+-	if (y2 &gt; Surface-&gt;clip_maxy)
+-  		y2=Surface-&gt;clip_maxy;
+-	#endif
+-
+-	SDL_Rect area;
+-	area.x=x1; area.y=y1;
+-	area.w=x2-x1+1; area.h=y2-y1+1;
+-
+-	SDL_FillRect(Surface,&amp;area,color);
+-
+-	sge_UpdateRect(Surface, x1, y1, x2-x1+1, y2-y1+1);
+-}
+-
+-//==================================================================================
+-// Draws a filled rectangle (RGB)
+-//==================================================================================
+-void sge_FilledRect(SDL_Surface *Surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint8 R, Uint8 G, Uint8 B)
+-{
+-	sge_FilledRect(Surface,x1,y1,x2,y2, SDL_MapRGB(Surface-&gt;format, R, G, B));	
+-}
+-
+-
+-//==================================================================================
+-// Draws a filled rectangle (alpha)
+-//==================================================================================
+-void sge_FilledRectAlpha(SDL_Surface *surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color, Uint8 alpha)
+-{
+-	/*if( alpha == 255 ){
+-		sge_FilledRect(surface,x1,y1,x2,y2,color);
+-		return;
+-	}*/
+-	
+-	/* Fix coords */
+-	Sint16 tmp;
+-	if(x1&gt;x2){
+-		tmp=x1; x1=x2; x2=tmp;
+-	}
+-	if(y1&gt;y2){
+-		tmp=y1; y1=y2; y2=tmp;
+-	}
+-	
+-	/* Clipping */
+-	if(x2&lt;sge_clip_xmin(surface) || x1&gt;sge_clip_xmax(surface) || y2&lt;sge_clip_ymin(surface) || y1&gt;sge_clip_ymax(surface))
+-		return;
+-	if (x1 &lt; sge_clip_xmin(surface))
+-  		x1 = sge_clip_xmin(surface);
+-	if (x2 &gt; sge_clip_xmax(surface))
+-  		x2 = sge_clip_xmax(surface);
+-	if (y1 &lt; sge_clip_ymin(surface))
+-  		y1 = sge_clip_ymin(surface);
+-	if (y2 &gt; sge_clip_ymax(surface))
+-  		y2 = sge_clip_ymax(surface);
+-
+-	Uint32 Rmask = surface-&gt;format-&gt;Rmask, Gmask = surface-&gt;format-&gt;Gmask, Bmask = surface-&gt;format-&gt;Bmask, Amask = surface-&gt;format-&gt;Amask;
+-	Uint32 R,G,B,A=0;
+-	Sint16 x,y;
+-	
+-	if (SDL_MUSTLOCK(surface) &amp;&amp; _sge_lock)
+-		if (SDL_LockSurface(surface) &lt; 0)
+-			return;
+-	
+-	switch (surface-&gt;format-&gt;BytesPerPixel) {
+-		case 1: { /* Assuming 8-bpp */
+-			Uint8 *row, *pixel;
+-			Uint8 dR, dG, dB;
+-			
+-			Uint8 sR = surface-&gt;format-&gt;palette-&gt;colors[color].r;
+-			Uint8 sG = surface-&gt;format-&gt;palette-&gt;colors[color].g;
+-			Uint8 sB = surface-&gt;format-&gt;palette-&gt;colors[color].b;
+-			
+-			for(y = y1; y&lt;=y2; y++){
+-				row = (Uint8 *)surface-&gt;pixels + y*surface-&gt;pitch;
+-				for(x = x1; x &lt;= x2; x++){
+-					pixel = row + x;
+-					
+-					dR = surface-&gt;format-&gt;palette-&gt;colors[*pixel].r;
+-					dG = surface-&gt;format-&gt;palette-&gt;colors[*pixel].g;
+-					dB = surface-&gt;format-&gt;palette-&gt;colors[*pixel].b;
+-					
+-					dR = dR + ((sR-dR)*alpha &gt;&gt; 8);
+-					dG = dG + ((sG-dG)*alpha &gt;&gt; 8);
+-					dB = dB + ((sB-dB)*alpha &gt;&gt; 8);
+-				
+-					*pixel = SDL_MapRGB(surface-&gt;format, dR, dG, dB);
+-				}
+-			}
+-		}
+-		break;
+-
+-		case 2: { /* Probably 15-bpp or 16-bpp */
+-			Uint16 *row, *pixel;
+-			Uint32 dR=(color &amp; Rmask),dG=(color &amp; Gmask),dB=(color &amp; Bmask),dA=(color &amp; Amask);
+-			
+-			for(y = y1; y&lt;=y2; y++){
+-				row = (Uint16 *)surface-&gt;pixels + y*surface-&gt;pitch/2;
+-				for(x = x1; x &lt;= x2; x++){
+-					pixel = row + x;
+-
+-					R = ((*pixel &amp; Rmask) + (( dR - (*pixel &amp; Rmask) ) * alpha &gt;&gt; 8)) &amp; Rmask;
+-					G = ((*pixel &amp; Gmask) + (( dG - (*pixel &amp; Gmask) ) * alpha &gt;&gt; 8)) &amp; Gmask;
+-					B = ((*pixel &amp; Bmask) + (( dB - (*pixel &amp; Bmask) ) * alpha &gt;&gt; 8)) &amp; Bmask;
+-					if( Amask )
+-						A = ((*pixel &amp; Amask) + (( dA - (*pixel &amp; Amask) ) * alpha &gt;&gt; 8)) &amp; Amask;
+-
+-					*pixel= R | G | B | A;
+-				}
+-			}
+-		}
+-		break;
+-
+-		case 3: { /* Slow 24-bpp mode, usually not used */
+-			Uint8 *row,*pix;
+-			Uint8 dR, dG, dB, dA;
+-  			Uint8 rshift8=surface-&gt;format-&gt;Rshift/8; 
+-			Uint8 gshift8=surface-&gt;format-&gt;Gshift/8; 
+-			Uint8 bshift8=surface-&gt;format-&gt;Bshift/8;
+-			Uint8 ashift8=surface-&gt;format-&gt;Ashift/8;
+-			
+-			Uint8 sR = (color&gt;&gt;surface-&gt;format-&gt;Rshift)&amp;0xff;
+-			Uint8 sG = (color&gt;&gt;surface-&gt;format-&gt;Gshift)&amp;0xff;
+-			Uint8 sB = (color&gt;&gt;surface-&gt;format-&gt;Bshift)&amp;0xff;
+-			Uint8 sA = (color&gt;&gt;surface-&gt;format-&gt;Ashift)&amp;0xff;
+-				
+-			for(y = y1; y&lt;=y2; y++){
+-				row = (Uint8 *)surface-&gt;pixels + y * surface-&gt;pitch;
+-				for(x = x1; x &lt;= x2; x++){
+-					pix = row + x*3;
+-
+-					dR = *((pix)+rshift8); 
+-            		dG = *((pix)+gshift8);
+-            		dB = *((pix)+bshift8);
+-					dA = *((pix)+ashift8);
+-					
+-					dR = dR + ((sR-dR)*alpha &gt;&gt; 8);
+-					dG = dG + ((sG-dG)*alpha &gt;&gt; 8);
+-					dB = dB + ((sB-dB)*alpha &gt;&gt; 8);
+-					dA = dA + ((sA-dA)*alpha &gt;&gt; 8);
+-
+-					*((pix)+rshift8) = dR; 
+-            		*((pix)+gshift8) = dG;
+-            		*((pix)+bshift8) = dB;
+-					*((pix)+ashift8) = dA;
+-				}
+-			}
+-					
+-		}
+-		break;
+-
+-		case 4: { /* Probably 32-bpp */
+-			Uint32 *row, *pixel;
+-			Uint32 dR=(color &amp; Rmask),dG=(color &amp; Gmask),dB=(color &amp; Bmask),dA=(color &amp; Amask);
+-		
+-			for(y = y1; y&lt;=y2; y++){
+-				row = (Uint32 *)surface-&gt;pixels + y*surface-&gt;pitch/4;
+-				for(x = x1; x &lt;= x2; x++){
+-					pixel = row + x;
+-
+-					R = ((*pixel &amp; Rmask) + (( dR - (*pixel &amp; Rmask) ) * alpha &gt;&gt; 8)) &amp; Rmask;
+-					G = ((*pixel &amp; Gmask) + (( dG - (*pixel &amp; Gmask) ) * alpha &gt;&gt; 8)) &amp; Gmask;
+-					B = ((*pixel &amp; Bmask) + (( dB - (*pixel &amp; Bmask) ) * alpha &gt;&gt; 8)) &amp; Bmask;
+-					if( Amask )
+-						A = ((*pixel &amp; Amask) + (( dA - (*pixel &amp; Amask) ) * alpha &gt;&gt; 8)) &amp; Amask;
+-
+-					*pixel= R | G | B | A;
+-				}
+-			}
+-		}
+-		break;
+-	}
+-	
+-	if (SDL_MUSTLOCK(surface) &amp;&amp; _sge_lock) {
+-		SDL_UnlockSurface(surface);
+-	}
+-	
+-	sge_UpdateRect(surface, x1, y1, x2-x1+1, y2-y1+1);
+-}
+-
+-void sge_FilledRectAlpha(SDL_Surface *Surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint8 R, Uint8 G, Uint8 B, Uint8 alpha)
+-{
+-	sge_FilledRectAlpha(Surface,x1,y1,x2,y2, SDL_MapRGB(Surface-&gt;format, R, G, B), alpha);	
+-}
+-
+-
+-//==================================================================================
+-// Performs Callback at each ellipse point.
+-// (from Allegro)
+-//==================================================================================
+-void sge_DoEllipse(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint32 color, void Callback(SDL_Surface *Surf, Sint16 X, Sint16 Y, Uint32 Color) )
+-{
+-	int ix, iy;
+-	int h, i, j, k;
+-	int oh, oi, oj, ok;
+-
+-	if (rx &lt; 1)
+-		rx = 1;
+-
+-	if (ry &lt; 1)
+-		ry = 1;
+-
+-	h = i = j = k = 0xFFFF;
+-
+-	if (rx &gt; ry) {
+-		ix = 0;
+-		iy = rx * 64;
+-
+- 		do {
+-			oh = h;
+-	 		oi = i;
+-	 		oj = j;
+-			ok = k;
+-
+-	 		h = (ix + 32) &gt;&gt; 6;
+-	 		i = (iy + 32) &gt;&gt; 6;
+-	 		j = (h * ry) / rx;
+-	 		k = (i * ry) / rx;
+-
+-	 		if (((h != oh) || (k != ok)) &amp;&amp; (h &lt; oi)) {
+-				Callback(Surface, x+h, y+k, color);
+-	   			if (h)
+-	    			Callback(Surface, x-h, y+k, color);
+-	   			if (k) {
+-	    			Callback(Surface, x+h, y-k, color);
+-	     			if (h)
+-		  				Callback(Surface, x-h, y-k, color);
+-	  			}
+-			}
+-
+-	 		if (((i != oi) || (j != oj)) &amp;&amp; (h &lt; i)) {
+-				Callback(Surface, x+i, y+j, color);
+-	  			if (i)
+-	    			Callback(Surface, x-i, y+j, color);
+-	  			if (j) {
+-	   				Callback(Surface, x+i, y-j, color);
+-	   				if (i)
+-		  				Callback(Surface, x-i, y-j, color);
+-	 			}
+-	 		}
+-
+-			ix = ix + iy / rx;
+-	 		iy = iy - ix / rx;
+-
+-		} while (i &gt; h);
+-	}
+-	else {
+-		ix = 0;
+-		iy = ry * 64;
+-
+-  		do {
+-	 		oh = h;
+-	 		oi = i;
+-	 		oj = j;
+-	 		ok = k;
+-
+-	 		h = (ix + 32) &gt;&gt; 6;
+-	 		i = (iy + 32) &gt;&gt; 6;
+-	 		j = (h * rx) / ry;
+-	 		k = (i * rx) / ry;
+-
+-	 		if (((j != oj) || (i != oi)) &amp;&amp; (h &lt; i)) {
+-	    		Callback(Surface, x+j, y+i, color);
+-	    		if (j)
+-	      			Callback(Surface, x-j, y+i, color);
+-	    		if (i) {
+-	       			Callback(Surface, x+j, y-i, color);
+-	       			if (j)
+-		  				Callback(Surface, x-j, y-i, color);
+-	    		}
+-	 		}
+-
+-	 		if (((k != ok) || (h != oh)) &amp;&amp; (h &lt; oi)) {
+-	    		Callback(Surface, x+k, y+h, color);
+-	   			if (k)
+-	     			Callback(Surface, x-k, y+h, color);
+-	    		if (h) {
+-	      			Callback(Surface, x+k, y-h, color);
+-	    			if (k)
+-		  				Callback(Surface, x-k, y-h, color);
+-	    		}
+-	 		}
+-
+-	 		ix = ix + iy / ry;
+-	 		iy = iy - ix / ry;
+-
+-  		} while(i &gt; h);
+-	}	
+-}
+-
+-
+-//==================================================================================
+-// Performs Callback at each ellipse point. (RGB)
+-//==================================================================================
+-void sge_DoEllipse(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint8 R, Uint8 G, Uint8 B, void Callback(SDL_Surface *Surf, Sint16 X, Sint16 Y, Uint32 Color) )
+-{
+-	sge_DoEllipse(Surface,x,y,rx,ry,SDL_MapRGB(Surface-&gt;format, R, G, B),Callback);
+-}
+-
+-
+-//==================================================================================
+-// Draws an ellipse
+-//==================================================================================
+-void sge_Ellipse(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint32 color)
+-{
+-	if (SDL_MUSTLOCK(Surface) &amp;&amp; _sge_lock) {
+-      if (SDL_LockSurface(Surface) &lt; 0)
+-         return;
+-   }
+-
+-   sge_DoEllipse(Surface, x, y, rx, ry, color, _PutPixel);
+-
+-   if (SDL_MUSTLOCK(Surface) &amp;&amp; _sge_lock) {
+-      SDL_UnlockSurface(Surface);
+-   }
+-
+-	sge_UpdateRect(Surface, x-rx, y-ry, 2*rx+1, 2*ry+1);
+-	
+-}
+-
+-
+-//==================================================================================
+-// Draws an ellipse (RGB)
+-//==================================================================================
+-void sge_Ellipse(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint8 R, Uint8 G, Uint8 B)
+-{
+-	sge_Ellipse(Surface,x,y,rx,ry,SDL_MapRGB(Surface-&gt;format, R, G, B));
+-}
+-
+-
+-//==================================================================================
+-// Draws an ellipse (alpha)
+-//==================================================================================
+-void sge_EllipseAlpha(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint32 color, Uint8 alpha)
+-{
+-	if (SDL_MUSTLOCK(Surface) &amp;&amp; _sge_lock)
+-		if (SDL_LockSurface(Surface) &lt; 0)
+-			return;
+-
+-	_sge_alpha_hack = alpha;
+-	sge_DoEllipse(Surface, x, y, rx, ry, color, callback_alpha_hack);
+-
+-	if (SDL_MUSTLOCK(Surface) &amp;&amp; _sge_lock) {
+-		SDL_UnlockSurface(Surface);
+-	}
+-
+-	sge_UpdateRect(Surface, x-rx, y-ry, 2*rx+1, 2*ry+1);
+-}
+-
+-
+-//==================================================================================
+-// Draws an ellipse (alpha - RGB)
+-//==================================================================================
+-void sge_EllipseAlpha(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint8 R, Uint8 G, Uint8 B, Uint8 alpha)
+-{
+-	sge_EllipseAlpha(Surface,x,y,rx,ry,SDL_MapRGB(Surface-&gt;format, R, G, B),alpha);
+-}
+-
+-
+-//==================================================================================
+-// Draws a filled ellipse
+-//==================================================================================
+-void sge_FilledEllipse(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint32 color)
+-{
+-	int ix, iy;
+-	int h, i, j, k;
+-	int oh, oi, oj, ok;
+-
+-	if (rx &lt; 1)
+-		rx = 1;
+-
+-	if (ry &lt; 1)
+-		ry = 1;
+-
+-	oh = oi = oj = ok = 0xFFFF;
+-
+-	if (rx &gt; ry) {
+-  		ix = 0;
+-   		iy = rx * 64;
+-
+- 		do {
+-	 		h = (ix + 32) &gt;&gt; 6;
+-	 		i = (iy + 32) &gt;&gt; 6;
+-	 		j = (h * ry) / rx;
+-	 		k = (i * ry) / rx;
+-
+-	 		if ((k!=ok) &amp;&amp; (k!=oj)) {
+-	   			if (k){
+-	   		  		_HLine(Surface,x-h,x+h,y-k,color);
+-					_HLine(Surface,x-h,x+h,y+k,color);
+-				}else
+-					_HLine(Surface,x-h,x+h,y,color);
+-				ok=k;
+-			}
+-
+-	 		if ((j!=oj) &amp;&amp; (j!=ok) &amp;&amp; (k!=j))  {
+-	  			if (j){
+-	  		 		_HLine(Surface,x-i,x+i,y-j,color);
+-					_HLine(Surface,x-i,x+i,y+j,color);
+-				}else
+-					_HLine(Surface,x-i,x+i,y,color);
+-				oj=j;
+-	 		}
+-
+-			ix = ix + iy / rx;
+-	 		iy = iy - ix / rx;
+-
+-		} while (i &gt; h);
+-	}
+-	else {
+-		ix = 0;
+-		iy = ry * 64;
+-
+-		do {
+-	 		h = (ix + 32) &gt;&gt; 6;
+-	 		i = (iy + 32) &gt;&gt; 6;
+-	 		j = (h * rx) / ry;
+-	 		k = (i * rx) / ry;
+-
+-	 		if ((i!=oi) &amp;&amp; (i!=oh)) {
+-	    		if (i){
+-	    			_HLine(Surface,x-j,x+j,y-i,color);
+-					_HLine(Surface,x-j,x+j,y+i,color);
+-				}else
+-					_HLine(Surface,x-j,x+j,y,color);
+-				oi=i;
+-	 		}
+-
+-	 		if ((h!=oh) &amp;&amp; (h!=oi) &amp;&amp; (i!=h)) {
+-	    		if (h){
+-	    			_HLine(Surface,x-k,x+k,y-h,color);
+-					_HLine(Surface,x-k,x+k,y+h,color);
+-				}else
+-					_HLine(Surface,x-k,x+k,y,color);
+-				oh=h;
+-	 		}
+-
+-	 		ix = ix + iy / ry;
+-	 		iy = iy - ix / ry;
+-
+-  		} while(i &gt; h);
+-	}
+-
+-	sge_UpdateRect(Surface, x-rx, y-ry, 2*rx+1, 2*ry+1);			
+-}
+-
+-
+-//==================================================================================
+-// Draws a filled ellipse (RGB)
+-//==================================================================================
+-void sge_FilledEllipse(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint8 R, Uint8 G, Uint8 B)
+-{
+-	sge_FilledEllipse(Surface,x,y,rx,ry,SDL_MapRGB(Surface-&gt;format, R, G, B));
+-}
+-
+-
+-
+-//==================================================================================
+-// Draws a filled ellipse (alpha)
+-//==================================================================================
+-void sge_FilledEllipseAlpha(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint32 color, Uint8 alpha)
+-{
+-	int ix, iy;
+-	int h, i, j, k;
+-	int oh, oi, oj, ok;
+-
+-	if (SDL_MUSTLOCK(Surface) &amp;&amp; _sge_lock)
+-		if (SDL_LockSurface(Surface) &lt; 0)
+-			return;
+-
+-	if (rx &lt; 1)
+-		rx = 1;
+-
+-	if (ry &lt; 1)
+-		ry = 1;
+-
+-	oh = oi = oj = ok = 0xFFFF;
+-
+-	if (rx &gt; ry) {
+-  		ix = 0;
+-   		iy = rx * 64;
+-
+- 		do {
+-	 		h = (ix + 32) &gt;&gt; 6;
+-	 		i = (iy + 32) &gt;&gt; 6;
+-	 		j = (h * ry) / rx;
+-	 		k = (i * ry) / rx;
+-
+-	 		if ((k!=ok) &amp;&amp; (k!=oj)) {
+-	   			if (k){
+-	   		  		_HLineAlpha(Surface,x-h,x+h,y-k,color,alpha);
+-					_HLineAlpha(Surface,x-h,x+h,y+k,color,alpha);
+-				}else
+-					_HLineAlpha(Surface,x-h,x+h,y,color,alpha);
+-				ok=k;
+-			}
+-
+-	 		if ((j!=oj) &amp;&amp; (j!=ok) &amp;&amp; (k!=j))  {
+-	  			if (j){
+-	  		 		_HLineAlpha(Surface,x-i,x+i,y-j,color,alpha);
+-					_HLineAlpha(Surface,x-i,x+i,y+j,color,alpha);
+-				}else
+-					_HLineAlpha(Surface,x-i,x+i,y,color,alpha);
+-				oj=j;
+-	 		}
+-
+-			ix = ix + iy / rx;
+-	 		iy = iy - ix / rx;
+-
+-		} while (i &gt; h);
+-	}
+-	else {
+-		ix = 0;
+-		iy = ry * 64;
+-
+-		do {
+-	 		h = (ix + 32) &gt;&gt; 6;
+-	 		i = (iy + 32) &gt;&gt; 6;
+-	 		j = (h * rx) / ry;
+-	 		k = (i * rx) / ry;
+-
+-	 		if ((i!=oi) &amp;&amp; (i!=oh)) {
+-	    		if (i){
+-	    			_HLineAlpha(Surface,x-j,x+j,y-i,color,alpha);
+-					_HLineAlpha(Surface,x-j,x+j,y+i,color,alpha);
+-				}else
+-					_HLineAlpha(Surface,x-j,x+j,y,color,alpha);
+-				oi=i;
+-	 		}
+-
+-	 		if ((h!=oh) &amp;&amp; (h!=oi) &amp;&amp; (i!=h)) {
+-	    		if (h){
+-	    			_HLineAlpha(Surface,x-k,x+k,y-h,color,alpha);
+-					_HLineAlpha(Surface,x-k,x+k,y+h,color,alpha);
+-				}else
+-					_HLineAlpha(Surface,x-k,x+k,y,color,alpha);
+-				oh=h;
+-	 		}
+-
+-	 		ix = ix + iy / ry;
+-	 		iy = iy - ix / ry;
+-
+-  		} while(i &gt; h);
+-	}
+-
+-	if (SDL_MUSTLOCK(Surface) &amp;&amp; _sge_lock) {
+-		SDL_UnlockSurface(Surface);
+-	}
+-
+-	sge_UpdateRect(Surface, x-rx, y-ry, 2*rx+1, 2*ry+1);			
+-}
+-
+-
+-//==================================================================================
+-// Draws a filled ellipse (alpha - RGB)
+-//==================================================================================
+-void sge_FilledEllipseAlpha(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint8 R, Uint8 G, Uint8 B, Uint8 alpha)
+-{
+-	sge_FilledEllipseAlpha(Surface,x,y,rx,ry,SDL_MapRGB(Surface-&gt;format, R, G, B),alpha);
+-}
+-
+-
+-//==================================================================================
+-// Draws an anti-aliased ellipse (alpha)
+-// Some of this code is taken from &quot;TwinLib&quot; (<A HREF="http://www.twinlib.org">http://www.twinlib.org</A>) written by
+-// Nicolas Roard (<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">nicolas at roard.com</A>)
+-//==================================================================================
+-void sge_AAEllipseAlpha(SDL_Surface *surface, Sint16 xc, Sint16 yc, Sint16 rx, Sint16 ry, Uint32 color, Uint8 alpha)
+-{
+-	/* Sanity check */
+-	if (rx &lt; 1)
+-		rx = 1;
+-	if (ry &lt; 1)
+-		ry = 1;
+-	
+-	int a2 = rx * rx;
+-	int b2 = ry * ry;
+-
+-	int ds = 2 * a2;
+-	int dt = 2 * b2;
+-
+-	int dxt = int (a2 / sqrt(a2 + b2));
+-
+-	int t = 0;
+-	int s = -2 * a2 * ry;
+-	int d = 0;
+-
+-	Sint16 x = xc;
+-	Sint16 y = yc - ry;
+-	
+-	Sint16 xs, ys, dyt;
+-	float cp, is, ip, imax = 1.0;
+-
+-	Uint8 s_alpha, p_alpha;
+-	float alpha_pp = float(alpha)/255;
+-	
+-	/* Lock surface */
+-	if ( SDL_MUSTLOCK(surface) &amp;&amp; _sge_lock )
+-		if ( SDL_LockSurface(surface) &lt; 0 )
+-			return;
+-
+-	/* &quot;End points&quot; */
+-	_PutPixelAlpha(surface, x, y, color, alpha);
+-	_PutPixelAlpha(surface, 2*xc-x, y, color, alpha);
+-	
+-	_PutPixelAlpha(surface, x, 2*yc-y, color, alpha);
+-	_PutPixelAlpha(surface, 2*xc-x, 2*yc-y, color, alpha);
+-
+-	int i;
+-
+-	for (i = 1; i &lt;= dxt; i++)
+-	{
+-		x--;
+-		d += t - b2;
+-
+-		if (d &gt;= 0)
+-			ys = y - 1;
+-		else if ((d - s - a2) &gt; 0)
+-		{
+-			if ((2 * d - s - a2) &gt;= 0)
+-				ys = y + 1;
+-			else
+-			{
+-				ys = y;
+-				y++;
+-				d -= s + a2;
+-				s += ds;
+-			}
+-		}
+-		else
+-		{
+-			y++;
+-			ys = y + 1;
+-			d -= s + a2;
+-			s += ds;
+-		}
+-
+-		t -= dt;
+-		
+-		/* Calculate alpha */
+-		cp = float(abs(d)) / abs(s);
+-		is = float( cp * imax + 0.1 );
+-		ip = float( imax - is + 0.2 );
+-
+-		/* Overflow check */
+-		if( is &gt; 1.0 )
+-			is = 1.0;		
+-		if( ip &gt; 1.0 )
+-			ip = 1.0;
+-		
+-		/* Calculate alpha level */
+-		s_alpha = Uint8(is*255);
+-		p_alpha = Uint8(ip*255);
+-		if( alpha != 255 ){
+-			s_alpha = Uint8(s_alpha*alpha_pp);
+-			p_alpha = Uint8(p_alpha*alpha_pp);
+-		}
+-		
+-		
+-		/* Upper half */
+-		_PutPixelAlpha(surface, x, y, color, p_alpha);
+-		_PutPixelAlpha(surface, 2*xc-x, y, color, p_alpha);
+-		
+-		_PutPixelAlpha(surface, x, ys, color, s_alpha);
+-		_PutPixelAlpha(surface, 2*xc-x, ys, color, s_alpha);
+-		
+-		
+-		/* Lower half */
+-		_PutPixelAlpha(surface, x, 2*yc-y, color, p_alpha);
+-		_PutPixelAlpha(surface, 2*xc-x, 2*yc-y, color, p_alpha);
+-		
+-		_PutPixelAlpha(surface, x, 2*yc-ys, color, s_alpha);
+-		_PutPixelAlpha(surface, 2*xc-x, 2*yc-ys, color, s_alpha);
+-	}
+-
+-	dyt = abs(y - yc);
+-
+-	for (i = 1; i &lt;= dyt; i++)
+-	{
+-		y++;
+-		d -= s + a2;
+-
+-		if (d &lt;= 0)
+-			xs = x + 1;
+-		else if ((d + t - b2) &lt; 0)
+-		{
+-			if ((2 * d + t - b2) &lt;= 0)
+-				xs = x - 1;
+-			else
+-			{
+-				xs = x;
+-				x--;
+-				d += t - b2;
+-				t -= dt;
+-			}
+-		}
+-		else
+-		{
+-			x--;
+-			xs = x - 1;
+-			d += t - b2;
+-			t -= dt;
+-		}
+-
+-		s += ds;
+-
+-		/* Calculate alpha */
+-		cp = float(abs(d)) / abs(t);
+-		is = float( cp * imax + 0.1 );
+-		ip = float( imax - is + 0.2 );
+-		
+-		/* Overflow check */
+-		if( is &gt; 1.0 )
+-			is = 1.0;	
+-		if( ip &gt; 1.0 )
+-			ip = 1.0;
+-		
+-		/* Calculate alpha level */
+-		s_alpha = Uint8(is*255);
+-		p_alpha = Uint8(ip*255);
+-		if( alpha != 255 ){
+-			s_alpha = Uint8(s_alpha*alpha_pp);
+-			p_alpha = Uint8(p_alpha*alpha_pp);
+-		}
+-		
+-		
+-		/* Upper half */
+-		_PutPixelAlpha(surface, x, y, color, p_alpha);
+-		_PutPixelAlpha(surface, 2*xc-x, y, color, p_alpha);
+-		
+-		_PutPixelAlpha(surface, xs, y, color, s_alpha);
+-		_PutPixelAlpha(surface, 2*xc-xs, y, color, s_alpha);
+-		
+-		
+-		/* Lower half*/
+-		_PutPixelAlpha(surface, x, 2*yc-y, color, p_alpha);
+-		_PutPixelAlpha(surface, 2*xc-x, 2*yc-y, color, p_alpha);
+-		
+-		_PutPixelAlpha(surface, xs, 2*yc-y, color, s_alpha);
+-		_PutPixelAlpha(surface, 2*xc-xs, 2*yc-y, color, s_alpha);
+-	}
+-	
+-	/* unlock surface */
+-	if (SDL_MUSTLOCK(surface) &amp;&amp; _sge_lock) {
+-		SDL_UnlockSurface(surface);
+-	}
+-	
+-	/* Update surface if needed */
+-	sge_UpdateRect(surface, xc-rx, yc-ry, 2*rx+1, 2*ry+1);
+-}
+-
+-
+-//==================================================================================
+-// Draws an anti-aliased ellipse (alpha - RGB)
+-//==================================================================================
+-void sge_AAEllipseAlpha(SDL_Surface *surface, Sint16 xc, Sint16 yc, Sint16 rx, Sint16 ry, Uint8 R, Uint8 G, Uint8 B, Uint8 alpha)
+-{
+-	sge_AAEllipseAlpha(surface,xc,yc,rx,ry,SDL_MapRGB(surface-&gt;format, R, G, B),alpha);
+-}
+-
+-
+-//==================================================================================
+-// Draws an anti-aliased ellipse
+-//==================================================================================
+-void sge_AAEllipse(SDL_Surface *surface, Sint16 xc, Sint16 yc, Sint16 rx, Sint16 ry, Uint32 color)
+-{
+-	sge_AAEllipseAlpha(surface,xc,yc,rx,ry,color,255);
+-}
+-
+-//==================================================================================
+-// Draws an anti-aliased ellipse (RGB)
+-//==================================================================================
+-void sge_AAEllipse(SDL_Surface *surface, Sint16 xc, Sint16 yc, Sint16 rx, Sint16 ry, Uint8 R, Uint8 G, Uint8 B)
+-{
+-	sge_AAEllipseAlpha(surface,xc,yc,rx,ry,SDL_MapRGB(surface-&gt;format, R, G, B),255);
+-}
+-
+-
+-//==================================================================================
+-// Draws a filled anti-aliased ellipse
+-// This is just a quick hack...
+-//==================================================================================
+-void sge_AAFilledEllipse(SDL_Surface *surface, Sint16 xc, Sint16 yc, Sint16 rx, Sint16 ry, Uint32 color)
+-{
+-	/* Sanity check */
+-	if (rx &lt; 1)
+-		rx = 1;
+-	if (ry &lt; 1)
+-		ry = 1;
+-	
+-	int a2 = rx * rx;
+-	int b2 = ry * ry;
+-
+-	int ds = 2 * a2;
+-	int dt = 2 * b2;
+-
+-	int dxt = int (a2 / sqrt(a2 + b2));
+-
+-	int t = 0;
+-	int s = -2 * a2 * ry;
+-	int d = 0;
+-
+-	Sint16 x = xc;
+-	Sint16 y = yc - ry;
+-	
+-	Sint16 xs, ys, dyt;
+-	float cp, is, ip, imax = 1.0;
+-
+-	
+-	/* Lock surface */
+-	if ( SDL_MUSTLOCK(surface) &amp;&amp; _sge_lock )
+-		if ( SDL_LockSurface(surface) &lt; 0 )
+-			return;
+-
+-	/* &quot;End points&quot; */
+-	_PutPixel(surface, x, y, color);
+-	_PutPixel(surface, 2*xc-x, y, color);
+-	
+-	_PutPixel(surface, x, 2*yc-y, color);
+-	_PutPixel(surface, 2*xc-x, 2*yc-y, color);
+-	
+-	/* unlock surface */
+-	if (SDL_MUSTLOCK(surface) &amp;&amp; _sge_lock)
+-		SDL_UnlockSurface(surface);
+-	
+-	_VLine(surface, x, y+1, 2*yc-y-1, color);
+-
+-	int i;
+-
+-	for (i = 1; i &lt;= dxt; i++)
+-	{
+-		x--;
+-		d += t - b2;
+-
+-		if (d &gt;= 0)
+-			ys = y - 1;
+-		else if ((d - s - a2) &gt; 0)
+-		{
+-			if ((2 * d - s - a2) &gt;= 0)
+-				ys = y + 1;
+-			else
+-			{
+-				ys = y;
+-				y++;
+-				d -= s + a2;
+-				s += ds;
+-			}
+-		}
+-		else
+-		{
+-			y++;
+-			ys = y + 1;
+-			d -= s + a2;
+-			s += ds;
+-		}
+-
+-		t -= dt;
+-		
+-		/* Calculate alpha */
+-		cp = (float) abs(d) / abs(s);
+-		is = cp * imax;
+-		ip = imax - is;
+-
+-
+-		/* Lock surface */
+-		if ( SDL_MUSTLOCK(surface) &amp;&amp; _sge_lock )
+-			if ( SDL_LockSurface(surface) &lt; 0 )
+-				return;
+-
+-		/* Upper half */
+-		_PutPixelAlpha(surface, x, y, color, Uint8(ip*255));
+-		_PutPixelAlpha(surface, 2*xc-x, y, color, Uint8(ip*255));
+-		
+-		_PutPixelAlpha(surface, x, ys, color, Uint8(is*255));
+-		_PutPixelAlpha(surface, 2*xc-x, ys, color, Uint8(is*255));
+-		
+-		
+-		/* Lower half */
+-		_PutPixelAlpha(surface, x, 2*yc-y, color, Uint8(ip*255));
+-		_PutPixelAlpha(surface, 2*xc-x, 2*yc-y, color, Uint8(ip*255));
+-		
+-		_PutPixelAlpha(surface, x, 2*yc-ys, color, Uint8(is*255));
+-		_PutPixelAlpha(surface, 2*xc-x, 2*yc-ys, color, Uint8(is*255));
+-		
+-		/* unlock surface */
+-		if (SDL_MUSTLOCK(surface) &amp;&amp; _sge_lock)
+-			SDL_UnlockSurface(surface);
+-		
+-		
+-		/* Fill */
+-		_VLine(surface, x, y+1, 2*yc-y-1, color);
+-		_VLine(surface, 2*xc-x, y+1, 2*yc-y-1, color);
+-		_VLine(surface, x, ys+1, 2*yc-ys-1, color);
+-		_VLine(surface, 2*xc-x, ys+1, 2*yc-ys-1, color);
+-	}
+-
+-	dyt = abs(y - yc);
+-
+-	for (i = 1; i &lt;= dyt; i++)
+-	{
+-		y++;
+-		d -= s + a2;
+-
+-		if (d &lt;= 0)
+-			xs = x + 1;
+-		else if ((d + t - b2) &lt; 0)
+-		{
+-			if ((2 * d + t - b2) &lt;= 0)
+-				xs = x - 1;
+-			else
+-			{
+-				xs = x;
+-				x--;
+-				d += t - b2;
+-				t -= dt;
+-			}
+-		}
+-		else
+-		{
+-			x--;
+-			xs = x - 1;
+-			d += t - b2;
+-			t -= dt;
+-		}
+-
+-		s += ds;
+-
+-		/* Calculate alpha */
+-		cp = (float) abs(d) / abs(t);
+-		is = cp * imax;
+-		ip = imax - is;
+-		
+-
+-		/* Lock surface */
+-		if ( SDL_MUSTLOCK(surface) &amp;&amp; _sge_lock )
+-			if ( SDL_LockSurface(surface) &lt; 0 )
+-				return;
+-
+-		/* Upper half */
+-		_PutPixelAlpha(surface, x, y, color, Uint8(ip*255));
+-		_PutPixelAlpha(surface, 2*xc-x, y, color, Uint8(ip*255));
+-		
+-		_PutPixelAlpha(surface, xs, y, color, Uint8(is*255));
+-		_PutPixelAlpha(surface, 2*xc-xs, y, color, Uint8(is*255));
+-		
+-		
+-		/* Lower half*/
+-		_PutPixelAlpha(surface, x, 2*yc-y, color, Uint8(ip*255));
+-		_PutPixelAlpha(surface, 2*xc-x, 2*yc-y, color, Uint8(ip*255));
+-		
+-		_PutPixelAlpha(surface, xs, 2*yc-y, color, Uint8(is*255));
+-		_PutPixelAlpha(surface, 2*xc-xs, 2*yc-y, color, Uint8(is*255));
+-
+-		/* unlock surface */
+-		if (SDL_MUSTLOCK(surface) &amp;&amp; _sge_lock)
+-			SDL_UnlockSurface(surface);
+-		
+-		/* Fill */
+-		_HLine(surface, x+1, 2*xc-x-1, y, color);
+-		_HLine(surface, xs+1, 2*xc-xs-1, y, color);
+-		_HLine(surface, x+1, 2*xc-x-1, 2*yc-y, color);
+-		_HLine(surface, xs+1, 2*xc-xs-1, 2*yc-y, color);
+-	}
+-	
+-	/* Update surface if needed */
+-	sge_UpdateRect(surface, xc-rx, yc-ry, 2*rx+1, 2*ry+1);
+-}
+-
+-
+-//==================================================================================
+-// Draws a filled anti-aliased ellipse (RGB)
+-//==================================================================================
+-void sge_AAFilledEllipse(SDL_Surface *surface, Sint16 xc, Sint16 yc, Sint16 rx, Sint16 ry, Uint8 R, Uint8 G, Uint8 B)
+-{
+-	sge_AAFilledEllipse(surface,xc,yc,rx,ry,SDL_MapRGB(surface-&gt;format, R, G, B));
+-}
+-
+-
+-
+-
+-
+-//==================================================================================
+-// Performs Callback at each circle point.
+-//==================================================================================
+-void sge_DoCircle(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 r, Uint32 color, void Callback(SDL_Surface *Surf, Sint16 X, Sint16 Y, Uint32 Color))
+-{
+-	Sint16 cx = 0;
+- 	Sint16 cy = r;
+- 	Sint16 df = 1 - r;
+- 	Sint16 d_e = 3;
+- 	Sint16 d_se = -2 * r + 5;
+-
+-	do {
+-		Callback(Surface, x+cx, y+cy, color);
+-		Callback(Surface, x-cx, y+cy, color);
+-		Callback(Surface, x+cx, y-cy, color);
+-		Callback(Surface, x-cx, y-cy, color);
+-		Callback(Surface, x+cy, y+cx, color);
+-		Callback(Surface, x+cy, y-cx, color);
+-		Callback(Surface, x-cy, y+cx, color);
+-		Callback(Surface, x-cy, y-cx, color);
+-
+-		if (df &lt; 0)  {
+-			df += d_e;
+-			d_e += 2;
+-			d_se += 2;
+-		}
+-		else {
+-			df += d_se;
+-			d_e += 2;
+-			d_se += 4;
+-			cy--;
+-		}
+-
+-		cx++;
+-
+-	}while(cx &lt;= cy);
+-	
+-}
+-
+-
+-//==================================================================================
+-// Performs Callback at each circle point. (RGB)
+-//==================================================================================
+-void sge_DoCircle(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 r, Uint8 R, Uint8 G, Uint8 B, void Callback(SDL_Surface *Surf, Sint16 X, Sint16 Y, Uint32 Color))
+-{
+-	sge_DoCircle(Surface,x,y,r,SDL_MapRGB(Surface-&gt;format, R, G, B),Callback);
+-}
+-
+-
+-//==================================================================================
+-// Draws a circle
+-//==================================================================================
+-void sge_Circle(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 r, Uint32 color)
+-{
+-	if (SDL_MUSTLOCK(Surface) &amp;&amp; _sge_lock) {
+-      if (SDL_LockSurface(Surface) &lt; 0)
+-         return;
+-   }
+-
+-   sge_DoCircle(Surface, x, y, r, color, _PutPixel);
+-
+-   if (SDL_MUSTLOCK(Surface) &amp;&amp; _sge_lock) {
+-      SDL_UnlockSurface(Surface);
+-   }
+-
+-	sge_UpdateRect(Surface, x-r, y-r, 2*r+1, 2*r+1);	
+-}
+-
+-//==================================================================================
+-// Draws a circle (RGB)
+-//==================================================================================
+-void sge_Circle(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 r, Uint8 R, Uint8 G, Uint8 B)
+-{
+-	sge_Circle(Surface,x,y,r,SDL_MapRGB(Surface-&gt;format, R, G, B));
+-}
+-
+-
+-//==================================================================================
+-// Draws a circle (alpha)
+-//==================================================================================
+-void sge_CircleAlpha(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 r, Uint32 color, Uint8 alpha)
+-{
+-	if (SDL_MUSTLOCK(Surface) &amp;&amp; _sge_lock)
+-		if (SDL_LockSurface(Surface) &lt; 0)
+-			return;
+-
+-	_sge_alpha_hack = alpha;
+-	sge_DoCircle(Surface, x, y, r, color, callback_alpha_hack);
+-
+-	if (SDL_MUSTLOCK(Surface) &amp;&amp; _sge_lock) {
+-		SDL_UnlockSurface(Surface);
+-	}
+-
+-	sge_UpdateRect(Surface, x-r, y-r, 2*r+1, 2*r+1);	
+-}
+-
+-//==================================================================================
+-// Draws a circle (alpha - RGB)
+-//==================================================================================
+-void sge_CircleAlpha(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 r, Uint8 R, Uint8 G, Uint8 B, Uint8 alpha)
+-{
+-	sge_CircleAlpha(Surface,x,y,r,SDL_MapRGB(Surface-&gt;format, R, G, B),alpha);
+-}
+-
+-
+-//==================================================================================
+-// Draws a filled circle
+-//==================================================================================
+-void sge_FilledCircle(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 r, Uint32 color)
+-{
+-	Sint16 cx = 0;
+- 	Sint16 cy = r;
+-	bool draw=true;
+- 	Sint16 df = 1 - r;
+- 	Sint16 d_e = 3;
+- 	Sint16 d_se = -2 * r + 5;
+-
+- 	do {
+-		if(draw){
+- 			_HLine(Surface,x-cx,x+cx,y+cy,color);
+-			_HLine(Surface,x-cx,x+cx,y-cy,color);
+-			draw=false;
+-		}
+-		if(cx!=cy){
+-			if(cx){
+-				_HLine(Surface,x-cy,x+cy,y-cx,color);
+-	 			_HLine(Surface,x-cy,x+cy,y+cx,color);
+-			}else
+-				_HLine(Surface,x-cy,x+cy,y,color);
+-		}
+-		
+-		if (df &lt; 0)  {
+-	 		df += d_e;
+-	 		d_e += 2;
+-	 		d_se += 2;
+- 		}
+-   		else {
+-	 		df += d_se;
+-	 		d_e += 2;
+-	 		d_se += 4;
+-	 		cy--;
+-			draw=true;
+-   		}
+-  		cx++;
+-	}while(cx &lt;= cy);
+-
+-	sge_UpdateRect(Surface, x-r, y-r, 2*r+1, 2*r+1);				
+-}
+-
+-//==================================================================================
+-// Draws a filled circle (RGB)
+-//==================================================================================
+-void sge_FilledCircle(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 r, Uint8 R, Uint8 G, Uint8 B)
+-{
+-	sge_FilledCircle(Surface,x,y,r,SDL_MapRGB(Surface-&gt;format, R, G, B));
+-}
+-
+-
+-//==================================================================================
+-// Draws a filled circle (alpha)
+-//==================================================================================
+-void sge_FilledCircleAlpha(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 r, Uint32 color, Uint8 alpha)
+-{
+-	Sint16 cx = 0;
+- 	Sint16 cy = r;
+-	bool draw=true;
+- 	Sint16 df = 1 - r;
+- 	Sint16 d_e = 3;
+- 	Sint16 d_se = -2 * r + 5;
+-
+-	if (SDL_MUSTLOCK(Surface) &amp;&amp; _sge_lock)
+-		if (SDL_LockSurface(Surface) &lt; 0)
+-			return;
+-
+- 	do {
+-		if(draw){
+- 			_HLineAlpha(Surface,x-cx,x+cx,y+cy,color,alpha);
+-			_HLineAlpha(Surface,x-cx,x+cx,y-cy,color,alpha);
+-			draw=false;
+-		}
+-		if(cx!=cy){
+-			if(cx){
+-				_HLineAlpha(Surface,x-cy,x+cy,y-cx,color,alpha);
+-	 			_HLineAlpha(Surface,x-cy,x+cy,y+cx,color,alpha);
+-			}else
+-				_HLineAlpha(Surface,x-cy,x+cy,y,color,alpha);
+-		}
+-
+-		if (df &lt; 0)  {
+-	 		df += d_e;
+-	 		d_e += 2;
+-	 		d_se += 2;
+- 		}
+-   		else {
+-	 		df += d_se;
+-	 		d_e += 2;
+-	 		d_se += 4;
+-	 		cy--;
+-			draw=true;
+-   		}
+-  		cx++;
+-	}while(cx &lt;= cy);
+-	
+-	if (SDL_MUSTLOCK(Surface) &amp;&amp; _sge_lock) {
+-		SDL_UnlockSurface(Surface);
+-	}
+-
+-	sge_UpdateRect(Surface, x-r, y-r, 2*r+1, 2*r+1);				
+-}
+-
+-//==================================================================================
+-// Draws a filled circle (alpha - RGB)
+-//==================================================================================
+-void sge_FilledCircleAlpha(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 r, Uint8 R, Uint8 G, Uint8 B, Uint8 alpha)
+-{
+-	sge_FilledCircleAlpha(Surface,x,y,r,SDL_MapRGB(Surface-&gt;format, R, G, B),alpha);
+-}
+-
+-
+-//==================================================================================
+-// Draws an anti-aliased circle (alpha)
+-//==================================================================================
+-void sge_AACircleAlpha(SDL_Surface *surface, Sint16 xc, Sint16 yc, Sint16 r, Uint32 color, Uint8 alpha)
+-{
+-	sge_AAEllipseAlpha(surface, xc, yc, r, r, color, alpha);
+-}
+-
+-
+-//==================================================================================
+-// Draws an anti-aliased circle (alpha - RGB)
+-//==================================================================================
+-void sge_AACircleAlpha(SDL_Surface *surface, Sint16 xc, Sint16 yc, Sint16 r, Uint8 R, Uint8 G, Uint8 B, Uint8 alpha)
+-{
+-	sge_AAEllipseAlpha(surface,xc,yc,r,r,SDL_MapRGB(surface-&gt;format, R, G, B),alpha);
+-}
+-
+-
+-//==================================================================================
+-// Draws an anti-aliased circle
+-//==================================================================================
+-void sge_AACircle(SDL_Surface *surface, Sint16 xc, Sint16 yc, Sint16 r, Uint32 color)
+-{
+-	sge_AAEllipseAlpha(surface,xc,yc,r,r,color,255);
+-}
+-
+-//==================================================================================
+-// Draws an anti-aliased circle (RGB)
+-//==================================================================================
+-void sge_AACircle(SDL_Surface *surface, Sint16 xc, Sint16 yc, Sint16 r, Uint8 R, Uint8 G, Uint8 B)
+-{
+-	sge_AAEllipseAlpha(surface,xc,yc,r,r,SDL_MapRGB(surface-&gt;format, R, G, B),255);
+-}
+-
+-
+-//==================================================================================
+-// Draws a filled anti-aliased circle
+-//==================================================================================
+-void sge_AAFilledCircle(SDL_Surface *surface, Sint16 xc, Sint16 yc, Sint16 r, Uint32 color)
+-{
+-	sge_AAFilledEllipse(surface, xc, yc, r, r, color);
+-}
+-
+-
+-//==================================================================================
+-// Draws a filled anti-aliased circle (RGB)
+-//==================================================================================
+-void sge_AAFilledCircle(SDL_Surface *surface, Sint16 xc, Sint16 yc, Sint16 r, Uint8 R, Uint8 G, Uint8 B)
+-{
+-	sge_AAFilledEllipse(surface,xc,yc,r,r,SDL_MapRGB(surface-&gt;format, R, G, B));
+-}
+-
+-
+-
+-
+-
+-//==================================================================================
+-// Draws a bezier line 
+-//==================================================================================
+-/* Macro to do the line... 'function' is the line drawing routine */
+-#define DO_BEZIER(function)\
+-	/*
+-	*  Note: I don't think there is any great performance win in translating this to fixed-point integer math,
+-	*  most of the time is spent in the line drawing routine.
+-	*/\
+-	float x = float(x1), y = float(y1);\
+-	float xp = x, yp = y;\
+-	float delta;\
+-	float dx, d2x, d3x;\
+-	float dy, d2y, d3y;\
+-	float a, b, c;\
+-	int i;\
+-	int n = 1;\
+-	Sint16 xmax=x1, ymax=y1, xmin=x1, ymin=y1;\
+-	\
+-	/* compute number of iterations */\
+-	if(level &lt; 1)\
+-		level=1;\
+-	if(level &gt;= 15)\
+-		level=15; \
+-	while (level-- &gt; 0)\
+-		n*= 2;\
+-	delta = float( 1.0 / float(n) );\
+-	\
+-	/* compute finite differences */\
+-	/* a, b, c are the coefficient of the polynom in t defining the parametric curve */\
+-	/* The computation is done independently for x and y */\
+-	a = float(-x1 + 3*x2 - 3*x3 + x4);\
+-	b = float(3*x1 - 6*x2 + 3*x3);\
+-	c = float(-3*x1 + 3*x2);\
+-	\
+-	d3x = 6 * a * delta*delta*delta;\
+-	d2x = d3x + 2 * b * delta*delta;\
+-	dx = a * delta*delta*delta + b * delta*delta + c * delta;\
+-	\
+-	a = float(-y1 + 3*y2 - 3*y3 + y4);\
+-	b = float(3*y1 - 6*y2 + 3*y3);\
+-	c = float(-3*y1 + 3*y2);\
+-	\
+-	d3y = 6 * a * delta*delta*delta;\
+-	d2y = d3y + 2 * b * delta*delta;\
+-	dy = a * delta*delta*delta + b * delta*delta + c * delta;\
+-	\
+-	if (SDL_MUSTLOCK(surface) &amp;&amp; _sge_lock) {\
+-		if (SDL_LockSurface(surface) &lt; 0)\
+-			return;\
+-	}\
+-	\
+-	/* iterate */\
+-	for (i = 0; i &lt; n; i++) {\
+-		x += dx; dx += d2x; d2x += d3x;\
+-		y += dy; dy += d2y; d2y += d3y;\
+-		if(Sint16(xp) != Sint16(x) || Sint16(yp) != Sint16(y)){\
+-			function;\
+-			if(_sge_update==1){\
+-				xmax= (xmax&gt;Sint16(xp))? xmax : Sint16(xp);  ymax= (ymax&gt;Sint16(yp))? ymax : Sint16(yp);\
+-				xmin= (xmin&lt;Sint16(xp))? xmin : Sint16(xp);  ymin= (ymin&lt;Sint16(yp))? ymin : Sint16(yp);\
+-				xmax= (xmax&gt;Sint16(x))? xmax : Sint16(x);    ymax= (ymax&gt;Sint16(y))? ymax : Sint16(y);\
+-				xmin= (xmin&lt;Sint16(x))? xmin : Sint16(x);    ymin= (ymin&lt;Sint16(y))? ymin : Sint16(y);\
+-			}\
+-		}\
+-		xp = x; yp = y;\
+-	}\
+-	\
+-	/* unlock the display */\
+-	if (SDL_MUSTLOCK(surface) &amp;&amp; _sge_lock) {\
+-		SDL_UnlockSurface(surface);\
+-	}\
+-	\
+-	/* Update the area */\
+-	sge_UpdateRect(surface, xmin, ymin, xmax-xmin+1, ymax-ymin+1);
+-	
+-//==================================================================================
+-// Draws a bezier line 
+-//==================================================================================	
+-void sge_Bezier(SDL_Surface *surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2,Sint16 x3, Sint16 y3, Sint16 x4, Sint16 y4, int level, Uint32 color)
+-{
+-	DO_BEZIER(_Line(surface, Sint16(xp),Sint16(yp), Sint16(x),Sint16(y), color));
+-}
+-
+-//==================================================================================
+-// Draws a bezier line (RGB)
+-//==================================================================================
+-void sge_Bezier(SDL_Surface *surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2,Sint16 x3, Sint16 y3, Sint16 x4, Sint16 y4, int level, Uint8 R, Uint8 G, Uint8 B)
+-{
+-	sge_Bezier(surface,x1,y1,x2,y2,x3,y3,x4,y4,level, SDL_MapRGB(surface-&gt;format,R,G,B));
+-}
+-
+-
+-//==================================================================================
+-// Draws a bezier line (alpha)
+-//==================================================================================
+-void sge_BezierAlpha(SDL_Surface *surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2,Sint16 x3, Sint16 y3, Sint16 x4, Sint16 y4, int level, Uint32 color, Uint8 alpha)
+-{
+-	_sge_alpha_hack = alpha;
+-	
+-	DO_BEZIER(sge_DoLine(surface, Sint16(xp),Sint16(yp), Sint16(x),Sint16(y), color, callback_alpha_hack));			
+-}
+-
+-//==================================================================================
+-// Draws a bezier line (alpha - RGB)
+-//==================================================================================
+-void sge_BezierAlpha(SDL_Surface *surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2,Sint16 x3, Sint16 y3, Sint16 x4, Sint16 y4, int level, Uint8 R, Uint8 G, Uint8 B, Uint8 alpha)
+-{
+-	sge_BezierAlpha(surface,x1,y1,x2,y2,x3,y3,x4,y4,level, SDL_MapRGB(surface-&gt;format,R,G,B),alpha);
+-}
+-
+-
+-//==================================================================================
+-// Draws an AA bezier line (alpha)
+-//==================================================================================
+-void sge_AABezierAlpha(SDL_Surface *surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2,Sint16 x3, Sint16 y3, Sint16 x4, Sint16 y4, int level, Uint32 color, Uint8 alpha)
+-{
+-	Uint8 update = _sge_update;
+-	Uint8 lock = _sge_lock;
+-	_sge_update = 0;
+-	_sge_lock = 0;
+-	
+-	if (SDL_MUSTLOCK(surface) &amp;&amp; lock)
+-		if (SDL_LockSurface(surface) &lt; 0)
+-			return;
+-	
+-	DO_BEZIER(sge_AALineAlpha(surface, Sint16(xp),Sint16(yp), Sint16(x),Sint16(y), color, alpha));
+-	
+-	if (SDL_MUSTLOCK(surface) &amp;&amp; lock) {
+-		SDL_UnlockSurface(surface);
+-	}
+-	
+-	_sge_update = update;
+-	_sge_lock = lock;
+-	
+-	sge_UpdateRect(surface, xmin, ymin, xmax-xmin+1, ymax-ymin+1);
+-}
+-
+-//==================================================================================
+-// Draws an AA bezier line (alpha - RGB)
+-//==================================================================================
+-void sge_AABezierAlpha(SDL_Surface *surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2,Sint16 x3, Sint16 y3, Sint16 x4, Sint16 y4, int level, Uint8 R, Uint8 G, Uint8 B, Uint8 alpha)
+-{
+-	sge_AABezierAlpha(surface,x1,y1,x2,y2,x3,y3,x4,y4,level, SDL_MapRGB(surface-&gt;format,R,G,B),alpha);
+-}
+-
+-
+-//==================================================================================
+-// Draws an AA bezier line
+-//==================================================================================
+-void sge_AABezier(SDL_Surface *surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2,Sint16 x3, Sint16 y3, Sint16 x4, Sint16 y4, int level, Uint32 color)
+-{
+-	sge_AABezierAlpha(surface, x1,y1, x2,y2, x3,y3, x4,y4, level, color, 255);
+-}
+-
+-//==================================================================================
+-// Draws an AA bezier line (RGB)
+-//==================================================================================
+-void sge_AABezier(SDL_Surface *surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2,Sint16 x3, Sint16 y3, Sint16 x4, Sint16 y4, int level, Uint8 R, Uint8 G, Uint8 B)
+-{
+-	sge_AABezierAlpha(surface,x1,y1,x2,y2,x3,y3,x4,y4,level, SDL_MapRGB(surface-&gt;format,R,G,B),255);
+-}
+-
+
+Deleted: antargis/trunk/gui/src/sge_primitives.h
+===================================================================
+--- antargis/trunk/gui/src/sge_primitives.h	2007-01-06 17:52:40 UTC (rev 1042)
++++ antargis/trunk/gui/src/sge_primitives.h	2007-01-07 21:00:42 UTC (rev 1043)
+@@ -1,111 +0,0 @@
+-/*
+-*	SDL Graphics Extension
+-*	Drawing primitives (header)
+-*
+-*	Started 990815 (split from sge_draw 010611)
+-*
+-*	License: LGPL v2+ (see the file LICENSE)
+-*	(c)1999-2003 Anders Lindstr&#246;m
+-*/
+-
+-/*********************************************************************
+- *  This library is free software; you can redistribute it and/or    *
+- *  modify it under the terms of the GNU Library General Public      *
+- *  License as published by the Free Software Foundation; either     *
+- *  version 2 of the License, or (at your option) any later version. *
+- *********************************************************************/
+-
+-#ifndef sge_primitives_H
+-#define sge_primitives_H
+-
+-#include &quot;SDL.h&quot;
+-#include &quot;sge_internal.h&quot;
+-
+-
+-#ifdef _SGE_C
+-extern &quot;C&quot; {
+-#endif
+-DECLSPEC void sge_HLine(SDL_Surface *Surface, Sint16 x1, Sint16 x2, Sint16 y, Uint32 Color);
+-DECLSPEC void sge_HLineAlpha(SDL_Surface *Surface, Sint16 x1, Sint16 x2, Sint16 y, Uint32 Color, Uint8 alpha);
+-DECLSPEC void sge_VLine(SDL_Surface *Surface, Sint16 x, Sint16 y1, Sint16 y2, Uint32 Color);
+-DECLSPEC void sge_VLineAlpha(SDL_Surface *Surface, Sint16 x, Sint16 y1, Sint16 y2, Uint32 Color, Uint8 alpha);
+-DECLSPEC void sge_DoLine(SDL_Surface *Surface, Sint16 X1, Sint16 Y1, Sint16 X2, Sint16 Y2, Uint32 Color, void Callback(SDL_Surface *Surf, Sint16 X, Sint16 Y, Uint32 Color));
+-DECLSPEC void sge_Line(SDL_Surface *Surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 Color);
+-DECLSPEC void sge_LineAlpha(SDL_Surface *Surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 Color, Uint8 alpha);
+-DECLSPEC void sge_AALine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color);
+-DECLSPEC void sge_AALineAlpha(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color, Uint8 alpha);
+-DECLSPEC void sge_DomcLine(SDL_Surface *surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint8 r1, Uint8 g1, Uint8 b1, Uint8 r2, Uint8 g2, Uint8 b2, void Callback(SDL_Surface *Surf, Sint16 X, Sint16 Y, Uint32 Color));
+-DECLSPEC void sge_mcLine(SDL_Surface *Surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint8 r1, Uint8 g1, Uint8 b1, Uint8 r2, Uint8 g2, Uint8 b2);
+-DECLSPEC void sge_mcLineAlpha(SDL_Surface *Surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint8 r1, Uint8 g1, Uint8 b1, Uint8 r2, Uint8 g2, Uint8 b2, Uint8 alpha);
+-DECLSPEC void sge_AAmcLine(SDL_Surface *Surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint8 r1, Uint8 g1, Uint8 b1, Uint8 r2, Uint8 g2, Uint8 b2);
+-DECLSPEC void sge_AAmcLineAlpha(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint8 r1, Uint8 g1, Uint8 b1, Uint8 r2, Uint8 g2, Uint8 b2, Uint8 alpha);
+-
+-DECLSPEC void sge_Rect(SDL_Surface *Surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color);
+-DECLSPEC void sge_RectAlpha(SDL_Surface *Surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color, Uint8 alpha);
+-DECLSPEC void sge_FilledRect(SDL_Surface *Surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color);
+-DECLSPEC void sge_FilledRectAlpha(SDL_Surface *surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color, Uint8 alpha);
+-
+-DECLSPEC void sge_DoEllipse(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint32 color, void Callback(SDL_Surface *Surf, Sint16 X, Sint16 Y, Uint32 Color));
+-DECLSPEC void sge_Ellipse(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint32 color);
+-DECLSPEC void sge_EllipseAlpha(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint32 color, Uint8 Alpha);
+-DECLSPEC void sge_FilledEllipse(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint32 color);
+-DECLSPEC void sge_FilledEllipseAlpha(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint32 color, Uint8 alpha);
+-DECLSPEC void sge_AAEllipseAlpha(SDL_Surface *surface, Sint16 xc, Sint16 yc, Sint16 rx, Sint16 ry, Uint32 color, Uint8 alpha);
+-DECLSPEC void sge_AAEllipse(SDL_Surface *surface, Sint16 xc, Sint16 yc, Sint16 rx, Sint16 ry, Uint32 color);
+-DECLSPEC void sge_AAFilledEllipse(SDL_Surface *surface, Sint16 xc, Sint16 yc, Sint16 rx, Sint16 ry, Uint32 color);
+-
+-DECLSPEC void sge_DoCircle(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 r, Uint32 color, void Callback(SDL_Surface *Surf, Sint16 X, Sint16 Y, Uint32 Color));
+-DECLSPEC void sge_Circle(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 r, Uint32 color);
+-DECLSPEC void sge_CircleAlpha(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 r, Uint32 color, Uint8 alpha);
+-DECLSPEC void sge_FilledCircle(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 r, Uint32 color);
+-DECLSPEC void sge_FilledCircleAlpha(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 r, Uint32 color, Uint8 alpha);
+-DECLSPEC void sge_AACircleAlpha(SDL_Surface *surface, Sint16 xc, Sint16 yc, Sint16 r, Uint32 color, Uint8 alpha);
+-DECLSPEC void sge_AACircle(SDL_Surface *surface, Sint16 xc, Sint16 yc, Sint16 r, Uint32 color);
+-DECLSPEC void sge_AAFilledCircle(SDL_Surface *surface, Sint16 xc, Sint16 yc, Sint16 r, Uint32 color);
+-
+-DECLSPEC void sge_Bezier(SDL_Surface *surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2,Sint16 x3, Sint16 y3, Sint16 x4, Sint16 y4, int level, Uint32 color);
+-DECLSPEC void sge_BezierAlpha(SDL_Surface *surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2,Sint16 x3, Sint16 y3, Sint16 x4, Sint16 y4, int level, Uint32 color, Uint8 alpha);
+-DECLSPEC void sge_AABezier(SDL_Surface *surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2,Sint16 x3, Sint16 y3, Sint16 x4, Sint16 y4, int level, Uint32 color);
+-DECLSPEC void sge_AABezierAlpha(SDL_Surface *surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2,Sint16 x3, Sint16 y3, Sint16 x4, Sint16 y4, int level, Uint32 color, Uint8 alpha);
+-#ifdef _SGE_C
+-}
+-#endif
+-
+-#ifndef sge_C_ONLY
+-DECLSPEC void sge_HLine(SDL_Surface *Surface, Sint16 x1, Sint16 x2, Sint16 y, Uint8 R, Uint8 G, Uint8 B);
+-DECLSPEC void sge_HLineAlpha(SDL_Surface *Surface, Sint16 x1, Sint16 x2, Sint16 y, Uint8 R, Uint8 G, Uint8 B, Uint8 alpha);
+-DECLSPEC void sge_VLine(SDL_Surface *Surface, Sint16 x, Sint16 y1, Sint16 y2, Uint8 R, Uint8 G, Uint8 B);
+-DECLSPEC void sge_VLineAlpha(SDL_Surface *Surface, Sint16 x, Sint16 y1, Sint16 y2, Uint8 R, Uint8 G, Uint8 B, Uint8 alpha);
+-DECLSPEC void sge_DoLine(SDL_Surface *Surface, Sint16 X1, Sint16 Y1, Sint16 X2, Sint16 Y2, Uint8 R, Uint8 G, Uint8 B, void Callback(SDL_Surface *Surf, Sint16 X, Sint16 Y, Uint32 Color));
+-DECLSPEC void sge_Line(SDL_Surface *Surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint8 R, Uint8 G, Uint8 B);
+-DECLSPEC void sge_LineAlpha(SDL_Surface *Surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint8 R, Uint8 G, Uint8 B, Uint8 alpha);
+-DECLSPEC void sge_AALine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint8 r, Uint8 g, Uint8 b);
+-DECLSPEC void sge_AALineAlpha(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint8 r, Uint8 g, Uint8 b, Uint8 alpha);
+-DECLSPEC void sge_Rect(SDL_Surface *Surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint8 R, Uint8 G, Uint8 B);
+-DECLSPEC void sge_RectAlpha(SDL_Surface *Surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint8 R, Uint8 G, Uint8 B, Uint8 alpha);
+-DECLSPEC void sge_FilledRect(SDL_Surface *Surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint8 R, Uint8 G, Uint8 B);
+-DECLSPEC void sge_FilledRectAlpha(SDL_Surface *Surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint8 R, Uint8 G, Uint8 B, Uint8 alpha);
+-DECLSPEC void sge_DoEllipse(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint8 R, Uint8 G, Uint8 B, void Callback(SDL_Surface *Surf, Sint16 X, Sint16 Y, Uint32 Color));
+-DECLSPEC void sge_Ellipse(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint8 R, Uint8 G, Uint8 B);
+-DECLSPEC void sge_EllipseAlpha(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint8 R, Uint8 G, Uint8 B, Uint8 alpha);
+-DECLSPEC void sge_FilledEllipse(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint8 R, Uint8 G, Uint8 B);
+-DECLSPEC void sge_FilledEllipseAlpha(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint8 R, Uint8 G, Uint8 B, Uint8 alpha);
+-DECLSPEC void sge_AAEllipseAlpha(SDL_Surface *surface, Sint16 xc, Sint16 yc, Sint16 rx, Sint16 ry, Uint8 R, Uint8 G, Uint8 B, Uint8 alpha);
+-DECLSPEC void sge_AAEllipse(SDL_Surface *surface, Sint16 xc, Sint16 yc, Sint16 rx, Sint16 ry, Uint8 R, Uint8 G, Uint8 B);
+-DECLSPEC void sge_AAFilledEllipse(SDL_Surface *surface, Sint16 xc, Sint16 yc, Sint16 rx, Sint16 ry, Uint8 R, Uint8 G, Uint8 B);
+-DECLSPEC void sge_DoCircle(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 r, Uint8 R, Uint8 G, Uint8 B, void Callback(SDL_Surface *Surf, Sint16 X, Sint16 Y, Uint32 Color));
+-DECLSPEC void sge_Circle(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 r, Uint8 R, Uint8 G, Uint8 B);
+-DECLSPEC void sge_CircleAlpha(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 r, Uint8 R, Uint8 G, Uint8 B, Uint8 alpha);
+-DECLSPEC void sge_FilledCircle(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 r, Uint8 R, Uint8 G, Uint8 B);
+-DECLSPEC void sge_FilledCircleAlpha(SDL_Surface *Surface, Sint16 x, Sint16 y, Sint16 r, Uint8 R, Uint8 G, Uint8 B, Uint8 alpha);
+-DECLSPEC void sge_AACircleAlpha(SDL_Surface *surface, Sint16 xc, Sint16 yc, Sint16 r, Uint8 R, Uint8 G, Uint8 B, Uint8 alpha);
+-DECLSPEC void sge_AACircle(SDL_Surface *surface, Sint16 xc, Sint16 yc, Sint16 r, Uint8 R, Uint8 G, Uint8 B);
+-DECLSPEC void sge_AAFilledCircle(SDL_Surface *surface, Sint16 xc, Sint16 yc, Sint16 r, Uint8 R, Uint8 G, Uint8 B);
+-DECLSPEC void sge_Bezier(SDL_Surface *surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2,Sint16 x3, Sint16 y3, Sint16 x4, Sint16 y4, int level, Uint8 R, Uint8 G, Uint8 B);
+-DECLSPEC void sge_BezierAlpha(SDL_Surface *surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2,Sint16 x3, Sint16 y3, Sint16 x4, Sint16 y4, int level, Uint8 R, Uint8 G, Uint8 B, Uint8 alpha);
+-DECLSPEC void sge_AABezier(SDL_Surface *surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2,Sint16 x3, Sint16 y3, Sint16 x4, Sint16 y4, int level, Uint8 R, Uint8 G, Uint8 B);
+-DECLSPEC void sge_AABezierAlpha(SDL_Surface *surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2,Sint16 x3, Sint16 y3, Sint16 x4, Sint16 y4, int level, Uint8 R, Uint8 G, Uint8 B, Uint8 alpha);
+-#endif /* sge_C_ONLY */
+-
+-
+-#endif /* sge_primitives_H */
+
+Deleted: antargis/trunk/gui/src/sge_surface.cc
+===================================================================
+--- antargis/trunk/gui/src/sge_surface.cc	2007-01-06 17:52:40 UTC (rev 1042)
++++ antargis/trunk/gui/src/sge_surface.cc	2007-01-07 21:00:42 UTC (rev 1043)
+@@ -1,1090 +0,0 @@
+-/*
+-*	SDL Graphics Extension
+-*	Pixel, surface and color functions
+-*
+-*	Started 990815 (split from sge_draw 010611)
+-*
+-*	License: LGPL v2+ (see the file LICENSE)
+-*	(c)1999-2003 Anders Lindstr&#246;m
+-*/
+-
+-/*********************************************************************
+- *  This library is free software; you can redistribute it and/or    *
+- *  modify it under the terms of the GNU Library General Public      *
+- *  License as published by the Free Software Foundation; either     *
+- *  version 2 of the License, or (at your option) any later version. *
+- *********************************************************************/
+-
+-/*
+-*  Some of this code is taken from the &quot;Introduction to SDL&quot; and
+-*  John Garrison's PowerPak	
+-*/
+-
+-#include &quot;SDL.h&quot;
+-#include &lt;math.h&gt;
+-#include &lt;string.h&gt;
+-#include &lt;stdarg.h&gt;
+-#include &quot;sge_surface.h&quot;
+-
+-
+-/* Globals used for sge_Update/sge_Lock */
+-Uint8 _sge_update=1;
+-Uint8 _sge_lock=1;
+-
+-
+-/**********************************************************************************/
+-/**                            Misc. functions                                   **/
+-/**********************************************************************************/
+-
+-//==================================================================================
+-// Turns off automatic update (to avoid tearing).
+-//==================================================================================
+-void sge_Update_OFF(void)
+-{
+-	_sge_update=0;	
+-}
+-
+-//==================================================================================
+-// Turns on automatic update (default)
+-//==================================================================================
+-void sge_Update_ON(void)
+-{
+-	_sge_update=1;	
+-}
+-
+-//==================================================================================
+-// Turns off automatic locking of surfaces
+-//==================================================================================
+-void sge_Lock_OFF(void)
+-{
+-	_sge_lock=0;	
+-}
+-
+-//==================================================================================
+-// Turns on automatic locking (default)
+-//==================================================================================
+-void sge_Lock_ON(void)
+-{
+-	_sge_lock=1;	
+-}
+-
+-//==================================================================================
+-// Returns update&amp;locking mode (1-on and 0-off)
+-//==================================================================================
+-Uint8 sge_getUpdate(void)
+-{
+-  return _sge_update;
+-}
+-Uint8 sge_getLock(void)
+-{
+-  return _sge_lock;
+-}
+-
+-
+-//==================================================================================
+-// SDL_UpdateRect does nothing if any part of the rectangle is outside the surface
+-// --- This version always work
+-//==================================================================================
+-void sge_UpdateRect(SDL_Surface *screen, Sint16 x, Sint16 y, Uint16 w, Uint16 h)
+-{
+-	if(_sge_update!=1 || screen != SDL_GetVideoSurface()){return;}
+-	
+-	if(x&gt;=screen-&gt;w || y&gt;=screen-&gt;h){return;}
+-	
+-	Sint16 a,b;
+-
+-	a=w; b=h;
+-
+-	
+-	if(x &lt; 0){x=0;}
+-	if(y &lt; 0){y=0;}
+-	
+-	if(a+x &gt; screen-&gt;w){a=screen-&gt;w-x;}
+-	if(b+y &gt; screen-&gt;h){b=screen-&gt;h-y;}
+-
+-	SDL_UpdateRect(screen,x,y,a,b);
+-}
+-
+-
+-//==================================================================================
+-// Creates a 32bit (8/8/8/8) alpha surface
+-// Map colors with sge_MapAlpha() and then use the Uint32 color versions of
+-// SGEs routines
+-//==================================================================================
+-SDL_Surface *sge_CreateAlphaSurface(Uint32 flags, int width, int height)
+-{
+-	return SDL_CreateRGBSurface(flags,width,height,32, 0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
+-}
+-
+-
+-//==================================================================================
+-// Returns the Uint32 color value for a 32bit (8/8/8/8) alpha surface
+-//==================================================================================
+-Uint32 sge_MapAlpha(Uint8 R, Uint8 G, Uint8 B, Uint8 A)
+-{
+-	Uint32 color=0;
+-	
+-	color|=R&lt;&lt;24;
+-	color|=G&lt;&lt;16;
+-	color|=B&lt;&lt;8;
+-	color|=A;
+-	
+-	return color;
+-}
+-
+-
+-//==================================================================================
+-// Sets an SDL error string
+-// Accepts formated argument - like printf()
+-// SDL_SetError() also does this, but it does not use standard syntax (why?)
+-//==================================================================================
+-void sge_SetError(const char *format, ...)
+-{
+-	char buf[256];
+-
+-	va_list ap;
+-	
+-/*	#ifdef __WIN32__
+-	va_start((va_list*)ap, format); //Stupid w32 crosscompiler
+-	#else*/
+-	va_start(ap, format);
+-	//#endif
+-	
+-	vsprintf(buf, format, ap);
+-	va_end(ap);
+-
+-	SDL_SetError(buf);
+-}
+-
+-
+-
+-/**********************************************************************************/
+-/**                            Pixel functions                                   **/
+-/**********************************************************************************/
+-
+-//==================================================================================
+-// Fast put pixel
+-//==================================================================================
+-void _PutPixel(SDL_Surface *surface, Sint16 x, Sint16 y, Uint32 color)
+-{
+-	if(x&gt;=sge_clip_xmin(surface) &amp;&amp; x&lt;=sge_clip_xmax(surface) &amp;&amp; y&gt;=sge_clip_ymin(surface) &amp;&amp; y&lt;=sge_clip_ymax(surface)){
+-		switch (surface-&gt;format-&gt;BytesPerPixel) {
+-			case 1: { /* Assuming 8-bpp */
+-				*((Uint8 *)surface-&gt;pixels + y*surface-&gt;pitch + x) = color;
+-			}
+-			break;
+-
+-			case 2: { /* Probably 15-bpp or 16-bpp */
+-				*((Uint16 *)surface-&gt;pixels + y*surface-&gt;pitch/2 + x) = color;
+-			}
+-			break;
+-
+-			case 3: { /* Slow 24-bpp mode, usually not used */
+-				Uint8 *pix = (Uint8 *)surface-&gt;pixels + y * surface-&gt;pitch + x*3;
+-
+-  				/* Gack - slow, but endian correct */
+-				*(pix+surface-&gt;format-&gt;Rshift/8) = color&gt;&gt;surface-&gt;format-&gt;Rshift;
+-  				*(pix+surface-&gt;format-&gt;Gshift/8) = color&gt;&gt;surface-&gt;format-&gt;Gshift;
+-  				*(pix+surface-&gt;format-&gt;Bshift/8) = color&gt;&gt;surface-&gt;format-&gt;Bshift;
+-				*(pix+surface-&gt;format-&gt;Ashift/8) = color&gt;&gt;surface-&gt;format-&gt;Ashift;
+-			}
+-			break;
+-
+-			case 4: { /* Probably 32-bpp */
+-				*((Uint32 *)surface-&gt;pixels + y*surface-&gt;pitch/4 + x) = color;
+-			}
+-			break;
+-		}
+-	}
+-
+-}
+-
+-
+-//==================================================================================
+-// Fast put pixel (RGB)
+-//==================================================================================
+-void _PutPixel(SDL_Surface *surface, Sint16 x, Sint16 y, Uint8 R, Uint8 G, Uint8 B)
+-{
+-	_PutPixel(surface,x,y, SDL_MapRGB(surface-&gt;format, R, G, B));
+-}
+-
+-
+-//==================================================================================
+-// Fastest put pixel functions (don't mess up indata, thank you)
+-//==================================================================================
+-void _PutPixel8(SDL_Surface *surface, Sint16 x, Sint16 y, Uint32 color)
+-{
+-	*((Uint8 *)surface-&gt;pixels + y*surface-&gt;pitch + x) = color;
+-}
+-void _PutPixel16(SDL_Surface *surface, Sint16 x, Sint16 y, Uint32 color)
+-{
+-	*((Uint16 *)surface-&gt;pixels + y*surface-&gt;pitch/2 + x) = color;
+-}
+-void _PutPixel24(SDL_Surface *surface, Sint16 x, Sint16 y, Uint32 color)
+-{
+-	Uint8 *pix = (Uint8 *)surface-&gt;pixels + y * surface-&gt;pitch + x*3;
+-
+-  	/* Gack - slow, but endian correct */
+-	*(pix+surface-&gt;format-&gt;Rshift/8) = color&gt;&gt;surface-&gt;format-&gt;Rshift;
+-  	*(pix+surface-&gt;format-&gt;Gshift/8) = color&gt;&gt;surface-&gt;format-&gt;Gshift;
+-  	*(pix+surface-&gt;format-&gt;Bshift/8) = color&gt;&gt;surface-&gt;format-&gt;Bshift;
+-	*(pix+surface-&gt;format-&gt;Ashift/8) = color&gt;&gt;surface-&gt;format-&gt;Ashift;
+-}
+-void _PutPixel32(SDL_Surface *surface, Sint16 x, Sint16 y, Uint32 color)
+-{
+-	*((Uint32 *)surface-&gt;pixels + y*surface-&gt;pitch/4 + x) = color;
+-}
+-void _PutPixelX(SDL_Surface *dest,Sint16 x,Sint16 y,Uint32 color)
+-{
+-	switch ( dest-&gt;format-&gt;BytesPerPixel ) {
+-	case 1:
+-		*((Uint8 *)dest-&gt;pixels + y*dest-&gt;pitch + x) = color;
+-		break;
+-	case 2:
+-		*((Uint16 *)dest-&gt;pixels + y*dest-&gt;pitch/2 + x) = color;
+-		break;
+-	case 3:
+-		_PutPixel24(dest,x,y,color);
+-		break;
+-	case 4:
+-		*((Uint32 *)dest-&gt;pixels + y*dest-&gt;pitch/4 + x) = color;
+-		break;
+-	}
+-}
+-
+-
+-//==================================================================================
+-// Safe put pixel
+-//==================================================================================
+-void sge_PutPixel(SDL_Surface *surface, Sint16 x, Sint16 y, Uint32 color)
+-{
+-
+-	if ( SDL_MUSTLOCK(surface) &amp;&amp; _sge_lock ) {
+-		if ( SDL_LockSurface(surface) &lt; 0 ) {
+-			return;
+-		}
+-	}
+-
+-	_PutPixel(surface, x, y, color);
+-
+-	if ( SDL_MUSTLOCK(surface) &amp;&amp; _sge_lock ) {
+-		SDL_UnlockSurface(surface);
+-	}
+-
+-	if(_sge_update!=1){return;}
+-	sge_UpdateRect(surface, x, y, 1, 1);
+-}
+-
+-
+-//==================================================================================
+-// Safe put pixel (RGB)
+-//==================================================================================
+-void sge_PutPixel(SDL_Surface *surface, Sint16 x, Sint16 y, Uint8 R, Uint8 G, Uint8 B)
+-{
+-  sge_PutPixel(surface,x,y, SDL_MapRGB(surface-&gt;format, R, G, B));
+-}
+-
+-
+-//==================================================================================
+-// Calculate y pitch offset
+-// (the y pitch offset is constant for the same y coord and surface)
+-//==================================================================================
+-Sint32 sge_CalcYPitch(SDL_Surface *dest,Sint16 y)
+-{
+-	if(y&gt;=sge_clip_ymin(dest) &amp;&amp; y&lt;=sge_clip_ymax(dest)){
+-		switch ( dest-&gt;format-&gt;BytesPerPixel ) {
+-		case 1:
+-			return y*dest-&gt;pitch;
+-			break;
+-		case 2:
+-			return y*dest-&gt;pitch/2;
+-			break;
+-		case 3:
+-			return y*dest-&gt;pitch;
+-			break;
+-		case 4:
+-			return y*dest-&gt;pitch/4;
+-			break;
+-		}
+-	}
+-	
+-	return -1;
+-}
+-
+-
+-//==================================================================================
+-// Put pixel with precalculated y pitch offset
+-//==================================================================================
+-void sge_pPutPixel(SDL_Surface *surface, Sint16 x, Sint32 ypitch, Uint32 color)
+-{
+-	if(x&gt;=sge_clip_xmin(surface) &amp;&amp; x&lt;=sge_clip_xmax(surface) &amp;&amp; ypitch&gt;=0){
+-		switch (surface-&gt;format-&gt;BytesPerPixel) {
+-			case 1: { /* Assuming 8-bpp */
+-				*((Uint8 *)surface-&gt;pixels + ypitch + x) = color;
+-			}
+-			break;
+-
+-			case 2: { /* Probably 15-bpp or 16-bpp */
+-				*((Uint16 *)surface-&gt;pixels + ypitch + x) = color;
+-			}
+-			break;
+-
+-			case 3: { /* Slow 24-bpp mode, usually not used */
+-  				/* Gack - slow, but endian correct */
+-  				Uint8 *pix = (Uint8 *)surface-&gt;pixels + ypitch + x*3;
+-
+-				*(pix+surface-&gt;format-&gt;Rshift/8) = color&gt;&gt;surface-&gt;format-&gt;Rshift;
+-  				*(pix+surface-&gt;format-&gt;Gshift/8) = color&gt;&gt;surface-&gt;format-&gt;Gshift;
+-  				*(pix+surface-&gt;format-&gt;Bshift/8) = color&gt;&gt;surface-&gt;format-&gt;Bshift;
+-				*(pix+surface-&gt;format-&gt;Ashift/8) = color&gt;&gt;surface-&gt;format-&gt;Ashift;
+-			}
+-			break;
+-
+-			case 4: { /* Probably 32-bpp */
+-				*((Uint32 *)surface-&gt;pixels + ypitch + x) = color;
+-			}
+-			break;
+-		}
+-	}
+-}
+-
+-
+-//==================================================================================
+-// Get pixel
+-//==================================================================================
+-Uint32 sge_GetPixel(SDL_Surface *surface, Sint16 x, Sint16 y)
+-{
+-	if(x&lt;0 || x&gt;=surface-&gt;w || y&lt;0 || y&gt;=surface-&gt;h)
+-		return 0;
+-
+-	switch (surface-&gt;format-&gt;BytesPerPixel) {
+-		case 1: { /* Assuming 8-bpp */
+-			return *((Uint8 *)surface-&gt;pixels + y*surface-&gt;pitch + x);
+-		}
+-		break;
+-
+-		case 2: { /* Probably 15-bpp or 16-bpp */
+-			return *((Uint16 *)surface-&gt;pixels + y*surface-&gt;pitch/2 + x);
+-		}
+-		break;
+-
+-		case 3: { /* Slow 24-bpp mode, usually not used */
+-			Uint8 *pix;
+-			int shift;
+-			Uint32 color=0;
+-
+-			pix = (Uint8 *)surface-&gt;pixels + y * surface-&gt;pitch + x*3;
+-			shift = surface-&gt;format-&gt;Rshift;
+-			color = *(pix+shift/8)&lt;&lt;shift;
+-			shift = surface-&gt;format-&gt;Gshift;
+-			color|= *(pix+shift/8)&lt;&lt;shift;
+-			shift = surface-&gt;format-&gt;Bshift;
+-			color|= *(pix+shift/8)&lt;&lt;shift;
+-			shift = surface-&gt;format-&gt;Ashift;
+-			color|= *(pix+shift/8)&lt;&lt;shift;
+-			return color;
+-		}
+-		break;
+-
+-		case 4: { /* Probably 32-bpp */
+-			return *((Uint32 *)surface-&gt;pixels + y*surface-&gt;pitch/4 + x);
+-		}
+-		break;
+-	}
+-	return 0;
+-}
+-
+-
+-//==================================================================================
+-// Put pixel with alpha blending
+-//==================================================================================
+-void _PutPixelAlpha(SDL_Surface *surface, Sint16 x, Sint16 y, Uint32 color, Uint8 alpha)
+-{
+-	if(x&gt;=sge_clip_xmin(surface) &amp;&amp; x&lt;=sge_clip_xmax(surface) &amp;&amp; y&gt;=sge_clip_ymin(surface) &amp;&amp; y&lt;=sge_clip_ymax(surface)){
+-		Uint32 Rmask = surface-&gt;format-&gt;Rmask, Gmask = surface-&gt;format-&gt;Gmask, Bmask = surface-&gt;format-&gt;Bmask, Amask = surface-&gt;format-&gt;Amask;
+-		Uint32 R,G,B,A=0;
+-	
+-		switch (surface-&gt;format-&gt;BytesPerPixel) {
+-			case 1: { /* Assuming 8-bpp */
+-				if( alpha == 255 ){
+-					*((Uint8 *)surface-&gt;pixels + y*surface-&gt;pitch + x) = color;
+-				}else{
+-					Uint8 *pixel = (Uint8 *)surface-&gt;pixels + y*surface-&gt;pitch + x;
+-					
+-					Uint8 dR = surface-&gt;format-&gt;palette-&gt;colors[*pixel].r;
+-					Uint8 dG = surface-&gt;format-&gt;palette-&gt;colors[*pixel].g;
+-					Uint8 dB = surface-&gt;format-&gt;palette-&gt;colors[*pixel].b;
+-					Uint8 sR = surface-&gt;format-&gt;palette-&gt;colors[color].r;
+-					Uint8 sG = surface-&gt;format-&gt;palette-&gt;colors[color].g;
+-					Uint8 sB = surface-&gt;format-&gt;palette-&gt;colors[color].b;
+-					
+-					dR = dR + ((sR-dR)*alpha &gt;&gt; 8);
+-					dG = dG + ((sG-dG)*alpha &gt;&gt; 8);
+-					dB = dB + ((sB-dB)*alpha &gt;&gt; 8);
+-				
+-					*pixel = SDL_MapRGB(surface-&gt;format, dR, dG, dB);
+-				}
+-			}
+-			break;
+-
+-			case 2: { /* Probably 15-bpp or 16-bpp */		
+-				if( alpha == 255 ){
+-					*((Uint16 *)surface-&gt;pixels + y*surface-&gt;pitch/2 + x) = color;
+-				}else{
+-					Uint16 *pixel = (Uint16 *)surface-&gt;pixels + y*surface-&gt;pitch/2 + x;
+-					Uint32 dc = *pixel;
+-				
+-					R = ((dc &amp; Rmask) + (( (color &amp; Rmask) - (dc &amp; Rmask) ) * alpha &gt;&gt; 8)) &amp; Rmask;
+-					G = ((dc &amp; Gmask) + (( (color &amp; Gmask) - (dc &amp; Gmask) ) * alpha &gt;&gt; 8)) &amp; Gmask;
+-					B = ((dc &amp; Bmask) + (( (color &amp; Bmask) - (dc &amp; Bmask) ) * alpha &gt;&gt; 8)) &amp; Bmask;
+-					if( Amask )
+-						A = ((dc &amp; Amask) + (( (color &amp; Amask) - (dc &amp; Amask) ) * alpha &gt;&gt; 8)) &amp; Amask;
+-
+-					*pixel= R | G | B | A;
+-				}
+-			}
+-			break;
+-
+-			case 3: { /* Slow 24-bpp mode, usually not used */
+-				Uint8 *pix = (Uint8 *)surface-&gt;pixels + y * surface-&gt;pitch + x*3;
+-				Uint8 rshift8=surface-&gt;format-&gt;Rshift/8;
+-				Uint8 gshift8=surface-&gt;format-&gt;Gshift/8;
+-				Uint8 bshift8=surface-&gt;format-&gt;Bshift/8;
+-				Uint8 ashift8=surface-&gt;format-&gt;Ashift/8;
+-				
+-				
+-				if( alpha == 255 ){
+-  					*(pix+rshift8) = color&gt;&gt;surface-&gt;format-&gt;Rshift;
+-  					*(pix+gshift8) = color&gt;&gt;surface-&gt;format-&gt;Gshift;
+-  					*(pix+bshift8) = color&gt;&gt;surface-&gt;format-&gt;Bshift;
+-					*(pix+ashift8) = color&gt;&gt;surface-&gt;format-&gt;Ashift;
+-				}else{
+-					Uint8 dR, dG, dB, dA=0;
+-					Uint8 sR, sG, sB, sA=0;
+-					
+-					pix = (Uint8 *)surface-&gt;pixels + y * surface-&gt;pitch + x*3;
+-					
+-					dR = *((pix)+rshift8); 
+-            		dG = *((pix)+gshift8);
+-            		dB = *((pix)+bshift8);
+-					dA = *((pix)+ashift8);
+-					
+-					sR = (color&gt;&gt;surface-&gt;format-&gt;Rshift)&amp;0xff;
+-					sG = (color&gt;&gt;surface-&gt;format-&gt;Gshift)&amp;0xff;
+-					sB = (color&gt;&gt;surface-&gt;format-&gt;Bshift)&amp;0xff;
+-					sA = (color&gt;&gt;surface-&gt;format-&gt;Ashift)&amp;0xff;
+-					
+-					dR = dR + ((sR-dR)*alpha &gt;&gt; 8);
+-					dG = dG + ((sG-dG)*alpha &gt;&gt; 8);
+-					dB = dB + ((sB-dB)*alpha &gt;&gt; 8);
+-					dA = dA + ((sA-dA)*alpha &gt;&gt; 8);
+-
+-					*((pix)+rshift8) = dR; 
+-            		*((pix)+gshift8) = dG;
+-            		*((pix)+bshift8) = dB;
+-					*((pix)+ashift8) = dA;
+-				}
+-			}
+-			break;
+-
+-			case 4: { /* Probably 32-bpp */
+-				if( alpha == 255 ){
+-					*((Uint32 *)surface-&gt;pixels + y*surface-&gt;pitch/4 + x) = color;
+-				}else{
+-					Uint32 *pixel = (Uint32 *)surface-&gt;pixels + y*surface-&gt;pitch/4 + x;
+-					Uint32 dc = *pixel;
+-			
+-					R = ((dc &amp; Rmask) + (( (color &amp; Rmask) - (dc &amp; Rmask) ) * alpha &gt;&gt; 8)) &amp; Rmask;
+-					G = ((dc &amp; Gmask) + (( (color &amp; Gmask) - (dc &amp; Gmask) ) * alpha &gt;&gt; 8)) &amp; Gmask;
+-					B = ((dc &amp; Bmask) + (( (color &amp; Bmask) - (dc &amp; Bmask) ) * alpha &gt;&gt; 8)) &amp; Bmask;
+-					if( Amask )
+-						A = ((dc &amp; Amask) + (( (color &amp; Amask) - (dc &amp; Amask) ) * alpha &gt;&gt; 8)) &amp; Amask;
+-					
+-					*pixel = R | G | B | A;
+-				}
+-			}
+-			break;
+-		}
+-	}
+-}
+-
+-void sge_PutPixelAlpha(SDL_Surface *surface, Sint16 x, Sint16 y, Uint32 color, Uint8 alpha)
+-{
+-	if ( SDL_MUSTLOCK(surface) &amp;&amp; _sge_lock )
+-		if ( SDL_LockSurface(surface) &lt; 0 )
+-			return;
+-
+-	_PutPixelAlpha(surface,x,y,color,alpha);
+-	
+-	/* unlock the display */
+-	if (SDL_MUSTLOCK(surface) &amp;&amp; _sge_lock) {
+-		SDL_UnlockSurface(surface);
+-	}
+-	
+-	if(_sge_update!=1){return;}
+-	sge_UpdateRect(surface, x, y, 1, 1);
+-}
+-
+-
+-void _PutPixelAlpha(SDL_Surface *surface, Sint16 x, Sint16 y, Uint8 R, Uint8 G, Uint8 B, Uint8 alpha)
+-{
+-  _PutPixelAlpha(surface,x,y, SDL_MapRGB(surface-&gt;format, R, G, B),alpha);
+-}
+-void sge_PutPixelAlpha(SDL_Surface *surface, Sint16 x, Sint16 y, Uint8 R, Uint8 G, Uint8 B, Uint8 alpha)
+-{
+-  sge_PutPixelAlpha(surface,x,y, SDL_MapRGB(surface-&gt;format, R, G, B), alpha);
+-}
+-
+-
+-
+-/**********************************************************************************/
+-/**                            Block functions                                   **/
+-/**********************************************************************************/
+-
+-//==================================================================================
+-// The sge_write_block* functions copies the given block (a surface line) directly
+-// to the surface. This is *much* faster then using the put pixel functions to
+-// update a line. The block consist of Surface-&gt;w (the width of the surface) numbers
+-// of color values. Note the difference in byte size for the block elements for
+-// different color dephts. 24 bpp is slow and not included!
+-//==================================================================================
+-void sge_write_block8(SDL_Surface *Surface, Uint8 *block, Sint16 y)
+-{
+-	memcpy(	(Uint8 *)Surface-&gt;pixels + y*Surface-&gt;pitch, block, sizeof(Uint8)*Surface-&gt;w );
+-}
+-void sge_write_block16(SDL_Surface *Surface, Uint16 *block, Sint16 y)
+-{
+-	memcpy(	(Uint16 *)Surface-&gt;pixels + y*Surface-&gt;pitch/2, block, sizeof(Uint16)*Surface-&gt;w );
+-}
+-void sge_write_block32(SDL_Surface *Surface, Uint32 *block, Sint16 y)
+-{
+-	memcpy(	(Uint32 *)Surface-&gt;pixels + y*Surface-&gt;pitch/4, block, sizeof(Uint32)*Surface-&gt;w );
+-}
+-
+-
+-//==================================================================================
+-// ...and get
+-//==================================================================================
+-void sge_read_block8(SDL_Surface *Surface, Uint8 *block, Sint16 y)
+-{
+-	memcpy(	block,(Uint8 *)Surface-&gt;pixels + y*Surface-&gt;pitch, sizeof(Uint8)*Surface-&gt;w );
+-}
+-void sge_read_block16(SDL_Surface *Surface, Uint16 *block, Sint16 y)
+-{
+-	memcpy(	block,(Uint16 *)Surface-&gt;pixels + y*Surface-&gt;pitch/2, sizeof(Uint16)*Surface-&gt;w );
+-}
+-void sge_read_block32(SDL_Surface *Surface, Uint32 *block, Sint16 y)
+-{
+-	memcpy(	block,(Uint32 *)Surface-&gt;pixels + y*Surface-&gt;pitch/4, sizeof(Uint32)*Surface-&gt;w );
+-}
+-
+-
+-
+-/**********************************************************************************/
+-/**                       Blitting/surface functions                             **/
+-/**********************************************************************************/
+-
+-//==================================================================================
+-// Clear surface to color
+-//==================================================================================
+-void sge_ClearSurface(SDL_Surface *Surface, Uint32 color)
+-{
+-
+-	SDL_FillRect(Surface,NULL, color);
+-
+-	if(_sge_update!=1){return;}
+-	SDL_UpdateRect(Surface, 0,0,0,0);
+-}
+-
+-
+-//==================================================================================
+-// Clear surface to color (RGB)
+-//==================================================================================
+-void sge_ClearSurface(SDL_Surface *Surface, Uint8 R, Uint8 G, Uint8 B)
+-{
+-	sge_ClearSurface(Surface,SDL_MapRGB(Surface-&gt;format, R, G, B));
+-}
+-
+-
+-//==================================================================================
+-// Blit from one surface to another
+-// Warning! Alpha and color key is lost (=0) on Src surface
+-//==================================================================================
+-int sge_BlitTransparent(SDL_Surface *Src, SDL_Surface *Dest, Sint16 SrcX, Sint16 SrcY, Sint16 DestX, Sint16 DestY, Sint16 W, Sint16 H, Uint32 Clear, Uint8 Alpha)
+-{
+- 	SDL_Rect src, dest;
+-	int ret;
+-
+-	/* Dest clipping */
+-	#if SDL_VERSIONNUM(SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL) &lt; \
+-    SDL_VERSIONNUM(1, 1, 5)
+-	int flag=0;	
+-	if (DestX &lt; Dest-&gt;clip_minx){
+-		SrcX += Dest-&gt;clip_minx-DestX;
+-		W -= Dest-&gt;clip_minx-DestX-1;
+-		DestX=Dest-&gt;clip_minx;
+- 	}
+-	if (DestY &lt; Dest-&gt;clip_miny){
+-		SrcY +=Dest-&gt;clip_miny-DestY;
+-		H -= Dest-&gt;clip_miny-DestY-1;
+- 		DestY=Dest-&gt;clip_miny;
+- 	}
+-	if ((DestX + W) &gt; Dest-&gt;clip_maxx){
+-		W = W - ((DestX + W) - Dest-&gt;clip_maxx)+1;
+-		if(W&lt;=0){SDL_SetError(&quot;SGE - Blit error&quot;);return -1;}
+- 	}
+- 	if ((DestY + H) &gt; Dest-&gt;clip_maxy){
+-		H = H - ((DestY + H) - Dest-&gt;clip_maxy)+1;
+-		if(H&lt;=0){SDL_SetError(&quot;SGE - Blit error&quot;);return -1;}
+- 	}
+-	#endif
+-
+- 	/* Initialize our rectangles */
+- 	src.x = SrcX;
+- 	src.y = SrcY;
+- 	src.w = W;
+- 	src.h = H;
+-
+- 	dest.x = DestX;
+- 	dest.y = DestY;
+- 	dest.w = W;
+- 	dest.h = H;
+-
+-	/* We don't care about src clipping, only dest! */
+-	#if SDL_VERSIONNUM(SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL) &lt; \
+-    SDL_VERSIONNUM(1, 1, 5)
+-	if ( (Src-&gt;flags &amp; SDL_SRCCLIPPING) == SDL_SRCCLIPPING){
+-		Src-&gt;flags &amp;= ~SDL_SRCCLIPPING; flag=1;
+-	}
+-	#endif
+-
+- 	/* Set the color to be transparent */
+- 	SDL_SetColorKey(Src, SDL_SRCCOLORKEY, Clear);
+-
+- 	/* Set the alpha value */
+- 	SDL_SetAlpha(Src, SDL_SRCALPHA, Alpha);
+-
+-	/* Blit */	
+- 	ret=SDL_BlitSurface(Src, &amp;src, Dest, &amp;dest);
+-
+-	/* Set the correct flag */
+-	#if SDL_VERSIONNUM(SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL) &lt; \
+-    SDL_VERSIONNUM(1, 1, 5)
+-	if (flag==1){
+-		Src-&gt;flags |= SDL_SRCCLIPPING;
+-	}
+-	#endif
+-
+-	/* Set normal levels */
+-	SDL_SetAlpha(Src,0,0);
+-	SDL_SetColorKey(Src,0,0);
+-
+-	return ret;
+-}
+-
+-
+-//==================================================================================
+-// Blit from one surface to another (not touching alpha or color key -
+-// use SDL_SetColorKey and SDL_SetAlpha)
+-//==================================================================================
+-int sge_Blit(SDL_Surface *Src, SDL_Surface *Dest, Sint16 SrcX, Sint16 SrcY, Sint16 DestX, Sint16 DestY, Sint16 W, Sint16 H)
+-{
+-	SDL_Rect src, dest;
+-	int ret;
+-
+-	/* Dest clipping */
+-	#if SDL_VERSIONNUM(SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL) &lt; \
+-    SDL_VERSIONNUM(1, 1, 5)
+-	int flag=0;		
+-	if (DestX &lt; Dest-&gt;clip_minx){
+-		SrcX += Dest-&gt;clip_minx-DestX;
+-		W -= Dest-&gt;clip_minx-DestX -1;
+-		DestX=Dest-&gt;clip_minx;
+- 	}
+-	if (DestY &lt; Dest-&gt;clip_miny){
+-		SrcY +=Dest-&gt;clip_miny-DestY;
+-		H -= Dest-&gt;clip_miny-DestY -1;
+- 		DestY=Dest-&gt;clip_miny;
+- 	}
+-	if ((DestX + W) &gt; Dest-&gt;clip_maxx){
+-		W = W - ((DestX + W) - Dest-&gt;clip_maxx)+1;
+-		if(W&lt;=0){SDL_SetError(&quot;SGE - Blit error&quot;);return -1;}
+-	}
+- 	if ((DestY + H) &gt; Dest-&gt;clip_maxy){
+-		H = H - ((DestY + H) - Dest-&gt;clip_maxy)+1;
+-		if(H&lt;=0){SDL_SetError(&quot;SGE - Blit error&quot;);return -1;}
+- 	}
+-	#endif
+-
+- 	/* Initialize our rectangles */
+- 	src.x = SrcX;
+- 	src.y = SrcY;
+- 	src.w = W;
+- 	src.h = H;
+-
+- 	dest.x = DestX;
+- 	dest.y = DestY;
+- 	dest.w = W;
+- 	dest.h = H;
+-
+-	/* We don't care about src clipping, only dest! */
+-	#if SDL_VERSIONNUM(SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL) &lt; \
+-    SDL_VERSIONNUM(1, 1, 5)
+-	if ( (Src-&gt;flags &amp; SDL_SRCCLIPPING) == SDL_SRCCLIPPING){
+-		Src-&gt;flags &amp;= ~SDL_SRCCLIPPING; flag=1;
+-	}
+-	#endif
+-
+-	/* Blit */
+- 	ret=SDL_BlitSurface(Src, &amp;src, Dest, &amp;dest);
+-
+-	/* Set the correct flag */
+-	#if SDL_VERSIONNUM(SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL) &lt; \
+-    SDL_VERSIONNUM(1, 1, 5)
+-	if (flag==1){
+-		Src-&gt;flags |= SDL_SRCCLIPPING;
+-	}
+-	#endif
+-
+-	return ret;
+-}
+-
+-
+-//==================================================================================
+-// Copies a surface to a new...
+-//==================================================================================
+-SDL_Surface *sge_copy_surface(SDL_Surface *src)
+-{
+-	return SDL_ConvertSurface(src, src-&gt;format,SDL_SWSURFACE);
+-}
+-
+-
+-
+-
+-/**********************************************************************************/
+-/**                            Palette functions                                 **/
+-/**********************************************************************************/
+-//==================================================================================
+-// Fill in a palette entry with R, G, B componenets
+-//==================================================================================
+-SDL_Color sge_FillPaletteEntry(Uint8 R, Uint8 G, Uint8 B)
+-{
+-   SDL_Color color;
+-
+-   color.r = R;
+-   color.g = G;
+-   color.b = B;
+-
+-   return color;
+-}
+-
+-
+-//==================================================================================
+-// Get the RGB of a color value
+-// Needed in those dark days before SDL 1.0
+-//==================================================================================
+-SDL_Color sge_GetRGB(SDL_Surface *Surface, Uint32 Color)
+-{
+-	SDL_Color rgb;
+-	SDL_GetRGB(Color, Surface-&gt;format, &amp;(rgb.r), &amp;(rgb.g), &amp;(rgb.b));
+-
+-	return(rgb);
+-}
+-
+-
+-//==================================================================================
+-// Fades from (sR,sG,sB) to (dR,dG,dB), puts result in ctab[start] to ctab[stop]
+-//==================================================================================
+-void sge_Fader(SDL_Surface *Surface, Uint8 sR,Uint8 sG,Uint8 sB, Uint8 dR,Uint8 dG,Uint8 dB,Uint32 *ctab,int start, int stop)
+-{
+-	// (sR,sG,sB) and (dR,dG,dB) are two points in space (the RGB cube). 	
+-
+-	/* The vector for the straight line */
+-	int v[3];
+-	v[0]=dR-sR; v[1]=dG-sG; v[2]=dB-sB;
+-
+-	/* Ref. point */
+-	int x0=sR, y0=sG, z0=sB;
+-
+-	// The line's equation is:
+-	// x= x0 + v[0] * t
+-	// y= y0 + v[1] * t
+-	// z= z0 + v[2] * t
+-	//
+-	// (x,y,z) will travel between the two points when t goes from 0 to 1.
+-
+-	int i=start;
+- 	double step=1.0/((stop+1)-start);
+-
+-	for(double t=0.0; t&lt;=1.0 &amp;&amp; i&lt;=stop ; t+=step){
+-		ctab[i++]=SDL_MapRGB(Surface-&gt;format, (Uint8)(x0+v[0]*t), (Uint8)(y0+v[1]*t), (Uint8)(z0+v[2]*t) );
+-	}			
+-}
+-
+-
+-//==================================================================================
+-// Fades from (sR,sG,sB,sA) to (dR,dG,dB,dA), puts result in ctab[start] to ctab[stop]
+-//==================================================================================
+-void sge_AlphaFader(Uint8 sR,Uint8 sG,Uint8 sB,Uint8 sA, Uint8 dR,Uint8 dG,Uint8 dB,Uint8 dA, Uint32 *ctab,int start, int stop)
+-{
+-	// (sR,sG,sB,sA) and (dR,dG,dB,dA) are two points in hyperspace (the RGBA hypercube). 	
+-
+-	/* The vector for the straight line */
+-	int v[4];
+-	v[0]=dR-sR; v[1]=dG-sG; v[2]=dB-sB; v[3]=dA-sA;
+-
+-	/* Ref. point */
+-	int x0=sR, y0=sG, z0=sB, w0=sA;
+-
+-	// The line's equation is:
+-	// x= x0 + v[0] * t
+-	// y= y0 + v[1] * t
+-	// z= z0 + v[2] * t
+-	// w= w0 + v[3] * t
+-	//
+-	// (x,y,z,w) will travel between the two points when t goes from 0 to 1.
+-
+-	int i=start;
+- 	double step=1.0/((stop+1)-start);
+-
+-	for(double t=0.0; t&lt;=1.0 &amp;&amp; i&lt;=stop ; t+=step)
+-		ctab[i++]=sge_MapAlpha((Uint8)(x0+v[0]*t), (Uint8)(y0+v[1]*t), (Uint8)(z0+v[2]*t), (Uint8)(w0+v[3]*t));
+-					
+-}
+-
+-
+-//==================================================================================
+-// Copies a nice rainbow palette to the color table (ctab[start] to ctab[stop]).
+-// You must also set the intensity of the palette (0-bright 255-dark)
+-//==================================================================================
+-void sge_SetupRainbowPalette(SDL_Surface *Surface,Uint32 *ctab,int intensity, int start, int stop)
+-{
+-	int slice=(int)((stop-start)/6);
+-
+-	/* Red-Yellow */
+-	sge_Fader(Surface, 255,intensity,intensity, 255,255,intensity, ctab, start,slice);
+- 	/* Yellow-Green */
+-	sge_Fader(Surface, 255,255,intensity, intensity,255,intensity, ctab, slice+1, 2*slice);
+- 	/* Green-Turquoise blue */
+-	sge_Fader(Surface, intensity,255,intensity, intensity,255,255, ctab, 2*slice+1, 3*slice);
+- 	/* Turquoise blue-Blue */
+-	sge_Fader(Surface, intensity,255,255, intensity,intensity,255, ctab, 3*slice+1, 4*slice);
+- 	/* Blue-Purple */
+-	sge_Fader(Surface, intensity,intensity,255, 255,intensity,255, ctab, 4*slice+1, 5*slice);	
+- 	/* Purple-Red */
+-	sge_Fader(Surface, 255,intensity,255, 255,intensity,intensity, ctab, 5*slice+1, stop);	
+-}
+-
+-
+-//==================================================================================
+-// Copies a B&amp;W palette to the color table (ctab[start] to ctab[stop]).
+-//==================================================================================
+-void sge_SetupBWPalette(SDL_Surface *Surface,Uint32 *ctab,int start, int stop)
+-{
+-	sge_Fader(Surface, 0,0,0, 255,255,255, ctab,start,stop);
+-}
+-
+-
+-
+-/**********************************************************************************/
+-/**                          Color filling functions                             **/
+-/**********************************************************************************/
+-
+-//==================================================================================
+-// sge_FloodFill: Fast non-recursive flood fill
+-//
+-// Algorithm originally written by
+-// Paul Heckbert, 13 Sept 1982, 28 Jan 1987
+-//==================================================================================
+-/* horizontal segment of scan line y */
+-struct seg{ 
+-	Sint16 y, xl, xr, dy;
+-};
+-
+-#define MAX 1000		/* max depth of stack */
+-
+-#define PUSH(Y, XL, XR, DY){\
+-	if (sp&lt;stack+MAX &amp;&amp; Y+(DY)&gt;=sge_clip_ymin(dst) &amp;&amp; Y+(DY)&lt;=sge_clip_ymax(dst)){\
+-		sp-&gt;y = Y;\
+-		sp-&gt;xl = XL;\
+-		sp-&gt;xr = XR;\
+-		sp-&gt;dy = DY;\
+-		sp++;\
+-	}\
+-}
+-
+-#define POP(Y, XL, XR, DY){\
+-	sp--;\
+-	DY = sp-&gt;dy;\
+-	Y = sp-&gt;y + sp-&gt;dy;\
+-	XL = sp-&gt;xl;\
+-	XR = sp-&gt;xr;\
+-}
+-	
+-
+-/*
+- * set the pixel at (x,y) and all of its 4-connected neighbors
+- * with the same pixel value to the new pixel color.
+- * A 4-connected neighbor is a pixel above, below, left, or right of a pixel.
+- */
+-// First a generic (slow) version and then 8/16/32 bpp versions
+-void _FloodFillX(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color)
+-{
+-	Sint16 l, x1, x2, dy;
+-	Uint32 oc;						/* old pixel color */
+-	seg stack[MAX], *sp = stack;	/* stack of filled segments */
+-
+-	if (x&lt;sge_clip_xmin(dst) || x&gt;sge_clip_xmax(dst) || y&lt;sge_clip_ymin(dst) || y&gt;sge_clip_ymax(dst))
+-		return;
+-	
+-	oc = sge_GetPixel(dst, x,y);	/* read color at seed point */
+-	
+-	if (oc == color) 
+-		return;
+-	
+-	PUSH(y, x, x, 1);			/* needed in some cases */
+-	PUSH(y+1, x, x, -1);		/* seed segment (popped 1st) */
+-
+-	while (sp&gt;stack) {
+-		/* pop segment off stack and fill a neighboring scan line */
+-		POP(y, x1, x2, dy);
+-
+-		/*
+-		* segment of scan line y-dy for x1&lt;=x&lt;=x2 was previously filled,
+-		* now explore adjacent pixels in scan line y
+-		*/
+-		for (x=x1; x&gt;=sge_clip_xmin(dst); x--){
+-			if( sge_GetPixel(dst, x,y) != oc )
+-				break;
+-			
+-			_PutPixel(dst, x, y, color);
+-		}
+-			
+-		if (x&gt;=x1) 
+-			goto skip;
+-		
+-		l = x+1;
+-		if (l&lt;x1) 
+-			PUSH(y, l, x1-1, -dy);		/* leak on left? */
+-	
+-		x = x1+1;
+-		
+-		do {
+-			for (; x&lt;=sge_clip_xmax(dst); x++){
+-				if( sge_GetPixel(dst, x,y) != oc )
+-					break;
+-					
+-				_PutPixel(dst, x, y, color);
+-			}
+-	    
+-			PUSH(y, l, x-1, dy);
+-			
+-			if (x&gt;x2+1) 
+-				PUSH(y, x2+1, x-1, -dy);	/* leak on right? */
+-skip:		
+-			for (x++; x&lt;=x2; x++)
+-				if( sge_GetPixel(dst, x,y) == oc )
+-					break;
+-			
+-			l = x;
+-		} while (x&lt;=x2);
+-	}
+-}
+-
+-/* Macro for 8/16/32 bpp */
+-#define DO_FILL(UintXX, label)\
+-{\
+-	Sint16 l, x1, x2, dy;\
+-	Uint32 oc;						/* old pixel color */\
+-	seg stack[MAX], *sp = stack;	/* stack of filled segments */\
+-	Uint16 pitch = dst-&gt;pitch/dst-&gt;format-&gt;BytesPerPixel;\
+-	UintXX *row = (UintXX*)dst-&gt;pixels + y*pitch;\
+-	UintXX *pixel = row + x;\
+-\
+-	if (x&lt;sge_clip_xmin(dst) || x&gt;sge_clip_xmax(dst) || y&lt;sge_clip_ymin(dst) || y&gt;sge_clip_ymax(dst))\
+-		return;\
+-\
+-	oc = *pixel;	/* read color at seed point */\
+-\
+-	if (oc == color)\
+-		return;\
+-\
+-	PUSH(y, x, x, 1);			/* needed in some cases */\
+-	PUSH(y+1, x, x, -1);		/* seed segment (popped 1st) */\
+-\
+-	while (sp&gt;stack) {\
+-		/* pop segment off stack and fill a neighboring scan line */\
+-		POP(y, x1, x2, dy);\
+-		row = (UintXX*)dst-&gt;pixels + y*pitch;\
+-		pixel = row + x1;\
+-\
+-		/*\
+-		* segment of scan line y-dy for x1&lt;=x&lt;=x2 was previously filled,
+-		* now explore adjacent pixels in scan line y
+-		*/\
+-		for (x=x1; x&gt;=sge_clip_xmin(dst) &amp;&amp; *pixel == oc; x--, pixel--)\
+-			*pixel = color;\
+-\
+-		if (x&gt;=x1)\
+-			goto label;\
+-\
+-		l = x+1;\
+-		if (l&lt;x1)\
+-			PUSH(y, l, x1-1, -dy);		/* leak on left? */\
+-\
+-		x = x1+1;\
+-		pixel = row + x;\
+-\
+-		do {\
+-			for (; x&lt;=sge_clip_xmax(dst) &amp;&amp; *pixel == oc; x++, pixel++)\
+-				*pixel = color;\
+-\
+-			PUSH(y, l, x-1, dy);\
+-\
+-			if (x&gt;x2+1)\
+-				PUSH(y, x2+1, x-1, -dy);	/* leak on right? */\
+-label:\
+-			pixel++;\
+-\
+-			for (x++; x&lt;=x2 &amp;&amp; *pixel != oc; x++, pixel++);\
+-\
+-			l = x;\
+-		} while (x&lt;=x2);\
+-	}\
+-}
+-
+-// Wrapper function
+-void sge_FloodFill(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color)
+-{
+-	if ( SDL_MUSTLOCK(dst) &amp;&amp; _sge_lock )
+-		if ( SDL_LockSurface(dst) &lt; 0 )
+-			return;
+-
+-	switch (dst-&gt;format-&gt;BytesPerPixel) {
+-		case 1: /* Assuming 8-bpp */
+-			DO_FILL(Uint8, skip8)
+-		break;
+-
+-		case 2: /* Probably 15-bpp or 16-bpp */
+-			DO_FILL(Uint16, skip16)
+-		break;
+-
+-		case 3: /* Slow 24-bpp mode, usually not used */
+-			_FloodFillX(dst, x,y, color);
+-		break;
+-
+-		case 4: /* Probably 32-bpp */
+-			DO_FILL(Uint32, skip32)
+-		break;
+-	}
+-	
+-	if ( SDL_MUSTLOCK(dst) &amp;&amp; _sge_lock ){
+-		SDL_UnlockSurface(dst);
+-	}
+-}
+-
+-void sge_FloodFill(SDL_Surface *dst, Sint16 x, Sint16 y, Uint8 R, Uint8 G, Uint8 B)
+-{
+-	sge_FloodFill(dst, x, y, SDL_MapRGB(dst-&gt;format, R,G,B));
+-}
+-
+
+Deleted: antargis/trunk/gui/src/sge_surface.h
+===================================================================
+--- antargis/trunk/gui/src/sge_surface.h	2007-01-06 17:52:40 UTC (rev 1042)
++++ antargis/trunk/gui/src/sge_surface.h	2007-01-07 21:00:42 UTC (rev 1043)
+@@ -1,100 +0,0 @@
+-/*
+-*	SDL Graphics Extension
+-*	Pixel, surface and color functions (header)
+-*
+-*	Started 990815 (split from sge_draw 010611)
+-*
+-*	License: LGPL v2+ (see the file LICENSE)
+-*	(c)1999-2003 Anders Lindstr&#246;m
+-*/
+-
+-/*********************************************************************
+- *  This library is free software; you can redistribute it and/or    *
+- *  modify it under the terms of the GNU Library General Public      *
+- *  License as published by the Free Software Foundation; either     *
+- *  version 2 of the License, or (at your option) any later version. *
+- *********************************************************************/
+-
+-#ifndef sge_surface_H
+-#define sge_surface_H
+-
+-#include &quot;SDL.h&quot;
+-#include &quot;sge_internal.h&quot;
+-
+-
+-/*
+-*  Obsolete function names
+-*/
+-#define sge_copy_sblock8 sge_write_block8
+-#define sge_copy_sblock16 sge_write_block16
+-#define sge_copy_sblock32 sge_write_block32
+-#define sge_get_sblock8 sge_read_block8
+-#define sge_get_sblock16 sge_read_block16
+-#define sge_get_sblock32 sge_read_block32
+-
+-
+-#ifdef _SGE_C
+-extern &quot;C&quot; {
+-#endif
+-DECLSPEC void sge_Update_OFF(void);
+-DECLSPEC void sge_Update_ON(void);
+-DECLSPEC void sge_Lock_OFF(void);
+-DECLSPEC void sge_Lock_ON(void);
+-DECLSPEC Uint8 sge_getUpdate(void);
+-DECLSPEC Uint8 sge_getLock(void);
+-DECLSPEC void sge_UpdateRect(SDL_Surface *screen, Sint16 x, Sint16 y, Uint16 w, Uint16 h);
+-DECLSPEC SDL_Surface *sge_CreateAlphaSurface(Uint32 flags, int width, int height);
+-DECLSPEC Uint32 sge_MapAlpha(Uint8 R, Uint8 G, Uint8 B, Uint8 A);
+-DECLSPEC void sge_SetError(const char *format, ...);
+-
+-DECLSPEC void _PutPixel(SDL_Surface *surface, Sint16 x, Sint16 y, Uint32 color);
+-DECLSPEC void _PutPixel8(SDL_Surface *surface, Sint16 x, Sint16 y, Uint32 color);
+-DECLSPEC void _PutPixel16(SDL_Surface *surface, Sint16 x, Sint16 y, Uint32 color);
+-DECLSPEC void _PutPixel24(SDL_Surface *surface, Sint16 x, Sint16 y, Uint32 color);
+-DECLSPEC void _PutPixel32(SDL_Surface *surface, Sint16 x, Sint16 y, Uint32 color);
+-DECLSPEC void _PutPixelX(SDL_Surface *dest,Sint16 x,Sint16 y,Uint32 color);
+-
+-DECLSPEC Sint32 sge_CalcYPitch(SDL_Surface *dest,Sint16 y);
+-DECLSPEC void sge_pPutPixel(SDL_Surface *surface, Sint16 x, Sint32 ypitch, Uint32 color);
+-
+-DECLSPEC void sge_PutPixel(SDL_Surface *surface, Sint16 x, Sint16 y, Uint32 color);
+-DECLSPEC Uint32 sge_GetPixel(SDL_Surface *surface, Sint16 x, Sint16 y);
+-
+-DECLSPEC void _PutPixelAlpha(SDL_Surface *surface, Sint16 x, Sint16 y, Uint32 color, Uint8 alpha);
+-DECLSPEC void sge_PutPixelAlpha(SDL_Surface *surface, Sint16 x, Sint16 y, Uint32 color, Uint8 alpha);
+-
+-DECLSPEC void sge_write_block8(SDL_Surface *Surface, Uint8 *block, Sint16 y);
+-DECLSPEC void sge_write_block16(SDL_Surface *Surface, Uint16 *block, Sint16 y);
+-DECLSPEC void sge_write_block32(SDL_Surface *Surface, Uint32 *block, Sint16 y);
+-DECLSPEC void sge_read_block8(SDL_Surface *Surface, Uint8 *block, Sint16 y);
+-DECLSPEC void sge_read_block16(SDL_Surface *Surface, Uint16 *block, Sint16 y);
+-DECLSPEC void sge_read_block32(SDL_Surface *Surface, Uint32 *block, Sint16 y);
+-
+-DECLSPEC void sge_ClearSurface(SDL_Surface *Surface, Uint32 color);
+-DECLSPEC int sge_BlitTransparent(SDL_Surface *Src, SDL_Surface *Dest, Sint16 SrcX, Sint16 SrcY, Sint16 DestX, Sint16 DestY, Sint16 W, Sint16 H, Uint32 Clear, Uint8 Alpha);
+-DECLSPEC int sge_Blit(SDL_Surface *Src, SDL_Surface *Dest, Sint16 SrcX, Sint16 SrcY, Sint16 DestX, Sint16 DestY, Sint16 W, Sint16 H);
+-DECLSPEC SDL_Surface *sge_copy_surface(SDL_Surface *src);
+-
+-DECLSPEC SDL_Color sge_GetRGB(SDL_Surface *Surface, Uint32 Color);
+-DECLSPEC SDL_Color sge_FillPaletteEntry (Uint8 R, Uint8 G, Uint8 B);
+-DECLSPEC void sge_Fader(SDL_Surface *Surface, Uint8 sR,Uint8 sG,Uint8 sB, Uint8 dR,Uint8 dG,Uint8 dB,Uint32 *ctab,int start, int stop);
+-DECLSPEC void sge_AlphaFader(Uint8 sR,Uint8 sG,Uint8 sB,Uint8 sA, Uint8 dR,Uint8 dG,Uint8 dB,Uint8 dA, Uint32 *ctab,int start, int stop);
+-DECLSPEC void sge_SetupRainbowPalette(SDL_Surface *Surface,Uint32 *ctab,int intensity, int start, int stop);
+-DECLSPEC void sge_SetupBWPalette(SDL_Surface *Surface,Uint32 *ctab,int start, int stop);
+-
+-DECLSPEC void sge_FloodFill(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color);
+-#ifdef _SGE_C
+-}
+-#endif
+-
+-#ifndef sge_C_ONLY
+-DECLSPEC void _PutPixel(SDL_Surface *screen, Sint16 x, Sint16 y, Uint8 R, Uint8 G, Uint8 B);
+-DECLSPEC void sge_PutPixel(SDL_Surface *screen, Sint16 x, Sint16 y, Uint8 R, Uint8 G, Uint8 B);
+-DECLSPEC void _PutPixelAlpha(SDL_Surface *surface, Sint16 x, Sint16 y, Uint8 R, Uint8 G, Uint8 B, Uint8 alpha);
+-DECLSPEC void sge_PutPixelAlpha(SDL_Surface *surface, Sint16 x, Sint16 y, Uint8 R, Uint8 G, Uint8 B, Uint8 alpha);
+-DECLSPEC void sge_ClearSurface(SDL_Surface *Surface, Uint8 R, Uint8 G, Uint8 B);
+-DECLSPEC void sge_FloodFill(SDL_Surface *dst, Sint16 x, Sint16 y, Uint8 R, Uint8 G, Uint8 B);
+-#endif /* sge_C_ONLY */
+-
+-
+-#endif /* sge_surface_H */
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000000.html">[Antargis-svn] r1042 - in antargis/trunk: data/levels/birth gui/src	ruby src
+</A></li>
+	<LI>Next message: <A HREF="000002.html">[Antargis-svn] r1044 - in antargis/trunk: . contrib
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1">[ date ]</a>
+              <a href="thread.html#1">[ thread ]</a>
+              <a href="subject.html#1">[ subject ]</a>
+              <a href="author.html#1">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

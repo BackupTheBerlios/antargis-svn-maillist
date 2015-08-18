@@ -1,0 +1,1983 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1250 - in antargis/trunk:	data/gui/layout/editor/campaign ext/basic ext/game ext/gui	ext/math ext/video ruby ruby/editor/campaign ruby/gui ruby/spec
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2008-May/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1250%20-%20in%20antargis/trunk%3A%0A%09data/gui/layout/editor/campaign%20ext/basic%20ext/game%20ext/gui%0A%09ext/math%20ext/video%20ruby%20ruby/editor/campaign%20ruby/gui%20ruby/spec&In-Reply-To=%3C200805231524.m4NFOEYn024358%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000205.html">
+   <LINK REL="Next"  HREF="000207.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1250 - in antargis/trunk:	data/gui/layout/editor/campaign ext/basic ext/game ext/gui	ext/math ext/video ruby ruby/editor/campaign ruby/gui ruby/spec</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1250%20-%20in%20antargis/trunk%3A%0A%09data/gui/layout/editor/campaign%20ext/basic%20ext/game%20ext/gui%0A%09ext/math%20ext/video%20ruby%20ruby/editor/campaign%20ruby/gui%20ruby/spec&In-Reply-To=%3C200805231524.m4NFOEYn024358%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1250 - in antargis/trunk:	data/gui/layout/editor/campaign ext/basic ext/game ext/gui	ext/math ext/video ruby ruby/editor/campaign ruby/gui ruby/spec">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Fri May 23 17:24:14 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000205.html">[Antargis-svn] r1249 - antargis/trunk/ruby/spec
+</A></li>
+        <LI>Next message: <A HREF="000207.html">[Antargis-svn] r1251 - antargis/trunk/ext/math
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#206">[ date ]</a>
+              <a href="thread.html#206">[ thread ]</a>
+              <a href="subject.html#206">[ subject ]</a>
+              <a href="author.html#206">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2008-05-23 17:24:11 +0200 (Fri, 23 May 2008)
+New Revision: 1250
+
+Added:
+   antargis/trunk/ruby/spec/spec_mouseevents.rb
+Modified:
+   antargis/trunk/data/gui/layout/editor/campaign/main.xml
+   antargis/trunk/ext/basic/ag_geometry.cc
+   antargis/trunk/ext/basic/ag_geometry.h
+   antargis/trunk/ext/basic/ag_messageobject.cc
+   antargis/trunk/ext/basic/ag_messageobject.h
+   antargis/trunk/ext/game/minimap.cc
+   antargis/trunk/ext/gui/ag_application.cc
+   antargis/trunk/ext/gui/ag_application.h
+   antargis/trunk/ext/gui/ag_button.cc
+   antargis/trunk/ext/gui/ag_scrollingwidget.cc
+   antargis/trunk/ext/gui/ag_scrollingwidget.h
+   antargis/trunk/ext/gui/ag_widget.cc
+   antargis/trunk/ext/gui/ag_widget.h
+   antargis/trunk/ext/math/ag_algebra.cc
+   antargis/trunk/ext/video/ag_painter.cc
+   antargis/trunk/ext/video/ag_painter.h
+   antargis/trunk/ext/video/ag_projection.cc
+   antargis/trunk/ext/video/ag_projection.h
+   antargis/trunk/ext/video/ag_surface.cc
+   antargis/trunk/ext/video/ag_surface.h
+   antargis/trunk/ext/video/ag_texture.cc
+   antargis/trunk/ruby/editor/campaign/drag_grid.rb
+   antargis/trunk/ruby/editor/campaign/spec_campaign_editor.rb
+   antargis/trunk/ruby/gui/ag_tools.rb
+   antargis/trunk/ruby/gui/testing.rb
+   antargis/trunk/ruby/spec/spec_screenshot.rb
+   antargis/trunk/ruby/spec/spec_scrollingwidget.rb
+   antargis/trunk/ruby/spec_helper.rb
+Log:
+Incomplete - task 6: Cleanup 
+<A HREF="http://localhost:3000/issues/show/6">http://localhost:3000/issues/show/6</A>
+Incomplete - task 9: Scrollingwidget 
+<A HREF="http://localhost:3000/issues/show/9">http://localhost:3000/issues/show/9</A>
+
+Modified: antargis/trunk/data/gui/layout/editor/campaign/main.xml
+===================================================================
+--- antargis/trunk/data/gui/layout/editor/campaign/main.xml	2008-05-19 18:29:07 UTC (rev 1249)
++++ antargis/trunk/data/gui/layout/editor/campaign/main.xml	2008-05-23 15:24:11 UTC (rev 1250)
+@@ -3,6 +3,7 @@
+ &lt;dragEnvironment name=&quot;dragEnvironment&quot;&gt;
+ &lt;table cols=&quot;1&quot; rows=&quot;2&quot;&gt;
+   &lt;rowsize row=&quot;0&quot; fixed=&quot;50&quot;/&gt;
++  
+   &lt;cell col=&quot;0&quot; row=&quot;0&quot;&gt;
+     &lt;toolBar&gt;
+          &lt;toolButton text=&quot;Save&quot; name=&quot;save&quot; caption=&quot;muh&quot; caption-image=&quot;gui/save.png&quot;/&gt;
+@@ -23,12 +24,14 @@
+         &lt;cell col=&quot;0&quot; row=&quot;0&quot;&gt;
+           &lt;dragSource name=&quot;levelSource&quot; class=&quot;DragBox&quot; text=&quot;Level&quot;/&gt;
+         &lt;/cell&gt;
++        
+         &lt;cell col=&quot;0&quot; row=&quot;1&quot;&gt;
+           &lt;dragSource name =&quot;storySource&quot; class=&quot;DragBoxStory&quot; text=&quot;Story&quot;/&gt;
+         &lt;/cell&gt;
+         &lt;cell col=&quot;0&quot; row=&quot;2&quot;&gt;
+           &lt;dragTrash/&gt;
+         &lt;/cell&gt;
++        
+       &lt;/table&gt;
+     &lt;/cell&gt;
+     
+@@ -39,6 +42,8 @@
+       &lt;/scrollingWidget&gt;
+     &lt;/cell&gt;
+     
++    
++    
+     &lt;cell col=&quot;1&quot; row=&quot;1&quot; name=&quot;a&quot;&gt;
+       &lt;table cols=&quot;2&quot; rows=&quot;1&quot; name=&quot;b&quot;&gt;
+         &lt;colsize col=&quot;1&quot; fixed=&quot;50&quot;/&gt;
+@@ -50,9 +55,12 @@
+         &lt;/cell&gt;
+       &lt;/table&gt;
+     &lt;/cell&gt;
++    
+   &lt;/table&gt;
+   &lt;/cell&gt;
+   &lt;/table&gt;
++  
+   &lt;appearEffect name=&quot;showEdit&quot; table=&quot;bigTable&quot; row=&quot;1&quot; size=&quot;40&quot; duration=&quot;0.2&quot;/&gt;
++  
+ &lt;/dragEnvironment&gt;
+ &lt;/layout&gt;
+\ No newline at end of file
+
+Modified: antargis/trunk/ext/basic/ag_geometry.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_geometry.cc	2008-05-19 18:29:07 UTC (rev 1249)
++++ antargis/trunk/ext/basic/ag_geometry.cc	2008-05-23 15:24:11 UTC (rev 1250)
+@@ -670,6 +670,12 @@
+     a[2][1]=0.0f;
+ 
+   }
++AGMatrix3::AGMatrix3(const AGMatrix3 &amp;m)
++  {
++    for(size_t x=0;x&lt;3;x++)
++      for(size_t y=0;y&lt;3;y++)
++        a[x][y]=m.a[x][y];
++  }
+ 
+ 
+ AGMatrix3 AGMatrix3::transposed() const
+@@ -684,6 +690,7 @@
+ 
+ AGMatrix3 AGMatrix3::inverted() const
+ {
++  CTRACE;
+   // gauss-alg.
+   AGMatrix3 a;
+   AGMatrix3 b(*this);
+@@ -1408,6 +1415,12 @@
+   return AGRect2(v0+d,v1-d);
+ }
+ 
++AGRect2 AGRect2::shrinkToTopLeft(float w,float h) const
++{
++  return AGRect2(x(),y(),this-&gt;w()-w,this-&gt;h()-h);
++}
++
++
+ AGRect2 AGRect2::grow(float f) const
+ {
+   AGVector2 d(f,f);
+@@ -2156,16 +2169,6 @@
+     get(0,0)=get(1,1)=get(2,2)=get(3,3)=1.0f;
+   }
+ 
+-/*AGMatrix3::AGMatrix4(const AGAngle &amp;n)
+-{
+-  a[0][0]=cos(n.angle);
+-  a[1][0]=sin(n.angle);
+-  a[0][1]=-sin(n.angle);
+-  a[1][1]=cos(n.angle);
+-  a[2][0]=a[2][1]=a[0][2]=a[1][2]=0.0f;
+-  a[2][2]=1.0f;
+-  }*/
+-
+ AGMatrix4::AGMatrix4(const AGVector4 &amp;n)
+   {
+     get(0,0)=get(1,1)=get(2,2)=get(3,3)=1.0f;
+
+Modified: antargis/trunk/ext/basic/ag_geometry.h
+===================================================================
+--- antargis/trunk/ext/basic/ag_geometry.h	2008-05-19 18:29:07 UTC (rev 1249)
++++ antargis/trunk/ext/basic/ag_geometry.h	2008-05-23 15:24:11 UTC (rev 1250)
+@@ -236,6 +236,7 @@
+   AGMatrix3(const AGAngle &amp;a); // rotate
+   AGMatrix3(const AGVector3 &amp;a); // transpose
+   AGMatrix3(float x,float y); // scale
++  AGMatrix3(const AGMatrix3 &amp;m);
+   void set(size_t x,size_t y,float f);
+   float get(size_t x,size_t y) const;
+   float &amp;get(size_t x,size_t y);
+@@ -446,6 +447,7 @@
+   AGVector2 getMiddle() const;
+ 
+   AGRect2 shrink(float f) const;
++  AGRect2 shrinkToTopLeft(float w,float h) const;
+   AGRect2 grow(float f) const;
+ 
+   void setX(float p);
+
+Modified: antargis/trunk/ext/basic/ag_messageobject.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_messageobject.cc	2008-05-19 18:29:07 UTC (rev 1249)
++++ antargis/trunk/ext/basic/ag_messageobject.cc	2008-05-23 15:24:11 UTC (rev 1250)
+@@ -27,11 +27,15 @@
+ 
+ // AGEvent
+ AGEvent::AGEvent(AGListener *pCaller,const AGString &amp;pName,const SDL_Event &amp;e):mCaller(pCaller),mName(pName),mEvent(e),
+-  mMousePosition(0)
++  mMousePosition(0),mRelMousePosition(0)
+   {
+   }
+ AGEvent::~AGEvent()
+   {
++    if(mMousePosition)
++      delete mMousePosition;
++    if(mRelMousePosition)
++      delete mRelMousePosition;
+   }
+ 
+ 
+@@ -84,15 +88,22 @@
+   return mEvent;
+ }
+ 
+-void AGEvent::setMousePosition(const AGVector2 &amp;p)
++void AGEvent::setRelMousePosition(const AGVector2 &amp;p)
+   {
+-    if(mMousePosition)
+-      *mMousePosition=p;
++    if(mRelMousePosition)
++      *mRelMousePosition=p;
+     else
+-      mMousePosition=new AGVector2(p);
++      mRelMousePosition=new AGVector2(p);
+   }
+ 
++AGVector2 AGEvent::getRelMousePosition() const
++{
++  if(mRelMousePosition)
++    return *mRelMousePosition;
++  return getMousePosition();
++}
+ 
++
+ AGVector2 AGEvent::getMousePosition() const
+ {
+   if(mMousePosition)
+@@ -267,7 +278,6 @@
+ 
+ bool AGSignal::signal(AGEvent *m)
+   {
+-    CTRACE;
+     m-&gt;setName(mName);
+     std::set&lt;AGListener*&gt;::iterator i=mListeners.begin();
+     bool value=false;
+
+Modified: antargis/trunk/ext/basic/ag_messageobject.h
+===================================================================
+--- antargis/trunk/ext/basic/ag_messageobject.h	2008-05-19 18:29:07 UTC (rev 1249)
++++ antargis/trunk/ext/basic/ag_messageobject.h	2008-05-23 15:24:11 UTC (rev 1250)
+@@ -68,7 +68,8 @@
+   void setCaller(AGListener *pCaller);
+   AGString getName() const;
+ 
+-  void setMousePosition(const AGVector2 &amp;p);
++  void setRelMousePosition(const AGVector2 &amp;p);
++  AGVector2 getRelMousePosition() const;
+   
+   AGVector2 getMousePosition() const;
+   SDLKey getKey() const;
+@@ -93,6 +94,7 @@
+ 
+   AGVector2 mVector;
+   AGVector2 *mMousePosition;
++  AGVector2 *mRelMousePosition;
+ 
+  protected:
+   static SDL_Event NullEvent;
+
+Modified: antargis/trunk/ext/game/minimap.cc
+===================================================================
+--- antargis/trunk/ext/game/minimap.cc	2008-05-19 18:29:07 UTC (rev 1249)
++++ antargis/trunk/ext/game/minimap.cc	2008-05-23 15:24:11 UTC (rev 1250)
+@@ -10,12 +10,12 @@
+   AGWidget(p,r),
+   mMap(pMap),
+   mSurface(r.w(),r.h())
+-  {
+-    mMapBorder=24;
+-    mScene=0;
+-    mTexture=new AGTexture(mSurface);
+-    setMap(mMap);
+-  }
++	  {
++	    mMapBorder=24;
++	    mScene=0;
++	    mTexture=new AGTexture(mSurface);
++	    setMap(mMap);
++	  }
+ 
+ MiniMap::~MiniMap()
+   {
+@@ -266,7 +266,7 @@
+ 
+     // eat up event - so antView, doesn't get it
+     if(m-&gt;isSDLEvent())
+-      if(getScreenRect().contains(m-&gt;getMousePosition()))
++      if(getRect().contains(m-&gt;getRelMousePosition()))
+         return true;
+     return false;
+   }
+@@ -307,13 +307,13 @@
+         if(glapp)
+           glapp-&gt;setCamera(v);
+       }
+-*/
++     */
+     return true;
+   }
+ 
+ AGVector2 MiniMap::getMapPosition() const
+ {
+-	return mPos;
++  return mPos;
+ }
+ 
+ 
+@@ -369,15 +369,15 @@
+ 
+ // AGLayout creator
+ class AGMiniMapLayoutCreator:public AGLayoutCreator
+-{
+-public:
+-  REGISTER_COMPONENT(MiniMap,&quot;miniMap&quot;)
++  {
++    public:
++      REGISTER_COMPONENT(MiniMap,&quot;miniMap&quot;)
+ 
+-  virtual void create(AGWidget *pParent,const AGRect2 &amp;pRect,const Node &amp;pNode)
+-    {
+-      setResult(new MiniMap(pParent,pRect,0));
+-    }
+-};
++      virtual void create(AGWidget *pParent,const AGRect2 &amp;pRect,const Node &amp;pNode)
++        {
++          setResult(new MiniMap(pParent,pRect,0));
++        }
++  };
+ 
+ void registerMinimapCreator()
+   {
+
+Modified: antargis/trunk/ext/gui/ag_application.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_application.cc	2008-05-19 18:29:07 UTC (rev 1249)
++++ antargis/trunk/ext/gui/ag_application.cc	2008-05-23 15:24:11 UTC (rev 1250)
+@@ -38,16 +38,11 @@
+     SDL_EnableKeyRepeat(0, 0);
+   }
+ 
+-//AGApplication *gApplication=0;
+ 
+ AGVector2 gAppCursorPos;
+-/*
+-AGApplication *getApplication()
+-  {
+-    return gApplication;
+-  }
+-*/
++
+ AGApplication::AGApplication() :
++	sigFrameFinished(this,&quot;sigFrameFinished&quot;),
+   mRunning(true), mIdleCalls(true), mainWidget(0), mTooltip(0), mOverlay(0)
+   {
+     assertGL;
+@@ -125,53 +120,24 @@
+             STACKTRACE;
+             // check for finished music
+             getMain()-&gt;repeatedCalls();
+-            //  getSoundManager()-&gt;checkFinished();
+ 
+             now=SDL_GetTicks();
+-            /*
+-             // pull motion events (may flood the eventqueue)
+-             while(SDL_PeepEvents(&amp;event, 1, SDL_GETEVENT, SDL_MOUSEMOTIONMASK) &gt; 0)
+-             ;
+-             */
+             clearOldMousePosition();
+-            //  dbout(2,&quot;loop pre-event:&quot;&lt;&lt;loopCount);
+             event=getNewEvent();
+             if (eventOk(event))
+               {
+                 do
+                   {
+-                    //    dbout(2,&quot;eventok  &quot;&lt;&lt;toString(&amp;event));
+                     doEvent(event);
+                     if (mIdleCalls)
+                       {
+-                        //        dbout(2,&quot;getNewEvent...  (idlecalls:&quot;&lt;&lt;mIdleCalls&lt;&lt;&quot;)&quot;);
+                         event=getNewEvent();
+                       }
+                     else
+                       resetEvent(event);
+                   } while (eventOk(event));
+               }
+-            //  dbout(2,&quot;loop post-event:&quot;&lt;&lt;loopCount);
+-            /*
+-             if(mIdleCalls) 
+-             {
+-             if (SDL_PollEvent(&amp;event) == 0) 
+-             eventIdle();
+-             else
+-             {
+-             do
+-             {
+-             doEvent(&amp;event);
+-             }while(SDL_PollEvent(&amp;event)!=0);
+-             }
+ 
+-             } 
+-             else 
+-             {
+-             SDL_WaitEvent(&amp;event);
+-             doEvent(&amp;event);
+-             }*/
+-
+             if (mDemoTime&gt;=0)
+               {
+                 t=mDemoTime;
+@@ -432,6 +398,10 @@
+         changeList=mainWidget-&gt;aquireChanges();
+         mainWidget-&gt;clearChangeRects();
+       }
++    
++    
++    sigFrameFinished(new AGEvent(this,&quot;sigFrameFinished&quot;));
++    
+     if (opengl())// || true)
+       getScreen().flip();
+     else
+@@ -457,7 +427,6 @@
+ 
+ void AGApplication::tryQuit()
+   {
+-    CTRACE;
+     mRunning=false;
+   }
+ 
+@@ -515,7 +484,7 @@
+ /// mark my mainWidget and my tooltip, as they can be ruby-objects
+ void AGApplication::mark()
+   {
+-    CTRACE;
++//    CTRACE;
+     if (mainWidget)
+       markObject(mainWidget);
+     if (mTooltip)
+
+Modified: antargis/trunk/ext/gui/ag_application.h
+===================================================================
+--- antargis/trunk/ext/gui/ag_application.h	2008-05-19 18:29:07 UTC (rev 1249)
++++ antargis/trunk/ext/gui/ag_application.h	2008-05-23 15:24:11 UTC (rev 1250)
+@@ -131,6 +131,9 @@
+   void setDemoTime(float t);
+   
+   bool doEvent(const SDL_Event &amp;e);
++  
++  AGSignal sigFrameFinished;
++  
+  private:
+   void clearOldMousePosition();
+   void drawCursor();
+@@ -152,7 +155,7 @@
+   SDL_Event mEvent;
+ 
+   float mDemoTime;
+-
++  
+  public:
+   void mark();
+ };
+
+Modified: antargis/trunk/ext/gui/ag_button.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_button.cc	2008-05-19 18:29:07 UTC (rev 1249)
++++ antargis/trunk/ext/gui/ag_button.cc	2008-05-23 15:24:11 UTC (rev 1250)
+@@ -147,6 +147,7 @@
+ 
+ bool AGButton::eventMouseEnter()
+   {
++    CTRACE;
+     AGWidget::eventMouseEnter();
+     queryRedraw();
+     if(!mEnabled)
+@@ -159,6 +160,7 @@
+   }
+ bool AGButton::eventMouseLeave()
+   {
++    CTRACE;
+     AGWidget::eventMouseLeave();
+     queryRedraw();
+     if(!mEnabled)
+
+Modified: antargis/trunk/ext/gui/ag_scrollingwidget.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_scrollingwidget.cc	2008-05-19 18:29:07 UTC (rev 1249)
++++ antargis/trunk/ext/gui/ag_scrollingwidget.cc	2008-05-23 15:24:11 UTC (rev 1250)
+@@ -24,12 +24,14 @@
+ 
+ AGScrollingWidget::AGScrollingWidget(AGWidget *pParent, const AGRect2&amp; pRect):
+   AGWidget(pParent,pRect),
+-  mClient(pRect.origin()),
+-  mVector(0,0),
++  //mClient(pRect.origin()),
++  //mVector(0,0),
+   mDragging(false)
+     {
++      AGRect2 r=getRect().origin();
++      setClient(r,AGProjection2D(r,r));
+     }
+-
++/*
+ bool AGScrollingWidget::letChildProcess(AGWidget *pChild,AGEvent *event)
+   {
+     bool retValue;
+@@ -43,30 +45,39 @@
+     
+     return retValue;
+   }
++*/
+ 
+-
+ void AGScrollingWidget::setClientRect(const AGRect2 &amp;pRect)
+   {
+-    mClient=pRect;
++    AGRect2 r=getRect().origin();
++    setClient(pRect,AGProjection2D(r,r));
+   }
+ 
+-void AGScrollingWidget::drawChild(AGPainter &amp;pPainter,AGWidget *pChild)
++void AGScrollingWidget::setVector(const AGVector2 &amp;pVector)
+   {
+-    pPainter.pushMatrix();
+-    pPainter.transform(mClient-mVector);
+-    AGWidget::drawChild(pPainter,pChild);
+-    pPainter.popMatrix();
++    AGProjection2D p=getClientProjection();
++    AGRect2 from=getRect().origin();
++    AGRect2 to=p.project(from);
++    AGVector2 v=pVector;
++    v=-getClientWorld().shrinkToTopLeft(from.width(),from.height()).clip(-v);
++    setClient(getClientWorld(),AGProjection2D(from,to.origin()+v));
++    
+   }
++
++AGVector2 AGScrollingWidget::getVector() const
++{
++  AGProjection2D p=getClientProjection();
++  return p.project(AGVector2(0,0));
++}
++
++
+ bool AGScrollingWidget::eventMouseButtonDown(AGEvent *pEvent)
+   {
+     bool result=AGWidget::eventMouseButtonDown(pEvent);
+-    cdebug(getScreenRect());
+-    cdebug(pEvent-&gt;getMousePosition());
+     if(hovered())
+       {
+         mDragging=true;
+         cdebug(&quot;dragging!&quot;);
+-        //return true;
+       }
+     return result;
+   }
+@@ -84,32 +95,9 @@
+   {
+     if(mDragging)
+       {
+-        mVector-=pVector;
+-        cdebug(mVector);
+-        mVector=clip(mVector);
+-        cdebug(mVector);
++        setVector(getVector()+pVector);
+       }
+     return AGWidget::eventDragBy(pEvent,pVector);
+   }
+ 
+-AGRect2 AGScrollingWidget::getClientRect() const
+-{
+-  return mClient;
+-}
+ 
+-AGRect2 AGScrollingWidget::getScreenRect() const
+-{
+-  return AGWidget::getScreenRect()-mVector;
+-}
+-
+-
+-void AGScrollingWidget::setVector(const AGVector2 &amp;pVector)
+-  {
+-   mVector=clip(pVector); 
+-  }
+-
+-AGVector2 AGScrollingWidget::clip(const AGVector2 &amp;pVector)
+-  {
+-    AGRect2 client=AGRect2(0,0,mClient.width()-width(),mClient.height()-height());
+-    return client.clip(pVector);
+-  }
+
+Modified: antargis/trunk/ext/gui/ag_scrollingwidget.h
+===================================================================
+--- antargis/trunk/ext/gui/ag_scrollingwidget.h	2008-05-19 18:29:07 UTC (rev 1249)
++++ antargis/trunk/ext/gui/ag_scrollingwidget.h	2008-05-23 15:24:11 UTC (rev 1250)
+@@ -31,23 +31,14 @@
+   AGScrollingWidget(AGWidget *pParent, const AGRect2&amp; pRect);
+   void setClientRect(const AGRect2 &amp;pRect);
+   
+-  void drawChild(AGPainter &amp;pPainter,AGWidget *pChild);
+   bool eventMouseButtonDown(AGEvent *pEvent);
+   bool eventMouseButtonUp(AGEvent *pEvent);
+   bool eventDragBy(AGEvent *pEvent,const AGVector2 &amp;pVector);
+-  
+-  AGRect2 getClientRect() const;
+-  
+-  AGRect2 getScreenRect() const;
+-  
+-  void setVector(const AGVector2 &amp;pVector);
+-protected:
+-  virtual bool letChildProcess(AGWidget *pChild,AGEvent *event);
+-  AGVector2 clip(const AGVector2 &amp;pVector);
+ 
+-private:
+-  AGRect2 mClient;
+-  AGVector2 mVector;
++  void setVector(const AGVector2 &amp;p);
++  AGVector2 getVector() const;
++  
++ private:
+   bool mDragging;
+   
+   };
+
+Modified: antargis/trunk/ext/gui/ag_widget.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_widget.cc	2008-05-19 18:29:07 UTC (rev 1249)
++++ antargis/trunk/ext/gui/ag_widget.cc	2008-05-23 15:24:11 UTC (rev 1250)
+@@ -51,42 +51,13 @@
+     return gNewClippingTechnique;
+   }
+ 
+-/*
+-// FIXME: This shouldn't be needed anymore !!
+-class MWidgetSet:public std::set&lt;AGWidget*&gt;
+-{
+-public:
+-  virtual ~MWidgetSet();
+-};
+-MWidgetSet *mPAllWidgets=0; // workaround - to check if still widget exists or not
+-bool mWidgetSetDeleted=false;
+ 
+-MWidgetSet::~MWidgetSet()
+-  {
+-    CTRACE;
+-    mPAllWidgets=0;
+-    mWidgetSetDeleted=true;
+-  }
+-
+-MWidgetSet *getAllWidgets()
+-  {
+-    if(!mPAllWidgets)
+-      {
+-        if(!mWidgetSetDeleted)
+-          {
+-            mPAllWidgets=new MWidgetSet;
+-            REGISTER_SINGLETON(mPAllWidgets);
+-          }
+-      }
+-    return mPAllWidgets;
+-  }
+- */
+ AGWidget::AGWidget(AGWidget *pParent,const AGRect2 &amp;r):
+   sigMouseEnter(this,&quot;sigMouseEnter&quot;),
+   sigMouseLeave(this,&quot;sigMouseLeave&quot;),
+   sigClick(this,&quot;sigClick&quot;),
+   mApp(0),
+-  mr(r),mClientWorld(r.origin()),mUseClientRect(false),
++  mRect(r),mClientWorld(r.origin()),mUseClientRect(false),
+   mParent(pParent),mChildrenEventFirst(false),mChildrenDrawFirst(false),mMouseIn(false),mButtonDown(false),
+   mFixedWidth(false),mFixedHeight(false),mVisible(true),mCaching(false),
+   mHasFocus(false),mFocus(0)
+@@ -101,8 +72,6 @@
+       mCacheTouched=false;
+       mTooltipWidget=0;
+       mModal=false;
+-      //if(getAllWidgets())
+-      //  getAllWidgets()-&gt;insert(this);
+ 
+       getMain()-&gt;getCollector()-&gt;insertGlobal(this);
+     }
+@@ -120,20 +89,7 @@
+         (*i)-&gt;setParent(0);
+       }
+     if(getParent())
+-      {
+-        /*if(getAllWidgets())
+-          {
+-            if(getAllWidgets()-&gt;find(getParent())==getAllWidgets()-&gt;end())
+-              {
+-                dbout(5000,&quot;WARNING:Error in ~AGWidget!!!&quot;);
+-              }
+-            else*/
+-
+-        getParent()-&gt;eventChildrenDeleted(this);
+-        //}
+-      }
+-    //if(getAllWidgets())
+-    //  getAllWidgets()-&gt;erase(this);
++      getParent()-&gt;eventChildrenDeleted(this);
+   }
+ 
+ std::list&lt;AGWidget*&gt; AGWidget::getChildren()
+@@ -231,19 +187,38 @@
+ 
+ void AGWidget::drawChild(AGPainter &amp;p,AGWidget *pWidget)
+   {
+-    pWidget-&gt;drawAll(p);
++    if(mUseClientRect)
++      {
++        p.pushMatrix();
++        p.transform(mClientProj.getMatrix());
++        pWidget-&gt;drawAll(p);
++        p.popMatrix();
++      }
++    else
++      pWidget-&gt;drawAll(p);
+   }
+ 
++AGProjection2D AGWidget::getClientProjection() const
++{
++  return mClientProj;
++}
++
++AGRect2 AGWidget::getClientWorld() const
++{
++  return mClientWorld;
++}
++
++
+ AGRect2 AGWidget::getRect() const
+ {
+-  return mr;
++  return mRect;
+ }
+ 
+ AGRect2 AGWidget::getClientRect() const
+ {
+   if(mUseClientRect)
+     return mClientWorld;
+-  return mr.origin();
++  return mRect.origin();
+ }
+ 
+ void AGWidget::setClient(const AGRect2 &amp;pWorld,const AGProjection2D &amp;pProjection)
+@@ -256,6 +231,7 @@
+ 
+ bool AGWidget::processEvent(AGEvent *event)
+   {
++    //CTRACE;
+     if(!mVisible)
+       return false;
+ 
+@@ -267,7 +243,6 @@
+ 
+     std::list&lt;AGWidget*&gt; children=mChildren; // copy children, so that changes do not affect iteration
+     for(i=children.begin();i!=children.end() &amp;&amp; !processed; i++)
+-      //      processed=(*i)-&gt;processEvent(event);
+       processed=letChildProcess(*i,event);
+ 
+     if(processed)
+@@ -287,7 +262,19 @@
+ 
+ bool AGWidget::letChildProcess(AGWidget *pChild,AGEvent *event)
+   {
+-    return pChild-&gt;processEvent(event);
++    bool retValue;
++    AGVector2 old=event-&gt;getRelMousePosition();
++    AGVector2 newP;
++    if(mUseClientRect)
++      newP=mClientProj.inverse().project(old);
++    else
++      newP=old-getRect().getV0();
++    event-&gt;setRelMousePosition(newP);
++
++    retValue=pChild-&gt;processEvent(event);
++    event-&gt;setRelMousePosition(old);
++
++    return retValue;
+   }
+ 
+ 
+@@ -333,7 +320,7 @@
+ 
+     if(e-&gt;isSDLEvent())
+       {
+-        if(getScreenRect().contains(e-&gt;getMousePosition()))
++        if(getRect().contains(e-&gt;getRelMousePosition()))
+           {
+             if(!mMouseIn)
+               {
+@@ -349,7 +336,6 @@
+                 eventMouseLeave() || sigMouseLeave(e);
+               }
+           }
+-
+         if(mButtonDown)
+           {
+             AGVector2 v=e-&gt;getMousePosition()-mOldMousePos;
+@@ -363,10 +349,12 @@
+ 
+ bool AGWidget::eventMouseButtonDown(AGEvent *e)
+   {
++    CTRACE;
+     if(e-&gt;isSDLEvent())
+       {
+-        if(getScreenRect().contains(e-&gt;getMousePosition()))
++        if(getRect().contains(e-&gt;getRelMousePosition()))
+           {
++            cdebug(getName());
+             mButtonDown=true;
+             mOldMousePos=e-&gt;getMousePosition();
+           }
+@@ -382,10 +370,12 @@
+ 
+     if(e-&gt;isSDLEvent())
+       {
+-        if(getScreenRect().contains(e-&gt;getMousePosition()))
++        //        cdebug(e-&gt;getRelMousePosition()&lt;&lt;&quot;::&quot;&lt;&lt;getRect());
++        if(getRect().contains(e-&gt;getRelMousePosition()))
+           {
+             if(was)
+               {
++                //                cdebug(&quot;click&quot;);
+                 e-&gt;setName(&quot;sigClick&quot;);
+                 AGApplication *app=getApp();
+                 assert(app);
+@@ -393,8 +383,8 @@
+                   {
+                     AGWidget *overlay=getApp()-&gt;getOverlay();
+                     //if(overlay)
+-                      if(!isParent(overlay))
+-                        app-&gt;setOverlay(0);
++                    if(!isParent(overlay))
++                      app-&gt;setOverlay(0);
+                   }
+                 if(!isParent(getApp()-&gt;getOverlay())) //FIXME: crashes here
+                   getApp()-&gt;setOverlay(0);
+@@ -506,7 +496,7 @@
+ void AGWidget::setRect(const AGRect2 &amp;pRect)
+   {
+     regChange();
+-    mr=pRect;
++    mRect=pRect;
+     regChange();
+     if(mParent)
+       mParent-&gt;redraw();
+@@ -538,12 +528,12 @@
+ 
+ float AGWidget::width() const
+ {
+-  return mr.w();
++  return mRect.w();
+ }
+ 
+ float AGWidget::height() const
+ {
+-  return mr.h();
++  return mRect.h();
+ }
+ 
+ bool AGWidget::fixedWidth() const
+@@ -559,14 +549,14 @@
+ void AGWidget::setWidth(float w)
+   {
+     regChange();
+-    mr.setWidth(w);
++    mRect.setWidth(w);
+     regChange();
+     queryRedraw();
+   }
+ void AGWidget::setHeight(float h)
+   {
+     regChange();
+-    mr.setHeight(h);
++    mRect.setHeight(h);
+     regChange();
+     queryRedraw();
+   }
+@@ -574,33 +564,33 @@
+ void AGWidget::setTop(float y)
+   {
+     regChange();
+-    mr.setTop(y);
++    mRect.setTop(y);
+     regChange();
+   }
+ void AGWidget::setLeft(float x)
+   {
+     regChange();
+-    mr.setLeft(x);
++    mRect.setLeft(x);
+     regChange();
+   }
+ float AGWidget::bottom() const
+ {
+-  return mr[1][1];
++  return mRect[1][1];
+ }
+ float AGWidget::right() const
+ {
+-  return mr[1][0];
++  return mRect[1][0];
+ }
+ 
+ 
+ float AGWidget::top() const
+ {
+-  return mr.y();
++  return mRect.y();
+ }
+ 
+ float AGWidget::left() const
+ {
+-  return mr.x();
++  return mRect.x();
+ }
+ 
+ void AGWidget::show()
+@@ -626,6 +616,8 @@
+ 
+ void AGWidget::setParent(AGWidget *pParent)
+   {
++    //mOldMousePos.setX(-20000); // set oldmousepos invalid -- see eventMouseMotion 
++
+     if(!mParent)
+       {
+         if(hasMain())
+@@ -1203,3 +1195,8 @@
+   return getChildRect(pWidget-&gt;getRect()).contains(pVector);
+ }
+ 
++void AGWidget::setButtonDown(bool value,const AGVector2 &amp;startVector)
++  {
++    mOldMousePos=startVector;
++    mButtonDown=value;
++  }
+
+Modified: antargis/trunk/ext/gui/ag_widget.h
+===================================================================
+--- antargis/trunk/ext/gui/ag_widget.h	2008-05-19 18:29:07 UTC (rev 1249)
++++ antargis/trunk/ext/gui/ag_widget.h	2008-05-23 15:24:11 UTC (rev 1250)
+@@ -112,6 +112,7 @@
+ 
+   virtual bool eventMouseButtonDown(AGEvent *m);
+   virtual bool eventMouseButtonUp(AGEvent *m);
++  void setButtonDown(bool value,const AGVector2 &amp;startVector);
+ 
+   virtual bool eventGotFocus();
+   virtual bool eventLostFocus();
+@@ -227,6 +228,8 @@
+   bool hovered() const;
+   
+   void setClient(const AGRect2 &amp;pWorld,const AGProjection2D &amp;pProj);
++  AGProjection2D getClientProjection() const;
++  AGRect2 getClientWorld() const;
+   
+   
+   virtual bool eventMouseButtonDownClipped(AGEvent *pEvent,const AGVector2 &amp;pPosition);
+@@ -259,7 +262,7 @@
+ 
+   std::list&lt;AGWidget*&gt; mToClear;
+ 
+-  AGRect2 mr,mClientWorld;
++  AGRect2 mRect,mClientWorld;
+   AGProjection2D mClientProj;
+   bool mUseClientRect;
+   
+
+Modified: antargis/trunk/ext/math/ag_algebra.cc
+===================================================================
+--- antargis/trunk/ext/math/ag_algebra.cc	2008-05-19 18:29:07 UTC (rev 1249)
++++ antargis/trunk/ext/math/ag_algebra.cc	2008-05-23 15:24:11 UTC (rev 1250)
+@@ -3,8 +3,16 @@
+ #include &quot;ag_gauss.h&quot;
+ #include &quot;ag_stringstream.h&quot;
+ 
++AGMatrixN::AGMatrixN(const AGMatrix4 &amp;p):m(4*4,0),
++mW(4),mH(4)
++  {
++    for(size_t x=0;x&lt;p.mW;x++)
++      for(size_t y=0;y&lt;mH;y++)
++#error FIXME
++  }
+ 
+ 
++
+ AGMatrixN::AGMatrixN(size_t w,size_t h):m(w*h,0),
+ mW(w),mH(h)
+   {
+
+Modified: antargis/trunk/ext/video/ag_painter.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_painter.cc	2008-05-19 18:29:07 UTC (rev 1249)
++++ antargis/trunk/ext/video/ag_painter.cc	2008-05-23 15:24:11 UTC (rev 1250)
+@@ -37,7 +37,7 @@
+ /////////////////////////////////////////////////////////////////////////////////
+ 
+ 
+-AGProjection::AGProjection(const AGRect2 &amp;pClip):clip(pClip)
++AGPaintProjection::AGPaintProjection(const AGRect2 &amp;pClip):clip(pClip)
+ {
+   a.set(0,0,1);
+   a.set(0,1,0);
+@@ -50,7 +50,7 @@
+   a.set(2,2,0);
+ }
+ 
+-AGProjection::AGProjection(const AGClipping &amp;pClip):advancedClipping(pClip)
++AGPaintProjection::AGPaintProjection(const AGClipping &amp;pClip):advancedClipping(pClip)
+ {
+   a.set(0,0,1);
+   a.set(0,1,0);
+@@ -64,30 +64,30 @@
+ }
+ 
+ 
+-AGVector2 AGProjection::project(const AGVector2 &amp;p) const
++AGVector2 AGPaintProjection::project(const AGVector2 &amp;p) const
+ {
+   AGVector2 r=(a*AGVector3(p[0],p[1],1)).dim2();
+ 
+   return r;
+ }
+-bool AGProjection::pointOk(const AGVector2 &amp;p) const
++bool AGPaintProjection::pointOk(const AGVector2 &amp;p) const
+ {
+   return clip.contains(p);
+ }
+ 
+-AGRect2 AGProjection::project(const AGRect2 &amp;p) const
++AGRect2 AGPaintProjection::project(const AGRect2 &amp;p) const
+ {
+   AGRect2 r((a*AGVector3(p[0],1)).dim2(),
+       (a*AGVector3(p[1],1)).dim2());
+   return r;
+ }
+-AGRect2 AGProjection::clipRect(AGRect2 target) const
++AGRect2 AGPaintProjection::clipRect(AGRect2 target) const
+ {
+   return clip.intersect(target);
+ }
+ 
+ 
+-std::pair&lt;AGRect2,AGRect2&gt; AGProjection::clipRect(AGRect2 target,AGRect2 src) const
++std::pair&lt;AGRect2,AGRect2&gt; AGPaintProjection::clipRect(AGRect2 target,AGRect2 src) const
+ {
+   AGRect2 i=clip.intersect(target);
+   if(i.width()&lt;=0 || i.height()&lt;=0)
+@@ -139,24 +139,24 @@
+   return std::make_pair(target,src);
+ }
+ 
+-void AGProjection::translate(const AGVector2 &amp;v)
++void AGPaintProjection::translate(const AGVector2 &amp;v)
+   {
+     a.get(2,0)+=v[0];
+     a.get(2,1)+=v[1];
+   }
+ 
+-void AGProjection::transform(const AGMatrix3 &amp;pMatrix)
++void AGPaintProjection::transform(const AGMatrix3 &amp;pMatrix)
+   {
+     a*=pMatrix;
+   }
+ 
+-void AGProjection::setClip(const AGRect2&amp;p)
++void AGPaintProjection::setClip(const AGRect2&amp;p)
+   {
+     clip=clip.intersect(p);
+   }
+ 
+ 
+-AGRect2 AGProjection::getRect() const
++AGRect2 AGPaintProjection::getRect() const
+ {
+   AGRect2 r=clip;
+ 
+@@ -164,7 +164,7 @@
+   return r;
+ }
+ 
+-AGLine2 AGProjection::clipLine(AGLine2 l) const
++AGLine2 AGPaintProjection::clipLine(AGLine2 l) const
+ {
+   AGLine2 d;
+ 
+@@ -598,6 +598,11 @@
+     mTarget-&gt;clip(mCurrent.clip);
+   }
+ 
++void AGPainter::transform(const AGMatrix3 &amp;m)
++  {
++    mCurrent.transform(m);
++  }
++
+ void AGPainter::transform(const AGRect2 &amp;r)
+   {
+     translate(r[0]);
+
+Modified: antargis/trunk/ext/video/ag_painter.h
+===================================================================
+--- antargis/trunk/ext/video/ag_painter.h	2008-05-19 18:29:07 UTC (rev 1249)
++++ antargis/trunk/ext/video/ag_painter.h	2008-05-23 15:24:11 UTC (rev 1250)
+@@ -31,20 +31,19 @@
+ #include &lt;ag_clip.h&gt;
+ #include &lt;ag_base.h&gt;
+ 
+-
+ #include &lt;list&gt;
+ 
+ class AGTriangle2;
+ class AGRect2;
+ 
+-struct AGEXPORT AGProjection
++struct AGEXPORT AGPaintProjection
+ {
+   AGMatrix3 a;
+   AGRect2 clip;
+   AGClipping advancedClipping;
+ 
+-  AGProjection(const AGRect2 &amp;pClip);
+-  AGProjection(const AGClipping &amp;pClip);
++  AGPaintProjection(const AGRect2 &amp;pClip);
++  AGPaintProjection(const AGClipping &amp;pClip);
+ 
+   AGVector2 project(const AGVector2 &amp;p) const;
+   bool pointOk(const AGVector2 &amp;p) const;
+@@ -126,6 +125,7 @@
+   void clip(const AGClipping &amp;clip);
+ 
+   void transform(const AGRect2 &amp;r);
++  void transform(const AGMatrix3 &amp;m);
+ 
+   AGVector2 project(const AGVector2 &amp;p) const;
+   bool pointOk(const AGVector2 &amp;p) const;
+@@ -133,9 +133,9 @@
+   AGPaintTarget *getTarget();
+ 
+  private:
+-  std::list&lt;AGProjection&gt; ps;
++  std::list&lt;AGPaintProjection&gt; ps;
+ 
+-  AGProjection mCurrent;
++  AGPaintProjection mCurrent;
+ 
+   gc_ptr&lt;AGPaintTarget&gt; mTarget;
+ };
+
+Modified: antargis/trunk/ext/video/ag_projection.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_projection.cc	2008-05-19 18:29:07 UTC (rev 1249)
++++ antargis/trunk/ext/video/ag_projection.cc	2008-05-23 15:24:11 UTC (rev 1250)
+@@ -2,39 +2,40 @@
+ #include &quot;ag_debug.h&quot;
+ #include &quot;ag_algebra.h&quot;
+ 
++AGProjection2D::AGProjection2D() :
++  mInited(false)
++  {
++  }
+ 
+-AGProjection2D::AGProjection2D():mInited(false)
+-    {
+-    }
++AGProjection2D::AGProjection2D(const AGMatrix3 &amp;pMatrix) :
++  mInited(true), m(pMatrix)
++  {
++    assert(isInvertable(m));
++  }
+ 
+-AGProjection2D::AGProjection2D(const AGMatrix3 &amp;pMatrix):mInited(true),m(pMatrix)
+-    {
+-      assert(isInvertable(m));
+-    }
++AGProjection2D::AGProjection2D(const AGProjection2D &amp;p) :
++  mInited(p.mInited), m(p.m)
++  {
++  }
+ 
+-
+-AGProjection2D::AGProjection2D(const AGProjection2D &amp;p):mInited(p.mInited),m(p.m)
+-    {
+-    }
+-
+-AGProjection2D::AGProjection2D(const AGRect2 &amp;from, const AGRect2 &amp;to):
++AGProjection2D::AGProjection2D(const AGRect2 &amp;from, const AGRect2 &amp;to) :
+   mInited(true)
+-    {
+-      assert(from.content()&gt;0 &amp;&amp; to.content()&gt;0);
++  {
++    assert(from.content()&gt;0 &amp;&amp; to.content()&gt;0);
+ 
+-      float sx=to.w()/from.w();
+-      float sy=to.h()/from.h();
+-      AGMatrix3 m1(-from.getV0());
+-      AGMatrix3 m2(sx,sy);
+-      AGMatrix3 m3(to.getV0());
++    float sx=to.w()/from.w();
++    float sy=to.h()/from.h();
++    AGMatrix3 m1(-from.getV0());
++    AGMatrix3 m2(sx, sy);
++    AGMatrix3 m3(to.getV0());
+ 
+-      m=m3*m2*m1;
+-    }
++    m=m3*m2*m1;
++  }
+ 
+ AGRect2 AGProjection2D::project(const AGRect2 &amp;r) const
+   {
+     assert(mInited);
+-    return AGRect2((m*r.getV0()).dim2(),(m*r.getV1()).dim2());
++    return AGRect2((m*r.getV0()).dim2(), (m*r.getV1()).dim2());
+   }
+ AGVector2 AGProjection2D::project(const AGVector2 &amp;p) const
+   {
+@@ -49,7 +50,14 @@
+   }
+ 
+ AGProjection2D AGProjection2D::inverse() const
+-{
+-  assert(isInvertable(m));
+-  return AGProjection2D(m.inverted());
+-}
++  {
++    CTRACE;
++    assert(isInvertable(m));
++    cdebug(&quot;1&quot;);
++    return AGProjection2D(m.inverted());
++  }
++
++AGMatrix3 AGProjection2D::getMatrix() const
++  {
++    return m;
++  }
+
+Modified: antargis/trunk/ext/video/ag_projection.h
+===================================================================
+--- antargis/trunk/ext/video/ag_projection.h	2008-05-19 18:29:07 UTC (rev 1249)
++++ antargis/trunk/ext/video/ag_projection.h	2008-05-23 15:24:11 UTC (rev 1250)
+@@ -1,6 +1,8 @@
+ #ifndef AG_PROJECTION
+ #define AG_PROJECTION
+ 
++// INCLUDE_SWIG - used to filter, which files are included in swig-interfacing
++
+ #include &lt;ag_base.h&gt;
+ #include &lt;ag_geometry.h&gt;
+ 
+@@ -19,6 +21,8 @@
+   AGProjection2D inverse() const;
+ 
+   void pushProjection(const AGProjection2D &amp;p);
++  
++  AGMatrix3 getMatrix() const;
+ private:
+   bool mInited;
+   AGMatrix3 m;
+
+Modified: antargis/trunk/ext/video/ag_surface.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_surface.cc	2008-05-19 18:29:07 UTC (rev 1249)
++++ antargis/trunk/ext/video/ag_surface.cc	2008-05-23 15:24:11 UTC (rev 1250)
+@@ -608,7 +608,47 @@
+ 
+   }
+ 
++/**
++ * \return if this and pSurface have the same extends, this is sum_pixel((this(pixel)-pSurface(pixel)^2)
++ *         otherwise it's -1 
++ *         the used norm for colors is sqrt((r0-r1)^2+(g0-g1)^2+(b0-b1)^2+(a0-a1)^2)
++ * */
++float AGSurface::similarity(const AGSurface &amp;pSurface) const
++{
++  float value=0;
++  if(pSurface.width()!=width() || pSurface.height()!=height())
++    {
++      return -1;
++    }
++  AGColor c0,c1;
++  float r,g,b,a;
++  for(size_t x=0;x&lt;width();x++)
++    for(size_t y=0;y&lt;height();y++)
++      {
++        c0=getPixel(x,y);
++        c1=pSurface.getPixel(x,y);
++        r=c0.r-c1.r;
++        b=c0.b-c1.b;
++        g=c0.g-c1.g;
++        a=c0.a-c1.a;
++        value+=sqrt(r*r+b*b+g*g+a*a)/float(0xFF);
++      }
++  return value;
++}
+ 
++
++bool AGSurface::similarTo(const AGSurface &amp;pSurface,float threshold) const
++{
++  float s=similarity(pSurface);
++  if(s&lt;0)
++    return s;
++  if(width()==0 &amp;&amp; height()==0)
++    return true;
++  return sqrt(s)/(width()*height())&lt;threshold;
++}
++
++
++
+ void AGSurface::setDecryptor(AGDecryptor *pDecryptor)
+   {
+     mDecryptor=pDecryptor;
+
+Modified: antargis/trunk/ext/video/ag_surface.h
+===================================================================
+--- antargis/trunk/ext/video/ag_surface.h	2008-05-19 18:29:07 UTC (rev 1249)
++++ antargis/trunk/ext/video/ag_surface.h	2008-05-23 15:24:11 UTC (rev 1250)
+@@ -125,9 +125,12 @@
+ 
+   AGVector2 shrink2Fit(int alphaThresh=20);
+ 
+-  // private:
+-
+   AGSurface(AGInternalSurface *i);
++  
++  float similarity(const AGSurface &amp;pSurface) const;
++  bool similarTo(const AGSurface &amp;pSurface,float threshold=0.1) const;
++  
++  
+ 
+  private:
+ 
+
+Modified: antargis/trunk/ext/video/ag_texture.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_texture.cc	2008-05-19 18:29:07 UTC (rev 1249)
++++ antargis/trunk/ext/video/ag_texture.cc	2008-05-23 15:24:11 UTC (rev 1250)
+@@ -207,7 +207,6 @@
+ AGGLTexture *AGTexture::glTexture()
+   {
+     assert(opengl());
+-    cdebug(mTexture);
+     if(mTexture==0)
+       {
+         if(s)
+
+Modified: antargis/trunk/ruby/editor/campaign/drag_grid.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/drag_grid.rb	2008-05-19 18:29:07 UTC (rev 1249)
++++ antargis/trunk/ruby/editor/campaign/drag_grid.rb	2008-05-23 15:24:11 UTC (rev 1250)
+@@ -4,6 +4,7 @@
+ # TODO:
+ # * put all draggable-objects within context of DragEnvironemt
+ 
++setDebugLevel(0)
+ 
+ module Arrows
+   def createArrowPolies(from,to,width)
+@@ -104,6 +105,7 @@
+       p=getParent
+       p.removeChild(self)
+       to.addChild(self)
++      #setParent(to)
+       setRect(o+(-to.getScreenRect.getV0))
+     end
+   end
+@@ -164,18 +166,11 @@
+ 
+ 
+ class AGHoverWidget&lt;AGWidget
+-  attr_reader :hovered
+   attr_accessor :hoverBorder
+   def initialize(*s)
+     super
+-    @hovered=false
+     @hoverBorder=5
+   end
+-  def eventMouseMotion(e)
+-    r=super
+-    @hovered=getScreenRect.shrink(@hoverBorder).contains(e.getMousePosition)
+-    r
+-  end
+ end
+ 
+ class GenericLayoutCreator&lt;AGLayoutCreator
+@@ -260,7 +255,7 @@
+     radius=8
+     c1=@color
+     c2=@color
+-    if @hovered or @dragging
++    if hovered or @dragging
+       c2*=1.2
+     end
+     
+@@ -271,6 +266,7 @@
+   end
+   def eventDragBy(e,v)
+     super
++    p &quot;DRAGGIGN #{v}&quot;
+     if @dragging
+       setRect(getRect+v)
+       return true
+@@ -285,17 +281,17 @@
+   end
+   
+   def startDragging
++    @dragging=true
+     moveToContext(getDragEnvironment)
+   end
+   
+   def eventMouseButtonDown(e)
+     r=super
+-    sRect=getScreenRect
+-    if sRect.contains(e.getMousePosition)
++    sRect=getRect
++    if sRect.contains(e.getRelMousePosition)
+       
+       getDragGrid.select(self) if getDragGrid
+-	    if sRect.shrink(BORDER_WIDTH).contains(e.getMousePosition)
+-	      @dragging=true
++	    if sRect.shrink(BORDER_WIDTH).contains(e.getRelMousePosition)
+ 	      startDragging
+         return true
+ 	    elsif @lastCell
+@@ -310,7 +306,9 @@
+     puts &quot;STARTLINE&quot;
+     env=getAncestor(DragGrid)
+     env.addChild(line=DragLine.new(env,env.getRect,self))
+-    line.eventMouseButtonDown(e)
++    line.setButtonDown(true,e.getMousePosition) # enable dragging
++    line.startDragging(e)
++    #line.eventMouseButtonDown(e)
+   end
+   
+   def eventMouseButtonUp(e)
+@@ -386,8 +384,13 @@
+   
+   def draw(p)
+     startP=getPos(@startObject)
+-    endP=@pos unless @endObject
+-    endP=getPos(@endObject) if @endObject
++    if @endObject
++      endP=getPos(@endObject)
++    else
++      endP=@pos
++    end
++    #endP=@pos unless @endObject
++    #endP=getPos(@endObject) if @endObject
+     
+     if @endObject and @startObject
+ 	    if @moving==false and (@endObject.visible==false or @startObject.visible==false)
+@@ -398,6 +401,7 @@
+     white=AGColor.new(0xFF,0xFF,0x88) if @hovered
+     black=AGColor.new(0,0,0)
+     p.setLineWidth(1)
++    p &quot;---&quot;,startP,endP,&quot;_--&quot;
+     p.drawArrow(startP,endP,5,white,black)
+     middle=(endP+startP)*0.5
+     
+@@ -412,6 +416,11 @@
+     true
+   end
+   
++  def startDragging(e)
++    @moving=true
++    @pos=e.getMousePosition+(getRect.getV0-getScreenRect.getV0)
++  end
++  
+   def eventMouseMotion(e)
+     r=super
+     p=@pos
+@@ -623,7 +632,11 @@
+     if getScreenRect.shrink(BORDER+SECBORDER).contains(e.getMousePosition)
+       # FIXME: dragenvironment is not == Screenspace evtl.
+       getDragEnvironment.addChild(o=@mClass.new(getDragEnvironment,getScreenRect.shrink(BORDER)<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at text</A>))
+-      o.eventMouseButtonDown(e)
++      o.setName(&quot;DRAG&quot;)
++      o.setButtonDown(true,e.getMousePosition)
++      o.startDragging
++      #letChildProcess(o,e)
++      #o.eventMouseButtonDown(e)
+       return true
+     end
+     
+@@ -693,7 +706,7 @@
+     
+   end
+   def eventDeselect
+-    @grid.select(nil)
++    @grid.select(nil) if @grid
+   end
+   def eventFrame(t)
+     sigFrame(t)
+
+Modified: antargis/trunk/ruby/editor/campaign/spec_campaign_editor.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/spec_campaign_editor.rb	2008-05-19 18:29:07 UTC (rev 1249)
++++ antargis/trunk/ruby/editor/campaign/spec_campaign_editor.rb	2008-05-23 15:24:11 UTC (rev 1250)
+@@ -1,4 +1,3 @@
+-if false
+ require File.join(File.split(__FILE__)[0],&quot;..&quot;,&quot;..&quot;,&quot;spec_helper.rb&quot;)
+ require File.join(File.split(__FILE__)[0],&quot;..&quot;,&quot;..&quot;,&quot;gui&quot;,&quot;testing.rb&quot;)
+ require File.join(File.split(__FILE__)[0],&quot;drag_grid.rb&quot;)
+@@ -13,6 +12,9 @@
+     grid.getAllDescendants.select{|c|c.is_a?(DragBox)}.length.should == 1
+   end
+   
++  it &quot;should be possible to move the grid&quot; do
++  end
++  
+   it &quot;should not use widgets for DragTargets anymore&quot; do
+     # define DragTarget, if not yet defined
+     class DragTarget
+@@ -20,6 +22,8 @@
+     grid.getAllDescendants.select{|c|c.is_a?(DragTarget)}.length.should == 0
+   end
+   
++  
++  
+   it &quot;should be possible to place stories on the grid&quot;
+   it &quot;should be possible to define a start-node&quot;
+   it &quot;should be possible to draw arrows from one node to another&quot;
+@@ -57,4 +61,3 @@
+   end
+ end
+ 
+-end
+\ No newline at end of file
+
+Modified: antargis/trunk/ruby/gui/ag_tools.rb
+===================================================================
+--- antargis/trunk/ruby/gui/ag_tools.rb	2008-05-19 18:29:07 UTC (rev 1249)
++++ antargis/trunk/ruby/gui/ag_tools.rb	2008-05-23 15:24:11 UTC (rev 1250)
+@@ -88,11 +88,11 @@
+ 
+ 	private
+ 	def makeHandlerName(object,event)
+-		if object.respond_to?(:getName)
+-			return object.getName+&quot;:&quot;+event.to_s
+-		else
++		#if object.respond_to?(:getName)
++		#	return object.getName+&quot;:&quot;+event.to_s
++		#else
+ 			return object.object_id.to_s+&quot;:&quot;+event.to_s
+-		end
++		#end
+ 	end
+ end
+ 
+
+Modified: antargis/trunk/ruby/gui/testing.rb
+===================================================================
+--- antargis/trunk/ruby/gui/testing.rb	2008-05-19 18:29:07 UTC (rev 1249)
++++ antargis/trunk/ruby/gui/testing.rb	2008-05-23 15:24:11 UTC (rev 1250)
+@@ -107,13 +107,14 @@
+ 		TestWidget.new(@app.getMainWidget.getChild(widgetName))
+ 	end
+ 	def clickScreen(x,y)
+-	  pos=AGVector2.new(x,y)
+-	  mouseDown(pos)
+-    mouseUp(pos)
+-		#@app.eventMouseButtonDown(newEvent(@app,&quot;&quot;,toSDLEvent(&quot;SDL_MOUSEBUTTONDOWN:0:1:1:#{x.to_i}:#{y.to_i}&quot;)))
+-		#@app.eventMouseButtonUp(newEvent(@app,&quot;&quot;,toSDLEvent(&quot;SDL_MOUSEBUTTONUP:0:1:1:#{x.to_i}:#{y.to_i}&quot;)))
++	  click(AGVector2.new(x,y))
+ 	end
+   
++  def click(pos)
++    mouseDown(pos)
++    mouseUp(pos)
++  end
++  
+   def mouseMotion(pos)
+     
+     x=pos[0]
+
+Added: antargis/trunk/ruby/spec/spec_mouseevents.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_mouseevents.rb	2008-05-19 18:29:07 UTC (rev 1249)
++++ antargis/trunk/ruby/spec/spec_mouseevents.rb	2008-05-23 15:24:11 UTC (rev 1250)
+@@ -0,0 +1,80 @@
++require 'ruby/gui/testing.rb'
++
++class DragWidget&lt;AGWidget
++  def initialize(p,r)
++    super
++  end
++  def draw(p)
++    p.fillRect(getRect.origin,AGColor.new(0xFF,0xFF,0))
++  end
++  def eventDragBy(e,d)
++    r=super
++    setRect(getRect+d)
++    r
++  end
++end
++
++class TestApp&lt;AGApplication
++  attr_reader :m, :b
++  attr_accessor :l
++  
++  def initialize
++    super
++    @l=[]
++    @m=AGWidget.new(nil,AGRect2.new(10,10,100,100))
++    @b=AGButton.new(@m,AGRect2.new(10,10,40,40))
++    @d=DragWidget.new(@m,AGRect2.new(70,70,10,10))
++    @m.addChild(@b)
++    @m.addChild(@d)
++    setMainWidget(@m)
++    [@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">b, at m</A>].each{|w|
++      addHandler(w,:sigClick,:clicked)
++    }
++  end
++  def eventFrame(t)
++    super
++    delay(100)
++  end
++  def clicked(e)
++    @l&lt;&lt;e.getCaller
++  end
++end
++
++
++
++describe &quot;MouseEvents on simple widgets (no scaling or hiding)&quot; do
++  include GuiTest
++  before(:all) do
++    @app=makeTestAppClass(TestApp).new
++  end
++  it &quot;should set hover to true on button when hovering&quot; do
++    mouseMotion(AGVector2.new(1,1))
++    @app.m.hovered.should == false
++    @app.b.hovered.should == false
++    mouseMotion(AGVector2.new(11,11))
++    @app.m.hovered.should == true
++    @app.b.hovered.should == false
++    mouseMotion(@app.b.getScreenRect.getMiddle)
++    @app.b.hovered.should == true
++  end
++  
++  it &quot;should handle clicking with correct positions&quot; do
++    @app.l.should == []
++    click(AGVector2.new(1,1))
++    @app.l.should == []
++    click(AGVector2.new(11,11))
++    @app.l.should == [@app.m]
++    click(AGVector2.new(21,21))
++    @app.l.should == [@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">app.m, at app.b</A>]
++    
++  end
++  
++  it &quot;shuold handle dragging correctly&quot; do
++    @app.step while true
++  end
++end
++
++describe &quot;MouseEvents on complex widgets (with scaling and hiding)&quot; do
++  it &quot;should handle hovering correctly&quot;
++  it &quot;should handle clicking correctly&quot;
++end
+
+Modified: antargis/trunk/ruby/spec/spec_screenshot.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_screenshot.rb	2008-05-19 18:29:07 UTC (rev 1249)
++++ antargis/trunk/ruby/spec/spec_screenshot.rb	2008-05-23 15:24:11 UTC (rev 1250)
+@@ -1,38 +1,71 @@
+ require 'ruby/gui/testing.rb'
+ 
++if false
+ describe &quot;Screenshots&quot; do
++
++  before(:all) do
++    @red=AGColor.new(0xFF,0,0)
++    @blue=AGColor.new(0,0,0xFF)
++    @s=getScreen
++  end
++     
++  it &quot;should be possible to grab backbuffer screenshot with dma&quot; do
++    fill(@blue)
++    flip
++    fill(@red)
++    texture=@s.screenshot(false)
++    surface=texture.getSurface
++    checkSurface(surface, @red).should be_true
++  end
++  it &quot;should be possible to grab back-buffer screenshot with readpixels&quot; do
++	  fill(@blue)
++	  flip
++	  fill(@red)
++    surface=@s.screenshotSurface(false)
++    checkSurface(surface, @red).should be_true
++  end
+   
+-  it &quot;should be possible to take screenshots in GL-Mode with AGSurface&quot; do
+-    getScreen.flip
+-    black=getScreen.screenshot
+-    black.width.should == getScreen.getWidth
+-    black.height.should == getScreen.getHeight
+-    blackColor=AGColor.new(0,0,0,0)
+-    0.upto(black.width-1) {|x|
+-      0.upto(black.height-1){|y|
+-    #    black.getPixel(x,y).should ==blackColor
+-      }
++  it &quot;should be possible to grab front-buffer screenshot with dma&quot; do
++    fill(@blue)
++    flip
++    fill(@red)
++    flip
++    surface=@s.screenshot(true).getSurface
++    checkSurface(surface, @red).should be_true
++  end
++  it &quot;should be possible to grab front-buffer screenshot with readpixels&quot; do
++    fill(@blue)
++    flip
++    fill(@red)
++    flip
++    surface=@s.screenshotSurface(true)
++    checkSurface(surface, @red).should be_true
++  end
++  
++  private
++  
++  
++  def fill(color)
++    @s.fillRect(@s.getRect,color)
++  end
++  def flip
++    @s.flip
++  end
++  
++  def checkSurface(surface,color)
++    w=surface.width
++    h=surface.height
++    equal=true
++    (0..10000).each{|i|
++      x,y=rand(w),rand(h)
++      p=surface.getPixel(x,y)
++      if p!=color
++        puts p.toString,color.toString 
++        equal=false
++        break
++      end 
+     }
+-    redColor=AGColor.new(0xFF,0,0)
+-    blueColor=AGColor.new(0,0,0xFF)
+-    getScreen.fillRect(getScreen.getRect,blueColor)
+-    getScreen.flip
+-    getScreen.fillRect(getScreen.getRect,redColor)
+-    getScreen.flip
+-    0.upto(black.width-1) {|x|
+-      0.upto(black.height-1){|y|
+-        #black.getPixel(x,y).should ==blackColor
+-#        black.getPixel(x,y).should ==blackColor
+-      }
+-    }
+-    redSurface=getScreen.screenshot(true)
+-    redSurface.save(&quot;red.png&quot;)
+-    0.upto(redSurface.width-1) {|x|
+-      0.upto(redSurface.height-1){|y|
+-        p redSurface.getPixel(x,y).toString,redColor.toString
+-        redSurface.getPixel(x,y).should == redColor
+-      }
+-    }
+-    
++    equal
+   end
++end
+ end
+\ No newline at end of file
+
+Modified: antargis/trunk/ruby/spec/spec_scrollingwidget.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_scrollingwidget.rb	2008-05-19 18:29:07 UTC (rev 1249)
++++ antargis/trunk/ruby/spec/spec_scrollingwidget.rb	2008-05-23 15:24:11 UTC (rev 1250)
+@@ -1,28 +1,55 @@
+ require 'ruby/gui/testing.rb'
+ 
+-if false
++class AGMouseCheckWidget&lt;AGImage
++  attr_reader :mousePos
++  def initialize(p,r,s,tile)
++    super
++    @mousePos=AGVector2.new(0,0)
++  end
++  def eventMouseMotion(e)
++    @mousePos=e.getMousePosition
++  end
++end
++
++
+ class MyTestApp&lt;AGApplication
+   BIGRECT=AGRect2.new(0,0,200,200)
+   SMALLRECT=AGRect2.new(0,0,100,100)
++  VECTOR=AGVector2.new(100,100)
+   BGCOLOR=AGColor.new(0,0,0)
+   FGCOLOR=AGColor.new(0xFF,0,0)
++  FGCOLOR2=AGColor.new(0,0,0xFF)
+   
+-  attr_reader :surface,:bgsurface
++  attr_reader :surface, :bgsurface, :screenshot, :image, :sWidget
+   
+   def initialize
+     super
+-    sw=AGScrollingWidget.new(nil,SMALLRECT)
+-    sw.setClientRect(BIGRECT)
+-    setMainWidget(sw)
+-    @surface=makeSurface(FGCOLOR)
++    @sWidget=AGScrollingWidget.new(nil,SMALLRECT)
++    @sWidget.setClientRect(BIGRECT)
++    setMainWidget(@sWidget)
++    @surface=makeSurface(FGCOLOR,FGCOLOR2)
+     @bgsurface=makeSurface(BGCOLOR)
+-    image=AGImage.new(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">sw,SMALLRECT, at surface</A>,false)
+-    sw.addChild(image)
+-    sw.addChild(AGButton.new(sw,sw.getRect))
++    @image=AGMouseCheckWidget.new(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">sWidget,SMALLRECT, at surface</A>,false)
++    @sWidget.addChild(@image)
++    
++    addHandler(self,:sigFrameFinished,:grabScreenshot)
+   end
+   
++  def makeScreenshot
++  	@makeScreenshot=true
++  end
++  
++  protected
++  def grabScreenshot(e)
++  	if @makeScreenshot
++  	  @screenshot=getScreen.screenshotSurface(false)
++	  @makeScreenshot=nil
++  	end
++  	true
++  end
++  
+   private
+-  def makeSurface(color)
++  def makeSurface(color,c2=nil)
+     w=SMALLRECT.width.to_i
+     h=SMALLRECT.height.to_i
+     s=AGSurface.new(w,h)
+@@ -31,24 +58,53 @@
+         s.putPixel(x,y,color)
+       }
+     }
++    if c2
++      ((w/3)..(2*w/3)).each{|x|
++        ((h/3)..(2*h/3)).each{|y|
++          s.putPixel(x,y,c2)
++        }
++      }
++    end
+     s
+   end
+ end
+ 
+ describe &quot;AGScrollingWidget&quot; do
+-  before(:each) do
+-    @app=makeTestAppClass(MyTestApp).new
++  describe &quot;drawing&quot; do
++    before(:each) do
++      @app=makeTestAppClass(MyTestApp).new
++    end
++    it &quot;should draw the surface normally in init state&quot; do
++      @app.step
++      @app.makeScreenshot
++      @app.step
++      screenshot=@app.screenshot
++      screenshot.should_not be_nil
++      screenshot.getSubSurface(MyTestApp::SMALLRECT).should == @app.surface
++    end
++    it &quot;shouldn't draw anything when the widget is scrolled to the right lower corner&quot; do
++      @app.sWidget.setVector(MyTestApp::VECTOR*0.5)
++      @app.makeScreenshot
++      @app.step
++      s=@app.screenshot
++      s.should_not be_nil
++      s.getSubSurface(MyTestApp::SMALLRECT).should_not == @app.surface
++    end
++  
++    it &quot;should scale&quot; do
++     proj=AGProjection2D.new(MyTestApp::BIGRECT,MyTestApp::SMALLRECT)
++     @app.sWidget.setClient(MyTestApp::BIGRECT,proj)
++     @app.makeScreenshot
++     @app.step
++     screenshot=@app.screenshot
++     sr=proj.project(MyTestApp::SMALLRECT)
++     sub=screenshot.getSubSurface(sr)
++     sub.save(&quot;xyz.png&quot;)
++     sub.should be_similarTo(@app.surface.scale(sr.width.to_i,sr.height.to_i),0.001)
++    end
+   end
+-  it &quot;should draw the surface normally in init state&quot; do
+-    @app.step
+-    @app.step
+-    screenshot=getScreen.screenshot(true)
+-    screenshot.save(&quot;muh.png&quot;)
+-    pp screenshot.getSubSurface(MyTestApp::SMALLRECT) == @app.surface
+-    screenshot.getSubSurface(MyTestApp::SMALLRECT).should == @app.surface
+-    @app.step while true
+-    
++  describe &quot;position translation in events&quot; do
++    it &quot;should translate&quot; do
++    end
+   end
+-  it &quot;shouldn't draw anything when the widget is scrolled to the right lower corner&quot;
+ end
+-end
+\ No newline at end of file
+
+Modified: antargis/trunk/ruby/spec_helper.rb
+===================================================================
+--- antargis/trunk/ruby/spec_helper.rb	2008-05-19 18:29:07 UTC (rev 1249)
++++ antargis/trunk/ruby/spec_helper.rb	2008-05-23 15:24:11 UTC (rev 1250)
+@@ -107,6 +107,18 @@
+ 	observer.run {block.call(observer)}
+ end
+ 
++class Object
++  def method_missing(name,*s)
++    alt=name.to_s.gsub(/\?$/,&quot;&quot;)
++    if respond_to?(alt) and alt!=name
++      self.send(alt,*s)
++    else
++      super
++    end
++    
++  end
++end
++
+ #class A
+ #	def b
+ #		puts &quot;B&quot;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000205.html">[Antargis-svn] r1249 - antargis/trunk/ruby/spec
+</A></li>
+	<LI>Next message: <A HREF="000207.html">[Antargis-svn] r1251 - antargis/trunk/ext/math
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#206">[ date ]</a>
+              <a href="thread.html#206">[ thread ]</a>
+              <a href="subject.html#206">[ subject ]</a>
+              <a href="author.html#206">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

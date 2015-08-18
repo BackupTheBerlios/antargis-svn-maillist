@@ -1,0 +1,1358 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1269 - in antargis/trunk: . data data/gui/campaign	data/gui/layout/editor/campaign ext/basic ext/gui ext/video	games games/copter games/copter/images ruby/editor/campaign ruby/gui
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2008-June/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1269%20-%20in%20antargis/trunk%3A%20.%20data%20data/gui/campaign%0A%09data/gui/layout/editor/campaign%20ext/basic%20ext/gui%20ext/video%0A%09games%20games/copter%20games/copter/images%20ruby/editor/campaign%20ruby/gui&In-Reply-To=%3C200806271510.m5RFAPS1014878%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000224.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1269 - in antargis/trunk: . data data/gui/campaign	data/gui/layout/editor/campaign ext/basic ext/gui ext/video	games games/copter games/copter/images ruby/editor/campaign ruby/gui</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1269%20-%20in%20antargis/trunk%3A%20.%20data%20data/gui/campaign%0A%09data/gui/layout/editor/campaign%20ext/basic%20ext/gui%20ext/video%0A%09games%20games/copter%20games/copter/images%20ruby/editor/campaign%20ruby/gui&In-Reply-To=%3C200806271510.m5RFAPS1014878%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1269 - in antargis/trunk: . data data/gui/campaign	data/gui/layout/editor/campaign ext/basic ext/gui ext/video	games games/copter games/copter/images ruby/editor/campaign ruby/gui">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Fri Jun 27 17:10:25 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000224.html">[Antargis-svn] r1268 - in antargis/trunk: . data	data/gui/layout/editor/campaign ext/basic ext/gui ext/video	rookey ruby/editor/campaign
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#225">[ date ]</a>
+              <a href="thread.html#225">[ thread ]</a>
+              <a href="subject.html#225">[ subject ]</a>
+              <a href="author.html#225">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2008-06-27 17:10:20 +0200 (Fri, 27 Jun 2008)
+New Revision: 1269
+
+Added:
+   antargis/trunk/data/gui/campaign/map1.png
+   antargis/trunk/data/gui/layout/editor/campaign/story_editor.xml
+   antargis/trunk/games/
+   antargis/trunk/games/copter/
+   antargis/trunk/games/copter/images/
+   antargis/trunk/games/copter/images/copter0.png
+   antargis/trunk/ruby/editor/campaign/image_list.rb
+   antargis/trunk/ruby/editor/campaign/image_list_2d.rb
+   antargis/trunk/ruby/editor/campaign/story_editor.rb
+Modified:
+   antargis/trunk/data/gui/layout/editor/campaign/main.xml
+   antargis/trunk/data/theme.xml
+   antargis/trunk/ext/basic/ag_geometry.cc
+   antargis/trunk/ext/basic/ag_geometry.h
+   antargis/trunk/ext/gui/ag_background.cc
+   antargis/trunk/ext/gui/ag_background.h
+   antargis/trunk/ext/gui/ag_frame.cc
+   antargis/trunk/ext/gui/ag_frame.h
+   antargis/trunk/ext/gui/ag_layout.cc
+   antargis/trunk/ext/gui/ag_layoutcreators.cc
+   antargis/trunk/ext/gui/ag_theme.cc
+   antargis/trunk/ext/gui/ag_theme.h
+   antargis/trunk/ext/gui/ag_widget.cc
+   antargis/trunk/ext/gui/ag_widget.h
+   antargis/trunk/ext/gui/ag_window.cc
+   antargis/trunk/ext/video/ag_glpainter.cc
+   antargis/trunk/ext/video/ag_gltexture.cc
+   antargis/trunk/ext/video/ag_gltexture.h
+   antargis/trunk/ext/video/ag_texturecache.cc
+   antargis/trunk/ext/video/ag_texturecache.h
+   antargis/trunk/ext/video/ag_video.cc
+   antargis/trunk/ruby/editor/campaign/drag_grid.rb
+   antargis/trunk/ruby/gui/ag_tools.rb
+Log:
+Incomplete - task 11: Campaign editor 
+<A HREF="http://localhost:3000/issues/show/11">http://localhost:3000/issues/show/11</A>
+
+Added: antargis/trunk/data/gui/campaign/map1.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/trunk/data/gui/campaign/map1.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Modified: antargis/trunk/data/gui/layout/editor/campaign/main.xml
+===================================================================
+--- antargis/trunk/data/gui/layout/editor/campaign/main.xml	2008-06-10 19:22:29 UTC (rev 1268)
++++ antargis/trunk/data/gui/layout/editor/campaign/main.xml	2008-06-27 15:10:20 UTC (rev 1269)
+@@ -63,42 +63,6 @@
+     &lt;appearEffect name=&quot;showEdit&quot; table=&quot;bigTable&quot; row=&quot;1&quot; size=&quot;40&quot; duration=&quot;0.2&quot;/&gt;
+     &lt;hideEffect name=&quot;hideEdit&quot; table=&quot;bigTable&quot; row=&quot;1&quot; size=&quot;40&quot; duration=&quot;0.2&quot;/&gt;
+   &lt;/dragEnvironment&gt;
++  &lt;storyEditor name=&quot;storyEditor&quot;/&gt;
+ 
+-
+-  &lt;frame width=&quot;150&quot; height=&quot;70&quot;&gt;
+-    &lt;window&gt;
+-      &lt;table rows=&quot;3&quot; cols=&quot;1&quot;&gt;
+-        &lt;rowsize row=&quot;0&quot; relative=&quot;0.7&quot;/&gt;
+-        &lt;rowsize row=&quot;1&quot; relative=&quot;3&quot;/&gt;
+-        &lt;cell col=&quot;0&quot; row=&quot;0&quot;&gt;
+-          &lt;imageList/&gt;
+-        &lt;/cell&gt;
+-        &lt;cell col=&quot;0&quot; row=&quot;1&quot;&gt;
+-          &lt;frame width=&quot;20&quot;&gt;
+-            &lt;image filename=&quot;data/gui/map1.png&quot; scale=&quot;true&quot;/&gt;
+-          &lt;/frame&gt;
+-        &lt;/cell&gt;
+-        &lt;cell col=&quot;0&quot; row=&quot;2&quot;&gt;
+-          &lt;table rows=&quot;1&quot; cols=&quot;3&quot;&gt;
+-            &lt;colsize col=&quot;1&quot; relative=&quot;8&quot;/&gt;
+-            &lt;cell col=&quot;1&quot; row=&quot;0&quot;&gt;
+-              &lt;frame width=&quot;5&quot;&gt;
+-                &lt;edit text=&quot;caption&quot; multi=&quot;true&quot;/&gt;
+-              &lt;/frame&gt;
+-            &lt;/cell&gt;
+-            &lt;cell col=&quot;0&quot; row=&quot;0&quot;&gt;
+-              &lt;frame width=&quot;10&quot; height=&quot;40&quot;&gt;
+-                &lt;button caption-image=&quot;data/gui/arrow_left.png&quot;/&gt;
+-              &lt;/frame&gt;
+-            &lt;/cell&gt;
+-            &lt;cell col=&quot;2&quot; row=&quot;0&quot;&gt;
+-              &lt;frame width=&quot;10&quot; height=&quot;40&quot;&gt;
+-                &lt;button caption-image=&quot;data/gui/arrow_right.png&quot;/&gt;
+-              &lt;/frame&gt;
+-            &lt;/cell&gt;
+-          &lt;/table&gt;
+-        &lt;/cell&gt;
+-      &lt;/table&gt;
+-    &lt;/window&gt;
+-  &lt;/frame&gt;
+ &lt;/layout&gt;
+\ No newline at end of file
+
+Added: antargis/trunk/data/gui/layout/editor/campaign/story_editor.xml
+===================================================================
+--- antargis/trunk/data/gui/layout/editor/campaign/story_editor.xml	2008-06-10 19:22:29 UTC (rev 1268)
++++ antargis/trunk/data/gui/layout/editor/campaign/story_editor.xml	2008-06-27 15:10:20 UTC (rev 1269)
+@@ -0,0 +1,43 @@
++&lt;?xml version=&quot;1.0&quot;?&gt;
++&lt;layout name=&quot;StoryEditor&quot;&gt;
++  &lt;frame width=&quot;150&quot; height=&quot;70&quot;&gt;
++    &lt;window theme=&quot;black&quot;&gt;
++      &lt;table rows=&quot;3&quot; cols=&quot;1&quot;&gt;
++        &lt;rowsize row=&quot;0&quot; relative=&quot;0.7&quot;/&gt;
++        &lt;rowsize row=&quot;1&quot; relative=&quot;3&quot;/&gt;
++        &lt;cell col=&quot;0&quot; row=&quot;0&quot;&gt;
++          &lt;imageList2D name=&quot;imageList&quot;/&gt;
++        &lt;/cell&gt;
++        &lt;cell col=&quot;0&quot; row=&quot;1&quot;&gt;
++          &lt;frame width=&quot;20&quot;&gt;
++            &lt;image name=&quot;image&quot; filename=&quot;data/gui/map1.png&quot; scale=&quot;true&quot;/&gt;
++          &lt;/frame&gt;
++        &lt;/cell&gt;
++        &lt;cell col=&quot;0&quot; row=&quot;2&quot;&gt;
++          &lt;table rows=&quot;2&quot; cols=&quot;3&quot;&gt;
++            &lt;colsize col=&quot;1&quot; relative=&quot;8&quot;/&gt;
++            &lt;rowsize row=&quot;1&quot; relative=&quot;0.2&quot;/&gt;
++            &lt;cell col=&quot;1&quot; row=&quot;0&quot;&gt;
++              &lt;frame width=&quot;5&quot;&gt;
++                &lt;edit name=&quot;edit&quot; text=&quot;caption&quot; multi=&quot;true&quot;/&gt;
++              &lt;/frame&gt;
++            &lt;/cell&gt;
++            &lt;cell col=&quot;0&quot; row=&quot;0&quot;&gt;
++              &lt;frame width=&quot;10&quot; height=&quot;40&quot;&gt;
++                &lt;button name=&quot;prev&quot; caption-image=&quot;data/gui/arrow_left.png&quot;/&gt;
++              &lt;/frame&gt;
++            &lt;/cell&gt;
++            &lt;cell col=&quot;2&quot; row=&quot;0&quot;&gt;
++              &lt;frame width=&quot;10&quot; height=&quot;40&quot;&gt;
++                &lt;button name=&quot;next&quot; caption-image=&quot;data/gui/arrow_right.png&quot;/&gt;
++              &lt;/frame&gt;
++            &lt;/cell&gt;
++            &lt;cell col=&quot;1&quot; row=&quot;1&quot;&gt;
++              &lt;text name=&quot;info&quot;/&gt;
++            &lt;/cell&gt;
++          &lt;/table&gt;
++        &lt;/cell&gt;
++      &lt;/table&gt;
++    &lt;/window&gt;
++  &lt;/frame&gt;
++ &lt;/layout&gt;
+\ No newline at end of file
+
+Modified: antargis/trunk/data/theme.xml
+===================================================================
+--- antargis/trunk/data/theme.xml	2008-06-10 19:22:29 UTC (rev 1268)
++++ antargis/trunk/data/theme.xml	2008-06-27 15:10:20 UTC (rev 1269)
+@@ -222,6 +222,30 @@
+ 			&lt;image name=&quot;image&quot; file=&quot;data/gui/paper2.png&quot;/&gt;
+ 		&lt;/background&gt;
+ 	&lt;/window&gt;
++  &lt;black&gt;
++    &lt;window&gt;
++      &lt;border&gt;
++        &lt;image name=&quot;image&quot; file=&quot;data/gui/buttontest3.png&quot;/&gt;
++      &lt;/border&gt;
++      &lt;title&gt;
++        &lt;font name=&quot;font&quot; file=&quot;FreeSans.ttf&quot; size=&quot;16&quot; color='#FFFFFF'/&gt;
++        &lt;background&gt;
++          &lt;value name=&quot;border&quot; value=&quot;0&quot;/&gt;
++          &lt;color name='gradientColor1' color='#54555b'/&gt;
++          &lt;color name='gradientColor2' color='#3c3d41'/&gt;
++          &lt;color name='gradientColor3' color='#3c3d41'/&gt;
++          &lt;color name='gradientColor4' color='#12141c'/&gt;
++        &lt;/background&gt;
++      &lt;/title&gt;
++      &lt;buttons&gt;
++        &lt;image name=&quot;close&quot; file=&quot;data/gui/close_button.png&quot;/&gt;
++      &lt;/buttons&gt;
++      &lt;background&gt;
++        &lt;value name=&quot;border&quot; value=&quot;0&quot;/&gt;
++        &lt;color name=&quot;color&quot; color='#000000'/&gt;
++      &lt;/background&gt;
++    &lt;/window&gt;
++  &lt;/black&gt;
+ 	
+ 	
+ 	&lt;yellowButton&gt;
+
+Modified: antargis/trunk/ext/basic/ag_geometry.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_geometry.cc	2008-06-10 19:22:29 UTC (rev 1268)
++++ antargis/trunk/ext/basic/ag_geometry.cc	2008-06-27 15:10:20 UTC (rev 1269)
+@@ -841,6 +841,13 @@
+     p[2]=v2;
+   }
+ 
++void AGTriangle2::flip()
++  {
++    AGVector2 tmp=p[2];
++    p[2]=p[1];
++    p[1]=tmp;
++  }
++
+ AGRect2 AGTriangle2::getBBox() const
+ {
+   float minx=std::min(p[0].getX(),std::min(p[1].getX(),p[2].getX()));
+@@ -1199,6 +1206,12 @@
+   return AGVector4(ip,1);
+ }
+ 
++void AGTriangle3::flip()
++  {
++    AGVector3 tmp=p[2];
++    p[2]=p[1];
++    p[1]=tmp;
++  }
+ 
+ AGString AGTriangle3::toString() const
+ {
+
+Modified: antargis/trunk/ext/basic/ag_geometry.h
+===================================================================
+--- antargis/trunk/ext/basic/ag_geometry.h	2008-06-10 19:22:29 UTC (rev 1268)
++++ antargis/trunk/ext/basic/ag_geometry.h	2008-06-27 15:10:20 UTC (rev 1269)
+@@ -390,6 +390,8 @@
+     AGLine2 nearestLine(const AGVector2 &amp;v) const;
+ 
+     std::vector&lt;AGLine2&gt; getLines() const;
++    
++    void flip();
+ #ifdef SWIG
+     %rename(to_s) toString() const;
+ #endif
+@@ -424,10 +426,15 @@
+     // (x,y,z,0) for no collision 
+     // (x,y,z,1) for collision in point (x,y,z)
+     AGVector4 collide(const AGLine3 &amp;pLine) const;
++#ifdef SWIG
++    %rename(to_s) toString() const;
++#endif
+ 
+     AGString toString() const;
+ 
+     AGVector3 operator[](int index) const;
++    
++    void flip();
+   };
+ 
+ class AGEXPORT AGRect2
+
+Modified: antargis/trunk/ext/gui/ag_background.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_background.cc	2008-06-10 19:22:29 UTC (rev 1268)
++++ antargis/trunk/ext/gui/ag_background.cc	2008-06-27 15:10:20 UTC (rev 1269)
+@@ -59,37 +59,44 @@
+ 
+ AGBackground::AGBackground(const AGString &amp;pThemeName):mTexture(0)
+   {
+-    //  CTRACE;
++    AGTheme *theme=getTheme();
++loadFromTheme(theme-&gt;getTheme(&quot;&quot;),pThemeName);
++  }
+ 
+-    AGTheme *theme=getTheme();
++AGBackground::AGBackground(const AGLocalTheme &amp;pTheme,const AGString &amp;pThemeName)
++  {
++    loadFromTheme(pTheme,pThemeName);
++  }
++void AGBackground::loadFromTheme(const AGLocalTheme &amp;pTheme,const AGString &amp;pThemeName)
++  {
+     mColor=false;
+-    if(theme-&gt;hasSurface(pThemeName+&quot;.image&quot;))
++    
++    if(pTheme.hasSurface(pThemeName+&quot;.image&quot;))
+       {
+-        //      CTRACE;
+         cdebug(pThemeName+&quot;.image&quot;);
+-        mTexture=&amp;getTextureCache()-&gt;get(getTheme()-&gt;getSurfaceName(pThemeName+&quot;.image&quot;));
+-        //mTexture=new AGTexture(theme-&gt;getSurface(pThemeName+&quot;.image&quot;));
++        mTexture=&amp;getTextureCache()-&gt;get(pTheme.getSurfaceName(pThemeName+&quot;.image&quot;));
+       }
+-    else if(theme-&gt;hasColor(pThemeName+&quot;.&quot;+&quot;gradientColor1&quot;))
++    else if(pTheme.hasColor(pThemeName+&quot;.&quot;+&quot;gradientColor1&quot;))
+       {
+         mColor=true;
+-        mColors[0]=theme-&gt;getColor(pThemeName+&quot;.&quot;+&quot;gradientColor1&quot;);
+-        mColors[1]=theme-&gt;getColor(pThemeName+&quot;.&quot;+&quot;gradientColor2&quot;);
+-        mColors[2]=theme-&gt;getColor(pThemeName+&quot;.&quot;+&quot;gradientColor3&quot;);
+-        mColors[3]=theme-&gt;getColor(pThemeName+&quot;.&quot;+&quot;gradientColor4&quot;);
++        mColors[0]=pTheme.getColor(pThemeName+&quot;.&quot;+&quot;gradientColor1&quot;);
++        mColors[1]=pTheme.getColor(pThemeName+&quot;.&quot;+&quot;gradientColor2&quot;);
++        mColors[2]=pTheme.getColor(pThemeName+&quot;.&quot;+&quot;gradientColor3&quot;);
++        mColors[3]=pTheme.getColor(pThemeName+&quot;.&quot;+&quot;gradientColor4&quot;);
+       }
+-    else if(theme-&gt;hasColor(pThemeName+&quot;.&quot;+&quot;color&quot;))
++    else if(pTheme.hasColor(pThemeName+&quot;.&quot;+&quot;color&quot;))
+       {
+         mColor=true;
+-        mColors[0]=theme-&gt;getColor(pThemeName+&quot;.&quot;+&quot;color&quot;);
+-        mColors[1]=theme-&gt;getColor(pThemeName+&quot;.&quot;+&quot;color&quot;);
+-        mColors[2]=theme-&gt;getColor(pThemeName+&quot;.&quot;+&quot;color&quot;);
+-        mColors[3]=theme-&gt;getColor(pThemeName+&quot;.&quot;+&quot;color&quot;);
++        mColors[0]=pTheme.getColor(pThemeName+&quot;.&quot;+&quot;color&quot;);
++        mColors[1]=pTheme.getColor(pThemeName+&quot;.&quot;+&quot;color&quot;);
++        mColors[2]=pTheme.getColor(pThemeName+&quot;.&quot;+&quot;color&quot;);
++        mColors[3]=pTheme.getColor(pThemeName+&quot;.&quot;+&quot;color&quot;);
+       }
+ 
+-    mBorder=theme-&gt;getInt(pThemeName+&quot;.&quot;+&quot;border&quot;);
++    mBorder=pTheme.getInt(pThemeName+&quot;.&quot;+&quot;border&quot;);    
+   }
+ 
++
+ /// draws the background on painter in the given rectangle
+ void AGBackground::draw(const AGRect2 &amp;r,AGPainter &amp;p)
+   {
+
+Modified: antargis/trunk/ext/gui/ag_background.h
+===================================================================
+--- antargis/trunk/ext/gui/ag_background.h	2008-06-10 19:22:29 UTC (rev 1268)
++++ antargis/trunk/ext/gui/ag_background.h	2008-06-27 15:10:20 UTC (rev 1269)
+@@ -27,6 +27,7 @@
+ #include &quot;ag_geometry.h&quot;
+ #include &quot;ag_texture.h&quot;
+ #include &quot;ag_color.h&quot;
++#include &quot;ag_theme.h&quot;
+ 
+ class AGPainter;
+ 
+@@ -35,20 +36,24 @@
+     It is themable.
+  */
+ class AGEXPORT AGBackground
+-{
+- public:
+-  AGBackground(const AGString &amp;pThemeName=&quot;&quot;);
+-  AGBackground(const AGColor &amp;pColor);
++  {
++  public:
++    AGBackground(const AGString &amp;pThemeName=&quot;&quot;);
++    AGBackground(const AGLocalTheme &amp;pTheme,const AGString &amp;pThemeName=&quot;&quot;);
++    AGBackground(const AGColor &amp;pColor);
+ 
+-  void draw(const AGRect2 &amp;r,AGPainter &amp;p);
++    void draw(const AGRect2 &amp;r,AGPainter &amp;p);
+ 
+-  void useTextures();
+- private:
+-  const AGTexture *mTexture;
+-  AGColor mColors[4];
++    void useTextures();
++  private:
++    
++    void loadFromTheme(const AGLocalTheme &amp;pTheme,const AGString &amp;pThemeName=&quot;&quot;);
++    
++    const AGTexture *mTexture;
++    AGColor mColors[4];
+ 
+-  bool mColor;
+-  int mBorder;
+-};
++    bool mColor;
++    int mBorder;
++  };
+ 
+ #endif
+
+Modified: antargis/trunk/ext/gui/ag_frame.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_frame.cc	2008-06-10 19:22:29 UTC (rev 1268)
++++ antargis/trunk/ext/gui/ag_frame.cc	2008-06-27 15:10:20 UTC (rev 1269)
+@@ -2,7 +2,7 @@
+ #include &quot;ag_screen.h&quot;
+ #include &quot;ag_debug.h&quot;
+ 
+-AGFrame::AGFrame(AGWidget *pParent,const AGRect2 &amp;pRect,size_t pWidth,size_t pWidthH):AGWidget(pParent,pRect),
++AGFrame::AGFrame(AGWidget *pParent,const AGRect2 &amp;pRect,int pWidth,int pWidthH):AGWidget(pParent,pRect),
+ mWidth(pWidth),mBorder(0),mWidthH(pWidthH&lt;0?pWidth:pWidthH),mTexture((int)width(),(int)height())
+ {
+   mTextureInited=false;
+
+Modified: antargis/trunk/ext/gui/ag_frame.h
+===================================================================
+--- antargis/trunk/ext/gui/ag_frame.h	2008-06-10 19:22:29 UTC (rev 1268)
++++ antargis/trunk/ext/gui/ag_frame.h	2008-06-27 15:10:20 UTC (rev 1269)
+@@ -10,7 +10,7 @@
+ class AGEXPORT AGFrame:public AGWidget
+ {
+  public:
+-  AGFrame(AGWidget *pParent,const AGRect2 &amp;pRect,size_t width,size_t widthH=-1); // transparent frame
++  AGFrame(AGWidget *pParent,const AGRect2 &amp;pRect,int width,int widthH=-1); // transparent frame
+   AGFrame(AGWidget *pParent,const AGRect2 &amp;pRect,const AGBorder &amp;pBorder);
+   ~AGFrame();
+ 
+
+Modified: antargis/trunk/ext/gui/ag_layout.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_layout.cc	2008-06-10 19:22:29 UTC (rev 1268)
++++ antargis/trunk/ext/gui/ag_layout.cc	2008-06-27 15:10:20 UTC (rev 1269)
+@@ -86,6 +86,7 @@
+       }
+     getLayoutFactory()-&gt;popLayout();
+     mTempWidgets.clear();
++    initEvents();
+   }
+ 
+ bool AGLayout::eventKeyDown(AGEvent *m)
+
+Modified: antargis/trunk/ext/gui/ag_layoutcreators.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_layoutcreators.cc	2008-06-10 19:22:29 UTC (rev 1268)
++++ antargis/trunk/ext/gui/ag_layoutcreators.cc	2008-06-27 15:10:20 UTC (rev 1269)
+@@ -371,7 +371,7 @@
+       AGString border=pNode.get(&quot;border&quot;);
+       size_t width=pNode.get(&quot;width&quot;).toInt();
+       
+-      size_t height=0;
++      int height=-1;
+       if(pNode.get(&quot;height&quot;).length()&gt;0)
+         height=pNode.get(&quot;height&quot;).toInt();
+ 
+
+Modified: antargis/trunk/ext/gui/ag_theme.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_theme.cc	2008-06-10 19:22:29 UTC (rev 1268)
++++ antargis/trunk/ext/gui/ag_theme.cc	2008-06-27 15:10:20 UTC (rev 1269)
+@@ -43,42 +43,57 @@
+   }
+ void AGTheme::setColor(const AGString &amp;pName,AGColor pColor)
+   {
+-    //  cdebug(pName);
+     mColors[pName]=pColor;
+-    //  cout&lt;&lt;&quot;setting:&quot;&lt;&lt;pName&lt;&lt;&quot;:&quot;&lt;&lt;pColor.toString()&lt;&lt;endl;
+   }
+ 
+ 
+-AGFont AGTheme::getFont(const AGString &amp;pName)
+-  {
+-    //  cdebug(pName&lt;&lt;&quot;:&quot;&lt;&lt;mFonts[pName].toString());
+-    if(mFonts.find(pName)==mFonts.end())
+-      return mFonts[trunk(pName)];
+-    return mFonts[pName];
+-  }
+-AGColor AGTheme::getColor(const AGString &amp;pName)
+-  {
+-    //  cdebug(pName);
+-    if(mColors.find(pName)==mColors.end())
+-      return mColors[trunk(pName)];
+-    return mColors[pName];
+-  }
++AGFont AGTheme::getFont(const AGString &amp;pName) const
++{
++  std::map&lt;AGString,AGFont&gt;::const_iterator i=mFonts.find(pName);
+ 
+-AGString AGTheme::trunk(AGString s)
++  if(i==mFonts.end())
++    {
++      i=mFonts.find(trunc(pName));
++      if(i==mFonts.end())
++        return AGFont();
++    }
++  return i-&gt;second;
++}
++AGColor AGTheme::getColor(const AGString &amp;pName) const
++{
++  std::map&lt;AGString,AGColor&gt;::const_iterator i=mColors.find(pName);
++
++  if(i==mColors.end())
++    {
++      AGString n=trunc(pName);
++      i=mColors.find(n);
++      if(i==mColors.end())
++        return AGColor();
++    }
++  return i-&gt;second;
++}
++
++AGString AGTheme::trunc(AGString s) const
+   {
+-    //  cdebug(s);
+     size_t i=s.find(&quot;.&quot;);
+     if(i!=s.npos)
+       s=s.substr(0,i);
+     return s;
+   }
+ 
+-int AGTheme::getInt(const AGString &amp;pName)
+-  {
+-    if(mInts.find(pName)==mInts.end())
+-      return mInts[trunk(pName)];
+-    return mInts[pName];
+-  }
++int AGTheme::getInt(const AGString &amp;pName) const
++{
++  std::map&lt;AGString,int&gt;::const_iterator i=mInts.find(pName);
++
++  if(i==mInts.end())
++    {
++      AGString n=trunc(pName);
++      i=mInts.find(n);
++      if(i==mInts.end())
++        return 0;
++    }
++  return i-&gt;second;
++}
+ void AGTheme::setInt(const AGString &amp;pName,int i)
+   {
+     mInts[pName]=i;
+@@ -110,21 +125,36 @@
+ 
+ bool AGTheme::hasSurface(const AGString &amp;pName) const
+ {
+-  //  cdebug(pName);
+   return(mSurfaces.find(pName)!=mSurfaces.end());
+ }
++bool AGTheme::hasSurfaceName(const AGString &amp;pName) const
++{
++  return(mSurfaceNames.find(pName)!=mSurfaceNames.end());
++}
++bool AGTheme::hasInt(const AGString &amp;pName) const
++{
++  return(mInts.find(pName)!=mInts.end());
++}
+ bool AGTheme::hasColor(const AGString &amp;pName) const
+ {
+-  //  cdebug(pName);
+   return(mColors.find(pName)!=mColors.end());
+ }
++bool AGTheme::hasFont(const AGString &amp;pName) const
++{
++  return(mFonts.find(pName)!=mFonts.end());
++}
+ 
+ 
+-AGSurface AGTheme::getSurface(const AGString &amp;pName)
++AGSurface AGTheme::getSurface(const AGString &amp;pName) const
+   {
+-    if(mSurfaces.find(pName)==mSurfaces.end())
+-      return mSurfaces[trunk(pName)];
+-    return mSurfaces[pName];
++    std::map&lt;AGString,AGSurface&gt;::const_iterator i=mSurfaces.find(pName);
++    if(i==mSurfaces.end())
++      {
++        i=mSurfaces.find(trunc(pName));
++        if(i==mSurfaces.end())
++          return AGSurface();
++      }
++    return i-&gt;second;
+   }
+ void AGTheme::setSurface(const AGString &amp;pName,const AGSurface &amp;pSurface)
+   {
+@@ -133,18 +163,101 @@
+     assert(mSurfaces[pName].valid());
+   }
+ 
+-std::string AGTheme::getSurfaceName(const AGString &amp;pName)
++std::string AGTheme::getSurfaceName(const AGString &amp;pName) const
+   {
+-    if(mSurfaceNames.find(pName)==mSurfaceNames.end())
+-      return mSurfaceNames[trunk(pName)];
+-    return mSurfaceNames[pName];
++    std::map&lt;AGString,std::string&gt;::const_iterator i=mSurfaceNames.find(pName);
++    if(i==mSurfaceNames.end())
++      {
++        i=mSurfaceNames.find(trunc(pName));
++        if(i==mSurfaceNames.end())
++          return &quot;&quot;;
++      }
++    return i-&gt;second;
+   }
+ void AGTheme::setSurfaceName(const AGString &amp;pName,const std::string &amp;pSurface)
+   {
+     mSurfaceNames[pName]=pSurface;
+   }
+ 
++AGLocalTheme AGTheme::getTheme(const AGString &amp;pTheme) const
++{
++  return AGLocalTheme(pTheme);
++}
+ 
++
++
++AGLocalTheme::AGLocalTheme(const AGString &amp;pTheme):mTheme(pTheme)
++      {
++      }
++
++AGFont AGLocalTheme::getFont(const AGString &amp;pName) const
++  {
++    AGString t=mTheme+&quot;.&quot;+pName;
++    if(getTheme()-&gt;hasFont(t))
++      return getTheme()-&gt;getFont(t);
++    return getTheme()-&gt;getFont(pName);
++  }
++AGColor AGLocalTheme::getColor(const AGString &amp;pName) const
++  {
++    AGString t=mTheme+&quot;.&quot;+pName;
++    if(getTheme()-&gt;hasColor(t))
++      return getTheme()-&gt;getColor(t);
++    return getTheme()-&gt;getColor(pName);
++  }
++
++int AGLocalTheme::getInt(const AGString &amp;pName) const
++  {
++    AGString t=mTheme+&quot;.&quot;+pName;
++    if(getTheme()-&gt;hasInt(t))
++      return getTheme()-&gt;getInt(t);
++    return getTheme()-&gt;getInt(pName);
++  }
++
++AGSurface AGLocalTheme::getSurface(const AGString &amp;pName) const
++{
++  AGString t=mTheme+&quot;.&quot;+pName;
++  if(getTheme()-&gt;hasSurface(t))
++    return getTheme()-&gt;getSurface(t);
++  return getTheme()-&gt;getSurface(pName);
++}
++
++std::string AGLocalTheme::getSurfaceName(const AGString &amp;pName) const
++{
++  AGString t=mTheme+&quot;.&quot;+pName;
++  if(getTheme()-&gt;hasSurfaceName(t))
++    return getTheme()-&gt;getSurfaceName(t);
++  return getTheme()-&gt;getSurfaceName(pName);
++}
++
++bool AGLocalTheme::hasFont(const AGString &amp;pName) const
++{
++  return getTheme()-&gt;hasFont(mTheme+&quot;.&quot;+pName);
++}
++bool AGLocalTheme::hasColor(const AGString &amp;pName) const
++{
++  return getTheme()-&gt;hasColor(mTheme+&quot;.&quot;+pName);  
++}
++bool AGLocalTheme::hasInt(const AGString &amp;pName) const
++{
++  return getTheme()-&gt;hasInt(mTheme+&quot;.&quot;+pName);
++}
++bool AGLocalTheme::hasSurface(const AGString &amp;pName) const
++{
++  return getTheme()-&gt;hasSurface(mTheme+&quot;.&quot;+pName);
++}
++bool AGLocalTheme::hasSurfaceName(const AGString &amp;pName) const
++{
++  return getTheme()-&gt;hasSurfaceName(mTheme+&quot;.&quot;+pName);
++}
++
++
++
++
++
++
++
++
++
+ void loadTheme(const Node&amp;node,AGTheme &amp;t,AGString name)
+   {
+     Node::const_iterator i=node.begin();
+
+Modified: antargis/trunk/ext/gui/ag_theme.h
+===================================================================
+--- antargis/trunk/ext/gui/ag_theme.h	2008-06-10 19:22:29 UTC (rev 1268)
++++ antargis/trunk/ext/gui/ag_theme.h	2008-06-27 15:10:20 UTC (rev 1269)
+@@ -29,33 +29,59 @@
+ 
+ #include &lt;map&gt;
+ 
++class AGEXPORT AGLocalTheme
++  {
++  public:
++    AGLocalTheme(const AGString &amp;pTheme);
++    
++    AGFont getFont(const AGString &amp;pName) const;
++    AGColor getColor(const AGString &amp;pName) const;
++    int getInt(const AGString &amp;pName) const;
++    AGSurface getSurface(const AGString &amp;pName) const;
++    std::string getSurfaceName(const AGString &amp;pName) const;
++    
++    bool hasFont(const AGString &amp;pName) const;
++    bool hasColor(const AGString &amp;pName) const;
++    bool hasInt(const AGString &amp;pName) const;
++    bool hasSurface(const AGString &amp;pName) const;
++    bool hasSurfaceName(const AGString &amp;pName) const;
++    
++  private:
++    AGString mTheme;
++  };
++
+ class AGEXPORT AGTheme
+ {
+  public:
+   AGTheme();
+   virtual ~AGTheme();
+ 
+-  AGFont getFont(const AGString &amp;pName);
+-  AGColor getColor(const AGString &amp;pName);
+-
++  AGFont getFont(const AGString &amp;pName) const;
++  bool hasFont(const AGString &amp;pName) const;
+   void setFont(const AGString &amp;pName,AGFont pFont);
++  
+   void setColor(const AGString &amp;pName,AGColor pColor);
++  AGColor getColor(const AGString &amp;pName) const;
++  bool hasColor(const AGString &amp;pName) const;
+ 
+-  int getInt(const AGString &amp;pName);
++  int getInt(const AGString &amp;pName) const;
++  bool hasInt(const AGString &amp;pName) const;
+   void setInt(const AGString &amp;pName,int i);
+ 
+-  AGSurface getSurface(const AGString &amp;pName);
++  AGSurface getSurface(const AGString &amp;pName) const;
++  bool hasSurface(const AGString &amp;pName) const;
+   void setSurface(const AGString &amp;pName,const AGSurface &amp;pSurface);
+ 
+-  std::string getSurfaceName(const AGString &amp;pName);
++  std::string getSurfaceName(const AGString &amp;pName) const;
++  bool hasSurfaceName(const AGString &amp;pName) const;
+   void setSurfaceName(const AGString &amp;pName,const std::string &amp;pSurface);
+ 
+-  bool hasSurface(const AGString &amp;pName) const;
+-  bool hasColor(const AGString &amp;pName) const;
++  
++  AGLocalTheme getTheme(const AGString &amp;pTheme) const;
+ 
+  private:
+ 
+-  AGString trunk(AGString s);
++  AGString trunc(AGString s) const;
+ 
+   std::map&lt;AGString,AGFont&gt; mFonts;
+   std::map&lt;AGString,AGColor&gt; mColors;
+
+Modified: antargis/trunk/ext/gui/ag_widget.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_widget.cc	2008-06-10 19:22:29 UTC (rev 1268)
++++ antargis/trunk/ext/gui/ag_widget.cc	2008-06-27 15:10:20 UTC (rev 1269)
+@@ -66,6 +66,7 @@
+   mHasFocus(false),mFocus(0)
+ 
+     {
++      mEventsInited=false;
+       CTRACE;
+       if(mParent)
+         mParent-&gt;addChildRef(this);
+@@ -1295,3 +1296,16 @@
+   return m-getRect().getV0();
+ }
+ 
++
++void AGWidget::initEvents()
++  {
++    if(!mEventsInited)
++      eventInitEvents();
++    for(Children::iterator i=mChildren.begin();i!=mChildren.end();i++)
++      (*i)-&gt;initEvents();
++  }
++
++void AGWidget::eventInitEvents()
++  {
++    
++  }
+
+Modified: antargis/trunk/ext/gui/ag_widget.h
+===================================================================
+--- antargis/trunk/ext/gui/ag_widget.h	2008-06-10 19:22:29 UTC (rev 1268)
++++ antargis/trunk/ext/gui/ag_widget.h	2008-06-27 15:10:20 UTC (rev 1269)
+@@ -253,6 +253,10 @@
+   virtual bool eventMouseMotionClipped(AGEvent *pEvent,const AGVector2 &amp;pPosition);
+ 
+   void addChildRef(AGWidget *pWidget);
++  
++  void initEvents(); 
++  
++  virtual void eventInitEvents();
+  
+   
+ protected:
+@@ -310,6 +314,8 @@
+ 
+   std::set&lt;AGWidget*&gt; mRefChildren;
+   
++  bool mEventsInited;
++  
+ protected:
+   std::list&lt;AGWidget*&gt; mChildren;
+ 
+
+Modified: antargis/trunk/ext/gui/ag_window.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_window.cc	2008-06-10 19:22:29 UTC (rev 1268)
++++ antargis/trunk/ext/gui/ag_window.cc	2008-06-27 15:10:20 UTC (rev 1269)
+@@ -35,18 +35,15 @@
+ 
+   {
+     CTRACE;
++    
++    AGLocalTheme theme=getTheme()-&gt;getTheme(pTheme);
+ 
+-    AGString tstr=&quot;window.border.image&quot;;
+-    if(pTheme!=&quot;&quot;)
+-      tstr=pTheme+&quot;.&quot;+tstr;
++    AGString borderImage=&quot;window.border.image&quot;;
+ 
+-
+-    cdebug(&quot;image:&quot;&lt;&lt;tstr);
+-    AGSurface s=getTheme()-&gt;getSurface(tstr);
++    AGSurface s=theme.getSurface(borderImage);
+     float bw=s.getRect().w()/3;
+     int titBarHeight=20;
+ 
+-    //  cdebug(&quot;window_border:&quot;&lt;&lt;s.width()&lt;&lt;&quot;/&quot;&lt;&lt;s.height());
+     AGTable *t=0;
+ 
+ 
+@@ -58,7 +55,7 @@
+         {
+           AGRect2 r(x*bw,y*bw,bw,bw);
+ 
+-          textures.push_back(&amp;getTextureCache()-&gt;get(getTheme()-&gt;getSurfaceName(tstr),r));
++          textures.push_back(&amp;getTextureCache()-&gt;get(theme.getSurfaceName(borderImage),r));
+         }
+ 
+ 
+@@ -82,7 +79,7 @@
+ 
+         AGImage *i1,*i2;
+ 
+-        AGTable::addChild(0,1,i1=new AGImage(this,AGRect2(0,0,bw,titBarHeight),*textures[3],true));//,AGRect2(0,bw,bw,bw)));
++        AGTable::addChild(0,1,i1=new AGImage(this,AGRect2(0,0,bw,titBarHeight),*textures[3],true));
+         // title
+         t=dynamic_cast&lt;AGTable*&gt;(getTitleBar((int)(width()-2*bw),titBarHeight));
+ 
+@@ -101,7 +98,7 @@
+         AGTable::addChild(1,3,new AGImage(this,AGRect2(0,0,bw,bw),*textures[7],true));
+         AGTable::addChild(2,3,new AGImage(this,AGRect2(0,0,bw,bw),*textures[8],true));
+ 
+-        AGTable::addChild(1,2,mClient=new AGCaption(this,AGRect2(0,0,0,0),&quot;&quot;,getTheme()-&gt;getFont(&quot;window.title.font&quot;),AGBackground(&quot;window.background&quot;)));
++        AGTable::addChild(1,2,mClient=new AGCaption(this,AGRect2(0,0,0,0),&quot;&quot;,theme.getFont(&quot;window.title.font&quot;),AGBackground(theme,&quot;window.background&quot;)));
+ 
+       }
+     else
+@@ -125,7 +122,7 @@
+         AGTable::addChild(1,2,new AGImage(this,AGRect2(0,0,bw,bw),*textures[7],true));
+         AGTable::addChild(2,2,new AGImage(this,AGRect2(0,0,bw,bw),*textures[8],true));
+ 
+-        AGTable::addChild(1,1,mClient=new AGCaption(this,AGRect2(0,0,0,0),&quot;&quot;,getTheme()-&gt;getFont(&quot;window.title.font&quot;),AGBackground(&quot;window.background&quot;)));
++        AGTable::addChild(1,1,mClient=new AGCaption(this,AGRect2(0,0,0,0),&quot;&quot;,theme.getFont(&quot;window.title.font&quot;),AGBackground(theme,&quot;window.background&quot;)));
+       }
+ 
+     arrange();
+
+Modified: antargis/trunk/ext/video/ag_glpainter.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_glpainter.cc	2008-06-10 19:22:29 UTC (rev 1268)
++++ antargis/trunk/ext/video/ag_glpainter.cc	2008-06-27 15:10:20 UTC (rev 1269)
+@@ -374,15 +374,17 @@
+         AGRenderContext context;
+         context.setCulling(false);
+         context.setTexture(const_cast&lt;AGTexture&amp;&gt;(pSource).glTexture());
+-        context.setDepthTest(false);
++        context.setDepthTest(true);
++        context.setColor(AGColor(0xFF,0xFF,0xFF,0xFF));
+         context.begin();
+         
+-        AGProjection2D p(pSource.getRect(),AGRect2(0,0,1,1));
++        AGProjection2D p(const_cast&lt;AGTexture&amp;&gt;(pSource).glTexture()-&gt;getRect(),AGRect2(0,0,1,1));
+ 
+         glBegin(GL_TRIANGLES);
+         for(size_t i=0;i&lt;3;i++)
+           {
+             glTexCoord2fv(p.project(pSrc.get(i)));
++            //glVertex2f(pDest[i][0],pDest[i][1]);
+             glVertex3fv(pDest[i]);
+           }
+ 
+
+Modified: antargis/trunk/ext/video/ag_gltexture.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_gltexture.cc	2008-06-10 19:22:29 UTC (rev 1268)
++++ antargis/trunk/ext/video/ag_gltexture.cc	2008-06-27 15:10:20 UTC (rev 1269)
+@@ -255,6 +255,12 @@
+   return d;
+ }
+ 
++AGRect2 AGGLTexture::getRect() const
++{
++  return AGRect2(0,0,w,h);
++}
++
++
+ AGSurface AGGLTexture::getSurface() const
+ {
+   AGSurface s(w,h*d);
+
+Modified: antargis/trunk/ext/video/ag_gltexture.h
+===================================================================
+--- antargis/trunk/ext/video/ag_gltexture.h	2008-06-10 19:22:29 UTC (rev 1268)
++++ antargis/trunk/ext/video/ag_gltexture.h	2008-06-27 15:10:20 UTC (rev 1269)
+@@ -55,6 +55,8 @@
+   {
+     return mTarget;
+   }
++  
++  AGRect2 getRect() const;
+ 
+ private:
+ 
+
+Modified: antargis/trunk/ext/video/ag_texturecache.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_texturecache.cc	2008-06-10 19:22:29 UTC (rev 1268)
++++ antargis/trunk/ext/video/ag_texturecache.cc	2008-06-27 15:10:20 UTC (rev 1269)
+@@ -37,7 +37,7 @@
+     getInstanceKiller()-&gt;reg(createKiller(this));
+   }
+ 
+-const AGTexture &amp;AGTextureCache::get(const AGString &amp;pTexture,const AGRect2 &amp;pSub)
++const AGTexture &amp;AGTextureCache::get(const AGString &amp;pTexture,const AGRect2 &amp;pSub) throw (FileNotFound)
+   {
+     std::string s=pTexture+&quot;:&quot;+pSub.toString();
+ 
+@@ -53,7 +53,7 @@
+   }
+ 
+ 
+-const AGTexture &amp;AGTextureCache::get(const AGString &amp;pTexture,int downScaleExp)
++const AGTexture &amp;AGTextureCache::get(const AGString &amp;pTexture,int downScaleExp) throw (FileNotFound)
+   {
+     std::map&lt;AGString,AGTexture*&gt;::iterator i=mTextures.find(pTexture);
+     if(i==mTextures.end())
+@@ -116,7 +116,7 @@
+   }
+ 
+ 
+-const AGTexture &amp;AGTextureCache::get3D(const AGString &amp;pTexture,int downScaleExp,int downScaleZ)
++const AGTexture &amp;AGTextureCache::get3D(const AGString &amp;pTexture,int downScaleExp,int downScaleZ) throw (FileNotFound)
+   {
+     std::map&lt;AGString,AGTexture*&gt;::iterator i=mTextures.find(pTexture);
+     if(i==mTextures.end())
+
+Modified: antargis/trunk/ext/video/ag_texturecache.h
+===================================================================
+--- antargis/trunk/ext/video/ag_texturecache.h	2008-06-10 19:22:29 UTC (rev 1268)
++++ antargis/trunk/ext/video/ag_texturecache.h	2008-06-27 15:10:20 UTC (rev 1269)
+@@ -36,10 +36,10 @@
+   {
+     AGTextureCache();
+   public:
+-    const AGTexture &amp;get(const AGString &amp;pTextureFilename ,int downScaleExp=1);
+-    const AGTexture &amp;get3D(const AGString &amp;pTextureFilename,int downScaleExp=1,int downScaleZ=1);
++    const AGTexture &amp;get(const AGString &amp;pTextureFilename ,int downScaleExp=1) throw (FileNotFound);
++    const AGTexture &amp;get3D(const AGString &amp;pTextureFilename,int downScaleExp=1,int downScaleZ=1) throw (FileNotFound);
+ 
+-    const AGTexture &amp;get(const AGString &amp;pTextureFilename,const AGRect2 &amp;pSub);
++    const AGTexture &amp;get(const AGString &amp;pTextureFilename,const AGRect2 &amp;pSub) throw (FileNotFound);
+   private:
+     std::map&lt;AGString,AGTexture*&gt; mTextures;
+     
+
+Modified: antargis/trunk/ext/video/ag_video.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_video.cc	2008-06-10 19:22:29 UTC (rev 1268)
++++ antargis/trunk/ext/video/ag_video.cc	2008-06-27 15:10:20 UTC (rev 1269)
+@@ -89,12 +89,9 @@
+       videoFlags|=SDL_DOUBLEBUF;
+ 
+ 
+-    cdebug(&quot;SDL_Init...&quot;);
+     // set video mode
+     //  SDL_Init(SDL_INIT_VIDEO);
+-    cdebug(&quot;SDL_SetVideoMode...&quot;);
+     SDL_Surface *ms=SDL_SetVideoMode(w,h,videoInfo-&gt;vfmt-&gt;BitsPerPixel,videoFlags);
+-    cdebug(&quot;ms:&quot;&lt;&lt;ms);
+     if(!ms)
+       {
+         std::cerr&lt;&lt;&quot;Initing video mode failed!&quot;&lt;&lt;std::endl;
+@@ -121,8 +118,6 @@
+     lastVWidth=vw;
+     lastVHeight=vh;
+ 
+-    cdebug(&quot;gl:&quot;&lt;&lt;gl);
+-
+     if(gl)
+       {
+         AGGLScreen *ms=new AGGLScreen(w,h,vw,vh);
+@@ -133,8 +128,6 @@
+     else
+       setScreen(mScreen=new AGSDLScreen(ms));
+ 
+-    cdebug(&quot;mscreen:&quot;&lt;&lt;mScreen);
+-
+     SDL_WM_SetCaption(&quot;Antargis&quot;,&quot;Antargis&quot;);
+ 
+ 
+
+Added: antargis/trunk/games/copter/images/copter0.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/trunk/games/copter/images/copter0.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Modified: antargis/trunk/ruby/editor/campaign/drag_grid.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/drag_grid.rb	2008-06-10 19:22:29 UTC (rev 1268)
++++ antargis/trunk/ruby/editor/campaign/drag_grid.rb	2008-06-27 15:10:20 UTC (rev 1269)
+@@ -686,7 +686,7 @@
+ 
+ [DragGrid,DragSource,DragTrash,DragEnvironment,ToolBar,ToolButton,AppearEffect,HideEffect].each{|c|standardLayoutCreator(c)}
+ 
+-require File.join(File.split(__FILE__)[0],'image_list.rb')
++require File.join(File.split(__FILE__)[0],'story_editor.rb')
+ 
+ class RubySignal
+   def initialize(name)
+
+Added: antargis/trunk/ruby/editor/campaign/image_list.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/image_list.rb	2008-06-10 19:22:29 UTC (rev 1268)
++++ antargis/trunk/ruby/editor/campaign/image_list.rb	2008-06-27 15:10:20 UTC (rev 1269)
+@@ -0,0 +1,96 @@
++class ImageList&lt;AGWidget
++  def initialize(p,r,options)
++    super(p,r)
++    dir=&quot;data/gui/campaign&quot;
++    files=getDirectory(dir).select{|f|f=~/\.png$/}.uniq
++    pp files
++    #exit
++    @images=files.map{|file|[file,AGTexture.new(AGSurface::load(File.join(dir,file)))]}
++    assert{@images.length&gt;0}
++    @selected=2
++    @border=AGBorder.new(&quot;button.border.normal&quot;)
++    @pos=0
++  end
++  
++  def eventMouseButtonDown(e)
++    pp e.getButton
++    super
++  end
++  
++  def eventMouseMotion(e)
++    @pos=1-e.getMousePosition.x/width
++    pp @pos
++    super
++  end
++  
++  def draw(p)
++    rs=getRects
++    
++    
++    0.upto(rs.length-1){|i|
++      t=@images[3][1]
++      r=rs[i]+getScreenRect.getV0
++      f=t.getRect
++      pos=i.to_f/(rs.length)*<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">0.5+ at pos-1</A>
++      #pp pos
++      trisFrom=makeTriangles(f,AGTriangle2)
++      #trisTo=makeTriangles(r,AGTriangle3)
++      trisTo=makeTriangle(getScreenRect,pos,f)
++      (0..1).each{|j|
++        p.getTarget.blit3dTri(t,trisFrom[j],trisTo[j])
++      }
++      
++    }    
++  end
++  
++  def makeTriangle(drawRect,pos,fromRect)
++    pos01=(pos+1)*0.5
++    
++    height=drawRect.height*0.7
++    width=fromRect.width/fromRect.height*height
++    
++    centerx=drawRect.x+drawRect.width*pos01
++    lx=centerx-width*0.5
++    rx=centerx+width*0.5
++    f=0.5
++    y0=y1=height*f
++    f=0.3
++    dl=dr=0
++    
++    dr=pos if pos&lt;0
++    dl=-pos if pos&gt;0
++    
++    d1=[0,[y1,-height*(pos)*f].min].max
++    d0=[0,[y0,height*(pos)*f].min].max
++    pp d0,d1
++    
++    y1-=d1
++    y0-=d0
++    
++    y=drawRect.getMiddle.y
++    
++    vs=[AGVector3.new(lx,y+y0,dl),
++      AGVector3.new(lx,y-y0,dl),
++      AGVector3.new(rx,y-y1,dr),
++      AGVector3.new(rx,y+y1,dr),
++       ]
++    [AGTriangle3.new(vs[0],vs[1],vs[2]),AGTriangle3.new(vs[0],vs[2],vs[3])]
++  end
++  
++  def makeTriangles(r,type)
++    a=[r.getV0,r.getV10,r.getV1,r.getV01]
++    a=a.map{|v|AGVector3.new(v,0.0)} if type==AGTriangle3
++    [type.new(a[0],a[1],a[2]),type.new(a[0],a[2],a[3])]
++  end
++  
++  def getRects 
++    @rects||=genRects(@images.length)
++  end
++  
++  def genRects(count)
++    getRect.origin.tile(count,1).map{|r|r.shrink(5)}
++  end
++  
++end
++
++[ImageList].each{|c|standardLayoutCreator(c)}
+
+Added: antargis/trunk/ruby/editor/campaign/image_list_2d.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/image_list_2d.rb	2008-06-10 19:22:29 UTC (rev 1268)
++++ antargis/trunk/ruby/editor/campaign/image_list_2d.rb	2008-06-27 15:10:20 UTC (rev 1269)
+@@ -0,0 +1,78 @@
++class ImageList2D&lt;AGWidget
++  
++  def initialize(p,r,options)
++    super(p,r)
++    
++    createSignal :sigSelected
++    dir=&quot;data/gui/campaign&quot;
++    files=getDirectory(dir).select{|f|f=~/\.png$/}.uniq
++    pp files
++    #exit
++    @images=files.map{|file|[file,AGTexture.new(AGSurface::load(File.join(dir,file)))]}*3
++    assert{@images.length&gt;0}
++    @selected=2
++    @border=AGBorder.new(&quot;button.border.normal&quot;)
++    @pos=0
++    
++    @imageHeight=height*0.7
++    @imageWidth=@imageHeight*1.3
++    @imageY=(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">height- at imageHeight</A>)/2
++    @margin=20
++    @selected=2
++    @color=AGColor.new(0,0,0)
++  end
++  
++  def getImageByFilename(filename)
++    @images.select{|pair|pair[0]==filename}[0][1]
++  end
++  
++  def getFirstImage
++    @images[0][0]
++  end
++  
++  def eventMouseButtonDown(e)
++    super
++    true
++  end
++  
++  def eventMouseClick(e)
++    pos=e.getRelMousePosition
++    if getRect.origin.contains(pos)
++      i=0
++      getRects.each{|r|
++        if r.contains(pos)
++          @selected=i
++          sigSelected(*@images[i])
++          return true
++        end
++        i+=1
++      }
++      return true
++    end
++    super
++  end
++  
++  def draw(p)
++    i=0
++    getRects.each{|r|
++      imagePair=@images[i]
++      file,image=imagePair
++      from=image.getRect
++      p.setLineWidth(1)
++      if i==@selected
++        p.fillRect(r.grow(5)<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at color</A>)
++        p.drawRect(r.grow(2),AGColor.new(0xFF,0xFF,0xFF))
++      end
++      p.blit(image,r,from)
++      
++      i+=1
++    }
++  end
++  
++  def getRects
++    (<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">1.. at images.length</A>).map{|x|@pos+(x-1)*(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">imageWidth+ at margin</A>)}.map{|x|AGRect2.new(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">x, at imageY</A><A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at imageWidth</A><A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at imageHeight</A>)}
++  end
++  
++end
++
++[ImageList2D].each{|c|standardLayoutCreator(c)}
+
+Added: antargis/trunk/ruby/editor/campaign/story_editor.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/story_editor.rb	2008-06-10 19:22:29 UTC (rev 1268)
++++ antargis/trunk/ruby/editor/campaign/story_editor.rb	2008-06-27 15:10:20 UTC (rev 1269)
+@@ -0,0 +1,74 @@
++require File.join(File.split(__FILE__)[0],'image_list.rb')
++require File.join(File.split(__FILE__)[0],'image_list_2d.rb')
++
++StoryScreen=Struct.new(:imageFilename,:text)
++
++class StoryEditor&lt;AGWidget
++  def initialize(p,r,options)
++    super(p,r)
++    @story=[]
++    layout=AGLayout.new(self)
++    layout.loadXML(loadFile(&quot;data/gui/layout/editor/campaign/story_editor.xml&quot;))
++    addChild(layout)
++    
++    @image=getChild(&quot;image&quot;)
++    @imageList=getChild(&quot;imageList&quot;)
++    @imageList.sigSelected.connect(self,:eventImageSelected)
++    @next=getChild(&quot;next&quot;)
++    @prev=getChild(&quot;prev&quot;)
++    @edit=getChild(&quot;edit&quot;)
++    
++    @prev.setEnabled(false)
++    @story=[makeNewScreen]
++    
++    addHandler(@next,:sigClick,:eventNext)
++    addHandler(@prev,:sigClick,:eventPrev)
++    addHandler(@edit,:sigModified,:eventText)
++    @cursor=0
++  end
++  
++  def eventText(e)
++    @story[@cursor].text=@edit.getText
++    true
++  end
++  
++  def eventNext(e)
++    puts &quot;NEXT&quot;
++    @cursor+=1
++    @prev.setEnabled(true)
++    @story &lt;&lt; makeNewScreen while @cursor&gt;=@story.length
++    updateView
++    true
++  end
++  def eventPrev(e)
++    puts &quot;PREV&quot;
++    @cursor-=1
++    @prev.setEnabled(false) if @cursor==0 
++    updateView
++    true
++  end
++  
++  def eventImageSelected(file,texture)
++    @image.setTexture(texture)
++    @story[@cursor].imageFilename=file
++  end  
++  private
++  def makeNewScreen
++    StoryScreen.new(firstImage,AGStringUtf8.new(&quot;&quot;))
++  end
++  def firstImage
++    @imageList.getFirstImage
++  end
++  
++  def updateView
++    screen=@story[@cursor]
++    @image.setTexture(getImage(screen.imageFilename))
++    @edit.setText(screen.text)
++    getChild(&quot;info&quot;).setText(AGStringUtf8.new(&quot;Page #{@cursor+1} of #{@story.length}&quot;))
++  end
++  def getImage(filename)
++    @imageList.getImageByFilename(filename)
++  end
++end
++
++[StoryEditor].each{|c|standardLayoutCreator(c)}
+
+Modified: antargis/trunk/ruby/gui/ag_tools.rb
+===================================================================
+--- antargis/trunk/ruby/gui/ag_tools.rb	2008-06-10 19:22:29 UTC (rev 1268)
++++ antargis/trunk/ruby/gui/ag_tools.rb	2008-06-27 15:10:20 UTC (rev 1269)
+@@ -85,7 +85,7 @@
+     end
+     return super(e)
+   end
+-
++  
+   private
+   def makeHandlerName(object,event)
+     #if object.respond_to?(:getName)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000224.html">[Antargis-svn] r1268 - in antargis/trunk: . data	data/gui/layout/editor/campaign ext/basic ext/gui ext/video	rookey ruby/editor/campaign
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#225">[ date ]</a>
+              <a href="thread.html#225">[ thread ]</a>
+              <a href="subject.html#225">[ subject ]</a>
+              <a href="author.html#225">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

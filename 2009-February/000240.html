@@ -1,0 +1,1521 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1284 - in antargis/trunk/rookey: . examples	examples/noruby examples/noruby/.deps examples/simplistic	examples/templates examples/virtual
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2009-February/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1284%20-%20in%20antargis/trunk/rookey%3A%20.%20examples%0A%09examples/noruby%20examples/noruby/.deps%20examples/simplistic%0A%09examples/templates%20examples/virtual&In-Reply-To=%3C200902162002.n1GK26sH005524%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000239.html">
+   <LINK REL="Next"  HREF="000241.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1284 - in antargis/trunk/rookey: . examples	examples/noruby examples/noruby/.deps examples/simplistic	examples/templates examples/virtual</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1284%20-%20in%20antargis/trunk/rookey%3A%20.%20examples%0A%09examples/noruby%20examples/noruby/.deps%20examples/simplistic%0A%09examples/templates%20examples/virtual&In-Reply-To=%3C200902162002.n1GK26sH005524%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1284 - in antargis/trunk/rookey: . examples	examples/noruby examples/noruby/.deps examples/simplistic	examples/templates examples/virtual">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Mon Feb 16 21:02:06 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000239.html">[Antargis-svn] r1283 - antargis/trunk/data/gui
+</A></li>
+        <LI>Next message: <A HREF="000241.html">[Antargis-svn] r1285 - in antargis/trunk/rookey: . configs cpp lib	lib/rookey lib/rookey/configs lib/rookey/cpp lib/rookey/swig	maintainenance nbproject nbproject/private swig
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#240">[ date ]</a>
+              <a href="thread.html#240">[ thread ]</a>
+              <a href="subject.html#240">[ subject ]</a>
+              <a href="author.html#240">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2009-02-16 21:01:55 +0100 (Mon, 16 Feb 2009)
+New Revision: 1284
+
+Added:
+   antargis/trunk/rookey/examples/
+   antargis/trunk/rookey/examples/README
+   antargis/trunk/rookey/examples/gargabe/
+   antargis/trunk/rookey/examples/noruby/
+   antargis/trunk/rookey/examples/noruby/.build_darwin9.0/
+   antargis/trunk/rookey/examples/noruby/.deps/
+   antargis/trunk/rookey/examples/noruby/.deps/main.cc
+   antargis/trunk/rookey/examples/noruby/.deps/test.c
+   antargis/trunk/rookey/examples/noruby/Rakefile
+   antargis/trunk/rookey/examples/noruby/config_cache.rb
+   antargis/trunk/rookey/examples/noruby/configure
+   antargis/trunk/rookey/examples/noruby/main.cc
+   antargis/trunk/rookey/examples/noruby/rookey.log
+   antargis/trunk/rookey/examples/noruby/rookey_configuration.rb
+   antargis/trunk/rookey/examples/noruby/test
+   antargis/trunk/rookey/examples/noruby/test.c
+   antargis/trunk/rookey/examples/simplistic/
+   antargis/trunk/rookey/examples/simplistic/Rakefile
+   antargis/trunk/rookey/examples/simplistic/a.cc
+   antargis/trunk/rookey/examples/simplistic/a.h
+   antargis/trunk/rookey/examples/simplistic/a.rb
+   antargis/trunk/rookey/examples/simplistic/config_cache.rb
+   antargis/trunk/rookey/examples/simplistic/rookey.log
+   antargis/trunk/rookey/examples/simplistic/rookey_configuration.rb
+   antargis/trunk/rookey/examples/simplistic/test
+   antargis/trunk/rookey/examples/simplistic/test.bundle
+   antargis/trunk/rookey/examples/simplistic/test.c
+   antargis/trunk/rookey/examples/simplistic/test_interface.i
+   antargis/trunk/rookey/examples/templates/
+   antargis/trunk/rookey/examples/templates/Rakefile
+   antargis/trunk/rookey/examples/templates/child.h
+   antargis/trunk/rookey/examples/templates/config_cache.rb
+   antargis/trunk/rookey/examples/templates/parent.cc
+   antargis/trunk/rookey/examples/templates/parent.h
+   antargis/trunk/rookey/examples/templates/rookey.log
+   antargis/trunk/rookey/examples/templates/rookey_configuration.rb
+   antargis/trunk/rookey/examples/templates/templates.bundle
+   antargis/trunk/rookey/examples/templates/templates.i
+   antargis/trunk/rookey/examples/templates/templates_interface.i
+   antargis/trunk/rookey/examples/templates/test
+   antargis/trunk/rookey/examples/templates/test.c
+   antargis/trunk/rookey/examples/templates/test.rb
+   antargis/trunk/rookey/examples/virtual/
+   antargis/trunk/rookey/examples/virtual/Rakefile
+   antargis/trunk/rookey/examples/virtual/car.cc
+   antargis/trunk/rookey/examples/virtual/car.h
+   antargis/trunk/rookey/examples/virtual/config_cache.rb
+   antargis/trunk/rookey/examples/virtual/rookey.log
+   antargis/trunk/rookey/examples/virtual/rookey_configuration.rb
+   antargis/trunk/rookey/examples/virtual/test
+   antargis/trunk/rookey/examples/virtual/test.c
+   antargis/trunk/rookey/examples/virtual/vehicle.cc
+   antargis/trunk/rookey/examples/virtual/vehicle.h
+   antargis/trunk/rookey/examples/virtual/virtualExample.bundle
+   antargis/trunk/rookey/examples/virtual/virtualExample_interface.i
+   antargis/trunk/rookey/examples/virtual/virtualTest.rb
+Log:
+added examples
+
+Added: antargis/trunk/rookey/examples/README
+===================================================================
+--- antargis/trunk/rookey/examples/README	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/README	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1,61 @@
++== noruby
++contains an example for a plain C++ project, that you can build and deploy. 
++
++The Rakefile looks like this: First the rookey.rb base file is included.
++
++ require '../../rookey.rb'
++
++ objects=Rookey::compile(['main.cc'])
++ exe=Rookey::link_exe('test',objects)
++
++ task :default=&gt;exe do
++ end
++
++After that you define a task for compilation of cc-files to objects. The name of the task is stored in 'objects'
++after that you can use these objects to create an executable with name base 'test'. On Unix-Systems the executable will
++be named 'test' - on Windows 'test.exe'. You can use 'objects' and 'exe' as tasks in definition like you can see in the
++definition of the default task. That's all you need for compilation. Just run 'rake' and it creates you executable.
++
++Note: Rookey does not use the typical rake-like syntax (task :xy=&gt;:yz do ... end with symbols), because objects is an array
++of rule-targets that should not be included in the rake-tasklist. Apart from this you can compile objects using different
++configurations and link them into a single file.  
++
++When you have things to configure like creation of debug-symbol, you can add a configure script, that looks like this:
++ #!/usr/bin/env ruby
++
++ require File.join(File.split(__FILE__)[0],&quot;..&quot;,&quot;..&quot;,&quot;lib&quot;,&quot;rookey_config.rb&quot;)
++
++ config=Rookey::Configure.new
++ config.run
++
++ puts
++ puts &quot;Run 'rake clean' for changes to take effect on already built files!&quot;
++ puts
++
++First you include the rookey_config.rb to get all the functionality. After that you start a configure-run.
++This can be shorten down to something like this:
++
++ require File.join(File.split(__FILE__)[0],&quot;..&quot;,&quot;..&quot;,&quot;lib&quot;,&quot;rookey_config.rb&quot;)
++ Rookey::Configure.new.run
++ 
++If you want to configure your own options, have a look at optparse, which is used internally in rookey-configure.
++After that you can use it like this:
++
++ config=Rookey::Configure.new
++ config.run do |opts|
++
++   opts.on(&quot;--drmuser DRMUSER&quot;,
++     &quot;set user for DRM&quot;) do |v|
++       config.set(:drmuser,v)
++   end
++  
++   opts.on(&quot;--drmpw DRMPASSWORD&quot;,
++     &quot;set password for DRM&quot;) do |v|
++       config.set(:drmpass,v)
++   end  
++ end
++
++Rookey takes care of storing the settings to a rookey_configuration.rb file. There are no other configure files in
++the other examples, because they are not explicitly needed.
++
++ 
+\ No newline at end of file
+
+Added: antargis/trunk/rookey/examples/noruby/.deps/main.cc
+===================================================================
+--- antargis/trunk/rookey/examples/noruby/.deps/main.cc	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/noruby/.deps/main.cc	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1,91 @@
++main.o: main.cc /usr/include/c++/4.0.0/iostream \
++  /usr/include/c++/4.0.0/i686-apple-darwin9/bits/c++config.h \
++  /usr/include/c++/4.0.0/i686-apple-darwin9/bits/os_defines.h \
++  /usr/include/c++/4.0.0/ostream /usr/include/c++/4.0.0/ios \
++  /usr/include/c++/4.0.0/iosfwd \
++  /usr/include/c++/4.0.0/i686-apple-darwin9/bits/c++locale.h \
++  /usr/include/c++/4.0.0/clocale /usr/include/locale.h \
++  /usr/include/_locale.h /usr/include/sys/cdefs.h /usr/include/_types.h \
++  /usr/include/sys/_types.h /usr/include/machine/_types.h \
++  /usr/include/i386/_types.h /usr/include/c++/4.0.0/cstring \
++  /usr/include/c++/4.0.0/cstddef \
++  /usr/lib/gcc/i686-apple-darwin9/4.0.1/include/stddef.h \
++  /usr/include/string.h /usr/include/c++/4.0.0/cstdio \
++  /usr/include/stdio.h \
++  /usr/include/c++/4.0.0/i686-apple-darwin9/bits/c++io.h \
++  /usr/include/c++/4.0.0/i686-apple-darwin9/bits/gthr.h \
++  /usr/include/c++/4.0.0/i686-apple-darwin9/bits/gthr-default.h \
++  /usr/include/pthread.h /usr/include/pthread_impl.h /usr/include/sched.h \
++  /usr/include/time.h /usr/include/_structs.h /usr/include/sys/_structs.h \
++  /usr/include/unistd.h /usr/include/sys/unistd.h \
++  /usr/include/sys/select.h /usr/include/sys/appleapiopts.h \
++  /usr/include/sys/_select.h /usr/include/c++/4.0.0/cctype \
++  /usr/include/ctype.h /usr/include/runetype.h \
++  /usr/include/c++/4.0.0/bits/stringfwd.h \
++  /usr/include/c++/4.0.0/bits/postypes.h /usr/include/c++/4.0.0/cwchar \
++  /usr/include/c++/4.0.0/ctime /usr/include/wchar.h \
++  /usr/lib/gcc/i686-apple-darwin9/4.0.1/include/stdarg.h \
++  /usr/include/_wctype.h \
++  /usr/lib/gcc/i686-apple-darwin9/4.0.1/include/stdint.h \
++  /usr/include/c++/4.0.0/bits/functexcept.h \
++  /usr/include/c++/4.0.0/exception_defines.h \
++  /usr/include/c++/4.0.0/exception \
++  /usr/include/c++/4.0.0/bits/char_traits.h \
++  /usr/include/c++/4.0.0/bits/stl_algobase.h \
++  /usr/include/c++/4.0.0/climits \
++  /usr/lib/gcc/i686-apple-darwin9/4.0.1/include/limits.h \
++  /usr/lib/gcc/i686-apple-darwin9/4.0.1/include/syslimits.h \
++  /usr/include/limits.h /usr/include/machine/limits.h \
++  /usr/include/i386/limits.h /usr/include/i386/_limits.h \
++  /usr/include/sys/syslimits.h /usr/include/c++/4.0.0/cstdlib \
++  /usr/include/stdlib.h /usr/include/available.h /usr/include/sys/wait.h \
++  /usr/include/sys/signal.h /usr/include/machine/signal.h \
++  /usr/include/i386/signal.h /usr/include/i386/_structs.h \
++  /usr/include/machine/_structs.h /usr/include/mach/i386/_structs.h \
++  /usr/include/sys/resource.h /usr/include/machine/endian.h \
++  /usr/include/i386/endian.h /usr/include/sys/_endian.h \
++  /usr/include/libkern/_OSByteOrder.h \
++  /usr/include/libkern/i386/_OSByteOrder.h /usr/include/alloca.h \
++  /usr/include/machine/types.h /usr/include/i386/types.h \
++  /usr/include/c++/4.0.0/bits/stl_pair.h \
++  /usr/include/c++/4.0.0/bits/cpp_type_traits.h \
++  /usr/include/c++/4.0.0/bits/stl_iterator_base_types.h \
++  /usr/include/c++/4.0.0/bits/stl_iterator_base_funcs.h \
++  /usr/include/c++/4.0.0/bits/concept_check.h \
++  /usr/include/c++/4.0.0/bits/stl_iterator.h \
++  /usr/include/c++/4.0.0/debug/debug.h /usr/include/c++/4.0.0/cassert \
++  /usr/include/assert.h /usr/include/c++/4.0.0/bits/localefwd.h \
++  /usr/include/c++/4.0.0/bits/ios_base.h \
++  /usr/include/c++/4.0.0/bits/atomicity.h \
++  /usr/include/c++/4.0.0/i686-apple-darwin9/bits/atomic_word.h \
++  /usr/include/c++/4.0.0/bits/locale_classes.h \
++  /usr/include/c++/4.0.0/string /usr/include/c++/4.0.0/memory \
++  /usr/include/c++/4.0.0/bits/allocator.h \
++  /usr/include/c++/4.0.0/i686-apple-darwin9/bits/c++allocator.h \
++  /usr/include/c++/4.0.0/ext/new_allocator.h /usr/include/c++/4.0.0/new \
++  /usr/include/c++/4.0.0/bits/stl_construct.h \
++  /usr/include/c++/4.0.0/bits/stl_uninitialized.h \
++  /usr/include/c++/4.0.0/bits/stl_raw_storage_iter.h \
++  /usr/include/c++/4.0.0/limits \
++  /usr/include/c++/4.0.0/bits/stl_function.h \
++  /usr/include/c++/4.0.0/bits/basic_string.h \
++  /usr/include/c++/4.0.0/algorithm /usr/include/c++/4.0.0/bits/stl_algo.h \
++  /usr/include/c++/4.0.0/bits/stl_heap.h \
++  /usr/include/c++/4.0.0/bits/stl_tempbuf.h \
++  /usr/include/c++/4.0.0/bits/basic_string.tcc \
++  /usr/include/c++/4.0.0/streambuf \
++  /usr/include/c++/4.0.0/bits/streambuf.tcc \
++  /usr/include/c++/4.0.0/bits/basic_ios.h \
++  /usr/include/c++/4.0.0/bits/streambuf_iterator.h \
++  /usr/include/c++/4.0.0/bits/locale_facets.h \
++  /usr/include/c++/4.0.0/cwctype /usr/include/wctype.h \
++  /usr/include/c++/4.0.0/i686-apple-darwin9/bits/ctype_base.h \
++  /usr/include/c++/4.0.0/i686-apple-darwin9/bits/ctype_inline.h \
++  /usr/include/c++/4.0.0/bits/codecvt.h \
++  /usr/include/c++/4.0.0/i686-apple-darwin9/bits/time_members.h \
++  /usr/include/c++/4.0.0/i686-apple-darwin9/bits/messages_members.h \
++  /usr/include/c++/4.0.0/bits/basic_ios.tcc \
++  /usr/include/c++/4.0.0/bits/ostream.tcc /usr/include/c++/4.0.0/locale \
++  /usr/include/c++/4.0.0/bits/locale_facets.tcc \
++  /usr/include/c++/4.0.0/typeinfo /usr/include/c++/4.0.0/istream \
++  /usr/include/c++/4.0.0/bits/istream.tcc
+
+Added: antargis/trunk/rookey/examples/noruby/.deps/test.c
+===================================================================
+--- antargis/trunk/rookey/examples/noruby/.deps/test.c	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/noruby/.deps/test.c	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1 @@
++test.o: test.c
+
+Added: antargis/trunk/rookey/examples/noruby/Rakefile
+===================================================================
+--- antargis/trunk/rookey/examples/noruby/Rakefile	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/noruby/Rakefile	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1,6 @@
++require 'rookey.rb'
++
++objects=Rookey::compile(['main.cc'])
++exe=Rookey::link_exe('test',objects)
++
++task :default=&gt;exe doend
+\ No newline at end of file
+
+Added: antargis/trunk/rookey/examples/noruby/config_cache.rb
+===================================================================
+--- antargis/trunk/rookey/examples/noruby/config_cache.rb	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/noruby/config_cache.rb	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1,5 @@
++module Rookey
++  @@config=Marshal.load(&quot;o:Rookey::Config:
+<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">+ at hash</A>{\&quot;CC\&quot;/usr/bin/gcc\&quot;SWIG_OPTIONS\&quot; -Wall -DAGEXPORT\&quot;CCACHE\&quot;/opt/local/bin/ccache\&quot;	SWIG\&quot; /opt/local/bin/swig\&quot;CPP\&quot;/usr/bin/g++\&quot;CFLAGS\&quot;V -arch ppc -arch i386 -Os -pipe -fno-common -O0 -g -D_GNU_SOURCE=1 -D_THREAD_SAFE\&quot;host_os\&quot;darwin9.0\&quot;
++DLEXT\&quot;bundle\&quot;INCLUDEDIRS\&quot;&#255; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include /usr/X11/include /Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/rookey/./cpp /opt/local/include/SDL\&quot;LDFLAGS\&quot;&#150; -lpthread -ldl -lm  -lruby -Wl,-framework,OpenGL -g -lz -L/opt/local/lib -lSDLmain -lSDL -Wl,-framework,Cocoa -lSDL_image -lSDL_ttf -lSDL_mixer -lpng\&quot;GCC_BASE\&quot;gcc\&quot;GPP_BASE\&quot;g++\&quot;LDSHAREDFLAGS\&quot;B -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;)
++end
+
+Added: antargis/trunk/rookey/examples/noruby/configure
+===================================================================
+--- antargis/trunk/rookey/examples/noruby/configure	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/noruby/configure	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1,10 @@
++#!/usr/bin/env ruby
++
++require File.join(File.split(__FILE__)[0],&quot;..&quot;,&quot;..&quot;,&quot;lib&quot;,&quot;rookey_config.rb&quot;)
++
++config=Rookey::Configure.new
++config.run
++
++puts
++puts &quot;Run 'rake clean' for changes to take effect on already built files!&quot;
++puts
+
+
+Property changes on: antargis/trunk/rookey/examples/noruby/configure
+___________________________________________________________________
+Name: svn:executable
+   + *
+
+Added: antargis/trunk/rookey/examples/noruby/main.cc
+===================================================================
+--- antargis/trunk/rookey/examples/noruby/main.cc	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/noruby/main.cc	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1,7 @@
++#include &lt;iostream&gt;
++
++int main(int ,char**)
++{
++  std::cout&lt;&lt;&quot;Hello World&quot;&lt;&lt;std::endl;
++  return 0;
++}
+
+Added: antargis/trunk/rookey/examples/noruby/rookey.log
+===================================================================
+--- antargis/trunk/rookey/examples/noruby/rookey.log	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/noruby/rookey.log	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1,36 @@
++/Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/rookey/./config_class.rb:26:in `getConfig'
++/Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/./rookey/tasks.rb:91:in `compile'
++/Users/davidkamphausen/projects.alt/antargis/rookey/examples/noruby/rakefile:3
++/Library/Ruby/Gems/1.8/gems/rake-0.8.1/lib/rake.rb:2149:in `load'
++/Library/Ruby/Gems/1.8/gems/rake-0.8.1/lib/rake.rb:2149:in `raw_load_rakefile'
++/Library/Ruby/Gems/1.8/gems/rake-0.8.1/lib/rake.rb:1897:in `load_rakefile'
++/Library/Ruby/Gems/1.8/gems/rake-0.8.1/lib/rake.rb:1948:in `standard_exception_handling'
++/Library/Ruby/Gems/1.8/gems/rake-0.8.1/lib/rake.rb:1896:in `load_rakefile'
++/Library/Ruby/Gems/1.8/gems/rake-0.8.1/lib/rake.rb:1880:in `run'
++/Library/Ruby/Gems/1.8/gems/rake-0.8.1/lib/rake.rb:1948:in `standard_exception_handling'
++/Library/Ruby/Gems/1.8/gems/rake-0.8.1/lib/rake.rb:1878:in `run'
++/Library/Ruby/Gems/1.8/gems/rake-0.8.1/bin/rake:31
++/usr/bin/rake:19:in `load'
++/usr/bin/rake:19
++Running configurator Rookey::SwigConfig
++#&lt;Rookey::Config:0x5457e0 @hash={&quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;}&gt;
++Running configurator Rookey::MinGWConfig
++#&lt;Rookey::Config:0x5457e0 @hash={&quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;}&gt;
++Running configurator Rookey::RubyConfig
++#&lt;Rookey::Config:0x5457e0 @hash={&quot;CC&quot;=&gt;&quot;/usr/bin/gcc&quot;, &quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;, &quot;CPP&quot;=&gt;&quot;/usr/bin/g++&quot;, &quot;CFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -Os -pipe -fno-common&quot;, &quot;host_os&quot;=&gt;&quot;darwin9.0&quot;, &quot;DLEXT&quot;=&gt;&quot;bundle&quot;, &quot;INCLUDEDIRS&quot;=&gt;&quot; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include&quot;, &quot;LDFLAGS&quot;=&gt;&quot; -lpthread -ldl -lm  -lruby&quot;, &quot;GCC_BASE&quot;=&gt;&quot;gcc&quot;, &quot;GPP_BASE&quot;=&gt;&quot;g++&quot;, &quot;LDSHAREDFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;}&gt;
++Running configurator Rookey::GLConfig
++#&lt;Rookey::Config:0x5457e0 @hash={&quot;CC&quot;=&gt;&quot;/usr/bin/gcc&quot;, &quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;, &quot;CPP&quot;=&gt;&quot;/usr/bin/g++&quot;, &quot;CFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -Os -pipe -fno-common&quot;, &quot;host_os&quot;=&gt;&quot;darwin9.0&quot;, &quot;DLEXT&quot;=&gt;&quot;bundle&quot;, &quot;INCLUDEDIRS&quot;=&gt;&quot; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include /usr/X11/include&quot;, &quot;LDFLAGS&quot;=&gt;&quot; -lpthread -ldl -lm  -lruby -Wl,-framework,OpenGL&quot;, &quot;GCC_BASE&quot;=&gt;&quot;gcc&quot;, &quot;GPP_BASE&quot;=&gt;&quot;g++&quot;, &quot;LDSHAREDFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;}&gt;
++Running configurator Rookey::DebugConfig
++#&lt;Rookey::Config:0x5457e0 @hash={&quot;CC&quot;=&gt;&quot;/usr/bin/gcc&quot;, &quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;, &quot;CPP&quot;=&gt;&quot;/usr/bin/g++&quot;, &quot;CFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -Os -pipe -fno-common -O0 -g&quot;, &quot;host_os&quot;=&gt;&quot;darwin9.0&quot;, &quot;DLEXT&quot;=&gt;&quot;bundle&quot;, &quot;INCLUDEDIRS&quot;=&gt;&quot; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include /usr/X11/include&quot;, &quot;LDFLAGS&quot;=&gt;&quot; -lpthread -ldl -lm  -lruby -Wl,-framework,OpenGL -g&quot;, &quot;GCC_BASE&quot;=&gt;&quot;gcc&quot;, &quot;GPP_BASE&quot;=&gt;&quot;g++&quot;, &quot;LDSHAREDFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;}&gt;
++Running configurator Rookey::CompilerConfig
++#&lt;Rookey::Config:0x5457e0 @hash={&quot;CC&quot;=&gt;&quot;/usr/bin/gcc&quot;, &quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;, &quot;CPP&quot;=&gt;&quot;/usr/bin/g++&quot;, &quot;CFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -Os -pipe -fno-common -O0 -g&quot;, &quot;host_os&quot;=&gt;&quot;darwin9.0&quot;, &quot;DLEXT&quot;=&gt;&quot;bundle&quot;, &quot;INCLUDEDIRS&quot;=&gt;&quot; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include /usr/X11/include /Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/rookey/./cpp&quot;, &quot;LDFLAGS&quot;=&gt;&quot; -lpthread -ldl -lm  -lruby -Wl,-framework,OpenGL -g&quot;, &quot;GCC_BASE&quot;=&gt;&quot;gcc&quot;, &quot;GPP_BASE&quot;=&gt;&quot;g++&quot;, &quot;LDSHAREDFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;}&gt;
++Running configurator Rookey::CcacheConfig
++#&lt;Rookey::Config:0x5457e0 @hash={&quot;CC&quot;=&gt;&quot;/usr/bin/gcc&quot;, &quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;CCACHE&quot;=&gt;&quot;/opt/local/bin/ccache&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;, &quot;CPP&quot;=&gt;&quot;/usr/bin/g++&quot;, &quot;CFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -Os -pipe -fno-common -O0 -g&quot;, &quot;host_os&quot;=&gt;&quot;darwin9.0&quot;, &quot;DLEXT&quot;=&gt;&quot;bundle&quot;, &quot;INCLUDEDIRS&quot;=&gt;&quot; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include /usr/X11/include /Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/rookey/./cpp&quot;, &quot;LDFLAGS&quot;=&gt;&quot; -lpthread -ldl -lm  -lruby -Wl,-framework,OpenGL -g&quot;, &quot;GCC_BASE&quot;=&gt;&quot;gcc&quot;, &quot;GPP_BASE&quot;=&gt;&quot;g++&quot;, &quot;LDSHAREDFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;}&gt;
++Running configurator Rookey::Configurator
++#&lt;Rookey::Config:0x5457e0 @hash={&quot;CC&quot;=&gt;&quot;/usr/bin/gcc&quot;, &quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;CCACHE&quot;=&gt;&quot;/opt/local/bin/ccache&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;, &quot;CPP&quot;=&gt;&quot;/usr/bin/g++&quot;, &quot;CFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -Os -pipe -fno-common -O0 -g&quot;, &quot;host_os&quot;=&gt;&quot;darwin9.0&quot;, &quot;DLEXT&quot;=&gt;&quot;bundle&quot;, &quot;INCLUDEDIRS&quot;=&gt;&quot; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include /usr/X11/include /Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/rookey/./cpp&quot;, &quot;LDFLAGS&quot;=&gt;&quot; -lpthread -ldl -lm  -lruby -Wl,-framework,OpenGL -g&quot;, &quot;GCC_BASE&quot;=&gt;&quot;gcc&quot;, &quot;GPP_BASE&quot;=&gt;&quot;g++&quot;, &quot;LDSHAREDFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;}&gt;
++Running configurator Rookey::ZConfig
++#&lt;Rookey::Config:0x5457e0 @hash={&quot;CC&quot;=&gt;&quot;/usr/bin/gcc&quot;, &quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;CCACHE&quot;=&gt;&quot;/opt/local/bin/ccache&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;, &quot;CPP&quot;=&gt;&quot;/usr/bin/g++&quot;, &quot;CFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -Os -pipe -fno-common -O0 -g&quot;, &quot;host_os&quot;=&gt;&quot;darwin9.0&quot;, &quot;DLEXT&quot;=&gt;&quot;bundle&quot;, &quot;INCLUDEDIRS&quot;=&gt;&quot; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include /usr/X11/include /Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/rookey/./cpp&quot;, &quot;LDFLAGS&quot;=&gt;&quot; -lpthread -ldl -lm  -lruby -Wl,-framework,OpenGL -g -lz&quot;, &quot;GCC_BASE&quot;=&gt;&quot;gcc&quot;, &quot;GPP_BASE&quot;=&gt;&quot;g++&quot;, &quot;LDSHAREDFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;}&gt;
++Running configurator Rookey::SDLConfig
++#&lt;Rookey::Config:0x5457e0 @hash={&quot;CC&quot;=&gt;&quot;/usr/bin/gcc&quot;, &quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;CCACHE&quot;=&gt;&quot;/opt/local/bin/ccache&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;, &quot;CPP&quot;=&gt;&quot;/usr/bin/g++&quot;, &quot;CFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -Os -pipe -fno-common -O0 -g -D_GNU_SOURCE=1 -D_THREAD_SAFE&quot;, &quot;host_os&quot;=&gt;&quot;darwin9.0&quot;, &quot;DLEXT&quot;=&gt;&quot;bundle&quot;, &quot;INCLUDEDIRS&quot;=&gt;&quot; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include /usr/X11/include /Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/rookey/./cpp /opt/local/include/SDL&quot;, &quot;LDFLAGS&quot;=&gt;&quot; -lpthread -ldl -lm  -lruby -Wl,-framework,OpenGL -g -lz -L/opt/local/lib -lSDLmain -lSDL -Wl,-framework,Cocoa -lSDL_image -lSDL_ttf -lSDL_mixer&quot;, &quot;GCC_BASE&quot;=&gt;&quot;gcc&quot;, &quot;GPP_BASE&quot;=&gt;&quot;g++&quot;, &quot;LDSHAREDFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;}&gt;
++Running configurator Rookey::PNGConfig
++#&lt;Rookey::Config:0x5457e0 @hash={&quot;CC&quot;=&gt;&quot;/usr/bin/gcc&quot;, &quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;CCACHE&quot;=&gt;&quot;/opt/local/bin/ccache&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;, &quot;CPP&quot;=&gt;&quot;/usr/bin/g++&quot;, &quot;CFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -Os -pipe -fno-common -O0 -g -D_GNU_SOURCE=1 -D_THREAD_SAFE&quot;, &quot;host_os&quot;=&gt;&quot;darwin9.0&quot;, &quot;DLEXT&quot;=&gt;&quot;bundle&quot;, &quot;INCLUDEDIRS&quot;=&gt;&quot; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include /usr/X11/include /Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/rookey/./cpp /opt/local/include/SDL&quot;, &quot;LDFLAGS&quot;=&gt;&quot; -lpthread -ldl -lm  -lruby -Wl,-framework,OpenGL -g -lz -L/opt/local/lib -lSDLmain -lSDL -Wl,-framework,Cocoa -lSDL_image -lSDL_ttf -lSDL_mixer -lpng&quot;, &quot;GCC_BASE&quot;=&gt;&quot;gcc&quot;, &quot;GPP_BASE&quot;=&gt;&quot;g++&quot;, &quot;LDSHAREDFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;}&gt;
+
+Added: antargis/trunk/rookey/examples/noruby/rookey_configuration.rb
+===================================================================
+--- antargis/trunk/rookey/examples/noruby/rookey_configuration.rb	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/noruby/rookey_configuration.rb	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1,3 @@
++ROOKEY_CONFIG={
++:debug=&gt;'true'
++}
+
+Added: antargis/trunk/rookey/examples/noruby/test
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/trunk/rookey/examples/noruby/test
+___________________________________________________________________
+Name: svn:executable
+   + *
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/trunk/rookey/examples/noruby/test.c
+===================================================================
+--- antargis/trunk/rookey/examples/noruby/test.c	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/noruby/test.c	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1,2 @@
++
++extern &quot;C&quot; void png_get_io_ptr();int main(int argc,char*argv[]){return 0;}
+
+Added: antargis/trunk/rookey/examples/simplistic/Rakefile
+===================================================================
+--- antargis/trunk/rookey/examples/simplistic/Rakefile	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/simplistic/Rakefile	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1,5 @@
++require 'rookey.rb'
++
++extension=Rookey::ruby_ext('test',Dir[&quot;*.h&quot;]+Dir[&quot;*.cc&quot;])
++
++task :default=&gt;extension doend
+\ No newline at end of file
+
+Added: antargis/trunk/rookey/examples/simplistic/a.cc
+===================================================================
+--- antargis/trunk/rookey/examples/simplistic/a.cc	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/simplistic/a.cc	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1,10 @@
++#include &quot;a.h&quot;
++
++#include &lt;iostream&gt;
++
++std::string A::x()
++{
++  std::string id=&quot;A::x()&quot;;
++  std::cout&lt;&lt;id&lt;&lt;std::endl;
++  return id;
++}
+
+Added: antargis/trunk/rookey/examples/simplistic/a.h
+===================================================================
+--- antargis/trunk/rookey/examples/simplistic/a.h	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/simplistic/a.h	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1,15 @@
++#include &quot;rk_rubyobj.h&quot;
++
++// The following keyword is used to define that this header-file is included into swig-based
++// export to ruby
++// INCLUDE_SWIG
++
++// AGRubyObject is needed for any object that's owned cross-language.
++// A good rule is that any class thats derived from should be derived from AGRubyObject
++// in the first place.
++class A:public AGRubyObject
++  {
++public:
++  virtual std::string x();
++
++  };
+
+Added: antargis/trunk/rookey/examples/simplistic/a.rb
+===================================================================
+--- antargis/trunk/rookey/examples/simplistic/a.rb	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/simplistic/a.rb	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1,23 @@
++#!/usr/bin/env ruby
++
++require 'test'
++
++a=Test::A.new
++if a.x==&quot;A::x()&quot;
++  puts &quot;Everythings fine&quot;
++else
++  raise &quot;Somethings gone wrong in creation of Test::A&quot;
++end
++
++class B&lt;Test::A
++  def x
++    super+&quot;new&quot;
++  end
++end
++
++b=B.new
++if b.x==&quot;A::x()new&quot;
++  puts &quot;Everythings fine&quot;
++else
++  raise &quot;Somethings gone wrong in creation of B&quot;
++end
+
+Added: antargis/trunk/rookey/examples/simplistic/config_cache.rb
+===================================================================
+--- antargis/trunk/rookey/examples/simplistic/config_cache.rb	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/simplistic/config_cache.rb	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1,5 @@
++module Rookey
++  @@config=Marshal.load(&quot;o:Rookey::Config:
+<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">+ at hash</A>{\&quot;CC\&quot;/usr/bin/gcc\&quot;SWIG_OPTIONS\&quot; -Wall -DAGEXPORT\&quot;CCACHE\&quot;/opt/local/bin/ccache\&quot;	SWIG\&quot; /opt/local/bin/swig\&quot;CPP\&quot;/usr/bin/g++\&quot;CFLAGS\&quot;O -arch ppc -arch i386 -Os -pipe -fno-common -D_GNU_SOURCE=1 -D_THREAD_SAFE\&quot;host_os\&quot;darwin9.0\&quot;
++DLEXT\&quot;bundle\&quot;INCLUDEDIRS\&quot;&#255; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include /usr/X11/include /Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/rookey/./cpp /opt/local/include/SDL\&quot;LDFLAGS\&quot;&#147; -lpthread -ldl -lm  -lruby -Wl,-framework,OpenGL -lz -L/opt/local/lib -lSDLmain -lSDL -Wl,-framework,Cocoa -lSDL_image -lSDL_ttf -lSDL_mixer -lpng\&quot;GCC_BASE\&quot;gcc\&quot;GPP_BASE\&quot;g++\&quot;LDSHAREDFLAGS\&quot;B -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;)
++end
+
+Added: antargis/trunk/rookey/examples/simplistic/rookey.log
+===================================================================
+--- antargis/trunk/rookey/examples/simplistic/rookey.log	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/simplistic/rookey.log	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1,36 @@
++/Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/rookey/./config_class.rb:26:in `getConfig'
++/Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/./rookey/tasks.rb:164:in `ruby_ext'
++/Users/davidkamphausen/projects.alt/antargis/rookey/examples/simplistic/rakefile:3
++/Library/Ruby/Gems/1.8/gems/rake-0.8.1/lib/rake.rb:2149:in `load'
++/Library/Ruby/Gems/1.8/gems/rake-0.8.1/lib/rake.rb:2149:in `raw_load_rakefile'
++/Library/Ruby/Gems/1.8/gems/rake-0.8.1/lib/rake.rb:1897:in `load_rakefile'
++/Library/Ruby/Gems/1.8/gems/rake-0.8.1/lib/rake.rb:1948:in `standard_exception_handling'
++/Library/Ruby/Gems/1.8/gems/rake-0.8.1/lib/rake.rb:1896:in `load_rakefile'
++/Library/Ruby/Gems/1.8/gems/rake-0.8.1/lib/rake.rb:1880:in `run'
++/Library/Ruby/Gems/1.8/gems/rake-0.8.1/lib/rake.rb:1948:in `standard_exception_handling'
++/Library/Ruby/Gems/1.8/gems/rake-0.8.1/lib/rake.rb:1878:in `run'
++/Library/Ruby/Gems/1.8/gems/rake-0.8.1/bin/rake:31
++/usr/bin/rake:19:in `load'
++/usr/bin/rake:19
++Running configurator Rookey::SwigConfig
++#&lt;Rookey::Config:0x5455d8 @hash={&quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;}&gt;
++Running configurator Rookey::MinGWConfig
++#&lt;Rookey::Config:0x5455d8 @hash={&quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;}&gt;
++Running configurator Rookey::RubyConfig
++#&lt;Rookey::Config:0x5455d8 @hash={&quot;CC&quot;=&gt;&quot;/usr/bin/gcc&quot;, &quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;, &quot;CPP&quot;=&gt;&quot;/usr/bin/g++&quot;, &quot;CFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -Os -pipe -fno-common&quot;, &quot;host_os&quot;=&gt;&quot;darwin9.0&quot;, &quot;DLEXT&quot;=&gt;&quot;bundle&quot;, &quot;INCLUDEDIRS&quot;=&gt;&quot; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include&quot;, &quot;LDFLAGS&quot;=&gt;&quot; -lpthread -ldl -lm  -lruby&quot;, &quot;GCC_BASE&quot;=&gt;&quot;gcc&quot;, &quot;GPP_BASE&quot;=&gt;&quot;g++&quot;, &quot;LDSHAREDFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;}&gt;
++Running configurator Rookey::GLConfig
++#&lt;Rookey::Config:0x5455d8 @hash={&quot;CC&quot;=&gt;&quot;/usr/bin/gcc&quot;, &quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;, &quot;CPP&quot;=&gt;&quot;/usr/bin/g++&quot;, &quot;CFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -Os -pipe -fno-common&quot;, &quot;host_os&quot;=&gt;&quot;darwin9.0&quot;, &quot;DLEXT&quot;=&gt;&quot;bundle&quot;, &quot;INCLUDEDIRS&quot;=&gt;&quot; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include /usr/X11/include&quot;, &quot;LDFLAGS&quot;=&gt;&quot; -lpthread -ldl -lm  -lruby -Wl,-framework,OpenGL&quot;, &quot;GCC_BASE&quot;=&gt;&quot;gcc&quot;, &quot;GPP_BASE&quot;=&gt;&quot;g++&quot;, &quot;LDSHAREDFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;}&gt;
++Running configurator Rookey::DebugConfig
++#&lt;Rookey::Config:0x5455d8 @hash={&quot;CC&quot;=&gt;&quot;/usr/bin/gcc&quot;, &quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;, &quot;CPP&quot;=&gt;&quot;/usr/bin/g++&quot;, &quot;CFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -Os -pipe -fno-common&quot;, &quot;host_os&quot;=&gt;&quot;darwin9.0&quot;, &quot;DLEXT&quot;=&gt;&quot;bundle&quot;, &quot;INCLUDEDIRS&quot;=&gt;&quot; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include /usr/X11/include&quot;, &quot;LDFLAGS&quot;=&gt;&quot; -lpthread -ldl -lm  -lruby -Wl,-framework,OpenGL&quot;, &quot;GCC_BASE&quot;=&gt;&quot;gcc&quot;, &quot;GPP_BASE&quot;=&gt;&quot;g++&quot;, &quot;LDSHAREDFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;}&gt;
++Running configurator Rookey::CompilerConfig
++#&lt;Rookey::Config:0x5455d8 @hash={&quot;CC&quot;=&gt;&quot;/usr/bin/gcc&quot;, &quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;, &quot;CPP&quot;=&gt;&quot;/usr/bin/g++&quot;, &quot;CFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -Os -pipe -fno-common&quot;, &quot;host_os&quot;=&gt;&quot;darwin9.0&quot;, &quot;DLEXT&quot;=&gt;&quot;bundle&quot;, &quot;INCLUDEDIRS&quot;=&gt;&quot; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include /usr/X11/include /Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/rookey/./cpp&quot;, &quot;LDFLAGS&quot;=&gt;&quot; -lpthread -ldl -lm  -lruby -Wl,-framework,OpenGL&quot;, &quot;GCC_BASE&quot;=&gt;&quot;gcc&quot;, &quot;GPP_BASE&quot;=&gt;&quot;g++&quot;, &quot;LDSHAREDFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;}&gt;
++Running configurator Rookey::CcacheConfig
++#&lt;Rookey::Config:0x5455d8 @hash={&quot;CC&quot;=&gt;&quot;/usr/bin/gcc&quot;, &quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;CCACHE&quot;=&gt;&quot;/opt/local/bin/ccache&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;, &quot;CPP&quot;=&gt;&quot;/usr/bin/g++&quot;, &quot;CFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -Os -pipe -fno-common&quot;, &quot;host_os&quot;=&gt;&quot;darwin9.0&quot;, &quot;DLEXT&quot;=&gt;&quot;bundle&quot;, &quot;INCLUDEDIRS&quot;=&gt;&quot; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include /usr/X11/include /Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/rookey/./cpp&quot;, &quot;LDFLAGS&quot;=&gt;&quot; -lpthread -ldl -lm  -lruby -Wl,-framework,OpenGL&quot;, &quot;GCC_BASE&quot;=&gt;&quot;gcc&quot;, &quot;GPP_BASE&quot;=&gt;&quot;g++&quot;, &quot;LDSHAREDFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;}&gt;
++Running configurator Rookey::Configurator
++#&lt;Rookey::Config:0x5455d8 @hash={&quot;CC&quot;=&gt;&quot;/usr/bin/gcc&quot;, &quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;CCACHE&quot;=&gt;&quot;/opt/local/bin/ccache&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;, &quot;CPP&quot;=&gt;&quot;/usr/bin/g++&quot;, &quot;CFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -Os -pipe -fno-common&quot;, &quot;host_os&quot;=&gt;&quot;darwin9.0&quot;, &quot;DLEXT&quot;=&gt;&quot;bundle&quot;, &quot;INCLUDEDIRS&quot;=&gt;&quot; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include /usr/X11/include /Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/rookey/./cpp&quot;, &quot;LDFLAGS&quot;=&gt;&quot; -lpthread -ldl -lm  -lruby -Wl,-framework,OpenGL&quot;, &quot;GCC_BASE&quot;=&gt;&quot;gcc&quot;, &quot;GPP_BASE&quot;=&gt;&quot;g++&quot;, &quot;LDSHAREDFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;}&gt;
++Running configurator Rookey::ZConfig
++#&lt;Rookey::Config:0x5455d8 @hash={&quot;CC&quot;=&gt;&quot;/usr/bin/gcc&quot;, &quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;CCACHE&quot;=&gt;&quot;/opt/local/bin/ccache&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;, &quot;CPP&quot;=&gt;&quot;/usr/bin/g++&quot;, &quot;CFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -Os -pipe -fno-common&quot;, &quot;host_os&quot;=&gt;&quot;darwin9.0&quot;, &quot;DLEXT&quot;=&gt;&quot;bundle&quot;, &quot;INCLUDEDIRS&quot;=&gt;&quot; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include /usr/X11/include /Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/rookey/./cpp&quot;, &quot;LDFLAGS&quot;=&gt;&quot; -lpthread -ldl -lm  -lruby -Wl,-framework,OpenGL -lz&quot;, &quot;GCC_BASE&quot;=&gt;&quot;gcc&quot;, &quot;GPP_BASE&quot;=&gt;&quot;g++&quot;, &quot;LDSHAREDFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;}&gt;
++Running configurator Rookey::SDLConfig
++#&lt;Rookey::Config:0x5455d8 @hash={&quot;CC&quot;=&gt;&quot;/usr/bin/gcc&quot;, &quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;CCACHE&quot;=&gt;&quot;/opt/local/bin/ccache&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;, &quot;CPP&quot;=&gt;&quot;/usr/bin/g++&quot;, &quot;CFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -Os -pipe -fno-common -D_GNU_SOURCE=1 -D_THREAD_SAFE&quot;, &quot;host_os&quot;=&gt;&quot;darwin9.0&quot;, &quot;DLEXT&quot;=&gt;&quot;bundle&quot;, &quot;INCLUDEDIRS&quot;=&gt;&quot; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include /usr/X11/include /Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/rookey/./cpp /opt/local/include/SDL&quot;, &quot;LDFLAGS&quot;=&gt;&quot; -lpthread -ldl -lm  -lruby -Wl,-framework,OpenGL -lz -L/opt/local/lib -lSDLmain -lSDL -Wl,-framework,Cocoa -lSDL_image -lSDL_ttf -lSDL_mixer&quot;, &quot;GCC_BASE&quot;=&gt;&quot;gcc&quot;, &quot;GPP_BASE&quot;=&gt;&quot;g++&quot;, &quot;LDSHAREDFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;}&gt;
++Running configurator Rookey::PNGConfig
++#&lt;Rookey::Config:0x5455d8 @hash={&quot;CC&quot;=&gt;&quot;/usr/bin/gcc&quot;, &quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;CCACHE&quot;=&gt;&quot;/opt/local/bin/ccache&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;, &quot;CPP&quot;=&gt;&quot;/usr/bin/g++&quot;, &quot;CFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -Os -pipe -fno-common -D_GNU_SOURCE=1 -D_THREAD_SAFE&quot;, &quot;host_os&quot;=&gt;&quot;darwin9.0&quot;, &quot;DLEXT&quot;=&gt;&quot;bundle&quot;, &quot;INCLUDEDIRS&quot;=&gt;&quot; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include /usr/X11/include /Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/rookey/./cpp /opt/local/include/SDL&quot;, &quot;LDFLAGS&quot;=&gt;&quot; -lpthread -ldl -lm  -lruby -Wl,-framework,OpenGL -lz -L/opt/local/lib -lSDLmain -lSDL -Wl,-framework,Cocoa -lSDL_image -lSDL_ttf -lSDL_mixer -lpng&quot;, &quot;GCC_BASE&quot;=&gt;&quot;gcc&quot;, &quot;GPP_BASE&quot;=&gt;&quot;g++&quot;, &quot;LDSHAREDFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;}&gt;
+
+Added: antargis/trunk/rookey/examples/simplistic/rookey_configuration.rb
+===================================================================
+--- antargis/trunk/rookey/examples/simplistic/rookey_configuration.rb	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/simplistic/rookey_configuration.rb	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1,3 @@
++ROOKEY_CONFIG={
++
++}
+
+Added: antargis/trunk/rookey/examples/simplistic/test
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/trunk/rookey/examples/simplistic/test
+___________________________________________________________________
+Name: svn:executable
+   + *
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/trunk/rookey/examples/simplistic/test.bundle
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/trunk/rookey/examples/simplistic/test.bundle
+___________________________________________________________________
+Name: svn:executable
+   + *
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/trunk/rookey/examples/simplistic/test.c
+===================================================================
+--- antargis/trunk/rookey/examples/simplistic/test.c	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/simplistic/test.c	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1,2 @@
++
++extern &quot;C&quot; void png_get_io_ptr();int main(int argc,char*argv[]){return 0;}
+
+Added: antargis/trunk/rookey/examples/simplistic/test_interface.i
+===================================================================
+--- antargis/trunk/rookey/examples/simplistic/test_interface.i	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/simplistic/test_interface.i	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1,145 @@
++%module(directors=&quot;1&quot;) test
++%feature(&quot;autodoc&quot;,&quot;1&quot;);
++
++/*
++%feature(&quot;director:except&quot;) {
++ throw Swig::DirectorMethodException($error);
++}
++*/
++
++      %include &lt;std_vector.i&gt;
++      %include &lt;std_list.i&gt;
++      
++
++
++%include &quot;stl.i&quot;
++%include &quot;std_list.i&quot;
++%{
++#include &quot;rk_string.h&quot;
++#include &quot;/Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/./rookey/cpp/rk_rubyobj.h&quot;
++#include &quot;a.h&quot;
++%}
++
++%wrapper %{namespace swig{
++        template &lt;&gt; struct traits_from_ptr&lt;AGRubyObject&gt; {
++          static VALUE from (AGRubyObject *val,int owner=0) {
++          
++            // insert Dynamic_cast(...)
++            swig_type_info *info=SWIGTYPE_p_AGRubyObject; //type_info&lt;AGRubyObject&gt;();
++            swig_type_info *ninfo=SWIG_TypeDynamicCast(info,(void**)&amp;val);
++            if(ninfo==0)
++              ninfo=info;
++          
++            return SWIG_NewPointerObj(val, ninfo, owner);
++          }
++        };        
++        
++        template &lt;&gt; struct traits_from_ptr&lt;A&gt; {
++          static VALUE from (A *val,int owner=0) {
++          
++            // insert Dynamic_cast(...)
++            swig_type_info *info=SWIGTYPE_p_A; //type_info&lt;A&gt;();
++            swig_type_info *ninfo=SWIG_TypeDynamicCast(info,(void**)&amp;val);
++            if(ninfo==0)
++              ninfo=info;
++          
++            return SWIG_NewPointerObj(val, ninfo, owner);
++          }
++        };        
++        }%}
++
++%feature(&quot;director&quot;) AGRubyObject;
++%feature(&quot;director&quot;) A;
++%markfunc AGRubyObject &quot;general_markfunc&quot;
++%markfunc A &quot;general_markfunc&quot;
++%{
++      /*
++template&lt;class T&gt;
++VALUE convertCpp2Ruby(T *cObject)
++{
++  return SWIG_RubyInstanceFor(cObject);
++}
++template&lt;AGRubyObject&gt;*/ 
++VALUE convertCpp2Ruby(AGRubyObject *cObject)
++{
++  return SWIG_RubyInstanceFor(cObject);
++}
++  
++
++%}
++
++%{
++
++%}
++%insert(&quot;init&quot;) %{
++
++%}
++
++
++%typemaps_std_string(AGString, char, SWIG_AsCharPtrAndSize, SWIG_FromCharPtrAndSize, %checkcode(STDSTRING));
++
++/*
++template &lt;&gt;
++ inline VALUE from&lt;AGString&gt;(const AGString&amp; val) {
++   return SWIG_FromCharPtrAndSize(val.c_str(),val.length());
++   //return traits_from&lt;Type&gt;::from(val);
++ }
++ */
++ // oder
++ %wrapper %{
++ namespace swig
++ {
++ template&lt;&gt; struct traits_from&lt;AGString&gt;
++ {
++	 inline static VALUE from(const AGString &amp;val)
++	 {
++     return SWIG_FromCharPtrAndSize(val.c_str(),val.length());
++	 }
++};
++}
++%}
++
++
++        
++        %typemap(out) AGRubyObject *, AGRubyObject &amp; {
++          swig_type_info *ty = SWIG_TypeDynamicCast($1_descriptor,(void **) &amp;$1);
++          $result = SWIG_NewPointerObj($1, ty, $owner);
++        }        
++        %typemap(directorin) AGRubyObject *, AGRubyObject &amp; {
++          if($1)
++          {
++          swig_type_info *ty = SWIG_TypeDynamicCast($1_descriptor,(void **) &amp;$1);
++          $input = SWIG_NewPointerObj($1, ty, $owner);
++          }
++        }        
++        %{
++        
++        swig_type_info* AGRubyObject_dynamic_cast(void **p)
++        {
++                AGRubyObject *a=(AGRubyObject*)(*p);
++        
++                
++                {
++	                A*b=dynamic_cast&lt;A*&gt;(a);
++	                if(b)
++	                {
++	                        *p=(void*)b;
++	                        return SWIGTYPE_p_A;
++	                }
++                }
++
++                return 0;
++        }
++        
++        %}
++        DYNAMIC_CAST(SWIGTYPE_p_AGRubyObject, AGRubyObject_dynamic_cast);
++
++%template(StringVector) std::vector&lt;std::string&gt;;
++%template(PStringVector) std::vector&lt;std::string*&gt;;
++
++
++%feature(&quot;trackobjects&quot;);
++
++%include &quot;/Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/./rookey/cpp/rk_rubyobj.h&quot;
++%include &quot;a.h&quot;      
++
+
+Added: antargis/trunk/rookey/examples/templates/Rakefile
+===================================================================
+--- antargis/trunk/rookey/examples/templates/Rakefile	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/templates/Rakefile	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1,24 @@
++require 'rookey.rb'
++
++extension=Rookey::ruby_ext('templates',Dir[&quot;*.h&quot;]+Dir[&quot;*.cc&quot;]+Dir[&quot;*.i&quot;])
++
++task :build=&gt;extension doend
++
++
++begin
++  require 'spec/rake/spectask'
++  
++  Spec::Rake::SpecTask.new(:spec=&gt;:build) do |t|
++    t.spec_files = FileList['test.rb'].map{|f|File.expand_path(f)}
++    t.warning = true
++    path=&quot;spec_output.html&quot;
++    t.spec_opts=[&quot;--format html:&quot;+File.expand_path(path)]
++  end
++
++  task :default=&gt;:spec do
++  end
++  
++rescue LoadError=&gt;e
++  task :default=&gt;:build do
++  end
++end
+\ No newline at end of file
+
+Added: antargis/trunk/rookey/examples/templates/child.h
+===================================================================
+--- antargis/trunk/rookey/examples/templates/child.h	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/templates/child.h	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1,13 @@
++#ifndef CHILD_H
++#define CHILD_H
++
++// INCLUDE_SWIG
++
++#include &lt;rk_rubyobj.h&gt;
++
++class Child:public AGRubyObject
++{
++
++};
++
++#endif
+
+Added: antargis/trunk/rookey/examples/templates/config_cache.rb
+===================================================================
+--- antargis/trunk/rookey/examples/templates/config_cache.rb	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/templates/config_cache.rb	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1,5 @@
++module Rookey
++  @@config=Marshal.load(&quot;o:Rookey::Config:
+<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">+ at hash</A>{\&quot;CC\&quot;/usr/bin/gcc\&quot;SWIG_OPTIONS\&quot; -Wall -DAGEXPORT\&quot;CCACHE\&quot;/opt/local/bin/ccache\&quot;	SWIG\&quot; /opt/local/bin/swig\&quot;CPP\&quot;/usr/bin/g++\&quot;CFLAGS\&quot;O -arch ppc -arch i386 -Os -pipe -fno-common -D_GNU_SOURCE=1 -D_THREAD_SAFE\&quot;host_os\&quot;darwin9.0\&quot;
++DLEXT\&quot;bundle\&quot;INCLUDEDIRS\&quot;&#255; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include /usr/X11/include /Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/rookey/./cpp /opt/local/include/SDL\&quot;LDFLAGS\&quot;&#147; -lpthread -ldl -lm  -lruby -Wl,-framework,OpenGL -lz -L/opt/local/lib -lSDLmain -lSDL -Wl,-framework,Cocoa -lSDL_image -lSDL_ttf -lSDL_mixer -lpng\&quot;GCC_BASE\&quot;gcc\&quot;GPP_BASE\&quot;g++\&quot;LDSHAREDFLAGS\&quot;B -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;)
++end
+
+Added: antargis/trunk/rookey/examples/templates/parent.cc
+===================================================================
+--- antargis/trunk/rookey/examples/templates/parent.cc	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/templates/parent.cc	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1,30 @@
++#include &quot;parent.h&quot;
++
++Parent::Parent()
++{
++  mChildren.push_back(new Child());
++  mChildren.push_back(new Child());
++  mChildren.push_back(new Child());
++}
++
++Parent::~Parent() throw()
++{
++  for(std::list&lt;Child*&gt;::iterator i=mChildren.begin();i!=mChildren.end();i++)
++    saveDelete(*i);
++}
++
++void Parent::mark() throw()
++{
++  for(std::list&lt;Child*&gt;::iterator i=mChildren.begin();i!=mChildren.end();i++)
++    markObject(*i);
++}
++
++Child *Parent::getFirst()
++{
++  return *mChildren.begin();
++}
++
++std::list&lt;Child*&gt; Parent::getChildren()
++{
++  return mChildren;
++}
+
+Added: antargis/trunk/rookey/examples/templates/parent.h
+===================================================================
+--- antargis/trunk/rookey/examples/templates/parent.h	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/templates/parent.h	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1,25 @@
++#ifndef PARENT_H
++#define PARENT_H
++
++// INCLUDE_SWIG
++
++
++#include &lt;rk_rubyobj.h&gt;
++#include &quot;child.h&quot;
++#include &lt;list&gt;
++
++class Parent:public AGRubyObject
++{
++public:
++  Parent();
++  virtual ~Parent() throw();
++  virtual void mark() throw();
++
++  Child *getFirst();
++  std::list&lt;Child*&gt; getChildren();
++
++private:
++  std::list&lt;Child*&gt; mChildren;
++};
++
++#endif
+
+Added: antargis/trunk/rookey/examples/templates/rookey.log
+===================================================================
+--- antargis/trunk/rookey/examples/templates/rookey.log	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/templates/rookey.log	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1,36 @@
++/Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/rookey/./config_class.rb:26:in `getConfig'
++/Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/./rookey/tasks.rb:164:in `ruby_ext'
++/Users/davidkamphausen/projects.alt/antargis/rookey/examples/templates/rakefile:3
++/Library/Ruby/Gems/1.8/gems/rake-0.8.1/lib/rake.rb:2149:in `load'
++/Library/Ruby/Gems/1.8/gems/rake-0.8.1/lib/rake.rb:2149:in `raw_load_rakefile'
++/Library/Ruby/Gems/1.8/gems/rake-0.8.1/lib/rake.rb:1897:in `load_rakefile'
++/Library/Ruby/Gems/1.8/gems/rake-0.8.1/lib/rake.rb:1948:in `standard_exception_handling'
++/Library/Ruby/Gems/1.8/gems/rake-0.8.1/lib/rake.rb:1896:in `load_rakefile'
++/Library/Ruby/Gems/1.8/gems/rake-0.8.1/lib/rake.rb:1880:in `run'
++/Library/Ruby/Gems/1.8/gems/rake-0.8.1/lib/rake.rb:1948:in `standard_exception_handling'
++/Library/Ruby/Gems/1.8/gems/rake-0.8.1/lib/rake.rb:1878:in `run'
++/Library/Ruby/Gems/1.8/gems/rake-0.8.1/bin/rake:31
++/usr/bin/rake:19:in `load'
++/usr/bin/rake:19
++Running configurator Rookey::SwigConfig
++#&lt;Rookey::Config:0x544a98 @hash={&quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;}&gt;
++Running configurator Rookey::MinGWConfig
++#&lt;Rookey::Config:0x544a98 @hash={&quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;}&gt;
++Running configurator Rookey::RubyConfig
++#&lt;Rookey::Config:0x544a98 @hash={&quot;CC&quot;=&gt;&quot;/usr/bin/gcc&quot;, &quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;, &quot;CPP&quot;=&gt;&quot;/usr/bin/g++&quot;, &quot;CFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -Os -pipe -fno-common&quot;, &quot;host_os&quot;=&gt;&quot;darwin9.0&quot;, &quot;DLEXT&quot;=&gt;&quot;bundle&quot;, &quot;INCLUDEDIRS&quot;=&gt;&quot; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include&quot;, &quot;LDFLAGS&quot;=&gt;&quot; -lpthread -ldl -lm  -lruby&quot;, &quot;GCC_BASE&quot;=&gt;&quot;gcc&quot;, &quot;GPP_BASE&quot;=&gt;&quot;g++&quot;, &quot;LDSHAREDFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;}&gt;
++Running configurator Rookey::GLConfig
++#&lt;Rookey::Config:0x544a98 @hash={&quot;CC&quot;=&gt;&quot;/usr/bin/gcc&quot;, &quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;, &quot;CPP&quot;=&gt;&quot;/usr/bin/g++&quot;, &quot;CFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -Os -pipe -fno-common&quot;, &quot;host_os&quot;=&gt;&quot;darwin9.0&quot;, &quot;DLEXT&quot;=&gt;&quot;bundle&quot;, &quot;INCLUDEDIRS&quot;=&gt;&quot; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include /usr/X11/include&quot;, &quot;LDFLAGS&quot;=&gt;&quot; -lpthread -ldl -lm  -lruby -Wl,-framework,OpenGL&quot;, &quot;GCC_BASE&quot;=&gt;&quot;gcc&quot;, &quot;GPP_BASE&quot;=&gt;&quot;g++&quot;, &quot;LDSHAREDFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;}&gt;
++Running configurator Rookey::DebugConfig
++#&lt;Rookey::Config:0x544a98 @hash={&quot;CC&quot;=&gt;&quot;/usr/bin/gcc&quot;, &quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;, &quot;CPP&quot;=&gt;&quot;/usr/bin/g++&quot;, &quot;CFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -Os -pipe -fno-common&quot;, &quot;host_os&quot;=&gt;&quot;darwin9.0&quot;, &quot;DLEXT&quot;=&gt;&quot;bundle&quot;, &quot;INCLUDEDIRS&quot;=&gt;&quot; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include /usr/X11/include&quot;, &quot;LDFLAGS&quot;=&gt;&quot; -lpthread -ldl -lm  -lruby -Wl,-framework,OpenGL&quot;, &quot;GCC_BASE&quot;=&gt;&quot;gcc&quot;, &quot;GPP_BASE&quot;=&gt;&quot;g++&quot;, &quot;LDSHAREDFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;}&gt;
++Running configurator Rookey::CompilerConfig
++#&lt;Rookey::Config:0x544a98 @hash={&quot;CC&quot;=&gt;&quot;/usr/bin/gcc&quot;, &quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;, &quot;CPP&quot;=&gt;&quot;/usr/bin/g++&quot;, &quot;CFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -Os -pipe -fno-common&quot;, &quot;host_os&quot;=&gt;&quot;darwin9.0&quot;, &quot;DLEXT&quot;=&gt;&quot;bundle&quot;, &quot;INCLUDEDIRS&quot;=&gt;&quot; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include /usr/X11/include /Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/rookey/./cpp&quot;, &quot;LDFLAGS&quot;=&gt;&quot; -lpthread -ldl -lm  -lruby -Wl,-framework,OpenGL&quot;, &quot;GCC_BASE&quot;=&gt;&quot;gcc&quot;, &quot;GPP_BASE&quot;=&gt;&quot;g++&quot;, &quot;LDSHAREDFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;}&gt;
++Running configurator Rookey::CcacheConfig
++#&lt;Rookey::Config:0x544a98 @hash={&quot;CC&quot;=&gt;&quot;/usr/bin/gcc&quot;, &quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;CCACHE&quot;=&gt;&quot;/opt/local/bin/ccache&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;, &quot;CPP&quot;=&gt;&quot;/usr/bin/g++&quot;, &quot;CFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -Os -pipe -fno-common&quot;, &quot;host_os&quot;=&gt;&quot;darwin9.0&quot;, &quot;DLEXT&quot;=&gt;&quot;bundle&quot;, &quot;INCLUDEDIRS&quot;=&gt;&quot; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include /usr/X11/include /Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/rookey/./cpp&quot;, &quot;LDFLAGS&quot;=&gt;&quot; -lpthread -ldl -lm  -lruby -Wl,-framework,OpenGL&quot;, &quot;GCC_BASE&quot;=&gt;&quot;gcc&quot;, &quot;GPP_BASE&quot;=&gt;&quot;g++&quot;, &quot;LDSHAREDFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;}&gt;
++Running configurator Rookey::Configurator
++#&lt;Rookey::Config:0x544a98 @hash={&quot;CC&quot;=&gt;&quot;/usr/bin/gcc&quot;, &quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;CCACHE&quot;=&gt;&quot;/opt/local/bin/ccache&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;, &quot;CPP&quot;=&gt;&quot;/usr/bin/g++&quot;, &quot;CFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -Os -pipe -fno-common&quot;, &quot;host_os&quot;=&gt;&quot;darwin9.0&quot;, &quot;DLEXT&quot;=&gt;&quot;bundle&quot;, &quot;INCLUDEDIRS&quot;=&gt;&quot; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include /usr/X11/include /Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/rookey/./cpp&quot;, &quot;LDFLAGS&quot;=&gt;&quot; -lpthread -ldl -lm  -lruby -Wl,-framework,OpenGL&quot;, &quot;GCC_BASE&quot;=&gt;&quot;gcc&quot;, &quot;GPP_BASE&quot;=&gt;&quot;g++&quot;, &quot;LDSHAREDFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;}&gt;
++Running configurator Rookey::ZConfig
++#&lt;Rookey::Config:0x544a98 @hash={&quot;CC&quot;=&gt;&quot;/usr/bin/gcc&quot;, &quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;CCACHE&quot;=&gt;&quot;/opt/local/bin/ccache&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;, &quot;CPP&quot;=&gt;&quot;/usr/bin/g++&quot;, &quot;CFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -Os -pipe -fno-common&quot;, &quot;host_os&quot;=&gt;&quot;darwin9.0&quot;, &quot;DLEXT&quot;=&gt;&quot;bundle&quot;, &quot;INCLUDEDIRS&quot;=&gt;&quot; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include /usr/X11/include /Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/rookey/./cpp&quot;, &quot;LDFLAGS&quot;=&gt;&quot; -lpthread -ldl -lm  -lruby -Wl,-framework,OpenGL -lz&quot;, &quot;GCC_BASE&quot;=&gt;&quot;gcc&quot;, &quot;GPP_BASE&quot;=&gt;&quot;g++&quot;, &quot;LDSHAREDFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;}&gt;
++Running configurator Rookey::SDLConfig
++#&lt;Rookey::Config:0x544a98 @hash={&quot;CC&quot;=&gt;&quot;/usr/bin/gcc&quot;, &quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;CCACHE&quot;=&gt;&quot;/opt/local/bin/ccache&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;, &quot;CPP&quot;=&gt;&quot;/usr/bin/g++&quot;, &quot;CFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -Os -pipe -fno-common -D_GNU_SOURCE=1 -D_THREAD_SAFE&quot;, &quot;host_os&quot;=&gt;&quot;darwin9.0&quot;, &quot;DLEXT&quot;=&gt;&quot;bundle&quot;, &quot;INCLUDEDIRS&quot;=&gt;&quot; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include /usr/X11/include /Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/rookey/./cpp /opt/local/include/SDL&quot;, &quot;LDFLAGS&quot;=&gt;&quot; -lpthread -ldl -lm  -lruby -Wl,-framework,OpenGL -lz -L/opt/local/lib -lSDLmain -lSDL -Wl,-framework,Cocoa -lSDL_image -lSDL_ttf -lSDL_mixer&quot;, &quot;GCC_BASE&quot;=&gt;&quot;gcc&quot;, &quot;GPP_BASE&quot;=&gt;&quot;g++&quot;, &quot;LDSHAREDFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;}&gt;
++Running configurator Rookey::PNGConfig
++#&lt;Rookey::Config:0x544a98 @hash={&quot;CC&quot;=&gt;&quot;/usr/bin/gcc&quot;, &quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;CCACHE&quot;=&gt;&quot;/opt/local/bin/ccache&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;, &quot;CPP&quot;=&gt;&quot;/usr/bin/g++&quot;, &quot;CFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -Os -pipe -fno-common -D_GNU_SOURCE=1 -D_THREAD_SAFE&quot;, &quot;host_os&quot;=&gt;&quot;darwin9.0&quot;, &quot;DLEXT&quot;=&gt;&quot;bundle&quot;, &quot;INCLUDEDIRS&quot;=&gt;&quot; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include /usr/X11/include /Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/rookey/./cpp /opt/local/include/SDL&quot;, &quot;LDFLAGS&quot;=&gt;&quot; -lpthread -ldl -lm  -lruby -Wl,-framework,OpenGL -lz -L/opt/local/lib -lSDLmain -lSDL -Wl,-framework,Cocoa -lSDL_image -lSDL_ttf -lSDL_mixer -lpng&quot;, &quot;GCC_BASE&quot;=&gt;&quot;gcc&quot;, &quot;GPP_BASE&quot;=&gt;&quot;g++&quot;, &quot;LDSHAREDFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;}&gt;
+
+Added: antargis/trunk/rookey/examples/templates/rookey_configuration.rb
+===================================================================
+--- antargis/trunk/rookey/examples/templates/rookey_configuration.rb	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/templates/rookey_configuration.rb	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1,3 @@
++ROOKEY_CONFIG={
++
++}
+
+Added: antargis/trunk/rookey/examples/templates/templates.bundle
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/trunk/rookey/examples/templates/templates.bundle
+___________________________________________________________________
+Name: svn:executable
+   + *
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/trunk/rookey/examples/templates/templates.i
+===================================================================
+--- antargis/trunk/rookey/examples/templates/templates.i	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/templates/templates.i	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1 @@
++%template(ChildList) std::list&lt;Child*&gt;;
+\ No newline at end of file
+
+Added: antargis/trunk/rookey/examples/templates/templates_interface.i
+===================================================================
+--- antargis/trunk/rookey/examples/templates/templates_interface.i	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/templates/templates_interface.i	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1,173 @@
++%module(directors=&quot;1&quot;) templates
++%feature(&quot;autodoc&quot;,&quot;1&quot;);
++
++/*
++%feature(&quot;director:except&quot;) {
++ throw Swig::DirectorMethodException($error);
++}
++*/
++
++      %include &lt;std_vector.i&gt;
++      %include &lt;std_list.i&gt;
++      
++
++
++%include &quot;stl.i&quot;
++%include &quot;std_list.i&quot;
++%{
++#include &quot;rk_string.h&quot;
++#include &quot;/Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/./rookey/cpp/rk_rubyobj.h&quot;
++#include &quot;child.h&quot;
++#include &quot;parent.h&quot;
++%}
++
++%wrapper %{namespace swig{
++        template &lt;&gt; struct traits_from_ptr&lt;AGRubyObject&gt; {
++          static VALUE from (AGRubyObject *val,int owner=0) {
++          
++            // insert Dynamic_cast(...)
++            swig_type_info *info=SWIGTYPE_p_AGRubyObject; //type_info&lt;AGRubyObject&gt;();
++            swig_type_info *ninfo=SWIG_TypeDynamicCast(info,(void**)&amp;val);
++            if(ninfo==0)
++              ninfo=info;
++          
++            return SWIG_NewPointerObj(val, ninfo, owner);
++          }
++        };        
++        
++        template &lt;&gt; struct traits_from_ptr&lt;Child&gt; {
++          static VALUE from (Child *val,int owner=0) {
++          
++            // insert Dynamic_cast(...)
++            swig_type_info *info=SWIGTYPE_p_Child; //type_info&lt;Child&gt;();
++            swig_type_info *ninfo=SWIG_TypeDynamicCast(info,(void**)&amp;val);
++            if(ninfo==0)
++              ninfo=info;
++          
++            return SWIG_NewPointerObj(val, ninfo, owner);
++          }
++        };        
++        
++        template &lt;&gt; struct traits_from_ptr&lt;Parent&gt; {
++          static VALUE from (Parent *val,int owner=0) {
++          
++            // insert Dynamic_cast(...)
++            swig_type_info *info=SWIGTYPE_p_Parent; //type_info&lt;Parent&gt;();
++            swig_type_info *ninfo=SWIG_TypeDynamicCast(info,(void**)&amp;val);
++            if(ninfo==0)
++              ninfo=info;
++          
++            return SWIG_NewPointerObj(val, ninfo, owner);
++          }
++        };        
++        }%}
++
++%feature(&quot;director&quot;) AGRubyObject;
++%feature(&quot;director&quot;) Child;
++%feature(&quot;director&quot;) Parent;
++%markfunc AGRubyObject &quot;general_markfunc&quot;
++%markfunc Child &quot;general_markfunc&quot;
++%markfunc Parent &quot;general_markfunc&quot;
++%{
++      /*
++template&lt;class T&gt;
++VALUE convertCpp2Ruby(T *cObject)
++{
++  return SWIG_RubyInstanceFor(cObject);
++}
++template&lt;AGRubyObject&gt;*/ 
++VALUE convertCpp2Ruby(AGRubyObject *cObject)
++{
++  return SWIG_RubyInstanceFor(cObject);
++}
++  
++
++%}
++
++%{
++
++%}
++%insert(&quot;init&quot;) %{
++
++%}
++
++
++%typemaps_std_string(AGString, char, SWIG_AsCharPtrAndSize, SWIG_FromCharPtrAndSize, %checkcode(STDSTRING));
++
++/*
++template &lt;&gt;
++ inline VALUE from&lt;AGString&gt;(const AGString&amp; val) {
++   return SWIG_FromCharPtrAndSize(val.c_str(),val.length());
++   //return traits_from&lt;Type&gt;::from(val);
++ }
++ */
++ // oder
++ %wrapper %{
++ namespace swig
++ {
++ template&lt;&gt; struct traits_from&lt;AGString&gt;
++ {
++	 inline static VALUE from(const AGString &amp;val)
++	 {
++     return SWIG_FromCharPtrAndSize(val.c_str(),val.length());
++	 }
++};
++}
++%}
++
++
++        
++        %typemap(out) AGRubyObject *, AGRubyObject &amp; {
++          swig_type_info *ty = SWIG_TypeDynamicCast($1_descriptor,(void **) &amp;$1);
++          $result = SWIG_NewPointerObj($1, ty, $owner);
++        }        
++        %typemap(directorin) AGRubyObject *, AGRubyObject &amp; {
++          if($1)
++          {
++          swig_type_info *ty = SWIG_TypeDynamicCast($1_descriptor,(void **) &amp;$1);
++          $input = SWIG_NewPointerObj($1, ty, $owner);
++          }
++        }        
++        %{
++        
++        swig_type_info* AGRubyObject_dynamic_cast(void **p)
++        {
++                AGRubyObject *a=(AGRubyObject*)(*p);
++        
++                
++                {
++	                Child*b=dynamic_cast&lt;Child*&gt;(a);
++	                if(b)
++	                {
++	                        *p=(void*)b;
++	                        return SWIGTYPE_p_Child;
++	                }
++                }
++
++
++                {
++	                Parent*b=dynamic_cast&lt;Parent*&gt;(a);
++	                if(b)
++	                {
++	                        *p=(void*)b;
++	                        return SWIGTYPE_p_Parent;
++	                }
++                }
++
++                return 0;
++        }
++        
++        %}
++        DYNAMIC_CAST(SWIGTYPE_p_AGRubyObject, AGRubyObject_dynamic_cast);
++
++
++%template(StringVector) std::vector&lt;std::string&gt;;
++%template(PStringVector) std::vector&lt;std::string*&gt;;
++%include &quot;templates.i&quot;
++
++%feature(&quot;trackobjects&quot;);
++
++%include &quot;/Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/./rookey/cpp/rk_rubyobj.h&quot;
++%include &quot;child.h&quot;
++%include &quot;parent.h&quot;      
++
+
+Added: antargis/trunk/rookey/examples/templates/test
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/trunk/rookey/examples/templates/test
+___________________________________________________________________
+Name: svn:executable
+   + *
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/trunk/rookey/examples/templates/test.c
+===================================================================
+--- antargis/trunk/rookey/examples/templates/test.c	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/templates/test.c	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1,2 @@
++
++extern &quot;C&quot; void png_get_io_ptr();int main(int argc,char*argv[]){return 0;}
+
+Added: antargis/trunk/rookey/examples/templates/test.rb
+===================================================================
+--- antargis/trunk/rookey/examples/templates/test.rb	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/templates/test.rb	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1,41 @@
++#!/usr/bin/env ruby
++
++require 'templates'
++require 'pp'
++
++def printFormat(len,str)
++  str=str.to_s
++  str=str.gsub(&quot;\n&quot;,&quot;&quot;)
++  str=str[0..(len-1)]
++  str+=&quot; &quot;*(len-str.length)
++  print str
++end
++
++def showLine(line)
++  filename,line=line.split(&quot;:&quot;)
++  line=line.to_i
++  printFormat 80, File.open(filename).readlines[line-1]
++end
++
++$failed=false
++def assert(&amp;p)
++  showLine(caller[0])
++  if p.call
++    puts &quot;  ok&quot;
++  else
++    puts &quot;  failed&quot;
++    $failed=true
++  end
++end
++
++parent=Templates::Parent.new
++
++children=parent.getChildren
++assert { children.length==3 }
++puts &quot;...Reseting parent&quot;
++parent=nil
++GC.start
++assert { children.length==3 }
++assert { children[0].is_a?(Templates::Child) }
++
++raise &quot;Failed&quot; if $failed
+\ No newline at end of file
+
+
+Property changes on: antargis/trunk/rookey/examples/templates/test.rb
+___________________________________________________________________
+Name: svn:executable
+   + *
+
+Added: antargis/trunk/rookey/examples/virtual/Rakefile
+===================================================================
+--- antargis/trunk/rookey/examples/virtual/Rakefile	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/virtual/Rakefile	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1,5 @@
++require 'rookey.rb'
++
++extension=Rookey::ruby_ext('virtualExample',Dir[&quot;*.h&quot;]+Dir[&quot;*.cc&quot;])
++
++task :default=&gt;extension doend
+\ No newline at end of file
+
+Added: antargis/trunk/rookey/examples/virtual/car.cc
+===================================================================
+--- antargis/trunk/rookey/examples/virtual/car.cc	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/virtual/car.cc	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1,17 @@
++#include &quot;car.h&quot;
++
++size_t Car::countOfWheels() const
++{
++
++}
++
++void Car::travel(float time)
++{
++
++}
++
++
++size_t Car::countOfWindows() const
++{
++  return 8;
++}
+
+Added: antargis/trunk/rookey/examples/virtual/car.h
+===================================================================
+--- antargis/trunk/rookey/examples/virtual/car.h	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/virtual/car.h	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1,19 @@
++#ifndef CAR_H
++#define CAR_H
++
++#include &quot;vehicle.h&quot;
++
++// INCLUDE_SWIG
++
++class Car:public Vehicle
++{
++public:
++  virtual size_t countOfWheels() const;
++  virtual void travel(float time);
++
++  // a function being in this class alone
++  size_t countOfWindows() const;
++
++};
++
++#endif
+
+Added: antargis/trunk/rookey/examples/virtual/config_cache.rb
+===================================================================
+--- antargis/trunk/rookey/examples/virtual/config_cache.rb	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/virtual/config_cache.rb	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1,5 @@
++module Rookey
++  @@config=Marshal.load(&quot;o:Rookey::Config:
+<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">+ at hash</A>{\&quot;CC\&quot;/usr/bin/gcc\&quot;SWIG_OPTIONS\&quot; -Wall -DAGEXPORT\&quot;CCACHE\&quot;/opt/local/bin/ccache\&quot;	SWIG\&quot; /opt/local/bin/swig\&quot;CPP\&quot;/usr/bin/g++\&quot;CFLAGS\&quot;O -arch ppc -arch i386 -Os -pipe -fno-common -D_GNU_SOURCE=1 -D_THREAD_SAFE\&quot;host_os\&quot;darwin9.0\&quot;
++DLEXT\&quot;bundle\&quot;INCLUDEDIRS\&quot;&#255; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include /usr/X11/include /Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/rookey/./cpp /opt/local/include/SDL\&quot;LDFLAGS\&quot;&#147; -lpthread -ldl -lm  -lruby -Wl,-framework,OpenGL -lz -L/opt/local/lib -lSDLmain -lSDL -Wl,-framework,Cocoa -lSDL_image -lSDL_ttf -lSDL_mixer -lpng\&quot;GCC_BASE\&quot;gcc\&quot;GPP_BASE\&quot;g++\&quot;LDSHAREDFLAGS\&quot;B -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;)
++end
+
+Added: antargis/trunk/rookey/examples/virtual/rookey.log
+===================================================================
+--- antargis/trunk/rookey/examples/virtual/rookey.log	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/virtual/rookey.log	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1,36 @@
++/Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/rookey/./config_class.rb:26:in `getConfig'
++/Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/./rookey/tasks.rb:164:in `ruby_ext'
++/Users/davidkamphausen/projects.alt/antargis/rookey/examples/virtual/rakefile:3
++/Library/Ruby/Gems/1.8/gems/rake-0.8.1/lib/rake.rb:2149:in `load'
++/Library/Ruby/Gems/1.8/gems/rake-0.8.1/lib/rake.rb:2149:in `raw_load_rakefile'
++/Library/Ruby/Gems/1.8/gems/rake-0.8.1/lib/rake.rb:1897:in `load_rakefile'
++/Library/Ruby/Gems/1.8/gems/rake-0.8.1/lib/rake.rb:1948:in `standard_exception_handling'
++/Library/Ruby/Gems/1.8/gems/rake-0.8.1/lib/rake.rb:1896:in `load_rakefile'
++/Library/Ruby/Gems/1.8/gems/rake-0.8.1/lib/rake.rb:1880:in `run'
++/Library/Ruby/Gems/1.8/gems/rake-0.8.1/lib/rake.rb:1948:in `standard_exception_handling'
++/Library/Ruby/Gems/1.8/gems/rake-0.8.1/lib/rake.rb:1878:in `run'
++/Library/Ruby/Gems/1.8/gems/rake-0.8.1/bin/rake:31
++/usr/bin/rake:19:in `load'
++/usr/bin/rake:19
++Running configurator Rookey::SwigConfig
++#&lt;Rookey::Config:0x5454c0 @hash={&quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;}&gt;
++Running configurator Rookey::MinGWConfig
++#&lt;Rookey::Config:0x5454c0 @hash={&quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;}&gt;
++Running configurator Rookey::RubyConfig
++#&lt;Rookey::Config:0x5454c0 @hash={&quot;CC&quot;=&gt;&quot;/usr/bin/gcc&quot;, &quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;, &quot;CPP&quot;=&gt;&quot;/usr/bin/g++&quot;, &quot;CFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -Os -pipe -fno-common&quot;, &quot;host_os&quot;=&gt;&quot;darwin9.0&quot;, &quot;DLEXT&quot;=&gt;&quot;bundle&quot;, &quot;INCLUDEDIRS&quot;=&gt;&quot; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include&quot;, &quot;LDFLAGS&quot;=&gt;&quot; -lpthread -ldl -lm  -lruby&quot;, &quot;GCC_BASE&quot;=&gt;&quot;gcc&quot;, &quot;GPP_BASE&quot;=&gt;&quot;g++&quot;, &quot;LDSHAREDFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;}&gt;
++Running configurator Rookey::GLConfig
++#&lt;Rookey::Config:0x5454c0 @hash={&quot;CC&quot;=&gt;&quot;/usr/bin/gcc&quot;, &quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;, &quot;CPP&quot;=&gt;&quot;/usr/bin/g++&quot;, &quot;CFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -Os -pipe -fno-common&quot;, &quot;host_os&quot;=&gt;&quot;darwin9.0&quot;, &quot;DLEXT&quot;=&gt;&quot;bundle&quot;, &quot;INCLUDEDIRS&quot;=&gt;&quot; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include /usr/X11/include&quot;, &quot;LDFLAGS&quot;=&gt;&quot; -lpthread -ldl -lm  -lruby -Wl,-framework,OpenGL&quot;, &quot;GCC_BASE&quot;=&gt;&quot;gcc&quot;, &quot;GPP_BASE&quot;=&gt;&quot;g++&quot;, &quot;LDSHAREDFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;}&gt;
++Running configurator Rookey::DebugConfig
++#&lt;Rookey::Config:0x5454c0 @hash={&quot;CC&quot;=&gt;&quot;/usr/bin/gcc&quot;, &quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;, &quot;CPP&quot;=&gt;&quot;/usr/bin/g++&quot;, &quot;CFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -Os -pipe -fno-common&quot;, &quot;host_os&quot;=&gt;&quot;darwin9.0&quot;, &quot;DLEXT&quot;=&gt;&quot;bundle&quot;, &quot;INCLUDEDIRS&quot;=&gt;&quot; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include /usr/X11/include&quot;, &quot;LDFLAGS&quot;=&gt;&quot; -lpthread -ldl -lm  -lruby -Wl,-framework,OpenGL&quot;, &quot;GCC_BASE&quot;=&gt;&quot;gcc&quot;, &quot;GPP_BASE&quot;=&gt;&quot;g++&quot;, &quot;LDSHAREDFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;}&gt;
++Running configurator Rookey::CompilerConfig
++#&lt;Rookey::Config:0x5454c0 @hash={&quot;CC&quot;=&gt;&quot;/usr/bin/gcc&quot;, &quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;, &quot;CPP&quot;=&gt;&quot;/usr/bin/g++&quot;, &quot;CFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -Os -pipe -fno-common&quot;, &quot;host_os&quot;=&gt;&quot;darwin9.0&quot;, &quot;DLEXT&quot;=&gt;&quot;bundle&quot;, &quot;INCLUDEDIRS&quot;=&gt;&quot; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include /usr/X11/include /Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/rookey/./cpp&quot;, &quot;LDFLAGS&quot;=&gt;&quot; -lpthread -ldl -lm  -lruby -Wl,-framework,OpenGL&quot;, &quot;GCC_BASE&quot;=&gt;&quot;gcc&quot;, &quot;GPP_BASE&quot;=&gt;&quot;g++&quot;, &quot;LDSHAREDFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;}&gt;
++Running configurator Rookey::CcacheConfig
++#&lt;Rookey::Config:0x5454c0 @hash={&quot;CC&quot;=&gt;&quot;/usr/bin/gcc&quot;, &quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;CCACHE&quot;=&gt;&quot;/opt/local/bin/ccache&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;, &quot;CPP&quot;=&gt;&quot;/usr/bin/g++&quot;, &quot;CFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -Os -pipe -fno-common&quot;, &quot;host_os&quot;=&gt;&quot;darwin9.0&quot;, &quot;DLEXT&quot;=&gt;&quot;bundle&quot;, &quot;INCLUDEDIRS&quot;=&gt;&quot; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include /usr/X11/include /Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/rookey/./cpp&quot;, &quot;LDFLAGS&quot;=&gt;&quot; -lpthread -ldl -lm  -lruby -Wl,-framework,OpenGL&quot;, &quot;GCC_BASE&quot;=&gt;&quot;gcc&quot;, &quot;GPP_BASE&quot;=&gt;&quot;g++&quot;, &quot;LDSHAREDFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;}&gt;
++Running configurator Rookey::Configurator
++#&lt;Rookey::Config:0x5454c0 @hash={&quot;CC&quot;=&gt;&quot;/usr/bin/gcc&quot;, &quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;CCACHE&quot;=&gt;&quot;/opt/local/bin/ccache&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;, &quot;CPP&quot;=&gt;&quot;/usr/bin/g++&quot;, &quot;CFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -Os -pipe -fno-common&quot;, &quot;host_os&quot;=&gt;&quot;darwin9.0&quot;, &quot;DLEXT&quot;=&gt;&quot;bundle&quot;, &quot;INCLUDEDIRS&quot;=&gt;&quot; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include /usr/X11/include /Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/rookey/./cpp&quot;, &quot;LDFLAGS&quot;=&gt;&quot; -lpthread -ldl -lm  -lruby -Wl,-framework,OpenGL&quot;, &quot;GCC_BASE&quot;=&gt;&quot;gcc&quot;, &quot;GPP_BASE&quot;=&gt;&quot;g++&quot;, &quot;LDSHAREDFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;}&gt;
++Running configurator Rookey::ZConfig
++#&lt;Rookey::Config:0x5454c0 @hash={&quot;CC&quot;=&gt;&quot;/usr/bin/gcc&quot;, &quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;CCACHE&quot;=&gt;&quot;/opt/local/bin/ccache&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;, &quot;CPP&quot;=&gt;&quot;/usr/bin/g++&quot;, &quot;CFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -Os -pipe -fno-common&quot;, &quot;host_os&quot;=&gt;&quot;darwin9.0&quot;, &quot;DLEXT&quot;=&gt;&quot;bundle&quot;, &quot;INCLUDEDIRS&quot;=&gt;&quot; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include /usr/X11/include /Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/rookey/./cpp&quot;, &quot;LDFLAGS&quot;=&gt;&quot; -lpthread -ldl -lm  -lruby -Wl,-framework,OpenGL -lz&quot;, &quot;GCC_BASE&quot;=&gt;&quot;gcc&quot;, &quot;GPP_BASE&quot;=&gt;&quot;g++&quot;, &quot;LDSHAREDFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;}&gt;
++Running configurator Rookey::SDLConfig
++#&lt;Rookey::Config:0x5454c0 @hash={&quot;CC&quot;=&gt;&quot;/usr/bin/gcc&quot;, &quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;CCACHE&quot;=&gt;&quot;/opt/local/bin/ccache&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;, &quot;CPP&quot;=&gt;&quot;/usr/bin/g++&quot;, &quot;CFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -Os -pipe -fno-common -D_GNU_SOURCE=1 -D_THREAD_SAFE&quot;, &quot;host_os&quot;=&gt;&quot;darwin9.0&quot;, &quot;DLEXT&quot;=&gt;&quot;bundle&quot;, &quot;INCLUDEDIRS&quot;=&gt;&quot; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include /usr/X11/include /Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/rookey/./cpp /opt/local/include/SDL&quot;, &quot;LDFLAGS&quot;=&gt;&quot; -lpthread -ldl -lm  -lruby -Wl,-framework,OpenGL -lz -L/opt/local/lib -lSDLmain -lSDL -Wl,-framework,Cocoa -lSDL_image -lSDL_ttf -lSDL_mixer&quot;, &quot;GCC_BASE&quot;=&gt;&quot;gcc&quot;, &quot;GPP_BASE&quot;=&gt;&quot;g++&quot;, &quot;LDSHAREDFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;}&gt;
++Running configurator Rookey::PNGConfig
++#&lt;Rookey::Config:0x5454c0 @hash={&quot;CC&quot;=&gt;&quot;/usr/bin/gcc&quot;, &quot;SWIG_OPTIONS&quot;=&gt;&quot; -Wall -DAGEXPORT&quot;, &quot;CCACHE&quot;=&gt;&quot;/opt/local/bin/ccache&quot;, &quot;SWIG&quot;=&gt;&quot; /opt/local/bin/swig&quot;, &quot;CPP&quot;=&gt;&quot;/usr/bin/g++&quot;, &quot;CFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -Os -pipe -fno-common -D_GNU_SOURCE=1 -D_THREAD_SAFE&quot;, &quot;host_os&quot;=&gt;&quot;darwin9.0&quot;, &quot;DLEXT&quot;=&gt;&quot;bundle&quot;, &quot;INCLUDEDIRS&quot;=&gt;&quot; /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/universal-darwin9.0 /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/include /usr/X11/include /Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/rookey/./cpp /opt/local/include/SDL&quot;, &quot;LDFLAGS&quot;=&gt;&quot; -lpthread -ldl -lm  -lruby -Wl,-framework,OpenGL -lz -L/opt/local/lib -lSDLmain -lSDL -Wl,-framework,Cocoa -lSDL_image -lSDL_ttf -lSDL_mixer -lpng&quot;, &quot;GCC_BASE&quot;=&gt;&quot;gcc&quot;, &quot;GPP_BASE&quot;=&gt;&quot;g++&quot;, &quot;LDSHAREDFLAGS&quot;=&gt;&quot; -arch ppc -arch i386 -pipe -bundle -undefined dynamic_lookup&quot;}&gt;
+
+Added: antargis/trunk/rookey/examples/virtual/rookey_configuration.rb
+===================================================================
+--- antargis/trunk/rookey/examples/virtual/rookey_configuration.rb	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/virtual/rookey_configuration.rb	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1,3 @@
++ROOKEY_CONFIG={
++
++}
+
+Added: antargis/trunk/rookey/examples/virtual/test
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/trunk/rookey/examples/virtual/test
+___________________________________________________________________
+Name: svn:executable
+   + *
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/trunk/rookey/examples/virtual/test.c
+===================================================================
+--- antargis/trunk/rookey/examples/virtual/test.c	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/virtual/test.c	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1,2 @@
++
++extern &quot;C&quot; void png_get_io_ptr();int main(int argc,char*argv[]){return 0;}
+
+Added: antargis/trunk/rookey/examples/virtual/vehicle.cc
+===================================================================
+--- antargis/trunk/rookey/examples/virtual/vehicle.cc	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/virtual/vehicle.cc	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1,20 @@
++#include &quot;vehicle.h&quot;
++
++size_t Vehicle::countOfWheels() const
++{
++  return 0;
++}
++void Vehicle::travel(float time)
++{
++  travelWay(0);
++}
++
++float Vehicle::getWayTraveled() const
++{
++  return wayTravelled;
++}
++
++void Vehicle::travelWay(float way)
++{
++  wayTravelled+=way;
++}
+
+Added: antargis/trunk/rookey/examples/virtual/vehicle.h
+===================================================================
+--- antargis/trunk/rookey/examples/virtual/vehicle.h	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/virtual/vehicle.h	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1,22 @@
++#ifndef VEHICLE_H
++#define VEHICLE_H
++
++// SWIG_INCLUDE
++
++#include &lt;rk_rubyobj.h&gt;
++
++class Vehicle:public AGRubyObject
++{
++  public:
++    virtual size_t countOfWheels() const;
++    virtual void travel(float time);
++
++    float getWayTraveled() const;
++  protected:
++    void travelWay(float way);
++  private:
++
++    float wayTravelled;
++};
++
++#endif
+
+Added: antargis/trunk/rookey/examples/virtual/virtualExample.bundle
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/trunk/rookey/examples/virtual/virtualExample.bundle
+___________________________________________________________________
+Name: svn:executable
+   + *
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/trunk/rookey/examples/virtual/virtualExample_interface.i
+===================================================================
+--- antargis/trunk/rookey/examples/virtual/virtualExample_interface.i	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/virtual/virtualExample_interface.i	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1,97 @@
++%module(directors=&quot;1&quot;) virtualExample
++%feature(&quot;autodoc&quot;,&quot;1&quot;);
++
++/*
++%feature(&quot;director:except&quot;) {
++ throw Swig::DirectorMethodException($error);
++}
++*/
++
++      %include &lt;std_vector.i&gt;
++      %include &lt;std_list.i&gt;
++      
++
++
++%include &quot;stl.i&quot;
++%include &quot;std_list.i&quot;
++%{
++#include &quot;rk_string.h&quot;
++#include &quot;/Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/./rookey/cpp/rk_rubyobj.h&quot;
++#include &quot;car.h&quot;
++%}
++
++%wrapper %{namespace swig{
++        template &lt;&gt; struct traits_from_ptr&lt;AGRubyObject&gt; {
++          static VALUE from (AGRubyObject *val,int owner=0) {
++          
++            // insert Dynamic_cast(...)
++            swig_type_info *info=SWIGTYPE_p_AGRubyObject; //type_info&lt;AGRubyObject&gt;();
++            swig_type_info *ninfo=SWIG_TypeDynamicCast(info,(void**)&amp;val);
++            if(ninfo==0)
++              ninfo=info;
++          
++            return SWIG_NewPointerObj(val, ninfo, owner);
++          }
++        };        
++        }%}
++
++%feature(&quot;director&quot;) AGRubyObject;
++%markfunc AGRubyObject &quot;general_markfunc&quot;
++%{
++      /*
++template&lt;class T&gt;
++VALUE convertCpp2Ruby(T *cObject)
++{
++  return SWIG_RubyInstanceFor(cObject);
++}
++template&lt;AGRubyObject&gt;*/ 
++VALUE convertCpp2Ruby(AGRubyObject *cObject)
++{
++  return SWIG_RubyInstanceFor(cObject);
++}
++  
++
++%}
++
++%{
++
++%}
++%insert(&quot;init&quot;) %{
++
++%}
++
++
++%typemaps_std_string(AGString, char, SWIG_AsCharPtrAndSize, SWIG_FromCharPtrAndSize, %checkcode(STDSTRING));
++
++/*
++template &lt;&gt;
++ inline VALUE from&lt;AGString&gt;(const AGString&amp; val) {
++   return SWIG_FromCharPtrAndSize(val.c_str(),val.length());
++   //return traits_from&lt;Type&gt;::from(val);
++ }
++ */
++ // oder
++ %wrapper %{
++ namespace swig
++ {
++ template&lt;&gt; struct traits_from&lt;AGString&gt;
++ {
++	 inline static VALUE from(const AGString &amp;val)
++	 {
++     return SWIG_FromCharPtrAndSize(val.c_str(),val.length());
++	 }
++};
++}
++%}
++
++
++
++%template(StringVector) std::vector&lt;std::string&gt;;
++%template(PStringVector) std::vector&lt;std::string*&gt;;
++
++
++%feature(&quot;trackobjects&quot;);
++
++%include &quot;/Library/Ruby/Gems/1.8/gems/rookey-0.1/lib/./rookey/cpp/rk_rubyobj.h&quot;
++%include &quot;car.h&quot;      
++
+
+Added: antargis/trunk/rookey/examples/virtual/virtualTest.rb
+===================================================================
+--- antargis/trunk/rookey/examples/virtual/virtualTest.rb	2009-02-16 20:01:21 UTC (rev 1283)
++++ antargis/trunk/rookey/examples/virtual/virtualTest.rb	2009-02-16 20:01:55 UTC (rev 1284)
+@@ -0,0 +1,2 @@
++require 'virtualExample'
++
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000239.html">[Antargis-svn] r1283 - antargis/trunk/data/gui
+</A></li>
+	<LI>Next message: <A HREF="000241.html">[Antargis-svn] r1285 - in antargis/trunk/rookey: . configs cpp lib	lib/rookey lib/rookey/configs lib/rookey/cpp lib/rookey/swig	maintainenance nbproject nbproject/private swig
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#240">[ date ]</a>
+              <a href="thread.html#240">[ thread ]</a>
+              <a href="subject.html#240">[ subject ]</a>
+              <a href="author.html#240">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

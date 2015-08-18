@@ -1,0 +1,1050 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1164 - in antargis/branches/rant: . build ruby	ruby/entities ruby/gui
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1164%20-%20in%20antargis/branches/rant%3A%20.%20build%20ruby%0A%09ruby/entities%20ruby/gui&In-Reply-To=%3C200708291800.l7TI0cvk006010%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000120.html">
+   <LINK REL="Next"  HREF="000122.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1164 - in antargis/branches/rant: . build ruby	ruby/entities ruby/gui</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1164%20-%20in%20antargis/branches/rant%3A%20.%20build%20ruby%0A%09ruby/entities%20ruby/gui&In-Reply-To=%3C200708291800.l7TI0cvk006010%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1164 - in antargis/branches/rant: . build ruby	ruby/entities ruby/gui">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Wed Aug 29 20:00:38 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000120.html">[Antargis-svn] r1163 - in antargis/branches/rant: . ext/external	ext/game ext/gui ruby ruby/entities
+</A></li>
+        <LI>Next message: <A HREF="000122.html">[Antargis-svn] r1165 - in antargis/branches/rant: build ruby	ruby/scripting
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#121">[ date ]</a>
+              <a href="thread.html#121">[ thread ]</a>
+              <a href="subject.html#121">[ subject ]</a>
+              <a href="author.html#121">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-08-29 20:00:36 +0200 (Wed, 29 Aug 2007)
+New Revision: 1164
+
+Modified:
+   antargis/branches/rant/README
+   antargis/branches/rant/Rantfile
+   antargis/branches/rant/build/configure.rb
+   antargis/branches/rant/configure
+   antargis/branches/rant/ruby/README
+   antargis/branches/rant/ruby/entities/entities.rb
+   antargis/branches/rant/ruby/gui/ag_tools.rb
+   antargis/branches/rant/ruby/intro.rb
+   antargis/branches/rant/ruby/mainmenu.rb
+Log:
+* much more documentation
+
+
+Modified: antargis/branches/rant/README
+===================================================================
+--- antargis/branches/rant/README	2007-08-27 18:34:04 UTC (rev 1163)
++++ antargis/branches/rant/README	2007-08-29 18:00:36 UTC (rev 1164)
+@@ -37,9 +37,9 @@
+ * much glue-code in ruby for menus, dialogs and the like 
+ * game-logic
+ 
+-1. On information about Antargis GUI-lib go to link:files/ext/gui/README.html
+-2. Information about Antargis game-engine can be found at link:files/ext/game/README.html
+-3. Game logic, esp. Multiplayer, AI- and level-scripting: link:files/ruby/README.html
++1. link:files/ext/gui/README.html - information about Antargis GUI-lib
++2. link:files/ext/game/README.html - Information about Antargis game-engine
++3. link:files/ruby/README.html - Game logic, esp. Multiplayer, AI- and level-scripting, dialogs, menus...
+ 
+ == Installation
+ 
+@@ -47,3 +47,7 @@
+ 
+ Run the game by simply starting antargis:
+ &gt; ./antargis
++
++== Building
++
++For more information on how to build Antargis and how the build-process work, please refer to link:files/build/README.html
+
+Modified: antargis/branches/rant/Rantfile
+===================================================================
+--- antargis/branches/rant/Rantfile	2007-08-27 18:34:04 UTC (rev 1163)
++++ antargis/branches/rant/Rantfile	2007-08-29 18:00:36 UTC (rev 1164)
+@@ -342,9 +342,9 @@
+  end
+ desc &quot;Generate html documentation.&quot;
+ 	gen RubyDoc do |t|
+-			a=sys[&quot;**/README&quot;]+sys[&quot;ruby/**/*.rb&quot;]+sys[&quot;INSTALL&quot;]
++			a=sys[&quot;**/README&quot;]+sys[&quot;ruby/**/*.rb&quot;]+sys[&quot;INSTALL&quot;]+sys[&quot;build/*.rb&quot;]+sys[&quot;configure&quot;]+sys[&quot;Rantfile&quot;]
+ 			a=a.select{|f|not f=~/_test/}
+-			t.opts = %w(--title Battles\ of\ Antargis --main README )+a
++			t.opts = %w(--title Battles\ of\ Antargis --main README --diagram)+a
+ 			t.dir = &quot;docs/ruby&quot;
+ 	end
+ 
+
+Modified: antargis/branches/rant/build/configure.rb
+===================================================================
+--- antargis/branches/rant/build/configure.rb	2007-08-27 18:34:04 UTC (rev 1163)
++++ antargis/branches/rant/build/configure.rb	2007-08-29 18:00:36 UTC (rev 1164)
+@@ -1,31 +1,49 @@
+ #
+ # This is a library for simple build-configuration management.
+-# For a brief example have a look at BoA's configure-script.
++# For a brief example have a look at BoA's configure-script (link:files/configure.html)
++# This file may contain some examples how to use this.
+ # 
+ # The configuration-process goes like this
+-# 1) include this file
+-# 2) define cmd-line-options with CFG.addOption
+-# 3) add checks for programs, files, libraries (checkProgram, checkFile, checkLibrary)
+-# 4) add custom-checks with addCheck(...)
+-# 5) include basic-configuration functionality with CFG.includeConfig - have a look at build/configs/unix.rb for more information on this
+-# 6) run the configuration with CFG.run - a config.rb file will be written 
+-##
++#  1) include this file
++#  2) define cmd-line-options with CFG.addOption
++#  3) add checks for programs, files, libraries (checkProgram, checkFile, checkLibrary)
++#  4) add custom-checks with addCheck(...)
++#  5) include basic-configuration functionality with CFG.includeConfig - have a look at build/configs/unix.rb for more information on this
++#  6) run the configuration with CFG.run - a config.rb file will be written 
++#
+ 
+ require 'build/platform.rb'
+ require 'build/config_tools.rb'
+ 
++# the CFG-module serves with many functions that may be used in a configure script
+ module CFG
+ 	@@options=[]
+ 	@@config={}
+ 	@@checks=[]
+ 
++	# add a cli-option with name *name* and short-cut *short*
++	# Example:
++	#  CFG.addOption(&quot;enable-debug&quot;,&quot;d&quot;,
++	#  	&quot;enable debugging&quot;) do  ||
++	#  	  	CFG.set(&quot;debug&quot;,true)
++	#   end
++	# will result in an output like this:
++	#   -Battle of Antargis - Configuration
++  #   -------------------------------------------------------------------------------
++  #   --help, -h                              display help text
++	#   --enable-debug, -d                      enable debugging
++	# the given block *proc* will do whatever you define for instance setting debug to true in set configuration hash
+ 	def CFG.addOption(name,short,help,param=nil,default=nil,&amp;proc)
+ 		@@options.push({:name=&gt;name,:short=&gt;short,:help=&gt;help,:proc=&gt;proc,:param=&gt;param,:default=&gt;default})
+ 	end
+ 
++	# return an array containing a hash, that describes, how the possible options will be checked
++	# have a loog at CFG.addOption
+ 	def CFG.options
+ 		@@options
+ 	end
++
++	# add check identified by *name*
+ 	def CFG.addCheck(name,needed=true,&amp;proc)
+ 		@@checks &lt;&lt; {:name=&gt;name,:proc=&gt;proc,:needed=&gt;needed}
+ 	end
+@@ -37,44 +55,8 @@
+ 			end
+ 		}
+ 	end
+-	def CFG.parseArgs
+-		ARGV.each{|arg|
+-			found=false
+-			# parse single arguments like &quot;-d&quot; or &quot;-dgh&quot; (like tar -xfz)
+-			if arg=~/^-[a-z]+$/
+-				found=true
+-				# check if all characters represent a correct option
+-				arg[1..-1].scan(/./){|byte|
+-					found=false if @@options.select{|op|op[:short]==byte}.length==0
+-				}
+-				if found
+-					# all were ok, so call each these options
+-					arg[1..-1].scan(/./){|byte|
+-						@@options.each{|op|op[:proc].call if op[:short]==byte}
+-					}
+-				end
+-			end
+-			if not found
+-				# option could not yet be processed, so do a second try
+-				@@options.each{|op|
+-					name=op[:name]
+-					ename=name.gsub(&quot;+&quot;,&quot;\\\\+&quot;)
+-					#puts &quot;ENAME:#{ename}&quot;
+-					# parse &quot;simple&quot; options without parameters
+-					if arg=~/^--#{ename}$/ or arg=~/^-#{op[:short]}$/
+-						found=true
+-						op[:proc].call
+-					# parse options with parameter, given like this : &quot;-d=&lt;somedir&gt;&quot; or &quot;--dir=bladir&quot;
+-					elsif arg=~/^--#{ename}=.+/ or arg=~/^-#{op[:short]}=.+$/
+-						found=true
+-						op[:proc].call(arg.gsub(/^[^=]+=/,&quot;&quot;))
+-					end
+-				}
+-			end
+-			puts &quot;ERROR: argument '#{arg}' could not be processed!&quot; if not found
+-		}
+-	end
+ 
++
+ 	def CFG.checkDefaults
+ 		@@options.each{|op|
+ 			if get(op[:name]).nil? and op[:default]
+@@ -86,6 +68,7 @@
+ 	def CFG.run
+ 		parseArgs
+ 		checkDefaults
++		checkCompile
+ 		ok=runChecks
+ 		saveConfig if ok
+ 	end
+@@ -125,15 +108,6 @@
+ 	
+ 	end
+ 
+-	def CFG.toS(v)
+-		case v
+-			when String
+-				&quot;'&quot;+v.to_s+&quot;'&quot;
+-			else
+-				v.to_s
+-		end
+-	end
+-
+ 	def CFG.set(n,v)
+ 		@@config[n]=v
+ 	end
+@@ -156,18 +130,18 @@
+ 		end
+ 	end
+ 
+-    def CFG.getPath
+-        p=ENV['PATH']
+-        psep={&quot;/&quot;=&gt;&quot;:&quot;,&quot;\\&quot;=&gt;&quot;;&quot;}[Dir.separator]
+-        #puts p,p.class,psep
+-        ps=p.split(psep)
+-        #puts get(&quot;prefix&quot;)
+-        ps &lt;&lt; get(&quot;prefix&quot;)+Dir.separator+&quot;bin&quot; if get(&quot;prefix&quot;)
+-        if Dir.separator==&quot;\\&quot;
+-            ps &lt;&lt; (Dir.pwd+&quot;/build/win32/usr/bin&quot;).gsub(&quot;/&quot;,Dir.separator)
+-        end
+-        ps
+-    end
++	def CFG.getPath
++			p=ENV['PATH']
++			psep={&quot;/&quot;=&gt;&quot;:&quot;,&quot;\\&quot;=&gt;&quot;;&quot;}[Dir.separator]
++			#puts p,p.class,psep
++			ps=p.split(psep)
++			#puts get(&quot;prefix&quot;)
++			ps &lt;&lt; get(&quot;prefix&quot;)+Dir.separator+&quot;bin&quot; if get(&quot;prefix&quot;)
++			if Dir.separator==&quot;\\&quot;
++					ps &lt;&lt; (Dir.pwd+&quot;/build/win32/usr/bin&quot;).gsub(&quot;/&quot;,Dir.separator)
++			end
++			ps
++	end
+ 
+ 	def CFG.findProgram(program)
+         #program+=&quot;.exe&quot; if Dir.separator==&quot;\\&quot; and not program=~/\.\{exe|com|bat\}$/
+@@ -185,6 +159,7 @@
+ 		#`whereis #{program}`.gsub(/[^:]*: */,&quot;&quot;).split(&quot; &quot;)[0]
+ 	end
+ 
++	# check if +path+ exists. Maybe we should check, if +path+ is executable
+ 	def CFG.testProgram(path)
+ 		#puts path,File.exists?(path),&quot;--&quot;
+ 			File.exists?(path)
+@@ -206,6 +181,8 @@
+ 		end
+ 	end
+ 
++	# *FIXME: implement this*
++	# This function will test if the compiler is able to compile.
+ 	def CFG.checkCompile
+ 		
+ 	end
+@@ -219,6 +196,59 @@
+ 	end
+ 
+ 
++	private
++
++	# this function parses the cli-inputs
++	#
++	# *FIXME: replace this with the standard ruby-cli-input-parser
++	def CFG.parseArgs
++		ARGV.each{|arg|
++			found=false
++			# parse single arguments like &quot;-d&quot; or &quot;-dgh&quot; (like tar -xfz)
++			if arg=~/^-[a-z]+$/
++				found=true
++				# check if all characters represent a correct option
++				arg[1..-1].scan(/./){|byte|
++					found=false if @@options.select{|op|op[:short]==byte}.length==0
++				}
++				if found
++					# all were ok, so call each these options
++					arg[1..-1].scan(/./){|byte|
++						@@options.each{|op|op[:proc].call if op[:short]==byte}
++					}
++				end
++			end
++			if not found
++				# option could not yet be processed, so do a second try
++				@@options.each{|op|
++					name=op[:name]
++					ename=name.gsub(&quot;+&quot;,&quot;\\\\+&quot;)
++					#puts &quot;ENAME:#{ename}&quot;
++					# parse &quot;simple&quot; options without parameters
++					if arg=~/^--#{ename}$/ or arg=~/^-#{op[:short]}$/
++						found=true
++						op[:proc].call
++					# parse options with parameter, given like this : &quot;-d=&lt;somedir&gt;&quot; or &quot;--dir=bladir&quot;
++					elsif arg=~/^--#{ename}=.+/ or arg=~/^-#{op[:short]}=.+$/
++						found=true
++						op[:proc].call(arg.gsub(/^[^=]+=/,&quot;&quot;))
++					end
++				}
++			end
++			puts &quot;ERROR: argument '#{arg}' could not be processed!&quot; if not found
++		}
++	end
++
++	# convert *v* into a string. used by CFG.saveConfig to write the config.rb
++	def CFG.toS(v)
++		case v
++			when String
++				&quot;'&quot;+v.to_s+&quot;'&quot;
++			else
++				v.to_s
++		end
++	end
++
+ 	addOption(&quot;help&quot;,&quot;h&quot;,
+ 		&quot;display help text&quot;) do
+ 			CFG.options.each{|op|
+
+Modified: antargis/branches/rant/configure
+===================================================================
+--- antargis/branches/rant/configure	2007-08-27 18:34:04 UTC (rev 1163)
++++ antargis/branches/rant/configure	2007-08-29 18:00:36 UTC (rev 1164)
+@@ -95,10 +95,8 @@
+ 		CFG.gatherMkmfInfo
+ 	end
+ 
+-
+ CFG.includeConfig
+ 
+-
+ CFG.run
+ 
+ puts
+
+Modified: antargis/branches/rant/ruby/README
+===================================================================
+--- antargis/branches/rant/ruby/README	2007-08-27 18:34:04 UTC (rev 1163)
++++ antargis/branches/rant/ruby/README	2007-08-29 18:00:36 UTC (rev 1164)
+@@ -7,11 +7,22 @@
+ * AI-scripting
+ * multi-player support
+ 
+-== Entities
++== Global structure
++There are several different &quot;applications&quot; used when playing around with BoA.
++* you begin with an intro, that's run by IntroApp
++* after that you enter the menus, which are handled by AntMenuApp. There you can:: a) start a campaign, b) a single-map or c) load a game
++
++=== Campaigns
++* For more information about campaigns go ahead to Campaign.
++* For single-maps *FIXME*
++
++== BoA's world
++
++=== Entities
+ The basic objects of the game, like trees, people, buildings and so forth are called entities.
+ To read more about entities go here: link:files/ruby/entities/README.html
+ 
+-== Map
++=== Map
+ A map represents the complete world of BoA. It consists of:
+ * a height-map
+ * entities on the map
+
+Modified: antargis/branches/rant/ruby/entities/entities.rb
+===================================================================
+--- antargis/branches/rant/ruby/entities/entities.rb	2007-08-27 18:34:04 UTC (rev 1163)
++++ antargis/branches/rant/ruby/entities/entities.rb	2007-08-29 18:00:36 UTC (rev 1164)
+@@ -53,6 +53,25 @@
+ 
+ 		setHunger(0) # general entities have no hunger
+ 	end
++
++
++	# play a sound identified by +name+. Sounds of this type shouldn't called when they were only called
++	# +minDiff+ (or less) seconds before. Note that the sound is played at the place where this entity is placed.
++	# So it's not hearable far away from it.
++	def playSound(name,minDiff=0.5)
++		scene=getMap.getScene
++		d=((scene.getCamera.dim2-getPos2D).length-INNER_VOL_SIZE)
++		vol=1
++		if d&gt;0
++			vol=[(OUTER_VOL_SIZE-d)/OUTER_VOL_SIZE,0].max
++		end
++		AntSound.playSoundGlobal(name,vol,minDiff)
++	end
++
++	
++	# :section: Editing
++
++	# Within the editor you can change additional properties, e.g. count of men for a hero. This functions are used for this.
+ 	def setXMLProp(n,v)
+ 		@xmlProps[n]=v
+ 	end
+@@ -63,11 +82,9 @@
+ 			return @xmlProps[n]
+ 		end
+ 	end
+-	def experienceFull
+-		super
+-		self.experience=1
+-	end
+ 
++	# :section: XML loading/saving
++
+ 	def preloadXML(node)
+ 		if node.get(&quot;birthday&quot;)!=&quot;&quot;
+ 			@birthday=node.get(&quot;birthday&quot;).to_f
+@@ -102,6 +119,7 @@
+ 	def &lt;=&gt;(e)
+ 		to_s&lt;=&gt;e.to_s
+ 	end
++
+ 	def menCount
+ 		0
+ 	end
+@@ -140,6 +158,8 @@
+ 	def getMen
+ 		[]
+ 	end
++
++	
+ 	def setMode(mode)
+ 		@mode=mode
+ 	end
+@@ -147,15 +167,6 @@
+ 		@mode
+ 	end
+ 
+-	def playSound(name,minDiff=0.5)
+-		scene=getMap.getScene
+-		d=((scene.getCamera.dim2-getPos2D).length-INNER_VOL_SIZE)
+-		vol=1
+-		if d&gt;0
+-			vol=[(OUTER_VOL_SIZE-d)/OUTER_VOL_SIZE,0].max
+-		end
+-		AntSound.playSoundGlobal(name,vol,minDiff)
+-	end
+ 
+ 
+ 	def isOnOpenWater(p=nil)
+@@ -167,6 +178,10 @@
+ 	def isOnWater
+ 		getMap.getPos(getPos2D).z&lt;0
+ 	end
++
++	# give name under which this entity is stored in xml. It's generated from the classname. The first character is downcased.
++	# The rest is camel-case as usual.
++	# For instace: AntShop =&gt; antShop
+ 	def xmlName
+ 		xml=self.class.to_s
+ 		xml=xml[0..0].downcase+xml[1..1000]
+@@ -186,6 +201,14 @@
+ 		end
+ 	end
+ 
++	# :section: job-handling
++	# These functions add support for event-Handling within Entities' jobs. This is (will be) used for
++	# scripting and AI.
++	#	
++	# FIXME: THis should be moved somewhere else (?)
++	#
++	# For more information on scripting link:files/ruby/scripting/README.html
++
+ 	def newFightJob(p,target,distance)
+ 		@fightTarget=target
+ 		super
+@@ -195,6 +218,8 @@
+ 		super
+ 		doEvent(:eventNewRestJob)
+ 	end
++
++	# :section eventHandling
+ 	def eventNoJob
+ 		super
+ 		doEvent(:eventNoJob)
+@@ -204,23 +229,27 @@
+ 		doEvent(:eventJobFinished)
+ 	end
+ 
++	def experienceFull
++		super
++		self.experience=1
++	end
++
++
++	# :section: status-information
++
++	# an event-handler for resources being changed. In this case a possible view on the inventory is updated
+ 	def resourceChanged	
+ 		super
+ 		AntInventory.update(self)
+ 	end
+ 
++	# is this entity under attack - here this is always false, because it doesn't make sense for all entities
+ 	def underAttack
+ 		false
+ 	end
+ 
+-# 	def _dump(depth)
+-# 		[@uid].pack(&quot;n&quot;)
+-# 	end
+-# 	def _load(s)
+-# 		getMap.getByUID(s.unpack(&quot;n&quot;))
+-# 	end
++	# :section: state-changes
+ 
+-
+ 	def setMesh(subtype=&quot;&quot;,sym=nil)
+ 		if subtype.is_a?(SceneNode)
+ 			puts  &quot;THIS SHOULD NOT BE USED ANY LONGER: setMesh(realMesh) !!!!!!!!!!!!&quot;
+@@ -240,6 +269,11 @@
+ 	end
+ 
+ 
++
++
++	# :section: deprecated
++
++
+ 	# FIXME: remove this - this is a backward-compability function 
+ 	def get
+ 		self
+
+Modified: antargis/branches/rant/ruby/gui/ag_tools.rb
+===================================================================
+--- antargis/branches/rant/ruby/gui/ag_tools.rb	2007-08-27 18:34:04 UTC (rev 1163)
++++ antargis/branches/rant/ruby/gui/ag_tools.rb	2007-08-29 18:00:36 UTC (rev 1164)
+@@ -107,6 +107,7 @@
+ 		return super(e)
+ 	end
+ 
++	private
+ 	def makeHandlerName(object,event)
+ 		if object.respond_to?(:getName)
+ 			return object.getName+&quot;:&quot;+event.to_s
+
+Modified: antargis/branches/rant/ruby/intro.rb
+===================================================================
+--- antargis/branches/rant/ruby/intro.rb	2007-08-27 18:34:04 UTC (rev 1163)
++++ antargis/branches/rant/ruby/intro.rb	2007-08-29 18:00:36 UTC (rev 1164)
+@@ -3,22 +3,34 @@
+ require 'ruby/antargislib.rb'
+ require 'ant_local.rb'
+ 
+-class Black&lt;AGWidget
++# *BlackFade* fades the screen to black. This Widget is laid over other widgets and
++# draws a black rectangle with varying alpha-channel. This way you
++# can fade in and out pictures and text-displays.
++class BlackFade&lt;AGWidget
++	# alpha-value is set to 0 by default
+ 	def initialize(p,r)
+ 		super(p,r)
+ 		@r=r
+ 		@alpha=0.0
+ 	end
++	# set the alpha-value *a* in range from 0.0 to 1.0
++	# the default-value is 0
+ 	def setAlpha(a)
+ 		@alpha=a
+ 		queryRedraw
+ 	end
++
++	# draws the black rectangle with set pre-set alpha-value
+ 	def draw(painter)
+ 		#painter.fillRect(@r,AGColor.new(0,0,0,0x1F))
+ 		painter.fillRect(@r,AGColor.new(0,0,0,(0xFF*@alpha).to_i))
+ 	end
+ end
+ 
++
++# This application-class handles the display and event-handling of BoA's intro
++# It's able to display images and text-elements (that are drawn using the intro.font-Font from the theme)
++# Each image/text-element is faded-in and faded-out. While the intro runs some music-track is played
+ class IntroApp&lt;AntApplication
+ 	include AGHandler
+ 	def initialize
+@@ -40,7 +52,7 @@
+ 		}
+ 		@s=0
+ 		@img=AGImage.new(nil,AGRect.new(0,0,getScreen.getWidth,getScreen.getHeight)<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at surfaces</A>[0],false)
+-		@black=Black.new(@img,AGRect.new(0,0,getScreen.getWidth,getScreen.getHeight))
++		@black=BlackFade.new(@img,AGRect.new(0,0,getScreen.getWidth,getScreen.getHeight))
+ 		@img.addChild(@black)
+ 		setMainWidget(@img)
+ 		@time=0
+@@ -56,19 +68,29 @@
+ 		addHandler(getSoundManager,:sigMp3Finished,:musicEnd)
+ 	end
+ 	
++
++	# if a key was pressed, we cancel the intro playing
+ 	def eventKeyDown(e)
+ 		cancel
+ 		return super
+ 	end
+ 	
++	# cancel the intro
++	# resets the *@phases*
+ 	def cancel
+ 		@canceled=true
+ 		@phases=[0.2,0.2,2,10]
+ 	end	
++
++	# if the music has finished, we cancel the intro
+ 	def musicEnd
+ 		cancel
+ 	end
+ 	
++
++	# this function is called, when you press F10 to quit the application
++	# the first call cancels the intro (thus it will still fade out)
++	# the second call will quit the intro directly
+ 	def tryQuit
+ 		if @canceled
+ 			#getSoundManager.stopMp3
+@@ -78,7 +100,11 @@
+ 			cancel
+ 		end
+ 	end
+-	
++
++	# this function does:
++	# * increase the phase - set alpha for BlackFade-Widget
++	# * switch to newer textures/text-elements
++	# * quit the intro, when its finished
+ 	def checkPhase
+ 		#puts &quot;#{@time}&gt;#{@phases[@phase]}&quot;
+ 		if @time&gt;@phases[@phase]
+@@ -112,6 +138,7 @@
+ 		@img.redraw
+ 	end
+ 	
++	# gets called in each frame (and sets a delay of 10ms between frames)
+ 	def eventFrame(t)
+ 		@time+=t
+ 		checkPhase
+@@ -119,6 +146,7 @@
+ 		return true
+ 	end
+ 
++	# when a mouse-button is clicked the intro is canceled
+ 	def eventMouseButtonDown(e)
+ 		tryQuit
+ 		return super(e)
+
+Modified: antargis/branches/rant/ruby/mainmenu.rb
+===================================================================
+--- antargis/branches/rant/ruby/mainmenu.rb	2007-08-27 18:34:04 UTC (rev 1163)
++++ antargis/branches/rant/ruby/mainmenu.rb	2007-08-29 18:00:36 UTC (rev 1164)
+@@ -26,9 +26,22 @@
+ require 'credits.rb'
+ 
+ # AntMenuApp implements the whole menu-block of BoA
+-# It uses the setMainWidget-function of AGApplication
+-# This way the current menu can easily be exchanged.
+-
++# It uses the setMainWidget-function of AGApplication to exchange
++# whole layouts of menus.
++#
++# These are the different layouts (description about each menu can be found in each of its setup-function)
++# * main - setupMain
++# * credits - setupCredits
++# * campaign - setupCampaign
++# * options - setupOptions
++# * load - setupLoadMenu
++# * single-game - setupSingle
++#
++# each layout has its own buttons and so forth. They are connected to event-handlers in the AntMenuApp-class.
++# These connections are done in the setup-functions. So any time each of the events can be handled. However
++# because at any time only one layout is displayed the other events won't be called. But you must be careful
++# not to name events the same!
++#
+ class AntMenuApp &lt;AntApplication
+ 	include AGHandler
+ 	def initialize
+@@ -37,17 +50,11 @@
+ 		@menues=[]
+ 		
+ 		# setup all the 
+-		puts &quot;SETUPMAIN&quot;
+ 		setupMain
+-		puts &quot;SETUPCREDITS&quot;
+ 		setupCredits
+-		puts &quot;SETUPCAMPAIGN&quot;
+ 		setupCampaign
+-		puts &quot;SETUPOPTIONS&quot;
+ 		setupOptions
+-		puts &quot;SETUPLOADMENU&quot;
+ 		setupLoadMenu
+-		puts &quot;SETUPSINGLE&quot;
+ 		setupSingle
+ 		@sound=true
+ 
+@@ -55,6 +62,10 @@
+ 		addHandler(getSoundManager,:sigMp3Finished,:eventMusicEnd)
+ 	end
+ 
++
++	# overrides AGWidget.setMainWidget, so that the given Widget *w* is
++	# embedded into an outer AGScreenWidget. The reason for this is
++	# redrawing AFAIK (?)
+ 	def setMainWidget(w)
+ 		if @myScreen.nil?
+ 			@myScreen||=AGScreenWidget.new
+@@ -65,15 +76,14 @@
+ 		@curMainWidget=w
+ 	end
+ 	
+-	def eventMusicEnd
+-		if @sound
+-			getSoundManager.playMp3(&quot;data/music/calm1.ogg&quot;)
+-		end
+-		return true
+-	end
+ 
+ 
+-	# MAIN MENU
++	# :section: set up the menus
++
++
++	# this function sets up the main-menu layout of out data/gui/layout/mainmenu.xml
++	# * event handlers are initialized
++	# * the MainWidget is set to this menu at startup
+ 	def setupMain()
+ 		@mainMenu=AGLayout.new(nil)
+ 		@mainMenu.loadXML(loadFile(&quot;data/gui/layout/mainmenu.xml&quot;))
+@@ -88,43 +98,8 @@
+ 		addHandler(@mainMenu.getChild(&quot;options&quot;),:sigClick,:eventOptions)
+ 	end
+ 
+-	def eventCredits(e)
+-		setMainWidget(@creditsMenu)
+-		return true
+-	end
+-	def eventSingle(e)
+-		setMainWidget(@singleMenu)
+-		return true
+-	end
+ 
+-	def eventTutorial(e)
+-		tutCampaign=Campaign.new(&quot;data/campaigns/tutorial.xml&quot;)
+-		soundOff
+-		startCampaign(tutCampaign)
+-		soundOn
+-		return true
+-	end
+ 
+-	def eventCampaign(e)
+-		setMainWidget(@campaignMenu)
+-		return true
+-	end
+-	def eventLoadGame(e)
+-		updateLoadMenu
+-		setMainWidget(@loadMenu)
+-		return true
+-	end
+-	def eventOptions(e)
+-		setMainWidget(@optionsMenu)
+-		return true
+-	end
+-	def eventQuit(e)
+-		tryQuit
+-		return true
+-	end
+-
+-
+-
+ 	# LOAD GAME MENU
+ 	def setupLoadMenu
+ 		@loadMenu=AGLayout.new(nil)
+@@ -221,6 +196,48 @@
+ 		addHandler(@singleMenu.getChild(&quot;list&quot;),:sigSelect,:eventLoadSelect)
+ 		updateSingleMenu
+ 	end
++
++	# OPTIONS MENU
++	def setupOptions
++		@optionsMenu=AGLayout.new(nil)
++		@optionSubMenus=[&quot;VideoOptionsMenu&quot;,&quot;AudioOptionsMenu&quot;,&quot;GameOptionsMenu&quot;]
++		@optionsMenu.loadXML(loadFile(&quot;data/gui/layout/options.xml&quot;))
++		@menues.push(@optionsMenu)
++		addHandler(@optionsMenu.getChild(&quot;exit&quot;),:sigClick,:eventExit)
++		
++		addHandler(@optionsMenu.getChild(&quot;fullscreen&quot;),:sigClick,:eventFullscreen)
++		[&quot;640&quot;,&quot;800&quot;,&quot;1024&quot;,&quot;1280&quot;,&quot;1400&quot;].each{|n|
++			addHandler(@optionsMenu.getChild(n),:sigClick,:eventResChange)
++		}
++		#addHandler(@optionsMenu.getChild(&quot;1280&quot;),:sigClick,:eventResChange)
++		addHandler(@optionsMenu.getChild(&quot;1400&quot;),:sigClick,:eventResChange)
++
++		addHandler(@optionsMenu.getChild(&quot;gameOptions&quot;),:sigClick,:eventGameOptions)
++		addHandler(@optionsMenu.getChild(&quot;videoOptions&quot;),:sigClick,:eventVideoOptions)
++
++		addHandler(@optionsMenu.getChild(&quot;optionIntro&quot;),:sigClick,:eventOptionsChanged)
++
++		@optionsMenu.getChild(&quot;optionIntro&quot;).setChecked(getConfig.get(&quot;intro&quot;)!=&quot;false&quot;)
++
++		# texture quality
++		texQ=@optionsMenu.getChild(&quot;textureQuality&quot;)
++		texQ.setSelected({&quot;1&quot;=&gt;&quot;high&quot;,&quot;2&quot;=&gt;&quot;medium&quot;,&quot;3&quot;=&gt;&quot;low&quot;,nil=&gt;&quot;high&quot;,&quot;&quot;=&gt;&quot;high&quot;}[getConfig.get(&quot;terrainDownScaleExp&quot;)])
++		addHandler(texQ,:sigSelect,:eventTextureQuality)
++
++		# FBO
++		@optionsMenu.getChild(&quot;UseFBO&quot;).setChecked(getConfig.get(&quot;useFBO&quot;)==&quot;true&quot;)
++		addHandler(@optionsMenu.getChild(&quot;UseFBO&quot;),:sigClick,:eventOptionsChanged)
++		
++		# Anim
++		@optionsMenu.getChild(&quot;UseAnim&quot;).setChecked(getConfig.get(&quot;animationType&quot;)==&quot;true&quot;)
++		addHandler(@optionsMenu.getChild(&quot;UseAnim&quot;),:sigClick,:eventOptionsChanged)
++
++		# particle
++		@optionsMenu.getChild(&quot;UseParticle&quot;).setChecked(getConfig.get(&quot;particleEffects&quot;)==&quot;true&quot;)
++		addHandler(@optionsMenu.getChild(&quot;UseParticle&quot;),:sigClick,:eventOptionsChanged)
++	end
++
++
+ 	
+ 	def eventSingleStart(e)
+ 
+@@ -296,45 +313,6 @@
+ 	end
+ 	
+ 
+-	# OPTIONS MENU
+-	def setupOptions
+-		@optionsMenu=AGLayout.new(nil)
+-		@optionSubMenus=[&quot;VideoOptionsMenu&quot;,&quot;AudioOptionsMenu&quot;,&quot;GameOptionsMenu&quot;]
+-		@optionsMenu.loadXML(loadFile(&quot;data/gui/layout/options.xml&quot;))
+-		@menues.push(@optionsMenu)
+-		addHandler(@optionsMenu.getChild(&quot;exit&quot;),:sigClick,:eventExit)
+-		
+-		addHandler(@optionsMenu.getChild(&quot;fullscreen&quot;),:sigClick,:eventFullscreen)
+-		[&quot;640&quot;,&quot;800&quot;,&quot;1024&quot;,&quot;1280&quot;,&quot;1400&quot;].each{|n|
+-			addHandler(@optionsMenu.getChild(n),:sigClick,:eventResChange)
+-		}
+-		#addHandler(@optionsMenu.getChild(&quot;1280&quot;),:sigClick,:eventResChange)
+-		addHandler(@optionsMenu.getChild(&quot;1400&quot;),:sigClick,:eventResChange)
+-
+-		addHandler(@optionsMenu.getChild(&quot;gameOptions&quot;),:sigClick,:eventGameOptions)
+-		addHandler(@optionsMenu.getChild(&quot;videoOptions&quot;),:sigClick,:eventVideoOptions)
+-
+-		addHandler(@optionsMenu.getChild(&quot;optionIntro&quot;),:sigClick,:eventOptionsChanged)
+-
+-		@optionsMenu.getChild(&quot;optionIntro&quot;).setChecked(getConfig.get(&quot;intro&quot;)!=&quot;false&quot;)
+-
+-		# texture quality
+-		texQ=@optionsMenu.getChild(&quot;textureQuality&quot;)
+-		texQ.setSelected({&quot;1&quot;=&gt;&quot;high&quot;,&quot;2&quot;=&gt;&quot;medium&quot;,&quot;3&quot;=&gt;&quot;low&quot;,nil=&gt;&quot;high&quot;,&quot;&quot;=&gt;&quot;high&quot;}[getConfig.get(&quot;terrainDownScaleExp&quot;)])
+-		addHandler(texQ,:sigSelect,:eventTextureQuality)
+-
+-		# FBO
+-		@optionsMenu.getChild(&quot;UseFBO&quot;).setChecked(getConfig.get(&quot;useFBO&quot;)==&quot;true&quot;)
+-		addHandler(@optionsMenu.getChild(&quot;UseFBO&quot;),:sigClick,:eventOptionsChanged)
+-		
+-		# Anim
+-		@optionsMenu.getChild(&quot;UseAnim&quot;).setChecked(getConfig.get(&quot;animationType&quot;)==&quot;true&quot;)
+-		addHandler(@optionsMenu.getChild(&quot;UseAnim&quot;),:sigClick,:eventOptionsChanged)
+-
+-		# particle
+-		@optionsMenu.getChild(&quot;UseParticle&quot;).setChecked(getConfig.get(&quot;particleEffects&quot;)==&quot;true&quot;)
+-		addHandler(@optionsMenu.getChild(&quot;UseParticle&quot;),:sigClick,:eventOptionsChanged)
+-	end
+ 	
+ 	def eventTextureQuality(e)
+ 		scale={&quot;low&quot;=&gt;3,&quot;medium&quot;=&gt;2,&quot;high&quot;=&gt;1}[@optionsMenu.getChild(&quot;textureQuality&quot;).getSelected]
+@@ -387,26 +365,14 @@
+ 		end
+ 		return true
+ 	end
+-	def setRes(w,h)
+-		getMain.initVideo(w,h,32,true,true,1024,768) #getMain.fullscreen,true)
+-		getConfig.set(&quot;xRes&quot;,getMain.realWidth.to_s)
+-		getConfig.set(&quot;yRes&quot;,getMain.realHeight.to_s)
+-		puts getSurfaceManager.getUsedTexMem
+-		#raise 1
+-	end
+ 
+ 	
+ 
+-	# all exits to mainmenu	
+-	def eventExit(e)
+-		setMainWidget(@mainMenu)
+-		return true
+-	end
+-	def eventIdle
+-		delay(20)
+-		return true
+-	end
+ 
++	# :section: Global Event Handlers
++
++	# simple frame-event-handler - only counts how much FPS we have
++	# and displays this on CLI
+ 	def eventFrame(t)
+ 		@frameTime||=0
+ 		@frames||=0
+@@ -419,18 +385,105 @@
+ 		end
+ 		return true
+ 	end
++	# idle-event - sets a delay of 20ms
++	def eventIdle
++		delay(20)
++		return true
++	end
+ 
++	# quits the application (is called by the Quit-button in the main-menu
++	# current you won't be asked if this is ok.
++	def eventQuit(e)
++		tryQuit
++		return true
++	end
++
++
++	# event-handler for end of music-playing
++	# start another track (a different one)
++	def eventMusicEnd
++		if @sound
++			getSoundManager.playMp3(&quot;data/music/calm1.ogg&quot;)
++		end
++		return true
++	end
++
++	# -------------------------------
++	# :section: Menu Event Handlers
++	# -------------------------------
++
++	# called by exit-button in submenus and always exits to mainmenu	
++	def eventExit(e)
++		setMainWidget(@mainMenu)
++		return true
++	end
++
++	# -------------------------------
++	# :section: Main Menu Event Handlers
++	# -------------------------------
++	def eventCredits(e)
++		setMainWidget(@creditsMenu)
++		return true
++	end
++	def eventSingle(e)
++		setMainWidget(@singleMenu)
++		return true
++	end
++
++	# start the tutorial-campaign directly for new users, so
++	# they won't have to deal with &quot;campaigning&quot;, where tutorial can be found, too
++	def eventTutorial(e)
++		tutCampaign=Campaign.new(&quot;data/campaigns/tutorial.xml&quot;)
++		soundOff
++		startCampaign(tutCampaign)
++		soundOn
++		return true
++	end
++
++	def eventCampaign(e)
++		setMainWidget(@campaignMenu)
++		return true
++	end
++	def eventLoadGame(e)
++		updateLoadMenu
++		setMainWidget(@loadMenu)
++		return true
++	end
++	def eventOptions(e)
++		setMainWidget(@optionsMenu)
++		return true
++	end
++
++
++	
++protected
++	# -------------------------------
++	# :section: changing settings
++	# -------------------------------
++
++	# fades the sound out
+ 	def soundOff
+ 		@sound=false
+ 		getSoundManager.fadeOutMusic(1000)
+ 	end
++
++	# if there is music running it gets stopped
++	# and eventMusicEnd is called, so that a new track is started
+ 	def soundOn
+ 		@sound=true
+ 		getSoundManager.stopMp3
+ 		eventMusicEnd
+ 	end	
+ 
+-	# load menu
++	# switch to the video-resolution with pixel-width *w* and height *h*
++	def setRes(w,h)
++		getMain.initVideo(w,h,32,true,true,1024,768) #getMain.fullscreen,true)
++		getConfig.set(&quot;xRes&quot;,getMain.realWidth.to_s)
++		getConfig.set(&quot;yRes&quot;,getMain.realHeight.to_s)
++		puts getSurfaceManager.getUsedTexMem
++		#raise 1
++	end
++
+ end
+ 
+ app=AntMenuApp.new
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000120.html">[Antargis-svn] r1163 - in antargis/branches/rant: . ext/external	ext/game ext/gui ruby ruby/entities
+</A></li>
+	<LI>Next message: <A HREF="000122.html">[Antargis-svn] r1165 - in antargis/branches/rant: build ruby	ruby/scripting
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#121">[ date ]</a>
+              <a href="thread.html#121">[ thread ]</a>
+              <a href="subject.html#121">[ subject ]</a>
+              <a href="author.html#121">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

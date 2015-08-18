@@ -1,0 +1,261 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1152 - in antargis/branches/rant/ruby/tests: . path
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-July/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1152%20-%20in%20antargis/branches/rant/ruby/tests%3A%20.%20path&In-Reply-To=%3C200707291014.l6TAEpNL018767%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000108.html">
+   <LINK REL="Next"  HREF="000110.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1152 - in antargis/branches/rant/ruby/tests: . path</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1152%20-%20in%20antargis/branches/rant/ruby/tests%3A%20.%20path&In-Reply-To=%3C200707291014.l6TAEpNL018767%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1152 - in antargis/branches/rant/ruby/tests: . path">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sun Jul 29 12:14:51 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000108.html">[Antargis-svn] r1151 - antargis/branches/rant/ext/game
+</A></li>
+        <LI>Next message: <A HREF="000110.html">[Antargis-svn] r1153 - in antargis/branches/rant: . ext/3dengine	ext/basic ext/game ext/gui ext/math ext/sound ext/video
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#109">[ date ]</a>
+              <a href="thread.html#109">[ thread ]</a>
+              <a href="subject.html#109">[ subject ]</a>
+              <a href="author.html#109">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-07-29 12:14:50 +0200 (Sun, 29 Jul 2007)
+New Revision: 1152
+
+Added:
+   antargis/branches/rant/ruby/tests/path/
+   antargis/branches/rant/ruby/tests/path/fields_test.rb
+   antargis/branches/rant/ruby/tests/path/fields_test2.rb
+Log:
+* more missing files
+
+
+Added: antargis/branches/rant/ruby/tests/path/fields_test.rb
+===================================================================
+--- antargis/branches/rant/ruby/tests/path/fields_test.rb	2007-07-29 10:14:20 UTC (rev 1151)
++++ antargis/branches/rant/ruby/tests/path/fields_test.rb	2007-07-29 10:14:50 UTC (rev 1152)
+@@ -0,0 +1,84 @@
++#!/usr/bin/env ruby
++
++$:.push(&quot;ext&quot;)
++ENV[&quot;PATH&quot;]+=&quot;./ext&quot;
++
++require 'antargisgame.so'
++
++include Antargisgame
++include Antargisgui
++include Antargisvideo
++include Antargismath
++include Antargisbasic
++
++getMain.getVideo.initVideo(640,480,32,false,false)
++
++w=16
++h=16
++
++heightMap=HeightMap.new(nil,w,h)
++
++(0..w).each{|x|
++	(0..h).each{|y|
++		heightMap.set(x,y,rand)
++	}
++}
++
++
++heightMap=AntMap.new(nil,64,64)
++heightMap.loadMap(&quot;data/levels/birth/birth2.antlvl&quot;)
++
++
++w=heightMap.getW
++h=heightMap.getH
++
++puts &quot;W:#{w} H:#{h}&quot;
++#exit
++
++distComputer=DistanceComputer.new(heightMap,1)
++
++pathData=PathV3Data.new(8)
++
++pathData.compute(distComputer)
++
++fsize=4
++
++image=AGSurface.new(w*fsize,h*fsize)
++
++def getColor(i)
++	j=i%8
++	j+=1
++	#puts &quot;J:#{j}&quot;
++	AGColor.new((j % 2)*255, ((j /2)%2)*255, (j / 4).to_i*255) #*(255.0-(i*2)/255.0)
++end
++
++
++(0..(w-1)).each{|x|
++	(0..(h-1)).each{|y|
++		fieldnum=pathData.getField(AGVector2.new(x,y))
++		if fieldnum&lt;20000
++			puts &quot;field:#{fieldnum}&quot;
++			color=getColor(fieldnum)
++			puts &quot;COLOR:#{color}&quot;
++			(0..(fsize-1)).each{|dx|
++				(0..(fsize-1)).each{|dy|
++					image.putPixel(x*fsize+dx,y*fsize+dy,color)
++				}
++			}
++		end
++	}
++}
++
++
++#texture=AGTexture.new(image)
++
++app=AGApplication.new
++imageW=AGImage.new(nil,AGRect2.new(0,0,w*fsize,h*fsize),image,false)
++#imageW.setSurface(image)
++app.setMainWidget(imageW)
++app.run
++
++#getScreen.blit(texture,AGRect2.new(0,0,w*fsize,h*fsize),AGRect2.new(0,0,w*fsize,h*fsize))
++#getScreen.flip
++
++#getMain.delay(20000)
+
+Added: antargis/branches/rant/ruby/tests/path/fields_test2.rb
+===================================================================
+--- antargis/branches/rant/ruby/tests/path/fields_test2.rb	2007-07-29 10:14:20 UTC (rev 1151)
++++ antargis/branches/rant/ruby/tests/path/fields_test2.rb	2007-07-29 10:14:50 UTC (rev 1152)
+@@ -0,0 +1,92 @@
++#!/usr/bin/env ruby
++
++$:.push(&quot;ext&quot;)
++ENV[&quot;PATH&quot;]+=&quot;./ext&quot;
++
++require 'antargisgame.so'
++
++include Antargisgame
++include Antargisgui
++include Antargisvideo
++include Antargismath
++include Antargisbasic
++
++getMain.getVideo.initVideo(640,480,32,false,false)
++
++w=16
++h=16
++
++heightMap=HeightMap.new(nil,w,h)
++
++(0..w).each{|x|
++	(0..h).each{|y|
++		heightMap.set(x,y,rand)
++	}
++}
++
++
++heightMap=AntMap.new(nil,64,64)
++heightMap.loadMap(&quot;data/levels/birth/birth2.antlvl&quot;)
++
++
++w=heightMap.getW
++h=heightMap.getH
++
++puts &quot;W:#{w} H:#{h}&quot;
++#exit
++
++distComputer=DistanceComputer.new(heightMap,1)
++
++fieldCollection=FieldCollection.new
++
++assignFields(fieldCollection,distComputer,32)
++
++# puts &quot;ok&quot;
++# exit
++
++# pathData=PathV3Data.new(8)
++# 
++# pathData.compute(distComputer)
++
++fsize=4
++
++image=AGSurface.new(w*fsize,h*fsize)
++
++def getColor(i)
++	j=i%8
++	j+=1
++	#puts &quot;J:#{j}&quot;
++	AGColor.new((j % 2)*255, ((j /2)%2)*255, (j / 4).to_i*255) #*(255.0-(i*2)/255.0)
++end
++
++
++(0..(w-1)).each{|x|
++	(0..(h-1)).each{|y|
++		#fieldnum=pathData.getField(AGVector2.new(x,y))
++		fieldnum=fieldCollection.getFieldId(AGVector2.new(x,y))
++		if fieldnum&lt;20000
++			#puts &quot;field:#{fieldnum}&quot;
++			color=getColor(fieldnum)
++			#puts &quot;COLOR:#{color}&quot;
++			(0..(fsize-1)).each{|dx|
++				(0..(fsize-1)).each{|dy|
++					image.putPixel(x*fsize+dx,y*fsize+dy,color)
++				}
++			}
++		end
++	}
++}
++
++
++#texture=AGTexture.new(image)
++
++app=AGApplication.new
++imageW=AGImage.new(nil,AGRect2.new(0,0,w*fsize,h*fsize),image,false)
++#imageW.setSurface(image)
++app.setMainWidget(imageW)
++app.run
++
++#getScreen.blit(texture,AGRect2.new(0,0,w*fsize,h*fsize),AGRect2.new(0,0,w*fsize,h*fsize))
++#getScreen.flip
++
++#getMain.delay(20000)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000108.html">[Antargis-svn] r1151 - antargis/branches/rant/ext/game
+</A></li>
+	<LI>Next message: <A HREF="000110.html">[Antargis-svn] r1153 - in antargis/branches/rant: . ext/3dengine	ext/basic ext/game ext/gui ext/math ext/sound ext/video
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#109">[ date ]</a>
+              <a href="thread.html#109">[ thread ]</a>
+              <a href="subject.html#109">[ subject ]</a>
+              <a href="author.html#109">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,1720 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1083 - in antargis/branches/branch_2d:	data/textures/2d data/textures/2d/terrain gui/src ruby	ruby/tests src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-May/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1083%20-%20in%20antargis/branches/branch_2d%3A%0A%09data/textures/2d%20data/textures/2d/terrain%20gui/src%20ruby%0A%09ruby/tests%20src&In-Reply-To=%3C200705051056.l45AuLkl008848%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000040.html">
+   <LINK REL="Next"  HREF="000042.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1083 - in antargis/branches/branch_2d:	data/textures/2d data/textures/2d/terrain gui/src ruby	ruby/tests src</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1083%20-%20in%20antargis/branches/branch_2d%3A%0A%09data/textures/2d%20data/textures/2d/terrain%20gui/src%20ruby%0A%09ruby/tests%20src&In-Reply-To=%3C200705051056.l45AuLkl008848%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1083 - in antargis/branches/branch_2d:	data/textures/2d data/textures/2d/terrain gui/src ruby	ruby/tests src">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sat May  5 12:56:21 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000040.html">[Antargis-svn] r1082 - in antargis/branches/branch_2d:	data/textures/2d/terrain ruby ruby/tests src
+</A></li>
+        <LI>Next message: <A HREF="000042.html">[Antargis-svn] r1084 - antargis/branches/branch_2d/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#41">[ date ]</a>
+              <a href="thread.html#41">[ thread ]</a>
+              <a href="subject.html#41">[ subject ]</a>
+              <a href="author.html#41">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-05-05 12:55:33 +0200 (Sat, 05 May 2007)
+New Revision: 1083
+
+Added:
+   antargis/branches/branch_2d/data/textures/2d/arrow.png
+   antargis/branches/branch_2d/data/textures/2d/bakery.png
+   antargis/branches/branch_2d/data/textures/2d/boat.png
+   antargis/branches/branch_2d/data/textures/2d/buildingsite.png
+   antargis/branches/branch_2d/data/textures/2d/coach.png
+   antargis/branches/branch_2d/data/textures/2d/druid.png
+   antargis/branches/branch_2d/data/textures/2d/dwelling.png
+   antargis/branches/branch_2d/data/textures/2d/farm.png
+   antargis/branches/branch_2d/data/textures/2d/field.png
+   antargis/branches/branch_2d/data/textures/2d/fire.png
+   antargis/branches/branch_2d/data/textures/2d/fish.png
+   antargis/branches/branch_2d/data/textures/2d/fishing_hut.png
+   antargis/branches/branch_2d/data/textures/2d/floor_deco.png
+   antargis/branches/branch_2d/data/textures/2d/floor_gravel.png
+   antargis/branches/branch_2d/data/textures/2d/graph.png
+   antargis/branches/branch_2d/data/textures/2d/graph2.png
+   antargis/branches/branch_2d/data/textures/2d/grave.png
+   antargis/branches/branch_2d/data/textures/2d/grave_hero.png
+   antargis/branches/branch_2d/data/textures/2d/hero.png
+   antargis/branches/branch_2d/data/textures/2d/impostor3.png
+   antargis/branches/branch_2d/data/textures/2d/man.png
+   antargis/branches/branch_2d/data/textures/2d/mill.png
+   antargis/branches/branch_2d/data/textures/2d/mine.png
+   antargis/branches/branch_2d/data/textures/2d/rip.png
+   antargis/branches/branch_2d/data/textures/2d/sack.png
+   antargis/branches/branch_2d/data/textures/2d/sheep.png
+   antargis/branches/branch_2d/data/textures/2d/smith.png
+   antargis/branches/branch_2d/data/textures/2d/stone.png
+   antargis/branches/branch_2d/data/textures/2d/terrain/basic_grass2.png
+   antargis/branches/branch_2d/data/textures/2d/terrain/full_grass.png
+   antargis/branches/branch_2d/data/textures/2d/terrain/full_grass2.png
+   antargis/branches/branch_2d/data/textures/2d/terrain/full_water.png
+   antargis/branches/branch_2d/data/textures/2d/tower.png
+   antargis/branches/branch_2d/data/textures/2d/townhall.png
+   antargis/branches/branch_2d/data/textures/2d/tree.png
+   antargis/branches/branch_2d/data/textures/2d/twig.png
+   antargis/branches/branch_2d/data/textures/2d/well.png
+   antargis/branches/branch_2d/data/textures/2d/wolf.png
+   antargis/branches/branch_2d/data/textures/2d/workshop.png
+   antargis/branches/branch_2d/ruby/terrain_2d.rb
+   antargis/branches/branch_2d/ruby/two_d_app.rb
+Modified:
+   antargis/branches/branch_2d/gui/src/ag_debug.h
+   antargis/branches/branch_2d/gui/src/ag_main.h
+   antargis/branches/branch_2d/gui/src/ag_sdlsurface.cc
+   antargis/branches/branch_2d/gui/src/ag_sdlsurface.h
+   antargis/branches/branch_2d/ruby/ant_fir.rb
+   antargis/branches/branch_2d/ruby/ant_fire.rb
+   antargis/branches/branch_2d/ruby/ant_grass.rb
+   antargis/branches/branch_2d/ruby/ant_ring.rb
+   antargis/branches/branch_2d/ruby/ant_workshop.rb
+   antargis/branches/branch_2d/ruby/antargislib.rb
+   antargis/branches/branch_2d/ruby/tests/scene_2d.rb
+   antargis/branches/branch_2d/ruby/view.rb
+   antargis/branches/branch_2d/src/height_map.cc
+   antargis/branches/branch_2d/src/height_map.h
+   antargis/branches/branch_2d/src/map.cc
+   antargis/branches/branch_2d/src/map.h
+   antargis/branches/branch_2d/src/mesh_2d.cc
+   antargis/branches/branch_2d/src/mesh_2d.h
+   antargis/branches/branch_2d/src/minimap.cc
+   antargis/branches/branch_2d/src/minimap.h
+   antargis/branches/branch_2d/src/nantmarker.hh
+   antargis/branches/branch_2d/src/scene.cc
+   antargis/branches/branch_2d/src/scene_2d.cc
+   antargis/branches/branch_2d/src/scene_2d.h
+   antargis/branches/branch_2d/src/terrain.cc
+   antargis/branches/branch_2d/src/terrain.h
+   antargis/branches/branch_2d/src/water.cc
+   antargis/branches/branch_2d/src/water.h
+Log:
+* improvements concercing 2d and added missing files
+
+
+Added: antargis/branches/branch_2d/data/textures/2d/arrow.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/arrow.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/branch_2d/data/textures/2d/bakery.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/bakery.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/branch_2d/data/textures/2d/boat.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/boat.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/branch_2d/data/textures/2d/buildingsite.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/buildingsite.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/branch_2d/data/textures/2d/coach.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/coach.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/branch_2d/data/textures/2d/druid.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/druid.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/branch_2d/data/textures/2d/dwelling.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/dwelling.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/branch_2d/data/textures/2d/farm.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/farm.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/branch_2d/data/textures/2d/field.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/field.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/branch_2d/data/textures/2d/fire.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/fire.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/branch_2d/data/textures/2d/fish.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/fish.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/branch_2d/data/textures/2d/fishing_hut.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/fishing_hut.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/branch_2d/data/textures/2d/floor_deco.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/floor_deco.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/branch_2d/data/textures/2d/floor_gravel.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/floor_gravel.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/branch_2d/data/textures/2d/graph.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/graph.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/branch_2d/data/textures/2d/graph2.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/graph2.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/branch_2d/data/textures/2d/grave.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/grave.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/branch_2d/data/textures/2d/grave_hero.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/grave_hero.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/branch_2d/data/textures/2d/hero.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/hero.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/branch_2d/data/textures/2d/impostor3.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/impostor3.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/branch_2d/data/textures/2d/man.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/man.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/branch_2d/data/textures/2d/mill.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/mill.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/branch_2d/data/textures/2d/mine.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/mine.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/branch_2d/data/textures/2d/rip.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/rip.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/branch_2d/data/textures/2d/sack.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/sack.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/branch_2d/data/textures/2d/sheep.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/sheep.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/branch_2d/data/textures/2d/smith.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/smith.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/branch_2d/data/textures/2d/stone.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/stone.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/branch_2d/data/textures/2d/terrain/basic_grass2.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/terrain/basic_grass2.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/branch_2d/data/textures/2d/terrain/full_grass.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/terrain/full_grass.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/branch_2d/data/textures/2d/terrain/full_grass2.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/terrain/full_grass2.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/branch_2d/data/textures/2d/terrain/full_water.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/terrain/full_water.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/branch_2d/data/textures/2d/tower.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/tower.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/branch_2d/data/textures/2d/townhall.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/townhall.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/branch_2d/data/textures/2d/tree.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/tree.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/branch_2d/data/textures/2d/twig.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/twig.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/branch_2d/data/textures/2d/well.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/well.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/branch_2d/data/textures/2d/wolf.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/wolf.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/branch_2d/data/textures/2d/workshop.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/branch_2d/data/textures/2d/workshop.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Modified: antargis/branches/branch_2d/gui/src/ag_debug.h
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_debug.h	2007-05-02 19:04:59 UTC (rev 1082)
++++ antargis/branches/branch_2d/gui/src/ag_debug.h	2007-05-05 10:55:33 UTC (rev 1083)
+@@ -99,8 +99,8 @@
+ void agRaise(const std::string &amp;s);
+ 
+ #ifndef __WIN32__
+-//#undef assert
+-//#define assert(x) {if(!(x)) agRaise((::toString(&quot;assert failed &quot;)+LINEINFO(__STRING(x))).c_str()); }
++#undef assert
++#define assert(x) {if(!(x)) agRaise((::toString(&quot;assert failed &quot;)+LINEINFO(__STRING(x))).c_str()); }
+ #endif
+ 
+ #define Assert(x) assert(x)
+
+Modified: antargis/branches/branch_2d/gui/src/ag_main.h
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_main.h	2007-05-02 19:04:59 UTC (rev 1082)
++++ antargis/branches/branch_2d/gui/src/ag_main.h	2007-05-05 10:55:33 UTC (rev 1083)
+@@ -97,6 +97,7 @@
+ // from ag_debug
+ size_t getDebugLevel();
+ void setDebugLevel(size_t t);
++void setRubyRaising(bool flag);
+ 
+ 
+ #endif
+
+Modified: antargis/branches/branch_2d/gui/src/ag_sdlsurface.cc
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_sdlsurface.cc	2007-05-02 19:04:59 UTC (rev 1082)
++++ antargis/branches/branch_2d/gui/src/ag_sdlsurface.cc	2007-05-05 10:55:33 UTC (rev 1083)
+@@ -70,6 +70,15 @@
+ 		      (int)(pRect.y()+pRect.h()-1),
+ 		      c.mapRGB(s-&gt;format),c.a);
+ }
++
++void AGSDLScreen::fillRects(const std::vector&lt;std::pair&lt;AGRect2,AGVector4&gt; &gt; &amp;pRects)
++{
++  for(std::vector&lt;std::pair&lt;AGRect2,AGVector4&gt; &gt;::const_iterator i=pRects.begin();i!=pRects.end();i++)
++    {
++      fillRect(i-&gt;first,i-&gt;second);
++    }
++}
++
+ void AGSDLScreen::blit(const AGTexture &amp;pSource,const AGRect2 &amp;pDest,const AGRect2 &amp;pSrc)
+ {
+   SDL_Rect sr=pSrc.sdl();
+
+Modified: antargis/branches/branch_2d/gui/src/ag_sdlsurface.h
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_sdlsurface.h	2007-05-02 19:04:59 UTC (rev 1082)
++++ antargis/branches/branch_2d/gui/src/ag_sdlsurface.h	2007-05-05 10:55:33 UTC (rev 1083)
+@@ -35,6 +35,7 @@
+   virtual AGRect2 getRect() const;
+ 
+   virtual void fillRect(const AGRect2 &amp;pRect,const AGColor &amp;c);
++  virtual void fillRects(const std::vector&lt;std::pair&lt;AGRect2,AGVector4&gt; &gt; &amp;pRects);
+   virtual void drawLine(const AGVector2 &amp;p0,const AGVector2 &amp;p1,const AGColor &amp;c);
+ 
+   virtual void drawGradientAlpha(const AGRect2&amp; rect, const AGColor&amp; ul, const AGColor&amp; ur, const AGColor&amp; dl, const AGColor&amp; dr);
+
+Modified: antargis/branches/branch_2d/ruby/ant_fir.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_fir.rb	2007-05-02 19:04:59 UTC (rev 1082)
++++ antargis/branches/branch_2d/ruby/ant_fir.rb	2007-05-05 10:55:33 UTC (rev 1083)
+@@ -85,6 +85,10 @@
+ 	
+ protected
+ 	def setupMesh
+-		setMesh(makeBirchTreeMesh)
++		if MyAntargislib.opengl
++			setMesh(makeBirchTreeMesh)
++		else
++			puts &quot;NO BIRCHES WITHOUT GL ATM&quot;
++		end
+ 	end
+ end
+
+Modified: antargis/branches/branch_2d/ruby/ant_fire.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_fire.rb	2007-05-02 19:04:59 UTC (rev 1082)
++++ antargis/branches/branch_2d/ruby/ant_fire.rb	2007-05-05 10:55:33 UTC (rev 1083)
+@@ -3,23 +3,25 @@
+ 		super
+ 		mp=AGVector3.new(0,0,0)
+ 		setMesh(:on)
+-# 		mesh=Mesh.new(getMap.getScene,getMeshData(&quot;data/models/fire.ant2&quot;,0.3,&quot;data/textures/models/fire.png&quot;),AGVector4.new(0,0,0),0)
+-# 		setMesh(mesh)
+-		@smokeMesh=Smoke.new(getMap.getScene,4)
+-		addMesh(@smokeMesh,mp)
+-		smoke=Smoke.new(getMap.getScene,40)
+-		smoke.setFire(true)
+-		smoke.setMaxTime(0.8)
+-		addMesh(smoke,mp)
++		if MyAntargislib.opengl
++			@smokeMesh=Smoke.new(getMap.getScene,4)
++			addMesh(@smokeMesh,mp)
++			smoke=Smoke.new(getMap.getScene,40)
++			smoke.setFire(true)
++			smoke.setMaxTime(0.8)
++			addMesh(smoke,mp)
++		end
+ 		setPos(AGVector2.new(p.x,p.y))
+ 		@enabled=true
+ 	end
+ 	def disable
+ 		setMesh(:off)
+-		#setMesh(Mesh.new(getMap.getScene,getMeshData(&quot;data/models/fire.ant2&quot;,0.3,&quot;data/textures/models/fire2.png&quot;),AGVector4.new(0,0,0),0))
+-		getMap.getScene.addNode(@smokeMesh) # FIXME: dirty hack - solve this another way!!!
+-		addMesh(@smokeMesh,AGVector3.new(0,0,0))
+-		@smokeMesh.setEnabled(false)
++		if MyAntargislib.opengl
++			#setMesh(Mesh.new(getMap.getScene,getMeshData(&quot;data/models/fire.ant2&quot;,0.3,&quot;data/textures/models/fire2.png&quot;),AGVector4.new(0,0,0),0))
++			getMap.getScene.addNode(@smokeMesh) # FIXME: dirty hack - solve this another way!!!
++			addMesh(@smokeMesh,AGVector3.new(0,0,0))
++			@smokeMesh.setEnabled(false)
++		end
+ 		@enabled=false
+ 	end
+ 	def loadXML(n)
+
+Modified: antargis/branches/branch_2d/ruby/ant_grass.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_grass.rb	2007-05-02 19:04:59 UTC (rev 1082)
++++ antargis/branches/branch_2d/ruby/ant_grass.rb	2007-05-05 10:55:33 UTC (rev 1083)
+@@ -195,7 +195,11 @@
+ 	
+ 	private
+ 	def setupMesh
+-		setMesh(makeGrassMesh(@size))
++		if MyAntargislib.opengl
++			setMesh(makeGrassMesh(@size))
++		else
++			puts &quot;PROBLEM: NO GRASS WITHOUT GL!&quot;
++		end
+ 	end
+ end
+ 
+@@ -219,7 +223,11 @@
+ 	
+ 	private
+ 	def setupMesh
+-		setMesh(makeBushMesh(@size*3))
++		if MyAntargislib.opengl
++			setMesh(makeBushMesh(@size*3))
++		else
++			puts &quot;PROBLEM: NO GRASS WITHOUT GL!&quot;
++		end
+ 	end
+ end
+ 
+
+Modified: antargis/branches/branch_2d/ruby/ant_ring.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_ring.rb	2007-05-02 19:04:59 UTC (rev 1082)
++++ antargis/branches/branch_2d/ruby/ant_ring.rb	2007-05-05 10:55:33 UTC (rev 1083)
+@@ -78,12 +78,14 @@
+ 
+ 
+ def makeRingMesh
++	return AntModels.createModel(:sack) if not opengl # FIXME
+ 	mesh=ColoredMesh.new(getMap.getScene,RingData.getRingData,AGVector4.new(0,0,0,0),0)
+ 	mesh.setOrder(RING_Z)
+ 	return mesh
+ end
+ 
+ def makeBigRingMesh
++	return AntModels.createModel(:sack) if not opengl # FIXME
+ 	mesh=ColoredMesh.new(getMap.getScene,RingData.getRingData(4),AGVector4.new(0,0,0,0),0)
+ 	mesh.setOrder(RING_Z)
+ 	return mesh
+
+Modified: antargis/branches/branch_2d/ruby/ant_workshop.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_workshop.rb	2007-05-02 19:04:59 UTC (rev 1082)
++++ antargis/branches/branch_2d/ruby/ant_workshop.rb	2007-05-05 10:55:33 UTC (rev 1083)
+@@ -43,8 +43,10 @@
+ 	def setupMesh
+ 		setMesh
+ 		p=AGVector3.new(-1.3,-1.2,2.2)
+-		addMesh(@smokeMesh=Smoke.new(getMap.getScene,5),p)
+-		checkSmoke
++		if opengl
++			addMesh(@smokeMesh=Smoke.new(getMap.getScene,5),p)
++			checkSmoke
++		end
+ 	end
+ protected
+ 	
+
+Modified: antargis/branches/branch_2d/ruby/antargislib.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/antargislib.rb	2007-05-02 19:04:59 UTC (rev 1082)
++++ antargis/branches/branch_2d/ruby/antargislib.rb	2007-05-05 10:55:33 UTC (rev 1083)
+@@ -139,6 +139,8 @@
+ 					when &quot;gui-test&quot;
+ 						require 'ruby/tests/gui_tests.rb'
+ 						@@cursorEnabled=true
++					when &quot;ruby-raise&quot;
++						setRubyRaising(true)
+ 					when &quot;help&quot;,&quot;h&quot;
+ 						STDERR.puts &quot;Possible options:
+ 	--help         show this help message
+@@ -162,6 +164,7 @@
+ 	--debug-level=x
+ 
+ 	--nogl         disable GL-mode (3d-acceleration) - THIS IS NOT YET FULLY SUPPORTED!!
++	--ruby-raise   raise exceptions as ruby-exceptions
+ 	&quot;
+ 	
+ 						exit
+@@ -225,6 +228,9 @@
+ 	def MyAntargislib.demoMode
+ 		$demoMove
+ 	end
++	def MyAntargislib.opengl
++		@@opengl
++	end
+ end
+ 
+ def demoMode
+
+Added: antargis/branches/branch_2d/ruby/terrain_2d.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/terrain_2d.rb	2007-05-02 19:04:59 UTC (rev 1082)
++++ antargis/branches/branch_2d/ruby/terrain_2d.rb	2007-05-05 10:55:33 UTC (rev 1083)
+@@ -0,0 +1,40 @@
++class Terrain2D&lt;TerrainBase
++	def initialize(scene,map)
++		super
++		@scene=scene
++		@map=map
++		createTiles
++	end
++
++	def createTiles
++		@textures={
++			:grass=&gt;AGTexture.new(AGSurface.load(&quot;data/textures/2d/terrain/full_grass.png&quot;)),
++			:grass2=&gt;AGTexture.new(AGSurface.load(&quot;data/textures/2d/terrain/full_grass2.png&quot;)),
++			:water=&gt;AGTexture.new(AGSurface.load(&quot;data/textures/2d/terrain/full_water.png&quot;))
++		}
++		@meshdata={}
++		@textures.each{|k,v|
++			@meshdata[k]=Mesh2DData.new(v)
++		}
++
++		(0..(@map.getW/4-2)).each{|x|
++			(0..(@map.getH/2-1)).each{|y|
++				ix=x
++				iy=y
++				ix*=4
++				iy*=2
++				v=AGVector4.new(ix,iy,0,1)
++				t=:grass
++				if @map.getHeight(ix+2,iy+1)&lt;0
++					t=:water
++				end
++# 				if x+y&gt;5
++# 					t=:grass2
++# 				end
++				mesh=Mesh2D.new(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">scene, at meshdata</A>[t],v,0)
++				@scene.addNode(mesh)
++				mesh.setOrder(TERRAIN_Z)
++			}
++		}
++	end
++end
+
+Modified: antargis/branches/branch_2d/ruby/tests/scene_2d.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/tests/scene_2d.rb	2007-05-02 19:04:59 UTC (rev 1082)
++++ antargis/branches/branch_2d/ruby/tests/scene_2d.rb	2007-05-05 10:55:33 UTC (rev 1083)
+@@ -8,9 +8,45 @@
+ 	t=AGTexture.new(AGSurface.load(&quot;data/textures/2d/#{type}.png&quot;))
+ 	data=Mesh2DData.new(t)
+ 	mesh=Mesh2D.new(scene,data,AGVector4.new(0,0,0,1),0)
++	mesh.setOrder(TREE_Z)
++	mesh
+ end
+ 
+-class MyTerrain&lt;SceneNode
++class MyTerrain #&lt;TerrainBase
++	def initialize(scene,map)
++		#super
++		@scene=scene
++
++		createTiles
++	end
++
++	def createTiles
++		@textures={
++			:grass=&gt;AGTexture.new(AGSurface.load(&quot;data/textures/2d/terrain/basic_grass.png&quot;)),
++			:grass2=&gt;AGTexture.new(AGSurface.load(&quot;data/textures/2d/terrain/basic_grass2.png&quot;))
++		}
++		@meshdata={}
++		@textures.each{|k,v|
++			@meshdata[k]=Mesh2DData.new(v)
++		}
++
++		(0..10).each{|x|
++			(0..100).each{|y|
++				ix=x*2+(y % 2)
++				iy=y
++				ix*=64
++				iy*=32
++				v=AGVector4.new(ix,iy,0,1)
++				t=:grass
++				if x+y&gt;5
++					t=:grass2
++				end
++				mesh=Mesh2D.new(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">scene, at meshdata</A>[t],v,0)
++				@scene.addNode(mesh)
++				mesh.setOrder(TERRAIN_Z)
++			}
++		}
++	end
+ end
+ 
+ 
+@@ -19,10 +55,13 @@
+ 		super
+ 		@scene=Scene2D.new(r.width.to_i,r.height.to_i)
+ 		mesh=makeExampleMesh(@scene,:farm)
++		mesh.setPos(AGVector3.new(130,50,0))
+ 		@scene.addNode(mesh)
+ 		mesh=makeExampleMesh(@scene,:tree)
+ 		mesh.setPos(AGVector3.new(300,50,0))
+ 		@scene.addNode(mesh)
++
++		@terrain=MyTerrain.new(@scene,nil)
+ 	end
+ 	def draw(p)
+ 		@scene.setPainter(p)
+
+Added: antargis/branches/branch_2d/ruby/two_d_app.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/two_d_app.rb	2007-05-02 19:04:59 UTC (rev 1082)
++++ antargis/branches/branch_2d/ruby/two_d_app.rb	2007-05-05 10:55:33 UTC (rev 1083)
+@@ -0,0 +1,121 @@
++require 'terrain_2d.rb'
++
++class Scene2D
++	def getPickTriangles
++		0
++	end
++	def getTriangles
++		0
++	end
++	def getDrawnMeshes
++		0
++	end
++end
++
++class GLApp&lt;AGApplication
++	def initialize(w,h)
++		super()
++		@scene=Scene2D.new(w,h)
++		@submain=nil
++	end
++
++	def draw
++		p=AGPainter.new
++		@scene.setPainter(p)
++		@scene.draw
++		@scene.discardPainter
++		super
++	end
++	def getScene
++		@scene
++	end
++	def setCamera(p)
++		@scene.setCamera(AGVector4.new(p.x,p.y,0))
++	end
++	def eventFrame(t)
++	end
++# 	def eventMouseMotion(e)
++# 		super
++# 	end
++	def eventKeyDown(e)
++		super
++	end
++# 	def eventMouseButtonDown(e)
++# 		super
++# 	end
++# 	def eventMouseButtonUp(e)
++# 		super
++# 	end
++
++	def eventMouseButtonDown(e)
++		#raise 1
++		case e.getButton
++			when 1
++				@mousePos=e.getMousePosition
++		end
++		@mayclick=true
++		super
++	end
++	def eventMouseButtonUp(e)
++		case e.getButton
++			when 1
++				@mousePos=nil
++		end
++		if @mayclick
++			nodes=tryClick(e.getMousePosition)
++			nodes.each{|n|
++				puts &quot;NODE:&quot;+(getMap.getEntity(n).to_s)
++			}
++			eventClick(nodes,e.getButton)
++		end
++		super
++	end
++	def eventMouseMotion(e)
++		@mayclick=false
++		if @mousePos
++			diff=<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">e.getMousePosition- at mousePos</A>
++			diff=diff*0.03
++			@mousePos=e.getMousePosition
++			p=@scene.getCamera.dim2+AGVector2.new(-diff[0],diff[1])
++			@scene.setCamera(AGVector4.new(p[0],p[1],0,1))
++			#queryRedraw
++		end
++		super
++	end
++	private
++	def tryClick(pos)
++		nodes=@scene.pick(pos.x,pos.y,1,1)	
++	end
++end
++
++require 'map.rb'
++
++class AntRubyMap
++	def initTerrainMesh
++		setTerrain(Terrain2D.new(getScene,self))
++	end
++end
++
++
++require 'ant_models.rb'
++
++module AntModels
++	def AntModels.createModel(entityType,subType=nil,angle=nil)
++		trace
++		type=entityType
++		t=AGTexture.new(AGSurface.load(&quot;data/textures/2d/#{type}.png&quot;))
++		data=Mesh2DData.new(t)
++		mesh=Mesh2D.new(getMap.getScene,data,AGVector4.new(0,0,0,1),0)
++		mesh.setOrder(TREE_Z)
++		mesh
++	end
++end
++
++
++# some hacks
++class Mesh2D
++	def setRingColor(c)
++	end
++	def setAnimation(a)
++	end
++end
+\ No newline at end of file
+
+Modified: antargis/branches/branch_2d/ruby/view.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/view.rb	2007-05-02 19:04:59 UTC (rev 1082)
++++ antargis/branches/branch_2d/ruby/view.rb	2007-05-05 10:55:33 UTC (rev 1083)
+@@ -28,6 +28,10 @@
+ require 'ant_inventory.rb'
+ require 'ant_energy.rb'
+ 
++if (not MyAntargislib.opengl)
++	require 'two_d_app.rb'
++end
++
+ class AntRubyView &lt;GLApp
+ 	def initialize(w,h)
+ 		super(w,h)
+
+Modified: antargis/branches/branch_2d/src/height_map.cc
+===================================================================
+--- antargis/branches/branch_2d/src/height_map.cc	2007-05-02 19:04:59 UTC (rev 1082)
++++ antargis/branches/branch_2d/src/height_map.cc	2007-05-05 10:55:33 UTC (rev 1083)
+@@ -11,7 +11,7 @@
+ 
+ std::vector&lt;float&gt; genSomeHeights(int mW,int mH,float mMaxHeight);
+ 
+-HeightMap::HeightMap(Scene *pScene,int w,int h):
++HeightMap::HeightMap(SceneBase *pScene,int w,int h):
+   sigMapChanged(this,&quot;mapChanged&quot;),
+   sigMapChangedComplete(this,&quot;mapChangedComplete&quot;),
+   mTerrainTypes(LASTTERRAIN+1),
+@@ -25,7 +25,7 @@
+     mTerrainTypes[TerrainType(t)]=genSomeHeights(w+2,h+2,1);
+ 
+   mTerrain=0;
+-  initTerrainMesh();
++  //  initTerrainMesh();
+ 
+ 
+   setTerrainScale(WATER,0);
+@@ -49,7 +49,14 @@
+     mTerrain=new Terrain(mScene,*this);
+ }
+ 
++void HeightMap::setTerrain(TerrainBase *pTerrain)
++{
++  assert(pTerrain);
++  assert(!mTerrain);
++  mTerrain=pTerrain;
++}
+ 
++
+ void HeightMap::setHeight(float height)
+ {
+   for(size_t y=0;y&lt;mH+2;y++)
+@@ -273,6 +280,8 @@
+ 	}
+     }
+   
++  checkTerrain();
++  
+   // compete change
+   if(mTerrain)
+     mTerrain-&gt;mapChangedComplete();
+@@ -294,8 +303,11 @@
+   for(int t=FIRSTTERRAIN;t&lt;LASTTERRAIN; t++)
+     mTerrainTypes[TerrainType(t)]=genSomeHeights(w+2,h+2,1);
+   
++  checkTerrain();
++
+   // compete change
+-  mTerrain-&gt;mapChangedComplete();
++  if(mTerrain)
++    mTerrain-&gt;mapChangedComplete();
+   //  mTerrain-&gt;addToScenes();
+   mChanges=0;
+   mChangeRect=AGRect2(AGVector2(),AGVector2());
+@@ -565,7 +577,7 @@
+   return s1*(1-mean)+s2*mean;
+ }
+ 
+-Scene *HeightMap::getScene()
++SceneBase *HeightMap::getScene()
+ {
+   return mScene;
+ }
+@@ -606,3 +618,15 @@
+     }
+   return found;
+ }
++
++void HeightMap::mark()
++{
++  if(mTerrain)
++    markObject(mTerrain);
++}
++
++void HeightMap::checkTerrain()
++{
++  if(!mTerrain)
++    initTerrainMesh();
++}
+
+Modified: antargis/branches/branch_2d/src/height_map.h
+===================================================================
+--- antargis/branches/branch_2d/src/height_map.h	2007-05-02 19:04:59 UTC (rev 1082)
++++ antargis/branches/branch_2d/src/height_map.h	2007-05-05 10:55:33 UTC (rev 1083)
+@@ -12,7 +12,7 @@
+ class AntEntityPtr;
+ class Scene;
+ class Mesh;
+-class Terrain;
++class TerrainBase;
+ 
+ enum TerrainType { WATER=0, SAND, EARTH, GRASS, GRASS2, FOREST, ROCK, ROCK2, LASTTERRAIN};
+ 
+@@ -21,7 +21,7 @@
+ class HeightMap:public AGMessageObject
+ {
+  public:
+-  HeightMap(Scene *pScene,int w,int h);
++  HeightMap(SceneBase *pScene,int w,int h);
+   virtual ~HeightMap();
+ 
+   // get status
+@@ -79,13 +79,20 @@
+   AGSignal sigMapChanged;
+   AGSignal sigMapChangedComplete;
+ 
+-  Scene *getScene();
++  SceneBase *getScene();
+ 
+   /// override this function to include another terrain-mesh-type (like 2d-terrain)
+   virtual void initTerrainMesh();
+ 
++  void mark();
++
++  /// to be used by initTerrainMesh() - not otherwise !!!
++  void setTerrain(TerrainBase *pTerrain);
++
+  private:
+ 
++  void checkTerrain();
++
+   void loadBinary(BinaryIn &amp;s);
+   void saveBinary(BinaryOut &amp;s) const;
+ 
+@@ -104,11 +111,11 @@
+   AGRect2 mChangeRect;
+   size_t mChanges;
+ 
+-  Scene *mScene;
++  SceneBase *mScene;
+ 
+  protected:
+ 
+-  Terrain *mTerrain;
++  TerrainBase *mTerrain;
+   AGString mName;
+ };
+ 
+
+Modified: antargis/branches/branch_2d/src/map.cc
+===================================================================
+--- antargis/branches/branch_2d/src/map.cc	2007-05-02 19:04:59 UTC (rev 1082)
++++ antargis/branches/branch_2d/src/map.cc	2007-05-05 10:55:33 UTC (rev 1083)
+@@ -44,7 +44,7 @@
+   return myAntargisMap;
+ }
+ 
+-AntMap::AntMap(Scene *pScene,int w,int h):
++AntMap::AntMap(SceneBase *pScene,int w,int h):
+   HeightMap(pScene,w,h),
+   mEntQuad(new QuadTree&lt;AntEntity&gt;(AGRect2(0,0,w,h))),
+   mHeuristicFunction(0)
+@@ -433,6 +433,17 @@
+   return 0;
+ }
+ 
++AntEntity *AntMap::getEntity(const Mesh2D &amp;pMesh)
++{
++  for(EntityList::iterator i=mEntities.begin();i!=mEntities.end();i++)
++    {
++      AntEntity::Meshes meshes=(*i)-&gt;getMesh();
++      if(std::find(meshes.begin(),meshes.end(),&amp;pMesh)!=meshes.end())
++	//      if((*i)-&gt;getMesh()==&amp;pMesh)
++	return *i;
++    }
++  return 0;
++}
+ 
+ 
+ 
+
+Modified: antargis/branches/branch_2d/src/map.h
+===================================================================
+--- antargis/branches/branch_2d/src/map.h	2007-05-02 19:04:59 UTC (rev 1082)
++++ antargis/branches/branch_2d/src/map.h	2007-05-05 10:55:33 UTC (rev 1083)
+@@ -37,13 +37,14 @@
+ class QuadTree;
+ 
+ class AnimMesh;
++class Mesh2D;
+ 
+ class AntMap:public HeightMap
+ {
+  public:
+   typedef std::list&lt;AntEntity*&gt; EntityList;
+ 
+-  AntMap(Scene *pScene,int w,int h);
++  AntMap(SceneBase *pScene,int w,int h);
+   ~AntMap();
+   
+   virtual void insertEntity(AntEntity *e);
+@@ -62,6 +63,7 @@
+ 
+   AntEntity *getEntity(const Mesh &amp;pMesh);
+   AntEntity *getEntity(const AnimMesh &amp;pMesh);
++  AntEntity *getEntity(const Mesh2D &amp;pMesh);
+   AntEntity *getEntity(int id) const;
+   AntEntity *getByName(const AGString &amp;pName);
+ 
+
+Modified: antargis/branches/branch_2d/src/mesh_2d.cc
+===================================================================
+--- antargis/branches/branch_2d/src/mesh_2d.cc	2007-05-02 19:04:59 UTC (rev 1082)
++++ antargis/branches/branch_2d/src/mesh_2d.cc	2007-05-05 10:55:33 UTC (rev 1083)
+@@ -17,20 +17,31 @@
+ 
+ void Mesh2D::draw()
+ {
+-  //FIXME: drawing
+   Scene2D *s=dynamic_cast&lt;Scene2D*&gt;(getScene());
+   assert(s);
+   AGPainter *painter=s-&gt;getPainter();
+ 
+   assert(painter);
++
++  AGRect2 r=getDrawingRect();
+   AGTexture *t=mData-&gt;getTexture();
++
++  //  cdebug(&quot;r:&quot;&lt;&lt;r);
++  painter-&gt;blit(*t,r);
++}
++
++AGRect2 Mesh2D::getDrawingRect()
++{
++  Scene2D *s=dynamic_cast&lt;Scene2D*&gt;(getScene());
++  assert(s);
++
++  AGTexture *t=mData-&gt;getTexture();
+   AGVector2 middle(s-&gt;getPosition(getPos()));
+   float w=t-&gt;width();
+   float h=t-&gt;height();
+   AGRect2 r(middle.getX()-w/2,middle.getY()-h/2,w,h);
+ 
+-  //  cdebug(&quot;r:&quot;&lt;&lt;r);
+-  painter-&gt;blit(*t,r);
++  return r;
+ }
+ 
+ AGVector4 Mesh2D::lineHit(const AGLine3 &amp;pLine) const
+@@ -60,3 +71,16 @@
+ {
+   markObject(mData);
+ }
++
++bool Mesh2D::hit(const AGVector2 &amp;screenPos)
++{
++  AGRect2 dRect=getDrawingRect();
++  if(dRect.contains(screenPos))
++    {
++      // check if texture is !=transparent there
++      AGVector2 p=screenPos-dRect.getV0();
++      return mData-&gt;getTexture()-&gt;getPixel(p[0],p[1]).a&gt;10; // some threshold here
++      
++    }
++  return false;
++}
+
+Modified: antargis/branches/branch_2d/src/mesh_2d.h
+===================================================================
+--- antargis/branches/branch_2d/src/mesh_2d.h	2007-05-02 19:04:59 UTC (rev 1082)
++++ antargis/branches/branch_2d/src/mesh_2d.h	2007-05-05 10:55:33 UTC (rev 1083)
+@@ -26,7 +26,12 @@
+ 
+   void mark();
+ 
++  bool hit(const AGVector2 &amp;screenPos);
++
+  public:
++
++  AGRect2 getDrawingRect();
++
+   Mesh2DData *mData;
+ };
+ 
+
+Modified: antargis/branches/branch_2d/src/minimap.cc
+===================================================================
+--- antargis/branches/branch_2d/src/minimap.cc	2007-05-02 19:04:59 UTC (rev 1082)
++++ antargis/branches/branch_2d/src/minimap.cc	2007-05-05 10:55:33 UTC (rev 1083)
+@@ -252,7 +252,7 @@
+       mapChangedComplete(0);
+     }
+ }
+-void MiniMap::setScene(Scene *pScene)
++void MiniMap::setScene(SceneBase *pScene)
+ {
+   mScene=pScene;
+ }
+
+Modified: antargis/branches/branch_2d/src/minimap.h
+===================================================================
+--- antargis/branches/branch_2d/src/minimap.h	2007-05-02 19:04:59 UTC (rev 1082)
++++ antargis/branches/branch_2d/src/minimap.h	2007-05-05 10:55:33 UTC (rev 1083)
+@@ -5,7 +5,7 @@
+ #include &lt;ag_widget.h&gt;
+ #include &lt;ag_texture.h&gt;
+ 
+-class Scene;
++class SceneBase;
+ 
+ /**
+    MiniMap is the small map in lower corner.
+@@ -34,7 +34,7 @@
+   void draw(AGPainter &amp;p);
+ 
+   void setMap(AntMap *pMap);
+-  void setScene(Scene *pScene);
++  void setScene(SceneBase *pScene);
+ 
+   virtual bool eventMouseClick(AGEvent *m);
+   virtual bool eventMouseButtonDown(AGEvent *m);
+@@ -52,7 +52,7 @@
+ 
+   float mMapBorder;
+   AntMap *mMap;
+-  Scene *mScene;
++  SceneBase *mScene;
+   AGTexture *mTexture;
+   AGSurface mSurface;
+ };
+
+Modified: antargis/branches/branch_2d/src/nantmarker.hh
+===================================================================
+--- antargis/branches/branch_2d/src/nantmarker.hh	2007-05-02 19:04:59 UTC (rev 1082)
++++ antargis/branches/branch_2d/src/nantmarker.hh	2007-05-05 10:55:33 UTC (rev 1083)
+@@ -188,6 +188,16 @@
+ 	result-&gt;mRubyObject=true;
+ }
+ %markfunc Pathfinder &quot;general_markfunc&quot;
++%exception TerrainBase::TerrainBase {
++	$action
++	result-&gt;mRUBY=self;
++#ifdef GCDEBUG
++     result-&gt;mObjName=typeid(*result).name();
++     printf(&quot;%lx   %s\n&quot;,self,typeid(*result).name());
++#endif
++	result-&gt;mRubyObject=true;
++}
++%markfunc TerrainBase &quot;general_markfunc&quot;
+ %exception AGComboBox::AGComboBox {
+ 	$action
+ 	result-&gt;mRUBY=self;
+@@ -308,6 +318,16 @@
+ 	result-&gt;mRubyObject=true;
+ }
+ %markfunc AntImpostorData &quot;general_markfunc&quot;
++%exception Terrain::Terrain {
++	$action
++	result-&gt;mRUBY=self;
++#ifdef GCDEBUG
++     result-&gt;mObjName=typeid(*result).name();
++     printf(&quot;%lx   %s\n&quot;,self,typeid(*result).name());
++#endif
++	result-&gt;mRubyObject=true;
++}
++%markfunc Terrain &quot;general_markfunc&quot;
+ %exception AGRadioGroup::AGRadioGroup {
+ 	$action
+ 	result-&gt;mRUBY=self;
+@@ -1242,6 +1262,38 @@
+  }
+  else $input=Qnil;
+ }
++%typemap(out) TerrainBase*{
++ if($1)
++ {
++  if($1-&gt;mRubyObject)
++    $result=$1-&gt;mRUBY;
++  else
++   {
++     if(false);
++else if(dynamic_cast&lt;Terrain*&gt;(result))
++  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_Terrain,0);
++   else
++     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_TerrainBase,0);
++   }
++ }
++ else vresult=Qnil;
++}
++%typemap(directorin) TerrainBase*{
++ if($1)
++ {
++  if($1-&gt;mRubyObject)
++    $input=$1-&gt;mRUBY;
++  else
++   {
++     if(false);
++else if(dynamic_cast&lt;Terrain*&gt;($1))
++  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_Terrain,0);
++   else
++     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_TerrainBase,0);
++   }
++ }
++ else $input=Qnil;
++}
+ %typemap(out) AGComboBox*{
+  if($1)
+  {
+@@ -1722,6 +1774,34 @@
+  }
+  else $input=Qnil;
+ }
++%typemap(out) Terrain*{
++ if($1)
++ {
++  if($1-&gt;mRubyObject)
++    $result=$1-&gt;mRUBY;
++  else
++   {
++     if(false);
++   else
++     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_Terrain,0);
++   }
++ }
++ else vresult=Qnil;
++}
++%typemap(directorin) Terrain*{
++ if($1)
++ {
++  if($1-&gt;mRubyObject)
++    $input=$1-&gt;mRUBY;
++  else
++   {
++     if(false);
++   else
++     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_Terrain,0);
++   }
++ }
++ else $input=Qnil;
++}
+ %typemap(out) AGRadioGroup*{
+  if($1)
+  {
+
+Modified: antargis/branches/branch_2d/src/scene.cc
+===================================================================
+--- antargis/branches/branch_2d/src/scene.cc	2007-05-02 19:04:59 UTC (rev 1082)
++++ antargis/branches/branch_2d/src/scene.cc	2007-05-05 10:55:33 UTC (rev 1083)
+@@ -13,47 +13,15 @@
+ #include &quot;quadtree.h&quot;
+ #include &quot;ag_profiler.h&quot;
+ #include &quot;ag_main.h&quot;
++#include &quot;mesh_sort.h&quot;
+ 
+ bool PickNode::operator&lt;(const PickNode &amp;n) const
+ {
+   return camDist&lt;n.camDist;
+ }
+ 
+-/**
+-   The class is for sorting purpose only. It provides the operator() function, that's needed
+-   for the STL-sorting algorithms.
+-   Here SceneNodes are sorted by their middle distance the camera.
+-*/
+-class SortDistance
+-{
+-  AGVector3 cam;
+-public:
+-  SortDistance(AGVector3 c):cam(c){}
+ 
+-  bool operator()(const SceneNode *n1,const SceneNode *n2)
+-  {
+-    AGVector3 m1=const_cast&lt;SceneNode*&gt;(n1)-&gt;bbox().base+const_cast&lt;SceneNode*&gt;(n1)-&gt;bbox().dir*0.5;
+-    AGVector3 m2=const_cast&lt;SceneNode*&gt;(n2)-&gt;bbox().base+const_cast&lt;SceneNode*&gt;(n2)-&gt;bbox().dir*0.5;
+ 
+-    return (m1-cam).length2()&lt;(m2-cam).length2();
+-  }
+-};
+-
+-/**
+-   This is a sorting class, too. It sorts by the given &quot;SortOrder&quot; of the scene-nodes
+-*/
+-class SortOrder
+-{
+-public:
+-  SortOrder(){}
+-
+-  bool operator()(const SceneNode *n1,const SceneNode *n2)
+-  {
+-    return n1-&gt;getOrder()&lt;n2-&gt;getOrder();
+-  }
+-};
+-
+-
+ Scene::Scene(int w,int h):
+   SceneBase(w,h)
+ {
+
+Modified: antargis/branches/branch_2d/src/scene_2d.cc
+===================================================================
+--- antargis/branches/branch_2d/src/scene_2d.cc	2007-05-02 19:04:59 UTC (rev 1082)
++++ antargis/branches/branch_2d/src/scene_2d.cc	2007-05-05 10:55:33 UTC (rev 1083)
+@@ -1,6 +1,8 @@
+ #ifndef NO
+ 
+ #include &quot;scene_2d.h&quot;
++#include &quot;mesh_2d.h&quot;
++#include &quot;mesh_sort.h&quot;
+ #include &lt;ag_debug.h&gt;
+ 
+ Scene2D::Scene2D(int w,int h):
+@@ -17,17 +19,47 @@
+   // FIXME
+   
+   NodeList nodeList=getCurrentNodes();
++  Nodes ns;
++  std::copy(nodeList.begin(),nodeList.end(),std::back_inserter(ns));
+ 
++
++  sort(ns.begin(),ns.end(),SortOrder());
++
+   //FIXME:sort!!
+ 
+-  for(NodeList::iterator i=nodeList.begin();i!=nodeList.end();i++)
++  for(Nodes::iterator i=ns.begin();i!=ns.end();i++)
+     (*i)-&gt;draw();
+ }
+ 
+ SceneBase::PickResult Scene2D::pick(float x,float y,float w,float h)
+ {
+-  throw std::runtime_error(&quot;FIXME&quot;);
+-  return PickResult();
++  PickResult result;
++  NodeList nodeList=getCurrentNodes();
++
++  Nodes ns;
++  std::copy(nodeList.begin(),nodeList.end(),std::back_inserter(ns));
++  sort(ns.begin(),ns.end(),SortOrder());
++
++  for(Nodes::reverse_iterator i=ns.rbegin();i!=ns.rend();i++)
++    {
++      Mesh2D*m=dynamic_cast&lt;Mesh2D*&gt;(*i);
++      if(m)
++	{
++	  if(m-&gt;hit(AGVector2(x,y)))
++	    {
++	      PickNode node;
++	      node.pos=m-&gt;getPos();
++	      node.node=m;
++	      node.camDist=0;
++
++	      cdebug(&quot;hit:&quot;&lt;&lt;node.pos&lt;&lt;&quot;   &quot;&lt;&lt;node.node);
++	      result.push_back(node);
++	    }
++	}
++    }
++  
++
++  return result;
+ }
+ 
+ AGVector2 Scene2D::getPosition(const AGVector4 &amp;v) const
+@@ -36,10 +68,17 @@
+   AGVector2 center(width()/2,height()/2);
+   AGVector2 cam(mCamera.getPosition().dim2());
+ 
+-  AGVector2 n=v.dim2()+center-cam;
++  AGVector2 n=v.dim2()-cam;
+ 
+   //  cdebug(&quot;n:&quot;&lt;&lt;n);
+ 
++  //  cdebug(&quot;n:&quot;&lt;&lt;n);
++  n*=32;
++  //  cdebug(&quot;n:&quot;&lt;&lt;n);
++
++  n+=center;
++
++
+   return AGVector2(n[0],height()-n[1]);
+ 
+   throw std::runtime_error(&quot;FIXME&quot;);
+
+Modified: antargis/branches/branch_2d/src/scene_2d.h
+===================================================================
+--- antargis/branches/branch_2d/src/scene_2d.h	2007-05-02 19:04:59 UTC (rev 1082)
++++ antargis/branches/branch_2d/src/scene_2d.h	2007-05-05 10:55:33 UTC (rev 1083)
+@@ -24,7 +24,7 @@
+   */
+   PickResult pick(float x,float y,float w,float h);
+ 
+-  AntCamera &amp;getCameraObject();
++  //  AntCamera &amp;getCameraObject();
+ 
+   AGVector2 getPosition(const AGVector4 &amp;v) const;
+ 
+
+Modified: antargis/branches/branch_2d/src/terrain.cc
+===================================================================
+--- antargis/branches/branch_2d/src/terrain.cc	2007-05-02 19:04:59 UTC (rev 1082)
++++ antargis/branches/branch_2d/src/terrain.cc	2007-05-05 10:55:33 UTC (rev 1083)
+@@ -13,7 +13,7 @@
+ //////////////////////////////////////////////////////////////////////////
+ // TerrainPiece
+ //////////////////////////////////////////////////////////////////////////
+-TerrainPiece::TerrainPiece(Scene *pScene,Terrain *t,HeightMap &amp;map,int xs,int ys,int w,int h,const AGVector4 &amp;pPos,int scale):
++TerrainPiece::TerrainPiece(SceneBase *pScene,Terrain *t,HeightMap &amp;map,int xs,int ys,int w,int h,const AGVector4 &amp;pPos,int scale):
+   SceneNode(pScene,AGVector4(),AGBox3()),
+   mXs(xs),mYs(ys),mW(w),mH(h),
+   mMap(&amp;map)
+@@ -215,7 +215,7 @@
+ ////////////////////////////////////////////////////////////////////////////
+ 
+ 
+-TerrainBase::TerrainBase(Scene *pScene,HeightMap &amp;map):
++TerrainBase::TerrainBase(SceneBase *pScene,HeightMap &amp;map):
+   mMap(&amp;map),mScene(pScene)
+ {
+   map.sigMapChanged.connect(slot(this,&amp;TerrainBase::slotMapChanged));
+@@ -238,7 +238,7 @@
+ }
+ 
+ 
+-Scene *TerrainBase::getScene()
++SceneBase *TerrainBase::getScene()
+ {
+   return mScene;
+ }
+@@ -261,7 +261,7 @@
+ // Terrain
+ ////////////////////////////////////////////////////////////////////////////
+ 
+-Terrain::Terrain(Scene *pScene,HeightMap &amp;map):
++Terrain::Terrain(SceneBase *pScene,HeightMap &amp;map):
+   TerrainBase(pScene,map),
+   m3D(getTextureCache()-&gt;get3D(&quot;data/textures/terrain/new3d.png&quot;,getTerrainDownScale(),getTerrainDownScaleZ())),
+   mGrass(getTextureCache()-&gt;get(&quot;data/textures/terrain/grass4.png&quot;))
+
+Modified: antargis/branches/branch_2d/src/terrain.h
+===================================================================
+--- antargis/branches/branch_2d/src/terrain.h	2007-05-02 19:04:59 UTC (rev 1082)
++++ antargis/branches/branch_2d/src/terrain.h	2007-05-05 10:55:33 UTC (rev 1083)
+@@ -27,7 +27,7 @@
+ class TerrainPiece:public SceneNode
+ {
+  public:
+-  TerrainPiece(Scene *pScene,Terrain *t,HeightMap &amp;map,int x,int y,int w,int h,const AGVector4 &amp;pPos,int scale);
++  TerrainPiece(SceneBase *pScene,Terrain *t,HeightMap &amp;map,int x,int y,int w,int h,const AGVector4 &amp;pPos,int scale);
+   virtual ~TerrainPiece();
+ 
+   void draw();
+@@ -56,14 +56,14 @@
+ };
+ 
+ 
+-class TerrainBase
++class TerrainBase:public AGRubyObject
+ {
+  public:
+-  TerrainBase(Scene *pScene,HeightMap &amp;map);
++  TerrainBase(SceneBase *pScene,HeightMap &amp;map);
+   virtual ~TerrainBase();
+ 
+   HeightMap *getMap();
+-  Scene *getScene();
++  SceneBase *getScene();
+ 
+   /// some parts of the map are changed
+   virtual void mapChanged();
+@@ -79,7 +79,7 @@
+   /// the height-map
+   HeightMap *mMap;
+   
+-  Scene *mScene;
++  SceneBase *mScene;
+ };
+ 
+ /**
+@@ -108,7 +108,7 @@
+ 
+ 
+ public:
+-  Terrain(Scene *pScene,HeightMap &amp;map);
++  Terrain(SceneBase *pScene,HeightMap &amp;map);
+ 
+   virtual ~Terrain();
+ 
+
+Modified: antargis/branches/branch_2d/src/water.cc
+===================================================================
+--- antargis/branches/branch_2d/src/water.cc	2007-05-02 19:04:59 UTC (rev 1082)
++++ antargis/branches/branch_2d/src/water.cc	2007-05-05 10:55:33 UTC (rev 1083)
+@@ -28,7 +28,7 @@
+ }
+ 
+ 
+-WaterPiece::WaterPiece(Scene *pScene,HeightMap &amp;map,int x,int y,int w,int h,const AGVector4 &amp;pos):
++WaterPiece::WaterPiece(SceneBase *pScene,HeightMap &amp;map,int x,int y,int w,int h,const AGVector4 &amp;pos):
+   SceneNode(pScene,pos,AGBox3()),
+   mX(x),mY(y),mW(w),mH(h),mMap(&amp;map)
+ {
+
+Modified: antargis/branches/branch_2d/src/water.h
+===================================================================
+--- antargis/branches/branch_2d/src/water.h	2007-05-02 19:04:59 UTC (rev 1082)
++++ antargis/branches/branch_2d/src/water.h	2007-05-05 10:55:33 UTC (rev 1083)
+@@ -23,7 +23,7 @@
+ {
+   AGTexture tex;
+  public:
+-  WaterPiece(Scene *pScene,HeightMap &amp;map,int x,int y,int w,int h,const AGVector4 &amp;pos);
++  WaterPiece(SceneBase *pScene,HeightMap &amp;map,int x,int y,int w,int h,const AGVector4 &amp;pos);
+   virtual ~WaterPiece();
+ 
+   /// draw in normal mode
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000040.html">[Antargis-svn] r1082 - in antargis/branches/branch_2d:	data/textures/2d/terrain ruby ruby/tests src
+</A></li>
+	<LI>Next message: <A HREF="000042.html">[Antargis-svn] r1084 - antargis/branches/branch_2d/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#41">[ date ]</a>
+              <a href="thread.html#41">[ thread ]</a>
+              <a href="subject.html#41">[ subject ]</a>
+              <a href="author.html#41">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

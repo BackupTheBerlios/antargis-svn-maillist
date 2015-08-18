@@ -1,0 +1,255 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1061 - in antargis/trunk: . gui/src ruby ruby/tests
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-March/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1061%20-%20in%20antargis/trunk%3A%20.%20gui/src%20ruby%20ruby/tests&In-Reply-To=%3C200703161921.l2GJLXNf005122%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000018.html">
+   <LINK REL="Next"  HREF="000020.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1061 - in antargis/trunk: . gui/src ruby ruby/tests</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1061%20-%20in%20antargis/trunk%3A%20.%20gui/src%20ruby%20ruby/tests&In-Reply-To=%3C200703161921.l2GJLXNf005122%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1061 - in antargis/trunk: . gui/src ruby ruby/tests">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Fri Mar 16 20:21:33 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000018.html">[Antargis-svn] r1060 - in antargis/trunk: gui/src ruby
+</A></li>
+        <LI>Next message: <A HREF="000020.html">[Antargis-svn] r1062 - in antargis/trunk: gui/src ruby
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#19">[ date ]</a>
+              <a href="thread.html#19">[ thread ]</a>
+              <a href="subject.html#19">[ subject ]</a>
+              <a href="author.html#19">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-03-16 20:21:32 +0100 (Fri, 16 Mar 2007)
+New Revision: 1061
+
+Modified:
+   antargis/trunk/ChangeLog
+   antargis/trunk/Rakefile
+   antargis/trunk/TODO
+   antargis/trunk/gui/src/ag_rand.cc
+   antargis/trunk/ruby/ant_boss.rb
+   antargis/trunk/ruby/ant_hljobs.rb
+   antargis/trunk/ruby/antargis.rb
+   antargis/trunk/ruby/map.rb
+   antargis/trunk/ruby/tests/scissor_test.rb
+Log:
+* small fixes
+
+
+Modified: antargis/trunk/ChangeLog
+===================================================================
+--- antargis/trunk/ChangeLog	2007-03-15 20:03:57 UTC (rev 1060)
++++ antargis/trunk/ChangeLog	2007-03-16 19:21:32 UTC (rev 1061)
+@@ -1,3 +1,12 @@
++0.2
++	- major refactoring and documentation effort
++	- many bugs fixed
++	- preparations for AI and network code
++	- basic AI functionality
++	- speed and compabitility improvements
++	- event-tracking and demo-mode
++
++
+ for 0.1.3:
+ * moving with left-mouse-button
+ * FBOs
+
+Modified: antargis/trunk/Rakefile
+===================================================================
+--- antargis/trunk/Rakefile	2007-03-15 20:03:57 UTC (rev 1060)
++++ antargis/trunk/Rakefile	2007-03-16 19:21:32 UTC (rev 1061)
+@@ -218,7 +218,7 @@
+ 
+ task :test =&gt; &quot;libantargis.so&quot; do |t|
+ 	if (not $xcompile)
+-		`ruby ruby/runtests.rb`
++		msh &quot;ruby ruby/runtests.rb&quot;
+ 	end
+ 	#require 'libantargis.so'
+ end
+
+Modified: antargis/trunk/TODO
+===================================================================
+--- antargis/trunk/TODO	2007-03-15 20:03:57 UTC (rev 1060)
++++ antargis/trunk/TODO	2007-03-16 19:21:32 UTC (rev 1061)
+@@ -1,3 +1,17 @@
++* Translation tut3
++* Fighting tut2 - problems men belong to more than one buildign ???
++* fix jobs some more
++* what's wrong with pathfinding-test ???
++
++
++
++
++
++
++==========
++
++
++
+ Short Information:
+ Problems are marked by priority. L is for low, M for medium and H high.
+ In special cases it can be Very High (=VH).
+
+Modified: antargis/trunk/gui/src/ag_rand.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_rand.cc	2007-03-15 20:03:57 UTC (rev 1060)
++++ antargis/trunk/gui/src/ag_rand.cc	2007-03-16 19:21:32 UTC (rev 1061)
+@@ -111,7 +111,7 @@
+ 
+ void randSpeed()
+ {
+-  long m=10000000;
++  long m=100000;
+   int t;
+   int max=100;
+   {
+
+Modified: antargis/trunk/ruby/ant_boss.rb
+===================================================================
+--- antargis/trunk/ruby/ant_boss.rb	2007-03-15 20:03:57 UTC (rev 1060)
++++ antargis/trunk/ruby/ant_boss.rb	2007-03-16 19:21:32 UTC (rev 1061)
+@@ -91,8 +91,8 @@
+ 	end
+ 	
+ 	def eventNoJob
+-		dputs &quot;eventNoJob &quot;+self.class.to_s+&quot; &quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">+ at job.to_s</A>
+-		dputs caller.join(&quot;\n&quot;)
++# 		dputs &quot;eventNoJob &quot;+self.class.to_s+&quot; &quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">+ at job.to_s</A>
++# 		dputs caller.join(&quot;\n&quot;)
+ 		checkHLJobEnd(self)
+  		checkCreateMen
+ 	end
+
+Modified: antargis/trunk/ruby/ant_hljobs.rb
+===================================================================
+--- antargis/trunk/ruby/ant_hljobs.rb	2007-03-15 20:03:57 UTC (rev 1060)
++++ antargis/trunk/ruby/ant_hljobs.rb	2007-03-16 19:21:32 UTC (rev 1061)
+@@ -826,7 +826,7 @@
+ 		@usedmen=0
+ 		@restype={}
+ 		@constructStarted=false
+-		@productionRules=$productionRules # FIXME maybe exchange for different constructing types
++		@@productionRules=$productionRules # FIXME maybe exchange for different constructing types
+ 	end
+ 	def image
+ 		&quot;data/gui/construct.png&quot;
+@@ -974,7 +974,7 @@
+ 	end
+ 	def readyConstructed
+ 		# produce any
+-		@productionRules.shuffle.each{|rule|
++		@@productionRules.shuffle.each{|rule|
+ 			ok=true
+ 			
+ 			rule.from.each{|w,n|
+
+Modified: antargis/trunk/ruby/antargis.rb
+===================================================================
+--- antargis/trunk/ruby/antargis.rb	2007-03-15 20:03:57 UTC (rev 1060)
++++ antargis/trunk/ruby/antargis.rb	2007-03-16 19:21:32 UTC (rev 1061)
+@@ -159,9 +159,9 @@
+ 		#setCursor(getTextureCache.get(&quot;blue_cursor.png&quot;))
+ 	end
+ 
+-	def getSpeed
+-		@speed
+-	end
++# 	def getSpeed
++# 		@speed
++# 	end
+ 
+ 	####################################
+ 	# EVENT HANDLERS
+@@ -253,6 +253,11 @@
+ 				if @hero
+ 					@hero.newHLRestJob(10)
+ 				end
++			when SDLK_PLUS
++				@speed=[@speed+1,5].min
++			when SDLK_MINUS
++				@speed=[@speed-1,1].max
++			
+ 			when SDLK_p
+ 				eventPause(nil)
+ 		end
+@@ -290,7 +295,7 @@
+ 
+ 
+ 		# move entities in game-engine
+-		getMap().move(time)
++		getMap().move(time*@speed)
+ 		# advance animations
+ 		getScene.advance(time)
+ 		checkHeroEnergy
+
+Modified: antargis/trunk/ruby/map.rb
+===================================================================
+--- antargis/trunk/ruby/map.rb	2007-03-15 20:03:57 UTC (rev 1060)
++++ antargis/trunk/ruby/map.rb	2007-03-16 19:21:32 UTC (rev 1061)
+@@ -452,7 +452,7 @@
+ 		if @pause
+ 			return
+ 		end
+-		time*=@app.getSpeed # increase speed
++		#time*=@app.getSpeed # increase speed  # moved to app
+ 		@curTime+=time
+ 		@@systemTime+=time
+ 		super(time)
+
+Modified: antargis/trunk/ruby/tests/scissor_test.rb
+===================================================================
+--- antargis/trunk/ruby/tests/scissor_test.rb	2007-03-15 20:03:57 UTC (rev 1060)
++++ antargis/trunk/ruby/tests/scissor_test.rb	2007-03-16 19:21:32 UTC (rev 1061)
+@@ -18,7 +18,8 @@
+ 	end
+ 	def eventFrame(t)
+ 		#puts &quot;eventFram&quot;
+-		delay(20)
++		#delay(20)
++		tryQuit
+ 		return true
+ 	end
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000018.html">[Antargis-svn] r1060 - in antargis/trunk: gui/src ruby
+</A></li>
+	<LI>Next message: <A HREF="000020.html">[Antargis-svn] r1062 - in antargis/trunk: gui/src ruby
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#19">[ date ]</a>
+              <a href="thread.html#19">[ thread ]</a>
+              <a href="subject.html#19">[ subject ]</a>
+              <a href="author.html#19">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

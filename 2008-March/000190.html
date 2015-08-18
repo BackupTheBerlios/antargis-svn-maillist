@@ -1,0 +1,1571 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1234 - in antargis/trunk: . build build/configs	build/swig data/levels ext ext/3dengine ext/basic ext/game	ext/gui ext/sound ext/video main ruby ruby/editor ruby/gui ruby/spec
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2008-March/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1234%20-%20in%20antargis/trunk%3A%20.%20build%20build/configs%0A%09build/swig%20data/levels%20ext%20ext/3dengine%20ext/basic%20ext/game%0A%09ext/gui%20ext/sound%20ext/video%20main%20ruby%20ruby/editor%20ruby/gui%20ruby/spec&In-Reply-To=%3C200803171528.m2HFSgV5020467%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000191.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1234 - in antargis/trunk: . build build/configs	build/swig data/levels ext ext/3dengine ext/basic ext/game	ext/gui ext/sound ext/video main ruby ruby/editor ruby/gui ruby/spec</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1234%20-%20in%20antargis/trunk%3A%20.%20build%20build/configs%0A%09build/swig%20data/levels%20ext%20ext/3dengine%20ext/basic%20ext/game%0A%09ext/gui%20ext/sound%20ext/video%20main%20ruby%20ruby/editor%20ruby/gui%20ruby/spec&In-Reply-To=%3C200803171528.m2HFSgV5020467%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1234 - in antargis/trunk: . build build/configs	build/swig data/levels ext ext/3dengine ext/basic ext/game	ext/gui ext/sound ext/video main ruby ruby/editor ruby/gui ruby/spec">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Mon Mar 17 16:28:42 CET 2008</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000191.html">[Antargis-svn] r1235 - antargis/trunk/ruby/spec
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#190">[ date ]</a>
+              <a href="thread.html#190">[ thread ]</a>
+              <a href="subject.html#190">[ subject ]</a>
+              <a href="author.html#190">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2008-03-17 16:28:40 +0100 (Mon, 17 Mar 2008)
+New Revision: 1234
+
+Added:
+   antargis/trunk/data/levels/ai/
+Removed:
+   antargis/trunk/ext/sound/ag_sound.cc
+Modified:
+   antargis/trunk/Rakefile
+   antargis/trunk/TODO
+   antargis/trunk/build/README
+   antargis/trunk/build/configs/base.rb
+   antargis/trunk/build/configs/mingw32.rb
+   antargis/trunk/build/swig/ag_string.i
+   antargis/trunk/build/swig/common.i
+   antargis/trunk/build/swig/std_string.i
+   antargis/trunk/ext/3dengine/anim_mesh_data.cc
+   antargis/trunk/ext/3dengine/anim_mesh_data.h
+   antargis/trunk/ext/Rakefile
+   antargis/trunk/ext/basic/ag_fs.cc
+   antargis/trunk/ext/basic/ag_fs.h
+   antargis/trunk/ext/basic/ag_message.cc
+   antargis/trunk/ext/basic/ag_string.h
+   antargis/trunk/ext/basic/ag_xml.cc
+   antargis/trunk/ext/basic/ag_xml.h
+   antargis/trunk/ext/basic/templates.i
+   antargis/trunk/ext/game/height_map.cc
+   antargis/trunk/ext/game/height_map.h
+   antargis/trunk/ext/game/map.cc
+   antargis/trunk/ext/game/map.h
+   antargis/trunk/ext/game/templates.i
+   antargis/trunk/ext/gui/ag_layoutcreators.cc
+   antargis/trunk/ext/gui/ag_theme.cc
+   antargis/trunk/ext/gui/ag_theme.h
+   antargis/trunk/ext/video/ag_texturecache.cc
+   antargis/trunk/ext/video/ag_texturecache.h
+   antargis/trunk/main/Rakefile
+   antargis/trunk/main/starter.cc
+   antargis/trunk/ruby/antargislib.rb
+   antargis/trunk/ruby/editor/dialogs.rb
+   antargis/trunk/ruby/editor_app.rb
+   antargis/trunk/ruby/editview.rb
+   antargis/trunk/ruby/gui/testing.rb
+   antargis/trunk/ruby/map.rb
+   antargis/trunk/ruby/spec/spec_gui.rb
+   antargis/trunk/ruby/spec/spec_hljobs.rb
+Log:
+* many (old) changes
+
+
+Modified: antargis/trunk/Rakefile
+===================================================================
+--- antargis/trunk/Rakefile	2008-02-29 16:26:29 UTC (rev 1233)
++++ antargis/trunk/Rakefile	2008-03-17 15:28:40 UTC (rev 1234)
+@@ -22,6 +22,7 @@
+ require 'rubygems'
+ require 'rake/gempackagetask.rb'
+ require 'rake/packagetask.rb'
++require 'rake/rdoctask.rb'
+ require 'spec/rake/spectask'
+ 
+ 
+@@ -128,7 +129,31 @@
+ end
+ 
+ 
++desc &quot;Generate html documentation for c++-sources&quot;
++task :doxygen=&gt;[] do |t|
++      # run doxygen in here
++      `doxygen build/Doxyfile`
++ end
++ 
++ 
++ Rake::RDocTask.new do |rd|
++     rd.main = &quot;README&quot;
++     #rd.rdoc_files.include(&quot;README&quot;, &quot;lib/**/*.rb&quot;)
++     rd.title=&quot;Battles\ of\ Antargis&quot;
++     #rd.options &lt;&lt; &quot;--diagram&quot;
++     rd.rdoc_dir=&quot;docs/ruby&quot;
++     #if false
++       a=Dir[&quot;**/README&quot;]+Dir[&quot;ruby/**/*.rb&quot;] #+Dir[&quot;INSTALL&quot;]+Dir[&quot;build/*.rb&quot;]+Dir[&quot;configure&quot;]+Dir[&quot;Rantfile&quot;]
++             a=a.select{|f|not (f=~/_test/ or f=~/spec/)}
++        #     pp a
++             rd.rdoc_files.include(a)
++     #        t.opts = %w(--title Battles\ of\ Antargis --main README --diagram)+a
++             #t.dir = &quot;docs/ruby&quot;
++      #       end       
++   end
++    
+ 
++
+ desc &quot;Build all&quot;
+ task :default=&gt;[:starterPrg,:library] do
+ end
+
+Modified: antargis/trunk/TODO
+===================================================================
+--- antargis/trunk/TODO	2008-02-29 16:26:29 UTC (rev 1233)
++++ antargis/trunk/TODO	2008-03-17 15:28:40 UTC (rev 1234)
+@@ -1,3 +1,6 @@
++* AGFilename remove!
++
++
+ * bug-report at apple site on glTexSubImage issue 
+ * fix shadows on mac (on shadow-extension ?)
+ * check mingw on macosx
+
+Modified: antargis/trunk/build/README
+===================================================================
+--- antargis/trunk/build/README	2008-02-29 16:26:29 UTC (rev 1233)
++++ antargis/trunk/build/README	2008-03-17 15:28:40 UTC (rev 1234)
+@@ -1,13 +1,13 @@
+ == Antargis build-process
+ 
+-BoA's building bases on <A HREF="http://rant.rubyforge.org">http://rant.rubyforge.org</A>
++BoA's building bases on <A HREF="http://rake.rubyforge.org">http://rake.rubyforge.org</A>
+ 
+ It runs in two steps like most GPL-programs:
+  &gt; ./configure
+- &gt; rant
++ &gt; rake
+ 
+ In future releases we might include installing, too:
+- &gt; rant install
++ &gt; rake install
+ 
+ == Configure
+ 
+
+Modified: antargis/trunk/build/configs/base.rb
+===================================================================
+--- antargis/trunk/build/configs/base.rb	2008-02-29 16:26:29 UTC (rev 1233)
++++ antargis/trunk/build/configs/base.rb	2008-03-17 15:28:40 UTC (rev 1234)
+@@ -20,7 +20,7 @@
+ 	&quot;LINK_SHARED&quot;=&gt;&quot;$(LINK) -shared -o $(OUTPUT) -Wl,--enable-auto-image-base -Xlinker --out-implib -Xlinker $(OUTPUT).a  $(INPUT) $(LIBDIR) -Lext&quot;,
+ 
+ 	# generate c++-code from a swig-interface file
+-	&quot;SWIG_CALL&quot;=&gt;&quot;$(SWIG) -v -Wall -ruby -c++ -o $(OUTPUT) -Ic:/antargis/rant/build/win32/usr/include $(INPUT) &quot;,
++	&quot;SWIG_CALL&quot;=&gt;&quot;$(SWIG) -v -Wall -ruby -c++ -o $(OUTPUT) -Ic:/antargis/ant/build/win32/usr/include $(INPUT) &quot;,
+ 	# generate dependencies for swig-interface files
+ 	&quot;SWIGDEPS&quot;=&gt;&quot;$(SWIG) -ruby -c++ -M $(INPUT)&quot;,
+ 
+
+Modified: antargis/trunk/build/configs/mingw32.rb
+===================================================================
+--- antargis/trunk/build/configs/mingw32.rb	2008-02-29 16:26:29 UTC (rev 1233)
++++ antargis/trunk/build/configs/mingw32.rb	2008-03-17 15:28:40 UTC (rev 1234)
+@@ -12,7 +12,7 @@
+ 	&quot;CC&quot;=&gt;&quot;$(gcc)&quot;,
+ 	&quot;SWIG&quot;=&gt;&quot;$(swig)&quot;,
+ 	#&quot;RUBY&quot;=&gt;&quot;$(ruby)&quot;,
+-    &quot;RUBY&quot;=&gt;&quot;c:\\antargis\\rant\\build\\win32\\usr\\bin\\ruby&quot;,
++    &quot;RUBY&quot;=&gt;&quot;c:\\antargis\\ant\\build\\win32\\usr\\bin\\ruby&quot;,
+ 	&quot;CCACHE&quot;=&gt;&quot;$(ccache)&quot;,
+ 
+ 	&quot;RUBYLIB&quot;=&gt;&quot;msvcrt-ruby18&quot;,
+@@ -22,7 +22,7 @@
+     &quot;LIBGL&quot;=&gt;&quot;-lopengl32 -lglu32&quot;,
+ 	&quot;LINK&quot;=&gt;&quot;$(CXX)&quot;,
+     #&quot;CFLAGS&quot;=&gt;&quot;-D_GNU_SOURCE=1 -Dmain=SDL_main&quot;,
+-    &quot;CFLAGS&quot;=&gt;&quot;-Dmain=SDL_main -IC:/antargis/rant/build/win32/usr/lib/ruby/1.8/i386-mingw32&quot;,
++    &quot;CFLAGS&quot;=&gt;&quot;-Dmain=SDL_main -IC:/antargis/ant/build/win32/usr/lib/ruby/1.8/i386-mingw32&quot;,
+ 
+   # call the compiler using the standard unix-style mechanism &lt;CC&gt; -c -o &lt;outputname&gt; &lt;input0&gt; [&lt;input1&gt; ...]
+ 	&quot;COMPILE_PARAMS&quot;=&gt;&quot; -c -o $(OUTPUT) $(INPUT) -I#{Dir.pwd}/build/win32/usr/include&quot;,
+@@ -35,7 +35,7 @@
+ 	#&quot;LINK_SHARED&quot;=&gt;&quot;$(LINK) -shared -o $(OUTPUT) -Wl,--enable-auto-image-base -Xlinker --out-implib -Xlinker $(OUTPUT).a  $(INPUT) $(LIBDIR) -Lext&quot;,
+ 	##&quot;LINK_SHARED&quot;=&gt;&quot;$(LINK) -shared -o $(OUTPUT) -Wl,--enable-auto-image-base -Xlinker --out-implib --add-stdcall-alias -Xlinker $(OUTPUT).a  $(INPUT) $(LIBDIR) -Lext&quot;,
+ 	# generate c++-code from a swig-interface file
+-	&quot;SWIG_CALL&quot;=&gt;&quot;$(SWIG) -v -Wall -ruby -c++ -o $(OUTPUT) -Ic:/antargis/rant/build/win32/usr/include $(INPUT) &quot;,
++	&quot;SWIG_CALL&quot;=&gt;&quot;$(SWIG) -v -Wall -ruby -c++ -o $(OUTPUT) -Ic:/antargis/ant/build/win32/usr/include $(INPUT) &quot;,
+ 	# generate dependencies for swig-interface files
+ 	&quot;SWIGDEPS&quot;=&gt;&quot;$(SWIG) -ruby -c++ -M $(INPUT)&quot;,
+ 
+
+Modified: antargis/trunk/build/swig/ag_string.i
+===================================================================
+--- antargis/trunk/build/swig/ag_string.i	2008-02-29 16:26:29 UTC (rev 1233)
++++ antargis/trunk/build/swig/ag_string.i	2008-03-17 15:28:40 UTC (rev 1234)
+@@ -85,8 +85,8 @@
+ namespace std
+ {
+ 	specialize_std_vector(AGString,SWIG_STRING_P,SWIG_RB2AGSTR,SWIG_AGSTR2RB);
+-	specialize_std_vector(AGFilename,SWIG_STRING_P,SWIG_RB2AGSTR,SWIG_AGSTR2RB);
+-	specialize_std_vector(AGData,SWIG_STRING_P,SWIG_RB2AGSTR,SWIG_AGSTR2RB);
++	//specialize_std_vector(AGFilename,SWIG_STRING_P,SWIG_RB2AGSTR,SWIG_AGSTR2RB);
++	//specialize_std_vector(AGData,SWIG_STRING_P,SWIG_RB2AGSTR,SWIG_AGSTR2RB);
+ }
+ 
+ 
+
+Modified: antargis/trunk/build/swig/common.i
+===================================================================
+--- antargis/trunk/build/swig/common.i	2008-02-29 16:26:29 UTC (rev 1233)
++++ antargis/trunk/build/swig/common.i	2008-03-17 15:28:40 UTC (rev 1234)
+@@ -7,7 +7,7 @@
+ %include &quot;std_list.i&quot;
+ %include &quot;ag_string_new.i&quot;
+ %include &quot;ag_string.i&quot;
+-%include &quot;ag_filename.i&quot;
++//%include &quot;ag_filename.i&quot;
+ %include &quot;ag_data.i&quot;
+ 
+ %{
+
+Modified: antargis/trunk/build/swig/std_string.i
+===================================================================
+--- antargis/trunk/build/swig/std_string.i	2008-02-29 16:26:29 UTC (rev 1233)
++++ antargis/trunk/build/swig/std_string.i	2008-03-17 15:28:40 UTC (rev 1234)
+@@ -84,3 +84,13 @@
+     %typemap(throws) string *, const string *
+         &quot;rb_raise(rb_eRuntimeError, $1-&gt;c_str());&quot;;
+ }
++
++%{
++int SWIG_AsVal_std_string(VALUE x,std::string *s) {
++    s=new std::string(RSTRING_PTR(x), RSTRING_LEN(x));
++return 0;
++}
++VALUE SWIG_From_std_string(const std::string&amp; s) {
++    return rb_str_new(s.data(), s.size());
++}
++%}
+
+Modified: antargis/trunk/ext/3dengine/anim_mesh_data.cc
+===================================================================
+--- antargis/trunk/ext/3dengine/anim_mesh_data.cc	2008-02-29 16:26:29 UTC (rev 1233)
++++ antargis/trunk/ext/3dengine/anim_mesh_data.cc	2008-03-17 15:28:40 UTC (rev 1234)
+@@ -59,14 +59,14 @@
+ 
+ 
+ 
+-AnimMeshData::AnimMeshData(const AGFilename &amp;xmlfile):
++AnimMeshData::AnimMeshData(const AGString &amp;xmlFilename):
+   animShader(&quot;data/shaders/anim.vert&quot;,&quot;data/shaders/anim.frag&quot;),
+   //  animShaderDepth(&quot;data/shaders/anim_depth.vert&quot;,&quot;&quot;),
+   animShaderDepth(&quot;data/shaders/anim_depth.vert&quot;,&quot;data/shaders/anim_depth.frag&quot;),
+   mArray(&amp;animShader),
+   mArrayDepth(&amp;animShaderDepth)
+   {
+-    Document doc(xmlfile);
++    Document doc(xmlFilename);
+ 
+     Node &amp;root=doc.root();
+ 
+@@ -112,10 +112,10 @@
+ 
+     if(anims.size()==0)
+       {
+-        std::cerr&lt;&lt;&quot;There are no animations in &quot;&lt;&lt;xmlfile&lt;&lt;std::endl;
++        std::cerr&lt;&lt;&quot;There are no animations in &quot;&lt;&lt;xmlFilename&lt;&lt;std::endl;
+         throw std::string(&quot;no animations found in xmlfile&quot;);
+       }
+-    mName=AGString(xmlfile);
++    mName=AGString(xmlFilename);
+   }
+ 
+ AnimMeshData::~AnimMeshData()
+@@ -155,9 +155,9 @@
+ 
+   }
+ 
+-void AnimMeshData::loadAnt3(const AGData &amp;instr,float scale,const AGFilename &amp;tex)
++void AnimMeshData::loadAnt3(const AGString &amp;instr,float scale,const AGString &amp;pTextureFilename)
+   {
+-    mTexture=getTextureCache()-&gt;get(tex,getMeshDownScale());
++    mTexture=getTextureCache()-&gt;get(pTextureFilename,getMeshDownScale());
+     BinaryStringIn l(instr);
+ 
+     Uint32 vs,ts;
+
+Modified: antargis/trunk/ext/3dengine/anim_mesh_data.h
+===================================================================
+--- antargis/trunk/ext/3dengine/anim_mesh_data.h	2008-02-29 16:26:29 UTC (rev 1233)
++++ antargis/trunk/ext/3dengine/anim_mesh_data.h	2008-03-17 15:28:40 UTC (rev 1234)
+@@ -88,10 +88,10 @@
+  private:
+   void setupJoints();
+   void setupArray();
+-  void loadAnt3(const AGData &amp;instr,float scale,const AGFilename &amp;pTexName);
++  void loadAnt3(const AGString &amp;instr,float scale,const AGString &amp;pTextureFilename);
+ 
+  public:
+-  AnimMeshData(const AGFilename &amp;xmlfile);
++  AnimMeshData(const AGString &amp;xmlFilename);
+   ~AnimMeshData();
+ 
+   AGBox3 bbox() const;
+
+Modified: antargis/trunk/ext/Rakefile
+===================================================================
+--- antargis/trunk/ext/Rakefile	2008-02-29 16:26:29 UTC (rev 1233)
++++ antargis/trunk/ext/Rakefile	2008-03-17 15:28:40 UTC (rev 1234)
+@@ -30,6 +30,8 @@
+ ]
+ 
+ AntargisLibName=&quot;antargis.&quot;+CONFIG[&quot;DLEXT&quot;]
++AntargisSo=&quot;libantargis.dylib&quot;
++AntargisA=&quot;libantargis.a&quot;
+ 
+ $LIBDEPS={&quot;ext/basic&quot;=&gt;[&quot;SDL&quot;,&quot;RUBY&quot;]}
+ 
+@@ -88,6 +90,8 @@
+ 	$?
+ end
+ 
++
++
+ def linkLib(name,objects)
+ 	name=name.to_s
+ 	winadd=&quot;&quot;
+@@ -117,6 +121,78 @@
+ 	$?
+ end
+ 
++
++def linkSo(name,objects)
++  # FIXME !!!
++  name=name.to_s
++  winadd=&quot;&quot;
++  if $CONFIG[&quot;target_os&quot;]==&quot;windows&quot;
++    winadd=&quot;-Wl,--enable-auto-image-base -Xlinker --out-implib -Xlinker #{name.gsub(/\.so$/,&quot;.dll&quot;)}.a&quot;
++  end
++
++
++  add=&quot;&quot;
++  if $CONFIG[&quot;target_os&quot;]=~/darwin/
++      add=&quot;-framework OpenGL&quot;
++  else
++    add=&quot;-Wl,-\\(&quot;
++  end
++
++  cmd=$CONFIG[&quot;CXX&quot;]+&quot; -dH -shared -o #{name} -Lext #{winadd} #{add}  #{$CONFIG[&quot;LDFLAGS&quot;]} #{$CONFIG[&quot;LIBPATH&quot;]} #{objects.join(&quot; &quot;)}&quot;
++#FIXME
++    cmd=$CONFIG[&quot;CXX&quot;]+&quot; -dH -dynamiclib -o #{name} -Lext #{winadd} #{add}  #{$CONFIG[&quot;LDFLAGS&quot;]} #{$CONFIG[&quot;LIBPATH&quot;]} #{objects.join(&quot; &quot;)}&quot;
++  
++  #cmd=$CONFIG[&quot;LDSHARED&quot;]+&quot; -dH  -o #{name} -Lext #{winadd} #{add}  #{$CONFIG[&quot;LDFLAGS&quot;]} #{$CONFIG[&quot;LIBPATH&quot;]} #{objects.join(&quot; &quot;)}&quot;
++  pp cmd
++  #exit
++  if $CONFIG[&quot;CCACHE&quot;]
++    cmd=$CONFIG[&quot;CCACHE&quot;]+&quot; &quot;+cmd
++  end
++  puts &quot;&quot;
++  #pp cmd
++  sh cmd
++  $?
++end
++
++
++
++def linkA(name,objects)
++  # FIXME !!!
++  name=name.to_s
++  winadd=&quot;&quot;
++  if $CONFIG[&quot;target_os&quot;]==&quot;windows&quot;
++    winadd=&quot;-Wl,--enable-auto-image-base -Xlinker --out-implib -Xlinker #{name.gsub(/\.so$/,&quot;.dll&quot;)}.a&quot;
++  end
++
++
++  add=&quot;&quot;
++  if $CONFIG[&quot;target_os&quot;]=~/darwin/
++      add=&quot;-framework OpenGL&quot;
++  else
++    add=&quot;-Wl,-\\(&quot;
++  end
++
++  cmd=$CONFIG[&quot;CXX&quot;]+&quot; -dH -shared -o #{name} -Lext #{winadd} #{add}  #{$CONFIG[&quot;LDFLAGS&quot;]} #{$CONFIG[&quot;LIBPATH&quot;]} #{objects.join(&quot; &quot;)}&quot;
++#FIXME
++    cmd=$CONFIG[&quot;CXX&quot;]+&quot; -dH -dynamiclib -o #{name} -Lext #{winadd} #{add}  #{$CONFIG[&quot;LDFLAGS&quot;]} #{$CONFIG[&quot;LIBPATH&quot;]} #{objects.join(&quot; &quot;)}&quot;
++    
++    cmd=&quot;libtool -static -o #{name} #{objects.join(&quot; &quot;)}&quot;
++  
++  #cmd=$CONFIG[&quot;LDSHARED&quot;]+&quot; -dH  -o #{name} -Lext #{winadd} #{add}  #{$CONFIG[&quot;LDFLAGS&quot;]} #{$CONFIG[&quot;LIBPATH&quot;]} #{objects.join(&quot; &quot;)}&quot;
++  pp cmd
++  #exit
++  if $CONFIG[&quot;CCACHE&quot;]
++    cmd=$CONFIG[&quot;CCACHE&quot;]+&quot; &quot;+cmd
++  end
++  puts &quot;&quot;
++  #pp cmd
++  sh cmd
++  $?
++end
++
++
++
++
+ def makeDepFilename(file)
+ 	File.join(&quot;.deps&quot;,file.gsub(&quot;\\&quot;,&quot;_&quot;).gsub(&quot;/&quot;,&quot;_&quot;))
+ end
+@@ -273,10 +349,18 @@
+ 	linkLib(t.name,t.prerequisites+$CONFIG[&quot;LIBS&quot;].split(&quot; &quot;))
+ end
+ 
++task AntargisSo =&gt; ((Dir[&quot;ext/*/*.cc&quot;]+Dir[&quot;ext/*/*.c&quot;]).select{|file|not file=~/[a-z]swig/}.map{|file|file.sub(&quot;.cc&quot;,&quot;.oo&quot;).sub(&quot;.c&quot;,&quot;.o&quot;)}+[&quot;ext/swig.oo&quot;]) do |t|
++  linkSo(t.name,t.prerequisites+$CONFIG[&quot;LIBS&quot;].split(&quot; &quot;))
++end
+ 
+-task :library=&gt;AntargisLibName do
++
++task AntargisA =&gt; ((Dir[&quot;ext/*/*.cc&quot;]+Dir[&quot;ext/*/*.c&quot;]).select{|file|not file=~/[a-z]swig/}.map{|file|file.sub(&quot;.cc&quot;,&quot;.oo&quot;).sub(&quot;.c&quot;,&quot;.o&quot;)}+[&quot;ext/swig.oo&quot;]) do |t|
++  linkA(t.name,t.prerequisites)
+ end
+ 
++task :library=&gt;[AntargisLibName,AntargisSo] do
++end
++
+ if SWIG_ENABLED and false
+ 	mSwigDeps=Dir[&quot;ext/*/*.h&quot;].select{|file|not file=~/swig/}
+ 	
+
+Modified: antargis/trunk/ext/basic/ag_fs.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_fs.cc	2008-02-29 16:26:29 UTC (rev 1233)
++++ antargis/trunk/ext/basic/ag_fs.cc	2008-03-17 15:28:40 UTC (rev 1234)
+@@ -42,11 +42,11 @@
+ #include &quot;ag_serial.h&quot;
+ #include &lt;zlib.h&gt;
+ 
+-static std::list&lt;AGFilename&gt; mFsPaths;
++static std::list&lt;AGString&gt; gFilesystemPathes;
+ 
+-void addPath(const AGFilename &amp;pName)
++void addPath(const AGString &amp;pName)
+   {
+-    mFsPaths.push_back(pName);
++    gFilesystemPathes.push_back(pName);
+ #ifdef USE_PHYSFS
+     TRACE;
+     PHYSFS_addToSearchPath(pName.c_str(),1);
+@@ -60,9 +60,9 @@
+     updateConfig();
+   }
+ 
+-void addPathFront(const AGFilename &amp;pName)
++void addPathFront(const AGString &amp;pName)
+   {
+-    mFsPaths.push_front(pName);
++    gFilesystemPathes.push_front(pName);
+ #ifdef USE_PHYSFS
+     TRACE;
+     PHYSFS_addToSearchPath(pName.c_str(),1);
+@@ -183,7 +183,7 @@
+       }
+   }
+ 
+-AGFilename checkFileName(AGFilename s)
++AGString checkFileName(AGString s)
+   {
+ #ifdef WIN32
+     if(s.length()&gt;300)
+@@ -216,11 +216,11 @@
+     return r;
+   }
+ 
+-AGFilename findFile(const AGFilename &amp;pName)
++AGString findFile(const AGString &amp;pName)
+   {
+     if(fileExists(pName))
+       return pName;
+-    for(std::list&lt;AGFilename&gt;::iterator i=mFsPaths.begin();i!=mFsPaths.end();i++)
++    for(std::list&lt;AGString&gt;::iterator i=gFilesystemPathes.begin();i!=gFilesystemPathes.end();i++)
+       {
+         std::string n=*i+&quot;/&quot;+pName;
+         n=checkFileName(n);
+@@ -246,7 +246,7 @@
+     if(r.length())
+       return r;
+ 
+-    for(std::list&lt;AGFilename&gt;::iterator i=mFsPaths.begin();i!=mFsPaths.end();i++)
++    for(std::list&lt;AGString&gt;::iterator i=gFilesystemPathes.begin();i!=gFilesystemPathes.end();i++)
+       {
+         r=directLoad(*i+&quot;/&quot;+pName);
+         if(r.length())
+@@ -256,7 +256,7 @@
+     //  if(mFsPaths.size()==0)
+     //    throw std::runtime_error(&quot;Not yet inited fs-paths!&quot;);
+ 
+-    for(std::list&lt;AGFilename&gt;::iterator i=mFsPaths.begin();i!=mFsPaths.end();i++)
++    for(std::list&lt;AGString&gt;::iterator i=gFilesystemPathes.begin();i!=gFilesystemPathes.end();i++)
+       dbout(0,&quot;path:&quot;&lt;&lt;*i);
+ 
+     dbout(0,&quot;LOAD FAILED:&quot;&lt;&lt;pName);
+@@ -264,7 +264,7 @@
+     return r;
+   }
+ 
+-AGData loadFile(const AGFilename &amp;pName)
++AGString loadFile(const AGString &amp;pName)
+   {
+     return loadFromPath(checkFileName(pName));
+ #ifdef USE_PHYSFS
+@@ -393,7 +393,7 @@
+ 
+ #define SHGFP_TYPE_CURRENT 0
+ 
+-AGFilename getDocumentsDir()
++AGString getDocumentsDir()
+   {
+     CHAR wszPath[MAX_PATH];
+ 
+@@ -401,7 +401,7 @@
+ 
+     SHGetFolderPath( hWnd, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, wszPath );
+ 
+-    AGFilename s(wszPath);
++    AGString s(wszPath);
+ 
+     return s;
+ 
+@@ -409,7 +409,7 @@
+ 
+ #else
+ 
+-AGFilename getDocumentsDir()
++AGString getDocumentsDir()
+   {
+     return getUserDir()+&quot;/Desktop&quot;;
+   }
+@@ -418,12 +418,12 @@
+ #endif
+ 
+ 
+-AGFilename getWriteDir()
++AGString getWriteDir()
+   {
+     return getUserDir()+&quot;/.&quot;+getAppName();
+   }
+ 
+-bool saveFile(const AGFilename &amp;pName,const AGData &amp;pContent)
++bool saveFile(const AGString &amp;pName,const AGString &amp;pContent)
+   {
+ #ifdef USE_PHYSFS
+     TRACE;
+@@ -456,7 +456,7 @@
+     return true;
+   }
+ 
+-bool fileExists(const AGFilename &amp;pName)
++bool fileExists(const AGString &amp;pName)
+   {
+ #ifdef WIN32
+     if(GetFileAttributes(pName.c_str()) == INVALID_FILE_ATTRIBUTES)
+@@ -480,7 +480,7 @@
+ #endif
+   }
+ 
+-std::vector&lt;AGFilename&gt; getDirectoryInternal(const AGFilename &amp;pDir)
++std::vector&lt;AGString&gt; getDirectoryInternal(const AGString &amp;pDir)
+   {
+ #ifdef USE_PHYSFS
+     TRACE;
+@@ -499,7 +499,7 @@
+     return v;
+ #else
+ 
+-    std::vector&lt;AGFilename&gt; v;
++    std::vector&lt;AGString&gt; v;
+ 
+ #ifdef WIN32
+     WIN32_FIND_DATA ent;
+@@ -546,18 +546,18 @@
+ #endif
+   }
+ 
+-std::vector&lt;AGFilename&gt; getDirectory(const AGFilename &amp;pDir)
++std::vector&lt;AGString&gt; getDirectory(const AGString &amp;pDir)
+   {
+-    std::vector&lt;AGFilename&gt; v;
+-    std::list&lt;AGFilename&gt; ps=mFsPaths;
++    std::vector&lt;AGString&gt; v;
++    std::list&lt;AGString&gt; ps=gFilesystemPathes;
+     ps.push_front(&quot;&quot;); // add current dir
+     ps.push_front(&quot;.&quot;); // add current dir
+ 
+ 
+-    for(std::list&lt;AGFilename&gt;::iterator i=ps.begin();i!=ps.end();i++)
++    for(std::list&lt;AGString&gt;::iterator i=ps.begin();i!=ps.end();i++)
+       {
+ 
+-        std::vector&lt;AGFilename&gt; a=getDirectoryInternal(*i+&quot;/&quot;+pDir);
++        std::vector&lt;AGString&gt; a=getDirectoryInternal(*i+&quot;/&quot;+pDir);
+         std::copy(a.begin(),a.end(),std::back_inserter(v));
+       }
+ 
+@@ -567,7 +567,7 @@
+ 
+ 
+ 
+-AGData compress(const AGData &amp;pString)
++AGString compress(const AGString &amp;pString)
+   {
+     BinaryStringOut o;
+     o&lt;&lt;(Uint32)pString.length();
+@@ -581,7 +581,7 @@
+     delete [] buf;
+     return r;
+   }
+-AGData uncompress(const AGData &amp;pString)
++AGString uncompress(const AGString &amp;pString)
+   {
+     BinaryStringIn i(pString);
+     uLongf orig;
+@@ -598,7 +598,7 @@
+     return r;
+   }
+ 
+-AGFilename getDirSep()
++AGString getDirSep()
+   {
+ #ifdef WIN32
+     return &quot;\\&quot;;
+
+Modified: antargis/trunk/ext/basic/ag_fs.h
+===================================================================
+--- antargis/trunk/ext/basic/ag_fs.h	2008-02-29 16:26:29 UTC (rev 1233)
++++ antargis/trunk/ext/basic/ag_fs.h	2008-03-17 15:28:40 UTC (rev 1234)
+@@ -29,25 +29,25 @@
+ #include &lt;ag_base.h&gt;
+ 
+ AGEXPORT void initFS(const char *argv0);
+-AGEXPORT AGData loadFile(const AGFilename &amp;pName);
+-AGEXPORT bool saveFile(const AGFilename &amp;pName,const AGData &amp;pContent);
++AGEXPORT AGString loadFile(const AGString &amp;pFilename);
++AGEXPORT bool saveFile(const AGString &amp;pFilename,const AGString &amp;pContent);
+ 
+-AGEXPORT bool fileExists(const AGFilename &amp;pName);
++AGEXPORT bool fileExists(const AGString &amp;pName);
+ 
+-AGEXPORT std::vector&lt;AGFilename&gt; getDirectory(const AGFilename &amp;pDir);
++AGEXPORT std::vector&lt;AGString&gt; getDirectory(const AGString &amp;pDir);
+ 
+-AGEXPORT AGFilename checkFileName(AGFilename s);
+-AGEXPORT AGFilename getWriteDir();
+-AGEXPORT AGFilename findFile(const AGFilename &amp;pName);
++AGEXPORT AGString checkFileName(AGString s);
++AGEXPORT AGString getWriteDir();
++AGEXPORT AGString findFile(const AGString &amp;pName);
+ 
+-AGEXPORT AGFilename getDocumentsDir();
++AGEXPORT AGString getDocumentsDir();
+ 
+-AGEXPORT void addPath(const AGFilename &amp;pName);
+-AGEXPORT void addPathFront(const AGFilename &amp;pName);
++AGEXPORT void addPath(const AGString &amp;pName);
++AGEXPORT void addPathFront(const AGString &amp;pName);
+ 
+-AGEXPORT AGData compress(const AGData &amp;pString);
+-AGEXPORT AGData uncompress(const AGData &amp;pString);
++AGEXPORT AGString compress(const AGString &amp;pString);
++AGEXPORT AGString uncompress(const AGString &amp;pString);
+ 
+-AGEXPORT AGFilename getDirSep();
++AGEXPORT AGString getDirSep();
+ 
+ #endif
+
+Modified: antargis/trunk/ext/basic/ag_message.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_message.cc	2008-02-29 16:26:29 UTC (rev 1233)
++++ antargis/trunk/ext/basic/ag_message.cc	2008-03-17 15:28:40 UTC (rev 1234)
+@@ -1,6 +1,11 @@
+ #include &quot;ag_message.h&quot;
+ 
++AGMessageData::AGMessageData(size_t pID):
++  mID(pID)
++  {
++  }
+ 
++
+ AGMessageDataSDL::AGMessageDataSDL(size_t pID,const SDL_Event &amp;pEvent):
+   AGMessageData(pID),
+   mEvent(pEvent)
+@@ -108,6 +113,12 @@
+   return mSource;
+ }
+ 
++AGMessageTransceiver *AGMessage::getSender()
++  {
++    return mSource.getSender();
++  }
++
++
+ // class AGMessageQueue
+ 
+ AGMessageQueue::AGMessageQueue():
+
+Modified: antargis/trunk/ext/basic/ag_string.h
+===================================================================
+--- antargis/trunk/ext/basic/ag_string.h	2008-02-29 16:26:29 UTC (rev 1233)
++++ antargis/trunk/ext/basic/ag_string.h	2008-03-17 15:28:40 UTC (rev 1234)
+@@ -57,10 +57,4 @@
+   static AGString toHex(int i);
+ };
+ 
+-//std::ostream &amp;operator&lt;&lt;(std::ostream &amp;o,const AGString &amp;s);
+-
+-typedef AGString AGFilename;
+-typedef AGString AGData;
+-
+-
+ #endif
+
+Modified: antargis/trunk/ext/basic/ag_xml.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_xml.cc	2008-02-29 16:26:29 UTC (rev 1233)
++++ antargis/trunk/ext/basic/ag_xml.cc	2008-03-17 15:28:40 UTC (rev 1234)
+@@ -347,11 +347,11 @@
+   {
+     mRoot=new Node;
+   }
+-Document::Document(AGFilename pFile)
++Document::Document(const AGString &amp;pFilename)
+   {
+     mRoot=new Node;
+     mRoot-&gt;clear();
+-    parseFile(pFile);
++    parseFile(pFilename);
+   }
+ 
+ Document::~Document()
+@@ -359,9 +359,9 @@
+     delete mRoot;
+   }
+ 
+-bool Document::parseFile(AGFilename file)
++bool Document::parseFile(const AGString &amp;filename)
+   {
+-    AGData s;
++    AGString s;
+     s=loadFile(file);
+ 
+     parseMemory(s);
+@@ -379,7 +379,7 @@
+   return mRoot;
+   }*/
+ 
+-AGData Document::toString(bool forceIndent) const
++AGString Document::toString(bool forceIndent) const
+ {
+   if(mRoot-&gt;hasTextNode() &amp;&amp; forceIndent==false)
+     return mRoot-&gt;toString(false);
+@@ -393,7 +393,7 @@
+ }
+  */
+ 
+-void Document::parseMemory(const AGData &amp;s)
++void Document::parseMemory(const AGString &amp;s)
+   {
+     DomParser p;
+     p.parse(s,this);
+@@ -507,7 +507,7 @@
+   return data.line;
+ }
+ 
+-void Parser::parse(const AGData &amp;pData)
++void Parser::parse(const AGString &amp;pData)
+   {
+     data.s=AGString(pData);
+ 
+@@ -843,7 +843,7 @@
+   }
+ 
+ 
+-Document *DomParser::parse(const AGData &amp;pData,Document *d)
++Document *DomParser::parse(const AGString &amp;pData,Document *d)
+   {
+     doc=d;
+     nodes.clear();
+@@ -853,7 +853,7 @@
+     return doc;
+   }
+ 
+-Document *DomParser::parse(const AGData &amp;pData)
++Document *DomParser::parse(const AGString &amp;pData)
+   {
+     return parse(pData,new Document);
+   }
+
+Modified: antargis/trunk/ext/basic/ag_xml.h
+===================================================================
+--- antargis/trunk/ext/basic/ag_xml.h	2008-02-29 16:26:29 UTC (rev 1233)
++++ antargis/trunk/ext/basic/ag_xml.h	2008-03-17 15:28:40 UTC (rev 1234)
+@@ -109,16 +109,16 @@
+     Node *mRoot;
+   public:
+     Document();
+-    Document(AGFilename pFile);
++    Document(const AGString &amp;pFilename);
+     ~Document();
+ 
+-    bool parseFile(AGFilename file);
++    bool parseFile(const AGString &amp;pFilename);
+ 
+     Node &amp;root();
+ 
+     AGString toString(bool forceIndent=false) const;
+ 
+-    void parseMemory(const AGData &amp;s);
++    void parseMemory(const AGString &amp;s);
+   };
+ 
+ class AGEXPORT Parser
+@@ -168,7 +168,7 @@
+  public:
+   virtual ~Parser();
+ 
+-  void parse(const AGData &amp;pData);
++  void parse(const AGString &amp;pData);
+   size_t getLine() const;
+ 
+   virtual void simpleTag(const AGString &amp;pName,const Node::Attributes &amp;pAttributes);
+@@ -191,9 +191,9 @@
+   virtual void comment(const AGString &amp;pText);
+   virtual void header(const AGString &amp;pText);
+ 
+-  Document *parse(const AGData &amp;pData);
++  Document *parse(const AGString &amp;pData);
+ 
+-  Document *parse(const AGData &amp;pData,Document *d);
++  Document *parse(const AGString &amp;pData,Document *d);
+ };
+   
+ 
+
+Modified: antargis/trunk/ext/basic/templates.i
+===================================================================
+--- antargis/trunk/ext/basic/templates.i	2008-02-29 16:26:29 UTC (rev 1233)
++++ antargis/trunk/ext/basic/templates.i	2008-03-17 15:28:40 UTC (rev 1234)
+@@ -9,7 +9,7 @@
+ %template(StringVector) std::vector&lt;std::string&gt;;
+ %template(AGStringVector) std::vector&lt;AGString&gt;;
+ %template(AGStringUtf8Vector) std::vector&lt;AGStringUtf8&gt;;
+-%template(AGFilenameVector) std::vector&lt;AGFilename&gt;;
++//%template(AGFilenameVector) std::vector&lt;AGFilename&gt;;
+ %template(AGVector2List) std::list&lt;AGVector2&gt;;
+ 
+ 
+
+Modified: antargis/trunk/ext/game/height_map.cc
+===================================================================
+--- antargis/trunk/ext/game/height_map.cc	2008-02-29 16:26:29 UTC (rev 1233)
++++ antargis/trunk/ext/game/height_map.cc	2008-03-17 15:28:40 UTC (rev 1234)
+@@ -39,6 +39,8 @@
+     setTerrainScale(FOREST,23/32.0);
+     setTerrainScale(ROCK,31/32.0);
+     setTerrainScale(ROCK2,31/32.0);
++    
++    checkTerrain();
+   }
+ 
+ HeightMap::~HeightMap()
+@@ -178,6 +180,7 @@
+               }
+           }
+       }
++    checkTerrain();
+   }
+ 
+ void HeightMap::saveBinary(BinaryOut &amp;os) const
+@@ -209,10 +212,10 @@
+     }
+ }
+ 
+-void HeightMap::loadXML(const Node &amp;node)
++bool HeightMap::loadXML(const Node &amp;node)
+   {
+     CTRACE;
+-    AGFilename filename=node.get(&quot;filename&quot;);
++    AGString filename=node.get(&quot;filename&quot;);
+     if(filename.length())
+       {
+         BinaryFileIn is(filename);
+@@ -264,7 +267,7 @@
+             Node::NodeVector hv=node.getChildren(&quot;height&quot;);
+ 
+             if(hv.size()==0)// || gv.size()==0)
+-              return;
++              return false;
+             assert(hv.size()==1);
+             Node &amp;h=**hv.begin();
+ 
+@@ -294,6 +297,7 @@
+ 
+ 
+     sigMapChangedComplete(new AGEvent(this,&quot;mapChangedComplete&quot;));
++    return true;
+   }
+ 
+ void HeightMap::newMap(int w,int h)
+@@ -651,3 +655,13 @@
+   return rubyHash(s.getString());
+ 
+ }
++
++/**
++ * returns the mesh (scene-node) of the height-map
++ * FIXME: this is for testing-purpose only and shouldn't be used at all (?)
++ * it could be, that HeightMap introduced more than 1 mesh at some time
++ * */
++TerrainBase *HeightMap::getTerrainMesh()
++  {
++    return mTerrain;
++  }
+
+Modified: antargis/trunk/ext/game/height_map.h
+===================================================================
+--- antargis/trunk/ext/game/height_map.h	2008-02-29 16:26:29 UTC (rev 1233)
++++ antargis/trunk/ext/game/height_map.h	2008-03-17 15:28:40 UTC (rev 1234)
+@@ -56,7 +56,7 @@
+ 
+   // save load
+   virtual void saveXML(Node &amp;node) const;
+-  virtual void loadXML(const Node &amp;node);
++  virtual bool loadXML(const Node &amp;node);
+ 
+   // editing
+   void setHeight(float height); // for whole plane
+@@ -90,6 +90,7 @@
+ 
+   /// to be used by initTerrainMesh() - not otherwise !!!
+   void setTerrain(TerrainBase *pTerrain);
++  TerrainBase *getTerrainMesh();
+ 
+   std::string hash() const;
+ 
+
+Modified: antargis/trunk/ext/game/map.cc
+===================================================================
+--- antargis/trunk/ext/game/map.cc	2008-02-29 16:26:29 UTC (rev 1233)
++++ antargis/trunk/ext/game/map.cc	2008-03-17 15:28:40 UTC (rev 1234)
+@@ -108,9 +108,10 @@
+ }
+ 
+ 
+-void AntMap::loadXML(const Node &amp;node)
++bool AntMap::loadXML(const Node &amp;node)
+   {
+-    HeightMap::loadXML(node);
++    bool seemsok;
++    seemsok=HeightMap::loadXML(node);
+ 
+     Node::const_iterator i=node.begin();
+     for(;i!=node.end();i++)
+@@ -122,6 +123,8 @@
+     std::list&lt;AntEntity*&gt;::iterator k=mEntities.begin();
+     for(;k!=mEntities.end();k++)
+       (*k)-&gt;eventMapChanged();
++    
++    return seemsok;
+   }
+ 
+ void AntMap::insertEntity(AntEntity *e)
+@@ -344,26 +347,31 @@
+     return 0;
+   }
+ 
+-void AntMap::loadMapFromMemory(const AGData &amp;pMem)
++bool AntMap::loadMapFromMemory(const AGString &amp;pMem)
+   {
+     if(pMem.length())
+       {
+         Document d;
+         d.parseMemory(pMem);
+-        loadXML(d.root());
++        return loadXML(d.root());
+       }
++    return false;
+   }
+ 
+-void AntMap::loadMap(const AGFilename &amp;pFilename)
++bool AntMap::loadMap(const AGString &amp;pFilename)
+   {
+-
+-    loadMapFromMemory(loadFile(pFilename));
++    AGString filename=findFile(pFilename);
++    if(!fileExists(filename)) {
++      cdebug(&quot;File &quot;&lt;&lt;pFilename&lt;&lt;&quot; does not exists!&quot;);
++      return false;
++    }
++    return loadMapFromMemory(loadFile(filename));
+   }
+ 
+ /**
+  * save the current map into an xml-file named pFilename
+  */
+-void AntMap::saveMap(const AGFilename &amp;pFilename)
++void AntMap::saveMap(const AGString &amp;pFilename)
+   {
+     CTRACE;
+     mName=AGString(pFilename);
+@@ -373,7 +381,7 @@
+     cdebug(&quot;root:&quot;&lt;&lt;&amp;root);
+     saveXML(root);
+ 
+-    AGData c=d.toString();
++    AGString c=d.toString();
+     saveFile(pFilename,c);
+   }
+ 
+
+Modified: antargis/trunk/ext/game/map.h
+===================================================================
+--- antargis/trunk/ext/game/map.h	2008-02-29 16:26:29 UTC (rev 1233)
++++ antargis/trunk/ext/game/map.h	2008-03-17 15:28:40 UTC (rev 1234)
+@@ -60,9 +60,6 @@
+   
+   EntityList getEntities(const AGRect2&amp;r);
+   std::list&lt;AntEntity*&gt; getAllEntities();
+-//  std::vector&lt;AntEntityPtr&gt; getAllEntitiesV();
+-//  std::vector&lt;AntEntityPtr&gt; getEntities(const AGString &amp;pName);
+-//  std::vector&lt;AntEntity*&gt; getAllEntitiesV();
+   std::vector&lt;AntEntity*&gt; getEntities(const AGString &amp;pName);
+ 
+   AntEntity *getEntity(const Mesh &amp;pMesh);
+@@ -80,11 +77,11 @@
+   virtual void processXMLNode(const Node &amp;node);
+ 
+   void saveXML(Node &amp;node) const;
+-  void loadXML(const Node &amp;node);
++  bool loadXML(const Node &amp;node);
+ 
+-  void saveMap(const AGFilename &amp;pFilename);
+-  virtual void loadMap(const AGFilename &amp;pFilename);
+-  virtual void loadMapFromMemory(const AGData &amp;Memory);
++  void saveMap(const AGString &amp;pFilename);
++  virtual bool loadMap(const AGString &amp;pFilename);
++  virtual bool loadMapFromMemory(const AGString &amp;Memory);
+ 
+   void move(float pTime);
+ 
+
+Modified: antargis/trunk/ext/game/templates.i
+===================================================================
+--- antargis/trunk/ext/game/templates.i	2008-02-29 16:26:29 UTC (rev 1233)
++++ antargis/trunk/ext/game/templates.i	2008-03-17 15:28:40 UTC (rev 1234)
+@@ -21,10 +21,10 @@
+ }
+ 
+ 
+-%template(EntityPVector2) std::vector&lt;PAntEntity&gt;;
++//%template(EntityPVector2) std::vector&lt;PAntEntity&gt;;
+ %template(EntityPVector) std::vector&lt;AntEntity*&gt;;
+ %template(EntityPList) std::list&lt;AntEntity*&gt;;
+-%template(EntityVector) std::vector&lt;AntEntityPtr&gt;;
++//%template(EntityVector) std::vector&lt;AntEntityPtr&gt;;
+ %template(ResourceMap) std::map&lt;std::string,float&gt;;
+ %template(AGResourceMap) std::map&lt;AGString,float&gt;;
+-%template(AGVector2Pair) std::pair&lt;AGVector2,AGVector2&gt;;
+\ No newline at end of file
++%template(AGVector2Pair) std::pair&lt;AGVector2,AGVector2&gt;;
+
+Modified: antargis/trunk/ext/gui/ag_layoutcreators.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_layoutcreators.cc	2008-02-29 16:26:29 UTC (rev 1233)
++++ antargis/trunk/ext/gui/ag_layoutcreators.cc	2008-03-17 15:28:40 UTC (rev 1234)
+@@ -31,7 +31,7 @@
+       AGStringUtf8 caption=_(pNode.get(&quot;caption&quot;));
+       b=new AGButton(pParent,pRect,AGStringUtf8(caption));
+       setResult(b);
+-      AGFilename captionImage=pNode.get(&quot;caption-image&quot;);
++      AGString captionImage=pNode.get(&quot;caption-image&quot;);
+       if(captionImage.length())
+         b-&gt;setSurface(AGSurface::load(captionImage),false);
+       if(pNode.get(&quot;enabled&quot;)==&quot;false&quot;)
+@@ -299,7 +299,7 @@
+   virtual void create(AGWidget *pParent,const AGRect2 &amp;pRect,const Node &amp;pNode)
+     {
+       CTRACE;
+-      AGFilename filename=pNode.get(&quot;filename&quot;);
++      AGString filename=pNode.get(&quot;filename&quot;);
+       AGWidget *w=new AGWidget(pParent,pRect);
+       setResult(w);
+       AGLayout *l=new AGLayout(w);
+@@ -318,7 +318,7 @@
+ 
+   virtual void create(AGWidget *pParent,const AGRect2 &amp;pRect,const Node &amp;pNode)
+     {
+-      AGFilename filename=pNode.get(&quot;filename&quot;);
++      AGString filename=pNode.get(&quot;filename&quot;);
+ 
+       AGSurface s(0,0);
+       if(filename.length())
+@@ -460,7 +460,7 @@
+       if(caption.length())
+         b-&gt;setCaption(AGStringUtf8(caption));
+ 
+-      AGFilename captionImage=pNode.get(&quot;caption-image&quot;);
++      AGString captionImage=pNode.get(&quot;caption-image&quot;);
+       if(captionImage.length())
+         b-&gt;setSurface(AGSurface::load(captionImage),false);
+       if(pNode.get(&quot;enabled&quot;)==&quot;false&quot;)
+
+Modified: antargis/trunk/ext/gui/ag_theme.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_theme.cc	2008-02-29 16:26:29 UTC (rev 1233)
++++ antargis/trunk/ext/gui/ag_theme.cc	2008-03-17 15:28:40 UTC (rev 1234)
+@@ -187,7 +187,7 @@
+       }
+   }
+ 
+-void loadTheme(const AGData &amp;pXML)
++void loadTheme(const AGString &amp;pXML)
+   {
+     AGTheme theme;
+ 
+@@ -201,7 +201,7 @@
+     setTheme(theme);
+   }
+ 
+-bool loadThemeFile(const AGFilename &amp;pFilename)
++bool loadThemeFile(const AGString &amp;pFilename)
+   {
+     AGTheme theme;
+ 
+
+Modified: antargis/trunk/ext/gui/ag_theme.h
+===================================================================
+--- antargis/trunk/ext/gui/ag_theme.h	2008-02-29 16:26:29 UTC (rev 1233)
++++ antargis/trunk/ext/gui/ag_theme.h	2008-03-17 15:28:40 UTC (rev 1234)
+@@ -66,8 +66,8 @@
+ 
+ AGEXPORT AGTheme *getTheme();
+ AGEXPORT void setTheme(const AGTheme &amp;aTheme);
+-AGEXPORT void loadTheme(const AGData &amp;pXML);
+-AGEXPORT bool loadThemeFile(const AGFilename &amp;pFilename);
++AGEXPORT void loadTheme(const AGString &amp;pXML);
++AGEXPORT bool loadThemeFile(const AGString &amp;pFilename);
+ 
+ AGEXPORT AGString addPoint(const AGString &amp;pTheme);
+ 
+
+Deleted: antargis/trunk/ext/sound/ag_sound.cc
+===================================================================
+--- antargis/trunk/ext/sound/ag_sound.cc	2008-02-29 16:26:29 UTC (rev 1233)
++++ antargis/trunk/ext/sound/ag_sound.cc	2008-03-17 15:28:40 UTC (rev 1234)
+@@ -1,10 +0,0 @@
+-#include &lt;ag_sound.h&gt;
+-
+-#include &lt;map&gt;
+-#include &lt;string&gt;
+-
+-#include &lt;SDL_mixer.h&gt;
+-
+-extern std::map&lt;std::string,Mix_Chunk*&gt; mSounds;
+-
+-#warning FIXME: cleanup stored sounds ???
+
+Modified: antargis/trunk/ext/video/ag_texturecache.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_texturecache.cc	2008-02-29 16:26:29 UTC (rev 1233)
++++ antargis/trunk/ext/video/ag_texturecache.cc	2008-03-17 15:28:40 UTC (rev 1234)
+@@ -37,11 +37,11 @@
+     getInstanceKiller()-&gt;reg(createKiller(this));
+   }
+ 
+-const AGTexture &amp;AGTextureCache::get(const AGFilename &amp;pTexture,const AGRect2 &amp;pSub)
++const AGTexture &amp;AGTextureCache::get(const AGString &amp;pTexture,const AGRect2 &amp;pSub)
+   {
+     std::string s=pTexture+&quot;:&quot;+pSub.toString();
+ 
+-    std::map&lt;AGFilename,AGTexture*&gt;::iterator i=mTextures.find(s);
++    std::map&lt;AGString,AGTexture*&gt;::iterator i=mTextures.find(s);
+     if(i==mTextures.end())
+       {
+         // load
+@@ -53,9 +53,9 @@
+   }
+ 
+ 
+-const AGTexture &amp;AGTextureCache::get(const AGFilename &amp;pTexture,int downScaleExp)
++const AGTexture &amp;AGTextureCache::get(const AGString &amp;pTexture,int downScaleExp)
+   {
+-    std::map&lt;AGFilename,AGTexture*&gt;::iterator i=mTextures.find(pTexture);
++    std::map&lt;AGString,AGTexture*&gt;::iterator i=mTextures.find(pTexture);
+     if(i==mTextures.end())
+       {
+         // load
+@@ -116,9 +116,9 @@
+   }
+ 
+ 
+-const AGTexture &amp;AGTextureCache::get3D(const AGFilename &amp;pTexture,int downScaleExp,int downScaleZ)
++const AGTexture &amp;AGTextureCache::get3D(const AGString &amp;pTexture,int downScaleExp,int downScaleZ)
+   {
+-    std::map&lt;AGFilename,AGTexture*&gt;::iterator i=mTextures.find(pTexture);
++    std::map&lt;AGString,AGTexture*&gt;::iterator i=mTextures.find(pTexture);
+     if(i==mTextures.end())
+       {
+         // load
+
+Modified: antargis/trunk/ext/video/ag_texturecache.h
+===================================================================
+--- antargis/trunk/ext/video/ag_texturecache.h	2008-02-29 16:26:29 UTC (rev 1233)
++++ antargis/trunk/ext/video/ag_texturecache.h	2008-03-17 15:28:40 UTC (rev 1234)
+@@ -36,12 +36,12 @@
+   {
+     AGTextureCache();
+   public:
+-    const AGTexture &amp;get(const AGFilename &amp;pTexture,int downScaleExp=1);
+-    const AGTexture &amp;get3D(const AGFilename &amp;pTexture,int downScaleExp=1,int downScaleZ=1);
++    const AGTexture &amp;get(const AGString &amp;pTextureFilename ,int downScaleExp=1);
++    const AGTexture &amp;get3D(const AGString &amp;pTextureFilename,int downScaleExp=1,int downScaleZ=1);
+ 
+-    const AGTexture &amp;get(const AGFilename &amp;pTexture,const AGRect2 &amp;pSub);
++    const AGTexture &amp;get(const AGString &amp;pTextureFilename,const AGRect2 &amp;pSub);
+   private:
+-    std::map&lt;AGFilename,AGTexture*&gt; mTextures;
++    std::map&lt;AGString,AGTexture*&gt; mTextures;
+     
+     friend AGTextureCache *getTextureCache();
+   };
+
+Modified: antargis/trunk/main/Rakefile
+===================================================================
+--- antargis/trunk/main/Rakefile	2008-02-29 16:26:29 UTC (rev 1233)
++++ antargis/trunk/main/Rakefile	2008-03-17 15:28:40 UTC (rev 1234)
+@@ -6,9 +6,10 @@
+ 
+ task './starter'=&gt;File.join(&quot;main&quot;,&quot;starter.cc&quot;) do
+ 	require 'antconfig.rb'
+-	#debug=&quot;antargis.bundle -g&quot;
+-	debug=&quot;&quot;
+-	cmd=&quot;g++ -o starter main/starter.cc #{debug} &quot;+$CONFIG[&quot;CFLAGS&quot;]+&quot; &quot;+$CONFIG[&quot;INCLUDEPATH&quot;]+&quot; &quot;+`#{$CONFIG[&quot;SDL_CONFIG&quot;]} --libs`.chomp+&quot; -l&quot;+CONFIG[&quot;RUBY_SO_NAME&quot;]
++	debug=&quot;antargis.so -g&quot;
++	debug=&quot;-g&quot;
++  cmd=&quot;g++ -o starter -L. -lantargis main/starter.cc #{debug} &quot;+$CONFIG[&quot;CFLAGS&quot;]+&quot; &quot;+$CONFIG[&quot;INCLUDEPATH&quot;]+&quot; &quot;+`#{$CONFIG[&quot;SDL_CONFIG&quot;]} --libs`.chomp+&quot; -l&quot;+CONFIG[&quot;RUBY_SO_NAME&quot;]
++  cmd=&quot;g++ -ggdb -o starter libantargis.a main/starter.cc #{debug} &quot;+$CONFIG[&quot;CFLAGS&quot;]+&quot; &quot;+$CONFIG[&quot;LIBS&quot;]+&quot; -framework OpenGL  &quot;+$CONFIG[&quot;INCLUDEPATH&quot;]+&quot; &quot;+`#{$CONFIG[&quot;SDL_CONFIG&quot;]} --libs`.chomp+&quot; -l&quot;+CONFIG[&quot;RUBY_SO_NAME&quot;]
+ 	cmd.gsub!(&quot;-arch ppc&quot;,&quot;&quot;)
+ 	sh cmd
+ end
+
+Modified: antargis/trunk/main/starter.cc
+===================================================================
+--- antargis/trunk/main/starter.cc	2008-02-29 16:26:29 UTC (rev 1233)
++++ antargis/trunk/main/starter.cc	2008-03-17 15:28:40 UTC (rev 1234)
+@@ -1,13 +1,23 @@
+ #include &lt;SDL.h&gt;
+ 
+ #include &lt;ruby.h&gt;
++#include &lt;iostream&gt;
+ 
++extern &quot;C&quot; void Init_antargis();
++
+ int main(int argc,char*argv[])
+   {
+     ruby_init();
++    //rb_load_file(&quot;antargis&quot;);
++    std::cout&lt;&lt;&quot;Init_antargis out of starter...&quot;&lt;&lt;std::endl;
++    Init_antargis();
++    std::cout&lt;&lt;&quot;Init_antargis out of starter-ready&quot;&lt;&lt;std::endl;
++    std::cout&lt;&lt;&quot;Init_antargis out of starter-ready&quot;&lt;&lt;std::endl;
+     ruby_options(argc,argv);
++    std::cout&lt;&lt;&quot;AAA&quot;&lt;&lt;std::endl;
+     ruby_script(&quot;sdl_starter&quot;);
+-    //rb_load_file(&quot;antargis&quot;);
++    std::cout&lt;&lt;&quot;BBB&quot;&lt;&lt;std::endl;
+     ruby_run();
++    std::cout&lt;&lt;&quot;CCC&quot;&lt;&lt;std::endl;
+     return 0;
+   }
+
+Modified: antargis/trunk/ruby/antargislib.rb
+===================================================================
+--- antargis/trunk/ruby/antargislib.rb	2008-02-29 16:26:29 UTC (rev 1233)
++++ antargis/trunk/ruby/antargislib.rb	2008-03-17 15:28:40 UTC (rev 1234)
+@@ -80,26 +80,32 @@
+ end
+ 
+ begin
+-	if File.exists?(&quot;ext/antargis.so&quot;)
+-		require 'ext/antargis'
+-	else
+-		puts &quot;Please run 'rake' before starting this program!&quot;
+-		require 'antargis'
+-	end
+-	include Antargis
++  include Antargis
++  puts &quot;Antargis-module included&quot;
+ rescue
+-	puts &quot;I'll try to run rake for you. Please try again yourself when it doesn't work.&quot;
+-	system &quot;rake&quot;
+-	puts &quot;Try starting again...&quot;
+-	if File.exists?(&quot;ext/antargis.so&quot;)
+-		require 'ext/antargis'
+-	else
+-		puts &quot;Please run 'rake' before starting this program!&quot;
+-		require 'antargis'
++  puts &quot;Antargis-module not found - trying to load .so&quot;
++	begin
++		if File.exists?(&quot;ext/antargis.so&quot;)
++			require 'ext/antargis'
++		else
++			puts &quot;Please run 'rake' before starting this program!&quot;
++			require 'antargis'
++		end
++		include Antargis
++	rescue
++		puts &quot;I'll try to run rake for you. Please try again yourself when it doesn't work.&quot;
++		system &quot;rake&quot;
++		puts &quot;Try starting again...&quot;
++		if File.exists?(&quot;ext/antargis.so&quot;)
++			require 'ext/antargis'
++		else
++			puts &quot;Please run 'rake' before starting this program!&quot;
++			require 'antargis'
++		end
++		include Antargis
++		puts &quot;I'll try to run rake for you. Please try again yourself when it doesn't work.&quot;
++	
+ 	end
+-	include Antargis
+-	puts &quot;I'll try to run rake for you. Please try again yourself when it doesn't work.&quot;
+-
+ end
+ puts &quot;extension loaded&quot;
+ 
+
+Modified: antargis/trunk/ruby/editor/dialogs.rb
+===================================================================
+--- antargis/trunk/ruby/editor/dialogs.rb	2008-02-29 16:26:29 UTC (rev 1233)
++++ antargis/trunk/ruby/editor/dialogs.rb	2008-03-17 15:28:40 UTC (rev 1234)
+@@ -59,7 +59,7 @@
+ 		@ent.setupMesh
+ 		if @ent.is_a?(AntBoss)
+ 			name=getChild(&quot;Player&quot;).getSelected
+-			@ent.setPlayer(getMap.players.find{|n|n.getName==name})
++			@ent.setPlayer(@map.players.find{|n|n.getName==name})
+ 		end
+ 		return true
+ 	end
+@@ -187,7 +187,8 @@
+ 		@list.clearList
+ 		@players={}
+ 		@map.players.each{|p|
+-			@list.insertItem(p.name,p.name)
++		  puts &quot;initPlayNames:#{p}:#{p.class}:#{p.name}:#{p.name.class}&quot;
++			@list.insertItem(p.name.to_s,p.name)
+ 			@players[p.name]=p
+ 		}
+ 	end
+
+Modified: antargis/trunk/ruby/editor_app.rb
+===================================================================
+--- antargis/trunk/ruby/editor_app.rb	2008-02-29 16:26:29 UTC (rev 1233)
++++ antargis/trunk/ruby/editor_app.rb	2008-03-17 15:28:40 UTC (rev 1234)
+@@ -45,7 +45,7 @@
+ 
+ class AntEditorApp &lt; AntRubyEditView
+ 	def initialize(sw,sh)
+-		super(sw,sh,nil) #AntRubyMap.new(64,64))
++		super(sw,sh,nil)
+ 		$app=self	
+ 		@map=AntRubyMap.new(self,getScene,128,128)
+ 		@map.setHeight(-0.5)
+
+Modified: antargis/trunk/ruby/editview.rb
+===================================================================
+--- antargis/trunk/ruby/editview.rb	2008-02-29 16:26:29 UTC (rev 1233)
++++ antargis/trunk/ruby/editview.rb	2008-03-17 15:28:40 UTC (rev 1234)
+@@ -286,12 +286,14 @@
+ 	
+ 	
+ 	def isTerrain(node)
+-		[TerrainPiece,WaterPiece].member?(node.class)
++	  # Terrain is for testign purpose only
++	  [TerrainPiece,WaterPiece,Terrain].member?(node.class)
+ 	end
+ 	
+ 	def addEntity(list,button)
+ 		pos=nil
+ 		list.each{|c|
++		  puts &quot;LIST #{c} #{c.node}&quot;
+ 			if isTerrain(c.node)
+ 				pos=c.pos
+ 			end
+@@ -300,20 +302,22 @@
+ 			return
+ 		end
+ 		puts &quot;ADDENTITY&quot;
++    entity=nil
+ 		dorand=true
+ 		if @type==AntDeco
+-			tree=@type.new(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">map, at decoType</A>)
++			entity=@type.new(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">map, at decoType</A>)
+ 			if @decoType==&quot;floor&quot; or @decoType==&quot;block&quot;
+ 				dorand=false
+ 			end
+ 		elsif @type==AntHero
+-			tree=@type.new(@map)
+-			tree.setAppearance(@appearance)
++			entity=@type.new(@map)
++			entity.setAppearance(@appearance)
+ 		else
+-			tree=@type.new(@map)
++			entity=@type.new(@map)
+ 		end
+-		tree.setPos(AGVector2.new(pos.x,pos.y))
+-		getMap.insertEntity(tree)
++    puts &quot;SETPOS #{pos.x} #{pos.y}&quot;
++		entity.setPos(AGVector2.new(pos.x,pos.y))
++		getMap.insertEntity(entity)
+ 	end
+ 
+ 	def setupNames
+
+Modified: antargis/trunk/ruby/gui/testing.rb
+===================================================================
+--- antargis/trunk/ruby/gui/testing.rb	2008-02-29 16:26:29 UTC (rev 1233)
++++ antargis/trunk/ruby/gui/testing.rb	2008-03-17 15:28:40 UTC (rev 1234)
+@@ -1,3 +1,4 @@
++require 'ruby/spec_helper.rb'
+ module TestModule
+ 	attr_reader :quitCounter
+ 	def step
+@@ -109,4 +110,12 @@
+ 		@app.eventMouseButtonDown(newEvent(@app,&quot;&quot;,toSDLEvent(&quot;SDL_MOUSEBUTTONDOWN:0:1:1:#{x.to_i}:#{y.to_i}&quot;)))
+ 		@app.eventMouseButtonUp(newEvent(@app,&quot;&quot;,toSDLEvent(&quot;SDL_MOUSEBUTTONUP:0:1:1:#{x.to_i}:#{y.to_i}&quot;)))
+ 	end
++  def key(pkey)
++    sym=pkey[0]
++    s1=&quot;SDL_KEYDOWN:0:1:0:#{sym}:0:#{sym}&quot;
++    puts s1
++    #exit
++    @app.eventKeyDown(newEvent(@app,&quot;&quot;,toSDLEvent(s1)))
++    @app.eventKeyUp(newEvent(@app,&quot;&quot;,toSDLEvent(&quot;SDL_KEYUP:0:0:0:#{sym}:0:#{sym}&quot;)))
++  end
+ end
+
+Modified: antargis/trunk/ruby/map.rb
+===================================================================
+--- antargis/trunk/ruby/map.rb	2008-02-29 16:26:29 UTC (rev 1233)
++++ antargis/trunk/ruby/map.rb	2008-03-17 15:28:40 UTC (rev 1234)
+@@ -322,6 +322,7 @@
+ 		if n.get(&quot;curTime&quot;)!=&quot;&quot;
+ 			@curTime=n.get(&quot;curTime&quot;).to_f
+ 		end
++    return true
+ 	end
+ 
+ 	def loadMap(filename)
+
+Modified: antargis/trunk/ruby/spec/spec_gui.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_gui.rb	2008-02-29 16:26:29 UTC (rev 1233)
++++ antargis/trunk/ruby/spec/spec_gui.rb	2008-03-17 15:28:40 UTC (rev 1234)
+@@ -1,3 +1,21 @@
++require 'ruby/gui/testing.rb'
++
+ describe &quot;AGEdit&quot; do
+-  it &quot;should ignore pressing RETURN when not in multiline mode&quot;
++  include GuiTest
++  it &quot;should ignore pressing RETURN,ESCAPE when not in multiline mode&quot; do
++    @app=makeTestAppClass(AGApplication).new
++    widget=AGEdit.new(nil,AGRect2.new(20,20,200,50))
++    @app.setMainWidget(widget)
++    @app.step
++    key('a')
++    while true; @app.run;end
++  end
++end
++
++describe &quot;AGListBox&quot; do
++  it &quot;should display correctly when a text-entry too long&quot; 
++  #do
++  #  app=makeTestApp(AGApplication)
++  #  widget=AGListBox.new()
++  #end
+ end
+\ No newline at end of file
+
+Modified: antargis/trunk/ruby/spec/spec_hljobs.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_hljobs.rb	2008-02-29 16:26:29 UTC (rev 1233)
++++ antargis/trunk/ruby/spec/spec_hljobs.rb	2008-03-17 15:28:40 UTC (rev 1234)
+@@ -38,24 +38,24 @@
+ 
+   it &quot;should then send hero to tower (at most 10 low-level move-jobs for format and move)&quot; do
+     rowen=hero(&quot;Rowen&quot;)
+-  keep=building(&quot;Keep&quot;)
++    keep=building(&quot;Keep&quot;)
+ 
+   	# format
+     while rowen.getJob.stateName==:moveComplete
+ 	  advance
+     end
+ 	
+-	rowen.getJobName.should ==&quot;moveJob&quot;
+-	rowen.getTarget.should be_a_kind_of(AntMan)
+-	@store[:oldPos]=rowen.getPos2D
++		rowen.getJobName.should ==&quot;moveJob&quot;
++		rowen.getTarget.should be_a_kind_of(AntMan)
++		@store[:oldPos]=rowen.getPos2D
+   end
+   it &quot;hero should only go fetch one man;go back and then stay at his position&quot; do
+-  	rowen=hero(&quot;Rowen&quot;)
+-	man=rowen.getTarget
+-  	runUntilLowLevelJobToFinish(rowen)
+-	rowen.getJobName.should == &quot;moveJob&quot;
+-	rowen.getTarget.should be_nil
+-	trials=0
++		rowen=hero(&quot;Rowen&quot;)
++		man=rowen.getTarget
++		runUntilLowLevelJobToFinish(rowen)
++		rowen.getJobName.should == &quot;moveJob&quot;
++		rowen.getTarget.should be_nil
++		trials=0
+ 	while rowen.getJobName==&quot;moveJob&quot;
+         runUntilLowLevelJobToFinish(rowen)
+ 		trials+=1
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000191.html">[Antargis-svn] r1235 - antargis/trunk/ruby/spec
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#190">[ date ]</a>
+              <a href="thread.html#190">[ thread ]</a>
+              <a href="subject.html#190">[ subject ]</a>
+              <a href="author.html#190">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

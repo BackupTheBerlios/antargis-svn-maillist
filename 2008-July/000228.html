@@ -1,0 +1,1493 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1272 - in antargis/trunk: .	data/gui/layout/editor/campaign ext/basic ext/gui ruby	ruby/editor/campaign ruby/gui ruby/spec ruby/spec/story
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2008-July/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1272%20-%20in%20antargis/trunk%3A%20.%0A%09data/gui/layout/editor/campaign%20ext/basic%20ext/gui%20ruby%0A%09ruby/editor/campaign%20ruby/gui%20ruby/spec%20ruby/spec/story&In-Reply-To=%3C200807101916.m6AJGIGe018557%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000227.html">
+   <LINK REL="Next"  HREF="000229.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1272 - in antargis/trunk: .	data/gui/layout/editor/campaign ext/basic ext/gui ruby	ruby/editor/campaign ruby/gui ruby/spec ruby/spec/story</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1272%20-%20in%20antargis/trunk%3A%20.%0A%09data/gui/layout/editor/campaign%20ext/basic%20ext/gui%20ruby%0A%09ruby/editor/campaign%20ruby/gui%20ruby/spec%20ruby/spec/story&In-Reply-To=%3C200807101916.m6AJGIGe018557%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1272 - in antargis/trunk: .	data/gui/layout/editor/campaign ext/basic ext/gui ruby	ruby/editor/campaign ruby/gui ruby/spec ruby/spec/story">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Thu Jul 10 21:16:18 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000227.html">[Antargis-svn] r1271 - in antargis/trunk: data	data/gui/layout/editor/campaign ext/basic ext/gui ext/video	ruby ruby/editor/campaign
+</A></li>
+        <LI>Next message: <A HREF="000229.html">[Antargis-svn] r1273 - in antargis/trunk: . rookey rookey/configs	rookey/externals rookey/externals/swig rookey/externals/zlib
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#228">[ date ]</a>
+              <a href="thread.html#228">[ thread ]</a>
+              <a href="subject.html#228">[ subject ]</a>
+              <a href="author.html#228">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2008-07-10 21:16:05 +0200 (Thu, 10 Jul 2008)
+New Revision: 1272
+
+Added:
+   antargis/trunk/checktabs.rb
+   antargis/trunk/ruby/editor/campaign/app.rb
+   antargis/trunk/ruby/editor/campaign/effect.rb
+   antargis/trunk/ruby/editor/campaign/ruby_layouts.rb
+   antargis/trunk/ruby/editor/campaign/ruby_signals.rb
+   antargis/trunk/ruby/editor/campaign/ruby_tools.rb
+   antargis/trunk/ruby/spec/story/
+   antargis/trunk/ruby/spec/story/my_story.rb
+   antargis/trunk/ruby/spec/story/story_spec
+   antargis/trunk/ruby/spec/story/story_spec.rb
+Modified:
+   antargis/trunk/TODO
+   antargis/trunk/data/gui/layout/editor/campaign/main.xml
+   antargis/trunk/ext/basic/ag_messageobject.cc
+   antargis/trunk/ext/basic/ag_messageobject.h
+   antargis/trunk/ext/gui/ag_application.cc
+   antargis/trunk/ext/gui/ag_widget.cc
+   antargis/trunk/ext/gui/ag_widget.h
+   antargis/trunk/ruby/editor/campaign/dialogs.rb
+   antargis/trunk/ruby/editor/campaign/drag_grid.rb
+   antargis/trunk/ruby/editor/campaign/editor.rb
+   antargis/trunk/ruby/editor/campaign/spec_campaign_editor.rb
+   antargis/trunk/ruby/gui/testing.rb
+   antargis/trunk/ruby/spec/spec_scrollingwidget.rb
+   antargis/trunk/ruby/spec_helper.rb
+Log:
+Incomplete - task 11: Campaign editor 
+<A HREF="http://localhost:3000/issues/show/11">http://localhost:3000/issues/show/11</A>
+
+Modified: antargis/trunk/TODO
+===================================================================
+--- antargis/trunk/TODO	2008-07-07 19:04:25 UTC (rev 1271)
++++ antargis/trunk/TODO	2008-07-10 19:16:05 UTC (rev 1272)
+@@ -181,8 +181,5 @@
+ [L] cleanup gui - remove unused elements
+ [L] fix selecting group. When you switch the &quot;tabs&quot;, the selected action should be changed, too
+ 
+-[Packaging / Building]
+-------------------------------------------------------
+-[L] installer for linux. maybe some autopackage or .debs?
+ 
+ 
+
+Added: antargis/trunk/checktabs.rb
+===================================================================
+--- antargis/trunk/checktabs.rb	2008-07-07 19:04:25 UTC (rev 1271)
++++ antargis/trunk/checktabs.rb	2008-07-10 19:16:05 UTC (rev 1272)
+@@ -0,0 +1,25 @@
++#!/usr/bin/env ruby
++
++require 'pp'
++
++def hasTabs(f)
++  f=File.open(f)
++  r=(f.read=~/\t/)
++  f.close
++  r
++end
++
++def removeTabs(fn)
++  f=File.open(fn)
++  c=f.read
++  f.close
++  f=File.open(fn,&quot;w&quot;)
++  f.puts c.gsub(&quot;\t&quot;,&quot;  &quot;)
++  f.close
++end
++
++
++Dir[&quot;ruby/**/*.rb&quot;].each{|f|
++  removeTabs(f) if hasTabs(f)
++ # pp f,hasTabs(f)
++}
+
+Modified: antargis/trunk/data/gui/layout/editor/campaign/main.xml
+===================================================================
+--- antargis/trunk/data/gui/layout/editor/campaign/main.xml	2008-07-07 19:04:25 UTC (rev 1271)
++++ antargis/trunk/data/gui/layout/editor/campaign/main.xml	2008-07-10 19:16:05 UTC (rev 1272)
+@@ -35,9 +35,6 @@
+               &lt;cell col=&quot;0&quot; row=&quot;1&quot;&gt;
+                 &lt;dragSource name =&quot;storySource&quot; class=&quot;DragBoxStory&quot; text=&quot;Story&quot;/&gt;
+               &lt;/cell&gt;
+-              &lt;cell col=&quot;0&quot; row=&quot;2&quot;&gt;
+-                &lt;dragTrash/&gt;
+-              &lt;/cell&gt;
+         
+             &lt;/table&gt;
+           &lt;/cell&gt;
+@@ -52,12 +49,16 @@
+     
+     
+           &lt;cell col=&quot;1&quot; row=&quot;1&quot; name=&quot;a&quot;&gt;
+-            &lt;table cols=&quot;2&quot; rows=&quot;1&quot; name=&quot;b&quot;&gt;
+-              &lt;colsize col=&quot;1&quot; fixed=&quot;50&quot;/&gt;
++            &lt;table cols=&quot;3&quot; rows=&quot;1&quot; name=&quot;b&quot;&gt;
++              &lt;colsize col=&quot;0&quot; fixed=&quot;50&quot;/&gt;
++              &lt;colsize col=&quot;2&quot; fixed=&quot;50&quot;/&gt;
+               &lt;cell col=&quot;0&quot; row=&quot;0&quot;&gt;
++                &lt;button name=&quot;trash&quot; caption-image=&quot;data/gui/images/basic/cross.png&quot;/&gt;
++              &lt;/cell&gt;
++              &lt;cell col=&quot;1&quot; row=&quot;0&quot;&gt;
+                 &lt;edit name=&quot;textEdit&quot;/&gt;
+               &lt;/cell&gt;
+-              &lt;cell col=&quot;1&quot; row=&quot;0&quot;&gt;
++              &lt;cell col=&quot;2&quot; row=&quot;0&quot;&gt;
+                 &lt;button name=&quot;edit&quot; caption-image=&quot;data/gui/options.png&quot;/&gt;
+               &lt;/cell&gt;
+             &lt;/table&gt;
+
+Modified: antargis/trunk/ext/basic/ag_messageobject.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_messageobject.cc	2008-07-07 19:04:25 UTC (rev 1271)
++++ antargis/trunk/ext/basic/ag_messageobject.cc	2008-07-10 19:16:05 UTC (rev 1272)
+@@ -22,15 +22,16 @@
+ #include &quot;ag_debug.h&quot;
+ #include &quot;ag_main.h&quot;
+ #include &quot;ag_stringstream.h&quot;
++#include &quot;ag_widget.h&quot;
+ 
+ SDL_Event AGEvent::NullEvent={SDL_NOEVENT};
+ 
+ // AGEvent
+ AGEvent::AGEvent(AGListener *pCaller,const AGString &amp;pName,const SDL_Event &amp;e):mCaller(pCaller),mName(pName),mEvent(e),
+-  mMousePosition(0),mRelMousePosition(0)
+-  {
+-    mClipped=false;
+-  }
++mMousePosition(0),mRelMousePosition(0)
++      {
++        mClipped=false;
++      }
+ AGEvent::~AGEvent()
+   {
+     if(mMousePosition)
+@@ -125,7 +126,7 @@
+ {
+   if(mMousePosition)
+     return *mMousePosition;
+-  
++
+   assert(eventOk(mEvent));
+   AGVector2 p;
+   switch(mEvent.type) {
+@@ -227,11 +228,11 @@
+ AGSignal::AGSignal(AGMessageObject *pCaller):mCaller(pCaller)
+   {
+   }
+-*/
++ */
+ AGSignal::AGSignal(AGMessageObject *pCaller,const AGString &amp;pName):
+   mName(pName),mCaller(pCaller)
+-    {
+-    }
++        {
++        }
+ 
+ AGSignal::~AGSignal()
+   {
+@@ -317,10 +318,10 @@
+   }
+ 
+ bool AGSignal::operator()(AGEvent *m)
+-  {
+-    m-&gt;setName(mName);
+-    return signal(m);
+-  }
++      {
++        m-&gt;setName(mName);
++        return signal(m);
++      }
+ 
+ // AGMessageObject
+ 
+@@ -339,8 +340,8 @@
+   sigSysWM(this,&quot;sigSysWM&quot;),
+   sigVideoResize(this,&quot;sigVideoResize&quot;),
+   mCanReceiveMessages(true)
+-    {
+-    }
++        {
++        }
+ 
+ AGMessageObject::~AGMessageObject()
+   {
+@@ -414,6 +415,15 @@
+         }
+       }
+ 
++    if(rc)
++      {
++        AGWidget *w=dynamic_cast&lt;AGWidget*&gt;(this);
++        if(w)
++          cdebug(toString(&amp;agEvent-&gt;get())&lt;&lt;&quot; eaten up by &quot;&lt;&lt;typeid(*this).name()&lt;&lt;&quot; &quot;&lt;&lt;w-&gt;getName());
++        else
++          cdebug(toString(&amp;agEvent-&gt;get())&lt;&lt;&quot; eaten up by &quot;&lt;&lt;typeid(*this).name());//&lt;&lt;&quot; &quot;&lt;&lt;getName());
++      }
++
+     return rc;
+   }
+ 
+@@ -515,7 +525,7 @@
+     return k;
+   }
+ 
+-AGString toString(SDL_Event *pEvent)
++AGString toString(const SDL_Event *pEvent)
+   {
+     AGStringStream os;
+     if(pEvent)
+
+Modified: antargis/trunk/ext/basic/ag_messageobject.h
+===================================================================
+--- antargis/trunk/ext/basic/ag_messageobject.h	2008-07-07 19:04:25 UTC (rev 1271)
++++ antargis/trunk/ext/basic/ag_messageobject.h	2008-07-10 19:16:05 UTC (rev 1272)
+@@ -259,7 +259,7 @@
+ }
+ 
+ 
+-AGEXPORT AGString toString(SDL_Event *pEvent);
++AGEXPORT AGString toString(const SDL_Event *pEvent);
+ AGEXPORT SDL_Event *toSDLEvent(const AGString &amp;p);
+ 
+ AGEXPORT bool eventOk(const SDL_Event &amp;pEvent);
+
+Modified: antargis/trunk/ext/gui/ag_application.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_application.cc	2008-07-07 19:04:25 UTC (rev 1271)
++++ antargis/trunk/ext/gui/ag_application.cc	2008-07-10 19:16:05 UTC (rev 1272)
+@@ -436,7 +436,7 @@
+             eventChangedRes();
+             redraw();
+           }
+-        else if (k==SDLK_F10)
++        else if (k==SDLK_F10||toString(&amp;m-&gt;get())==&quot;SDL_KEYDOWN:0:1:12:113:1024:113&quot;) // APPLE+Q
+           tryQuit();
+       }
+     return false;
+
+Modified: antargis/trunk/ext/gui/ag_widget.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_widget.cc	2008-07-07 19:04:25 UTC (rev 1271)
++++ antargis/trunk/ext/gui/ag_widget.cc	2008-07-10 19:16:05 UTC (rev 1272)
+@@ -67,28 +67,27 @@
+   mFixedWidth(false),mFixedHeight(false),mVisible(true),mCaching(false),
+   mHasFocus(false),mFocus(0)
+ 
+-  {
+-    allWidgets.insert(this);
++    {
++      allWidgets.insert(this);
+ 
+-    mEventsInited=false;
+-    CTRACE;
+-    if(mParent)
+-      mParent-&gt;addChildRef(this);
++      mEventsInited=false;
++      CTRACE;
++      if(mParent)
++        mParent-&gt;addChildRef(this);
+ 
+-    mChangeRect=AGRect2(0,0,0,0);
+-    mCache=0;
+-    mCacheTouched=false;
+-    mTooltipWidget=0;
+-    mModal=false;
++      mChangeRect=AGRect2(0,0,0,0);
++      mCache=0;
++      mCacheTouched=false;
++      mTooltipWidget=0;
++      mModal=false;
+ 
+-    getMain()-&gt;getCollector()-&gt;insertGlobal(this);
+-  }
++      getMain()-&gt;getCollector()-&gt;insertGlobal(this);
++    }
+ 
+ AGWidget::~AGWidget()
+   {
+     allWidgets.erase(this);
+     CTRACE;
+-    cdebug(getName());
+ 
+     if(hasMain())
+       getMain()-&gt;getCollector()-&gt;removeGlobal(this);
+@@ -98,27 +97,21 @@
+       {
+         if(valid(*i))
+           {
+-            cdebug(&quot;notify child:&quot;&lt;&lt;*i);
+             (*i)-&gt;setParent(0);
+-            cdebug(&quot;notify ok&quot;);
+           }
+       }
+     for(std::set&lt;AGWidget*&gt;::iterator i=mRefChildren.begin();i!=mRefChildren.end();i++)
+       {
+         if(valid(*i))
+           {
+-            cdebug(&quot;notify child:&quot;&lt;&lt;*i);
+             (*i)-&gt;setParent(0);
+-            cdebug(&quot;notify ok&quot;);
+           }
+       }
+ 
+-    cdebug(mParent);
+     if(getParent())
+       {
+         if(valid(getParent()))
+           {
+-            cdebug(&quot;notify parent:&quot;&lt;&lt;getParent());
+             getParent()-&gt;eventChildrenDeleted(this);
+           }
+       }
+@@ -401,6 +394,7 @@
+             cdebug(getName());
+             mButtonDown=true;
+             mOldMousePos=e-&gt;getMousePosition();
++            return false;
+           }
+       }
+     return false;
+@@ -531,8 +525,8 @@
+         if(i!=mChildren.end())
+           mChildren.erase(i);
+       }while(i!=mChildren.end());
+-    
+-    
++
++
+     mChildren.push_back(w); // set on top
+ 
+     if(mHasFocus &amp;&amp; w-&gt;canFocus())
+@@ -542,7 +536,7 @@
+     if(!w-&gt;getParent())
+       w-&gt;setParent(this);
+     queryRedraw();
+-}
++  }
+ 
+ void AGWidget::regChange()
+   {
+@@ -691,14 +685,11 @@
+ void AGWidget::setParent(AGWidget *pParent)
+   {
+     CTRACE;
+-    //mOldMousePos.setX(-20000); // set oldmousepos invalid -- see eventMouseMotion 
+ 
+-
+     if(!mParent)
+       {
+         AGWidget *old=mParent;
+         mParent=pParent;
+-        cdebug(old);
+         if(mParent==0 &amp;&amp; old!=0)
+           old-&gt;eventChildrenDeleted(this);
+         if(hasMain())
+@@ -724,12 +715,10 @@
+  */
+ AGRect2 AGWidget::getScreenRect() const
+ {
+-  CTRACE;
+   AGRect2 r=getRect();
+   if(mParent)
+     {
+       AGRect2 result=mParent-&gt;toScreen(getRect());
+-      cdebug(getRect()&lt;&lt;&quot;::&quot;&lt;&lt;result);
+       return result;
+     }
+   return r;
+@@ -1379,3 +1368,14 @@
+   {
+ 
+   }
++AGWidget *AGWidget::getFocusedWidget()
++  {
++    AGWidget *found=0;
++    for(Children::reverse_iterator i=mChildren.rbegin();i!=mChildren.rend();i++)
++      {
++        found=(*i)-&gt;getFocusedWidget();
++        if(found)
++          return found;
++      }
++    return canFocus()?this:0;
++  }
+
+Modified: antargis/trunk/ext/gui/ag_widget.h
+===================================================================
+--- antargis/trunk/ext/gui/ag_widget.h	2008-07-07 19:04:25 UTC (rev 1271)
++++ antargis/trunk/ext/gui/ag_widget.h	2008-07-10 19:16:05 UTC (rev 1272)
+@@ -217,6 +217,7 @@
+ 
+   bool getFocus() const;
+   bool hasFocus(const AGWidget *pWidget=0);
++  AGWidget *getFocusedWidget ();
+ 
+   AGLayout *getLayout();
+ 
+
+Added: antargis/trunk/ruby/editor/campaign/app.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/app.rb	2008-07-07 19:04:25 UTC (rev 1271)
++++ antargis/trunk/ruby/editor/campaign/app.rb	2008-07-10 19:16:05 UTC (rev 1272)
+@@ -0,0 +1,140 @@
++require File.join(File.split(__FILE__)[0],'drag_grid.rb')
++
++
++# This is the main application-class of the campaign-editor.
++# It manages the interaction of the different widgets within
++# and calls the sub-editors (level and story-editor)
++class CampaignEditorApp&lt;AGApplication
++  def initialize()
++    super
++    createSignal :sigFrame
++    layout=AGLayout.new(nil)
++    @layout=layout
++    file=File.join('data','gui','layout','editor','campaign','main.xml')
++    layout.loadXML( loadFile(file) )
++    setMainWidget(layout)
++    layout.setApp(self)
++    if layout.getChild(&quot;bigTable&quot;)
++      env=layout.getChild(&quot;dragEnvironment&quot;)
++      @grid=layout.getChild(&quot;dragGrid&quot;)
++      addHandler(@grid,:sigClick,:eventDeselect)
++    end
++    
++    addHandler(layout.getChild(&quot;edit&quot;),:sigClick,:eventEdit)
++    addHandler(layout.getChild(&quot;quit&quot;),:sigClick,:eventQuit)
++    addHandler(layout.getChild(&quot;trash&quot;),:sigClick,:eventTrashClicked)
++    
++    initSavingLoading
++  end
++  def eventQuit
++    tryQuit
++  end
++  def eventDeselect
++    @grid.select(nil) if @grid
++    false
++  end
++  def eventFrame(t)
++    sigFrame(t)
++    super
++  end
++  def getEffect(name)
++    @layout.getChild(name)
++  end
++  def eventEdit
++    widget=nil
++    case @grid.selected
++      when DragBoxStory
++        widget=StoryEditor.new(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">layout, at layout.getRect</A>,{})
++      when DragBoxLevel
++        # FIXME
++    end
++    
++    @layout.addChild(widget) if widget
++    true
++  end
++  
++  def startEffect(name)
++    case name
++      when &quot;showEdit&quot;
++        getEffect(name).run
++        getEffect(&quot;hideEdit&quot;).stop
++      when &quot;hideEdit&quot;
++        getEffect(name).run
++        getEffect(&quot;showEdit&quot;).stop
++    end
++  end
++  
++  def eventTrashClicked
++    if @grid.selected
++      @grid.removeChild(@grid.selected)
++    end
++  end
++  
++  def initSavingLoading
++    addHandler(@layout.getChild(&quot;load&quot;),:sigClick,:eventLoad)    
++    addHandler(@layout.getChild(&quot;save&quot;),:sigClick,:eventSave)    
++  end
++  
++  def eventLoad
++    CampaignEditor::LoadDialog.new(@layout) {|filename|
++      campaign=Campaign::loadCampaign(filename)
++      viewData(campaign)
++    }
++    
++    true
++  end
++  def eventSave
++    CampaignEditor::SaveDialog.new(@layout) {|filename|
++      puts filename
++      exit
++    }
++    true
++  end
++  
++  
++  private
++  def viewData(campaign)
++    @grid.clear
++    
++    boxes={}
++    
++    campaign.nodes.each{|name,node|
++      x=node.x
++      y=node.y
++      c=getCell(x,y)
++      box=nil
++      case node
++        when Level
++          box=DragBoxLevel.new(@grid,c.rect.shrink(5),name,false)
++          box.filename=node.filename
++          @grid.addChild(box)
++        when Story
++          box=DragBoxStory.new(@grid,c.rect.shrink(5),name,false)
++          box.story=node.screens
++          @grid.addChild(box)
++      end
++      boxes[name]=box
++    }
++    
++    campaign.edges.each{|edge|
++      pp edge.from,edge.to
++      puts boxes[edge.from].getRect,boxes[edge.to].getRect
++      line=DragLine.new(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">grid, at grid.getRect</A>,boxes[edge.from])
++      line.endObject=boxes[edge.to]
++      @grid.addChild(line)
++    }
++    
++  end
++  
++  def getCell(x,y)
++    r=@grid.cells[0].rect
++    x+=0.5
++    y+=0.5
++    x*=r.width
++    y*=r.height
++    @grid.cells.select{|cell|cell.rect.contains(AGVector2.new(x,y))}[0]
++  end
++end
++
++
++
+
+Modified: antargis/trunk/ruby/editor/campaign/dialogs.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/dialogs.rb	2008-07-07 19:04:25 UTC (rev 1271)
++++ antargis/trunk/ruby/editor/campaign/dialogs.rb	2008-07-10 19:16:05 UTC (rev 1272)
+@@ -49,9 +49,9 @@
+     def getFilename
+       getChild(&quot;filename&quot;).getText.to_s
+     end
+-	end
+-	
+-	class LoadDialog&lt;Dialog
++  end
++  
++  class LoadDialog&lt;Dialog
+     def initialize(p,&amp;block)
+       super
+       p.addChild(self)
+@@ -72,6 +72,6 @@
+     def getFilename
+       getChild(&quot;listBox&quot;).getSelectedValue.to_s
+     end
+-	  
+-	end
++    
++  end
+ end
+\ No newline at end of file
+
+Modified: antargis/trunk/ruby/editor/campaign/drag_grid.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/drag_grid.rb	2008-07-07 19:04:25 UTC (rev 1271)
++++ antargis/trunk/ruby/editor/campaign/drag_grid.rb	2008-07-10 19:16:05 UTC (rev 1272)
+@@ -38,11 +38,9 @@
+       ]
+   end
+   def getArrowTriangles(from,to,width)
+-    #puts &quot;gettin tris&quot;
+     ps=createArrowPolies(from,to,width)
+     ts=[ps[0][0..2],ps[0][1..3],ps[1]]
+     r=ts.map{|t|AGTriangle2.new(t[0],t[1],t[2])}
+-    #puts &quot;gettin tris!&quot;
+     r
+   end
+ end
+@@ -162,12 +160,6 @@
+   end
+ end
+ 
+-class DragTrash&lt;DragTarget
+-  def draw(p)
+-    p.fillRoundRect(getRect.origin,10,AGColor.new(0x33,0x33,0x33))
+-  end
+-end
+-
+ module DragObject
+   def canFocus
+     false
+@@ -195,8 +187,8 @@
+     @@font||=AGFont.new(&quot;FreeSans.ttf&quot;,14)
+   end
+   
++
+   
+-  
+   def draw(p)
+     r=getRect.origin.shrink(2)
+     r2=r.shrink(BORDER_WIDTH)
+@@ -237,21 +229,20 @@
+     r=super
+     sRect=getRect
+     if sRect.contains(e.getRelMousePosition)
+-      
+-      getDragGrid.select(self) if getDragGrid
++      dragGrid=getDragGrid
+       if sRect.shrink(BORDER_WIDTH).contains(e.getRelMousePosition)
+         startDragging
+-        return true
++        r=true
+       elsif @lastCell
+         startLine(e)
+-        return true
++        r=true
+       end
++      dragGrid.select(self) if dragGrid
+     end
+     r
+   end
+   
+   def startLine(e)
+-    puts &quot;STARTLINE&quot;
+     env=getAncestor(DragGrid)
+     env.addChild(line=DragLine.new(env,env.getRect,self))
+     line.setButtonDown(true,e.getMousePosition) # enable dragging
+@@ -286,10 +277,6 @@
+       hide
+     end
+     
+-    if cell.is_a?(DragTrash)
+-      pp cell
+-      del 
+-    end
+     @dragging=false
+     true
+   end
+@@ -358,7 +345,9 @@
+    
+     if @endObject and @startObject
+       if @moving==false and (@endObject.visible==false or @startObject.visible==false)
+-        hide
++        #hide
++        getParent.removeChild(self)
++        return
+       end
+     end
+     white=AGColor.new(0xFF,0xFF,0xFF)
+@@ -394,8 +383,6 @@
+     end
+     mp=e.getMousePosition-getScreenRect.getV0
+     if getArrowTriangles(getPos(@startObject),p,10).select{|t|t.contains(mp)}.length&gt;0
+-      puts <A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">p, at pos</A>,getPos(@startObject),mp
+-      puts &quot;HOVER&quot;
+       @hovered=true
+       return true
+     else
+@@ -403,9 +390,9 @@
+     end
+     r
+   end
++  
+   def eventMouseButtonDown(e)
+     r=super
+-    
+     if @endObject.nil?
+       @moving=true
+       @pos=e.getMousePosition+(getRect.getV0-getScreenRect.getV0)
+@@ -433,7 +420,6 @@
+         @endObject=ts[0]
+       end
+     end
+-    
+     r
+   end
+   def getDragEnvironment
+@@ -476,10 +462,10 @@
+       @selected.selected=true
+       checkEdit    
+       @edit.setText(@selected.text)
+-      @edit.gainFocus
+-      getApp.getEffect(&quot;showEdit&quot;).run
++      getApp.startEffect(&quot;showEdit&quot;)
++      @edit.gainCompleteFocus
+     else
+-      getApp.getEffect(&quot;hideEdit&quot;).run
++      getApp.startEffect(&quot;hideEdit&quot;)
+     end
+   end
+ 
+@@ -492,9 +478,9 @@
+     @lines.each{|l|p.drawLine(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">l.getV0,l.getV1, at borderColor</A>)}
+   end
+   
+-  def eventMouseButtonDown(e)
+-    return super
+-  end
++#  def eventMouseButtonDown(e)
++ #   return super
++  #end
+   
+   def addChild(c)
+     super
+@@ -589,121 +575,5 @@
+ end
+ 
+ 
+-[DragGrid,DragSource,DragTrash,DragEnvironment,ToolBar,ToolButton,ToolEdit,ToolCombo,AppearEffect,HideEffect].each{|c|standardLayoutCreator(c)}
++[DragGrid,DragSource,DragEnvironment,ToolBar,ToolButton,ToolEdit,ToolCombo,AppearEffect,HideEffect].each{|c|standardLayoutCreator(c)}
+ 
+-
+-
+-
+-class CampaignEditorApp&lt;AGApplication
+-  def initialize()
+-    super
+-    createSignal :sigFrame
+-    layout=AGLayout.new(nil)
+-    @layout=layout
+-    file=File.join('data','gui','layout','editor','campaign','main.xml')
+-    layout.loadXML( loadFile(file) )
+-    setMainWidget(layout)
+-    layout.setApp(self)
+-    if layout.getChild(&quot;bigTable&quot;)
+-      env=layout.getChild(&quot;dragEnvironment&quot;)
+-      @grid=layout.getChild(&quot;dragGrid&quot;)
+-      addHandler(env,:sigClick,:eventDeselect)
+-    end
+-    
+-    addHandler(layout.getChild(&quot;edit&quot;),:sigClick,:eventEdit)
+-    addHandler(layout.getChild(&quot;quit&quot;),:sigClick,:eventQuit)
+-    
+-    initSavingLoading
+-  end
+-  def eventQuit
+-    tryQuit
+-  end
+-  def eventDeselect
+-    @grid.select(nil) if @grid
+-  end
+-  def eventFrame(t)
+-    sigFrame(t)
+-    super
+-  end
+-  def getEffect(name)
+-    @layout.getChild(name)
+-  end
+-  def eventEdit
+-    widget=nil
+-    case @grid.selected
+-      when DragBoxStory
+-        widget=StoryEditor.new(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">layout, at layout.getRect</A>,{})
+-      when DragBoxLevel
+-        # FIXME
+-    end
+-    
+-    @layout.addChild(widget) if widget
+-    true
+-  end
+-  
+-  def initSavingLoading
+-    addHandler(@layout.getChild(&quot;load&quot;),:sigClick,:eventLoad)    
+-    addHandler(@layout.getChild(&quot;save&quot;),:sigClick,:eventSave)    
+-  end
+-  
+-  def eventLoad
+-    CampaignEditor::LoadDialog.new(@layout) {|filename|
+-      campaign=Campaign::loadCampaign(filename)
+-      viewData(campaign)
+-    }
+-    
+-    true
+-  end
+-  def eventSave
+-    CampaignEditor::SaveDialog.new(@layout) {|filename|
+-      puts filename
+-      exit
+-    }
+-    true
+-  end
+-  
+-  
+-  private
+-  def viewData(campaign)
+-    @grid.clear
+-    
+-    boxes={}
+-    
+-    campaign.nodes.each{|name,node|
+-      x=node.x
+-      y=node.y
+-      c=getCell(x,y)
+-      box=nil
+-      case node
+-        when Level
+-          box=DragBoxLevel.new(@grid,c.rect.shrink(5),name,false)
+-          box.filename=node.filename
+-          @grid.addChild(box)
+-        when Story
+-          box=DragBoxStory.new(@grid,c.rect.shrink(5),name,false)
+-          box.story=node.screens
+-          @grid.addChild(box)
+-      end
+-      boxes[name]=box
+-    }
+-    
+-    campaign.edges.each{|edge|
+-      pp edge.from,edge.to
+-      puts boxes[edge.from].getRect,boxes[edge.to].getRect
+-      line=DragLine.new(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">grid, at grid.getRect</A>,boxes[edge.from])
+-      line.endObject=boxes[edge.to]
+-      @grid.addChild(line)
+-    }
+-    
+-  end
+-  
+-  def getCell(x,y)
+-    r=@grid.cells[0].rect
+-    x+=0.5
+-    y+=0.5
+-    x*=r.width
+-    y*=r.height
+-    @grid.cells.select{|cell|cell.rect.contains(AGVector2.new(x,y))}[0]
+-  end
+-end
+-
+
+Modified: antargis/trunk/ruby/editor/campaign/editor.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/editor.rb	2008-07-07 19:04:25 UTC (rev 1271)
++++ antargis/trunk/ruby/editor/campaign/editor.rb	2008-07-10 19:16:05 UTC (rev 1272)
+@@ -1,4 +1,5 @@
+-require File.join(File.split(__FILE__)[0],'drag_grid.rb')
++require File.join(File.split(__FILE__)[0],'app.rb')
+ 
++
+ app=CampaignEditorApp.new
+ app.run
+\ No newline at end of file
+
+Added: antargis/trunk/ruby/editor/campaign/effect.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/effect.rb	2008-07-07 19:04:25 UTC (rev 1271)
++++ antargis/trunk/ruby/editor/campaign/effect.rb	2008-07-10 19:16:05 UTC (rev 1272)
+@@ -0,0 +1,76 @@
++class Effect&lt;AGWidget
++  def initialize(p,r,node)
++    super(p,r)
++    @registered=false
++    @running=false
++    @duration=node[&quot;duration&quot;].to_f
++    #run
++  end
++  def draw(p)
++    if @registered==false
++      registerEffect
++    end
++  end
++  def run
++    @running=true
++    @time=0
++  end
++  def eventFrame(t)
++    if @running
++      @time+=t
++      @running=false if @time&gt;=@duration
++      pp @running
++      @time=@duration if @time&gt;@duration 
++      step(@time/@duration)
++    end
++  end
++  def stop
++    @running=false
++  end
++  def step(per)
++    pp per
++    exit
++  end
++  private
++  def registerEffect
++    if getApp
++      getApp.sigFrame.connect(self,:eventFrame)
++      @registered=true
++    end
++  end
++end
++
++class AppearEffect&lt;Effect
++  def initialize(p,r,node)
++    super
++    @name=node[&quot;name&quot;]
++    @target=node[&quot;table&quot;]
++    @row=node[&quot;row&quot;].to_i
++    @size=50
++    
++  end
++  def step(amount)
++    pp &quot;AMOUNT:&quot;,amount
++    table=getApp.getMainWidget.getChild(@target)
++    table.modifyRow(@row,amount*@size)
++  end
++end
++
++class HideEffect&lt;Effect
++  def initialize(p,r,node)
++    super
++    @name=node[&quot;name&quot;]
++    @target=node[&quot;table&quot;]
++    @row=node[&quot;row&quot;].to_i
++    #@size=50
++    @size=nil
++  end
++  def step(amount)
++    pp &quot;AMOUNT HIDE:&quot;,amount
++    @size||=table.getRow(@row)
++    table.modifyRow(@row,(1-amount)*@size)
++  end
++  def table
++    getApp.getMainWidget.getChild(@target)
++  end
++end
+
+Added: antargis/trunk/ruby/editor/campaign/ruby_layouts.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/ruby_layouts.rb	2008-07-07 19:04:25 UTC (rev 1271)
++++ antargis/trunk/ruby/editor/campaign/ruby_layouts.rb	2008-07-10 19:16:05 UTC (rev 1272)
+@@ -0,0 +1,20 @@
++class GenericLayoutCreator&lt;AGLayoutCreator
++  def initialize(c)
++    super()
++    @c=c
++  end
++  def create(p,r,node)
++    options=node.getAttributes
++    pp @c
++    setResult @c.new(p,r,options)
++  end
++end
++
++def standardLayoutCreator(pClass)
++  name=pClass.to_s
++  name=name[0..0].downcase+name[1..-1]
++  creator=GenericLayoutCreator.new(pClass)
++  getLayoutFactory.addCreator(name,creator)
++end
++
++requireRelative(&quot;effect.rb&quot;,__FILE__)
+\ No newline at end of file
+
+Added: antargis/trunk/ruby/editor/campaign/ruby_signals.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/ruby_signals.rb	2008-07-07 19:04:25 UTC (rev 1271)
++++ antargis/trunk/ruby/editor/campaign/ruby_signals.rb	2008-07-10 19:16:05 UTC (rev 1272)
+@@ -0,0 +1,25 @@
++class RubySignal
++  def initialize(name)
++    @name=name
++    @receivers=[]
++  end
++  def connect(object,method)
++    @receivers&lt;&lt;[object,method]
++  end
++  def call(*s)
++    @receivers.each{|p|
++      object,method=p
++      object.send(method,*s)
++    }
++  end  
++end
++def createSignal(x)
++  signal=RubySignal.new(x)
++  self.define_cmethod(x) {|*s|
++    if s.length==0
++      signal
++    else
++      signal.call(*s)
++    end
++  }
++end
+
+Added: antargis/trunk/ruby/editor/campaign/ruby_tools.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/ruby_tools.rb	2008-07-07 19:04:25 UTC (rev 1271)
++++ antargis/trunk/ruby/editor/campaign/ruby_tools.rb	2008-07-10 19:16:05 UTC (rev 1272)
+@@ -0,0 +1,24 @@
++def requireRelative(file,current)
++  require File.join(File.split(current)[0],file)
++end
++
++class FalseClass
++  def &lt;=&gt;(o)
++    if o==true
++      -1
++    else
++      0
++    end
++  end
++end
++class TrueClass
++  def &lt;=&gt;(o)
++    if o==false
++      1
++    else
++      0
++    end
++  end
++end
++
++requireRelative(&quot;ruby_layouts.rb&quot;,__FILE__)
+\ No newline at end of file
+
+Modified: antargis/trunk/ruby/editor/campaign/spec_campaign_editor.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/spec_campaign_editor.rb	2008-07-07 19:04:25 UTC (rev 1271)
++++ antargis/trunk/ruby/editor/campaign/spec_campaign_editor.rb	2008-07-10 19:16:05 UTC (rev 1272)
+@@ -1,6 +1,6 @@
+ require File.join(File.split(__FILE__)[0],&quot;..&quot;,&quot;..&quot;,&quot;spec_helper.rb&quot;)
+ require File.join(File.split(__FILE__)[0],&quot;..&quot;,&quot;..&quot;,&quot;gui&quot;,&quot;testing.rb&quot;)
+-require File.join(File.split(__FILE__)[0],&quot;drag_grid.rb&quot;)
++require File.join(File.split(__FILE__)[0],&quot;app.rb&quot;)
+ 
+ describe &quot;Campaign editor&quot; do
+   include GuiTest
+@@ -14,7 +14,7 @@
+     level.should be_a_kind_of(DragBoxLevel)
+     level.getParent.should_not be_nil
+   end
+-  
++  #if false
+   it &quot;should be possible to move the grid&quot; do
+     level=grid.getChildren[0]
+     level.getParent.should_not be_nil
+@@ -29,7 +29,9 @@
+     newPos=level.getScreenRect.getMiddle
+     level.getParent.should_not be_nil
+     oldPos.should == newPos+delta 
++    drag(middle-delta,middle,5)
+   end
++#end
+   
+   it &quot;should not use widgets for DragTargets anymore&quot; do
+     # define DragTarget, if not yet defined
+@@ -38,8 +40,33 @@
+     grid.getAllDescendants.select{|c|c.is_a?(DragTarget)}.length.should == 0
+   end
+   
++  it &quot;should be possible to select a node and edit the name&quot; do
++    grid=widget(&quot;dragGrid&quot;)
++    somepos=AGVector2.new(800,600)
++    mouseMotion(somepos)
++    click(somepos)
++    node=grid.getChildren[0]
++    pos=node.getScreenRect.getMiddle
++    observe(@app.getEffect(&quot;hideEdit&quot;),:run) {
++      observe(@app.getEffect(&quot;showEdit&quot;),:run) {
++        observe(grid.widget,:select) {
++          mouseDown(pos)
++        }.should be_called
++      }.should be_called
++    }.should_not be_called
++    # mouseUp(pos)
++    observe(@app.getEffect(&quot;hideEdit&quot;),:step) {
++      observe(@app.getEffect(&quot;showEdit&quot;),:step) {
++        observe(@app,:eventFrame) {
++          1.upto(20) do @app.step end
++        }.should be_called
++      }.should be_called(2,:times)
++    }.should_not be_called
++    widget(&quot;textEdit&quot;).should have_focus
++    #@app.step while true
++    widget(&quot;textEdit&quot;).height.should &gt; 10
++  end 
+   
+-  
+   it &quot;should be possible to place stories on the grid&quot;
+   it &quot;should be possible to define a start-node&quot;
+   it &quot;should be possible to draw arrows from one node to another&quot;
+@@ -51,7 +78,7 @@
+     p from,to
+     #exit
+     @app.setCursor(getTextureCache.get(&quot;blue_cursor.png&quot;))
+-    
++    mouseMotion(from)
+     mouseDown(from)
+     block.call(:mouseDown) if block
+     1.upto(frames) {|f|
+
+Modified: antargis/trunk/ruby/gui/testing.rb
+===================================================================
+--- antargis/trunk/ruby/gui/testing.rb	2008-07-07 19:04:25 UTC (rev 1271)
++++ antargis/trunk/ruby/gui/testing.rb	2008-07-10 19:16:05 UTC (rev 1272)
+@@ -6,9 +6,10 @@
+     puts &quot;step end&quot;
+   end
+   def eventFrame(t)
+-    super
++    super(0.05)
+     puts &quot;FRAME - try Quit...&quot;
+     tryQuit
++    delay(20)
+     true
+   end
+   def tryQuit
+
+Modified: antargis/trunk/ruby/spec/spec_scrollingwidget.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_scrollingwidget.rb	2008-07-07 19:04:25 UTC (rev 1271)
++++ antargis/trunk/ruby/spec/spec_scrollingwidget.rb	2008-07-10 19:16:05 UTC (rev 1272)
+@@ -8,6 +8,7 @@
+   end
+   def eventMouseMotion(e)
+     @mousePos=e.getMousePosition
++    false
+   end
+ end
+ 
+@@ -104,7 +105,43 @@
+     end
+   end
+   describe &quot;position translation in events&quot; do
++    include GuiTest
++    before(:each) do
++      @app=makeTestAppClass(MyTestApp).new
++    end
+     it &quot;should translate&quot; do
++      puts &quot;_____&quot;
++      puts @app.sWidget
++      s=@app.sWidget
++      puts 1
++      
++      p0=AGVector2.new(10,20)
++      puts 2
++      p1=AGVector2.new(10,10)
++      puts 3
++      old=s.getVector
++      puts 4
++      mouseMotion(p0)
++      mouseDown(p0)
++      puts 5
++      s.getVector.should == old
++      puts 6
++      #@app.step while true
++      mouseMotion(p1)
++      puts 7
++      s.getVector.should_not == old
++      puts 8
++      mouseMotion(p0)
++      puts 9
++      s.getVector.should == old
++      puts 10
++      mouseUp(p0)
++      puts 11
++      s.getVector.should == old
++      puts 12
++      mouseMotion(p1)
++      puts 13
++      s.getVector.should == old
+     end
+   end
+ end
+
+Added: antargis/trunk/ruby/spec/story/my_story.rb
+===================================================================
+--- antargis/trunk/ruby/spec/story/my_story.rb	2008-07-07 19:04:25 UTC (rev 1271)
++++ antargis/trunk/ruby/spec/story/my_story.rb	2008-07-10 19:16:05 UTC (rev 1272)
+@@ -0,0 +1,52 @@
++require 'spec'
++require 'spec/story'
++require 'ostruct'
++
++Account=Struct.new(:balance)
++
++class Account
++  def transfer_to(account,amount)
++    @balance-=amount
++    account.balance+=amount
++    amount
++  end
++end
++
++#include Spec::Story::Extensions::Main
++#run_story :type =&gt; RailsStory do |runner|
++
++class AccountSteps &lt; Spec::Story::StepGroup
++  steps do |define|
++    define.given(&quot;my savings account balance is $balance&quot;) do |balance|
++      @savings_account = Account.new(balance.to_f)
++    end
++
++    define.given(&quot;my cash account balance is $balance&quot;) do |balance|
++      @cash_account = Account.new(balance.to_f)
++    end
++
++    define.then(&quot;my savings account balance should be $expected_amount&quot;) do |expected_amount|
++      @savings_account.balance.should == expected_amount.to_f
++    end
++
++    define.then(&quot;my cash account balance should be $expected_amount&quot;) do |expected_amount|
++      @cash_account.balance.should == expected_amount.to_f
++    end
++    define.when(&quot;I transfer $amount&quot;) do |amount|
++      @savings_account.transfer_to(@cash_account, amount.to_f)
++    end
++  end
++end
++
++steps = AccountSteps.new do |define|
++  define.when(&quot;I transfer $amount&quot;) do |amount|
++    @savings_account.transfer_to(@cash_account, amount.to_f)
++  end
++end
++
++run_story do |runner|
++  #runner.steps &lt;&lt; LoginSteps.new
++  #runner.steps &lt;&lt; NavigationSteps.new
++  runner.steps &lt;&lt; AccountSteps.new
++  runner.load File.expand_path(__FILE__).gsub(&quot;.rb&quot;,&quot;&quot;)
++end
+
+Added: antargis/trunk/ruby/spec/story/story_spec
+===================================================================
+--- antargis/trunk/ruby/spec/story/story_spec	2008-07-07 19:04:25 UTC (rev 1271)
++++ antargis/trunk/ruby/spec/story/story_spec	2008-07-10 19:16:05 UTC (rev 1272)
+@@ -0,0 +1,18 @@
++Story: transfer to cash account
++  As a savings account holder
++  I want to transfer money from my savings account
++  So that I can get cash easily from an ATM
++
++  Scenario: savings account is in credit
++    Given my savings account balance is 100
++    And my cash account balance is 10
++    When I transfer 20
++    Then my savings account balance should be 80
++    And my cash account balance should be 30
++
++  Scenario: savings account is overdrawn
++    Given my savings account balance is -20
++    And my cash account balance is 10
++    When I transfer 20
++    Then my savings account balance should be -20
++    And my cash account balance should be 10
+\ No newline at end of file
+
+Added: antargis/trunk/ruby/spec/story/story_spec.rb
+===================================================================
+--- antargis/trunk/ruby/spec/story/story_spec.rb	2008-07-07 19:04:25 UTC (rev 1271)
++++ antargis/trunk/ruby/spec/story/story_spec.rb	2008-07-10 19:16:05 UTC (rev 1272)
+@@ -0,0 +1,52 @@
++require 'spec'
++require 'spec/story'
++require 'ostruct'
++
++Account=Struct.new(:balance)
++
++class Account
++  def transfer_to(account,amount)
++    @balance-=amount
++    account.balance+=amount
++    amount
++  end
++end
++
++#include Spec::Story::Extensions::Main
++#run_story :type =&gt; RailsStory do |runner|
++
++class AccountSteps &lt; Spec::Story::StepGroup
++  steps do |define|
++    define.given(&quot;my savings account balance is $balance&quot;) do |balance|
++      @savings_account = Account.new(balance.to_f)
++    end
++
++    define.given(&quot;my cash account balance is $balance&quot;) do |balance|
++      @cash_account = Account.new(balance.to_f)
++    end
++
++    define.then(&quot;my savings account balance should be $expected_amount&quot;) do |expected_amount|
++      @savings_account.balance.should == expected_amount.to_f
++    end
++
++    define.then(&quot;my cash account balance should be $expected_amount&quot;) do |expected_amount|
++      @cash_account.balance.should == expected_amount.to_f
++    end
++    define.when(&quot;I transfer $amount&quot;) do |amount|
++      @savings_account.transfer_to(@cash_account, amount.to_f)
++    end
++  end
++end
++
++steps = AccountSteps.new do |define|
++  define.when(&quot;I transfer $amount&quot;) do |amount|
++    @savings_account.transfer_to(@cash_account, amount.to_f)
++  end
++end
++
++run_story do |runner|
++  #runner.steps &lt;&lt; LoginSteps.new
++  #runner.steps &lt;&lt; NavigationSteps.new
++  runner.steps &lt;&lt; AccountSteps.new
++  runner.load File.expand_path(__FILE__).gsub(&quot;.rb&quot;,&quot;&quot;)
++end
+
+Modified: antargis/trunk/ruby/spec_helper.rb
+===================================================================
+--- antargis/trunk/ruby/spec_helper.rb	2008-07-07 19:04:25 UTC (rev 1271)
++++ antargis/trunk/ruby/spec_helper.rb	2008-07-10 19:16:05 UTC (rev 1272)
+@@ -15,10 +15,12 @@
+   class Cross
+     @@called={}
+     @@backtrace={}
+-    def initialize(target,function)
++    @@raiseException={}
++    def initialize(target,function,raiseException=false)
+       @target=target
+       @function=function
+       @expected=&quot;#{target}.#{function}(.)&quot;
++      @@raiseException[@expected]=raiseException
+     end
+     def matches?(proc)      
+       @proc = proc
+@@ -64,27 +66,30 @@
+     def Cross.symCall(name)
+       @@called[name]+=1
+       @@backtrace[name]=caller
++      raise &quot;Should never cross this&quot; if @@raiseException[name]
+       nil
+     end
+   end
+   
+-  def cross(target,function=nil)
++  def cross(target,function=nil,raiseException=false)
+       if function.nil? and target.is_a?(Symbol)
+         function=target
+         target=kernel
+       end
+   
+-    Cross.new(target,function)
++    Cross.new(target,function,raiseException)
+   end
+ #end
+   
+   
+ class Observer
+-  attr_accessor :ok
++  #attr_accessor :ok
++  attr_accessor :count
+   def initialize(object,methodName)
+     @methodName=methodName
+     @object=object
+-    @ok=false
++    #@ok=false
++    @count=0
+   end
+   def run
+     method=@object.method(@methodName)
+@@ -92,34 +97,56 @@
+     object=@object
+     @object.class.send(:<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">define_method, at methodName</A>) {|*s|
+       if self==object
+-        this.ok=true
++        #this.ok=true
++        this.count+=1
+         puts &quot;MUH&quot;
+       end
+       method.call(*s)
+     } 
+     yield
+     @object.class.send(:<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">define_method, at methodName</A>,method)
+-    @ok
++    #@ok
++    called?
+   end
+   def isNotCalled
+-     @ok==false
++    @count==0
++    # @ok==false
+   end
+   def isCalled
+-    @ok==true
++    @count&gt;0
++    #@ok==true
+   end
++  def called?(count=0,sym=:times)
++    case sym
++      when :times
++        @count&gt;count
++      else
++        raise &quot;Unknown symbol&quot;
++    end
++  end
+ end  
+ 
+ def observe(object,method,&amp;block)
+   observer=Observer.new(object,method)
+   
+   observer.run {block.call(observer)}
++  observer
+ end
+ 
++class String
++  def camelCase
++    gsub(/(_[a-z])/) {|s|s[1..-1].upcase}
++  end
++end
++
+ class Object
+   def method_missing(name,*s)
+     alt=name.to_s.gsub(/\?$/,&quot;&quot;)
++    puts alt
+     if respond_to?(alt) and alt!=name
+       self.send(alt,*s)
++    elsif respond_to?(alt.camelCase) and alt!=name and alt.camelCase!=alt 
++      self.send(alt.camelCase,*s)
+     else
+       super
+     end
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000227.html">[Antargis-svn] r1271 - in antargis/trunk: data	data/gui/layout/editor/campaign ext/basic ext/gui ext/video	ruby ruby/editor/campaign
+</A></li>
+	<LI>Next message: <A HREF="000229.html">[Antargis-svn] r1273 - in antargis/trunk: . rookey rookey/configs	rookey/externals rookey/externals/swig rookey/externals/zlib
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#228">[ date ]</a>
+              <a href="thread.html#228">[ thread ]</a>
+              <a href="subject.html#228">[ subject ]</a>
+              <a href="author.html#228">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

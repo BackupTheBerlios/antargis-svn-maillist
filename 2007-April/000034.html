@@ -1,0 +1,298 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1076 - in antargis/branches/new_hl_jobs/ruby: .	tests
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-April/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1076%20-%20in%20antargis/branches/new_hl_jobs/ruby%3A%20.%0A%09tests&In-Reply-To=%3C200704291741.l3THfdTL019782%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000033.html">
+   <LINK REL="Next"  HREF="000035.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1076 - in antargis/branches/new_hl_jobs/ruby: .	tests</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1076%20-%20in%20antargis/branches/new_hl_jobs/ruby%3A%20.%0A%09tests&In-Reply-To=%3C200704291741.l3THfdTL019782%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1076 - in antargis/branches/new_hl_jobs/ruby: .	tests">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sun Apr 29 19:41:39 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000033.html">[Antargis-svn] r1075 - in antargis/branches/new_hl_jobs: .	data/gui/layout data/levels/tutorial gui/src ruby src
+</A></li>
+        <LI>Next message: <A HREF="000035.html">[Antargis-svn] r1077 - antargis/branches
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#34">[ date ]</a>
+              <a href="thread.html#34">[ thread ]</a>
+              <a href="subject.html#34">[ subject ]</a>
+              <a href="author.html#34">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-04-29 19:41:38 +0200 (Sun, 29 Apr 2007)
+New Revision: 1076
+
+Added:
+   antargis/branches/new_hl_jobs/ruby/ant_state_machine.rb
+   antargis/branches/new_hl_jobs/ruby/tests/impostor.rb
+Log:
+* added missing files
+
+
+Added: antargis/branches/new_hl_jobs/ruby/ant_state_machine.rb
+===================================================================
+--- antargis/branches/new_hl_jobs/ruby/ant_state_machine.rb	2007-04-29 17:39:46 UTC (rev 1075)
++++ antargis/branches/new_hl_jobs/ruby/ant_state_machine.rb	2007-04-29 17:41:38 UTC (rev 1076)
+@@ -0,0 +1,174 @@
++class BaseState
++	@@states={}
++	@@edges={}
++	@@endstates={}
++	@@startstate={}
++	def BaseState.state(p)
++		s=@@states[self]
++		s||={}
++		p.each{|k,v|s[k]=v}
++		@@states[self]=s
++	end
++	def BaseState.edge(v0,v1,f=nil)
++		@@edges[self]||=[]
++		@@edges[self]&lt;&lt;[v0,v1,f]
++	end
++	def BaseState.startState(s)
++		puts &quot;setting startstate for #{self}:#{s}&quot;
++		@@startstate[self]=s
++	end
++	def BaseState.endState(s)
++		@@endstates[self]||=[]
++		@@endstates[self].push(s)
++	end
++
++	def BaseState.inheritMachine
++		me=ancestors[0]
++		anc=ancestors[1]
++		@@states[me]=@@states[anc].dup
++		@@edges[me]=@@edges[anc].dup
++		@@endstates[me]=@@endstates[anc].dup
++		@@startstate[me]=@@startstate[anc]
++	end
++	
++	def initialize(startState=nil)
++		@states={}
++		@@states[self.class].each{|k,v|@states[k]=v.new;@states[k].machine=self}
++		@state=startState
++		@state||=@@startstate[self.class]
++		@firstRun=false
++	end
++	
++	def ready
++		return true if @state.nil?
++		if @@endstates[self.class]
++			if @@endstates[self.class].length&gt;0
++				return true if @@endstates[self.class].member?(@state)
++			end
++		end
++		return false
++	end		
++
++	def advance
++		if @states.length==0
++			puts &quot;no states here&quot;
++			return
++		end
++		if hasState
++			stepState
++		end
++	end
++
++	def firstCall
++		enterRecursive
++	end
++
++	def hasState
++		if @state
++			return (not @states[@state].nil?)
++		end
++		false
++	end
++
++	def state
++		if @state
++			if @states[@state]
++				return @states[@state]
++			end
++		end
++		raise &quot;no state defined!&quot;
++	end
++
++	def stateCall(*s)
++		if @state
++			if @states[@state]
++				puts &quot;(#{s})(#{s[0]})&quot;
++				if @states[@state].respond_to?(s[0])
++					@states[@state].send(*s) #(s[1..-1]))
++				end
++			end
++		end
++	end
++
++protected
++	def enterRecursive(selftoo=true)
++		puts &quot;#{self}:enterRecursive&quot;
++
++		if self.respond_to?(&quot;enter&quot;) and selftoo
++			puts &quot;#{self}:enterRecursive - enter...&quot;
++			enter
++			puts &quot;#{self}:enterRecursive - enter.ok&quot;
++		end
++
++		puts &quot;#{self}:enterRecursive - hasState:#{hasState}&quot;
++		if hasState
++			puts &quot;#{self}:enterRecursive - respond_to(enterRec):#{state.respond_to?(&quot;enterRecursive&quot;)}&quot;
++			puts &quot;#{self}:enterRecursive - state:#{state}&quot;
++			if state.respond_to?(&quot;enterRecursive&quot;)
++				state.enterRecursive
++			else
++				puts &quot;#{self}:enterRecursive - statecall-enter...&quot;
++				stateCall(&quot;enter&quot;)
++			end
++		end
++	end
++
++private
++	def stepState
++		assert {hasState}
++		stateCall(&quot;advance&quot;)
++		if state.ready
++			toNextState
++		else
++			true
++		end
++	end
++	
++	def toNextState
++		puts &quot;#{self} toNextState:#{@state}:#{state}&quot;
++		nstate=nil
++		@@edges[self.class].each{|e|
++			if e[0]==@state
++				ok=true
++				if not e[2].nil?
++					ok=self.send(e[2]) #.call
++				end
++				if ok
++					nstate=e[1]
++				end
++			end
++		}
++		if nstate
++			switch2(nstate)
++			return true
++		elsif @@endstates[self.class].member?(@state)
++			switch2(nil)
++		end
++		false
++	end
++	
++	def left
++		@firstRun=false
++	end
++		
++	def switch2(s)
++		stateCall(&quot;leave&quot;)
++		stateCall(&quot;left&quot;)
++		@state=s
++		#stateCall(&quot;enterRecursive&quot;)
++		enterRecursive(false)
++	end
++end
++
++class BaseMachine&lt;BaseState
++# 	def initialize(start=nil)
++# 		super(start)
++# 		if start.nil?
++# 			@state=@@startstate[self.class]
++# 			puts &quot;startstate: #{@@startstate[self.class]}&quot;
++# 		else
++# 			@state=start
++# 		end
++# 	end
++end
++
+
+Added: antargis/branches/new_hl_jobs/ruby/tests/impostor.rb
+===================================================================
+--- antargis/branches/new_hl_jobs/ruby/tests/impostor.rb	2007-04-29 17:39:46 UTC (rev 1075)
++++ antargis/branches/new_hl_jobs/ruby/tests/impostor.rb	2007-04-29 17:41:38 UTC (rev 1076)
+@@ -0,0 +1,40 @@
++#!/usr/bin/env ruby
++
++require 'ruby/antargislib.rb'
++
++
++
++class MyApp&lt;GLApp
++	def initialize(w,h)
++		super
++		#node=Mesh.new(getScene,getMeshData(&quot;data/models/sack.ant2&quot;,0.3,&quot;data/textures/models/sack.png&quot;),AGVector4.new(0,0,0),0)
++		node=Mesh.new(getScene,getMeshData(&quot;data/models/workshop.ant2&quot;,0.18,&quot;data/textures/models/workshop.png&quot;),AGVector4.new(0,0,0),-50)
++
++		getScene.addNode(node)
++
++		imp=AntImpostorData.new(node)
++
++		tex=imp.getTexture
++			
++		image=AGImage.new(nil,AGRect2.new(0,0,tex.width,tex.height),tex,false)
++		setMainWidget(image)
++		
++		getScene.removeNode(node)
++	end
++
++	def eventFrame(t)
++		#imp=
++		delay(100)
++	puts t
++		return true
++	end
++
++#  	def draw(p)
++#  		p.blit(imp.getTexture)
++#  	end
++end
++
++#app=MyApp.new(128,128) #800,600)
++app=MyApp.new(1024,768) #800,600)
++
++app.run
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000033.html">[Antargis-svn] r1075 - in antargis/branches/new_hl_jobs: .	data/gui/layout data/levels/tutorial gui/src ruby src
+</A></li>
+	<LI>Next message: <A HREF="000035.html">[Antargis-svn] r1077 - antargis/branches
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#34">[ date ]</a>
+              <a href="thread.html#34">[ thread ]</a>
+              <a href="subject.html#34">[ subject ]</a>
+              <a href="author.html#34">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

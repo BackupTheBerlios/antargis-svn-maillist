@@ -1,0 +1,246 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1235 - antargis/trunk/ruby/spec
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2008-March/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1235%20-%20antargis/trunk/ruby/spec&In-Reply-To=%3C200803171529.m2HFTSZb020570%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000190.html">
+   <LINK REL="Next"  HREF="000192.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1235 - antargis/trunk/ruby/spec</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1235%20-%20antargis/trunk/ruby/spec&In-Reply-To=%3C200803171529.m2HFTSZb020570%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1235 - antargis/trunk/ruby/spec">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Mon Mar 17 16:29:28 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000190.html">[Antargis-svn] r1234 - in antargis/trunk: . build build/configs	build/swig data/levels ext ext/3dengine ext/basic ext/game	ext/gui ext/sound ext/video main ruby ruby/editor ruby/gui ruby/spec
+</A></li>
+        <LI>Next message: <A HREF="000192.html">[Antargis-svn] r1236 - in antargis/trunk: . ext/3dengine ext/basic ext/game ext/gui ext/math ext/video main rookey rookey/configs rookey/docs rookey/docs/ruby rookey/docs/ruby/classes rookey/docs/ruby/classes/Array.src rookey/docs/ruby/classes/Class.src rookey/docs/ruby/classes/Rookey rookey/docs/ruby/classes/Rookey/CcacheConfig.src rookey/docs/ruby/classes/Rookey/Compiler.src rookey/docs/ruby/classes/Rookey/Config.src rookey/docs/ruby/classes/Rookey/Configurator.src rookey/docs/ruby/classes/Rookey/CppHierarchyParser.src rookey/docs/ruby/classes/Rookey/DebugConfig.src rookey/docs/ruby/classes/Rookey/GLConfig.src rookey/docs/ruby/classes/Rookey/RubyConfig.src rookey/docs/ruby/classes/Rookey/SDLConfig.src rookey/docs/ruby/classes/Rookey/Swig.src rookey/docs/ruby/classes/Rookey/SwigConfig.src rookey/docs/ruby/classes/Rookey/SwigInterfaceBuilder.src rookey/docs/ruby/classes/Rookey/Tools.src rookey/docs/ruby/classes/Rookey.src rookey/docs/ruby/files rookey/docs/ruby/files/configs rooke! y/spec ruby
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#191">[ date ]</a>
+              <a href="thread.html#191">[ thread ]</a>
+              <a href="subject.html#191">[ subject ]</a>
+              <a href="author.html#191">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2008-03-17 16:29:28 +0100 (Mon, 17 Mar 2008)
+New Revision: 1235
+
+Added:
+   antargis/trunk/ruby/spec/spec_code_check.rb
+   antargis/trunk/ruby/spec/spec_editor.rb
+Log:
+* som more specs
+
+
+Added: antargis/trunk/ruby/spec/spec_code_check.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_code_check.rb	2008-03-17 15:28:40 UTC (rev 1234)
++++ antargis/trunk/ruby/spec/spec_code_check.rb	2008-03-17 15:29:28 UTC (rev 1235)
+@@ -0,0 +1,18 @@
++describe &quot;The source code&quot; do
++  it &quot;should have no mentioning of rant or Rantfile&quot; do
++    extensions=[&quot;rb&quot;,&quot;cc&quot;,&quot;c&quot;,&quot;h&quot;]
++    (extensions.map{|e|Dir[&quot;**/*.&quot;+e]}+Dir[&quot;**/README&quot;]).flatten.select{|filename|not filename=~/spec/}.each{|filename|
++      file=File.open(filename)
++      content=file.read
++      file.close
++      wanted=filename+&quot; should not include rant/Rantfile&quot;
++      error=wanted
++      if content=~/[^a-zA-Z][rR]ant(file)?[^a-zA-Z]/
++        error=filename+&quot; includes rant/Rantfile&quot;
++      end
++      
++      error.should == wanted
++      #content.should_not =~/[rR]ant(file)?/
++    }
++  end
++end
+\ No newline at end of file
+
+Added: antargis/trunk/ruby/spec/spec_editor.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_editor.rb	2008-03-17 15:28:40 UTC (rev 1234)
++++ antargis/trunk/ruby/spec/spec_editor.rb	2008-03-17 15:29:28 UTC (rev 1235)
+@@ -0,0 +1,142 @@
++
++require 'ruby/editor_app.rb'
++require 'ruby/gui/testing.rb'
++require 'ruby/spec/level_testing.rb'
++require 'ostruct'
++
++describe &quot;Editor&quot; do
++  it &quot;should start up correctly&quot; do
++    @app=makeTestAppClass(AntEditorApp).new(1024,768)
++    @mainWidget=@app.getMainWidget
++    @app.getMap.getTerrainMesh.should_not be_nil
++  end
++end
++
++describe &quot;Editor&quot; do
++  #include LevelTesting
++  include GuiTest
++  before(:each) do
++    @app=makeTestAppClass(AntEditorApp).new(1024,768)
++    @mainWidget=@app.getMainWidget
++    @app.getMap.initTerrainMesh
++    @app.step    
++  end
++  it &quot;should be possible to load a savegame&quot; do
++    @app.getMap.loadMap(&quot;data/levels/savegame0.antlvl&quot;).should be_true
++    @app.getMap.getAllEntities.length.should &gt; 0
++  end
++  it &quot;should place entities at the correct position&quot;
++  it &quot;should edit the map at the correct position&quot;
++  
++  describe &quot;AntEditPropDialog&quot; do
++    it &quot;should be possible to edit a hero&quot; do
++      add(AntHero,AGVector2.new(10,10))
++      hero=entities[0]
++      edit(hero)
++      window=widget(&quot;OptionsMenu&quot;)
++      window.child(&quot;AntName&quot;).setText(AGStringUtf8.new(&quot;Bantor&quot;))
++      window.child(&quot;MenCount&quot;).setText(AGStringUtf8.new(&quot;10&quot;))
++      window.child(&quot;ok&quot;).click
++      hero.getName.should==&quot;Bantor&quot;
++      hero.getXMLProp(&quot;men&quot;).should==&quot;10&quot;
++    end
++  end
++  
++  describe &quot;placing entities&quot; do
++    it &quot;should place entities at exactly specified position&quot; do
++      targetPos=AGVector2.new(10.5,10.7)
++      add(AntHero,targetPos)
++      @app.getMap.getAllEntities.length.should == 1
++      (@app.getMap.getAllEntities[0].getPos2D-targetPos).length.should &lt; 0.1
++    end
++    it &quot;should place entitiy at exact screen position&quot; do
++      focusMap(AGVector2.new(30,30))
++      screenPos=AGVector2.new(200,200)
++      addOnScreen(AntHero,screenPos)
++      hero=@app.getMap.getAllEntities[0]
++      pos=@app.getScene.getPosition(AGVector4.new(hero.getPos3D,1))
++      (pos-screenPos).length.should &lt; 5
++    end
++  end
++  
++  describe &quot;modifying height&quot; do
++    it &quot;should modify the map around the specified position&quot;
++    it &quot;should use the front part of a terrain if occluded&quot; 
++    #do
++#      p=AGVector2.new(33.7,32.3)
++#      focusMap(p)
++#      clickScreenMiddle
++#      @app.step
++#      clickScreenMiddle
++#      @app.step
++#      clickScreenMiddle
++#      @app.step
++#      clickScreenMiddle
++#      run
++#    end
++  end
++  
++  describe &quot;editing players&quot; do
++    it &quot;should be possible to create a player&quot; do
++      widget(&quot;playerButton&quot;).click
++      dialog=widget(&quot;PlayersDialog&quot;)
++      dialog.child(&quot;playerName&quot;).setText(AGStringUtf8.new(&quot;Bantor&quot;))
++      dialog.child(&quot;addPlayer&quot;).click
++    end
++    it &quot;should be possible to change a player's AI&quot;
++  end
++  
++  private
++  def entities
++    @app.getMap.getAllEntities
++  end
++  def edit(entity)
++    focusMap(entity.getPos2D)
++    selectTool
++    clickScreenMiddle
++  end
++  def clickScreenMiddle
++    clickScreen(getScreen.getWidth/2,getScreen.getHeight/2)
++  end
++  def selectTool
++    widget(&quot;pointer&quot;).click
++  end
++  def add(entType,at)
++    enableWidgetTab
++    selectEntityButton(entType)
++    clickMap(at)
++  end
++  def addOnScreen(entType,at)
++    entCount=@app.getMap.getAllEntities.length
++    enableWidgetTab
++    selectEntityButton(entType)
++    clickScreen(at.x,at.y)
++    @app.getMap.getAllEntities.length.should == entCount+1
++  end
++  
++  def enableWidgetTab
++    widget(&quot;entities&quot;).click
++  end
++  def selectEntityButton(type)
++    widget(&quot;entitiesTab&quot;).child(type.to_s).click
++  end
++  def clickMap(pos2d,button=1)
++    @app.step
++    @app.getMap.initTerrainMesh
++    @app.getMap.getTerrainMesh.should_not be_nil
++    list=[Struct.new(:node,:pos).new(@app.getMap.getTerrainMesh,pos2d)]
++    lambda {@app.eventClick(list,button)}.should cross(@app,:addEntity)
++    @app.eventClick(list,button)
++    @app.getMap.getAllEntities.length.should == 1
++  end
++  
++  def focusMap(at)
++    @app.setCamera(at)
++  end
++  
++  def run
++    while true; @app.step;end
++  end
++  
++  
++end
+\ No newline at end of file
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000190.html">[Antargis-svn] r1234 - in antargis/trunk: . build build/configs	build/swig data/levels ext ext/3dengine ext/basic ext/game	ext/gui ext/sound ext/video main ruby ruby/editor ruby/gui ruby/spec
+</A></li>
+	<LI>Next message: <A HREF="000192.html">[Antargis-svn] r1236 - in antargis/trunk: . ext/3dengine ext/basic ext/game ext/gui ext/math ext/video main rookey rookey/configs rookey/docs rookey/docs/ruby rookey/docs/ruby/classes rookey/docs/ruby/classes/Array.src rookey/docs/ruby/classes/Class.src rookey/docs/ruby/classes/Rookey rookey/docs/ruby/classes/Rookey/CcacheConfig.src rookey/docs/ruby/classes/Rookey/Compiler.src rookey/docs/ruby/classes/Rookey/Config.src rookey/docs/ruby/classes/Rookey/Configurator.src rookey/docs/ruby/classes/Rookey/CppHierarchyParser.src rookey/docs/ruby/classes/Rookey/DebugConfig.src rookey/docs/ruby/classes/Rookey/GLConfig.src rookey/docs/ruby/classes/Rookey/RubyConfig.src rookey/docs/ruby/classes/Rookey/SDLConfig.src rookey/docs/ruby/classes/Rookey/Swig.src rookey/docs/ruby/classes/Rookey/SwigConfig.src rookey/docs/ruby/classes/Rookey/SwigInterfaceBuilder.src rookey/docs/ruby/classes/Rookey/Tools.src rookey/docs/ruby/classes/Rookey.src rookey/docs/ruby/files rookey/docs/ruby/files/configs rooke! y/spec ruby
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#191">[ date ]</a>
+              <a href="thread.html#191">[ thread ]</a>
+              <a href="subject.html#191">[ subject ]</a>
+              <a href="author.html#191">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

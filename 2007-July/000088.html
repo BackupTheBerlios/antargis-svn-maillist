@@ -1,0 +1,374 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1131 - in antargis/branches/rant: . build	build/configs ext/basic
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-July/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1131%20-%20in%20antargis/branches/rant%3A%20.%20build%0A%09build/configs%20ext/basic&In-Reply-To=%3C200707031744.l63Hiskk031399%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000087.html">
+   <LINK REL="Next"  HREF="000089.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1131 - in antargis/branches/rant: . build	build/configs ext/basic</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1131%20-%20in%20antargis/branches/rant%3A%20.%20build%0A%09build/configs%20ext/basic&In-Reply-To=%3C200707031744.l63Hiskk031399%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1131 - in antargis/branches/rant: . build	build/configs ext/basic">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Tue Jul  3 19:44:54 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000087.html">[Antargis-svn] r1130 - in antargis/branches/rant: . build
+</A></li>
+        <LI>Next message: <A HREF="000089.html">[Antargis-svn] r1132 - in antargis/branches/rant/build: . configs	win32
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#88">[ date ]</a>
+              <a href="thread.html#88">[ thread ]</a>
+              <a href="subject.html#88">[ subject ]</a>
+              <a href="author.html#88">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-07-03 19:44:53 +0200 (Tue, 03 Jul 2007)
+New Revision: 1131
+
+Modified:
+   antargis/branches/rant/Rantfile
+   antargis/branches/rant/build/base_tools.rb
+   antargis/branches/rant/build/configs/unix.rb
+   antargis/branches/rant/build/configure.rb
+   antargis/branches/rant/configure
+   antargis/branches/rant/ext/basic/ag_fs.cc
+   antargis/branches/rant/ext/basic/ag_messageobject.h
+Log:
+changes for windows
+
+Modified: antargis/branches/rant/Rantfile
+===================================================================
+--- antargis/branches/rant/Rantfile	2007-07-01 14:53:59 UTC (rev 1130)
++++ antargis/branches/rant/Rantfile	2007-07-03 17:44:53 UTC (rev 1131)
+@@ -11,7 +11,7 @@
+ 
+ 
+ # get library-dependencies for libSDL
+-sdlLibs=[`sdl-config --libs`]
++sdlLibs=$config['LIBS'].split(&quot; &quot;)
+ 
+ # configure source-directories.
+ # DLLs will be build for each directory and in the given order.
+@@ -22,8 +22,8 @@
+ # NOTE: dependencies are not automatically inherited, you have to include them yourself!
+ 
+ sourceDeps=[
+-	[&quot;ext/external&quot;,[&quot;-lz&quot;]],
+-	[&quot;ext/basic&quot;,[&quot;ext/external&quot;]+sdlLibs],
++	[&quot;ext/external&quot;,[&quot;-lz&quot;]+sdlLibs],
++	[&quot;ext/basic&quot;,[&quot;ext/external&quot;,&quot;-lmsvcrt-ruby18&quot;,&quot;-lz&quot;]+sdlLibs],
+ 	[&quot;ext/math&quot;,[&quot;ext/basic&quot;]],
+ 	[&quot;ext/video&quot;,[&quot;ext/math&quot;,&quot;ext/basic&quot;,&quot;-lSDL_image&quot;,&quot;-lSDL_ttf&quot;,&quot;-lGL&quot;,&quot;-lGLU&quot;]],
+ 	[&quot;ext/gui&quot;,[&quot;ext/basic&quot;,&quot;ext/math&quot;,&quot;ext/video&quot;]],
+@@ -35,9 +35,10 @@
+ $sourceDeps=sourceDeps
+ 
+ sourceDirs=sourceDeps.collect{|a|a[0]}    # collect dirs containing source (in the correct order !)
++
++externalIncludes=$config['CFLAGS']
++#externalIncludes+=`sdl-config --cflags`.gsub(&quot;\n&quot;,&quot;&quot;)
+ 
+-externalIncludes=`sdl-config --cflags`.gsub(&quot;\n&quot;,&quot;&quot;)
+-
+ # sitearchdir - include in usr/local
+ rubyIncDir=getConfig(&quot;archdir&quot;)
+     
+@@ -76,21 +77,37 @@
+ sourceDeps.each{|pair|
+ 	dir,dep=pair                                                               # get directory and dependencies
+ 	target=&quot;ext&quot;+Dir.separator+&quot;lib&quot;+makeLibName(dir)+&quot;.so&quot;                    # make library name like &quot;ext/libantargisgui.so&quot;
+-	tsources=Dir[dir+Dir.separator+&quot;*.cc&quot;].select{|f|not f=~/swig/}            # get all *.cc files (without the swig-generated file)
++	tsources=Dir[dir+&quot;/*.cc&quot;].select{|f|not f=~/swig/}            # get all *.cc files (without the swig-generated file)
+ 	tsources.collect!{|f|f.sub_ext(&quot;oo&quot;)}                                      # translate the .cc files to .oo
+-	tsources+=Dir[dir+Dir.separator+&quot;*.c&quot;].collect!{|f|f.sub_ext(&quot;o&quot;)}         # add *.c files if there are any
+-	extlibs=[]
++	tsources+=Dir[dir+&quot;/*.c&quot;].collect!{|f|f.sub_ext(&quot;o&quot;)}         # add *.c files if there are any
++	extlibs=[]
++    
++    puts &quot;TARGET:&quot;,target
++    puts &quot;TSOURCES:&quot;,tsources
++    
+ 	dep.each{|d|
+ 		if d[0..0]==&quot;-&quot;
+ 			extlibs &lt;&lt; d                                                           # gather external libraries (-lz)
+ 		else
+-			tsources+=[&quot;ext&quot;+Dir.separator+&quot;lib&quot;+makeLibName(d)+&quot;.so&quot;]             # gather internal deps like (ext/libantargisbasic.so)
++			tsources+=[&quot;ext&quot;+Dir.separator+&quot;lib&quot;+makeLibName(d)+&quot;.so&quot;]             # gather internal deps like (ext/libantargisbasic.so)
++            #tsources+=[&quot;-l&quot;+makeLibName(d)]
+ 		end
+ 	}
+ 	task target =&gt; tsources do |t|
+-		# build command
+-		cmd=makeCommand(&quot;LINK_SHARED&quot;,sys.expand_path(t.name), (t.prerequisites.collect{|f|sys.expand_path(f)}+extlibs).join(&quot; &quot;))
+-		sys cmd
++		# build command
++        sources=t.prerequisites
++        if ENV['WINDIR']
++            puts &quot;EXTLIBS #{extlibs}&quot;
++            extlibs+=sources.select{|f|f=~/\.so/}.collect!{|s|s.gsub(/.*lib(.*)\.so/,'-l\1')}
++            puts &quot;SOURCES #{sources}&quot;
++            puts &quot;EXTLIBS #{extlibs}&quot;
++            sources=sources.select{|f|not f=~/\.so/}
++        end
++		cmd=makeCommand(&quot;LINK_SHARED&quot;,sys.expand_path(t.name), (sources.collect{|f|sys.expand_path(f)}+extlibs).join(&quot; &quot;))
++		sys cmd
++        if ENV['WINDIR']
++            sys &quot;mv #{sys.expand_path(t.name)}.a #{sys.expand_path(t.name).sub(/\.so/,&quot;.dll&quot;)}.a&quot;
++        end
+ 	end
+ }
+ #
+
+Modified: antargis/branches/rant/build/base_tools.rb
+===================================================================
+--- antargis/branches/rant/build/base_tools.rb	2007-07-01 14:53:59 UTC (rev 1130)
++++ antargis/branches/rant/build/base_tools.rb	2007-07-03 17:44:53 UTC (rev 1131)
+@@ -1,19 +1,16 @@
+-require 'mkmf'                        # mkmf holds information about the compiler-settings while compiling ruby (by the maintainer)
++#require 'mkmf'                        # mkmf holds information about the compiler-settings while compiling ruby (by the maintainer)
++
++require 'build/platform.rb'
+ 
+-class Dir
+-	def Dir.separator
+-		&quot;/&quot; # FIXME
+-	end
+-end
+-
+ def getDir(path)
+ 	# FIXME: check for windows
+ 	path.split(Dir.separator)[0..-2].join(&quot;/&quot;)
+ end
+ 
+ 
+-def makeLibName(dir)
+-	&quot;antargis&quot;+dir.split(Dir.separator)[-1]
++def makeLibName(dir)
++    puts &quot;makeLibName #{dir}&quot;
++	&quot;antargis&quot;+dir.split(&quot;/&quot;)[-1]
+ end
+ 
+ # build a command out of templates in config.rb
+
+Modified: antargis/branches/rant/build/configs/unix.rb
+===================================================================
+--- antargis/branches/rant/build/configs/unix.rb	2007-07-01 14:53:59 UTC (rev 1130)
++++ antargis/branches/rant/build/configs/unix.rb	2007-07-03 17:44:53 UTC (rev 1131)
+@@ -13,8 +13,10 @@
+ 	&quot;RUBY&quot;=&gt;&quot;$(ruby)&quot;,
+ 	&quot;CCACHE&quot;=&gt;&quot;$(ccache)&quot;,
+ 
+-	&quot;LINK&quot;=&gt;&quot;$(CXX)&quot;,
++	&quot;LINK&quot;=&gt;&quot;$(CXX)&quot;,
++    &quot;LIBS&quot;=&gt;&quot;&quot;,
+ 
++
+   # call the compiler using the standard unix-style mechanism &lt;CC&gt; -c -o &lt;outputname&gt; &lt;input0&gt; [&lt;input1&gt; ...]
+ 	&quot;COMPILE_PARAMS&quot;=&gt;&quot; -c -o $(OUTPUT) $(INPUT)&quot;,
+ 	# an ansi-c compiler call with parameters (using ccache if available)
+
+Modified: antargis/branches/rant/build/configure.rb
+===================================================================
+--- antargis/branches/rant/build/configure.rb	2007-07-01 14:53:59 UTC (rev 1130)
++++ antargis/branches/rant/build/configure.rb	2007-07-03 17:44:53 UTC (rev 1131)
+@@ -10,8 +10,9 @@
+ # 5) include basic-configuration functionality with CFG.includeConfig - have a look at build/configs/unix.rb for more information on this
+ # 6) run the configuration with CFG.run - a config.rb file will be written 
+ ##
++
++require 'build/platform.rb'
+ 
+-
+ module CFG
+ 	@@options=[]
+ 	@@config={}
+@@ -23,8 +24,8 @@
+ 	def CFG.options
+ 		@@options
+ 	end
+-	def CFG.addCheck(name,&amp;proc)
+-		@@checks &lt;&lt; {:name=&gt;name,:proc=&gt;proc}
++	def CFG.addCheck(name,needed=true,&amp;proc)
++		@@checks &lt;&lt; {:name=&gt;name,:proc=&gt;proc,:needed=&gt;needed}
+ 	end
+ 
+ 	def CFG.call(name)
+@@ -97,7 +98,7 @@
+ 			#ok=(not ok.nil?)
+ 			print &quot; &quot;*(40-text.length)
+ 			puts ({true=&gt;&quot;ok&quot;,false=&gt;&quot;failed&quot;}[ok])
+-			failed &lt;&lt; c[:name] unless ok
++			failed &lt;&lt; c[:name] unless ok or not c[:needed]
+ 		}
+ 		if failed.length&gt;0
+ 			puts 
+@@ -138,13 +139,13 @@
+ 		@@config[n]
+ 	end
+ 
+-	def CFG.checkProgram(program)
++	def CFG.checkProgram(program,needed=true)
+ 		addOption(&quot;path-&quot;+program,&quot;&quot;,
+ 			&quot;set path to program '#{program}' like this:\n --path-#{program}=/usr/local/bin/#{program}&quot;,&quot;path&quot;) do |d|
+ 				set(program,d)
+ 			end
+ 
+-		addCheck (&quot;program &quot;+program) do ||
++		addCheck(&quot;program &quot;+program,needed) do
+ 			path=get(program)
+ 			path||=findProgram(program)
+ 			r=testProgram(path)
+@@ -152,9 +153,34 @@
+ 			r
+ 		end
+ 	end
++
++    def CFG.getPath
++        p=ENV['PATH']
++        psep={&quot;/&quot;=&gt;&quot;:&quot;,&quot;\\&quot;=&gt;&quot;;&quot;}[Dir.separator]
++        #puts p,p.class,psep
++        ps=p.split(psep)
++        #puts get(&quot;prefix&quot;)
++        ps &lt;&lt; get(&quot;prefix&quot;)+Dir.separator+&quot;bin&quot; if get(&quot;prefix&quot;)
++        if Dir.separator==&quot;\\&quot;
++            ps &lt;&lt; (Dir.pwd+&quot;/build/win32/usr/bin&quot;).gsub(&quot;/&quot;,Dir.separator)
++        end
++        ps
++    end
+ 
+-	def CFG.findProgram(program)
+-		`whereis #{program}`.gsub(/[^:]*: */,&quot;&quot;).split(&quot; &quot;)[0]
++	def CFG.findProgram(program)
++        #program+=&quot;.exe&quot; if Dir.separator==&quot;\\&quot; and not program=~/\.\{exe|com|bat\}$/
++        paths=getPath
++        paths.each{|p|
++            currentPath=p+Dir.separator+program
++            puts &quot;TST #{currentPath}&quot;
++            if File.exists?(currentPath)
++                puts &quot;FOUND! at #{currentPath}&quot;
++                return currentPath
++            end
++        }
++        return findProgram(program+&quot;.exe&quot;) if Dir.separator==&quot;\\&quot; and not program=~/exe$/
++        return &quot;&quot;
++		#`whereis #{program}`.gsub(/[^:]*: */,&quot;&quot;).split(&quot; &quot;)[0]
+ 	end
+ 
+ 	def CFG.testProgram(path)
+@@ -163,7 +189,7 @@
+ 	end
+ 
+ 	def CFG.includeConfig
+-		avail=[&quot;unix&quot;]
++		avail=[&quot;unix&quot;,&quot;mingw32&quot;]
+ 		addOption(&quot;base-config&quot;,&quot;&quot;,
+ 			&quot;set base-config like &quot;+avail.join(&quot;, &quot;),&quot;config&quot;) do |v|
+ 			set(&quot;base-config&quot;,v)
+
+Modified: antargis/branches/rant/configure
+===================================================================
+--- antargis/branches/rant/configure	2007-07-01 14:53:59 UTC (rev 1130)
++++ antargis/branches/rant/configure	2007-07-03 17:44:53 UTC (rev 1131)
+@@ -44,11 +44,21 @@
+ 		CFG.set(&quot;version&quot;,v)
+ 	end
+ 
+-CFG.checkProgram(&quot;ccache&quot;)
++CFG.checkProgram(&quot;ccache&quot;,false)
+ CFG.checkProgram(&quot;gcc&quot;)
+ CFG.checkProgram(&quot;g++&quot;)
+ CFG.checkProgram(&quot;swig&quot;)
+-CFG.checkProgram(&quot;ruby&quot;)
++CFG.checkProgram(&quot;ruby&quot;)
++CFG.checkProgram(&quot;sdl-config&quot;)
++
++CFG.addCheck(&quot;sdl-config --libs&quot;,false) do
++        libs=nil
++        begin
++            libs=`#{CFG.get(&quot;sdl-config&quot;)} --libs`
++        rescue
++        end
++        CFG.set(&quot;LIBS&quot;,libs) if libs        
++    end
+ 
+ CFG.includeConfig
+ 
+
+Modified: antargis/branches/rant/ext/basic/ag_fs.cc
+===================================================================
+--- antargis/branches/rant/ext/basic/ag_fs.cc	2007-07-01 14:53:59 UTC (rev 1130)
++++ antargis/branches/rant/ext/basic/ag_fs.cc	2007-07-03 17:44:53 UTC (rev 1131)
+@@ -374,7 +374,7 @@
+ 
+ #define SHGFP_TYPE_CURRENT 0
+ 
+-std::string getDocumentsDir()
++AGFilename getDocumentsDir()
+ {
+   CHAR wszPath[MAX_PATH];
+   
+@@ -382,7 +382,7 @@
+ 
+   SHGetFolderPath( hWnd, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, wszPath );
+ 
+-  std::string s(wszPath);
++  AGFilename s(wszPath);
+ 
+   return s;
+ 
+
+Modified: antargis/branches/rant/ext/basic/ag_messageobject.h
+===================================================================
+--- antargis/branches/rant/ext/basic/ag_messageobject.h	2007-07-01 14:53:59 UTC (rev 1130)
++++ antargis/branches/rant/ext/basic/ag_messageobject.h	2007-07-03 17:44:53 UTC (rev 1131)
+@@ -27,8 +27,9 @@
+ #include &lt;string&gt;
+ #include &lt;set&gt;
+ 
+-#include &quot;ag_geometry.h&quot;
+-#include &quot;ag_rubyobj.h&quot;
++//#include &quot;ag_geometry.h&quot;
++#include &quot;ag_rubyobj.h&quot;
++#include &lt;ag_string.h&gt;
+ 
+ class AGListener;
+ class AGSignal;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000087.html">[Antargis-svn] r1130 - in antargis/branches/rant: . build
+</A></li>
+	<LI>Next message: <A HREF="000089.html">[Antargis-svn] r1132 - in antargis/branches/rant/build: . configs	win32
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#88">[ date ]</a>
+              <a href="thread.html#88">[ thread ]</a>
+              <a href="subject.html#88">[ subject ]</a>
+              <a href="author.html#88">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

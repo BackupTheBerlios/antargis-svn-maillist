@@ -1,0 +1,5805 @@
+From davidkamphausen at mail.berlios.de  Thu Dec  6 20:46:52 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Thu, 6 Dec 2007 20:46:52 +0100
+Subject: [Antargis-svn] r1189 - in antargis/trunk: . build ext/3dengine
+	ext/basic ext/game ext/sound ruby
+Message-ID: <200712061946.lB6JkqMI017089@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-12-06 20:46:52 +0100 (Thu, 06 Dec 2007)
+New Revision: 1189
+
+Modified:
+   antargis/trunk/build/configure.rb
+   antargis/trunk/configure
+   antargis/trunk/ext/3dengine/headers.hh
+   antargis/trunk/ext/basic/ag_rtools.h
+   antargis/trunk/ext/game/headers.hh
+   antargis/trunk/ext/sound/headers.hh
+   antargis/trunk/ruby/antargislib.rb
+Log:
+* build-system on mkmf-base
+
+
+Modified: antargis/trunk/build/configure.rb
+===================================================================
+--- antargis/trunk/build/configure.rb	2007-11-20 19:15:12 UTC (rev 1188)
++++ antargis/trunk/build/configure.rb	2007-12-06 19:46:52 UTC (rev 1189)
+@@ -69,7 +69,7 @@
+ 			print text
+ 			ok=c[:proc].call
+ 			#ok=(not ok.nil?)
+-			print " "*(40-text.length)
++			print " "*(60-text.length)
+ 			puts ({true=>"ok",false=>"failed",nil=>"failed"}[ok])
+ 			failed << c[:name] unless ok or not c[:needed]
+ 		}
+@@ -105,15 +105,20 @@
+ 		@@config[n]=v
+ 	end
+ 	def CFG.get(n)
++		puts "GET #{n}:#{@@config[n]}"
++
++
+ 		@@config[n]
+ 	end
+ 
+-	def CFG.checkProgram(program,needed=true)
++	def CFG.checkProgram(name,program,needed=true)
+ 		addCheck("program "+program,needed) do
+ 			path=get(program)
+ 			path||=findProgram(program)
+ 			r=testProgram(path)
+-			set(program,path) if r
++			#set(program,path) if r
++			set(name,path) if r
++			#pp @@config
+ 			r
+ 		end
+ 	end
+@@ -123,6 +128,8 @@
+ 		psep={"/"=>":","\\"=>";"}[Dir.separator]
+ 		#puts p,p.class,psep
+ 		ps=p.split(psep)
++		ps+=get("PATHS") if get("PATHS")
++
+ 		#puts get("prefix")
+ 		ps << get("prefix")+Dir.separator+"bin" if get("prefix")
+ 		if Dir.separator=="\\"
+@@ -148,15 +155,19 @@
+ 	end
+ 
+ 	def CFG.includeConfig
+-		avail=["unix","mingw32"]
+-		addCheck ("base-config") do ||
+-			c=get("base-config")
+-			c=nil unless avail.member?(c)
+-			c||="unix"
+-			require "build/configs/"+c+".rb"
+-			$config.each{|k,v|@@config[k]||=v}
+-			true
+-		end
++		readConfig("base")
++
++
++
++# 		avail=["unix","mingw32"]
++# 		addCheck ("base-config") do ||
++# 			c=get("base-config")
++# 			c=nil unless avail.member?(c)
++# 			c||="unix"
++# 			require "build/configs/"+c+".rb"
++# 			$config.each{|k,v|@@config[k]||=v}
++# 			true
++# 		end
+ 	end
+ 
+ 	# *FIXME: implement this*
+@@ -165,7 +176,12 @@
+ 		
+ 	end
+ 
++	def CFG.readConfig(file)
++		require "build/configs/"+file+".rb"
++		$config.each{|k,v|@@config[k]||=v}
++	end
+ 
++
+ 	def CFG.gatherMkmfInfo
+ 		CFG.set("RUBYLIB",getConfig("LIBRUBYARG_SHARED"))
+ 		CFG.set("LIBS",CFG.get("LIBS").to_s+" "+CFG.get("RUBYLIB"))
+@@ -235,8 +251,6 @@
+ 			when Hash
+ 				"'"+v.collect{|k,v|"#{k}=>#{v}"}.join(";")+"'"
+ 			else
+-				#puts v,v.class
+-				#raise "MUH"
+ 				v.to_s
+ 		end
+ 	end
+
+Modified: antargis/trunk/configure
+===================================================================
+--- antargis/trunk/configure	2007-11-20 19:15:12 UTC (rev 1188)
++++ antargis/trunk/configure	2007-12-06 19:46:52 UTC (rev 1189)
+@@ -1,39 +1,43 @@
+ #!/usr/bin/env ruby
+ 
+-require 'build/configure.rb'
+-require 'ostruct'
+ require 'optparse'
++require 'mkmf'
++require 'build/property.rb'
++require 'build/mkmf_support.rb'
+ require 'pp'
++require 'logger'
+ 
+-puts <<EOT
+-Battle of Antargis - Configuration
+--------------------------------------------------------------------------------
+-EOT
++NEEDED_PROGRAMS={"CC"=>"gcc","CXX"=>"g++","SWIG"=>"swig","RUBY"=>"ruby"}
++POSSIBLE_PROGRAMS={"CCACHE"=>"ccache","SDL_CONFIG"=>"sdl-config"}
+ 
+-NEEDED_PROGRAMS=["gcc","g++","swig","ruby"]
+-POSSIBLE_PROGRAMS=["ccache","sdl-config"]
+-#POSSIBLE_PROGRAMS=["ccache"]
++NEEDED_LIBS=[
++	"GL","GLU","png","SDL","SDL_image","SDL_ttf","SDL_mixer","stdc++","zs"
++]
++FALLBACK_LIBS={"GLU"=>"glu32","GL"=>"opengl32","ruby"=>"msvcrt-ruby18","zs"=>"z"}
+ 
+ def allPrograms
+-	POSSIBLE_PROGRAMS+NEEDED_PROGRAMS
++	POSSIBLE_PROGRAMS.merge(NEEDED_PROGRAMS)
+ end
+ 
+ class ConfigureOptions
+ 	def self.parse(args)
+ 		options={}
+ 		options[:use_mkmf]=true
++		options[:use_env]=true
++		options[:use_sdlconfig]=true
++		options[:use_fallbacks]=true
+ 		options[:debug]=false
+ 		options[:gcdebug]=false
+ 		options[:profile]=false
+-		options[:version]="0.2.1.4"
++		options[:version]="0.2.1.5"
+ 
+ 		options[:programs]={}
+-		allPrograms.each{|p|
++		allPrograms.keys.each{|p|
+ 			options[:programs][p]=p
+ 		}
+ 	
+ 		opts=OptionParser.new do |opts|
+-		  opts.banner = "Usage: configure [options]"
++			opts.banner = "Usage: configure [options]"
+ 
+ 			opts.separator ""
+ 			opts.separator "Specific options:"
+@@ -53,6 +57,15 @@
+ 				options[:profile]=true
+ 			end
+ 
++			opts.on("--disable-sdlconfig",
++							"do not use sdl-config for configuration") do 
++				options[:use_sdlconfig]=false
++			end
++			opts.on("--disable-fallbacks",
++							"do not use fallback dirs for X11 and GL") do 
++				options[:use_fallbacks]=false
++			end
++
+ 			opts.on("--prefix PREFIXDIR",
+ 							"set prefix directory PREFIXDIR") do |dir|
+ 				options[:prefix]=dir
+@@ -76,12 +89,13 @@
+ 			opts.on("--ext-config CONFIG",
+ 				"use user-defined config instead of ruby's mkmf","CONFIG maybe in mingw32 or unix") do |extconfig|
+ 					options[:extconfig]=extconfig
++					options[:use_mkmf]=false
+ 			end
+ 
+-			allPrograms.each{|program|
++			allPrograms.keys.each{|program|
+ 				opts.on("--path-"+program+" PATH",
+ 					"set path to program '#{program}'") do |d|
+-					CFG.set(program,d)
++					options[program]=d
+ 				end
+ 			}
+ 
+@@ -91,89 +105,224 @@
+ 		options
+ 	end
+ end
+-		
+-options = ConfigureOptions.parse(ARGV)
+ 
+-NEEDED_PROGRAMS.each{|program|
+-	CFG.checkProgram(program,true)
+-}
+-POSSIBLE_PROGRAMS.each{|program|
+-	CFG.checkProgram(program,false)
+-}
++######################
++# helpers
++######################
+ 
+-CFG.setOptions(options)
++def gatherENVConfig
++	config={}
++	["PATH","LDFLAGS","CFLAGS","CXX","CC","SWIG"].each{|name|
++		if ENV[name]
++			config[name]=ENV[name]
++		end
++	}
++	# FIXME: add system-switch to cmd-line options
++	system=nil
++	if config["PATH"]=~/^\/usr/
++		config["PATH"]=config["PATH"].split(":") # Unix ?
++		system=:unix
++	else
++		config["PATH"]=config["PATH"].split(";") # Windows ?
++		system=:windows
++	end
++	config["PATH"].each{|d|
++		puts "\nWARNING: Something went wrong while checking PATH. Detected #{system} - was it wrong ? \n" unless File.exists?(d)
++	}
+ 
+-CFG.add("CFLAGS","-I/usr/include/GL")
++	config
++end
+ 
+-CFG.addCheck("sdl-config --libs",false) do
+-	if CFG.get("sdl-config").nil?
+-		puts "\nWARNING: sdl-config was not found!"
+-	else
+-		libs=nil
+-		begin
+-			call="#{CFG.get("sdl-config")} --libs"
+-			libs=`#{call}`.gsub("\n","")
+-		rescue
++def splitLDFLAGS(config)
++	ldflags=config["LDFLAGS"].value.split(" ")
++	config.set!("LIBS",ldflags.select{|s|s=~/^-l/}.join(" "))
++	config.set!("LDFLAGS",ldflags.select{|s|not s=~/^-l/}.join(" "))
++	config
++end
++
++def splitCFLAGS(config)
++	cflags=config["CFLAGS"].value.split(" ")
++	config["INCLUDEPATH"]=cflags.select{|s|s=~/^-I/}.join(" ")
++	config["DEFINES"]=cflags.select{|s|s=~/^-D/}.join(" ")
++	config
++end
++
++
++def gatherMkmfConfig
++	mkmfs={
++		"CC"=>"$(CC)",
++		"LDSHARED"=>"$(LDSHARED)",
++		"RUBY"=>"$(bindir)/$(ruby_install_name)",
++		"LIBPATH"=>"-L$(archdir) -L$(sitearchdir)",
++		"CFLAGS"=>"$(CFLAGS)",
++		"LDFLAGS"=>"$(LDFLAGS) $(LIBRUBYARG)",
++		"INCLUDEPATH"=>"-I$(includedir) -I$(archdir) -I$(sitearchdir)",
++		"target_os"=>"$(target_os)"
++	}
++
++	config={}
++
++	mkmfs.each{|k,v|
++		value=checkMkmf(v,CONFIG)
++		config[k]=value if value
++	}
++
++	# post-process to get LIBS to separate variable
++	config
++end
++
++
++######################
++
++def getUserInput
++	options = ConfigureOptions.parse(ARGV)
++end
++
++def generateHardConfiguration(options)
++	config=Properties.new
++
++	allPrograms.each{|k,v|config[k]=v}
++
++	# FIXME: include default-dirs (/usr/include/GL, /usr/include/X11 /usr/X11/include and such - same for libs!!!
++
++	if options[:use_mkmf]
++		config.merge!(gatherMkmfConfig)
++	end
++	if options[:use_env]
++		config.merge!(gatherENVConfig)
++	end
++	config.merge!(Properties.new(options))
++
++	config
++end
++
++def testProgram(prg)
++	return false unless File.exist?(prg)
++	return true
++	#`#{prg} --help`
++	#$?==0
++end
++
++def searchPrograms(config)
++	allPrograms.each{|k,v|
++		ok=false
++		info=""
++		if config[k].value!=v
++			# not default - check if ok
++			ok=testProgram(config[k].value)
++			info="(given by config)"
++			unless ok
++				puts "Given path #{config[k].value} for #{k} was not correct!"
++			end
++		end
++		unless ok
++			pathes=config["PATH"].value
+ 			
++			pathes.each{|path|
++				cpath=File.join(path,v)
++				
++				if testProgram(cpath)
++					config[k]=cpath
++					ok=true
++					break
++				end
++			}
++
+ 		end
+-		CFG.add("LIBS",libs) if libs        
+-		true if libs
+-	end
++		if ok
++			puts "#{k.ljust(10)} found at #{config[k].value.ljust(25)} #{info}"
++		end
++	}
++	config
+ end
+ 
++def tryAddMissingLibs(config)
++	NEEDED_LIBS.each{|lib|
++		ok=have_library(lib)
++		unless ok
++			# check fallback
+ 
+-CFG.addCheck("sdl-config --cflags",false) do
+-	if CFG.get("sdl-config").nil?
+-		puts "\nWARNING: sdl-config was not found!"
+-	else
+-		libs=nil
+-		begin
+-				libs=`#{CFG.get("sdl-config")} --cflags`.gsub("\n","")
+-		rescue
+-			puts "WARNING: sdl-config was not found!"
++			begin
++				have_library(FALLBACK_LIBS[lib])
++			rescue
++			end
+ 		end
+-		CFG.add("CFLAGS",libs) if libs        
+-		true if libs
++	}
++	if not $libs
++		puts "ERROR: Not compatible with current mkmf!"
++		exit
+ 	end
++	config["LDFLAGS"]=$libs
++	config
+ end
+ 
+-CFG.includeConfig
+-CFG.gatherMkmfInfo if options[:use_mkmf]
++def addSDLConfig(config,userInput)
++	if userInput[:use_sdlconfig]
++		sdlconf=config["SDL_CONFIG"].value
++		pp sdlconf
++		return config if sdlconf=="sdl-config"
++		#pp sdlconf
++		cflags=`#{sdlconf} --cflags`.chomp
++		config["CFLAGS"]=cflags if $?==0
++		puts "#{sdlconf} --cflags exited with #{$?} and gave the output:\n#{cflags}" if $?!=0
++		libs=`#{sdlconf} --libs`.chomp
++		config["LDFLAGS"]=libs if $?==0
++		puts "#{sdlconf} --libs exited with #{$?} and gave the output:\n#{libs}" if $?!=0
++	end
++	config
++end
+ 
+-CFG.checkLibrary("opengl32","OpenGL library (win32)",false)
+-CFG.checkLibrary("glu32","OpenGL Utility library (win32)",false)
+-CFG.checkLibrary("GL","OpenGL library",false)
+-CFG.checkLibrary("GLU","OpenGL Utility library",false)
++def addStandardFallbacks(config,options)
++	if options[:use_fallbacks]
++		dirs=["/usr/include/GL","/usr/include/X11","/usr/X11R6/include"]
++		config["INCLUDEPATH"]=dirs.inject(""){|str,d|str+" -I"+d}+" -I."
++		config["CFLAGS"]="-dH"
++	
++		dirs=["/usr/lib/GL","/usr/lib/X11","/usr/X11R6/lib"]
++		config["LIBPATH"]=dirs.inject(""){|str,d|str+" -L"+d}
++	end	
++	config
++end
+ 
+-CFG.checkLibrary("png","PNG library",true)
+-CFG.checkLibrary("SDL","the famous SDL library",true)
+-CFG.checkLibrary("SDL_image","SDL_image library",true)
+-CFG.checkLibrary("SDL_ttf","SDL_ttf library",true)
+-CFG.checkLibrary("SDL_mixer","SDL_mixer library",false)
++def checkFlags(config,options)
++	if options[:debug]
++		options=config["CFLAGS"].value.split(" ").select{|op|not op=~/^-O[0-5]$/}.join(" ")
++		config.set!("CFLAGS",options+" -O0 -g")
++	end
++	if options[:profile]
++		config["CFLAGS"]="-pg" 
++		config["LDFLAGS"]="-pg"
++	end
++	config
++end
+ 
+-CFG.checkFunction("SDL_Init")
+-CFG.checkFunction("TTF_Init")
+-CFG.checkFunction("Mix_PlayingMusic")
+-CFG.checkFunction("ruby_init")
++def runChecks(config)
++	begin
++		`rake test`
++	rescue
++		puts "Test failed"
++	end
++end
+ 
+-CFG.checkHeader("SDL.h","SDL_Init")
+-CFG.checkHeader("SDL.h","SDL_Flip")
+-CFG.checkHeader("SDL.h","SDL_GL_SwapBuffers","SDL compiled with GL")
+-CFG.checkHeader("SDL_mixer.h","Mix_PlayingMusic")
+-CFG.checkHeader("SDL_ttf.h","TTF_Init")
+-CFG.checkHeader("ruby.h","ruby_init")
+-CFG.checkHeader("gl.h","glBegin")
++def saveConfigurationFile(config)
++	file=File.open("config.rb","w")
++	file.puts config.toRuby
++	file.close
++end
+ 
+ 
+-CFG.addCheck("any opengl-library found") do ||
+-	(CFG.hasLibrary("opengl32") or CFG.hasLibrary("GL"))
+-end
+-CFG.addCheck("any glu-library found") do ||
+-	(CFG.hasLibrary("glu32") or CFG.hasLibrary("GLU"))
+-end
++userInput=getUserInput
++config=generateHardConfiguration(userInput)
++config=searchPrograms(config)
++config=tryAddMissingLibs(config)
++config=addSDLConfig(config,userInput)
++config=addStandardFallbacks(config,userInput)
++config=checkFlags(config,userInput)
++config=splitLDFLAGS(config)
++config=splitCFLAGS(config)
++saveConfigurationFile(config)
++runChecks(config)
+ 
+-CFG.run
+ 
+-puts
+-puts "You should run '>rant clean && rant' to let changes take effect!"
+-puts 
++
++#pp config
+\ No newline at end of file
+
+Modified: antargis/trunk/ext/3dengine/headers.hh
+===================================================================
+--- antargis/trunk/ext/3dengine/headers.hh	2007-11-20 19:15:12 UTC (rev 1188)
++++ antargis/trunk/ext/3dengine/headers.hh	2007-12-06 19:46:52 UTC (rev 1189)
+@@ -56,6 +56,7 @@
+ #include "ext/gui/ag_window.h"
+ #include "ext/gui/ag_layout.h"
+ #include "ext/gui/ag_border.h"
++#include "ext/sound/ag_mixer.h"
+ #include "ext/3dengine/mesh_data.h"
+ #include "ext/3dengine/scene_base.h"
+ #include "ext/3dengine/scenenode.h"
+
+Modified: antargis/trunk/ext/basic/ag_rtools.h
+===================================================================
+--- antargis/trunk/ext/basic/ag_rtools.h	2007-11-20 19:15:12 UTC (rev 1188)
++++ antargis/trunk/ext/basic/ag_rtools.h	2007-12-06 19:46:52 UTC (rev 1189)
+@@ -1,9 +1,10 @@
+ #ifndef AG_RTOOLS_H
+ #define AG_RTOOLS_H
+ 
++#include <ag_base.h>
+ #include <string>
+ 
+-std::string rubyHash(const std::string &p);
++AGEXPORT std::string rubyHash(const std::string &p);
+ 
+ 
+ 
+
+Modified: antargis/trunk/ext/game/headers.hh
+===================================================================
+--- antargis/trunk/ext/game/headers.hh	2007-11-20 19:15:12 UTC (rev 1188)
++++ antargis/trunk/ext/game/headers.hh	2007-12-06 19:46:52 UTC (rev 1189)
+@@ -56,6 +56,7 @@
+ #include "ext/gui/ag_window.h"
+ #include "ext/gui/ag_layout.h"
+ #include "ext/gui/ag_border.h"
++#include "ext/sound/ag_mixer.h"
+ #include "ext/3dengine/anim_mesh_data.h"
+ #include "ext/3dengine/ant_camera.h"
+ #include "ext/3dengine/mesh.h"
+
+Modified: antargis/trunk/ext/sound/headers.hh
+===================================================================
+--- antargis/trunk/ext/sound/headers.hh	2007-11-20 19:15:12 UTC (rev 1188)
++++ antargis/trunk/ext/sound/headers.hh	2007-12-06 19:46:52 UTC (rev 1189)
+@@ -14,6 +14,48 @@
+ #include "ext/basic/ag_fs.h"
+ #include "ext/basic/ag_messageobject.h"
+ #include "ext/basic/ag_rubyobj.h"
++#include "ext/math/ag_rand.h"
++#include "ext/math/ag_algebra.h"
++#include "ext/math/ant_frustum.h"
++#include "ext/video/ag_rendercontext.h"
++#include "ext/video/ag_texturecache.h"
++#include "ext/video/ag_clip.h"
++#include "ext/video/ag_fontengine.h"
++#include "ext/video/ag_font.h"
++#include "ext/video/ag_video.h"
++#include "ext/video/ag_color.h"
++#include "ext/video/ag_screen.h"
++#include "ext/video/ag_painttarget.h"
++#include "ext/video/ag_surface.h"
++#include "ext/video/ag_texture.h"
++#include "ext/video/ag_painter.h"
++#include "ext/gui/ag_image.h"
++#include "ext/gui/ag_listbox.h"
++#include "ext/gui/ag_edit.h"
++#include "ext/gui/ag_scroller.h"
++#include "ext/gui/ag_local.h"
++#include "ext/gui/ag_tooltip.h"
++#include "ext/gui/ag_radio.h"
++#include "ext/gui/ag_application.h"
++#include "ext/gui/ag_colorbutton.h"
++#include "ext/gui/ag_button.h"
++#include "ext/gui/ag_radiogroup.h"
++#include "ext/gui/ag_background.h"
++#include "ext/gui/ag_menuitem.h"
++#include "ext/gui/ag_screenwidget.h"
++#include "ext/gui/ag_widget.h"
++#include "ext/gui/ag_text.h"
++#include "ext/gui/ag_checkbox.h"
++#include "ext/gui/ag_table.h"
++#include "ext/gui/ag_frame.h"
++#include "ext/gui/ag_caption.h"
++#include "ext/gui/ag_combo.h"
++#include "ext/gui/ag_theme.h"
++#include "ext/gui/ag_menu.h"
++#include "ext/gui/ag_layoutfactory.h"
++#include "ext/gui/ag_window.h"
++#include "ext/gui/ag_layout.h"
++#include "ext/gui/ag_border.h"
+ #include "ext/sound/ag_mixer.h"
+ #ifdef SWIG
+ %include "ext/sound/ag_mixer.h"
+
+Modified: antargis/trunk/ruby/antargislib.rb
+===================================================================
+--- antargis/trunk/ruby/antargislib.rb	2007-11-20 19:15:12 UTC (rev 1188)
++++ antargis/trunk/ruby/antargislib.rb	2007-12-06 19:46:52 UTC (rev 1189)
+@@ -4,6 +4,7 @@
+ # - init video-mode
+ # - process config-file and parameter input
+ #
++require 'pp'
+ 
+ 
+ module MyAntargisLib
+@@ -12,7 +13,9 @@
+ 	if not @@antargislibinited
+ 		# try suspending arts
+ 		if File.exists?("/usr/bin/artsshell")
+-			File.popen("/usr/bin/artsshell suspend 2>&1").close
++			unless ENV["PATH"]=~/^[A-Za-z]:\\/
++				File.popen("/usr/bin/artsshell suspend 2>&1").close
++			end
+ 		end
+ 		
+ 		@@programDir=Dir.pwd+"/ruby"
+@@ -96,6 +99,7 @@
+ 
+ include Antargisgame
+ include Antargisbasic
++include Antargismath
+ include Antargisvideo
+ include Antargisgui
+ include Antargis3dengine
+
+
+
+From davidkamphausen at mail.berlios.de  Thu Dec  6 20:48:30 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Thu, 6 Dec 2007 20:48:30 +0100
+Subject: [Antargis-svn] r1190 - in antargis/trunk/build: . configs
+Message-ID: <200712061948.lB6JmUhp017157@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-12-06 20:48:30 +0100 (Thu, 06 Dec 2007)
+New Revision: 1190
+
+Added:
+   antargis/trunk/build/configs/base.rb
+   antargis/trunk/build/configs/cross.rb
+   antargis/trunk/build/mkmf_support.rb
+   antargis/trunk/build/property.rb
+   antargis/trunk/build/shell.rb
+Log:
+* missing files
+
+
+Added: antargis/trunk/build/configs/base.rb
+===================================================================
+--- antargis/trunk/build/configs/base.rb	2007-12-06 19:46:52 UTC (rev 1189)
++++ antargis/trunk/build/configs/base.rb	2007-12-06 19:48:30 UTC (rev 1190)
+@@ -0,0 +1,30 @@
++
++#
++# this is the reference implementation of a base-configuration file.
++# it's meant to configure all needed build-processes on a unix-os for BoA.
++# for other operation systems or compiler-systems please copy this file and
++# change the calls.
++# 
++
++$config={
++
++	"LINK"=>"$(CXX)",
++
++  # call the compiler using the standard unix-style mechanism <CC> -c -o <outputname> <input0> [<input1> ...]
++	"COMPILE_PARAMS"=>" -c -o $(OUTPUT) $(INPUT) -I#{Dir.pwd}/build/win32/usr/include",
++	# an ansi-c compiler call with parameters (using ccache if available)
++	"CC_CALL"=>"$(CCACHE) $(CC) $(COMPILE_PARAMS)",
++	# a c++ compiler call with parameters (using ccache if available)
++	"CXX_CALL"=>"$(CCACHE) $(CXX) $(COMPILE_PARAMS)",
++	# build a shared library (.so or .dll)
++	"LINK_SHARED"=>"$(LINK) -shared -o $(OUTPUT) -Wl,--enable-auto-image-base -Xlinker --out-implib -Xlinker $(OUTPUT).a  $(INPUT) $(LIBDIR) -Lext",
++
++	# generate c++-code from a swig-interface file
++	"SWIG_CALL"=>"$(SWIG) -v -Wall -ruby -c++ -o $(OUTPUT) -Ic:/antargis/rant/build/win32/usr/include $(INPUT) ",
++	# generate dependencies for swig-interface files
++	"SWIGDEPS"=>"$(SWIG) -ruby -c++ -M $(INPUT)",
++
++	# generate a swig-interface-file from the c++-sources and some other pre-defined interface-files (.i)
++	# go to build/*.i or ext/*/*.i for more information
++	"CREATEINTERFACE"=>"$(RUBY) build/create_interface.rb -d=$(OUTPUT) -i=$(INPUT)"
++}
+
+Added: antargis/trunk/build/configs/cross.rb
+===================================================================
+--- antargis/trunk/build/configs/cross.rb	2007-12-06 19:46:52 UTC (rev 1189)
++++ antargis/trunk/build/configs/cross.rb	2007-12-06 19:48:30 UTC (rev 1190)
+@@ -0,0 +1,24 @@
++$CONFIG={
++  'LDSHARED'=>'/usr/bin/i586-mingw32msvc-g++ -shared -s',
++  'CC'=>'/usr/bin/i586-mingw32msvc-gcc',
++  'programs'=>{'CC'=>'CC','CCACHE'=>'CCACHE','SWIG'=>'SWIG','CXX'=>'CXX','RUBY'=>'RUBY','SDL_CONFIG'=>'SDL_CONFIG'},
++  'use_fallbacks'=>'true',
++  'CCACHE'=>'/usr/bin/ccache',
++  'SWIG'=>'/usr/bin/swig',
++  'CXX'=>'/usr/bin/i586-mingw32msvc-g++',
++  'debug'=>'false',
++  'CFLAGS'=>'-g -O0 -dH',
++  'RUBY'=>'/usr/bin/ruby',
++  'DEFINES'=>'',
++  'gcdebug'=>'false',
++  'INCLUDEPATH'=>'-I/home/david/projects/antargis/build/build/win32/libs/usr/include -I/home/david/projects/antargis/build/build/win32/libs/usr/lib/ruby/1.8/i386-mingw32 -I/home/david/projects/antargis/build/build/win32/libs/usr/lib/ruby/site_ruby/1.8/i386-msvcrt  -I/usr/i586-mingw32msvc/include/GL -I. ',
++  'LIBS'=>'-lmsvcrt-ruby18 -lSDL -lz -lSDL_mixer -lSDL_ttf -lpng -lopengl32 -lSDL_image -lglu32',
++  'use_mkmf'=>'true',
++  'profile'=>'false',
++  'LDFLAGS'=>'',
++  'use_env'=>'true',
++  'PATH'=>['c:\windows\system32','c:\windows'],
++  'version'=>'0.2.1.5',
++  'LIBPATH'=>'-L/home/david/projects/antargis/build/build/win32/libs/usr/lib/ruby/1.8/i386-mingw32  -L/home/david/projects/antargis/build/build/win32/libs/usr/lib -L/home/david/projects/antargis/build/build/win32/libs/usr/lib/ruby/site_ruby/1.8/i386-msvcrt  -L/usr/i586-mingw32msvc/lib/GL',
++	'target_os'=>'windows'
++}
+
+Added: antargis/trunk/build/mkmf_support.rb
+===================================================================
+--- antargis/trunk/build/mkmf_support.rb	2007-12-06 19:46:52 UTC (rev 1189)
++++ antargis/trunk/build/mkmf_support.rb	2007-12-06 19:48:30 UTC (rev 1190)
+@@ -0,0 +1,10 @@
++def checkMkmf(value,config)
++	changed=false
++		value=value.gsub(/\$\(([^)]*)\)/) do |str|
++		inner=str[2..-2]
++		changed=true
++		config[inner]
++	end
++	return checkMkmf(value,config) if changed
++	value
++end
+
+Added: antargis/trunk/build/property.rb
+===================================================================
+--- antargis/trunk/build/property.rb	2007-12-06 19:46:52 UTC (rev 1189)
++++ antargis/trunk/build/property.rb	2007-12-06 19:48:30 UTC (rev 1190)
+@@ -0,0 +1,99 @@
++class Property
++	attr_accessor :type,:name,:value
++	def initialize(type,name,value)
++		@type=type
++		@name=name
++		@value=value
++	end
++	def merge!(p)
++		case @type
++			when :optionList
++				@value+=" "+p.value
++			else
++				@value=p.value
++		end
++	end
++
++	def toRubyPriv
++		case @value
++			when Array
++				"'#{@name}'=>['#{@value.join("','")}']"
++			when Hash
++				"'#{@name}'=>{#{@value.keys.map{|k|"'#{k}'=>'#{@value[k]}'"}.join(",")}}"
++			else String
++				"'#{@name}'=>'#{@value}'"
++			
++		end
++	end
++end
++
++class Properties
++	OPTION_LIST=["LDFLAGS","CFLAGS","INCLUDEPATH","LIBPATH","LIBS"]
++	attr_reader :properties
++
++	def initialize(config={})
++		@properties={}
++		config.each{|k,v|
++			if OPTION_LIST.member?(k)
++				@properties[k]=Property.new(:optionList,k,v)
++			else
++				@properties[k]=Property.new(:string,k,v)
++			end
++		}
++	end
++	def [](key)
++		@properties[key]
++	end
++
++	def []=(a,b)
++		b=Property.new(getType(a),a,b) unless b.is_a?(Property)
++		if @properties[a]
++			@properties[a].merge!(b)
++		else
++			@properties[a]=b
++		end
++	end
++
++	def set!(a,b)
++		b=Property.new(getType(a),a,b) unless b.is_a?(Property)
++		@properties[a]=b
++	end
++
++	def merge!(b)
++		if b.is_a?(Properties)
++			b=b.properties
++			b.each{|k,v|
++				if @properties[k].nil?
++					@properties[k]=v
++				else
++					@properties[k].merge!(v)
++				end
++			}
++		else
++			b.each{|k,v|
++				prop=Property.new(getType(k),k,v)
++				if @properties[k].nil?
++					@properties[k]=prop
++				else
++					@properties[k].merge!(prop)
++				end
++			}
++		end
++		self
++	end
++
++	def getType(k)
++		return :optionList if OPTION_LIST.member?(k)
++		:string
++	end
++
++	def toRuby
++		str=""
++		str << "$CONFIG={\n  "
++		str << @properties.values.map{|prop|prop.toRubyPriv}.join(",\n  ")
++
++		str << "\n}"
++		#str << "\nrequire 'pp'\npp config"
++		str
++	end
++end
+
+Added: antargis/trunk/build/shell.rb
+===================================================================
+--- antargis/trunk/build/shell.rb	2007-12-06 19:46:52 UTC (rev 1189)
++++ antargis/trunk/build/shell.rb	2007-12-06 19:48:30 UTC (rev 1190)
+@@ -0,0 +1,3 @@
++def msh()
++	raise "not implemented"
++end
+\ No newline at end of file
+
+
+
+From davidkamphausen at mail.berlios.de  Wed Dec 19 18:44:06 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Wed, 19 Dec 2007 18:44:06 +0100
+Subject: [Antargis-svn] r1191 - in antargis/trunk: . build ext/3dengine
+	ext/basic ext/game ext/gui ext/math ext/sound ext/video ruby
+	ruby/gui ruby/jobs
+Message-ID: <200712191744.lBJHi6Be023765@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-12-19 18:44:00 +0100 (Wed, 19 Dec 2007)
+New Revision: 1191
+
+Added:
+   antargis/trunk/antargis.rb
+   antargis/trunk/build/bin/
+   antargis/trunk/ruby/run_game.rb
+Removed:
+   antargis/trunk/ruby/antargis.rb
+   antargis/trunk/run.rb
+Modified:
+   antargis/trunk/Makefile
+   antargis/trunk/TODO
+   antargis/trunk/antargis
+   antargis/trunk/build/create_interface.rb
+   antargis/trunk/build/interface_template.rb
+   antargis/trunk/ext/3dengine/headers.hh
+   antargis/trunk/ext/basic/ag_fs.cc
+   antargis/trunk/ext/basic/ag_fs.h
+   antargis/trunk/ext/basic/ag_main.cc
+   antargis/trunk/ext/basic/init.cc
+   antargis/trunk/ext/game/headers.hh
+   antargis/trunk/ext/gui/ag_application.cc
+   antargis/trunk/ext/gui/headers.hh
+   antargis/trunk/ext/math/headers.hh
+   antargis/trunk/ext/sound/ag_mixer.cc
+   antargis/trunk/ext/sound/headers.hh
+   antargis/trunk/ext/video/ag_png.cc
+   antargis/trunk/ext/video/ag_sdlscreen.cc
+   antargis/trunk/ext/video/ag_surface.cc
+   antargis/trunk/ext/video/ag_video.cc
+   antargis/trunk/ext/video/headers.hh
+   antargis/trunk/ruby/ant_models.rb
+   antargis/trunk/ruby/antargislib.rb
+   antargis/trunk/ruby/gui/ag_tools.rb
+   antargis/trunk/ruby/intro.rb
+   antargis/trunk/ruby/jobs/ant_hljob_states.rb
+   antargis/trunk/ruby/jobs/ant_new_hljobs.rb
+   antargis/trunk/ruby/mainmenu.rb
+Log:
+* many changes for better building/runing
+
+
+Modified: antargis/trunk/Makefile
+===================================================================
+--- antargis/trunk/Makefile	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/Makefile	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -1,2 +1,2 @@
+ all:
+-	rant
++	rake
+
+Modified: antargis/trunk/TODO
+===================================================================
+--- antargis/trunk/TODO	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/TODO	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -1,6 +1,7 @@
+-* check how many times AG_NewPointer is called !!!!
+-* check if it's any good to switch over to standard-swig ???
+ 
++* check how many times AG_NewPointer is called !!!! - not so often - could be replaced by traceobjects from swig
++** check if it's any good to switch over to standard-swig ??? seems so.
++
+ !!! AGTexture - not wrapped correctly in bliTri etc ???
+ 
+ 
+@@ -14,7 +15,6 @@
+ * moveto doesn't really work with "near" (hljob)
+ * heroes don't die in reasonable fashion - starving men too
+ * add seasons
+-* remove -O0 -g out of Rantfile !
+ * take food - near doesn't work - same for attack (in some cases?)
+ 
+ * Spreading should be done only for men who need it!
+
+Modified: antargis/trunk/antargis
+===================================================================
+--- antargis/trunk/antargis	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/antargis	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -1,4 +1,34 @@
+-#!/bin/sh
+-#echo $@
+-test -e ext/antargisgame.so || echo "ERROR:Ruby extensions were not built yet! Please type this first:\n> ruby build.rb\nor\n> rant\nif the first one doesn't work."
+-ruby run.rb $@>/tmp/ant-stdout.txt 2>/tmp/ant-stderr.txt
++#!/usr/bin/env ruby
++#
++# This is a starter-program. It's run in a ruby-interpreter, because that's easiest.
++# Because we have to load DLLs which may not be in the standard-search-path, we'll
++# start another ruby-interpreter in a sub-process and before we do so, we set
++# the LD_LIBRARY_PATH environment variable, that will add the extension-directory to
++# the path
++#
++
++# the path, where this program lies (fully expanded)
++base=File.expand_path(File.split(__FILE__)[0])
++
++# for Debugging
++require 'pp'
++# for parsing the mkmf-CONFIG-global
++require File.join(base,'build','mkmf_support.rb')
++# get the actual mkmf-CONFIG
++require 'mkmf'
++
++# read-out where the ruby-interpreter is
++rubyExe=checkMkmf("$(bindir)/$(ruby_install_name)",CONFIG)
++
++# add the extension-path (for the non-extension dlls) to the ld-search-path
++path=File.join(base,"ext")
++seperator=":"
++separator=";" if File.join("a","b")!="a/b"
++old_path=ENV['LD_LIBRARY_PATH']||""
++ENV['LD_LIBRARY_PATH']=(old_path.split(separator).map{|dir|File.expand_path(dir)}+[path]).uniq.join(separator)
++
++# run ruby with path as an extension dir
++call=rubyExe+" -I#{path} "+File.join(File.split(__FILE__)[0],'runAntargis.rb')
++
++pp call,base,path,ENV
++system call
+
+Copied: antargis/trunk/antargis.rb (from rev 1183, antargis/trunk/run.rb)
+
+Modified: antargis/trunk/build/create_interface.rb
+===================================================================
+--- antargis/trunk/build/create_interface.rb	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/build/create_interface.rb	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -29,6 +29,7 @@
+ require 'build/interface_template.rb'
+ require 'build/base_tools.rb'
+ require 'find.rb'
++require 'pp'
+ 
+ def vputs(*a)
+ 	puts *a if $verbose
+@@ -112,7 +113,6 @@
+ 	attr_reader :deriveList
+ 
+ 	def initialize(files,allfiles)
+-        #puts "ParsedClasses:init()",files,"--",allfiles,"-----"
+ 		@rubyClasses=[]
+ 		@files=files.collect{|f|f.gsub(/.*\/ext\//,"ext/")}
+ 		loadAllDerivations(allfiles.collect{|f|f.gsub(/.*\/ext\//,"ext/")})
+@@ -423,7 +423,7 @@
+ extern std::map<std::string,std::list<CastFunction> > agCastFunctions;
+ %}
+ EOT
+-
++pp myClasses
+ myClasses.each{|k|
+ file.puts <<EOT	
+ %{
+
+Modified: antargis/trunk/build/interface_template.rb
+===================================================================
+--- antargis/trunk/build/interface_template.rb	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/build/interface_template.rb	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -12,12 +12,15 @@
+ 	void AG_Init_lib#{moduleName}();
+ %}
+ %insert("init") %{
++/*
+ 	#{swigInput.collect{|i|"rb_require(\"antargis#{i.split("/")[-2]+".so"}\");"}.join("\n")}
++*/
+ 	AG_Init_lib#{moduleName}(); 
+ %}
+ 
++/*
+ #{swigInput.collect{|i|"%import \"#{i}\""}.join("\n")}
+-
++*/
+ %{
+ #include <string>
+ #{addfiles.collect{|f|"#include \"#{f}\""}.join("\n")}
+
+Modified: antargis/trunk/ext/3dengine/headers.hh
+===================================================================
+--- antargis/trunk/ext/3dengine/headers.hh	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ext/3dengine/headers.hh	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -14,6 +14,7 @@
+ #include "ext/basic/ag_fs.h"
+ #include "ext/basic/ag_messageobject.h"
+ #include "ext/basic/ag_rubyobj.h"
++#include "ext/sound/ag_mixer.h"
+ #include "ext/math/ag_rand.h"
+ #include "ext/math/ag_algebra.h"
+ #include "ext/math/ant_frustum.h"
+@@ -56,7 +57,6 @@
+ #include "ext/gui/ag_window.h"
+ #include "ext/gui/ag_layout.h"
+ #include "ext/gui/ag_border.h"
+-#include "ext/sound/ag_mixer.h"
+ #include "ext/3dengine/mesh_data.h"
+ #include "ext/3dengine/scene_base.h"
+ #include "ext/3dengine/scenenode.h"
+
+Modified: antargis/trunk/ext/basic/ag_fs.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_fs.cc	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ext/basic/ag_fs.cc	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -57,7 +57,23 @@
+   updateConfig();
+ }
+ 
++void addPathFront(const AGFilename &pName)
++{
++  mFsPaths.push_front(pName);
++#ifdef USE_PHYSFS
++  TRACE;
++  PHYSFS_addToSearchPath(pName.c_str(),1);
++  char **p=PHYSFS_getSearchPath();
++  for(;*p;p++)
++    {
++      dbout(0,*p);
+ 
++    }
++#endif
++  updateConfig();
++}
++
++
+ void initFS(const char *argv0)
+ {
+ #ifdef USE_PHYSFS
+@@ -446,12 +462,16 @@
+ #endif
+ 
+   FILE *f=fopen(pName.c_str(),"r");
++	bool found=false;
++	
+   if(f)
+     {
++			found=true;
+       fclose(f);
+-      return true;
+     }
+-  return false;
++	cdebug("file exists:"<<pName<<":"<<found);
++
++  return found;
+ #ifdef USE_PHYSFS
+   TRACE;
+   return PHYSFS_exists(pName.c_str());
+
+Modified: antargis/trunk/ext/basic/ag_fs.h
+===================================================================
+--- antargis/trunk/ext/basic/ag_fs.h	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ext/basic/ag_fs.h	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -43,6 +43,7 @@
+ AGEXPORT AGFilename getDocumentsDir();
+ 
+ AGEXPORT void addPath(const AGFilename &pName);
++AGEXPORT void addPathFront(const AGFilename &pName);
+ 
+ AGEXPORT AGData compress(const AGData &pString);
+ AGEXPORT AGData uncompress(const AGData &pString);
+
+Modified: antargis/trunk/ext/basic/ag_main.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_main.cc	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ext/basic/ag_main.cc	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -139,7 +139,7 @@
+ 
+       // IMPORTANT:
+       //   put it into a global variable - so that it won't get garbage collected
+-      rb_eval_string("include Antargisbasic;$agMain=getMain");
++      rb_eval_string("include Antargis;$agMain=getMain");
+     }
+ 
+ 
+
+Modified: antargis/trunk/ext/basic/init.cc
+===================================================================
+--- antargis/trunk/ext/basic/init.cc	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ext/basic/init.cc	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -15,7 +15,8 @@
+ 
+ AGEXPORT void AG_Init_libantargisbasic()
+ {
+-  //  TRACE;
++  TRACE;
++  SDL_Init(SDL_INIT_VIDEO);
+   if(!hasMain())
+     AGMain *main=new AGMain;
+ 
+
+Modified: antargis/trunk/ext/game/headers.hh
+===================================================================
+--- antargis/trunk/ext/game/headers.hh	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ext/game/headers.hh	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -14,6 +14,7 @@
+ #include "ext/basic/ag_fs.h"
+ #include "ext/basic/ag_messageobject.h"
+ #include "ext/basic/ag_rubyobj.h"
++#include "ext/sound/ag_mixer.h"
+ #include "ext/math/ag_rand.h"
+ #include "ext/math/ag_algebra.h"
+ #include "ext/math/ant_frustum.h"
+@@ -56,7 +57,6 @@
+ #include "ext/gui/ag_window.h"
+ #include "ext/gui/ag_layout.h"
+ #include "ext/gui/ag_border.h"
+-#include "ext/sound/ag_mixer.h"
+ #include "ext/3dengine/anim_mesh_data.h"
+ #include "ext/3dengine/ant_camera.h"
+ #include "ext/3dengine/mesh.h"
+
+Modified: antargis/trunk/ext/gui/ag_application.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_application.cc	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ext/gui/ag_application.cc	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -29,6 +29,7 @@
+ #include "ag_profiler.h"
+ #include "ag_clip_painttarget.h"
+ #include "ag_video.h"
++#include "ag_vdebug.h"
+ 
+ #include <ruby.h>
+ 
+@@ -49,6 +50,7 @@
+ 
+ AGApplication::AGApplication():mRunning(true),mIdleCalls(true),mainWidget(0),mTooltip(0),mOverlay(0)
+ {
++  assertGL;
+   SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,SDL_DEFAULT_REPEAT_INTERVAL);
+   if(videoInited())
+     {
+
+Modified: antargis/trunk/ext/gui/headers.hh
+===================================================================
+--- antargis/trunk/ext/gui/headers.hh	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ext/gui/headers.hh	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -14,6 +14,7 @@
+ #include "ext/basic/ag_fs.h"
+ #include "ext/basic/ag_messageobject.h"
+ #include "ext/basic/ag_rubyobj.h"
++#include "ext/sound/ag_mixer.h"
+ #include "ext/math/ag_rand.h"
+ #include "ext/math/ag_algebra.h"
+ #include "ext/math/ant_frustum.h"
+
+Modified: antargis/trunk/ext/math/headers.hh
+===================================================================
+--- antargis/trunk/ext/math/headers.hh	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ext/math/headers.hh	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -14,6 +14,7 @@
+ #include "ext/basic/ag_fs.h"
+ #include "ext/basic/ag_messageobject.h"
+ #include "ext/basic/ag_rubyobj.h"
++#include "ext/sound/ag_mixer.h"
+ #include "ext/math/ag_rand.h"
+ #include "ext/math/ant_frustum.h"
+ #include "ext/math/ag_algebra.h"
+
+Modified: antargis/trunk/ext/sound/ag_mixer.cc
+===================================================================
+--- antargis/trunk/ext/sound/ag_mixer.cc	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ext/sound/ag_mixer.cc	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -163,11 +163,14 @@
+     {
+       return false;
+     }
++
++	std::string filename=findFile(pFilename);
++
+   initSoundEngine();
+   // load the MP3 file "music.mp3" to play as music
+-  mMusic=Mix_LoadMUS(pFilename.c_str());
++  mMusic=Mix_LoadMUS(filename.c_str());
+   if(!mMusic) {
+-    printf("Mix_LoadMUS(\"%s\"): %s\n",pFilename.c_str(), Mix_GetError());
++    printf("Mix_LoadMUS(\"%s\"): %s\n",filename.c_str(), Mix_GetError());
+     //    assertGL;
+     return false;
+   }
+
+Modified: antargis/trunk/ext/sound/headers.hh
+===================================================================
+--- antargis/trunk/ext/sound/headers.hh	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ext/sound/headers.hh	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -14,48 +14,6 @@
+ #include "ext/basic/ag_fs.h"
+ #include "ext/basic/ag_messageobject.h"
+ #include "ext/basic/ag_rubyobj.h"
+-#include "ext/math/ag_rand.h"
+-#include "ext/math/ag_algebra.h"
+-#include "ext/math/ant_frustum.h"
+-#include "ext/video/ag_rendercontext.h"
+-#include "ext/video/ag_texturecache.h"
+-#include "ext/video/ag_clip.h"
+-#include "ext/video/ag_fontengine.h"
+-#include "ext/video/ag_font.h"
+-#include "ext/video/ag_video.h"
+-#include "ext/video/ag_color.h"
+-#include "ext/video/ag_screen.h"
+-#include "ext/video/ag_painttarget.h"
+-#include "ext/video/ag_surface.h"
+-#include "ext/video/ag_texture.h"
+-#include "ext/video/ag_painter.h"
+-#include "ext/gui/ag_image.h"
+-#include "ext/gui/ag_listbox.h"
+-#include "ext/gui/ag_edit.h"
+-#include "ext/gui/ag_scroller.h"
+-#include "ext/gui/ag_local.h"
+-#include "ext/gui/ag_tooltip.h"
+-#include "ext/gui/ag_radio.h"
+-#include "ext/gui/ag_application.h"
+-#include "ext/gui/ag_colorbutton.h"
+-#include "ext/gui/ag_button.h"
+-#include "ext/gui/ag_radiogroup.h"
+-#include "ext/gui/ag_background.h"
+-#include "ext/gui/ag_menuitem.h"
+-#include "ext/gui/ag_screenwidget.h"
+-#include "ext/gui/ag_widget.h"
+-#include "ext/gui/ag_text.h"
+-#include "ext/gui/ag_checkbox.h"
+-#include "ext/gui/ag_table.h"
+-#include "ext/gui/ag_frame.h"
+-#include "ext/gui/ag_caption.h"
+-#include "ext/gui/ag_combo.h"
+-#include "ext/gui/ag_theme.h"
+-#include "ext/gui/ag_menu.h"
+-#include "ext/gui/ag_layoutfactory.h"
+-#include "ext/gui/ag_window.h"
+-#include "ext/gui/ag_layout.h"
+-#include "ext/gui/ag_border.h"
+ #include "ext/sound/ag_mixer.h"
+ #ifdef SWIG
+ %include "ext/sound/ag_mixer.h"
+
+Modified: antargis/trunk/ext/video/ag_png.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_png.cc	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ext/video/ag_png.cc	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -33,6 +33,7 @@
+ #include <iostream>
+ #include <fstream>
+ #include <assert.h>
++#include <ag_vdebug.h>
+ 
+ using namespace std;
+ #include <SDL_image.h>
+@@ -217,5 +218,7 @@
+ 
+ SDL_Surface *fromPNG(std::string s)
+ {
+-  return IMG_LoadPNG_RW(SDL_RWFromMem(const_cast<char*>(s.c_str()),s.length()));
++  SDL_Surface *surface=IMG_LoadPNG_RW(SDL_RWFromMem(const_cast<char*>(s.c_str()),s.length()));
++  assertGL;
++  return surface;
+ }
+
+Modified: antargis/trunk/ext/video/ag_sdlscreen.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_sdlscreen.cc	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ext/video/ag_sdlscreen.cc	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -134,11 +134,11 @@
+ 
+ 
+ AGScreen *mAGGScreen=0;
+-
++/*
+ bool videoInited()
+ {
+   return mAGGScreen;
+-}
++}*/
+ 
+ AGScreen & AGEXPORT getScreen()
+ {
+
+Modified: antargis/trunk/ext/video/ag_surface.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_surface.cc	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ext/video/ag_surface.cc	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -328,6 +328,8 @@
+ 
+ AGSurface AGSurface::load(const std::string &pFilename)
+ {
++  cdebug("load:"<<pFilename);
++	assertGL;
+   assert(&getScreen());
+ 
+   assertGL;
+@@ -337,6 +339,8 @@
+   assertGL;
+   std::string file=loadFile(pFilename);
+   assertGL;
++  if(file.length()==0)
++    cdebug("File "<<pFilename<<" is empty!");
+ 
+   SDL_RWops* rw=SDL_RWFromMem(const_cast<char*>(file.c_str()),file.length());
+   assertGL;
+@@ -374,6 +378,7 @@
+   cdebug("FIRST:"<<int(file[0])<<","<<int(file[1])<<","<<int(file[2]));
+ 
+   SDL_Surface *s=IMG_Load_RW(SDL_RWFromMem(const_cast<char*>(file.c_str()),file.length()),false);
++  assertGL;
+   if(s==0)
+   {
+ 	cdebug("Load file failed:"<<pName);
+
+Modified: antargis/trunk/ext/video/ag_video.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_video.cc	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ext/video/ag_video.cc	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -1,6 +1,7 @@
+ #include <ag_video.h>
+ 
+ #include <ag_debug.h>
++#include <ag_vdebug.h>
+ #include <ag_gltexture.h>
+ #include <ag_glscreen.h>
+ #include <ag_screen.h>
+@@ -43,6 +44,7 @@
+ void AGVideoManager::initVideo(int w,int h,int d,bool fs,bool gl,int vw,int vh)
+ {
+   CTRACE;
++  cdebug("mScreen:"<<mScreen);
+   if(mScreen)
+     {
+       getSurfaceManager()->clear();
+@@ -60,6 +62,7 @@
+   lastDepth=d;
+   fullScreen=fs;
+ 
++  cdebug("videoInfo:"<<videoInfo);
+   if(!videoInfo)
+     {
+       videoInfo = SDL_GetVideoInfo();
+@@ -83,11 +86,12 @@
+     videoFlags|=SDL_FULLSCREEN;
+ 
+ 
+-
++  cdebug("SDL_Init...");
+   // set video mode
+-  SDL_Init(SDL_INIT_VIDEO);
++  //  SDL_Init(SDL_INIT_VIDEO);
++  cdebug("SDL_SetVideoMode...");
+   SDL_Surface *ms=SDL_SetVideoMode(w,h,videoInfo->vfmt->BitsPerPixel,videoFlags);
+-
++  cdebug("ms:"<<ms);
+   if(!ms)
+     {
+       std::cerr<<"Initing video mode failed!"<<std::endl;
+@@ -100,6 +104,7 @@
+     }
+ 
+ 
++
+   if(mScreen)
+     {
+       delete mScreen;
+@@ -181,8 +186,12 @@
+ {
+   std::string file=loadFile(pFile);
+   
++	if(file.length()==0)
++		cdebug("file :"<<pFile<<" possibly not found!");
++
+   SDL_Surface *s=IMG_Load_RW(SDL_RWFromMem(const_cast<char*>(file.c_str()),file.length()),false);
+   SDL_WM_SetIcon(s,0);
++	assertGL;
+ }
+ 
+ void AGVideoManager::setCaption(const std::string &pCaption)
+
+Modified: antargis/trunk/ext/video/headers.hh
+===================================================================
+--- antargis/trunk/ext/video/headers.hh	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ext/video/headers.hh	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -14,6 +14,7 @@
+ #include "ext/basic/ag_fs.h"
+ #include "ext/basic/ag_messageobject.h"
+ #include "ext/basic/ag_rubyobj.h"
++#include "ext/sound/ag_mixer.h"
+ #include "ext/math/ag_rand.h"
+ #include "ext/math/ag_algebra.h"
+ #include "ext/math/ant_frustum.h"
+
+Modified: antargis/trunk/ruby/ant_models.rb
+===================================================================
+--- antargis/trunk/ruby/ant_models.rb	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ruby/ant_models.rb	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -252,13 +252,9 @@
+ 				pngname="data/textures/models/"+mesh+".png"
+ 				name=mesh
+ 				angle||=getStaticModelRotation(name)
+-				if not fileExists(pngname)
+-					pngname=""
+-				end
+ 
+ 				s=entity.getMap.getScene
+ 
+-				#s=getMap.getScene
+ 				data=getMeshData(ant2name,getStaticModelScaling(name),pngname)
+ 				v=AGVector4.new(0,0,0)
+ 				scenenode=Mesh.new(s,data,v,angle)
+@@ -277,8 +273,9 @@
+ end
+ 
+ module Libantargis
+-class Mesh
+-	def setAnimation(name)
++	# dummy function - so that for meshes and animmeshes you can call setAnimation(.)
++	class Mesh
++		def setAnimation(name)
++		end
+ 	end
+-end
+ end
+\ No newline at end of file
+
+Deleted: antargis/trunk/ruby/antargis.rb
+===================================================================
+--- antargis/trunk/ruby/antargis.rb	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ruby/antargis.rb	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -1,681 +0,0 @@
+-#!/usr/bin/env ruby
+-#--
+-# Copyright (c) 2005 by David Kamphausen. All rights reserved.
+-#
+-# game.rb
+-# by David Kamphausen (david.kamphausen at web.de)
+-#
+-# The "Antargis" project, including all files needed to compile it,
+-# is free software; you can redistribute it and/or use it and/or modify it
+-# under the terms of the GNU General Public License as published
+-# by the Free Software Foundation; either version 2 of the License,
+-# or (at your option) any later version.
+-#
+-# This program is distributed in the hope that it will be useful,
+-# but WITHOUT ANY WARRANTY; without even the implied warranty of
+-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+-#
+-# You should have received a copy of the GNU General Public
+-# License along with this program.
+-#++
+-#
+-# antargis.rb is the central file in antargis-level-playing.
+-# it contains the main-application class AntGameApp for in-game looping, etc.
+-# most of the GUI-events are processed here.
+-#
+-
+-
+-# add programdir to path
+-$programDir=Dir.pwd+"/ruby"
+-$:.push($programDir)
+-$:.push($programDir+"/entities")
+-$:.push($programDir+"/widgets")
+-
+-require 'antargislib.rb'
+-require 'dialogs.rb'
+-require 'entities.rb'
+-require 'map.rb'
+-require 'view.rb'
+-require 'game_result.rb'
+-require 'storyflow.rb'
+-require 'mpmap.rb'
+-
+-require 'pp'
+-
+-# get save path where savegames are stored
+-# NOTE: this is combined with getWriteDir from ag_fs.h !
+-def getSavePath
+-	"savegames"
+-end
+-
+-#
+-# AntGameApp is the central application-class in game. It controls:
+-# * event handling of all the user interaction
+-# * holds all the game-objects
+-# * calls the advance-function in each frame
+-# * it's derived from AntRubyView, which implements/manages the (3d-)displaying in-game
+-#
+-class AntGameApp <AntRubyView
+-	attr_accessor :result
+-	attr_reader :hero
+-
+-	include AGHandler
+-
+-	# creating an AntGameApp-object needs the following parameters:
+-	# * *savegameText* - this is the actual level serialized in a string (the xml-text you see when you open an .antlvl-file)
+-	#   it contains the height- and terrain-map, too. This has the advantage, that everything about a level is stored in one
+-	#   text and can thus be transfered easily over internet 
+-	# * *w* and *h* are the width and height of the screen, which is currently needed to init the underlying GLApp-class from C++
+-	#   *FIXME:* this could be replaced by a call to getMain.getVideo.getWidth and such
+-	# * *loadscreen* is a LoadApp-object (or nil); if it's set that indicates that a loadscreen (a progress bar) is displayed
+-	# * *connection* is a network-connection to a BoA multiplayer-server for future networking-support. link:files/ruby/multiplayer/README.html
+-	#
+-	# this function does all the initializing of a level:
+-	# * from the super-classes: create a scene (for more go to the parent-class)
+-	# * display a load-screen (and set the progress)
+-	# * create a AntMpMap object
+-	# * create a displaying layout from data/gui/layout/ant_layout.xml
+-	# * initializes some event-handlers (glue code between level-displaying and the game-world object of type AntMpMap
+-	# * load the map fom *savegameText*
+-	# * setup of the hero-display-list at the top of the screen
+-	def initialize(savegameText,w,h,loadscreen=nil,connection=nil)
+-		super(w,h)
+-
+-		@speed=1
+-
+-		# the result of the level - won or lost or canceled
+-		@result=GameResult.new
+-		$app=self
+-		AntSound.setApplication(self)
+-	
+-		# display loading screen
+-		if loadscreen
+-			loadscreen.setValue(0.1)
+-			loadscreen.tick
+-		end
+-
+-		playerName=nil
+-
+-		# init network mode
+-		@connection=connection
+-		if connection
+-			# FIXME: check, if this is a server - then don't assign playerName
+-			playerName=connection.getName
+-		end
+-
+-		# init game-engine's map
+-		@map=AntMpMap.new(connection,self,getScene,32,32,playerName) # some small dummy size - gets overriden by loadMap anyway
+-		if loadscreen
+-			loadscreen.setValue(0.4)
+-			loadscreen.tick
+-		end
+-
+-		# load GUI layout
+-		@layout=AGLayout.new(nil)
+-		@layout.setApp(self)
+-		assert{@layout.getApp}
+-		@layout.loadXML(loadFile("data/gui/layout/ant_layout.xml"))
+-	
+-
+-		# init pointers to different displays
+-		# statusBar (FPS display)
+-		@statusBar=@layout.getChild("statusBar")
+-		@inventory=@layout.getChild("inventory")
+-		@buttonpanel=@layout.getChild("antButtonPanel")
+-
+-		@miniMap=@layout.getChild("miniMap")
+-		@fps=0
+-
+-		setMainWidget(@layout)
+-		addHandler(@layout.getChild("quit"),:sigClick,:eventQuit)
+-		addHandler(@layout.getChild("pause"),:sigClick,:eventPause)
+-		addHandler(@layout.getChild("options"),:sigClick,:eventOptions)
+-
+-		if loadscreen
+-			loadscreen.setValue(0.5)
+-			loadscreen.tick
+-		end
+-	
+-		if @miniMap
+-			# connect MiniMap with Map for displaying terrain and entities
+-			@miniMap.setMap(@map)
+-			# connect MiniMap with Scene for displaying frustrum
+-			@miniMap.setScene(getScene)
+-		end
+-
+-		if loadscreen
+-			loadscreen.setValue(0.8)
+-			loadscreen.tick()
+-		end
+-		
+-		if savegameText && savegameText.length>0
+-			# load a level
+-			@map.loadMapFromMemory(savegameText)
+-		end	
+-
+-		if loadscreen
+-			loadscreen.setValue(0.95)
+-			loadscreen.tick
+-		end
+-
+-		# inventory and buttonpanel signals
+-		addHandler(@inventory,:sigJobChanged,:eventInventoryJob)
+-		addHandler(@buttonpanel,:sigJobChanged,:eventHeroJob)
+-
+-		setupHeroDisplay(true)
+-
+-		# infobox is used for display a text "Your hero 'xy' suffers"
+-		@infobox=nil
+-
+-		# frame counting
+-		@frameCount=0
+-		@elapsTime=0
+-
+-		#setCursor(getTextureCache.get("blue_cursor.png"))
+-	end
+-
+-	####################################
+-	# EVENT HANDLERS
+-	####################################
+-
+-	include AntMyEventHandler
+-
+-
+-	# this handler is for the buttonpanel on the top
+-	# the actions are direct ones, like rest,dimiss and so, which don't need an object to use (like fighting,taking,...)
+-	def eventHeroJob(e)
+-		case @buttonpanel.job
+-			when "doDismiss"
+-				# opens a query dialog "do really want to do this?", that is given a block, that's executed on confirmation
+-				@layout.addChild(AntQueryDialog.new(@layout,nil) {@hero.newHLDismissJob})
+-			when "doRest"
+-				if @hero
+-					@hero.newHLRestJob(10)
+-				end
+-			when "doBuild"
+-				@job="doBuild"
+-		end
+-		return true
+-	end
+-
+-	# react to inventory-based jobs - like taking, recruiting
+-
+-	def eventInventoryJob(e)
+-		if @target.nil? #some more overview as
+-			log "NO TARGET SELECTED"
+-		else
+-			case @inventory.job
+-				when "doRecruit"
+-					@hero.newHLRecruitJob(@target)
+-				when "doTakeFood"
+-					@hero.newHLTakeFoodJob(@target)
+-				when "doTakeWeapons"
+-					@hero.newHLTakeWeaponJob(@target)
+-				when "doConstruct"
+-					@hero.newHLConstructJob(@target)
+-				when "doUpgrade"
+-					@hero.upgradeMan(@target)
+-				when "doContinue"
+-					@hero.newHLBuildJob(@target,nil)
+-				when "doSupport"
+-					targetsTarget=nil
+-					if @target.getJob.is_a?(AntHeroFightJob)
+-						targetsTarget=@target.getJob.target
+-					end
+-					if targetsTarget
+-						@hero.newHLFightJob(targetsTarget)
+-					end
+-			end
+-		end
+-		return true
+-	end
+-
+-	def eventKeyDown(e)
+-
+-		# hero-selection by pressing F1 to F7
+-		hero={	SDLK_F1=>0,
+-			SDLK_F2=>1,
+-			SDLK_F3=>2,
+-			SDLK_F4=>3,
+-			SDLK_F5=>4,
+-			SDLK_F6=>5,
+-			SDLK_F7=>6}[e.getKey]
+-		if hero
+-			h=getHeroByNum(hero) 
+-			if h
+-				if @hero==h
+-					focusHero(h)
+-				end
+-				selectHero(h)
+-				return super(e)
+-			end
+-		end
+-
+-		
+-		case e.getKey
+-			when SDLK_F9 # F9 toggles panel on the right
+-				if not panelVisible
+-					showPanel
+-				else
+-					hidePanel
+-				end
+-			when SDLK_F8
+-				@sceneEnabled=(not @sceneEnabled)
+-				getScene.setEnabled(@sceneEnabled)
+-			when SDLK_F1
+-				hero=1
+-			when SDLK_ESCAPE
+-				if @hero
+-					@hero.newHLRestJob(10)
+-				end
+-			when SDLK_PLUS
+-				@speed=[@speed+1,10].min
+-			when SDLK_MINUS
+-				@speed=[@speed-1,0.2].max
+-			
+-			when SDLK_p
+-				eventPause(nil)
+-		end
+-		return super(e)
+-	end
+-	
+-	def eventStoryTalkFinished
+-		showPanel
+-		getMap.trigger(nil,Trigger.new("storyFinished"))
+-	end
+-
+-	def moveMap(time)
+-		granularity=0.2
+-		while time>granularity
+-			getMap().move(granularity)
+-			time-=granularity
+-		end
+-		getMap().move(time)
+-	end
+-
+-	def eventFrame(time)
+-		super(time)
+-
+-		# FPS display
+-		if @frameCount>14 then
+-			@fps=@frameCount / @elapsTime
+-			fps=""
+-			if @fps<10
+-				fps=sprintf("%3.2f", at fps)
+-			else
+-				fps=sprintf("%3.0f", at fps)
+-			end
+-			@statusBar.setText(_("FPS:{1}",fps.to_s))
+-			@frameCount=0
+-			@elapsTime=0
+-			startGC
+-		end
+-		@frameCount+=1
+-		@elapsTime+=time
+-
+-
+-# 		# move entities in game-engine
+-		#getMap().move(time*@speed)
+-		moveMap(time*@speed)
+-
+-		# advance animations
+-		getScene.advance(time)
+-		checkHeroEnergy
+-
+-		processMessages
+-
+-		# save some CPU-power, if available
+-		if @connection
+-			delay(20)
+-		end
+-
+-		if @fps>25
+-			delay(5)
+-		end
+-		return true
+-	end
+-	
+-	def eventQuit(e)
+-		@layout.addChild(AntQuitDialog.new(@layout))
+-		return true
+-	end
+-	def eventPause(e)
+-		if not getMap().pause then
+-			@layout.addChild(AntPauseDialog.new(@layout))
+-		else
+-			getMap.pause=false
+-		end
+-		return true
+-	end
+-	def eventOptions(e)
+-		@layout.addChild(AntOptionsDialog.new(@layout))
+-		return true
+-	end
+-	def eventHeroButton(e)
+-		c=e.getCaller.getName
+-		num=c[4..4]
+-		name=@layout.getChild("HeroName#{num}").getText.to_s
+-		ent=getMap.getByName(name)
+-		selectHero(ent)
+-		if ent==@inspect
+-			focusHero(ent)
+-		end
+-		inspectEntity(ent)
+-		return true
+-
+-	end
+-
+-	def eventAggressionChanged(e)
+-		h=getSelectedHero
+-		if h
+-			h.setAggression(@buttonpanel.getAggression)
+-		end
+-		return true
+-	end
+-
+-	def eventEntitiesClicked(list,button)
+-		resetJob
+-		# find first entity that's nearest to the camera
+-		ent=nil
+-		list.each{|node|
+-			mesh=node.node
+-			if [Mesh,AnimMesh,Mesh2D].member?(mesh.class)
+-				ent=getMap.getEntity(mesh)
+-				break if ent
+-			end
+-		}
+-
+-		# if an entity was found - set new target
+-		if ent
+-			if ent.class==AntHero and ent.getPlayer==getMap.getPlayer
+-				#@hero=ent
+-				@target=ent
+-				inspectEntity(ent)
+-			else
+-				@target=ent
+-				inspectEntity(ent)
+-			end
+-		end
+-
+-		if button==1
+-			# left button == select
+-		elsif button==3
+-			# right button == fight or goto
+-			if ent==@target
+-				if @target.is_a?(AntBoss)
+-					if @target.getPlayer!=@hero.getPlayer
+-						@hero.newHLFightJob(@target)
+-						return
+-					end
+-				elsif @target.is_a?(AntAnimal)
+-					@hero.newHLFightAnimalJob(@target)
+-					return
+-				end
+-				# move near target
+-				@hero.newHLMoveJob(0, at target.getPos2D,2)
+-			end
+-		end
+-	end
+-
+-	def eventMapClicked(pos,button)
+-		if @job and button==1 then
+-			case @job
+-				when "doBuild"
+-					buildHouse(pos.dim2)
+-					@job=nil
+-			end
+-			resetJob
+-			return
+-		end
+-		if @hero and button==3 then
+-			# assign hero a move job
+-			@hero.newHLMoveJob(0,pos,0)
+-		end
+-	end
+-
+-
+-	###############################
+-	# simple functions
+-	###############################
+-
+-	def getMap
+-		@map
+-	end
+-
+-	def processMessages
+-		if @connection
+-			while message=@connection.getMessage
+-				@map.processMessage(message)
+-			end
+-		end
+-	end
+-
+-	def buildHouse(pos)
+-		@layout.addChild(AntBuildDialog.new(@layout,pos, at hero))
+-	end
+-	
+-	def save
+-		if $campaign
+-			@layout.addChild(AntSaveCampaignDialog.new(@layout))
+-		else
+-			@layout.addChild(AntSaveDialog.new(@layout))
+-		end
+-	end
+-	def load
+-		@layout.addChild(AntLoadDialog.new(@layout))
+-	end
+-	def videoOptions
+-		@layout.addChild(AntVideoOptionsDialog.new(@layout))
+-	end
+-	def audioOptions
+-		@layout.addChild(AntAudioOptionsDialog.new(@layout))
+-	end
+-
+-	###############################################################
+-	# Setting up of Hero displays (images, texts and eventHandlers
+-	###############################################################
+-
+-	def setHeroImage(image,num)
+-		@layout.getChild("HeroImage#{num}").setTexture(image)
+-	end
+-	def setHeroName(name,num)
+-		@layout.getChild("HeroName#{num}").setText(_(name))
+-		c=@layout.getChild("HeroBar#{num}")
+-		raise 1 if c.nil?
+-		c.setVisible((name!=""))
+-	end
+-	def setHeroEnergy(hero,num)
+-		@layout.getChild("HeroBar#{num}").setHero(hero)
+-	end
+-	def setHero(flag,num)
+-		name="hero#{num}"
+-		c=@layout.getChild(name)
+-		c.setEnabled(flag)
+-		c.setVisible(flag)
+-	end
+-	def setupHeroDisplay(first=false)
+-		#super
+-		# setup Hero buttons
+-		hs=getMap.getPlayer.getHeroes
+-		for i in 0..5
+-			if hs.length>i
+-				setHero(true,i)
+-				setHeroName(hs[i].getName,i)
+-				setHeroImage(hs[i].getImage,i)
+-				setHeroEnergy(hs[i],i)
+-			else
+-				setHero(false,i)
+-				setHeroImage(getTextureCache.get("data/gui/portraits/none.png"),i)
+-				setHeroName("",i)
+-			end
+-		end
+-		# init Handlers of Buttons
+-		if first
+-			addHandler(@layout.getChild("antButtonPanel"),:sigAggressionChanged,:eventAggressionChanged)
+-			for i in 0..2
+-				addHandler(@layout.getChild("hero#{i}"),:sigClick,:eventHeroButton)
+-			end
+-			setupNames
+-			
+-			# center hero and select
+-	 		if hs.length>0
+-	 			h=hs[0]
+-	 			selectHero(h)
+- 				focusHero(h)
+-				@layout.getChild("hero0").setChecked(true)
+- 			end
+-			
+-		end
+-		checkHeroEnergy
+-	end
+-
+-	# updates the energy displays of the heroes (if needed)
+-	def checkHeroEnergy
+-		name=nil
+-		# FIXME: support more than 1 hero !
+-		getMap.getPlayer.getHeroes.each{|h|
+-			if h.getEnergy<0.3
+-				name=h.getName
+-			end
+-		}
+-		if @infobox.nil? and name
+-			@layout.addChild(@infobox=AntInfoBox.new(@layout,_("Your hero {1} suffers.",name)))
+-		elsif @infobox and name.nil?
+-			@infobox.close
+-			@infobox=nil
+-		end
+-	end
+-
+-	# sets a new result
+-	def setResult(r)
+-		@result=r
+-	end
+-	
+-	# returns boolean about the visibility of the panel
+-	def panelVisible
+-		@layout.getChild("SideBar").visible
+-	end
+-
+-	def showPanel
+-		sideBar=@layout.getChild("SideBar")
+-		sideBarRight=@layout.getChild("SideBarRight")
+-		sideBar.show
+-		@controls=true
+-		# reset Scene's width
+-		getScene.getCameraObject.setWidth((getScreen.getWidth-sideBarRight.width).to_i)
+-	end
+-	def hidePanel
+-		@layout.getChild("SideBar").hide
+-		@controls=false
+-		# reset Scene's width
+-		getScene.getCameraObject.setWidth(getScreen.getWidth)
+-	end
+-
+-
+-	def tellStory(flow)
+-		getMap.pause=true
+-		hidePanel
+-		if @story.nil?
+-			@story=AntStoryTalk.new(@layout)
+-		end
+-		@layout.addChild(@story)
+-		assert{@story.getApp}
+-		@story.show
+-		@story.setFlow(flow)
+-		addHandler(@story,:sigStoryFinished,:eventStoryTalkFinished)
+-	end
+-
+-	def inspectEntity(e)
+-		if @inspect
+-			#if @inspect.is_a?(AntBoss)
+-				@inspect.selected=false
+-			#end
+-		end
+-		@inspect=e
+-		if @inspect
+-			#if @inspect.is_a?(AntBoss)
+-				@inspect.selected=true
+-			#end
+-		end
+-		AntInventory.inspectEntity(e)
+-	end
+-
+-	def resetJob
+-		#@job=nil
+-		@layout.getChild("doBuild").setChecked(false)
+-	end
+-
+-	def getSelectedHero
+-		@hero
+-	end
+-
+-	def selectHero(h)
+-		@hero=h
+-		inspectEntity(h)
+-		@buttonpanel.setHero(h)
+-
+-		for i in 0..2
+-			if @layout.getChild("HeroName#{i}").getText.to_s==h.getName
+-				@layout.getChild("hero#{i}").setChecked(true)
+-			end
+-		end
+-
+-		# set hero's aggression
+-		@buttonpanel.setAggression(@hero.getAggression)
+-	end
+-
+-	def getHeroByNum(n)
+-		getMap.getOwnHeroes[n]
+-	end
+-
+-	# views an information window about the entity ent
+-	def viewInformation(ent)
+-		win=AntInspectWindow.new(@layout,ent)
+-		@layout.addChild(win)
+-	end
+-
+-end
+-
+-
+-# this function is only for starting a level directly (single map from the mainmenu or from cli)
+-# you can start BoA from the cli by giving a level-name directly
+-# For more information on that topic please refer to link:files/ruby/debugging/README.html
+-def startGame(file="savegames/savegame0.antlvl",clientConnection=nil)
+-	app=nil
+-	if clientConnection
+-		app=AntGameApp.new(file,getVideo.width,getVideo.height,nil,clientConnection)
+-	else
+-		app=AntGameApp.new(loadFile(file),getVideo.width,getVideo.height,nil,clientConnection)
+-	end
+-	#app.disableGC
+-	app.run
+-	result=app.result
+-	# result all globals
+-	app=nil
+-	$map=nil
+-	$app=nil
+-	$screen=nil
+-	# run garbage collector
+-	startGC
+-	return result
+-end
+-
+-
+-# code for starting a level directly from command-line like this:
+-# ./ruby/antargis.rb levels/birth1
+-# or
+-# ./ruby/antargis.rb savegames/savegame0
+-$useMenu||=false
+-if true
+-	savegame=""
+-	ARGV.each{|arg|
+-		if arg=~/levels.*/ or arg=~/savegames.*/
+-			savegame=arg+".antlvl"
+-		end
+-	}
+-	if savegame!=""
+-		startGame(savegame)	
+-	end
+-end
+-
+-getConfig.set("ok","ok")
+
+Modified: antargis/trunk/ruby/antargislib.rb
+===================================================================
+--- antargis/trunk/ruby/antargislib.rb	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ruby/antargislib.rb	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -10,28 +10,18 @@
+ module MyAntargisLib
+ 	@@antargislibinited||=false
+ 
+-	if not @@antargislibinited
+-		# try suspending arts
++
++ 	if not @@antargislibinited
++		@@programDir=File.expand_path(File.split(__FILE__)[0])
++		$:.push(@@programDir)
++		#$:.push(File.join(@@programDir,"entities"))
++ 		# try suspending arts
+ 		if File.exists?("/usr/bin/artsshell")
+-			unless ENV["PATH"]=~/^[A-Za-z]:\\/
++			unless ENV["PATH"] =~ /^[A-Za-z]:\\.*/
+ 				File.popen("/usr/bin/artsshell suspend 2>&1").close
+ 			end
+ 		end
+-		
+-		@@programDir=Dir.pwd+"/ruby"
+-		# add programdir to path
+-		$:.push(@@programDir)
+-		$:.push(@@programDir+"/entities")
+-
+-		@@extDir=Dir.pwd+"/ext"
+-		# add programdir to path
+-		$:.push(@@extDir)
+-		if ENV["PATH"].split(";").length>3 # FIXME: is windows ?
+-				ENV["PATH"]+=";.\\ext"
+-		else
+-				ENV["PATH"]+=":./ext"
+-		end
+-	end
++ 	end
+ end
+ 
+ if $demoMode.nil?
+@@ -41,11 +31,13 @@
+ 
+ module AntMyEventHandler
+ 	def getNewEvent
++		filename=File.join(getWriteDir,"events.txt")
+ 		if $demoMode
+ 			if hardwareCursor
+ 				setCursor(getTextureCache.get("blue_cursor.png"))
+ 			end
+-			@@eventDebugging||=File.open("events.txt","r")
++
++			@@eventDebugging||=File.open(filename,"r")
+ 			@@nextLine||=@@eventDebugging.readline
+ 			puts "NEXTLINE:#{@@nextLine}"
+ 			if @@nextLine=~/T:.*/
+@@ -66,7 +58,7 @@
+ 				if eventOk(e)
+ 					s=toString(e)
+ 					if $enableLogging
+-						@@eventDebugging||=File.open("events.txt","w")
++						@@eventDebugging||=File.open(filename,"w")
+ 						@@eventDebugging.puts s
+ 					end
+ 				end
+@@ -87,27 +79,36 @@
+ 
+ end
+ 
++require 'ext/antargis'
++# if File.exists?("ext/antargisgame.so")
++# 	require 'ext/antargisgame'
++# else
++# 	puts "Please run 'rant' before starting this program!"
++# 	require 'antargisgame'
++# end
+ 
+-if File.exists?("ext/antargisgame.so")
+-	require 'ext/antargisgame'
+-else
+-	puts "Please run 'rant' before starting this program!"
+-	require 'antargisgame'
+-end
++#require 'antargissound.so'
+ 
+-require 'antargissound.so'
+-
+-include Antargisgame
+-include Antargisbasic
+-include Antargismath
+-include Antargisvideo
+-include Antargisgui
+-include Antargis3dengine
+-include Antargissound
++include Antargis
++#game
++#include Antargisbasic
++#include Antargismath
++#include Antargisvideo
++#include Antargisgui
++#include Antargis3dengine
++#include Antargissound
+ 	
+ require 'ruby/gui/ag_tools.rb'
+ require 'ant_tools'
+ require 'ant_debug.rb'
++
++
++# add path
++ at basePath=File.split(File.split(__FILE__)[0])[0]
++addPath(@basePath)
++addPath(File.join(@basePath,"data"))
++addPath(File.join(@basePath,"data","fonts"))
++
+ 		
+ module MyAntargislib
+ 	@@antargislibinited||=false
+@@ -213,7 +214,9 @@
+ 
+ 		@@noVideo||=nil	
+ 		if @@noVideo.nil?
++			puts "initVideo..."
+ 			getVideo.initVideo(xres,yres,32,@@fullscreen,@@opengl,1024,768)
++			puts "initVideo ok"
+ 		
+ 			getConfig.set("xRes",xres.to_s)
+ 			getConfig.set("yRes",yres.to_s)
+@@ -263,7 +266,8 @@
+ end
+ 
+ class Logger
+-	@@log=File.open("log.txt","w")
++	filename=File.join(getWriteDir,"log.txt")
++	@@log=File.open(filename,"w")
+ 	def self.log(*s)
+ 		@@log.print("[")
+ 		@@log.print(Time.new)
+
+Modified: antargis/trunk/ruby/gui/ag_tools.rb
+===================================================================
+--- antargis/trunk/ruby/gui/ag_tools.rb	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ruby/gui/ag_tools.rb	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -133,7 +133,7 @@
+ 	eval("@#{name}=AGSignal.new(self,'#{name}')\n")
+ end
+ 
+-module Antargisgui
++module Antargis
+ 	class AGApplication
+ 		include AGHandler
+ 	end
+@@ -162,7 +162,7 @@
+ # 	end
+ # end
+ 
+-module Antargisbasic
++module Antargis
+ 	class AGVector3
+ 		def x=(p)
+ 			setX(p)
+
+Modified: antargis/trunk/ruby/intro.rb
+===================================================================
+--- antargis/trunk/ruby/intro.rb	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ruby/intro.rb	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -34,7 +34,9 @@
+ class IntroApp<AntApplication
+ 	include AGHandler
+ 	def initialize
++		puts "introApp..."
+ 		super
++		puts "introApp!"
+ 		
+ 		@pics=["data/gui/rough_lands.png","data/gui/strong_heroes.png","data/gui/logoGold.png","data/gui/your_mission.png","data/gui/unify_the_people.png","data/gui/castle_small.png"]
+ 
+
+Modified: antargis/trunk/ruby/jobs/ant_hljob_states.rb
+===================================================================
+--- antargis/trunk/ruby/jobs/ant_hljob_states.rb	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ruby/jobs/ant_hljob_states.rb	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -771,22 +771,29 @@
+ # 
+ #
+ class HLJob_Recruit<HLJob_BaseState
++	MAX_DIST=0.01
+ 	def enter
+ 		@countTargetMen=target.getMen.length
+ 		@countRecruiting=0
+ 		@countRecruited=0
+ 		@myPos=hero.getPos2D
++		hero.formation=AntFormationRest.new(hero)
+ 		initRecruiting
+ 	end
+ 
+ 	def ready
+-		((@countRecruited>=howManyToRecruit) or nonToRecruitLeft) and (hero.getPos2D-hero.getFormation(hero, at myPos)).length<0.1
++		recruitedEnough=((@countRecruited>=howManyToRecruit) or nonToRecruitLeft)
++		everyoneIsAtHisPlace=(hero.getMen).map{|man|(man.getPos2D-hero.getFormation(man, at myPos)).length}.max<MAX_DIST
++		heroIsAtHisPlace=(hero.getPos2D-hero.getFormation(hero, at myPos)).length<MAX_DIST
++		return (recruitedEnough and everyoneIsAtHisPlace)
+ 	end
+ 
+ 	def assign(man)
+-		if hero.getMen.length>0
++		puts "MAN:#{man}"
++		if hasAtLeastOneFollower # has more than the hero himself
+ 			if man.is_a?(AntHero)
+-				man.newRestJob(10)
++				#man.newRestJob(10)
++				returnToStart(man)
+ 				return
+ 			end
+ 		end
+@@ -807,6 +814,10 @@
+ 
+ 	private
+ 
++	def hasAtLeastOneFollower
++		hero.getMen.length>1
++	end
++
+ 	def howManyToRecruit
+ 		@countTargetMen*hero.getAggression/3
+ 	end
+@@ -826,9 +837,9 @@
+ 
+ 	def returnToStart(man)
+ 		pos=hero.getFormation(man, at myPos)
+-		if (man.getPos2D-pos).length<0.3
++		if (man.getPos2D-pos).length<MAX_DIST
+ 			man.lookTo(@myPos)
+-			man.standStill
++			man.standStillShort # FIXME: really short ?
+ 			puts "standStill #{man}"
+ 		else
+ 			man.walkTo(pos)
+@@ -864,7 +875,7 @@
+ 		hero.getMen.each{|man|man.hlJobMode[:recruitTarget]=nil}
+ 		# exclude hero, if there are other men
+ 		menList=hero.getMen
+-		menList=menList-[hero] if menList.length>1
++		menList=menList-[hero] if hasAtLeastOneFollower
+ 		menList.reverse.each{|man|
+ 			letRecruit(man)
+ 			break if @countRecruiting>=howManyToRecruit
+
+Modified: antargis/trunk/ruby/jobs/ant_new_hljobs.rb
+===================================================================
+--- antargis/trunk/ruby/jobs/ant_new_hljobs.rb	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ruby/jobs/ant_new_hljobs.rb	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -271,7 +271,7 @@
+ 	end
+ 	# FIXME: move this to a config-file !
+ 	def image
+-		"data/gui/move.png"
++		"data/gui/recruit.png"
+ 	end
+ 	# FIXME: discard this
+ 	def makeMessage(boss)
+
+Modified: antargis/trunk/ruby/mainmenu.rb
+===================================================================
+--- antargis/trunk/ruby/mainmenu.rb	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ruby/mainmenu.rb	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -21,7 +21,7 @@
+ require 'ruby/antargislib.rb'
+ $useMenu=true
+ 
+-require "antargis.rb"
++require "run_game.rb"
+ require 'campaign.rb'
+ require 'credits.rb'
+ 
+
+Copied: antargis/trunk/ruby/run_game.rb (from rev 1187, antargis/trunk/ruby/antargis.rb)
+===================================================================
+--- antargis/trunk/ruby/antargis.rb	2007-11-20 19:14:27 UTC (rev 1187)
++++ antargis/trunk/ruby/run_game.rb	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -0,0 +1,681 @@
++#!/usr/bin/env ruby
++#--
++# Copyright (c) 2005 by David Kamphausen. All rights reserved.
++#
++# game.rb
++# by David Kamphausen (david.kamphausen at web.de)
++#
++# The "Antargis" project, including all files needed to compile it,
++# is free software; you can redistribute it and/or use it and/or modify it
++# under the terms of the GNU General Public License as published
++# by the Free Software Foundation; either version 2 of the License,
++# or (at your option) any later version.
++#
++# This program is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
++#
++# You should have received a copy of the GNU General Public
++# License along with this program.
++#++
++#
++# antargis.rb is the central file in antargis-level-playing.
++# it contains the main-application class AntGameApp for in-game looping, etc.
++# most of the GUI-events are processed here.
++#
++
++
++# add programdir to path
++$programDir=File.split(__FILE__)[0]
++$:.push($programDir)
++$:.push(File.join($programDir,"entities"))
++$:.push(File.join($programDir,"widgets"))
++
++require 'antargislib.rb'
++require 'dialogs.rb'
++require 'entities.rb'
++require 'map.rb'
++require 'view.rb'
++require 'game_result.rb'
++require 'storyflow.rb'
++require 'mpmap.rb'
++
++require 'pp'
++
++# get save path where savegames are stored
++# NOTE: this is combined with getWriteDir from ag_fs.h !
++def getSavePath
++	"savegames"
++end
++
++#
++# AntGameApp is the central application-class in game. It controls:
++# * event handling of all the user interaction
++# * holds all the game-objects
++# * calls the advance-function in each frame
++# * it's derived from AntRubyView, which implements/manages the (3d-)displaying in-game
++#
++class AntGameApp <AntRubyView
++	attr_accessor :result
++	attr_reader :hero
++
++	include AGHandler
++
++	# creating an AntGameApp-object needs the following parameters:
++	# * *savegameText* - this is the actual level serialized in a string (the xml-text you see when you open an .antlvl-file)
++	#   it contains the height- and terrain-map, too. This has the advantage, that everything about a level is stored in one
++	#   text and can thus be transfered easily over internet 
++	# * *w* and *h* are the width and height of the screen, which is currently needed to init the underlying GLApp-class from C++
++	#   *FIXME:* this could be replaced by a call to getMain.getVideo.getWidth and such
++	# * *loadscreen* is a LoadApp-object (or nil); if it's set that indicates that a loadscreen (a progress bar) is displayed
++	# * *connection* is a network-connection to a BoA multiplayer-server for future networking-support. link:files/ruby/multiplayer/README.html
++	#
++	# this function does all the initializing of a level:
++	# * from the super-classes: create a scene (for more go to the parent-class)
++	# * display a load-screen (and set the progress)
++	# * create a AntMpMap object
++	# * create a displaying layout from data/gui/layout/ant_layout.xml
++	# * initializes some event-handlers (glue code between level-displaying and the game-world object of type AntMpMap
++	# * load the map fom *savegameText*
++	# * setup of the hero-display-list at the top of the screen
++	def initialize(savegameText,w,h,loadscreen=nil,connection=nil)
++		super(w,h)
++
++		@speed=1
++
++		# the result of the level - won or lost or canceled
++		@result=GameResult.new
++		$app=self
++		AntSound.setApplication(self)
++	
++		# display loading screen
++		if loadscreen
++			loadscreen.setValue(0.1)
++			loadscreen.tick
++		end
++
++		playerName=nil
++
++		# init network mode
++		@connection=connection
++		if connection
++			# FIXME: check, if this is a server - then don't assign playerName
++			playerName=connection.getName
++		end
++
++		# init game-engine's map
++		@map=AntMpMap.new(connection,self,getScene,32,32,playerName) # some small dummy size - gets overriden by loadMap anyway
++		if loadscreen
++			loadscreen.setValue(0.4)
++			loadscreen.tick
++		end
++
++		# load GUI layout
++		@layout=AGLayout.new(nil)
++		@layout.setApp(self)
++		assert{@layout.getApp}
++		@layout.loadXML(loadFile("data/gui/layout/ant_layout.xml"))
++	
++
++		# init pointers to different displays
++		# statusBar (FPS display)
++		@statusBar=@layout.getChild("statusBar")
++		@inventory=@layout.getChild("inventory")
++		@buttonpanel=@layout.getChild("antButtonPanel")
++
++		@miniMap=@layout.getChild("miniMap")
++		@fps=0
++
++		setMainWidget(@layout)
++		addHandler(@layout.getChild("quit"),:sigClick,:eventQuit)
++		addHandler(@layout.getChild("pause"),:sigClick,:eventPause)
++		addHandler(@layout.getChild("options"),:sigClick,:eventOptions)
++
++		if loadscreen
++			loadscreen.setValue(0.5)
++			loadscreen.tick
++		end
++	
++		if @miniMap
++			# connect MiniMap with Map for displaying terrain and entities
++			@miniMap.setMap(@map)
++			# connect MiniMap with Scene for displaying frustrum
++			@miniMap.setScene(getScene)
++		end
++
++		if loadscreen
++			loadscreen.setValue(0.8)
++			loadscreen.tick()
++		end
++		
++		if savegameText && savegameText.length>0
++			# load a level
++			@map.loadMapFromMemory(savegameText)
++		end	
++
++		if loadscreen
++			loadscreen.setValue(0.95)
++			loadscreen.tick
++		end
++
++		# inventory and buttonpanel signals
++		addHandler(@inventory,:sigJobChanged,:eventInventoryJob)
++		addHandler(@buttonpanel,:sigJobChanged,:eventHeroJob)
++
++		setupHeroDisplay(true)
++
++		# infobox is used for display a text "Your hero 'xy' suffers"
++		@infobox=nil
++
++		# frame counting
++		@frameCount=0
++		@elapsTime=0
++
++		#setCursor(getTextureCache.get("blue_cursor.png"))
++	end
++
++	####################################
++	# EVENT HANDLERS
++	####################################
++
++	include AntMyEventHandler
++
++
++	# this handler is for the buttonpanel on the top
++	# the actions are direct ones, like rest,dimiss and so, which don't need an object to use (like fighting,taking,...)
++	def eventHeroJob(e)
++		case @buttonpanel.job
++			when "doDismiss"
++				# opens a query dialog "do really want to do this?", that is given a block, that's executed on confirmation
++				@layout.addChild(AntQueryDialog.new(@layout,nil) {@hero.newHLDismissJob})
++			when "doRest"
++				if @hero
++					@hero.newHLRestJob(10)
++				end
++			when "doBuild"
++				@job="doBuild"
++		end
++		return true
++	end
++
++	# react to inventory-based jobs - like taking, recruiting
++
++	def eventInventoryJob(e)
++		if @target.nil? #some more overview as
++			log "NO TARGET SELECTED"
++		else
++			case @inventory.job
++				when "doRecruit"
++					@hero.newHLRecruitJob(@target)
++				when "doTakeFood"
++					@hero.newHLTakeFoodJob(@target)
++				when "doTakeWeapons"
++					@hero.newHLTakeWeaponJob(@target)
++				when "doConstruct"
++					@hero.newHLConstructJob(@target)
++				when "doUpgrade"
++					@hero.upgradeMan(@target)
++				when "doContinue"
++					@hero.newHLBuildJob(@target,nil)
++				when "doSupport"
++					targetsTarget=nil
++					if @target.getJob.is_a?(AntHeroFightJob)
++						targetsTarget=@target.getJob.target
++					end
++					if targetsTarget
++						@hero.newHLFightJob(targetsTarget)
++					end
++			end
++		end
++		return true
++	end
++
++	def eventKeyDown(e)
++
++		# hero-selection by pressing F1 to F7
++		hero={	SDLK_F1=>0,
++			SDLK_F2=>1,
++			SDLK_F3=>2,
++			SDLK_F4=>3,
++			SDLK_F5=>4,
++			SDLK_F6=>5,
++			SDLK_F7=>6}[e.getKey]
++		if hero
++			h=getHeroByNum(hero) 
++			if h
++				if @hero==h
++					focusHero(h)
++				end
++				selectHero(h)
++				return super(e)
++			end
++		end
++
++		
++		case e.getKey
++			when SDLK_F9 # F9 toggles panel on the right
++				if not panelVisible
++					showPanel
++				else
++					hidePanel
++				end
++			when SDLK_F8
++				@sceneEnabled=(not @sceneEnabled)
++				getScene.setEnabled(@sceneEnabled)
++			when SDLK_F1
++				hero=1
++			when SDLK_ESCAPE
++				if @hero
++					@hero.newHLRestJob(10)
++				end
++			when SDLK_PLUS
++				@speed=[@speed+1,10].min
++			when SDLK_MINUS
++				@speed=[@speed-1,0.2].max
++			
++			when SDLK_p
++				eventPause(nil)
++		end
++		return super(e)
++	end
++	
++	def eventStoryTalkFinished
++		showPanel
++		getMap.trigger(nil,Trigger.new("storyFinished"))
++	end
++
++	def moveMap(time)
++		granularity=0.2
++		while time>granularity
++			getMap().move(granularity)
++			time-=granularity
++		end
++		getMap().move(time)
++	end
++
++	def eventFrame(time)
++		super(time)
++
++		# FPS display
++		if @frameCount>14 then
++			@fps=@frameCount / @elapsTime
++			fps=""
++			if @fps<10
++				fps=sprintf("%3.2f", at fps)
++			else
++				fps=sprintf("%3.0f", at fps)
++			end
++			@statusBar.setText(_("FPS:{1}",fps.to_s))
++			@frameCount=0
++			@elapsTime=0
++			startGC
++		end
++		@frameCount+=1
++		@elapsTime+=time
++
++
++# 		# move entities in game-engine
++		#getMap().move(time*@speed)
++		moveMap(time*@speed)
++
++		# advance animations
++		getScene.advance(time)
++		checkHeroEnergy
++
++		processMessages
++
++		# save some CPU-power, if available
++		if @connection
++			delay(20)
++		end
++
++		if @fps>25
++			delay(5)
++		end
++		return true
++	end
++	
++	def eventQuit(e)
++		@layout.addChild(AntQuitDialog.new(@layout))
++		return true
++	end
++	def eventPause(e)
++		if not getMap().pause then
++			@layout.addChild(AntPauseDialog.new(@layout))
++		else
++			getMap.pause=false
++		end
++		return true
++	end
++	def eventOptions(e)
++		@layout.addChild(AntOptionsDialog.new(@layout))
++		return true
++	end
++	def eventHeroButton(e)
++		c=e.getCaller.getName
++		num=c[4..4]
++		name=@layout.getChild("HeroName#{num}").getText.to_s
++		ent=getMap.getByName(name)
++		selectHero(ent)
++		if ent==@inspect
++			focusHero(ent)
++		end
++		inspectEntity(ent)
++		return true
++
++	end
++
++	def eventAggressionChanged(e)
++		h=getSelectedHero
++		if h
++			h.setAggression(@buttonpanel.getAggression)
++		end
++		return true
++	end
++
++	def eventEntitiesClicked(list,button)
++		resetJob
++		# find first entity that's nearest to the camera
++		ent=nil
++		list.each{|node|
++			mesh=node.node
++			if [Mesh,AnimMesh,Mesh2D].member?(mesh.class)
++				ent=getMap.getEntity(mesh)
++				break if ent
++			end
++		}
++
++		# if an entity was found - set new target
++		if ent
++			if ent.class==AntHero and ent.getPlayer==getMap.getPlayer
++				#@hero=ent
++				@target=ent
++				inspectEntity(ent)
++			else
++				@target=ent
++				inspectEntity(ent)
++			end
++		end
++
++		if button==1
++			# left button == select
++		elsif button==3
++			# right button == fight or goto
++			if ent==@target
++				if @target.is_a?(AntBoss)
++					if @target.getPlayer!=@hero.getPlayer
++						@hero.newHLFightJob(@target)
++						return
++					end
++				elsif @target.is_a?(AntAnimal)
++					@hero.newHLFightAnimalJob(@target)
++					return
++				end
++				# move near target
++				@hero.newHLMoveJob(0, at target.getPos2D,2)
++			end
++		end
++	end
++
++	def eventMapClicked(pos,button)
++		if @job and button==1 then
++			case @job
++				when "doBuild"
++					buildHouse(pos.dim2)
++					@job=nil
++			end
++			resetJob
++			return
++		end
++		if @hero and button==3 then
++			# assign hero a move job
++			@hero.newHLMoveJob(0,pos,0)
++		end
++	end
++
++
++	###############################
++	# simple functions
++	###############################
++
++	def getMap
++		@map
++	end
++
++	def processMessages
++		if @connection
++			while message=@connection.getMessage
++				@map.processMessage(message)
++			end
++		end
++	end
++
++	def buildHouse(pos)
++		@layout.addChild(AntBuildDialog.new(@layout,pos, at hero))
++	end
++	
++	def save
++		if $campaign
++			@layout.addChild(AntSaveCampaignDialog.new(@layout))
++		else
++			@layout.addChild(AntSaveDialog.new(@layout))
++		end
++	end
++	def load
++		@layout.addChild(AntLoadDialog.new(@layout))
++	end
++	def videoOptions
++		@layout.addChild(AntVideoOptionsDialog.new(@layout))
++	end
++	def audioOptions
++		@layout.addChild(AntAudioOptionsDialog.new(@layout))
++	end
++
++	###############################################################
++	# Setting up of Hero displays (images, texts and eventHandlers
++	###############################################################
++
++	def setHeroImage(image,num)
++		@layout.getChild("HeroImage#{num}").setTexture(image)
++	end
++	def setHeroName(name,num)
++		@layout.getChild("HeroName#{num}").setText(_(name))
++		c=@layout.getChild("HeroBar#{num}")
++		raise 1 if c.nil?
++		c.setVisible((name!=""))
++	end
++	def setHeroEnergy(hero,num)
++		@layout.getChild("HeroBar#{num}").setHero(hero)
++	end
++	def setHero(flag,num)
++		name="hero#{num}"
++		c=@layout.getChild(name)
++		c.setEnabled(flag)
++		c.setVisible(flag)
++	end
++	def setupHeroDisplay(first=false)
++		#super
++		# setup Hero buttons
++		hs=getMap.getPlayer.getHeroes
++		for i in 0..5
++			if hs.length>i
++				setHero(true,i)
++				setHeroName(hs[i].getName,i)
++				setHeroImage(hs[i].getImage,i)
++				setHeroEnergy(hs[i],i)
++			else
++				setHero(false,i)
++				setHeroImage(getTextureCache.get("data/gui/portraits/none.png"),i)
++				setHeroName("",i)
++			end
++		end
++		# init Handlers of Buttons
++		if first
++			addHandler(@layout.getChild("antButtonPanel"),:sigAggressionChanged,:eventAggressionChanged)
++			for i in 0..2
++				addHandler(@layout.getChild("hero#{i}"),:sigClick,:eventHeroButton)
++			end
++			setupNames
++			
++			# center hero and select
++	 		if hs.length>0
++	 			h=hs[0]
++	 			selectHero(h)
++ 				focusHero(h)
++				@layout.getChild("hero0").setChecked(true)
++ 			end
++			
++		end
++		checkHeroEnergy
++	end
++
++	# updates the energy displays of the heroes (if needed)
++	def checkHeroEnergy
++		name=nil
++		# FIXME: support more than 1 hero !
++		getMap.getPlayer.getHeroes.each{|h|
++			if h.getEnergy<0.3
++				name=h.getName
++			end
++		}
++		if @infobox.nil? and name
++			@layout.addChild(@infobox=AntInfoBox.new(@layout,_("Your hero {1} suffers.",name)))
++		elsif @infobox and name.nil?
++			@infobox.close
++			@infobox=nil
++		end
++	end
++
++	# sets a new result
++	def setResult(r)
++		@result=r
++	end
++	
++	# returns boolean about the visibility of the panel
++	def panelVisible
++		@layout.getChild("SideBar").visible
++	end
++
++	def showPanel
++		sideBar=@layout.getChild("SideBar")
++		sideBarRight=@layout.getChild("SideBarRight")
++		sideBar.show
++		@controls=true
++		# reset Scene's width
++		getScene.getCameraObject.setWidth((getScreen.getWidth-sideBarRight.width).to_i)
++	end
++	def hidePanel
++		@layout.getChild("SideBar").hide
++		@controls=false
++		# reset Scene's width
++		getScene.getCameraObject.setWidth(getScreen.getWidth)
++	end
++
++
++	def tellStory(flow)
++		getMap.pause=true
++		hidePanel
++		if @story.nil?
++			@story=AntStoryTalk.new(@layout)
++		end
++		@layout.addChild(@story)
++		assert{@story.getApp}
++		@story.show
++		@story.setFlow(flow)
++		addHandler(@story,:sigStoryFinished,:eventStoryTalkFinished)
++	end
++
++	def inspectEntity(e)
++		if @inspect
++			#if @inspect.is_a?(AntBoss)
++				@inspect.selected=false
++			#end
++		end
++		@inspect=e
++		if @inspect
++			#if @inspect.is_a?(AntBoss)
++				@inspect.selected=true
++			#end
++		end
++		AntInventory.inspectEntity(e)
++	end
++
++	def resetJob
++		#@job=nil
++		@layout.getChild("doBuild").setChecked(false)
++	end
++
++	def getSelectedHero
++		@hero
++	end
++
++	def selectHero(h)
++		@hero=h
++		inspectEntity(h)
++		@buttonpanel.setHero(h)
++
++		for i in 0..2
++			if @layout.getChild("HeroName#{i}").getText.to_s==h.getName
++				@layout.getChild("hero#{i}").setChecked(true)
++			end
++		end
++
++		# set hero's aggression
++		@buttonpanel.setAggression(@hero.getAggression)
++	end
++
++	def getHeroByNum(n)
++		getMap.getOwnHeroes[n]
++	end
++
++	# views an information window about the entity ent
++	def viewInformation(ent)
++		win=AntInspectWindow.new(@layout,ent)
++		@layout.addChild(win)
++	end
++
++end
++
++
++# this function is only for starting a level directly (single map from the mainmenu or from cli)
++# you can start BoA from the cli by giving a level-name directly
++# For more information on that topic please refer to link:files/ruby/debugging/README.html
++def startGame(file="savegames/savegame0.antlvl",clientConnection=nil)
++	app=nil
++	if clientConnection
++		app=AntGameApp.new(file,getVideo.width,getVideo.height,nil,clientConnection)
++	else
++		app=AntGameApp.new(loadFile(file),getVideo.width,getVideo.height,nil,clientConnection)
++	end
++	#app.disableGC
++	app.run
++	result=app.result
++	# result all globals
++	app=nil
++	$map=nil
++	$app=nil
++	$screen=nil
++	# run garbage collector
++	startGC
++	return result
++end
++
++
++# code for starting a level directly from command-line like this:
++# ./ruby/run_game.rb levels/birth1
++# or
++# ./ruby/run_game.rb savegames/savegame0
++$useMenu||=false
++if true
++	savegame=""
++	ARGV.each{|arg|
++		if arg=~/levels.*/ or arg=~/savegames.*/
++			savegame=arg+".antlvl"
++		end
++	}
++	if savegame!=""
++		startGame(savegame)	
++	end
++end
++
++getConfig.set("ok","ok")
+
+Deleted: antargis/trunk/run.rb
+===================================================================
+--- antargis/trunk/run.rb	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/run.rb	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -1,7 +0,0 @@
+-#!/usr/bin/env ruby
+-
+-# run intro - mainmenu will be called automatically
+-
+-require 'ruby/intro.rb'
+-
+-MyLocalizer.finalize
+\ No newline at end of file
+
+
+
+From davidkamphausen at mail.berlios.de  Thu Dec 20 22:11:09 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Thu, 20 Dec 2007 22:11:09 +0100
+Subject: [Antargis-svn] r1192 - in antargis/trunk: . ext/basic ruby
+Message-ID: <200712202111.lBKLB9Oo003119@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-12-20 22:11:08 +0100 (Thu, 20 Dec 2007)
+New Revision: 1192
+
+Added:
+   antargis/trunk/Rakefile
+   antargis/trunk/runAntargis.rb
+Modified:
+   antargis/trunk/antargis.rb
+   antargis/trunk/ext/basic/ag_rubyobj.cc
+   antargis/trunk/ruby/antargislib.rb
+Log:
+* some modifications...
+
+
+Added: antargis/trunk/Rakefile
+===================================================================
+--- antargis/trunk/Rakefile	2007-12-19 17:44:00 UTC (rev 1191)
++++ antargis/trunk/Rakefile	2007-12-20 21:11:08 UTC (rev 1192)
+@@ -0,0 +1,360 @@
++#!/usr/bin/env ruby
++
++require 'mkmf'
++require 'build/mkmf_support.rb'
++require 'build/shell.rb'
++require 'pp'
++require 'rake/clean.rb'
++
++# run configure if config.rb is not yet present
++sh(checkMkmf("$(bindir)/$(ruby_install_name) configure",CONFIG)) unless File.exists?("config.rb")
++
++load 'config.rb'
++
++
++PKG_VERSION=$CONFIG["version"]
++
++$SOURCEDIRS=[
++	"ext/external",
++	"ext/basic",
++	"ext/sound",
++	"ext/math",
++	"ext/video",
++	"ext/gui",
++	"ext/3dengine",
++	"ext/game",
++]
++
++$LIBDEPS={"ext/basic"=>["SDL","RUBY"]}
++
++$BOASOURCES=$SOURCEDIRS.select{|dir|not dir=~/external/}
++
++MYINCLUDES=$SOURCEDIRS.map{|dir|"-I#{dir}"}.join(" ")
++
++def dependencies(c)
++end
++
++def build(file)
++	type=nil
++	compiler=nil
++	case file
++		when /\.c$/
++			type=:c
++			compiler=$CONFIG["CC"]
++		when /\.c(c|pp)$/
++			type=:c
++			compiler=$CONFIG["CXX"]
++	end
++	if type==:c
++		if $CONFIG["CCACHE"]
++			compiler=$CONFIG["CCACHE"]+" "+compiler
++		end
++
++		output=file.sub(/\.c$/,".o").sub(/\.(cc|cpp)$/,".oo")
++		Dir.mkdir(".deps") unless File.exists?(".deps")
++		dep=".deps/"+output.gsub("/","_")
++		cmd=compiler+" "+$CONFIG["CFLAGS"]+" "+$CONFIG["INCLUDEPATH"]+" "+MYINCLUDES+" -Wp,-MD,#{dep} -o "+output+" -c "+File.expand_path(file)
++	else
++		raise "Unknown source file"
++	end	
++	sh cmd
++	$?
++end
++
++def generateSwigDeps(dir)
++	output=File.join(".deps",dir.gsub("/","_")+"_swig.cc")
++	input=dir+"/interface.i"
++	cflags=$CONFIG["INCLUDEPATH"]+" "+$CONFIG["DEFINES"]+" -DAGEXPORT"
++	puts ""
++	cmd=$CONFIG["SWIG"]+" #{cflags} -ruby -c++ -M #{input} >#{output}"
++	sh cmd
++	$?
++end
++
++def generateSwig(dir)
++	output=dir+"/swig.cc"
++	input=dir+"/interface.i"
++	cflags=$CONFIG["INCLUDEPATH"]+" "+$CONFIG["DEFINES"]+" -DAGEXPORT"
++	cmd=$CONFIG["SWIG"]+" #{cflags} -v -Wall -ruby -c++ -o #{output} #{input}"
++	puts ""
++	pp cmd
++	sh cmd
++	$?
++end
++
++def linkLib(name,objects)
++	name=name.to_s
++	winadd=""
++	if $CONFIG["target_os"]=="windows"
++		winadd="-Wl,--enable-auto-image-base -Xlinker --out-implib -Xlinker #{name.gsub(/\.so$/,".dll")}.a"
++	end
++
++	cmd=$CONFIG["CXX"]+" -dH -shared -o #{name} -Lext #{winadd} -Wl,-\\( #{$CONFIG["LDFLAGS"]} #{$CONFIG["LIBPATH"]} #{objects.join(" ")}"
++	if $CONFIG["CCACHE"]
++		cmd=$CONFIG["CCACHE"]+" "+cmd
++	end
++	puts ""
++	#pp cmd
++	sh cmd
++	$?
++end
++
++def makeDepFilename(file)
++	File.join(".deps",file.gsub("\\","_").gsub("/","_"))
++end
++
++def getDepsFromCache(filename,source)
++	depfile=makeDepFilename(filename)
++	if File.exists?(depfile)
++		file=File.open(depfile)
++		content=file.read
++		file.close
++		content=content.gsub("\\\n"," ").gsub(/^[^:]*:/,"").split(" ").map{|fn|fn.chomp}
++		return [source]+(content-[source])
++	end
++	[source]
++end
++
++
++
++desc "Managing dependencies for c/++ files"
++getDeps=lambda{|args|
++	cfile=args.sub(/\.oo$/,".cc").sub(/\.o$/,".c")
++	getDepsFromCache(args,cfile)
++}
++
++rule '.o' => getDeps do |t|
++	source=t.sources[0]
++	build(source)
++end
++rule '.oo' => getDeps do |t|
++	source=t.sources[0]
++	build(source)
++end
++
++
++def isWindows
++	#return true
++	$CONFIG["target_os"]=="windows"
++end
++
++
++
++libdeps=[]
++$SOURCEDIRS.each{|dir|
++	base=dir.split("/")[1]
++	lib="ext/libantargis#{base}.so"
++
++	# FIXME: check for windows
++	if isWindows
++		libadd=libdeps.map{|l|"-l#{l.sub(/^.*\/lib(.*)\.so$/,'\1')}"}
++	else	
++		libadd=libdeps.dup #.map{|l|"-l#{l.sub(/^.*\/(.*)\.so$/,'\1')}"}
++	end
++
++	libadd+=$CONFIG["LIBS"].split(" ") if libdeps.length==0
++	libadd+=["-Lext"]
++
++	objs=(Dir[dir+"/*.cc"]+Dir[dir+"/*.c"]).select{|file|not file=~/swig/}.map{|file|file.sub(/\.cc$/,".oo").sub(/\.c$/,".o")}
++
++	desc "Build dynamic library #{lib}"
++	task lib=>libdeps+objs do |t|
++		linkLib(lib,libadd+objs)
++	end
++	libdeps << lib
++}
++
++
++
++$SOURCEDIRS.each{|dir|
++	base=dir.split("/")[1]
++	lib="ext/antargis#{base}.so"
++
++	objs=[dir+"/swig.oo"]
++
++	libdeps=[]
++	$SOURCEDIRS.each{|cdir|
++		cbase=cdir.split("/")[1]
++		libdeps << "ext/libantargis#{cbase}.so"
++		break if cdir==dir
++	}
++
++	libadd=$CONFIG["LIBS"].split(" ")+["-Lext"]
++
++	
++	desc "Build ruby-extension library #{lib}"
++	task lib=>libdeps+objs do |t|
++		lib=t
++		mlibdeps=t.prerequisites
++		mlibdeps=t.prerequisites.map{|l|l.sub(/^.*\/lib(.*)\.so$/,'-l\1')} if isWindows
++		linkLib(lib,mlibdeps+libadd)
++	end
++	libdeps=libdeps+[lib]
++}
++
++
++
++
++swigDeps=lambda{|t|
++	dir=File.join(File.split(t)[0..-2])
++
++	
++	deps=getDepsFromCache(t,dir+"/interface.i")
++	return deps if deps.length>0
++
++	# FIXME: del this ???
++
++	# FIXME: include correct dependencies
++	deps=Dir[dir+"/templates.i"]+Dir[dir+"/*.h"]+[dir+"/interface.i"]
++
++	$SOURCEDIRS.each{|ct|
++		if ct=~/#{dir}/
++			break
++		else
++			deps << ct+"/interface.i"  unless ct=~/external/
++		end
++	}
++
++	pp "DEPS2:",deps
++	deps
++}
++
++$BOASOURCES.each{|dir|
++	swig=dir+"/swig.cc"
++	myDeps=swigDeps.call(swig)
++	#rule 'swig.cc'=>swigDeps do |t|
++	task swig=>myDeps do |t|
++		dir=File.join(File.split(t.name)[0..-2])
++		generateSwigDeps(dir)
++		generateSwig(dir)
++	end
++}
++
++
++
++
++
++
++
++
++
++def importsForInterface(name)
++	mdeps=[]
++	$SOURCEDIRS.each{|t|
++		if name=~/#{t}/
++			break
++		else
++			mdeps << t+"/interface.i" unless t=~/external/
++		end
++	}
++	return mdeps.join(":")
++end
++
++interfaceSrc = lambda { |t|
++	dir=File.join(File.split(t)[0..-2])
++	Dir[dir+"/*.h"].select{|file|not file=~/swig/}
++}
++
++rule 'interface.i' => interfaceSrc do |t|
++	output=t.name.sub(/\/interface.[a-z]*/,"")
++	input=importsForInterface(t.name)
++	cmd=$CONFIG["RUBY"]+" build/create_interface.rb -d=#{output} -i=#{input}"
++	puts ""	
++	sh cmd
++end
++
++
++
++
++
++
++
++
++
++
++
++$BOA_LIBRARIES=$SOURCEDIRS.map{|dir|"ext/libantargis"+dir.split("/")[1]+".so"}+$BOASOURCES.map{|dir|"ext/antargis"+dir.split("/")[1]+".so"}
++task :libraries=>$BOA_LIBRARIES do
++end
++
++task "ext/antargis.so" => ((Dir["ext/*/*.cc"]+Dir["ext/*/*.c"]).map{|file|file.sub(".cc",".oo").sub(".c",".o")}+["ext/swig.oo"]) do |t|
++#+$SOURCEDIRS.map{|dir|"ext/libantargis"+dir.split("/")[1]+".so"}) do|t|
++	linkLib(t.name,t.prerequisites+$CONFIG["LIBS"].split(" "))
++end
++
++
++task :library=>"ext/antargis.so" do
++end
++
++task "ext/swig.cc"=>($SOURCEDIRS[1..-1].map{|dir|dir+"/interface.i"}) do
++	output="ext/swig.cc"
++	input=$BOASOURCES.map{|dir|File.join(dir,"interface.i")}
++	file=File.open("ext/interface.i","w")
++	file.puts '%module(directors="1") antargis'
++	input.each{|filename|file.puts "%include \"#{filename}\""}
++	file.close
++	cflags=$CONFIG["INCLUDEPATH"]+" "+$CONFIG["DEFINES"]+" -DAGEXPORT"
++	cmd=$CONFIG["SWIG"]+" #{cflags} -v -Wall -ruby -c++ -o #{output} ext/interface.i"
++	puts ""
++#	pp cmd
++	sh cmd
++	$?
++end
++
++
++desc "Build all"
++task :default=>[:library] do
++end
++
++
++task :allclean=>[:clobber_package] do
++	File.delete("config.rb")
++end
++
++
++CLEAN << Dir["**/*.o"]+Dir["**/*.oo"]+Dir["**/*.so"]+Dir["ext/*/interface.i"]+Dir["ext/*/swig.*"]+Dir[".deps/*"]+Dir["ext/*.so*"]+Dir["ext/*.dll*"]
++
++
++
++
++
++
++
++##########################
++#
++# Gems
++##
++
++require 'rubygems'
++require 'rake/gempackagetask.rb'
++
++DATA_FILES=Dir["data/**/*"].select{|file|not (file=~/svn/ or file=~/xcf/ or file=~/\.svg/)}
++PKG_FILES=Dir["ruby/**/*.rb"]+Dir["*.rb"]+DATA_FILES+Dir["build/*.rb"]+Dir["build/*/*.rb"] # +$BOA_LIBRARIES
++
++  spec = Gem::Specification.new do |s|
++    s.platform = Gem::Platform::LINUX_586
++    s.summary = "A real-time strategy game."
++    s.name = 'antargis-linux'
++    s.version = PKG_VERSION
++    s.requirements << 'none'
++    #s.require_path = 'lib'
++		s.require_paths << 'ext'
++    s.autorequire = 'rake'
++    s.files = PKG_FILES
++		s.bindir="." #File.join("build","bin")
++		s.executables << "antargis"
++		#s.extensions=
++    s.description = <<EOF
++Battles of Antargis is a medieval-like realtime strategy game. 
++You are a hero who was betrayed and you have to unify the kingdom 
++and rebuild the old empire. Old myths will pass your way.
++Its gameplay is very similar to that of Powermonger.
++EOF
++  end
++
++  Rake::GemPackageTask.new(spec) do |pkg|
++    pkg.need_zip = true
++    pkg.need_tar = true
++  end
++
++
+
+Modified: antargis/trunk/antargis.rb
+===================================================================
+--- antargis/trunk/antargis.rb	2007-12-19 17:44:00 UTC (rev 1191)
++++ antargis/trunk/antargis.rb	2007-12-20 21:11:08 UTC (rev 1192)
+@@ -1,7 +0,0 @@
+-#!/usr/bin/env ruby
+-
+-# run intro - mainmenu will be called automatically
+-
+-require 'ruby/intro.rb'
+-
+-MyLocalizer.finalize
+\ No newline at end of file
+
+Modified: antargis/trunk/ext/basic/ag_rubyobj.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_rubyobj.cc	2007-12-19 17:44:00 UTC (rev 1191)
++++ antargis/trunk/ext/basic/ag_rubyobj.cc	2007-12-20 21:11:08 UTC (rev 1192)
+@@ -25,6 +25,7 @@
+ #ifdef GCDEBUG
+   printf("NEW ME:%lx\n",this);
+ #endif
++  cdebug("existing rubies:"<<gExistingRubies.size());
+   
+ }
+ AGRubyObject::~AGRubyObject()
+@@ -39,6 +40,7 @@
+ #endif
+   mDeleted=true;
+   gExistingRubies.erase(this);
++  cdebug("existing rubies:"<<gExistingRubies.size());
+   //  cdebug("DEL:"<<mRUBY);
+ }
+ 
+
+Modified: antargis/trunk/ruby/antargislib.rb
+===================================================================
+--- antargis/trunk/ruby/antargislib.rb	2007-12-19 17:44:00 UTC (rev 1191)
++++ antargis/trunk/ruby/antargislib.rb	2007-12-20 21:11:08 UTC (rev 1192)
+@@ -79,24 +79,30 @@
+ 
+ end
+ 
+-require 'ext/antargis'
+-# if File.exists?("ext/antargisgame.so")
+-# 	require 'ext/antargisgame'
+-# else
+-# 	puts "Please run 'rant' before starting this program!"
+-# 	require 'antargisgame'
+-# end
++begin
++	if File.exists?("ext/antargis.so")
++		require 'ext/antargis'
++	else
++		puts "Please run 'rake' before starting this program!"
++		require 'antargis'
++	end
++	include Antargis
++rescue
++	puts "I'll try to run rake for you. Please try again yourself when it doesn't work."
++	system "rake"
++	puts "Try starting again..."
++	if File.exists?("ext/antargis.so")
++		require 'ext/antargis'
++	else
++		puts "Please run 'rake' before starting this program!"
++		require 'antargis'
++	end
++	include Antargis
++	puts "I'll try to run rake for you. Please try again yourself when it doesn't work."
+ 
+-#require 'antargissound.so'
++end
+ 
+-include Antargis
+-#game
+-#include Antargisbasic
+-#include Antargismath
+-#include Antargisvideo
+-#include Antargisgui
+-#include Antargis3dengine
+-#include Antargissound
++
+ 	
+ require 'ruby/gui/ag_tools.rb'
+ require 'ant_tools'
+
+Added: antargis/trunk/runAntargis.rb
+===================================================================
+--- antargis/trunk/runAntargis.rb	2007-12-19 17:44:00 UTC (rev 1191)
++++ antargis/trunk/runAntargis.rb	2007-12-20 21:11:08 UTC (rev 1192)
+@@ -0,0 +1,10 @@
++#!/usr/bin/env ruby
++
++# run intro - mainmenu will be called automatically
++
++Dir.chdir(File.split(__FILE__)[0])
++
++require 'ruby/intro.rb'
++
++
++MyLocalizer.finalize
+\ No newline at end of file
+
+
+Property changes on: antargis/trunk/runAntargis.rb
+___________________________________________________________________
+Name: svn:executable
+   + *
+
+
+
+From davidkamphausen at mail.berlios.de  Thu Dec 20 22:18:49 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Thu, 20 Dec 2007 22:18:49 +0100
+Subject: [Antargis-svn] r1193 - antargis/trunk/build/configs
+Message-ID: <200712202118.lBKLInSX003577@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-12-20 22:18:49 +0100 (Thu, 20 Dec 2007)
+New Revision: 1193
+
+Modified:
+   antargis/trunk/build/configs/cross.rb
+Log:
+M    configs/cross.rb
+
+
+Modified: antargis/trunk/build/configs/cross.rb
+===================================================================
+--- antargis/trunk/build/configs/cross.rb	2007-12-20 21:11:08 UTC (rev 1192)
++++ antargis/trunk/build/configs/cross.rb	2007-12-20 21:18:49 UTC (rev 1193)
+@@ -11,7 +11,7 @@
+   'RUBY'=>'/usr/bin/ruby',
+   'DEFINES'=>'',
+   'gcdebug'=>'false',
+-  'INCLUDEPATH'=>'-I/home/david/projects/antargis/build/build/win32/libs/usr/include -I/home/david/projects/antargis/build/build/win32/libs/usr/lib/ruby/1.8/i386-mingw32 -I/home/david/projects/antargis/build/build/win32/libs/usr/lib/ruby/site_ruby/1.8/i386-msvcrt  -I/usr/i586-mingw32msvc/include/GL -I. ',
++  'INCLUDEPATH'=>'-Ibuild/win32/libs/usr/include -Ibuild/win32/libs/usr/lib/ruby/1.8/i386-mingw32 -Ibuild/win32/libs/usr/lib/ruby/site_ruby/1.8/i386-msvcrt  -I/usr/i586-mingw32msvc/include/GL -I. ',
+   'LIBS'=>'-lmsvcrt-ruby18 -lSDL -lz -lSDL_mixer -lSDL_ttf -lpng -lopengl32 -lSDL_image -lglu32',
+   'use_mkmf'=>'true',
+   'profile'=>'false',
+@@ -19,6 +19,6 @@
+   'use_env'=>'true',
+   'PATH'=>['c:\windows\system32','c:\windows'],
+   'version'=>'0.2.1.5',
+-  'LIBPATH'=>'-L/home/david/projects/antargis/build/build/win32/libs/usr/lib/ruby/1.8/i386-mingw32  -L/home/david/projects/antargis/build/build/win32/libs/usr/lib -L/home/david/projects/antargis/build/build/win32/libs/usr/lib/ruby/site_ruby/1.8/i386-msvcrt  -L/usr/i586-mingw32msvc/lib/GL',
++  'LIBPATH'=>'-Lbuild/win32/libs/usr/lib/ruby/1.8/i386-mingw32  -Lbuild/win32/libs/usr/lib -Lbuild/win32/libs/usr/lib/ruby/site_ruby/1.8/i386-msvcrt  -L/usr/i586-mingw32msvc/lib/GL',
+ 	'target_os'=>'windows'
+ }
+
+
+
+From davidkamphausen at mail.berlios.de  Thu Dec 20 22:19:10 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Thu, 20 Dec 2007 22:19:10 +0100
+Subject: [Antargis-svn] r1194 - antargis/trunk/data/models
+Message-ID: <200712202119.lBKLJAQQ003643@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-12-20 22:19:09 +0100 (Thu, 20 Dec 2007)
+New Revision: 1194
+
+Removed:
+   antargis/trunk/data/models/workshop.ant.bak
+Log:
+D    data/models/workshop.ant.bak
+
+
+Deleted: antargis/trunk/data/models/workshop.ant.bak
+===================================================================
+(Binary files differ)
+
+
+
+From davidkamphausen at mail.berlios.de  Fri Dec 21 10:13:09 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Fri, 21 Dec 2007 10:13:09 +0100
+Subject: [Antargis-svn] r1195 - antargis/trunk
+Message-ID: <200712210913.lBL9D9qM027252@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-12-21 10:13:08 +0100 (Fri, 21 Dec 2007)
+New Revision: 1195
+
+Modified:
+   antargis/trunk/Rakefile
+Log:
+* don't use special swigs
+
+
+Modified: antargis/trunk/Rakefile
+===================================================================
+--- antargis/trunk/Rakefile	2007-12-20 21:19:09 UTC (rev 1194)
++++ antargis/trunk/Rakefile	2007-12-21 09:13:08 UTC (rev 1195)
+@@ -277,7 +277,7 @@
+ task :libraries=>$BOA_LIBRARIES do
+ end
+ 
+-task "ext/antargis.so" => ((Dir["ext/*/*.cc"]+Dir["ext/*/*.c"]).map{|file|file.sub(".cc",".oo").sub(".c",".o")}+["ext/swig.oo"]) do |t|
++task "ext/antargis.so" => ((Dir["ext/*/*.cc"]+Dir["ext/*/*.c"]).select{|file|not file=~/[a-z]swig/}.map{|file|file.sub(".cc",".oo").sub(".c",".o")}+["ext/swig.oo"]) do |t|
+ #+$SOURCEDIRS.map{|dir|"ext/libantargis"+dir.split("/")[1]+".so"}) do|t|
+ 	linkLib(t.name,t.prerequisites+$CONFIG["LIBS"].split(" "))
+ end
+
+
+
+From davidkamphausen at mail.berlios.de  Fri Dec 21 14:47:42 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Fri, 21 Dec 2007 14:47:42 +0100
+Subject: [Antargis-svn] r1196 - antargis/trunk/ext/external
+Message-ID: <200712211347.lBLDlgG3016068@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-12-21 14:47:42 +0100 (Fri, 21 Dec 2007)
+New Revision: 1196
+
+Modified:
+   antargis/trunk/ext/external/mtwist.h
+Log:
+* small changes for compilation for win32
+
+
+Modified: antargis/trunk/ext/external/mtwist.h
+===================================================================
+--- antargis/trunk/ext/external/mtwist.h	2007-12-21 09:13:08 UTC (rev 1195)
++++ antargis/trunk/ext/external/mtwist.h	2007-12-21 13:47:42 UTC (rev 1196)
+@@ -1,6 +1,6 @@
+ #ifndef MTWIST_H
+-#define MTWIST_H
+-
++#define MTWIST_H
++
+ #include <ag_base.h>
+ 
+ /*
+@@ -195,11 +195,11 @@
+ 					/* ..the entire state from there. */
+ 					/* ..If /dev/random is unavailable, */
+ 					/* ..falls back to mt_goodseed().  */
+-					/* ..Not usually worth the cost.  */
+-                    
+-                    
+-// was extern                    
++					/* ..Not usually worth the cost.  */
+                     
++                    
++// was extern                    
++                    
+ AGEXPORT void		mts_refresh(mt_state* state);
+ 					/* Generate 624 more random values */
+ extern int		mts_savestate(FILE* statefile, mt_state* state);
+@@ -337,21 +337,41 @@
+ 	while (0)
+ 
+ extern mt_state		mt_default_state;
+-
++
++
++#ifdef __cplusplus
++//extern "C" {
++extern "C" 
++#ifdef WIN32
++/*
++#ifdef MT_EXTERN
++__declspec(dllexport)
++#else
++__declspec(dllimport)
++#endif*/
++#endif
++double		mt_32_to_double;
++#else
++extern double		mt_32_to_double;
++#endif
++#ifdef __cplusplus
++//}
++#endif
++
+ /* State of the default generator */
+-#ifdef __cplusplus
+-extern "C" {
+-    #ifdef WIN32
+-__declspec(dllimport)
+-#endif
+-    extern double		mt_32_to_double;
+-}
+-    #else
+-#ifdef WIN32
+-__declspec(dllexport) 
+-#endif
+-extern   double		mt_32_to_double;
++/*#ifdef __cplusplus
++extern "C" {
++#ifdef WIN32
++__declspec(dllimport)
+ #endif
++    extern double		mt_32_to_double;
++}
++#else
++#ifdef WIN32
++__declspec(dllexport) 
++#endif
++extern   double		mt_32_to_double;
++#endif*/
+ 					/* Multiplier to convert long to dbl */
+ extern double		mt_64_to_double;
+ 					/* Mult'r to cvt long long to dbl */
+
+
+
+From davidkamphausen at mail.berlios.de  Fri Dec 21 17:07:56 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Fri, 21 Dec 2007 17:07:56 +0100
+Subject: [Antargis-svn] r1197 - in antargis/trunk/ext: basic sound video
+Message-ID: <200712211607.lBLG7u08024100@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-12-21 17:07:56 +0100 (Fri, 21 Dec 2007)
+New Revision: 1197
+
+Modified:
+   antargis/trunk/ext/basic/ag_rubyobj.cc
+   antargis/trunk/ext/sound/ag_mixer.cc
+   antargis/trunk/ext/video/ag_vdebug.cc
+   antargis/trunk/ext/video/ag_video.cc
+Log:
+* minor changes
+
+
+Modified: antargis/trunk/ext/basic/ag_rubyobj.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_rubyobj.cc	2007-12-21 13:47:42 UTC (rev 1196)
++++ antargis/trunk/ext/basic/ag_rubyobj.cc	2007-12-21 16:07:56 UTC (rev 1197)
+@@ -25,7 +25,7 @@
+ #ifdef GCDEBUG
+   printf("NEW ME:%lx\n",this);
+ #endif
+-  cdebug("existing rubies:"<<gExistingRubies.size());
++  //  cdebug("existing rubies:"<<gExistingRubies.size());
+   
+ }
+ AGRubyObject::~AGRubyObject()
+@@ -40,7 +40,7 @@
+ #endif
+   mDeleted=true;
+   gExistingRubies.erase(this);
+-  cdebug("existing rubies:"<<gExistingRubies.size());
++  //  cdebug("existing rubies:"<<gExistingRubies.size());
+   //  cdebug("DEL:"<<mRUBY);
+ }
+ 
+
+Modified: antargis/trunk/ext/sound/ag_mixer.cc
+===================================================================
+--- antargis/trunk/ext/sound/ag_mixer.cc	2007-12-21 13:47:42 UTC (rev 1196)
++++ antargis/trunk/ext/sound/ag_mixer.cc	2007-12-21 16:07:56 UTC (rev 1197)
+@@ -102,6 +102,7 @@
+ 
+       if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, chunkSize)==-1) {
+ 	printf("Mix_OpenAudio: %s\n", Mix_GetError());
++	printf("Disabling sound\n");
+ 	mNoSound=true;
+ 	return;
+       }
+
+Modified: antargis/trunk/ext/video/ag_vdebug.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_vdebug.cc	2007-12-21 13:47:42 UTC (rev 1196)
++++ antargis/trunk/ext/video/ag_vdebug.cc	2007-12-21 16:07:56 UTC (rev 1197)
+@@ -26,7 +26,8 @@
+       if(strlen(se)>0)
+ 	{
+ 	  std::cerr<<"SDL_Error:"<<s<<":"<<se<<std::endl;
+-	  if(std::string(se).substr(0,37)=="Failed loading glXGetSwapIntervalMESA")
++	  if(std::string(se).substr(0,37)=="Failed loading glXGetSwapIntervalMESA" ||
++	     std::string(se).substr(0,40)=="DirectSoundCreate: No audio device found")
+ 	    std::cerr<<"IGNORING THIS ERROR!"<<std::endl;
+ #ifndef MNDEBUG
+ 	  else
+
+Modified: antargis/trunk/ext/video/ag_video.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_video.cc	2007-12-21 13:47:42 UTC (rev 1196)
++++ antargis/trunk/ext/video/ag_video.cc	2007-12-21 16:07:56 UTC (rev 1197)
+@@ -191,7 +191,7 @@
+ 
+   SDL_Surface *s=IMG_Load_RW(SDL_RWFromMem(const_cast<char*>(file.c_str()),file.length()),false);
+   SDL_WM_SetIcon(s,0);
+-	assertGL;
++  assertGL;
+ }
+ 
+ void AGVideoManager::setCaption(const std::string &pCaption)
+
+
+
+From davidkamphausen at mail.berlios.de  Sat Dec 22 12:19:46 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Sat, 22 Dec 2007 12:19:46 +0100
+Subject: [Antargis-svn] r1198 - antargis/trunk
+Message-ID: <200712221119.lBMBJjQq011352@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-12-22 12:19:45 +0100 (Sat, 22 Dec 2007)
+New Revision: 1198
+
+Modified:
+   antargis/trunk/Rakefile
+Log:
+* small cleanup
+
+
+Modified: antargis/trunk/Rakefile
+===================================================================
+--- antargis/trunk/Rakefile	2007-12-21 16:07:56 UTC (rev 1197)
++++ antargis/trunk/Rakefile	2007-12-22 11:19:45 UTC (rev 1198)
+@@ -278,7 +278,6 @@
+ end
+ 
+ task "ext/antargis.so" => ((Dir["ext/*/*.cc"]+Dir["ext/*/*.c"]).select{|file|not file=~/[a-z]swig/}.map{|file|file.sub(".cc",".oo").sub(".c",".o")}+["ext/swig.oo"]) do |t|
+-#+$SOURCEDIRS.map{|dir|"ext/libantargis"+dir.split("/")[1]+".so"}) do|t|
+ 	linkLib(t.name,t.prerequisites+$CONFIG["LIBS"].split(" "))
+ end
+ 
+@@ -296,7 +295,6 @@
+ 	cflags=$CONFIG["INCLUDEPATH"]+" "+$CONFIG["DEFINES"]+" -DAGEXPORT"
+ 	cmd=$CONFIG["SWIG"]+" #{cflags} -v -Wall -ruby -c++ -o #{output} ext/interface.i"
+ 	puts ""
+-#	pp cmd
+ 	sh cmd
+ 	$?
+ end
+
+
+
+From davidkamphausen at mail.berlios.de  Sat Dec 22 12:45:36 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Sat, 22 Dec 2007 12:45:36 +0100
+Subject: [Antargis-svn] r1199 - in antargis/trunk: . ext
+Message-ID: <200712221145.lBMBja41012859@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-12-22 12:45:35 +0100 (Sat, 22 Dec 2007)
+New Revision: 1199
+
+Added:
+   antargis/trunk/ext/Rakefile
+Modified:
+   antargis/trunk/Rakefile
+   antargis/trunk/configure
+Log:
+* moved extension-targets to subdir
+
+
+Modified: antargis/trunk/Rakefile
+===================================================================
+--- antargis/trunk/Rakefile	2007-12-22 11:19:45 UTC (rev 1198)
++++ antargis/trunk/Rakefile	2007-12-22 11:45:35 UTC (rev 1199)
+@@ -1,323 +1,10 @@
+ #!/usr/bin/env ruby
+ 
+-require 'mkmf'
+-require 'build/mkmf_support.rb'
+-require 'build/shell.rb'
+-require 'pp'
+-require 'rake/clean.rb'
++Dir.chdir(File.split(__FILE__)[0])
+ 
+-# run configure if config.rb is not yet present
+-sh(checkMkmf("$(bindir)/$(ruby_install_name) configure",CONFIG)) unless File.exists?("config.rb")
++# build extension
++load 'ext/Rakefile'
+ 
+-load 'config.rb'
+-
+-
+-PKG_VERSION=$CONFIG["version"]
+-
+-$SOURCEDIRS=[
+-	"ext/external",
+-	"ext/basic",
+-	"ext/sound",
+-	"ext/math",
+-	"ext/video",
+-	"ext/gui",
+-	"ext/3dengine",
+-	"ext/game",
+-]
+-
+-$LIBDEPS={"ext/basic"=>["SDL","RUBY"]}
+-
+-$BOASOURCES=$SOURCEDIRS.select{|dir|not dir=~/external/}
+-
+-MYINCLUDES=$SOURCEDIRS.map{|dir|"-I#{dir}"}.join(" ")
+-
+-def dependencies(c)
+-end
+-
+-def build(file)
+-	type=nil
+-	compiler=nil
+-	case file
+-		when /\.c$/
+-			type=:c
+-			compiler=$CONFIG["CC"]
+-		when /\.c(c|pp)$/
+-			type=:c
+-			compiler=$CONFIG["CXX"]
+-	end
+-	if type==:c
+-		if $CONFIG["CCACHE"]
+-			compiler=$CONFIG["CCACHE"]+" "+compiler
+-		end
+-
+-		output=file.sub(/\.c$/,".o").sub(/\.(cc|cpp)$/,".oo")
+-		Dir.mkdir(".deps") unless File.exists?(".deps")
+-		dep=".deps/"+output.gsub("/","_")
+-		cmd=compiler+" "+$CONFIG["CFLAGS"]+" "+$CONFIG["INCLUDEPATH"]+" "+MYINCLUDES+" -Wp,-MD,#{dep} -o "+output+" -c "+File.expand_path(file)
+-	else
+-		raise "Unknown source file"
+-	end	
+-	sh cmd
+-	$?
+-end
+-
+-def generateSwigDeps(dir)
+-	output=File.join(".deps",dir.gsub("/","_")+"_swig.cc")
+-	input=dir+"/interface.i"
+-	cflags=$CONFIG["INCLUDEPATH"]+" "+$CONFIG["DEFINES"]+" -DAGEXPORT"
+-	puts ""
+-	cmd=$CONFIG["SWIG"]+" #{cflags} -ruby -c++ -M #{input} >#{output}"
+-	sh cmd
+-	$?
+-end
+-
+-def generateSwig(dir)
+-	output=dir+"/swig.cc"
+-	input=dir+"/interface.i"
+-	cflags=$CONFIG["INCLUDEPATH"]+" "+$CONFIG["DEFINES"]+" -DAGEXPORT"
+-	cmd=$CONFIG["SWIG"]+" #{cflags} -v -Wall -ruby -c++ -o #{output} #{input}"
+-	puts ""
+-	pp cmd
+-	sh cmd
+-	$?
+-end
+-
+-def linkLib(name,objects)
+-	name=name.to_s
+-	winadd=""
+-	if $CONFIG["target_os"]=="windows"
+-		winadd="-Wl,--enable-auto-image-base -Xlinker --out-implib -Xlinker #{name.gsub(/\.so$/,".dll")}.a"
+-	end
+-
+-	cmd=$CONFIG["CXX"]+" -dH -shared -o #{name} -Lext #{winadd} -Wl,-\\( #{$CONFIG["LDFLAGS"]} #{$CONFIG["LIBPATH"]} #{objects.join(" ")}"
+-	if $CONFIG["CCACHE"]
+-		cmd=$CONFIG["CCACHE"]+" "+cmd
+-	end
+-	puts ""
+-	#pp cmd
+-	sh cmd
+-	$?
+-end
+-
+-def makeDepFilename(file)
+-	File.join(".deps",file.gsub("\\","_").gsub("/","_"))
+-end
+-
+-def getDepsFromCache(filename,source)
+-	depfile=makeDepFilename(filename)
+-	if File.exists?(depfile)
+-		file=File.open(depfile)
+-		content=file.read
+-		file.close
+-		content=content.gsub("\\\n"," ").gsub(/^[^:]*:/,"").split(" ").map{|fn|fn.chomp}
+-		return [source]+(content-[source])
+-	end
+-	[source]
+-end
+-
+-
+-
+-desc "Managing dependencies for c/++ files"
+-getDeps=lambda{|args|
+-	cfile=args.sub(/\.oo$/,".cc").sub(/\.o$/,".c")
+-	getDepsFromCache(args,cfile)
+-}
+-
+-rule '.o' => getDeps do |t|
+-	source=t.sources[0]
+-	build(source)
+-end
+-rule '.oo' => getDeps do |t|
+-	source=t.sources[0]
+-	build(source)
+-end
+-
+-
+-def isWindows
+-	#return true
+-	$CONFIG["target_os"]=="windows"
+-end
+-
+-
+-
+-libdeps=[]
+-$SOURCEDIRS.each{|dir|
+-	base=dir.split("/")[1]
+-	lib="ext/libantargis#{base}.so"
+-
+-	# FIXME: check for windows
+-	if isWindows
+-		libadd=libdeps.map{|l|"-l#{l.sub(/^.*\/lib(.*)\.so$/,'\1')}"}
+-	else	
+-		libadd=libdeps.dup #.map{|l|"-l#{l.sub(/^.*\/(.*)\.so$/,'\1')}"}
+-	end
+-
+-	libadd+=$CONFIG["LIBS"].split(" ") if libdeps.length==0
+-	libadd+=["-Lext"]
+-
+-	objs=(Dir[dir+"/*.cc"]+Dir[dir+"/*.c"]).select{|file|not file=~/swig/}.map{|file|file.sub(/\.cc$/,".oo").sub(/\.c$/,".o")}
+-
+-	desc "Build dynamic library #{lib}"
+-	task lib=>libdeps+objs do |t|
+-		linkLib(lib,libadd+objs)
+-	end
+-	libdeps << lib
+-}
+-
+-
+-
+-$SOURCEDIRS.each{|dir|
+-	base=dir.split("/")[1]
+-	lib="ext/antargis#{base}.so"
+-
+-	objs=[dir+"/swig.oo"]
+-
+-	libdeps=[]
+-	$SOURCEDIRS.each{|cdir|
+-		cbase=cdir.split("/")[1]
+-		libdeps << "ext/libantargis#{cbase}.so"
+-		break if cdir==dir
+-	}
+-
+-	libadd=$CONFIG["LIBS"].split(" ")+["-Lext"]
+-
+-	
+-	desc "Build ruby-extension library #{lib}"
+-	task lib=>libdeps+objs do |t|
+-		lib=t
+-		mlibdeps=t.prerequisites
+-		mlibdeps=t.prerequisites.map{|l|l.sub(/^.*\/lib(.*)\.so$/,'-l\1')} if isWindows
+-		linkLib(lib,mlibdeps+libadd)
+-	end
+-	libdeps=libdeps+[lib]
+-}
+-
+-
+-
+-
+-swigDeps=lambda{|t|
+-	dir=File.join(File.split(t)[0..-2])
+-
+-	
+-	deps=getDepsFromCache(t,dir+"/interface.i")
+-	return deps if deps.length>0
+-
+-	# FIXME: del this ???
+-
+-	# FIXME: include correct dependencies
+-	deps=Dir[dir+"/templates.i"]+Dir[dir+"/*.h"]+[dir+"/interface.i"]
+-
+-	$SOURCEDIRS.each{|ct|
+-		if ct=~/#{dir}/
+-			break
+-		else
+-			deps << ct+"/interface.i"  unless ct=~/external/
+-		end
+-	}
+-
+-	pp "DEPS2:",deps
+-	deps
+-}
+-
+-$BOASOURCES.each{|dir|
+-	swig=dir+"/swig.cc"
+-	myDeps=swigDeps.call(swig)
+-	#rule 'swig.cc'=>swigDeps do |t|
+-	task swig=>myDeps do |t|
+-		dir=File.join(File.split(t.name)[0..-2])
+-		generateSwigDeps(dir)
+-		generateSwig(dir)
+-	end
+-}
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-def importsForInterface(name)
+-	mdeps=[]
+-	$SOURCEDIRS.each{|t|
+-		if name=~/#{t}/
+-			break
+-		else
+-			mdeps << t+"/interface.i" unless t=~/external/
+-		end
+-	}
+-	return mdeps.join(":")
+-end
+-
+-interfaceSrc = lambda { |t|
+-	dir=File.join(File.split(t)[0..-2])
+-	Dir[dir+"/*.h"].select{|file|not file=~/swig/}
+-}
+-
+-rule 'interface.i' => interfaceSrc do |t|
+-	output=t.name.sub(/\/interface.[a-z]*/,"")
+-	input=importsForInterface(t.name)
+-	cmd=$CONFIG["RUBY"]+" build/create_interface.rb -d=#{output} -i=#{input}"
+-	puts ""	
+-	sh cmd
+-end
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-$BOA_LIBRARIES=$SOURCEDIRS.map{|dir|"ext/libantargis"+dir.split("/")[1]+".so"}+$BOASOURCES.map{|dir|"ext/antargis"+dir.split("/")[1]+".so"}
+-task :libraries=>$BOA_LIBRARIES do
+-end
+-
+-task "ext/antargis.so" => ((Dir["ext/*/*.cc"]+Dir["ext/*/*.c"]).select{|file|not file=~/[a-z]swig/}.map{|file|file.sub(".cc",".oo").sub(".c",".o")}+["ext/swig.oo"]) do |t|
+-	linkLib(t.name,t.prerequisites+$CONFIG["LIBS"].split(" "))
+-end
+-
+-
+-task :library=>"ext/antargis.so" do
+-end
+-
+-task "ext/swig.cc"=>($SOURCEDIRS[1..-1].map{|dir|dir+"/interface.i"}) do
+-	output="ext/swig.cc"
+-	input=$BOASOURCES.map{|dir|File.join(dir,"interface.i")}
+-	file=File.open("ext/interface.i","w")
+-	file.puts '%module(directors="1") antargis'
+-	input.each{|filename|file.puts "%include \"#{filename}\""}
+-	file.close
+-	cflags=$CONFIG["INCLUDEPATH"]+" "+$CONFIG["DEFINES"]+" -DAGEXPORT"
+-	cmd=$CONFIG["SWIG"]+" #{cflags} -v -Wall -ruby -c++ -o #{output} ext/interface.i"
+-	puts ""
+-	sh cmd
+-	$?
+-end
+-
+-
+-desc "Build all"
+-task :default=>[:library] do
+-end
+-
+-
+-task :allclean=>[:clobber_package] do
+-	File.delete("config.rb")
+-end
+-
+-
+-CLEAN << Dir["**/*.o"]+Dir["**/*.oo"]+Dir["**/*.so"]+Dir["ext/*/interface.i"]+Dir["ext/*/swig.*"]+Dir[".deps/*"]+Dir["ext/*.so*"]+Dir["ext/*.dll*"]
+-
+-
+-
+-
+-
+-
+-
+ ##########################
+ #
+ # Gems
+
+Modified: antargis/trunk/configure
+===================================================================
+--- antargis/trunk/configure	2007-12-22 11:19:45 UTC (rev 1198)
++++ antargis/trunk/configure	2007-12-22 11:45:35 UTC (rev 1199)
+@@ -305,7 +305,7 @@
+ end
+ 
+ def saveConfigurationFile(config)
+-	file=File.open("config.rb","w")
++	file=File.open("antconfig.rb","w")
+ 	file.puts config.toRuby
+ 	file.close
+ end
+
+Added: antargis/trunk/ext/Rakefile
+===================================================================
+--- antargis/trunk/ext/Rakefile	2007-12-22 11:19:45 UTC (rev 1198)
++++ antargis/trunk/ext/Rakefile	2007-12-22 11:45:35 UTC (rev 1199)
+@@ -0,0 +1,322 @@
++#!/usr/bin/env ruby
++
++Dir.chdir(File.split(File.split(__FILE__)[0])[0])
++
++require 'mkmf'
++require 'build/mkmf_support.rb'
++require 'build/shell.rb'
++require 'pp'
++require 'rake/clean.rb'
++
++
++# run configure if config.rb is not yet present
++sh(checkMkmf("$(bindir)/$(ruby_install_name) configure",CONFIG)) unless File.exists?("antconfig.rb")
++
++load 'antconfig.rb'
++
++
++PKG_VERSION=$CONFIG["version"]
++
++$SOURCEDIRS=[
++	"ext/external",
++	"ext/basic",
++	"ext/sound",
++	"ext/math",
++	"ext/video",
++	"ext/gui",
++	"ext/3dengine",
++	"ext/game",
++]
++
++$LIBDEPS={"ext/basic"=>["SDL","RUBY"]}
++
++$BOASOURCES=$SOURCEDIRS.select{|dir|not dir=~/external/}
++
++MYINCLUDES=$SOURCEDIRS.map{|dir|"-I#{dir}"}.join(" ")
++
++def dependencies(c)
++end
++
++def build(file)
++	type=nil
++	compiler=nil
++	case file
++		when /\.c$/
++			type=:c
++			compiler=$CONFIG["CC"]
++		when /\.c(c|pp)$/
++			type=:c
++			compiler=$CONFIG["CXX"]
++	end
++	if type==:c
++		if $CONFIG["CCACHE"]
++			compiler=$CONFIG["CCACHE"]+" "+compiler
++		end
++
++		output=file.sub(/\.c$/,".o").sub(/\.(cc|cpp)$/,".oo")
++		Dir.mkdir(".deps") unless File.exists?(".deps")
++		dep=".deps/"+output.gsub("/","_")
++		cmd=compiler+" "+$CONFIG["CFLAGS"]+" "+$CONFIG["INCLUDEPATH"]+" "+MYINCLUDES+" -Wp,-MD,#{dep} -o "+output+" -c "+File.expand_path(file)
++	else
++		raise "Unknown source file"
++	end	
++	sh cmd
++	$?
++end
++
++def generateSwigDeps(dir)
++	output=File.join(".deps",dir.gsub("/","_")+"_swig.cc")
++	input=dir+"/interface.i"
++	cflags=$CONFIG["INCLUDEPATH"]+" "+$CONFIG["DEFINES"]+" -DAGEXPORT"
++	puts ""
++	cmd=$CONFIG["SWIG"]+" #{cflags} -ruby -c++ -M #{input} >#{output}"
++	sh cmd
++	$?
++end
++
++def generateSwig(dir)
++	output=dir+"/swig.cc"
++	input=dir+"/interface.i"
++	cflags=$CONFIG["INCLUDEPATH"]+" "+$CONFIG["DEFINES"]+" -DAGEXPORT"
++	cmd=$CONFIG["SWIG"]+" #{cflags} -v -Wall -ruby -c++ -o #{output} #{input}"
++	puts ""
++	pp cmd
++	sh cmd
++	$?
++end
++
++def linkLib(name,objects)
++	name=name.to_s
++	winadd=""
++	if $CONFIG["target_os"]=="windows"
++		winadd="-Wl,--enable-auto-image-base -Xlinker --out-implib -Xlinker #{name.gsub(/\.so$/,".dll")}.a"
++	end
++
++	cmd=$CONFIG["CXX"]+" -dH -shared -o #{name} -Lext #{winadd} -Wl,-\\( #{$CONFIG["LDFLAGS"]} #{$CONFIG["LIBPATH"]} #{objects.join(" ")}"
++	if $CONFIG["CCACHE"]
++		cmd=$CONFIG["CCACHE"]+" "+cmd
++	end
++	puts ""
++	#pp cmd
++	sh cmd
++	$?
++end
++
++def makeDepFilename(file)
++	File.join(".deps",file.gsub("\\","_").gsub("/","_"))
++end
++
++def getDepsFromCache(filename,source)
++	depfile=makeDepFilename(filename)
++	if File.exists?(depfile)
++		file=File.open(depfile)
++		content=file.read
++		file.close
++		content=content.gsub("\\\n"," ").gsub(/^[^:]*:/,"").split(" ").map{|fn|fn.chomp}
++		return [source]+(content-[source])
++	end
++	[source]
++end
++
++
++
++desc "Managing dependencies for c/++ files"
++getDeps=lambda{|args|
++	cfile=args.sub(/\.oo$/,".cc").sub(/\.o$/,".c")
++	getDepsFromCache(args,cfile)
++}
++
++rule '.o' => getDeps do |t|
++	source=t.sources[0]
++	build(source)
++end
++rule '.oo' => getDeps do |t|
++	source=t.sources[0]
++	build(source)
++end
++
++
++def isWindows
++	#return true
++	$CONFIG["target_os"]=="windows"
++end
++
++
++
++libdeps=[]
++$SOURCEDIRS.each{|dir|
++	base=dir.split("/")[1]
++	lib="ext/libantargis#{base}.so"
++
++	# FIXME: check for windows
++	if isWindows
++		libadd=libdeps.map{|l|"-l#{l.sub(/^.*\/lib(.*)\.so$/,'\1')}"}
++	else	
++		libadd=libdeps.dup #.map{|l|"-l#{l.sub(/^.*\/(.*)\.so$/,'\1')}"}
++	end
++
++	libadd+=$CONFIG["LIBS"].split(" ") if libdeps.length==0
++	libadd+=["-Lext"]
++
++	objs=(Dir[dir+"/*.cc"]+Dir[dir+"/*.c"]).select{|file|not file=~/swig/}.map{|file|file.sub(/\.cc$/,".oo").sub(/\.c$/,".o")}
++
++	desc "Build dynamic library #{lib}"
++	task lib=>libdeps+objs do |t|
++		linkLib(lib,libadd+objs)
++	end
++	libdeps << lib
++}
++
++
++
++$SOURCEDIRS.each{|dir|
++	base=dir.split("/")[1]
++	lib="ext/antargis#{base}.so"
++
++	objs=[dir+"/swig.oo"]
++
++	libdeps=[]
++	$SOURCEDIRS.each{|cdir|
++		cbase=cdir.split("/")[1]
++		libdeps << "ext/libantargis#{cbase}.so"
++		break if cdir==dir
++	}
++
++	libadd=$CONFIG["LIBS"].split(" ")+["-Lext"]
++
++	
++	desc "Build ruby-extension library #{lib}"
++	task lib=>libdeps+objs do |t|
++		lib=t
++		mlibdeps=t.prerequisites
++		mlibdeps=t.prerequisites.map{|l|l.sub(/^.*\/lib(.*)\.so$/,'-l\1')} if isWindows
++		linkLib(lib,mlibdeps+libadd)
++	end
++	libdeps=libdeps+[lib]
++}
++
++
++
++
++swigDeps=lambda{|t|
++	dir=File.join(File.split(t)[0..-2])
++
++	
++	deps=getDepsFromCache(t,dir+"/interface.i")
++	return deps if deps.length>0
++
++	# FIXME: del this ???
++
++	# FIXME: include correct dependencies
++	deps=Dir[dir+"/templates.i"]+Dir[dir+"/*.h"]+[dir+"/interface.i"]
++
++	$SOURCEDIRS.each{|ct|
++		if ct=~/#{dir}/
++			break
++		else
++			deps << ct+"/interface.i"  unless ct=~/external/
++		end
++	}
++
++	pp "DEPS2:",deps
++	deps
++}
++
++$BOASOURCES.each{|dir|
++	swig=dir+"/swig.cc"
++	myDeps=swigDeps.call(swig)
++	#rule 'swig.cc'=>swigDeps do |t|
++	task swig=>myDeps do |t|
++		dir=File.join(File.split(t.name)[0..-2])
++		generateSwigDeps(dir)
++		generateSwig(dir)
++	end
++}
++
++
++
++
++
++
++
++
++
++def importsForInterface(name)
++	mdeps=[]
++	$SOURCEDIRS.each{|t|
++		if name=~/#{t}/
++			break
++		else
++			mdeps << t+"/interface.i" unless t=~/external/
++		end
++	}
++	return mdeps.join(":")
++end
++
++interfaceSrc = lambda { |t|
++	dir=File.join(File.split(t)[0..-2])
++	Dir[dir+"/*.h"].select{|file|not file=~/swig/}
++}
++
++rule 'interface.i' => interfaceSrc do |t|
++	output=t.name.sub(/\/interface.[a-z]*/,"")
++	input=importsForInterface(t.name)
++	cmd=$CONFIG["RUBY"]+" build/create_interface.rb -d=#{output} -i=#{input}"
++	puts ""	
++	sh cmd
++end
++
++
++
++
++
++
++
++
++
++
++
++$BOA_LIBRARIES=$SOURCEDIRS.map{|dir|"ext/libantargis"+dir.split("/")[1]+".so"}+$BOASOURCES.map{|dir|"ext/antargis"+dir.split("/")[1]+".so"}
++task :libraries=>$BOA_LIBRARIES do
++end
++
++task "ext/antargis.so" => ((Dir["ext/*/*.cc"]+Dir["ext/*/*.c"]).select{|file|not file=~/[a-z]swig/}.map{|file|file.sub(".cc",".oo").sub(".c",".o")}+["ext/swig.oo"]) do |t|
++	linkLib(t.name,t.prerequisites+$CONFIG["LIBS"].split(" "))
++end
++
++
++task :library=>"ext/antargis.so" do
++end
++
++task "ext/swig.cc"=>($SOURCEDIRS[1..-1].map{|dir|dir+"/interface.i"}) do
++	output="ext/swig.cc"
++	input=$BOASOURCES.map{|dir|File.join(dir,"interface.i")}
++	file=File.open("ext/interface.i","w")
++	file.puts '%module(directors="1") antargis'
++	input.each{|filename|file.puts "%include \"#{filename}\""}
++	file.close
++	cflags=$CONFIG["INCLUDEPATH"]+" "+$CONFIG["DEFINES"]+" -DAGEXPORT"
++	cmd=$CONFIG["SWIG"]+" #{cflags} -v -Wall -ruby -c++ -o #{output} ext/interface.i"
++	puts ""
++	sh cmd
++	$?
++end
++
++
++desc "Build all"
++task :default=>[:library] do
++end
++
++
++task :allclean=>[:clobber_package] do
++	File.delete("antconfig.rb")
++end
++
++
++CLEAN << Dir["**/*.o"]+Dir["**/*.oo"]+Dir["**/*.so"]+Dir["ext/*/interface.i"]+Dir["ext/*/swig.*"]+Dir[".deps/*"]+Dir["ext/*.so*"]+Dir["ext/*.dll*"]
++
++
++
++
++
++
+
+
+
+From davidkamphausen at mail.berlios.de  Sat Dec 22 12:46:57 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Sat, 22 Dec 2007 12:46:57 +0100
+Subject: [Antargis-svn] r1200 - antargis/trunk
+Message-ID: <200712221146.lBMBkvHY014924@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-12-22 12:46:57 +0100 (Sat, 22 Dec 2007)
+New Revision: 1200
+
+Added:
+   antargis/trunk/antargis
+   antargis/trunk/oldStarter.rb
+Removed:
+   antargis/trunk/antargis
+   antargis/trunk/runAntargis.rb
+Modified:
+   antargis/trunk/Rakefile
+Log:
+* some minor modifications
+
+
+Modified: antargis/trunk/Rakefile
+===================================================================
+--- antargis/trunk/Rakefile	2007-12-22 11:45:35 UTC (rev 1199)
++++ antargis/trunk/Rakefile	2007-12-22 11:46:57 UTC (rev 1200)
+@@ -28,7 +28,6 @@
+     s.files = PKG_FILES
+ 		s.bindir="." #File.join("build","bin")
+ 		s.executables << "antargis"
+-		#s.extensions=
+     s.description = <<EOF
+ Battles of Antargis is a medieval-like realtime strategy game. 
+ You are a hero who was betrayed and you have to unify the kingdom 
+
+Deleted: antargis/trunk/antargis
+===================================================================
+--- antargis/trunk/antargis	2007-12-22 11:45:35 UTC (rev 1199)
++++ antargis/trunk/antargis	2007-12-22 11:46:57 UTC (rev 1200)
+@@ -1,34 +0,0 @@
+-#!/usr/bin/env ruby
+-#
+-# This is a starter-program. It's run in a ruby-interpreter, because that's easiest.
+-# Because we have to load DLLs which may not be in the standard-search-path, we'll
+-# start another ruby-interpreter in a sub-process and before we do so, we set
+-# the LD_LIBRARY_PATH environment variable, that will add the extension-directory to
+-# the path
+-#
+-
+-# the path, where this program lies (fully expanded)
+-base=File.expand_path(File.split(__FILE__)[0])
+-
+-# for Debugging
+-require 'pp'
+-# for parsing the mkmf-CONFIG-global
+-require File.join(base,'build','mkmf_support.rb')
+-# get the actual mkmf-CONFIG
+-require 'mkmf'
+-
+-# read-out where the ruby-interpreter is
+-rubyExe=checkMkmf("$(bindir)/$(ruby_install_name)",CONFIG)
+-
+-# add the extension-path (for the non-extension dlls) to the ld-search-path
+-path=File.join(base,"ext")
+-seperator=":"
+-separator=";" if File.join("a","b")!="a/b"
+-old_path=ENV['LD_LIBRARY_PATH']||""
+-ENV['LD_LIBRARY_PATH']=(old_path.split(separator).map{|dir|File.expand_path(dir)}+[path]).uniq.join(separator)
+-
+-# run ruby with path as an extension dir
+-call=rubyExe+" -I#{path} "+File.join(File.split(__FILE__)[0],'runAntargis.rb')
+-
+-pp call,base,path,ENV
+-system call
+
+Copied: antargis/trunk/antargis (from rev 1198, antargis/trunk/runAntargis.rb)
+
+Copied: antargis/trunk/oldStarter.rb (from rev 1198, antargis/trunk/antargis)
+
+Deleted: antargis/trunk/runAntargis.rb
+===================================================================
+--- antargis/trunk/runAntargis.rb	2007-12-22 11:45:35 UTC (rev 1199)
++++ antargis/trunk/runAntargis.rb	2007-12-22 11:46:57 UTC (rev 1200)
+@@ -1,10 +0,0 @@
+-#!/usr/bin/env ruby
+-
+-# run intro - mainmenu will be called automatically
+-
+-Dir.chdir(File.split(__FILE__)[0])
+-
+-require 'ruby/intro.rb'
+-
+-
+-MyLocalizer.finalize
+\ No newline at end of file
+
+
+
+From davidkamphausen at mail.berlios.de  Wed Dec 26 10:56:06 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Wed, 26 Dec 2007 10:56:06 +0100
+Subject: [Antargis-svn] r1201 - in antargis/trunk: ext/math ext/sound ruby
+Message-ID: <200712260956.lBQ9u6PQ032107@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-12-26 10:56:05 +0100 (Wed, 26 Dec 2007)
+New Revision: 1201
+
+Modified:
+   antargis/trunk/ext/math/init.cc
+   antargis/trunk/ext/sound/init.cc
+   antargis/trunk/ruby/antargislib.rb
+Log:
+* small fix ? for sound-engine
+
+
+Modified: antargis/trunk/ext/math/init.cc
+===================================================================
+--- antargis/trunk/ext/math/init.cc	2007-12-22 11:46:57 UTC (rev 1200)
++++ antargis/trunk/ext/math/init.cc	2007-12-26 09:56:05 UTC (rev 1201)
+@@ -5,6 +5,6 @@
+ 
+ void AGEXPORT AG_Init_libantargismath()
+ {
+-  //	TRACE;
++  TRACE;
+   getMain()->setRand(new AGRandomizer(""));
+ }
+
+Modified: antargis/trunk/ext/sound/init.cc
+===================================================================
+--- antargis/trunk/ext/sound/init.cc	2007-12-22 11:46:57 UTC (rev 1200)
++++ antargis/trunk/ext/sound/init.cc	2007-12-26 09:56:05 UTC (rev 1201)
+@@ -1,9 +1,12 @@
+ #include <ag_main.h>
+ #include <ag_rand.h>
++#include <ag_debug.h>
+ 
+ extern void initSoundEngine();
+ 
+ AGEXPORT void AG_Init_libantargissound()
+ {
++  TRACE;
+   initSoundEngine();
++
+ }
+
+Modified: antargis/trunk/ruby/antargislib.rb
+===================================================================
+--- antargis/trunk/ruby/antargislib.rb	2007-12-22 11:46:57 UTC (rev 1200)
++++ antargis/trunk/ruby/antargislib.rb	2007-12-26 09:56:05 UTC (rev 1201)
+@@ -101,8 +101,8 @@
+ 	puts "I'll try to run rake for you. Please try again yourself when it doesn't work."
+ 
+ end
++puts "extension loaded"
+ 
+-
+ 	
+ require 'ruby/gui/ag_tools.rb'
+ require 'ant_tools'
+
+
+
+From davidkamphausen at mail.berlios.de  Thu Dec 27 21:55:29 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Thu, 27 Dec 2007 21:55:29 +0100
+Subject: [Antargis-svn] r1202 - in antargis/trunk: . ext
+Message-ID: <200712272055.lBRKtT7W002098@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-12-27 21:55:29 +0100 (Thu, 27 Dec 2007)
+New Revision: 1202
+
+Modified:
+   antargis/trunk/Rakefile
+   antargis/trunk/ext/Rakefile
+Log:
+* changes for gem-support
+
+
+Modified: antargis/trunk/Rakefile
+===================================================================
+--- antargis/trunk/Rakefile	2007-12-26 09:56:05 UTC (rev 1201)
++++ antargis/trunk/Rakefile	2007-12-27 20:55:29 UTC (rev 1202)
+@@ -12,33 +12,68 @@
+ 
+ require 'rubygems'
+ require 'rake/gempackagetask.rb'
++require 'rake/packagetask.rb'
+ 
+ DATA_FILES=Dir["data/**/*"].select{|file|not (file=~/svn/ or file=~/xcf/ or file=~/\.svg/)}
+-PKG_FILES=Dir["ruby/**/*.rb"]+Dir["*.rb"]+DATA_FILES+Dir["build/*.rb"]+Dir["build/*/*.rb"] # +$BOA_LIBRARIES
++RUBY_FILES=Dir["ruby/**/*.rb"]+Dir["*.rb"]+Dir["antargis"]
++C_FILES=Dir["ext/*/*.c"]+Dir["ext/*/*.cc"]+Dir["ext/*/*.h"]
++RAKE_FILES=Dir["Rakefile"]+Dir["ext/**/Rakefile"]+Dir["ext/extconf.rb"]
++BUILD_FILES=Dir["build/*.rb"]+Dir["build/*/*.rb"]+Dir["build/*.i"]+Dir["ext/*/templates.i"]
++BINARY_FILES=["ext/antargis.so"]
++PKG_FILES=DATA_FILES+RUBY_FILES+C_FILES+RAKE_FILES+BUILD_FILES
+ 
+-  spec = Gem::Specification.new do |s|
+-    s.platform = Gem::Platform::LINUX_586
+-    s.summary = "A real-time strategy game."
+-    s.name = 'antargis-linux'
+-    s.version = PKG_VERSION
+-    s.requirements << 'none'
+-    #s.require_path = 'lib'
+-		s.require_paths << 'ext'
+-    s.autorequire = 'rake'
+-    s.files = PKG_FILES
+-		s.bindir="." #File.join("build","bin")
+-		s.executables << "antargis"
+-    s.description = <<EOF
++BOA_DESCRIPTION = <<EOF
+ Battles of Antargis is a medieval-like realtime strategy game. 
+ You are a hero who was betrayed and you have to unify the kingdom 
+ and rebuild the old empire. Old myths will pass your way.
+ Its gameplay is very similar to that of Powermonger.
+ EOF
+-  end
+ 
+-  Rake::GemPackageTask.new(spec) do |pkg|
+-    pkg.need_zip = true
+-    pkg.need_tar = true
+-  end
++def makeSpec(s)
++	s.platform = Gem::Platform::LINUX_586
++	s.summary = "A real-time strategy game."
++	s.name = 'antargis-linux'
++	s.version = PKG_VERSION
++	s.requirements << 'none'
++	#s.require_path = 'lib'
++	s.require_paths << 'ext'
++	s.autorequire = 'rake'
++	s.files = PKG_FILES-BINARY_FILES
++	s.bindir="." #File.join("build","bin")
++	s.executables << "antargis"
++	s.description = BOA_DESCRIPTION
++end
+ 
++def makeSourceSpec(s)
++	makeSpec(s)
++	s.name = 'antargis'
++	s.extensions << 'ext/extconf.rb'
++	s.platform = Gem::Platform::RUBY
++end
+ 
++spec = Gem::Specification.new do |s|
++	makeSourceSpec(s)
++end
++
++Rake::GemPackageTask.new(spec) do |pkg|
++#	pkg.need_zip = true
++#	pkg.need_tar = true
++end
++
++
++# normal package
++
++if false
++Rake::PackageTask.new("antargis-plain-source", PKG_VERSION) do |p|
++  p.need_tar = true
++	p.package_files += PKG_FILES
++end
++
++Rake::PackageTask.new("antargis-unix-386-binary", PKG_VERSION) do |p|
++  p.need_tar = true
++#	pp p.package_files.methods
++#exit
++	p.package_files += PKG_FILES+BINARY_FILES
++end
++
++end
+\ No newline at end of file
+
+Modified: antargis/trunk/ext/Rakefile
+===================================================================
+--- antargis/trunk/ext/Rakefile	2007-12-26 09:56:05 UTC (rev 1201)
++++ antargis/trunk/ext/Rakefile	2007-12-27 20:55:29 UTC (rev 1202)
+@@ -288,9 +288,13 @@
+ task :library=>"ext/antargis.so" do
+ end
+ 
+-task "ext/swig.cc"=>($SOURCEDIRS[1..-1].map{|dir|dir+"/interface.i"}) do
++mSwigDeps=$SOURCEDIRS[1..-1].map{|dir|dir+"/interface.i"}.sort
++#pp mSwigDeps
++#exit
++task "ext/swig.cc"=>mSwigDeps do
+ 	output="ext/swig.cc"
+ 	input=$BOASOURCES.map{|dir|File.join(dir,"interface.i")}
++	File.delete(output) if File.exists?(output)
+ 	file=File.open("ext/interface.i","w")
+ 	file.puts '%module(directors="1") antargis'
+ 	input.each{|filename|file.puts "%include \"#{filename}\""}
+@@ -308,7 +312,7 @@
+ end
+ 
+ 
+-task :allclean=>[:clobber_package] do
++task :allclean=>[:clobber_package,:clean] do
+ 	File.delete("antconfig.rb")
+ end
+ 
+
+
+
+From davidkamphausen at mail.berlios.de  Thu Dec 27 21:56:23 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Thu, 27 Dec 2007 21:56:23 +0100
+Subject: [Antargis-svn] r1203 - antargis/trunk/ext
+Message-ID: <200712272056.lBRKuN7q002133@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-12-27 21:56:22 +0100 (Thu, 27 Dec 2007)
+New Revision: 1203
+
+Added:
+   antargis/trunk/ext/extconf.rb
+Log:
+* missing file
+
+
+Added: antargis/trunk/ext/extconf.rb
+===================================================================
+--- antargis/trunk/ext/extconf.rb	2007-12-27 20:55:29 UTC (rev 1202)
++++ antargis/trunk/ext/extconf.rb	2007-12-27 20:56:22 UTC (rev 1203)
+@@ -0,0 +1,15 @@
++Dir.chdir(File.split(__FILE__)[0])
++
++puts "running rake..."
++require 'rake'
++ARGV=[]
++Rake.application.run
++puts "creating makefile"
++
++file=File.open("ext/Makefile","w")
++
++file.puts "install:\n\techo 'ready.'\n"
++
++file.close
++
++exit 0
+
+
+
+From davidkamphausen at mail.berlios.de  Sun Dec 30 11:41:24 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Sun, 30 Dec 2007 11:41:24 +0100
+Subject: [Antargis-svn] r1204 - contrib/binary
+Message-ID: <200712301041.lBUAfOHA003954@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-12-30 11:40:33 +0100 (Sun, 30 Dec 2007)
+New Revision: 1204
+
+Added:
+   contrib/binary/allinoneruby.exe
+Log:
+* added allinoneruby.exe
+
+
+Added: contrib/binary/allinoneruby.exe
+===================================================================
+(Binary files differ)
+
+
+Property changes on: contrib/binary/allinoneruby.exe
+___________________________________________________________________
+Name: svn:executable
+   + *
+Name: svn:mime-type
+   + application/octet-stream
+
+
+
+From davidkamphausen at mail.berlios.de  Sun Dec 30 18:49:00 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Sun, 30 Dec 2007 18:49:00 +0100
+Subject: [Antargis-svn] r1205 - contrib/binary
+Message-ID: <200712301749.lBUHn0Tw009714@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-12-30 18:48:11 +0100 (Sun, 30 Dec 2007)
+New Revision: 1205
+
+Modified:
+   contrib/binary/ag_sdl_libs.tar.gz
+Log:
+* combined new sdl-base-libs
+
+
+Modified: contrib/binary/ag_sdl_libs.tar.gz
+===================================================================
+(Binary files differ)
+
+
+
+From davidkamphausen at mail.berlios.de  Sun Dec 30 18:50:00 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Sun, 30 Dec 2007 18:50:00 +0100
+Subject: [Antargis-svn] r1206 - contrib/binary
+Message-ID: <200712301750.lBUHo0ZZ010823@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-12-30 18:50:00 +0100 (Sun, 30 Dec 2007)
+New Revision: 1206
+
+Added:
+   contrib/binary/README.txt
+Log:
+A    binary/README.txt
+
+
+Added: contrib/binary/README.txt
+===================================================================
+--- contrib/binary/README.txt	2007-12-30 17:48:11 UTC (rev 1205)
++++ contrib/binary/README.txt	2007-12-30 17:50:00 UTC (rev 1206)
+@@ -0,0 +1 @@
++Be careful to use VC6-binaries, because others are incompatible with mingw! because of msvcrt[678].dll issues
+
+
+
+From davidkamphausen at mail.berlios.de  Mon Dec 31 17:47:44 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Mon, 31 Dec 2007 17:47:44 +0100
+Subject: [Antargis-svn] r1207 - in antargis/trunk: . build ext
+Message-ID: <200712311647.lBVGlim3028336@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-12-31 17:47:39 +0100 (Mon, 31 Dec 2007)
+New Revision: 1207
+
+Modified:
+   antargis/trunk/INSTALL
+   antargis/trunk/Rakefile
+   antargis/trunk/TODO
+   antargis/trunk/antargis.iss
+   antargis/trunk/build/create_interface.rb
+   antargis/trunk/ext/Rakefile
+Log:
+* some changes for cross-compilation
+
+
+
+Modified: antargis/trunk/INSTALL
+===================================================================
+--- antargis/trunk/INSTALL	2007-12-30 17:50:00 UTC (rev 1206)
++++ antargis/trunk/INSTALL	2007-12-31 16:47:39 UTC (rev 1207)
+@@ -1,7 +1,7 @@
+ == INSTALLATION of Battles of Antargis
+ Quick Start:
+ 
+-1) Install ruby, libsdl, libsdl-image, libsdl-ttf, libsdl-mixer, opengl. You need the developer-packages of all these libraries/programs! If you want to do serious developing you should install rant, too!
++1) Install ruby, rake (a ruby make tool), libsdl, libsdl-image, libsdl-ttf, libsdl-mixer, opengl. You need the developer-packages of all these libraries/programs! If you want to do serious developing you should install rant, too!
+ 
+ 2) Don't forget to install ruby1.8-dev (or ruby1.9-dev if you use ruby 1.9)
+ 
+@@ -9,19 +9,19 @@
+ 
+ 4) Run "ruby configure" or just "./configure" to configure the building. You may want to give additional options, which will be explained if you give the parameter "-h" - so run "./configure -h"
+ 
+-5) If you have installed rant in step 1: Run "rant" in this directory. Otherwise: Run "ruby build.rb" in the current directory
++5) If you have installed rant in step 1: Run "rake" in this directory.
+ 
+ 6) Run "./antargis" in this directory
+ 
+-Essentials: Ruby, (Rant)
+-This game is mostly written in Ruby (www.ruby-lang.org) and C++. It uses Rant (Rant - Flexible, Ruby based make) as build system.
++Essentials: Ruby, (Rake)
++This game is mostly written in Ruby (www.ruby-lang.org) and C++. It uses Rake (a Ruby based make) as build system.
+ 
+ Libraries: libSDL,libSDL_mixer libSDL_ttf, libSDL_image, opengl
+ 
+ == Links
+ Ruby          http://www.ruby-lang.org
+ 
+-Rant          http://rant.rubyforge.org/
++Rake          http://rake.rubyforge.org/
+ 
+ libSDL        http://www.libsdl.org
+ 
+
+Modified: antargis/trunk/Rakefile
+===================================================================
+--- antargis/trunk/Rakefile	2007-12-30 17:50:00 UTC (rev 1206)
++++ antargis/trunk/Rakefile	2007-12-31 16:47:39 UTC (rev 1207)
+@@ -16,11 +16,13 @@
+ 
+ DATA_FILES=Dir["data/**/*"].select{|file|not (file=~/svn/ or file=~/xcf/ or file=~/\.svg/)}
+ RUBY_FILES=Dir["ruby/**/*.rb"]+Dir["*.rb"]+Dir["antargis"]
+-C_FILES=Dir["ext/*/*.c"]+Dir["ext/*/*.cc"]+Dir["ext/*/*.h"]
++SWIG_FILES=["ext/swig.cc","ext/swig.h"]
++C_FILES=Dir["ext/*/*.c"]+Dir["ext/*/*.cc"]+Dir["ext/*/*.h"]+SWIG_FILES
+ RAKE_FILES=Dir["Rakefile"]+Dir["ext/**/Rakefile"]+Dir["ext/extconf.rb"]
+ BUILD_FILES=Dir["build/*.rb"]+Dir["build/*/*.rb"]+Dir["build/*.i"]+Dir["ext/*/templates.i"]
++SOURCE_FILES=BUILD_FILES+C_FILES+RAKE_FILES
+ BINARY_FILES=["ext/antargis.so"]
+-PKG_FILES=DATA_FILES+RUBY_FILES+C_FILES+RAKE_FILES+BUILD_FILES
++PKG_FILES=DATA_FILES+RUBY_FILES
+ 
+ BOA_DESCRIPTION = <<EOF
+ Battles of Antargis is a medieval-like realtime strategy game. 
+@@ -30,15 +32,20 @@
+ EOF
+ 
+ def makeSpec(s)
+-	s.platform = Gem::Platform::LINUX_586
++	if $CONFIG['target_os']=='windows'
++		s.platform = Gem::Platform::WIN32
++		s.name = 'antargis-win32'
++	else
++		s.platform = Gem::Platform::LINUX_586
++		s.name = 'antargis-linux'
++	end
+ 	s.summary = "A real-time strategy game."
+-	s.name = 'antargis-linux'
+ 	s.version = PKG_VERSION
+ 	s.requirements << 'none'
+ 	#s.require_path = 'lib'
+ 	s.require_paths << 'ext'
+ 	s.autorequire = 'rake'
+-	s.files = PKG_FILES-BINARY_FILES
++	s.files = PKG_FILES+BINARY_FILES
+ 	s.bindir="." #File.join("build","bin")
+ 	s.executables << "antargis"
+ 	s.description = BOA_DESCRIPTION
+@@ -48,19 +55,33 @@
+ 	makeSpec(s)
+ 	s.name = 'antargis'
+ 	s.extensions << 'ext/extconf.rb'
++	s.files=PKG_FILES+SOURCE_FILES
+ 	s.platform = Gem::Platform::RUBY
+ end
+ 
++# make Linux-gem
+ spec = Gem::Specification.new do |s|
++	makeSpec(s)
++end
++
++Rake::GemPackageTask.new(spec) do |pkg|
++	pkg.need_zip = true
++	pkg.need_tar = true
++end
++
++# make source-gem
++spec = Gem::Specification.new do |s|
+ 	makeSourceSpec(s)
+ end
+ 
+ Rake::GemPackageTask.new(spec) do |pkg|
+-#	pkg.need_zip = true
+-#	pkg.need_tar = true
++	pkg.need_zip = true
++	pkg.need_tar = true
+ end
+ 
++# make windows gem
+ 
++
+ # normal package
+ 
+ if false
+
+Modified: antargis/trunk/TODO
+===================================================================
+--- antargis/trunk/TODO	2007-12-30 17:50:00 UTC (rev 1206)
++++ antargis/trunk/TODO	2007-12-31 16:47:39 UTC (rev 1207)
+@@ -1,4 +1,7 @@
++* move build/*.rb files to build/unused_tools/* if they're not used
++* google for "/tmp/cciSLVG5.s:932678: Warning: .stabs: description field '1c216' too big, try a different debug format"
+ 
++
+ * check how many times AG_NewPointer is called !!!! - not so often - could be replaced by traceobjects from swig
+ ** check if it's any good to switch over to standard-swig ??? seems so.
+ 
+
+Modified: antargis/trunk/antargis.iss
+===================================================================
+--- antargis/trunk/antargis.iss	2007-12-30 17:50:00 UTC (rev 1206)
++++ antargis/trunk/antargis.iss	2007-12-31 16:47:39 UTC (rev 1207)
+@@ -5,21 +5,21 @@
+ 
+ [Setup]
+ AppName=Antargis
+-AppVerName=Antargis 0.2.1.1
++AppVerName=Antargis 0.2.1.5
+ DefaultDirName={pf}\Antargis
+ DefaultGroupName=Antargis
+ UninstallDisplayIcon={app}\Antargis.exe
+ Compression=lzma/fast
+ SolidCompression=yes
+ ;InfoAfterFile=c:\Antargis\readme.txt
+-OutputBaseFilename=Antargis-0.2.1.1-setup
++OutputBaseFilename=Antargis-0.2.1.5-setup
+ AppPublisher=Antargis-Team
+ AppPublisherURL=antargis.berlios.de
+-AppVersion=0.2.1.1
++AppVersion=0.2.1.5
+ 
+ 
+ [Files]
+-Source: "c:\antargis\rant\packages\antargis-windows-0.2.1.1\*"; DestDir: "{app}"; Flags:recursesubdirs
++Source: "pkg\antargis-win32-0.2.1.5\*"; DestDir: "{app}"; Flags:recursesubdirs
+ 
+ [Icons]
+ Name: "{group}\Antargis"; Filename: "{app}\Antargis.lnk" ; WorkingDir: "{app}"
+@@ -46,8 +46,8 @@
+         CreateShellLink(
+         ExpandConstant('{app}\Antargis.lnk'),
+         'Antargis 0.1',
+-        ExpandConstant('{app}\allinoneruby186.exe'),
+-        ExpandConstant('"{app}\run.rb"'),
++        ExpandConstant('{app}\allinoneruby.exe'),
++        ExpandConstant('"{app}\antargis"'),
+         ExpandConstant('{app}'),
+           '',
+           0,
+
+Modified: antargis/trunk/build/create_interface.rb
+===================================================================
+--- antargis/trunk/build/create_interface.rb	2007-12-30 17:50:00 UTC (rev 1206)
++++ antargis/trunk/build/create_interface.rb	2007-12-31 16:47:39 UTC (rev 1207)
+@@ -27,10 +27,16 @@
+ #
+ 
+ require 'build/interface_template.rb'
+-require 'build/base_tools.rb'
++#require 'build/base_tools.rb'
+ require 'find.rb'
+ require 'pp'
+ 
++#$verbose=true
++
++def getDirUnix(path)
++    path.split("/")[0..-2].join("/")
++end
++
+ def vputs(*a)
+ 	puts *a if $verbose
+ end
+@@ -40,6 +46,11 @@
+ 	puts *a
+ end
+ 
++def makeLibName(dir)
++    #puts "makeLibName #{dir}"
++	"antargis"+dir.split("/")[-1]
++end
++
+ class MyInput
+ 	attr_reader :swigInput, :outputDir
+ 	def initialize
+@@ -74,7 +85,7 @@
+ 	end
+ 
+ 	def interfaceName
+-		name=@outputDir+Dir.separator+"interface.i"
++		name=File.join(@outputDir,"interface.i")
+ 		name
+ 	end
+ 
+@@ -82,10 +93,10 @@
+ 		moduleName=makeLibName(@outputDir)
+ 	end
+ 	def headersName
+-		@outputDir+Dir.separator+"/headers.hh"
++		File.join(@outputDir,"headers.hh")
+ 	end
+ 	def markerName
+-		@outputDir+Dir.separator+"marker.i"
++		File.join(@outputDir,"marker.i")
+ 	end
+ end
+ 
+
+Modified: antargis/trunk/ext/Rakefile
+===================================================================
+--- antargis/trunk/ext/Rakefile	2007-12-30 17:50:00 UTC (rev 1206)
++++ antargis/trunk/ext/Rakefile	2007-12-31 16:47:39 UTC (rev 1207)
+@@ -14,8 +14,9 @@
+ 
+ load 'antconfig.rb'
+ 
+-
+ PKG_VERSION=$CONFIG["version"]
++MULTISWIG=false
++SWIG_ENABLED=($CONFIG['SWIG'] and $CONFIG['SWIG'].length>0)
+ 
+ $SOURCEDIRS=[
+ 	"ext/external",
+@@ -142,96 +143,99 @@
+ end
+ 
+ 
++if MULTISWIG
+ 
+-libdeps=[]
+-$SOURCEDIRS.each{|dir|
+-	base=dir.split("/")[1]
+-	lib="ext/libantargis#{base}.so"
+-
+-	# FIXME: check for windows
+-	if isWindows
+-		libadd=libdeps.map{|l|"-l#{l.sub(/^.*\/lib(.*)\.so$/,'\1')}"}
+-	else	
+-		libadd=libdeps.dup #.map{|l|"-l#{l.sub(/^.*\/(.*)\.so$/,'\1')}"}
+-	end
+-
+-	libadd+=$CONFIG["LIBS"].split(" ") if libdeps.length==0
+-	libadd+=["-Lext"]
+-
+-	objs=(Dir[dir+"/*.cc"]+Dir[dir+"/*.c"]).select{|file|not file=~/swig/}.map{|file|file.sub(/\.cc$/,".oo").sub(/\.c$/,".o")}
+-
+-	desc "Build dynamic library #{lib}"
+-	task lib=>libdeps+objs do |t|
+-		linkLib(lib,libadd+objs)
+-	end
+-	libdeps << lib
+-}
+-
+-
+-
+-$SOURCEDIRS.each{|dir|
+-	base=dir.split("/")[1]
+-	lib="ext/antargis#{base}.so"
+-
+-	objs=[dir+"/swig.oo"]
+-
+ 	libdeps=[]
+-	$SOURCEDIRS.each{|cdir|
+-		cbase=cdir.split("/")[1]
+-		libdeps << "ext/libantargis#{cbase}.so"
+-		break if cdir==dir
++	$SOURCEDIRS.each{|dir|
++		base=dir.split("/")[1]
++		lib="ext/libantargis#{base}.so"
++	
++		# FIXME: check for windows
++		if isWindows
++			libadd=libdeps.map{|l|"-l#{l.sub(/^.*\/lib(.*)\.so$/,'\1')}"}
++		else	
++			libadd=libdeps.dup #.map{|l|"-l#{l.sub(/^.*\/(.*)\.so$/,'\1')}"}
++		end
++	
++		libadd+=$CONFIG["LIBS"].split(" ") if libdeps.length==0
++		libadd+=["-Lext"]
++	
++		objs=(Dir[dir+"/*.cc"]+Dir[dir+"/*.c"]).select{|file|not file=~/swig/}.map{|file|file.sub(/\.cc$/,".oo").sub(/\.c$/,".o")}
++	
++		desc "Build dynamic library #{lib}"
++		task lib=>libdeps+objs do |t|
++			linkLib(lib,libadd+objs)
++		end
++		libdeps << lib
+ 	}
+-
+-	libadd=$CONFIG["LIBS"].split(" ")+["-Lext"]
+-
+ 	
+-	desc "Build ruby-extension library #{lib}"
+-	task lib=>libdeps+objs do |t|
+-		lib=t
+-		mlibdeps=t.prerequisites
+-		mlibdeps=t.prerequisites.map{|l|l.sub(/^.*\/lib(.*)\.so$/,'-l\1')} if isWindows
+-		linkLib(lib,mlibdeps+libadd)
+-	end
+-	libdeps=libdeps+[lib]
+-}
++	
++	
++	$SOURCEDIRS.each{|dir|
++		base=dir.split("/")[1]
++		lib="ext/antargis#{base}.so"
++	
++		objs=[dir+"/swig.oo"]
++	
++		libdeps=[]
++		$SOURCEDIRS.each{|cdir|
++			cbase=cdir.split("/")[1]
++			libdeps << "ext/libantargis#{cbase}.so"
++			break if cdir==dir
++		}
++	
++		libadd=$CONFIG["LIBS"].split(" ")+["-Lext"]
++	
++		
++		desc "Build ruby-extension library #{lib}"
++		task lib=>libdeps+objs do |t|
++			lib=t
++			mlibdeps=t.prerequisites
++			mlibdeps=t.prerequisites.map{|l|l.sub(/^.*\/lib(.*)\.so$/,'-l\1')} if isWindows
++			linkLib(lib,mlibdeps+libadd)
++		end
++		libdeps=libdeps+[lib]
++	}
+ 
+ 
+ 
+-
+-swigDeps=lambda{|t|
+-	dir=File.join(File.split(t)[0..-2])
+-
++	swigDeps=lambda{|t|
++		dir=File.join(File.split(t)[0..-2])
+ 	
+-	deps=getDepsFromCache(t,dir+"/interface.i")
+-	return deps if deps.length>0
+-
+-	# FIXME: del this ???
+-
+-	# FIXME: include correct dependencies
+-	deps=Dir[dir+"/templates.i"]+Dir[dir+"/*.h"]+[dir+"/interface.i"]
+-
+-	$SOURCEDIRS.each{|ct|
+-		if ct=~/#{dir}/
+-			break
+-		else
+-			deps << ct+"/interface.i"  unless ct=~/external/
++		
++		deps=getDepsFromCache(t,dir+"/interface.i")
++		return deps if deps.length>0
++	
++		# FIXME: del this ???
++	
++		# FIXME: include correct dependencies
++		deps=Dir[dir+"/templates.i"]+Dir[dir+"/*.h"]+[dir+"/interface.i"]
++	
++		$SOURCEDIRS.each{|ct|
++			if ct=~/#{dir}/
++				break
++			else
++				deps << ct+"/interface.i"  unless ct=~/external/
++			end
++		}
++	
++		pp "DEPS2:",deps
++		deps
++	}
++	
++	$BOASOURCES.each{|dir|
++		swig=dir+"/swig.cc"
++		myDeps=swigDeps.call(swig)
++		#rule 'swig.cc'=>swigDeps do |t|
++		task swig=>myDeps do |t|
++			dir=File.join(File.split(t.name)[0..-2])
++			generateSwigDeps(dir)
++			generateSwig(dir)
+ 		end
+ 	}
+ 
+-	pp "DEPS2:",deps
+-	deps
+-}
++end
+ 
+-$BOASOURCES.each{|dir|
+-	swig=dir+"/swig.cc"
+-	myDeps=swigDeps.call(swig)
+-	#rule 'swig.cc'=>swigDeps do |t|
+-	task swig=>myDeps do |t|
+-		dir=File.join(File.split(t.name)[0..-2])
+-		generateSwigDeps(dir)
+-		generateSwig(dir)
+-	end
+-}
+ 
+ 
+ 
+@@ -241,41 +245,12 @@
+ 
+ 
+ 
+-def importsForInterface(name)
+-	mdeps=[]
+-	$SOURCEDIRS.each{|t|
+-		if name=~/#{t}/
+-			break
+-		else
+-			mdeps << t+"/interface.i" unless t=~/external/
+-		end
+-	}
+-	return mdeps.join(":")
+-end
+ 
+-interfaceSrc = lambda { |t|
+-	dir=File.join(File.split(t)[0..-2])
+-	Dir[dir+"/*.h"].select{|file|not file=~/swig/}
+-}
+ 
+-rule 'interface.i' => interfaceSrc do |t|
+-	output=t.name.sub(/\/interface.[a-z]*/,"")
+-	input=importsForInterface(t.name)
+-	cmd=$CONFIG["RUBY"]+" build/create_interface.rb -d=#{output} -i=#{input}"
+-	puts ""	
+-	sh cmd
+-end
+ 
+ 
+ 
+ 
+-
+-
+-
+-
+-
+-
+-
+ $BOA_LIBRARIES=$SOURCEDIRS.map{|dir|"ext/libantargis"+dir.split("/")[1]+".so"}+$BOASOURCES.map{|dir|"ext/antargis"+dir.split("/")[1]+".so"}
+ task :libraries=>$BOA_LIBRARIES do
+ end
+@@ -288,25 +263,65 @@
+ task :library=>"ext/antargis.so" do
+ end
+ 
+-mSwigDeps=$SOURCEDIRS[1..-1].map{|dir|dir+"/interface.i"}.sort
+-#pp mSwigDeps
+-#exit
+-task "ext/swig.cc"=>mSwigDeps do
+-	output="ext/swig.cc"
+-	input=$BOASOURCES.map{|dir|File.join(dir,"interface.i")}
+-	File.delete(output) if File.exists?(output)
+-	file=File.open("ext/interface.i","w")
+-	file.puts '%module(directors="1") antargis'
+-	input.each{|filename|file.puts "%include \"#{filename}\""}
+-	file.close
+-	cflags=$CONFIG["INCLUDEPATH"]+" "+$CONFIG["DEFINES"]+" -DAGEXPORT"
+-	cmd=$CONFIG["SWIG"]+" #{cflags} -v -Wall -ruby -c++ -o #{output} ext/interface.i"
+-	puts ""
+-	sh cmd
+-	$?
++if SWIG_ENABLED
++
++	
++	def importsForInterface(name)
++		mdeps=[]
++		$SOURCEDIRS.each{|t|
++			if name=~/#{t}/
++				break
++			else
++				mdeps << t+"/interface.i" unless t=~/external/
++			end
++		}
++		return mdeps.join(":")
++	end
++	
++	interfaceSrc = lambda { |t|
++		dir=File.join(File.split(t)[0..-2])
++		Dir[dir+"/*.h"].select{|file|not file=~/swig/}
++	}
++	
++	rule 'interface.i' => interfaceSrc do |t|
++		output=t.name.sub(/\/interface.[a-z]*/,"")
++		input=importsForInterface(t.name)
++		cmd=$CONFIG["RUBY"]+" build/create_interface.rb -d=#{output} -i=#{input}"
++		puts ""	
++		sh cmd
++	end
++		
++	
++	
++	mSwigDeps=$SOURCEDIRS[1..-1].map{|dir|dir+"/interface.i"}.sort
++	
++	# this can be used with a later version of rake - 0.7.1 makes problems with rules and more than one dependency
++	mSwigDepLambda=lambda{|t|
++		mSwigDeps
++	}
++	
++	task "ext/swig.cc"=>mSwigDeps do
++	#rule /^ext\/swig\.cc$/=>mSwigDepLambda do |t|
++		#pp t
++		output="ext/swig.cc"
++		input=$BOASOURCES.map{|dir|File.join(dir,"interface.i")}
++		#File.delete(output) if File.exists?(output)
++		file=File.open("ext/interface.i","w")
++		file.puts '%module(directors="1") antargis'
++		input.each{|filename|file.puts "%include \"#{filename}\""}
++		file.close
++		cflags=$CONFIG["INCLUDEPATH"]+" "+$CONFIG["DEFINES"]+" -DAGEXPORT"
++		cmd=$CONFIG["SWIG"]+" #{cflags} -v -Wall -ruby -c++ -o #{output} ext/interface.i"
++		puts ""
++		sh cmd
++		$?
++	end
++else
++	puts
++	puts "BEWARE: If you make changes to header-files, the swig-interfacing won't be updated as long as swig is not installed!"
++	puts
+ end
+ 
+-
+ desc "Build all"
+ task :default=>[:library] do
+ end
+@@ -317,10 +332,14 @@
+ end
+ 
+ 
+-CLEAN << Dir["**/*.o"]+Dir["**/*.oo"]+Dir["**/*.so"]+Dir["ext/*/interface.i"]+Dir["ext/*/swig.*"]+Dir[".deps/*"]+Dir["ext/*.so*"]+Dir["ext/*.dll*"]
++CLEAN << Dir["**/*.o"]+Dir["**/*.oo"]+Dir["**/*.so"]+Dir[".deps/*"]+Dir["ext/*.so*"]+Dir["ext/*.dll*"]
+ 
++if SWIG_ENABLED
++	CLEAN << Dir["ext/*/interface.i"]+Dir["ext/*/swig.*"]
++end
+ 
+ 
+ 
+ 
+ 
++
+
+
+
+From davidkamphausen at mail.berlios.de  Mon Dec 31 17:57:17 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Mon, 31 Dec 2007 17:57:17 +0100
+Subject: [Antargis-svn] r1208 - antargis/trunk/build
+Message-ID: <200712311657.lBVGvHNk028744@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-12-31 17:57:17 +0100 (Mon, 31 Dec 2007)
+New Revision: 1208
+
+Added:
+   antargis/trunk/build/cross_compile.rb
+Log:
+* cross-compilation script
+
+
+Added: antargis/trunk/build/cross_compile.rb
+===================================================================
+--- antargis/trunk/build/cross_compile.rb	2007-12-31 16:47:39 UTC (rev 1207)
++++ antargis/trunk/build/cross_compile.rb	2007-12-31 16:57:17 UTC (rev 1208)
+@@ -0,0 +1,71 @@
++#!/usr/bin/env ruby
++
++require 'open-uri'
++require 'pp'
++require 'ftools.rb'
++
++load 'antconfig.rb'
++
++def downloadTo(url,filename)
++	if File.exists?(filename)
++		puts "File #{filename} already exists - so not downloading!"
++		return
++	end
++	puts "Downloading from #{url}..."
++	call="wget -O '#{filename}.tmp' '#{url}'"
++	system call
++	File.move(filename+".tmp",filename)
++	return
++end
++
++def unzip(file,dir)
++	olddir=Dir.pwd
++	Dir.mkdir(dir) unless File.exists?(dir)
++	Dir.chdir(dir)
++	puts "Unzipping #{file} at #{dir}"
++	system("tar xvfz #{file} >/dev/null")
++	puts "Ready."
++	Dir.chdir(olddir)
++end
++
++mydir=File.split(File.expand_path(__FILE__))[0]
++basedir=File.split(mydir)[0]
++Dir.chdir(basedir)
++
++libdir="build/win32/libs"
++
++sdlLibZip="ag_sdl_libs.tar.gz"
++rubyZip="ag_ruby_bin.tar.gz"
++
++downloadTo("http://svn.berlios.de/wsvn/antargis/contrib/binary/ag_sdl_libs.tar.gz?op=file&rev=0&sc=0",File.join(libdir,sdlLibZip))
++downloadTo("http://svn.berlios.de/wsvn/antargis/contrib/binary/ag_ruby_libs.tar.gz?op=file&rev=0&sc=0",File.join(libdir,rubyZip))
++#downloadTo("ftp://ftp.ruby-lang.org/pub/ruby/binaries/mswin32/ruby-1.8.6-i386-mswin32.zip",File.join(libdir,rubyZip))
++
++unzip(sdlLibZip,libdir)
++unzip(rubyZip,libdir)
++
++File.cp("build/configs/cross.rb","antconfig.rb")
++
++puts "building extension..."
++system("rake package")
++
++puts "getting allinoneruby.exe..."
++
++downloadTo("http://svn.berlios.de/wsvn/antargis/contrib/binary/allinoneruby.exe?op=file&rev=0&sc=0","allinoneruby.exe")
++
++destdir="pkg/antargis-win32-"+$CONFIG['version']
++system("cp allinoneruby.exe "+destdir)
++system("cp build/win32/libs/usr/bin/*.dll "+destdir)
++
++puts "strip antargis.so"
++
++system("i586-mingw32msvc-strip #{destdir}/ext/antargis.so")
++
++puts "getting position of Innosetup..."
++
++path=`locate ISCC.exe`.chomp
++path.gsub!(" ","\\ ")
++pp path
++
++call=path+" antargis.iss"
++system(call)
+\ No newline at end of file
+
+
+
+From davidkamphausen at mail.berlios.de  Mon Dec 31 17:57:38 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Mon, 31 Dec 2007 17:57:38 +0100
+Subject: [Antargis-svn] r1209 - antargis/trunk/build/win32
+Message-ID: <200712311657.lBVGvcx8028778@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-12-31 17:57:38 +0100 (Mon, 31 Dec 2007)
+New Revision: 1209
+
+Added:
+   antargis/trunk/build/win32/make_ruby.sh
+Log:
+A    build/win32/make_ruby.sh
+
+
+Added: antargis/trunk/build/win32/make_ruby.sh
+===================================================================
+--- antargis/trunk/build/win32/make_ruby.sh	2007-12-31 16:57:17 UTC (rev 1208)
++++ antargis/trunk/build/win32/make_ruby.sh	2007-12-31 16:57:38 UTC (rev 1209)
+@@ -0,0 +1,16 @@
++#!/bin/sh
++
++# download site: ftp://ftp.ruby-lang.org/pub/ruby/1.8/ruby-1.8.6-p110.tar.gz
++
++env ac_cv_func_getpgrp_void=no \
++	ac_cv_func_setpgrp_void=yes \
++	rb_cv_negative_time_t=no \
++	ac_cv_func_memcmp_working=yes \
++	rb_cv_binary_elf=no \
++	./configure \
++	--host=i586-mingw32msvc \
++	--target=i386-mingw32 \
++	--build=i686-linux \
++	--prefix=/where/to/install/ruby-mingw32
++make ruby
++#make install
+\ No newline at end of file
+
+
+

@@ -1,0 +1,802 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1081 - in antargis/branches/branch_2d: data/models	ruby/tests src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-May/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1081%20-%20in%20antargis/branches/branch_2d%3A%20data/models%0A%09ruby/tests%20src&In-Reply-To=%3C200705021819.l42IJnYP024796%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000038.html">
+   <LINK REL="Next"  HREF="000040.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1081 - in antargis/branches/branch_2d: data/models	ruby/tests src</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1081%20-%20in%20antargis/branches/branch_2d%3A%20data/models%0A%09ruby/tests%20src&In-Reply-To=%3C200705021819.l42IJnYP024796%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1081 - in antargis/branches/branch_2d: data/models	ruby/tests src">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Wed May  2 20:19:49 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000038.html">[Antargis-svn] r1080 - in antargis/branches/branch_2d: .	data/textures data/textures/2d ruby src
+</A></li>
+        <LI>Next message: <A HREF="000040.html">[Antargis-svn] r1082 - in antargis/branches/branch_2d:	data/textures/2d/terrain ruby ruby/tests src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#39">[ date ]</a>
+              <a href="thread.html#39">[ thread ]</a>
+              <a href="subject.html#39">[ subject ]</a>
+              <a href="author.html#39">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-05-02 20:19:49 +0200 (Wed, 02 May 2007)
+New Revision: 1081
+
+Added:
+   antargis/branches/branch_2d/data/models/all_models.xml
+   antargis/branches/branch_2d/ruby/tests/impostor.rb
+   antargis/branches/branch_2d/ruby/tests/scene_2d.rb
+   antargis/branches/branch_2d/src/mesh_2d.cc
+   antargis/branches/branch_2d/src/mesh_2d.h
+   antargis/branches/branch_2d/src/mesh_2d_data.cc
+   antargis/branches/branch_2d/src/mesh_2d_data.h
+   antargis/branches/branch_2d/src/scene_2d.cc
+   antargis/branches/branch_2d/src/scene_2d.h
+   antargis/branches/branch_2d/src/scene_base.cc
+   antargis/branches/branch_2d/src/scene_base.h
+Log:
+* added missing files
+
+
+Added: antargis/branches/branch_2d/data/models/all_models.xml
+===================================================================
+--- antargis/branches/branch_2d/data/models/all_models.xml	2007-05-02 18:18:15 UTC (rev 1080)
++++ antargis/branches/branch_2d/data/models/all_models.xml	2007-05-02 18:19:49 UTC (rev 1081)
+@@ -0,0 +1,13 @@
++&lt;models&gt;
++	&lt;default name=&quot;modelPath&quot; value=&quot;data/models&quot;/&gt;
++	&lt;default name=&quot;texturePath&quot; value=&quot;data/textures/models&quot;/&gt;
++	&lt;model entityType=&quot;AntMan&quot;&gt;
++		&lt;view&gt;
++			&lt;mesh file=&quot;man_e_walk&quot; anim=&quot;stand&quot;/&gt;
++		&lt;/view&gt;
++		&lt;view name=&quot;wood&quot;&gt;
++			&lt;mesh file=&quot;man_e_wood&quot;/&gt;
++		&lt;/view&gt;
++	&lt;/model&gt;
++&lt;/models&gt;
++	
+\ No newline at end of file
+
+Added: antargis/branches/branch_2d/ruby/tests/impostor.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/tests/impostor.rb	2007-05-02 18:18:15 UTC (rev 1080)
++++ antargis/branches/branch_2d/ruby/tests/impostor.rb	2007-05-02 18:19:49 UTC (rev 1081)
+@@ -0,0 +1,65 @@
++#!/usr/bin/env ruby
++
++require 'ruby/antargislib.rb'
++require 'ruby/ant_models.rb'
++
++class MMap
++	def getScene
++		$scene
++	end
++end
++
++def getMap
++	MMap.new
++end
++
++class MyApp&lt;GLApp
++	@@types=[]
++	AntModels.getMeshMap.each{|k,v|
++		puts &quot;#{k}(#{k.class}):#{v} #{v.class}&quot;
++		v.each{|x,y|
++			assert{!(k.is_a?(Hash)||x.is_a?(Hash))}
++			@@types&lt;&lt;[k,x[0]]
++			puts &quot;K:#{k}(#{k.class}) Y:#{x}(#{x.class})&quot;
++		}
++	}
++	puts @@types.inspect
++	
++	def initialize(w,h)
++		super
++		$scene=getScene
++
++		tex=nil
++		@@types.each{|t,t2|
++			puts &quot;TRY CREATE #{t}(#{t.class}) #{t2}(#{t2.class})&quot;
++			node=AntModels.createModel(t,t2)
++			puts &quot;#{t}:#{t2} failed creation&quot; if node.nil?
++			$scene.addNode(node)
++			imp=AntImpostorData.new(node,512,512)
++	
++			tex=imp.getTexture
++			name=t.to_s
++			if t2
++				name+=&quot;_&quot;+(t2.to_s)	
++			end
++			name+=&quot;.png&quot;
++			imp.getSurface.save(name)
++			getScene.removeNode(node)
++		}
++			
++		image=AGImage.new(nil,AGRect2.new(0,0,tex.width,tex.height),tex,false)
++		setMainWidget(image)
++		
++		getScene.removeNode(node)
++	end
++
++	def eventFrame(t)
++		delay(100)
++	puts t
++		return true
++	end
++end
++
++app=MyApp.new(1024,768)
++
++app.run
+
+Added: antargis/branches/branch_2d/ruby/tests/scene_2d.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/tests/scene_2d.rb	2007-05-02 18:18:15 UTC (rev 1080)
++++ antargis/branches/branch_2d/ruby/tests/scene_2d.rb	2007-05-02 18:19:49 UTC (rev 1081)
+@@ -0,0 +1,70 @@
++#!/usr/bin/env ruby
++
++require 'ruby/antargislib.rb'
++
++getMain.initVideo(800,600,32,false,false)
++
++def makeExampleMesh(scene,type)
++	t=AGTexture.new(AGSurface.load(&quot;data/textures/2d/#{type}.png&quot;))
++	data=Mesh2DData.new(t)
++	mesh=Mesh2D.new(scene,data,AGVector4.new(0,0,0,1),0)
++end
++
++
++class My2dWidget&lt;AGWidget
++	def initialize(p,r)
++		super
++		@scene=Scene2D.new(r.width.to_i,r.height.to_i)
++		mesh=makeExampleMesh(@scene,:farm)
++		@scene.addNode(mesh)
++		mesh=makeExampleMesh(@scene,:tree)
++		mesh.setPos(AGVector3.new(300,50,0))
++		@scene.addNode(mesh)
++	end
++	def draw(p)
++		@scene.setPainter(p)
++		@scene.draw
++		@scene.discardPainter
++	end
++
++	def eventMouseButtonDown(e)
++		#raise 1
++		@mousePos=e.getMousePosition
++		super
++	end
++	def eventMouseButtonUp(e)
++		@mousePos=nil
++		super
++	end
++	def eventMouseMotion(e)
++		if @mousePos
++			diff=<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">e.getMousePosition- at mousePos</A>
++			@mousePos=e.getMousePosition
++			p=@scene.getCamera.dim2+AGVector2.new(-diff[0],diff[1])
++			@scene.setCamera(AGVector4.new(p[0],p[1],0,1))
++			queryRedraw
++		end
++		super
++	end
++
++# 	def prepareDraw
++# 		queryRedraw
++# 	end
++
++end
++
++class My2dTest&lt;AGApplication
++	def initialize
++		super
++		setMainWidget(My2dWidget.new(nil,AGRect2.new(0,0,getMain.width,getMain.height)))
++	end
++	def eventFrame(t)
++		
++		delay(20)
++		super
++	end
++end
++
++app=My2dTest.new
++
++app.run
+\ No newline at end of file
+
+Added: antargis/branches/branch_2d/src/mesh_2d.cc
+===================================================================
+--- antargis/branches/branch_2d/src/mesh_2d.cc	2007-05-02 18:18:15 UTC (rev 1080)
++++ antargis/branches/branch_2d/src/mesh_2d.cc	2007-05-02 18:19:49 UTC (rev 1081)
+@@ -0,0 +1,62 @@
++#include &quot;mesh_2d.h&quot;
++#include &lt;ag_debug.h&gt;
++#include &lt;ag_painter.h&gt;
++
++Mesh2D::Mesh2D(Scene2D *pScene):
++  SceneNode(pScene,AGVector4(),AGBox3())
++{
++}
++Mesh2D::Mesh2D(Scene2D *pScene,Mesh2DData &amp;data,const AGVector4 &amp;pPos,float pRot):
++  SceneNode(pScene,pPos,data.bbox()),
++  mData(&amp;data)
++{
++}
++Mesh2D::~Mesh2D()
++{
++}
++
++void Mesh2D::draw()
++{
++  //FIXME: drawing
++  Scene2D *s=dynamic_cast&lt;Scene2D*&gt;(getScene());
++  assert(s);
++  AGPainter *painter=s-&gt;getPainter();
++
++  assert(painter);
++  AGTexture *t=mData-&gt;getTexture();
++  AGVector2 middle(s-&gt;getPosition(getPos()));
++  float w=t-&gt;width();
++  float h=t-&gt;height();
++  AGRect2 r(middle.getX()-w/2,middle.getY()-h/2,w,h);
++
++  //  cdebug(&quot;r:&quot;&lt;&lt;r);
++  painter-&gt;blit(*t,r);
++}
++
++AGVector4 Mesh2D::lineHit(const AGLine3 &amp;pLine) const
++{
++  //FIXME
++  return AGVector4();
++}
++
++/// set rotation around y-axis (e.g. turn people)
++void Mesh2D::setRotation(float r)
++{
++}
++/// set color (for rings)
++void Mesh2D::setColor(const AGVector4 &amp;pColor)
++{
++}
++void Mesh2D::setVisible(bool v)
++{
++}
++
++Mesh2DData *Mesh2D::getData()
++{
++  return mData;
++}
++
++void Mesh2D::mark()
++{
++  markObject(mData);
++}
+
+Added: antargis/branches/branch_2d/src/mesh_2d.h
+===================================================================
+--- antargis/branches/branch_2d/src/mesh_2d.h	2007-05-02 18:18:15 UTC (rev 1080)
++++ antargis/branches/branch_2d/src/mesh_2d.h	2007-05-02 18:19:49 UTC (rev 1081)
+@@ -0,0 +1,34 @@
++#ifndef MESH_2D_H
++#define MESH_2D_H
++
++#include &quot;scenenode.h&quot;
++#include &quot;scene_2d.h&quot;
++#include &quot;mesh_2d_data.h&quot;
++
++class Mesh2D:public SceneNode
++{
++ public:
++  Mesh2D(Scene2D *pScene);
++  Mesh2D(Scene2D *pScene,Mesh2DData &amp;data,const AGVector4 &amp;pPos,float pRot);
++  virtual ~Mesh2D();
++
++  void draw();
++
++  virtual AGVector4 lineHit(const AGLine3 &amp;pLine) const;
++
++  /// set rotation around y-axis (e.g. turn people)
++  void setRotation(float r);
++  /// set color (for rings)
++  void setColor(const AGVector4 &amp;pColor); 
++  void setVisible(bool v);
++
++  Mesh2DData *getData();
++
++  void mark();
++
++ public:
++  Mesh2DData *mData;
++};
++
++
++#endif
+
+Added: antargis/branches/branch_2d/src/mesh_2d_data.cc
+===================================================================
+--- antargis/branches/branch_2d/src/mesh_2d_data.cc	2007-05-02 18:18:15 UTC (rev 1080)
++++ antargis/branches/branch_2d/src/mesh_2d_data.cc	2007-05-02 18:19:49 UTC (rev 1081)
+@@ -0,0 +1,22 @@
++#include &quot;mesh_2d_data.h&quot;
++
++Mesh2DData::Mesh2DData(AGTexture *pTexture):
++  mTexture(pTexture)
++{
++}
++  
++void Mesh2DData::mark()
++{
++  markObject(mTexture);
++}
++
++AGTexture *Mesh2DData::getTexture()
++{
++  return mTexture;
++}
++
++AGBox3 Mesh2DData::bbox() const
++{
++  // FIXME
++  return AGBox3();
++}
+
+Added: antargis/branches/branch_2d/src/mesh_2d_data.h
+===================================================================
+--- antargis/branches/branch_2d/src/mesh_2d_data.h	2007-05-02 18:18:15 UTC (rev 1080)
++++ antargis/branches/branch_2d/src/mesh_2d_data.h	2007-05-02 18:19:49 UTC (rev 1081)
+@@ -0,0 +1,21 @@
++#ifndef MESH_2D_DATA
++#define MESH_2D_DATA
++
++#include &lt;ag_texture.h&gt;
++
++class Mesh2DData:public AGRubyObject
++{
++ public:
++  Mesh2DData(AGTexture *pTexture);
++  
++  void mark();
++
++  AGTexture *getTexture();
++
++  AGBox3 bbox() const;
++
++ private:
++  AGTexture *mTexture;
++};
++
++#endif
+
+Added: antargis/branches/branch_2d/src/scene_2d.cc
+===================================================================
+--- antargis/branches/branch_2d/src/scene_2d.cc	2007-05-02 18:18:15 UTC (rev 1080)
++++ antargis/branches/branch_2d/src/scene_2d.cc	2007-05-02 18:19:49 UTC (rev 1081)
+@@ -0,0 +1,83 @@
++#ifndef NO
++
++#include &quot;scene_2d.h&quot;
++#include &lt;ag_debug.h&gt;
++
++Scene2D::Scene2D(int w,int h):
++  SceneBase(w,h),mPainter(0)
++{
++}
++
++Scene2D::~Scene2D()
++{
++}
++
++void Scene2D::draw()
++{
++  // FIXME
++  
++  NodeList nodeList=getCurrentNodes();
++
++  //FIXME:sort!!
++
++  for(NodeList::iterator i=nodeList.begin();i!=nodeList.end();i++)
++    (*i)-&gt;draw();
++}
++
++SceneBase::PickResult Scene2D::pick(float x,float y,float w,float h)
++{
++  throw std::runtime_error(&quot;FIXME&quot;);
++  return PickResult();
++}
++
++AGVector2 Scene2D::getPosition(const AGVector4 &amp;v) const
++{
++  // FIXME: include camera !!
++  AGVector2 center(width()/2,height()/2);
++  AGVector2 cam(mCamera.getPosition().dim2());
++
++  AGVector2 n=v.dim2()+center-cam;
++
++  //  cdebug(&quot;n:&quot;&lt;&lt;n);
++
++  return AGVector2(n[0],height()-n[1]);
++
++  throw std::runtime_error(&quot;FIXME&quot;);
++  return v.dim2();
++}
++
++SceneBase::NodeList Scene2D::getCurrentNodes()
++{
++  //  cdebug(&quot;FIXME&quot;);
++
++  NodeList l;
++  std::copy(mNodes.begin(),mNodes.end(),std::back_inserter(l));
++
++  //  throw std::runtime_error(&quot;FIXME&quot;);
++  return l;
++}
++
++//void setEnabled(bool p);
++
++void Scene2D::setPainter(AGPainter *p)
++{
++  CTRACE;
++  assert(mPainter==0);
++  mPainter=p;
++}
++void Scene2D::discardPainter()
++{
++  CTRACE;
++  assert(mPainter!=0);
++  mPainter=0;
++}
++
++AGPainter *Scene2D::getPainter()
++{
++  CTRACE;
++  assert(mPainter);
++  return mPainter;
++}
++
++
++#endif
+
+Added: antargis/branches/branch_2d/src/scene_2d.h
+===================================================================
+--- antargis/branches/branch_2d/src/scene_2d.h	2007-05-02 18:18:15 UTC (rev 1080)
++++ antargis/branches/branch_2d/src/scene_2d.h	2007-05-02 18:19:49 UTC (rev 1081)
+@@ -0,0 +1,47 @@
++#ifndef SCENE_2D_H
++#define SCENE_2D_H
++
++#include &quot;scene_base.h&quot;
++
++class AGPainter;
++
++class Scene2D:public SceneBase
++{
++ public:
++  typedef std::vector&lt;PickNode&gt; PickResult;
++  typedef std::list&lt;SceneNode*&gt; NodeList;
++
++  Scene2D(int w,int h);
++  virtual ~Scene2D();
++
++  void draw();
++
++  /**
++     picking is currently done with opengl. this uses software (at least on my box), which is
++     pretty slow. Some new implementation using BSPs would be cool!
++     VertexArray or MeshData should contain it's data in such a tree. rays can be transformed using
++     inverse transformation-matrices. This way data can stay as is.
++  */
++  PickResult pick(float x,float y,float w,float h);
++
++  AntCamera &amp;getCameraObject();
++
++  AGVector2 getPosition(const AGVector4 &amp;v) const;
++
++  NodeList getCurrentNodes();
++
++  void setEnabled(bool p);
++
++  void setPainter(AGPainter *p);
++  void discardPainter();
++
++  AGPainter *getPainter();
++ private:
++  AGPainter *mPainter;
++  
++  
++  
++
++};
++
++#endif
+
+Added: antargis/branches/branch_2d/src/scene_base.cc
+===================================================================
+--- antargis/branches/branch_2d/src/scene_base.cc	2007-05-02 18:18:15 UTC (rev 1080)
++++ antargis/branches/branch_2d/src/scene_base.cc	2007-05-02 18:19:49 UTC (rev 1081)
+@@ -0,0 +1,143 @@
++#include &quot;ag_profiler.h&quot;
++
++#include &quot;quadtree.h&quot;
++
++#include &quot;scene_base.h&quot;
++
++SceneBase::SceneBase(int w,int h):
++  mTree(new QuadTree&lt;SceneNode&gt;(AGRect2(AGVector2(),AGVector2(w,h)))),
++  mCamera(w,h)
++{
++}
++
++
++SceneBase::~SceneBase()
++{
++  // tell nodes, that I'm no longer there :-)
++  for(Nodes::iterator i=mNodes.begin();i!=mNodes.end();i++)
++    (*i)-&gt;resetScene(); 
++
++  delete mTree;
++}
++
++
++
++
++
++void SceneBase::addNode(SceneNode *node)
++{
++  if(mNodeSet.find(node)==mNodeSet.end())
++    {
++      node-&gt;setScene(this);
++
++      mNodes.push_back(node);
++      mNodeSet.insert(node);
++      assert(node-&gt;getScene()==this);
++      mTree-&gt;insert(node);
++    }
++}
++
++
++
++void SceneBase::updatePos(SceneNode *node)
++{
++  if(mNodeSet.find(node)==mNodeSet.end())
++    throw std::string(&quot;Dont know about this!&quot;);
++  mTree-&gt;insert(node);
++}
++
++void SceneBase::prepareUpdate(SceneNode *node)
++{
++  if(mNodeSet.find(node)==mNodeSet.end())
++    throw std::string(&quot;Dont know about this!&quot;);
++  mTree-&gt;remove(node);
++}
++
++
++void SceneBase::removeNode(SceneNode *node)
++{
++  if(mNodeSet.find(node)!=mNodeSet.end())
++    {
++      Nodes::iterator i=std::find(mNodes.begin(),mNodes.end(),node);
++      mNodes.erase(i);
++      mNodeSet.erase(node);
++      assert(node-&gt;getScene()==this);
++      node-&gt;resetScene();
++      assert(mTree-&gt;remove(node));
++    }
++  else
++    {
++      throw std::runtime_error(&quot;Trying to remove unknown node&quot;);
++    }
++}
++
++void SceneBase::clear()
++{
++  for(std::vector&lt;SceneNode*&gt;::iterator i=mNodes.begin();i!=mNodes.end();i++)
++    {
++      assert((*i)-&gt;getScene()==this);
++      (*i)-&gt;resetScene();
++    }
++  TRACE;
++  mNodes.clear();
++  mNodeSet.clear();
++  mTree-&gt;clear();
++}
++
++  // (mx,my,0)
++void SceneBase::setCamera(AGVector4 v)
++{
++  mCamera.setPosition(v.dim3());
++}
++
++void SceneBase::advance(float time)
++{
++  STACKTRACE; 
++
++  //  if(!mEnabled)
++  //    return;
++  // advance only in view
++
++  NodeList l=getCurrentNodes();
++
++  for(NodeList::iterator i=l.begin();i!=l.end();i++)
++    {
++      if((*i)-&gt;visible())
++	(*i)-&gt;advance(time);
++    }
++}
++
++float SceneBase::width() const
++{
++  return mCamera.getWidth();
++}
++float SceneBase::height() const
++{
++  return mCamera.getHeight();
++}
++
++void SceneBase::mark()
++{
++  SceneBase::Nodes::iterator i=mNodes.begin();
++
++  for(;i!=mNodes.end();i++)
++    {
++      markObject(*i);
++    }
++}
++
++AGVector4 SceneBase::getCamera() const
++{
++  return AGVector4(mCamera.getPosition(),1);
++}
++
++AntCamera &amp;SceneBase::getCameraObject()
++{
++  return mCamera;
++}
++
++SceneBase::NodeList SceneBase::getCurrentNodes()
++{
++  throw std::runtime_error(&quot;not implemented!&quot;);
++  return NodeList();
++}
+
+Added: antargis/branches/branch_2d/src/scene_base.h
+===================================================================
+--- antargis/branches/branch_2d/src/scene_base.h	2007-05-02 18:18:15 UTC (rev 1080)
++++ antargis/branches/branch_2d/src/scene_base.h	2007-05-02 18:19:49 UTC (rev 1081)
+@@ -0,0 +1,93 @@
++#ifndef SCENE_BASE_H
++#define SCENE_BASE_H
++
++#include &quot;ant_camera.h&quot;
++#include &quot;scenenode.h&quot;
++
++/**
++   some helper structure, which is used for storing
++   results when picking. it holds some information about:
++   * distance to camera (for sorting)
++   * the picked scene-node
++   * and the 3d-position, where the scene-node was touched
++   */
++struct PickNode
++{
++  AGVector4 pos;
++  SceneNode *node;
++  float camDist;
++  
++  bool operator&lt;(const PickNode &amp;n) const;
++};
++
++template&lt;class T&gt;
++class QuadTree;
++
++
++class SceneBase:public AGRubyObject
++{
++ public:
++  typedef std::vector&lt;PickNode&gt; PickResult;
++  typedef std::list&lt;SceneNode*&gt; NodeList;
++
++  SceneBase(int w,int h);
++  virtual ~SceneBase();
++
++  void draw();
++
++  // ATTENTION: nodes are not owned by Scene afterwards - so they won't get deleted!
++  //            You have to do this yourself in the Entities or let ruby's GC do it for you (which would be the normal case)
++  void addNode(SceneNode *node);
++  void removeNode(SceneNode *node);
++  void prepareUpdate(SceneNode *node);
++  void updatePos(SceneNode *node);
++
++  void clear();
++
++  // (mx,my,0)
++  void setCamera(AGVector4 v);
++  AGVector4 getCamera() const;
++  virtual void advance(float time);
++
++  /**
++     picking is currently done with opengl. this uses software (at least on my box), which is
++     pretty slow. Some new implementation using BSPs would be cool!
++     VertexArray or MeshData should contain it's data in such a tree. rays can be transformed using
++     inverse transformation-matrices. This way data can stay as is.
++  */
++  //  virtual PickResult pick(float x,float y,float w,float h);
++
++  AntCamera &amp;getCameraObject();
++
++  size_t getDrawnMeshes() const;
++
++  /// width and height of screen
++  float width() const;
++  float height() const;
++
++  void mark();
++
++
++  /** get currently visible nodes */
++  virtual NodeList getCurrentNodes();
++
++  //  void setEnabled(bool p);
++
++ protected:
++
++  typedef std::vector&lt;SceneNode*&gt; Nodes;
++  typedef std::set&lt;SceneNode*&gt; NodeSet;
++
++  typedef QuadTree&lt;SceneNode&gt; Tree;
++
++  Tree *mTree;
++
++  AntCamera mCamera;
++
++  Nodes mNodes;
++  NodeSet mNodeSet;
++
++};
++
++
++#endif
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000038.html">[Antargis-svn] r1080 - in antargis/branches/branch_2d: .	data/textures data/textures/2d ruby src
+</A></li>
+	<LI>Next message: <A HREF="000040.html">[Antargis-svn] r1082 - in antargis/branches/branch_2d:	data/textures/2d/terrain ruby ruby/tests src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#39">[ date ]</a>
+              <a href="thread.html#39">[ thread ]</a>
+              <a href="subject.html#39">[ subject ]</a>
+              <a href="author.html#39">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

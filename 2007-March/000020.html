@@ -1,0 +1,567 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1062 - in antargis/trunk: gui/src ruby
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-March/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1062%20-%20in%20antargis/trunk%3A%20gui/src%20ruby&In-Reply-To=%3C200703211931.l2LJV1bj030526%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000019.html">
+   <LINK REL="Next"  HREF="000021.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1062 - in antargis/trunk: gui/src ruby</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1062%20-%20in%20antargis/trunk%3A%20gui/src%20ruby&In-Reply-To=%3C200703211931.l2LJV1bj030526%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1062 - in antargis/trunk: gui/src ruby">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Wed Mar 21 20:31:01 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000019.html">[Antargis-svn] r1061 - in antargis/trunk: . gui/src ruby ruby/tests
+</A></li>
+        <LI>Next message: <A HREF="000021.html">[Antargis-svn] r1063 - in antargis/trunk: ruby src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#20">[ date ]</a>
+              <a href="thread.html#20">[ thread ]</a>
+              <a href="subject.html#20">[ subject ]</a>
+              <a href="author.html#20">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-03-21 20:31:00 +0100 (Wed, 21 Mar 2007)
+New Revision: 1062
+
+Added:
+   antargis/trunk/ruby/ant_new_hljobs.rb
+Modified:
+   antargis/trunk/gui/src/ag_debug.cc
+   antargis/trunk/gui/src/ag_debug.h
+   antargis/trunk/gui/src/ag_geometry.cc
+   antargis/trunk/gui/src/ag_geometry.h
+   antargis/trunk/ruby/ant_boss.rb
+   antargis/trunk/ruby/ant_hljobs.rb
+   antargis/trunk/ruby/ant_man.rb
+   antargis/trunk/ruby/ant_manbase.rb
+   antargis/trunk/ruby/ant_tools.rb
+Log:
+* some fixes - improvements with new hl-jobs
+
+
+Modified: antargis/trunk/gui/src/ag_debug.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_debug.cc	2007-03-16 19:21:32 UTC (rev 1061)
++++ antargis/trunk/gui/src/ag_debug.cc	2007-03-21 19:31:00 UTC (rev 1062)
+@@ -51,7 +51,18 @@
+   gRubyRaising=flag;
+ }
+ 
++size_t gDebugLevel=0;
+ 
++size_t getDebugLevel()
++{
++  return gDebugLevel;
++}
++void setDebugLevel(size_t t)
++{
++  gDebugLevel=t;
++}
++
++
+ #ifndef MNDEBUG
+ int D::d=0;
+ 
+@@ -66,24 +77,14 @@
+ }
+ 
+ size_t gDebugIndex=0;
+-size_t gDebugLevel=0;
+ 
+ size_t getDebugIndex()
+ {
+   return gDebugIndex;
+ }
+ 
+-size_t getDebugLevel()
+-{
+-  return gDebugLevel;
+-}
+-void setDebugLevel(size_t t)
+-{
+-  gDebugLevel=t;
+-}
+ 
+ 
+-
+ D::D(std::string c):
+   m(c)
+ {
+
+Modified: antargis/trunk/gui/src/ag_debug.h
+===================================================================
+--- antargis/trunk/gui/src/ag_debug.h	2007-03-16 19:21:32 UTC (rev 1061)
++++ antargis/trunk/gui/src/ag_debug.h	2007-03-21 19:31:00 UTC (rev 1062)
+@@ -39,6 +39,7 @@
+ void setQuiet();
+ 
+ #ifdef MNDEBUG
++#define dbout(x,l)
+ #define cdebug(x)
+ #define ccdebug(x)
+ #define debug(x)
+
+Modified: antargis/trunk/gui/src/ag_geometry.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_geometry.cc	2007-03-16 19:21:32 UTC (rev 1061)
++++ antargis/trunk/gui/src/ag_geometry.cc	2007-03-21 19:31:00 UTC (rev 1062)
+@@ -250,7 +250,12 @@
+   return v[0]*v[0]+v[1]*v[1];
+ }
+ 
++AGVector2 AGVector2::dim2() const
++{
++  return *this;
++}
+ 
++
+ bool AGVector2::nonZero() const
+ {
+   return length2()!=0.0f;
+
+Modified: antargis/trunk/gui/src/ag_geometry.h
+===================================================================
+--- antargis/trunk/gui/src/ag_geometry.h	2007-03-16 19:21:32 UTC (rev 1061)
++++ antargis/trunk/gui/src/ag_geometry.h	2007-03-21 19:31:00 UTC (rev 1062)
+@@ -73,6 +73,8 @@
+   void setX(float pX);
+   void setY(float pY);
+ 
++  AGVector2 dim2() const;
++
+   
+ #ifdef SWIG
+   %rename(x) getX() const;
+
+Modified: antargis/trunk/ruby/ant_boss.rb
+===================================================================
+--- antargis/trunk/ruby/ant_boss.rb	2007-03-16 19:21:32 UTC (rev 1061)
++++ antargis/trunk/ruby/ant_boss.rb	2007-03-21 19:31:00 UTC (rev 1062)
+@@ -26,9 +26,12 @@
+ class AntBoss&lt;AntRubyEntity
+ 	attr_accessor :formation
+ 
++	attr_accessor :hlJobMode
++
+ 	def initialize
+ 		super(AGVector2.new(0,0))
+ 		@men=[]
++		@hlJobMode={}
+ 		@job=nil
+ 		@createMen=0
+ 		@selected=@hovered=false
+@@ -220,6 +223,13 @@
+ 		if getMap
+ 			getMap.eventNewJobAssignedToBoss(self)
+ 		end
++
++		begin
++		# discard reassigning in this case
++		return if ObjectSpace.const_get(:AntNewHLJob)
++		rescue
++		end
++
+ 		@men.each{|man|
+ 			man.delJob
+ 			assignJob(man)
+
+Modified: antargis/trunk/ruby/ant_hljobs.rb
+===================================================================
+--- antargis/trunk/ruby/ant_hljobs.rb	2007-03-16 19:21:32 UTC (rev 1061)
++++ antargis/trunk/ruby/ant_hljobs.rb	2007-03-21 19:31:00 UTC (rev 1062)
+@@ -1110,4 +1110,11 @@
+ end
+ 
+ 
+-require 'ant_buildjob.rb'
+\ No newline at end of file
++require 'ant_buildjob.rb'
++
++
++def newHLJobs
++	return false
++end
++
++#require 'ant_new_hljobs.rb'
+\ No newline at end of file
+
+Modified: antargis/trunk/ruby/ant_man.rb
+===================================================================
+--- antargis/trunk/ruby/ant_man.rb	2007-03-16 19:21:32 UTC (rev 1061)
++++ antargis/trunk/ruby/ant_man.rb	2007-03-21 19:31:00 UTC (rev 1062)
+@@ -33,9 +33,14 @@
+ 
+ 	attr_reader :meshState, :dead
+ 	attr_accessor :target
++
++	attr_accessor :hlJobMode
+ 	
+ 	def initialize()
+ 		super(AGVector2.new(0,0))
++
++		@hlJobMode={}
++
+ 		setProvide(&quot;man&quot;,true)
+ 		@signed=false
+ 		@dead=false
+@@ -177,7 +182,7 @@
+ 		super
+ 		setGoAnim
+ 	end
+-	
++
+ 	def newMoveJob(p,target,n)
+ 		if isOnWater and isOnOpenWater(target) and (not haveBoat)
+ 			newRestJob(2)
+
+Modified: antargis/trunk/ruby/ant_manbase.rb
+===================================================================
+--- antargis/trunk/ruby/ant_manbase.rb	2007-03-16 19:21:32 UTC (rev 1061)
++++ antargis/trunk/ruby/ant_manbase.rb	2007-03-21 19:31:00 UTC (rev 1062)
+@@ -62,6 +62,26 @@
+ 		setMeshState(&quot;sitdown&quot;)
+ 	end
+ 
++	def walkTo(p)
++		newMoveJob(0,p,0)
++	end
++	
++	def standStill
++		newRestJob(2)
++		setMeshState(&quot;stand&quot;)
++	end
++
++	def standStillShort
++		newRestJob(0.2)
++		setMeshState(&quot;stand&quot;)
++	end
++
++	def sitStill
++		newRestJob(2)
++		setMeshState(&quot;sit&quot;)
++	end
++
++
+ 	# overrides newFightJob from AntEntity
+ 	# fighting distance is assigned 1 or 10 
+ 	# depending on the man having a bow
+@@ -74,6 +94,14 @@
+ 	end
+ 
+ 	def eventDefeated
++		# FIXME: check, if this ok !!!! /HLJobs
++		if newHLJobs
++			hlJobMode[:defeated]=true
++			eventNoJob
++			return
++		end
++
++
+ 		if is_a?(AntBoss)
+ 			eventManDefeated(self)
+ 		elsif @boss then
+
+Added: antargis/trunk/ruby/ant_new_hljobs.rb
+===================================================================
+--- antargis/trunk/ruby/ant_new_hljobs.rb	2007-03-16 19:21:32 UTC (rev 1061)
++++ antargis/trunk/ruby/ant_new_hljobs.rb	2007-03-21 19:31:00 UTC (rev 1062)
+@@ -0,0 +1,236 @@
++#
++# This is a new implementation of the high-level jobs.
++# They're now state-based. Each job consists of several
++# states. Each of these states has (or can have) an &quot;enter&quot;,
++# &quot;assign&quot;,&quot;ready&quot; and a &quot;leave&quot;-function.
++# &quot;enter&quot; is called each time the current job switches into
++# this state. &quot;leave&quot; is called when the state is left
++# &quot;ready&quot; will be called to check, if the task of this state is 
++# finished and the job can be transfered into a new state.
++# &quot;assign&quot; is called whenever a man has no low-level-job anymore
++# and wants to get a new task. You should always assign low-level-jobs
++# to waiting men, because otherwise this function gets called for
++# each waiting man in each frame, which can have impact on the performance.
++#
++# 
++
++def newHLJobs
++	return false
++end
++
++# 
++# FIXME: * add path-finding to moving
++#        * do FIXME s ;-)
++
++module HLJob
++	def hero
++		@hero
++	end
++	def allMen
++		@hero.getMen
++	end
++end
++
++require 'ant_hljob_states.rb'
++require 'ant_hljob_base.rb'
++
++
++class AntNewHLRestJob&lt;AntNewHLJob
++	include HLJob_FormatSit
++	include HLJob_SitDown
++	include HLJob_JustSitOnce
++	include HLJob_SpreadThings
++
++	SPREAD_CHECK_TIME=10 # all 10 seconds spread things
++
++	def initialize(hero,time)
++		@state=:FormatSit
++		@workflow=[[:FormatSit,:SitDown],[:SitDown,:CheckSpread],[:SpreadThings,:FormatSit],[:JustSitOnce,:CheckSpread]] #JustSit],[:JustSit]
++		super(hero)
++	end
++	def image
++		&quot;data/gui/bed.png&quot;
++	end
++	# fixme: discard this
++	def makeMessage(boss)
++		RestMessage.new(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">boss, at time</A>)
++	end
++
++	def sitDown_leave
++		if @spreadOnce.nil?
++			@spreadTime=getTime-SPREAD_CHECK_TIME
++			@spreadOnce=true
++		else
++			@spreadTime=getTime
++		end
++	end
++	
++
++	def checkSpread_enter
++		curTime=getTime
++		puts &quot;#{<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">curTime- at spreadTime</A>}&gt;#{SPREAD_CHECK_TIME}&quot;
++		if <A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">curTime- at spreadTime</A>&gt;SPREAD_CHECK_TIME
++			switchToState(:SpreadThings)
++		else
++			switchToState(:JustSitOnce)
++		end
++	end
++end
++
++class AntNewHLMoveJob&lt;AntNewHLJob
++	include HLJob_FormatWalk
++	include HLJob_MoveToNextWayPoint
++	include HLJob_FormatSit
++	include HLJob_SitDown
++	# FIXME: time is irrelevant here!
++	#def initialize(hero,time)
++
++	attr_reader :targetPos
++
++	def initialize(hero,prio,pos,dist,doFormat=true)
++		@targetPos=pos.dim2
++		if doFormat
++			@state=:FormatWalk
++		else
++			@state=:MoveToNextWayPoint
++		end
++		@workflow=[
++			[:FormatWalk,:MoveToNextWayPoint],
++# 			[:MoveToNextWayPoint,:FormatSit],
++# 			[:FormatSit,:SitDown]
++		]
++		super(hero)
++	end
++	# FIXME: move this to a config-file !
++	def image
++		&quot;data/gui/move.png&quot;
++	end
++	# FIXME: discard this
++	def makeMessage(boss)
++		MoveMessage.new(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">boss,targetPos, at dist</A>)
++	end
++
++end
++
++
++class AntNewHLTakeJob&lt;AntNewHLJob
++	include HLJob_FormatWalk
++	include HLJob_FetchStart
++	include HLJob_GetResource
++	include HLJob_MoveToNextWayPoint
++
++	attr_reader :resources, :targetPos, :near, :target
++
++	def initialize(phero,target,what=&quot;food&quot;)
++		@resources={&quot;food&quot;=&gt;[&quot;food&quot;],&quot;weapon&quot;=&gt;[&quot;sword&quot;,&quot;bow&quot;,&quot;boat&quot;,&quot;shield&quot;]}[what]
++
++		@state=:FormatWalk
++		@workflow=[
++			[:FormatWalk,:MoveToNextWayPoint],
++			[:MoveToNextWayPoint,:MyStore],
++			[:MyStore,:FetchStart],
++			[:FetchStart,:GetResource],
++			[:GetResource,:MoveToNextWayPoint]
++		]
++		@targetPos=target.getPos2D
++		@target=target
++		@near=4
++		super(phero)
++	end
++
++	def image
++		if @what==&quot;food&quot;
++			&quot;data/gui/take_apple.png&quot;
++		else
++			&quot;data/gui/take_weapon.png&quot;
++		end
++	end
++
++
++	def myStore_enter
++		trace
++		if @taken
++			@finished=true
++			return 
++		end
++		@targetPos=hero.getPos2D
++		puts &quot;#{@targetPos} #{hero.getPos2D}&quot;
++		@near=0
++		@taken=true
++	end
++end
++
++class AntNewHLKillAnimal&lt;AntNewHLTakeJob
++	def fetchStart_leave
++		# kill animal
++		playSound
++		killAnimal
++	end
++
++	
++	def myStore_enter
++		if @taken
++			@finished=true
++			return 
++		end
++		# no need to return to separate position
++		@taken=true
++	end
++
++	private
++	def playSound
++		# FIXME: play eat sound
++	end
++	def killAnimal
++		@target.eventDie
++		hero.resource.takeAll(target.resource)
++	end
++end
++
++class AntNewHLFight&lt;AntNewHLJob
++	include HLJob_FormatWalk
++	include HLJob_MoveToNextWayPoint
++	include HLJob_Fight
++
++	attr_reader :targetPos,:near,:target
++
++	def initialize(hero,target,defend=false)
++		@target=target
++		if defend
++			@state=:Fight
++			#trace
++		else
++			@state=:FormatWalk
++			@targetPos=target.getPos2D
++			@near=10
++			@workflow=[
++				[:FormatWalk,:MoveToNextWayPoint],
++				[:MoveToNextWayPoint,:Fight]
++			]
++		end
++		super(hero)
++	end
++
++	def image
++		&quot;data/gui/sword.png&quot;
++	end
++
++
++end
++
++# rename and replace old hl-jobs
++
++AntHeroRestJobOld=AntHeroRestJob
++AntHeroRestJob=AntNewHLRestJob
++
++AntHeroMoveJobOld=AntHeroMoveJob
++AntHeroMoveJob=AntNewHLMoveJob
++
++AntHeroTakeJobOld=AntHeroTakeJob
++AntHeroTakeJob=AntNewHLTakeJob
++
++AntHeroFightAnimalJobOld=AntHeroFightAnimalJob
++AntHeroFightAnimalJob=AntNewHLKillAnimal
++
++AntHeroFightJobOld=AntHeroFightJob
++AntHeroFightJob=AntNewHLFight
+\ No newline at end of file
+
+Modified: antargis/trunk/ruby/ant_tools.rb
+===================================================================
+--- antargis/trunk/ruby/ant_tools.rb	2007-03-16 19:21:32 UTC (rev 1061)
++++ antargis/trunk/ruby/ant_tools.rb	2007-03-21 19:31:00 UTC (rev 1062)
+@@ -67,3 +67,15 @@
+ 	ObjectSpace.each_object(Class){|a|c.push(a) if a.ancestors.member?(p)}
+ 	return c
+ end
++
++def trace
++	puts &quot;TRACE #{caller[0]}&quot;
++end
++
++def assert(&amp;block)
++	if not block.call
++		raise &quot;Assertion #{block} failed in #{caller[0]} #{block.binding}&quot;
++	end
++end
++
++
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000019.html">[Antargis-svn] r1061 - in antargis/trunk: . gui/src ruby ruby/tests
+</A></li>
+	<LI>Next message: <A HREF="000021.html">[Antargis-svn] r1063 - in antargis/trunk: ruby src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#20">[ date ]</a>
+              <a href="thread.html#20">[ thread ]</a>
+              <a href="subject.html#20">[ subject ]</a>
+              <a href="author.html#20">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,1303 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1072 - in antargis/trunk: . data data/gui/layout	gui/src ruby src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-April/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1072%20-%20in%20antargis/trunk%3A%20.%20data%20data/gui/layout%0A%09gui/src%20ruby%20src&In-Reply-To=%3C200704091050.l39AoN4N004326%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000029.html">
+   <LINK REL="Next"  HREF="000031.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1072 - in antargis/trunk: . data data/gui/layout	gui/src ruby src</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1072%20-%20in%20antargis/trunk%3A%20.%20data%20data/gui/layout%0A%09gui/src%20ruby%20src&In-Reply-To=%3C200704091050.l39AoN4N004326%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1072 - in antargis/trunk: . data data/gui/layout	gui/src ruby src">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Mon Apr  9 12:50:23 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000029.html">[Antargis-svn] r1071 - antargis/tags
+</A></li>
+        <LI>Next message: <A HREF="000031.html">[Antargis-svn] r1073 - antargis/tags
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#30">[ date ]</a>
+              <a href="thread.html#30">[ thread ]</a>
+              <a href="subject.html#30">[ subject ]</a>
+              <a href="author.html#30">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-04-09 12:50:13 +0200 (Mon, 09 Apr 2007)
+New Revision: 1072
+
+Added:
+   antargis/trunk/ruby/ant_models.rb
+   antargis/trunk/src/impostor.cc
+   antargis/trunk/src/impostor.h
+Modified:
+   antargis/trunk/Rakefile
+   antargis/trunk/TODO
+   antargis/trunk/data/gui/layout/mainmenu.xml
+   antargis/trunk/data/theme.xml
+   antargis/trunk/gui/src/ag_application.cc
+   antargis/trunk/gui/src/ag_glscreen.cc
+   antargis/trunk/gui/src/ag_glscreen.h
+   antargis/trunk/gui/src/ag_layoutcreators.cc
+   antargis/trunk/gui/src/ag_main.cc
+   antargis/trunk/gui/src/ag_screen.cc
+   antargis/trunk/gui/src/ag_screen.h
+   antargis/trunk/gui/src/ag_screenwidget.cc
+   antargis/trunk/gui/src/ag_sdlsurface.cc
+   antargis/trunk/gui/src/ag_sdlsurface.h
+   antargis/trunk/ruby/ant_local.rb
+   antargis/trunk/ruby/ant_sack.rb
+   antargis/trunk/ruby/ant_tree.rb
+   antargis/trunk/ruby/antargislib.rb
+   antargis/trunk/ruby/credits.rb
+   antargis/trunk/ruby/intro.rb
+   antargis/trunk/ruby/mainmenu.rb
+   antargis/trunk/src/antargisgui.h
+   antargis/trunk/src/nantmarker.hh
+   antargis/trunk/src/scene.h
+   antargis/trunk/src/vertex_array.cc
+   antargis/trunk/src/vertex_array.h
+Log:
+* some bug-fixes, esp. for windows
+* started some things for impostor-implementation
+* fixed translations a little
+
+
+Modified: antargis/trunk/Rakefile
+===================================================================
+--- antargis/trunk/Rakefile	2007-04-03 19:08:44 UTC (rev 1071)
++++ antargis/trunk/Rakefile	2007-04-09 10:50:13 UTC (rev 1072)
+@@ -33,7 +33,7 @@
+ 
+ 
+ interfaceHeadersSRC=[&quot;ant_frustum.h&quot;,&quot;ant_projection.h&quot;,&quot;ant_camera.h&quot;,
+-&quot;scenenode.h&quot;,&quot;anim_mesh.h&quot;,&quot;anim_mesh_data.h&quot;,&quot;ant_app.h&quot;,&quot;entity.h&quot;,&quot;entptr.h&quot;,&quot;glsl.h&quot;,&quot;height_map.h&quot;,&quot;map.h&quot;,&quot;mesh_data.h&quot;,&quot;mesh.h&quot;,&quot;mesh_optimizer.h&quot;,&quot;minimap.h&quot;,&quot;new_decal.h&quot;,&quot;ant_renderer.h&quot;,&quot;resource.h&quot;,&quot;scene.h&quot;,&quot;smoke.h&quot;,&quot;terrain.h&quot;,&quot;vertex_array.h&quot;,&quot;water.h&quot;,&quot;path.h&quot;]
++&quot;scenenode.h&quot;,&quot;anim_mesh.h&quot;,&quot;anim_mesh_data.h&quot;,&quot;ant_app.h&quot;,&quot;entity.h&quot;,&quot;entptr.h&quot;,&quot;glsl.h&quot;,&quot;height_map.h&quot;,&quot;map.h&quot;,&quot;mesh_data.h&quot;,&quot;mesh.h&quot;,&quot;mesh_optimizer.h&quot;,&quot;minimap.h&quot;,&quot;new_decal.h&quot;,&quot;ant_renderer.h&quot;,&quot;resource.h&quot;,&quot;scene.h&quot;,&quot;smoke.h&quot;,&quot;terrain.h&quot;,&quot;vertex_array.h&quot;,&quot;water.h&quot;,&quot;path.h&quot;,&quot;impostor.h&quot;]
+ interfaceHeadersGUI=[
+ &quot;ag_rubyobj.h&quot;,&quot;ag_messageobject.h&quot;,&quot;ag_serial.h&quot;,&quot;ag_aes.h&quot;,&quot;ag_singleton.h&quot;,
+  &quot;ag_geometry.h&quot;,&quot;ag_font.h&quot;,&quot;ag_color.h&quot;,&quot;ag_local.h&quot;,&quot;ag_config.h&quot;,&quot;ag_string.h&quot;,&quot;ag_string_utf8.h&quot;,
+@@ -225,7 +225,7 @@
+ 
+ task :clean do
+ 	msh &quot;rm -rf clean.rb&quot;
+-	[&quot;src&quot;,$GUISRC,&quot;gui/src/plugins&quot;,&quot;gui/src/sge&quot;].each{|dir|
++	[&quot;src&quot;,$GUISRC,&quot;gui/src/plugins&quot;,&quot;gui/src/sge&quot;,&quot;gui/src/mtwist&quot;].each{|dir|
+ 		[&quot;*.o&quot;,&quot;*.oo&quot;].each{|ext|
+ 			msh &quot;rm -rf #{dir}/#{ext}&quot;
+ 		}
+
+Modified: antargis/trunk/TODO
+===================================================================
+--- antargis/trunk/TODO	2007-04-03 19:08:44 UTC (rev 1071)
++++ antargis/trunk/TODO	2007-04-09 10:50:13 UTC (rev 1072)
+@@ -1,14 +1,11 @@
++* List of project-parts and progress bar
++
+ * check if reachable before fetching !!! (in house) - or even better use heuristic for estimating distance in getNear(...)
+ * saving of new hljobs
+-* Translation tut3
+ * fix jobs some more
+ * what's wrong with pathfinding-test ???
+ 
+ 
+-
+-
+-
+-
+ ==========
+ 
+ 
+
+Modified: antargis/trunk/data/gui/layout/mainmenu.xml
+===================================================================
+--- antargis/trunk/data/gui/layout/mainmenu.xml	2007-04-03 19:08:44 UTC (rev 1071)
++++ antargis/trunk/data/gui/layout/mainmenu.xml	2007-04-09 10:50:13 UTC (rev 1072)
+@@ -1,5 +1,6 @@
+ &lt;?xml version=&quot;1.0&quot;?&gt;
+ &lt;layout name=&quot;MainMenu&quot;&gt;
++	&lt;!--&lt;screenWidget theme=&quot;no&quot;/&gt;--&gt;
+ 	&lt;table cols=&quot;1&quot; rows=&quot;4&quot;&gt;
+ 		&lt;colsize col=&quot;0&quot; relative=&quot;1&quot;/&gt;
+ 		&lt;rowsize row=&quot;0&quot; fixed=&quot;200&quot;/&gt;
+
+Modified: antargis/trunk/data/theme.xml
+===================================================================
+--- antargis/trunk/data/theme.xml	2007-04-03 19:08:44 UTC (rev 1071)
++++ antargis/trunk/data/theme.xml	2007-04-09 10:50:13 UTC (rev 1072)
+@@ -191,13 +191,13 @@
+ 		&lt;/background&gt;
+ 		&lt;font name=&quot;font&quot; file=&quot;FreeSans.ttf&quot; size=&quot;14&quot; color=&quot;#000000&quot;/&gt;
+ 	&lt;/edit&gt;
+-
++&lt;!--
+ 	&lt;screen&gt;
+ 		&lt;background&gt;
+ 			&lt;image name=&quot;image&quot; file=&quot;data/gui/bigbg_tile.png&quot;/&gt;
+ 		&lt;/background&gt;
+ 	&lt;/screen&gt;
+-	
++	--&gt;
+ 	&lt;window&gt;
+ 		&lt;border&gt;
+ 			&lt;image name=&quot;image&quot; file=&quot;data/gui/buttontest3.png&quot; file2=&quot;win_border.png&quot;/&gt;
+
+Modified: antargis/trunk/gui/src/ag_application.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_application.cc	2007-04-03 19:08:44 UTC (rev 1071)
++++ antargis/trunk/gui/src/ag_application.cc	2007-04-09 10:50:13 UTC (rev 1072)
+@@ -75,6 +75,8 @@
+ {
+   mainWidget=w;
+   setOverlay(0);
++  if(w)
++    w-&gt;redraw();
+ }
+ 
+ AGWidget *AGApplication::getMainWidget()
+@@ -325,6 +327,9 @@
+ void AGApplication::redraw()
+ {
+   pLastDrawn=0;
++
++  if(mainWidget)
++    mainWidget-&gt;redraw();
+ }
+ 
+ /**
+
+Modified: antargis/trunk/gui/src/ag_glscreen.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_glscreen.cc	2007-04-03 19:08:44 UTC (rev 1071)
++++ antargis/trunk/gui/src/ag_glscreen.cc	2007-04-09 10:50:13 UTC (rev 1072)
+@@ -162,15 +162,19 @@
+ { 
+ }
+ 
+-AGSurface AGGLScreen::screenshot()
++AGSurface AGGLScreen::screenshot(bool frontBuffer)
+ {
+   AGSurface s(getWidth(),getHeight());
+ 
+   //  SDL_Surface *surface=s.surface()-&gt;surface;
+ 
+   unsigned char *buffer=new unsigned char[getWidth()*getHeight()*4];
+-  glReadBuffer(GL_FRONT);
+ 
++  if(frontBuffer)
++    glReadBuffer(GL_FRONT);
++  else
++    glReadBuffer(GL_BACK);
++
+   cdebug(s.surface());
+   cdebug(s.surface()-&gt;surface);
+ 
+
+Modified: antargis/trunk/gui/src/ag_glscreen.h
+===================================================================
+--- antargis/trunk/gui/src/ag_glscreen.h	2007-04-03 19:08:44 UTC (rev 1071)
++++ antargis/trunk/gui/src/ag_glscreen.h	2007-04-09 10:50:13 UTC (rev 1072)
+@@ -77,7 +77,7 @@
+ 
+   virtual void begin(); // call before start drawing
+ 
+-  AGSurface screenshot();
++  AGSurface screenshot(bool frontBuffer=true);
+ 
+   void flip();
+   bool inScreen(const AGRect2 &amp;r) const;
+
+Modified: antargis/trunk/gui/src/ag_layoutcreators.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_layoutcreators.cc	2007-04-03 19:08:44 UTC (rev 1071)
++++ antargis/trunk/gui/src/ag_layoutcreators.cc	2007-04-09 10:50:13 UTC (rev 1072)
+@@ -12,6 +12,7 @@
+ #include &lt;ag_table.h&gt;
+ #include &lt;ag_theme.h&gt;
+ #include &lt;ag_window.h&gt;
++#include &lt;ag_screenwidget.h&gt;
+ 
+ #include &lt;minimap.h&gt;
+ 
+@@ -494,6 +495,20 @@
+ IMPLEMENT_COMPONENT_FACTORY(MiniMap);
+ 
+ 
++class AGScreenWidgetLayoutCreator:public AGLayoutCreator
++{
++public:
++  REGISTER_COMPONENT(ScreenWidget,&quot;screenWidget&quot;)
++
++  virtual void create(AGWidget *pParent,const AGRect2 &amp;pRect,const Node &amp;pNode)
++  {
++    CTRACE;
++    setResult(new AGScreenWidget());
++  }
++};
++IMPLEMENT_COMPONENT_FACTORY(ScreenWidget);
++
++
+ void AGLayout::registerLayouts()
+ {
+   getLayoutFactory()-&gt;addCreator(&quot;checkBox&quot;,new AGCheckBoxLayoutCreator);
+@@ -512,5 +527,6 @@
+   getLayoutFactory()-&gt;addCreator(&quot;radioGroup&quot;,new AGRadioGroupLayoutCreator);
+   getLayoutFactory()-&gt;addCreator(&quot;radio&quot;,new AGRadioLayoutCreator);
+   getLayoutFactory()-&gt;addCreator(&quot;miniMap&quot;,new AGMiniMapLayoutCreator);
++  getLayoutFactory()-&gt;addCreator(&quot;screenWidget&quot;,new AGScreenWidgetLayoutCreator);
+ 
+ }
+
+Modified: antargis/trunk/gui/src/ag_main.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_main.cc	2007-04-03 19:08:44 UTC (rev 1071)
++++ antargis/trunk/gui/src/ag_main.cc	2007-04-09 10:50:13 UTC (rev 1072)
+@@ -176,6 +176,12 @@
+   if(mScreen)
+     {
+       getSurfaceManager()-&gt;clear();
++      getSurfaceManager()-&gt;clear();
++
++      AGGLScreen *ms=dynamic_cast&lt;AGGLScreen*&gt;(mScreen);
++      if(ms)
++	ms-&gt;screenDown();
++
+     }
+ 
+   lastGL=gl;
+@@ -206,6 +212,8 @@
+   if(fs)
+     videoFlags|=SDL_FULLSCREEN;
+ 
++
++
+   // set video mode
+   SDL_Init(SDL_INIT_VIDEO);
+   SDL_Surface *ms=SDL_SetVideoMode(w,h,videoInfo-&gt;vfmt-&gt;BitsPerPixel,videoFlags);
+@@ -219,9 +227,6 @@
+ 
+   if(mScreen)
+     {
+-      AGGLScreen *ms=dynamic_cast&lt;AGGLScreen*&gt;(mScreen);
+-      if(ms)
+-	ms-&gt;screenDown();
+       delete mScreen;
+     }
+ 
+
+Modified: antargis/trunk/gui/src/ag_screen.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_screen.cc	2007-04-03 19:08:44 UTC (rev 1071)
++++ antargis/trunk/gui/src/ag_screen.cc	2007-04-09 10:50:13 UTC (rev 1072)
+@@ -43,7 +43,7 @@
+ }
+ 
+ 
+-AGSurface AGScreen::screenshot()
++AGSurface AGScreen::screenshot(bool frontBuffer)
+ {
+   cdebug(&quot;NOT YET IMPLEMENTED&quot;);
+   return AGSurface(0,0);
+
+Modified: antargis/trunk/gui/src/ag_screen.h
+===================================================================
+--- antargis/trunk/gui/src/ag_screen.h	2007-04-03 19:08:44 UTC (rev 1071)
++++ antargis/trunk/gui/src/ag_screen.h	2007-04-09 10:50:13 UTC (rev 1072)
+@@ -37,7 +37,7 @@
+   virtual size_t getWidth() const;
+   virtual size_t getHeight() const;
+ 
+-  virtual AGSurface screenshot();
++  virtual AGSurface screenshot(bool frontBuffer=true);
+ };
+ 
+ AGScreen &amp; AGEXPORT getScreen();
+
+Modified: antargis/trunk/gui/src/ag_screenwidget.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_screenwidget.cc	2007-04-03 19:08:44 UTC (rev 1071)
++++ antargis/trunk/gui/src/ag_screenwidget.cc	2007-04-09 10:50:13 UTC (rev 1072)
+@@ -28,7 +28,7 @@
+ AGScreenWidget::AGScreenWidget():
+   AGWidget(0,getScreen().getRect())
+ {
+-  mTexture=AGTexture(getTheme()-&gt;getSurface(&quot;screen.background.image&quot;));
++  //  mTexture=AGTexture(getTheme()-&gt;getSurface(&quot;screen.background.image&quot;));
+ }
+ AGScreenWidget::~AGScreenWidget()
+ {
+@@ -37,5 +37,6 @@
+ void AGScreenWidget::draw(AGPainter &amp;p)
+ {
+   //  p.clip(AGRect2(10,10,50,50));
+-  p.tile(mTexture);
++  //p.tile(mTexture);
++  p.fillRect(p.getRect().origin(),AGColor(0,0,0));
+ }
+
+Modified: antargis/trunk/gui/src/ag_sdlsurface.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_sdlsurface.cc	2007-04-03 19:08:44 UTC (rev 1071)
++++ antargis/trunk/gui/src/ag_sdlsurface.cc	2007-04-09 10:50:13 UTC (rev 1072)
+@@ -48,9 +48,20 @@
+ 
+ void AGSDLScreen::fillRect(const AGRect2 &amp;pRect,const AGColor &amp;c)
+ {
+-  for(int x=(int)pRect.x0();x&lt;(int)pRect.x1();x++)
+-    for(int y=(int)pRect.y0();y&lt;(int)pRect.y1();y++)
+-      putPixel(x,y,c);
++  if(c.a&lt;0xFF)
++    {
++      for(int x=(int)pRect.x0();x&lt;(int)pRect.x1();x++)
++	for(int y=(int)pRect.y0();y&lt;(int)pRect.y1();y++)
++	  {
++	    putPixel(x,y,c);
++	  }
++    }
++  else
++    {
++      for(int x=(int)pRect.x0();x&lt;(int)pRect.x1();x++)
++	for(int y=(int)pRect.y0();y&lt;(int)pRect.y1();y++)
++	  putPixel(x,y,c);
++    }
+   return;
+   sge_FilledRectAlpha(s,
+ 		      (int)pRect.x(),
+@@ -212,7 +223,7 @@
+   SDL_SetClipRect(s,&amp;sr);
+ }
+ 
+-AGSurface AGSDLScreen::screenshot()
++AGSurface AGSDLScreen::screenshot(bool frontBuffer)
+ {
+   AGInternalSurface *surface=new AGInternalSurface;
+   surface-&gt;surface=s;
+
+Modified: antargis/trunk/gui/src/ag_sdlsurface.h
+===================================================================
+--- antargis/trunk/gui/src/ag_sdlsurface.h	2007-04-03 19:08:44 UTC (rev 1071)
++++ antargis/trunk/gui/src/ag_sdlsurface.h	2007-04-09 10:50:13 UTC (rev 1072)
+@@ -58,7 +58,7 @@
+   virtual void clip(const AGRect2 &amp;r);
+   virtual void unclip();
+ 
+-  AGSurface screenshot();
++  AGSurface screenshot(bool frontBuffer=true);
+ 
+  private:
+   SDL_Surface *s;
+
+Modified: antargis/trunk/ruby/ant_local.rb
+===================================================================
+--- antargis/trunk/ruby/ant_local.rb	2007-04-03 19:08:44 UTC (rev 1071)
++++ antargis/trunk/ruby/ant_local.rb	2007-04-09 10:50:13 UTC (rev 1072)
+@@ -52,6 +52,7 @@
+ 		read
+ 	end
+ 	def process(x)
++		x=x.gsub(&quot;\n&quot;,&quot;\\n&quot;)
+ 		r=myprocess(x)
+ 		#puts &quot;TRANSLATE: #{x} #{r.class}&quot;
+ 		return r
+
+Added: antargis/trunk/ruby/ant_models.rb
+===================================================================
+--- antargis/trunk/ruby/ant_models.rb	2007-04-03 19:08:44 UTC (rev 1071)
++++ antargis/trunk/ruby/ant_models.rb	2007-04-09 10:50:13 UTC (rev 1072)
+@@ -0,0 +1,100 @@
++
++$useImpostors=false
++
++def getStaticModelRotation(name)
++	rot={
++	}
++
++	if rot.member?(name)
++		return rot[name]
++	end
++	return 0
++end
++
++def getStaticModelScaling(name)
++	scales={
++		&quot;sack&quot;=&gt;0.3,
++		&quot;stub&quot;=&gt;0.04,
++	}
++
++	if scales.member?(name)
++		return scales[name]
++	end
++	return 1
++end
++
++def createModel(entityType,subType=nil,angle=nil)
++	mesh=nil
++
++	animMeshes={
++		:man=&gt;{
++			[&quot;wood&quot;]=&gt;&quot;data/models/man_e_wood.anim&quot;,
++			[&quot;stone&quot;,&quot;flour&quot;,&quot;corn&quot;]=&gt;&quot;data/models/man_e_stones.anim&quot;,
++			[&quot;walk&quot;,&quot;sitdown&quot;,&quot;sit&quot;]=&gt;&quot;data/models/man_e_walk.anim&quot;,
++			[&quot;fight_dagger&quot;]=&gt;&quot;data/models/man_e_dagger.anim&quot;,
++			[&quot;fight_shield&quot;]=&gt;&quot;data/models/man_e_shield.anim&quot;,
++			[&quot;fight_sword&quot;]=&gt;&quot;data/models/man_e_sword.anim&quot;,
++			[&quot;fight_bow&quot;]=&gt;&quot;data/models/man_e_bow.anim&quot;
++		},
++		:sack=&gt;{
++			[]=&gt;&quot;sack&quot;
++		},
++		:tree=&gt;{
++			[&quot;stub&quot;]=&gt;&quot;stub&quot;,
++			[0]=&gt;[&quot;data/models/fir2.ant2&quot;,0.45,&quot;data/textures/models/fir5.png&quot;,false],
++			[1]=&gt;[&quot;data/models/fir2.ant2&quot;,0.45,&quot;data/textures/models/fir7.png&quot;,false],
++			[2]=&gt;[&quot;data/models/tree5.ant2&quot;,0.45,&quot;data/textures/models/tree3.png&quot;,false],
++			[3]=&gt;[&quot;data/models/tree5.ant2&quot;,0.45,&quot;data/textures/models/tree5.png&quot;,false],
++			[4]=&gt;[&quot;data/models/tree5.ant2&quot;,0.45,&quot;data/textures/models/tree9.png&quot;,false],
++			[5]=&gt;[&quot;data/models/tree6.ant2&quot;,0.45,&quot;data/textures/models/tree5.png&quot;,false],
++			[6]=&gt;[&quot;data/models/tree5.ant2&quot;,0.45,&quot;data/textures/models/tree10.png&quot;,false],
++			[7]=&gt;[&quot;data/models/tree_simple1.ant2&quot;,0.3,&quot;data/textures/models/tree_simple1.png&quot;],
++			[8]=&gt;[&quot;data/models/tree_simple2.ant2&quot;,0.3,&quot;data/textures/models/tree_simple1.png&quot;],
++			[9]=&gt;[&quot;data/models/tree_simple5.ant2&quot;,0.3,&quot;data/textures/models/tree_simple5.png&quot;]
++		}
++
++	}
++
++	map=animMeshes[entityType]
++
++	map.each{|k,v|
++		if k.member?(subType) or k.length==0
++			mesh=v
++		end
++	}
++	scenenode=nil
++	if mesh
++		if mesh.is_a?(Array)
++			ant2name=mesh[0]
++			scale=mesh[1]
++			pngname=mesh[2]
++			culling=true
++			if mesh.length&gt;3
++				culling=mesh[3]
++			end
++			data=getMeshData(ant2name,scale,pngname)
++			data.setCulling(culling)
++			data.setTransparent(true)
++			angle||=getStaticModelRotation(name)
++			scenenode=Mesh.new(getMap.getScene,data,AGVector4.new(0,0,0),angle)
++					
++		elsif mesh=~/anim$/
++			scenenode=AnimMesh.new(getMap.getScene,getAnimMeshData(mesh))
++		else
++			ant2name=&quot;data/models/&quot;+mesh+&quot;.ant2&quot;
++			pngname=&quot;data/textures/models/&quot;+mesh+&quot;.png&quot;
++			name=mesh
++			angle||=getStaticModelRotation(name)
++			scenenode=Mesh.new(getMap.getScene,getMeshData(ant2name,getStaticModelScaling(name),pngname),AGVector4.new(0,0,0),angle)
++		end
++	end
++
++	if $useImpostors
++		# FIXME:replace by impostor
++		if entityType!=:sack
++			return createModel(:sack)
++		end
++	end
++
++	return scenenode
++end
+\ No newline at end of file
+
+Modified: antargis/trunk/ruby/ant_sack.rb
+===================================================================
+--- antargis/trunk/ruby/ant_sack.rb	2007-04-03 19:08:44 UTC (rev 1071)
++++ antargis/trunk/ruby/ant_sack.rb	2007-04-09 10:50:13 UTC (rev 1072)
+@@ -1,10 +1,9 @@
++require 'ant_models.rb'
++
+ class AntSack&lt;AntAnimal
+ 	def initialize(p=AGVector2.new(0,0))
+ 		super
+-		mp=AGVector3.new(0,0,0)
+-		mesh=Mesh.new(getMap.getScene,getMeshData(&quot;data/models/sack.ant2&quot;,0.3,&quot;data/textures/models/sack.png&quot;),AGVector4.new(0,0,0),0)
+-		setMesh(mesh)
+-		#setPos(AGVector2.new(p.x,p.y))
++		setMesh(createModel(:sack))
+ 		@enabled=true
+ 		@storeGood=[&quot;food&quot;,&quot;tool&quot;,&quot;corn&quot;,&quot;stone&quot;,&quot;wood&quot;]
+ 	end
+
+Modified: antargis/trunk/ruby/ant_tree.rb
+===================================================================
+--- antargis/trunk/ruby/ant_tree.rb	2007-04-03 19:08:44 UTC (rev 1071)
++++ antargis/trunk/ruby/ant_tree.rb	2007-04-09 10:50:13 UTC (rev 1072)
+@@ -108,7 +108,12 @@
+ 	
+ 	private
+ 	def setupMesh
+-		setMesh(Mesh.new(getMap.getScene,getTreeMeshByType(@typeID),AGVector4.new(0,0,0,0)<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at angle</A>))
++		#setMesh(Mesh.new(getMap.getScene,getTreeMeshByType(@typeID),AGVector4.new(0,0,0,0)<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at angle</A>))
++		typeId=&quot;stub&quot;
++		if @typeID&gt;=0
++			typeId=@typeID%10
++		end
++		setMesh(createModel(:<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">tree,typeId, at angle</A>))
+ 	end
+ 
+ 	# an old function for display apples - this is too costly
+
+Modified: antargis/trunk/ruby/antargislib.rb
+===================================================================
+--- antargis/trunk/ruby/antargislib.rb	2007-04-03 19:08:44 UTC (rev 1071)
++++ antargis/trunk/ruby/antargislib.rb	2007-04-09 10:50:13 UTC (rev 1072)
+@@ -100,6 +100,7 @@
+ 		@@antargislibinited=true
+ 		@@fullscreen=false
+ 		@@antProfiling=false
++		@@opengl=true
+ 
+ 		setDebugLevel(1000)
+ 	
+@@ -131,6 +132,8 @@
+ 					when /debug-level/
+ 						level=a.split(&quot;=&quot;)[1].to_i
+ 						setDebugLevel(level)
++					when &quot;nogl&quot;
++						@@opengl=false
+ 					when &quot;demo&quot;
+ 						$demoMode=true
+ 					when &quot;gui-test&quot;
+@@ -157,6 +160,8 @@
+ 	--demo         enable demo mode - reading events from events.txt
+ 
+ 	--debug-level=x
++
++	--nogl         disable GL-mode (3d-acceleration) - THIS IS NOT YET FULLY SUPPORTED!!
+ 	&quot;
+ 	
+ 						exit
+@@ -190,7 +195,7 @@
+ 		if @@noVideo.nil?
+ 			#if xres!=1024 || yres!=768 || $fullscreen
+ 			dputs @@fullscreen
+-			@@main.initVideo(xres,yres,32,@@fullscreen,true,1024,768)
++			@@main.initVideo(xres,yres,32,@@fullscreen,@@opengl,1024,768)
+ 			#end
+ 		
+ 			getConfig.set(&quot;xRes&quot;,xres.to_s)
+
+Modified: antargis/trunk/ruby/credits.rb
+===================================================================
+--- antargis/trunk/ruby/credits.rb	2007-04-03 19:08:44 UTC (rev 1071)
++++ antargis/trunk/ruby/credits.rb	2007-04-09 10:50:13 UTC (rev 1072)
+@@ -23,6 +23,9 @@
+ 	def setCFont(f)
+ 		@cfont=f
+ 	end
++	def prepareDraw
++		queryRedraw
++	end
+ 	def draw(p)
+ 		now=@menuapp.getTicks
+ 		if @starttime&gt;0
+
+Modified: antargis/trunk/ruby/intro.rb
+===================================================================
+--- antargis/trunk/ruby/intro.rb	2007-04-03 19:08:44 UTC (rev 1071)
++++ antargis/trunk/ruby/intro.rb	2007-04-09 10:50:13 UTC (rev 1072)
+@@ -11,8 +11,10 @@
+ 	end
+ 	def setAlpha(a)
+ 		@alpha=a
++		queryRedraw
+ 	end
+ 	def draw(painter)
++		#painter.fillRect(@r,AGColor.new(0,0,0,0x1F))
+ 		painter.fillRect(@r,AGColor.new(0,0,0,(0xFF*@alpha).to_i))
+ 	end
+ end
+@@ -107,6 +109,7 @@
+ 					tryQuit
+ 				end
+ 		end
++		@img.redraw
+ 	end
+ 	
+ 	def eventFrame(t)
+
+Modified: antargis/trunk/ruby/mainmenu.rb
+===================================================================
+--- antargis/trunk/ruby/mainmenu.rb	2007-04-03 19:08:44 UTC (rev 1071)
++++ antargis/trunk/ruby/mainmenu.rb	2007-04-09 10:50:13 UTC (rev 1072)
+@@ -54,6 +54,16 @@
+ 		# add handler for music finished, simply restart music
+ 		addHandler(getSoundManager,:sigMp3Finished,:eventMusicEnd)
+ 	end
++
++	def setMainWidget(w)
++		if @myScreen.nil?
++			@myScreen||=AGScreenWidget.new
++			super(@myScreen)
++		end
++		@myScreen.removeChild(@curMainWidget)
++		@myScreen.addChild(w)
++		@curMainWidget=w
++	end
+ 	
+ 	def eventMusicEnd
+ 		if @sound
+@@ -145,7 +155,7 @@
+ 
+ 	def eventLoadSelect(e)
+ 		if getMainWidget==@singleMenu
+-			@singleMenu.getChild(&quot;desc&quot;).setText(&quot;&quot;)
++			@singleMenu.getChild(&quot;desc&quot;).setText(AGStringUtf8.new(&quot;&quot;))
+ 			filename=id=@singleMenu.getChild(&quot;list&quot;).getSelectedID
+ 			fn=&quot;data/levels/&quot;+id.gsub(&quot;.antlvl&quot;,&quot;.png&quot;)
+ 			if findFile(fn)!=&quot;&quot;
+@@ -156,12 +166,12 @@
+ 			end
+ 			doc=Document.new(&quot;data/levels/&quot;+filename)
+ 			d=doc.root.get(&quot;desc&quot;)
+-			@singleMenu.getChild(&quot;desc&quot;).setText(d)
++			@singleMenu.getChild(&quot;desc&quot;).setText(AGStringUtf8.new(d))
+ 			return true
+ 		end
+ 		puts &quot;MUH&quot;
+ 		#raise 1
+-		@loadMenu.getChild(&quot;desc&quot;).setText(&quot;&quot;)
++		@loadMenu.getChild(&quot;desc&quot;).setText(AGStringUtf8.new(&quot;&quot;))
+ 		filename=id=@loadMenu.getChild(&quot;list&quot;).getSelectedID
+ 		fn=&quot;savegames/&quot;+id.gsub(&quot;.antcmp&quot;,&quot;.png&quot;)
+ 		if findFile(fn)!=&quot;&quot;
+
+Modified: antargis/trunk/src/antargisgui.h
+===================================================================
+--- antargis/trunk/src/antargisgui.h	2007-04-03 19:08:44 UTC (rev 1071)
++++ antargis/trunk/src/antargisgui.h	2007-04-09 10:50:13 UTC (rev 1072)
+@@ -84,6 +84,7 @@
+ #include &quot;../src/vertex_array.h&quot;
+ #include &quot;../src/water.h&quot;
+ #include &quot;../src/path.h&quot;
++#include &quot;../src/impostor.h&quot;
+ #include &lt;SDL_keysym.h&gt;
+ #ifdef SWIG
+ %include &quot;../gui/src/ag_rubyobj.h&quot;
+@@ -170,6 +171,7 @@
+ %include &quot;../src/vertex_array.h&quot;
+ %include &quot;../src/water.h&quot;
+ %include &quot;../src/path.h&quot;
++%include &quot;../src/impostor.h&quot;
+ %include &quot;/usr/include/SDL/SDL_keysym.h&quot;
+ #endif
+ #endif
+
+Added: antargis/trunk/src/impostor.cc
+===================================================================
+--- antargis/trunk/src/impostor.cc	2007-04-03 19:08:44 UTC (rev 1071)
++++ antargis/trunk/src/impostor.cc	2007-04-09 10:50:13 UTC (rev 1072)
+@@ -0,0 +1,107 @@
++#include &quot;impostor.h&quot;
++#include &lt;ag_debug.h&gt;
++#include &lt;ag_screen.h&gt;
++#include &lt;ag_rendercontext.h&gt;
++
++AntImpostorData::AntImpostorData(SceneNode *pNode):mTexture(512,512)
++{
++  glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT); // clear screen and depth buffer
++
++  mTexture.beginPaint();
++  glEnable(GL_DEPTH_TEST); // enable depth test
++  glDepthMask(true);
++
++  assertGL;
++
++  AGRenderContext c;
++  c.begin(); // reset gl-state
++
++
++  assert(pNode);
++  Scene *pScene=pNode-&gt;getScene();
++  assert(pScene);
++
++  pScene-&gt;initScene();
++
++  /*
++  AntCamera camera=pScene-&gt;getCameraObject();
++
++
++  // init smaller Projection-matrix
++  glMatrixMode(GL_PROJECTION);
++  glLoadIdentity();
++
++  int x=0,y=0,h=mTexture.width(),w=mTexture.height();
++
++  gluPickMatrix(x,camera.getHeight()-y,h,w,pScene-&gt;getViewport());
++
++  // add cameras-projection-matrix
++  glMultMatrixf(camera.getProjection());
++
++  glMatrixMode(GL_MODELVIEW);
++  */
++  int sw=getScreen().getWidth(),sh=getScreen().getHeight();
++  int w=mTexture.width(),h=mTexture.height();
++  
++  
++
++  glViewport(-sw/2+w/2,-sh/2+h/2,sw,sh);
++
++  pNode-&gt;draw();
++
++
++
++  //  mTexture.endPaint();
++
++  AGSurface s=getScreen().screenshot(false);
++  s.save(&quot;impostor.png&quot;);
++
++
++  mTexture.endPaint();
++
++  AGSurface subs=s.getSubSurface(AGRect2(0,sh-h,w,h));
++  subs.save(&quot;impostor3.png&quot;);
++
++  //  mTexture.save(&quot;impostor.png&quot;);
++}
++
++AGTexture &amp;AntImpostorData::getTexture()
++{
++  return mTexture;
++}
++
++void AntImpostorData::mark()
++{
++  markObject(&amp;mTexture);
++  AGRubyObject::mark();
++}
++
++
++
++void AntImpostorData::create()
++{
++}
++
++
++/////////////////////////////////////////////////////////////////
++// AntImpostor
++/////////////////////////////////////////////////////////////////
++
++AntImpostor::AntImpostor(Scene *pScene,AntImpostorData *pData,const AGVector4 &amp;pPos,float pRot):
++  SceneNode(pScene,pPos,AGBox3())
++{
++}
++
++void AntImpostor::draw()
++{
++}
++void AntImpostor::drawDepth()
++{
++}
++void AntImpostor::drawShadow()
++{
++}
++void AntImpostor::drawPick()
++{
++}
++
+
+Added: antargis/trunk/src/impostor.h
+===================================================================
+--- antargis/trunk/src/impostor.h	2007-04-03 19:08:44 UTC (rev 1071)
++++ antargis/trunk/src/impostor.h	2007-04-09 10:50:13 UTC (rev 1072)
+@@ -0,0 +1,38 @@
++#ifndef IMPOSTOR_H
++#define IMPOSTOR_H
++
++#include &lt;ag_texture.h&gt;
++#include &lt;scene.h&gt;
++
++class AntImpostorData:public AGRubyObject
++{
++  AGTexture mTexture;
++  
++ public:
++  // create impostor from a scene-node - to make it as simple as possible
++  AntImpostorData(SceneNode *pNode);
++
++  AGTexture &amp;getTexture();
++
++  void mark();
++
++ private:
++  void create();
++};
++
++class AntImpostor:public SceneNode
++{
++  AntImpostorData *mData;
++ public:
++  AntImpostor(Scene *pScene,AntImpostorData *pData,const AGVector4 &amp;pPos,float pRot);
++
++  void draw();
++  void drawDepth();
++  void drawShadow();
++  void drawPick();
++
++ private:
++  
++};
++
++#endif
+
+Modified: antargis/trunk/src/nantmarker.hh
+===================================================================
+--- antargis/trunk/src/nantmarker.hh	2007-04-03 19:08:44 UTC (rev 1071)
++++ antargis/trunk/src/nantmarker.hh	2007-04-09 10:50:13 UTC (rev 1072)
+@@ -278,6 +278,16 @@
+ 	result-&gt;mRubyObject=true;
+ }
+ %markfunc AGCaption &quot;general_markfunc&quot;
++%exception AntImpostorData::AntImpostorData {
++	$action
++	result-&gt;mRUBY=self;
++#ifdef GCDEBUG
++     result-&gt;mObjName=typeid(*result).name();
++     printf(&quot;%lx   %s\n&quot;,self,typeid(*result).name());
++#endif
++	result-&gt;mRubyObject=true;
++}
++%markfunc AntImpostorData &quot;general_markfunc&quot;
+ %exception AGRadioGroup::AGRadioGroup {
+ 	$action
+ 	result-&gt;mRUBY=self;
+@@ -408,6 +418,16 @@
+ 	result-&gt;mRubyObject=true;
+ }
+ %markfunc AGLayoutCreator &quot;general_markfunc&quot;
++%exception AntImpostor::AntImpostor {
++	$action
++	result-&gt;mRUBY=self;
++#ifdef GCDEBUG
++     result-&gt;mObjName=typeid(*result).name();
++     printf(&quot;%lx   %s\n&quot;,self,typeid(*result).name());
++#endif
++	result-&gt;mRubyObject=true;
++}
++%markfunc AntImpostor &quot;general_markfunc&quot;
+ %exception AGRandomizer::AGRandomizer {
+ 	$action
+ 	result-&gt;mRUBY=self;
+@@ -1578,6 +1598,34 @@
+  }
+  else $input=Qnil;
+ }
++%typemap(out) AntImpostorData*{
++ if($1)
++ {
++  if($1-&gt;mRubyObject)
++    $result=$1-&gt;mRUBY;
++  else
++   {
++     if(false);
++   else
++     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AntImpostorData,0);
++   }
++ }
++ else vresult=Qnil;
++}
++%typemap(directorin) AntImpostorData*{
++ if($1)
++ {
++  if($1-&gt;mRubyObject)
++    $input=$1-&gt;mRUBY;
++  else
++   {
++     if(false);
++   else
++     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AntImpostorData,0);
++   }
++ }
++ else $input=Qnil;
++}
+ %typemap(out) AGRadioGroup*{
+  if($1)
+  {
+@@ -1694,7 +1742,7 @@
+  }
+  else $input=Qnil;
+ }
+-%typemap(out) AntMap*{
++%typemap(out) PathWeighter*{
+  if($1)
+  {
+   if($1-&gt;mRubyObject)
+@@ -1702,13 +1750,15 @@
+   else
+    {
+      if(false);
++else if(dynamic_cast&lt;MapPathWeighter*&gt;(result))
++  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_MapPathWeighter,0);
+    else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AntMap,0);
++     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_PathWeighter,0);
+    }
+  }
+  else vresult=Qnil;
+ }
+-%typemap(directorin) AntMap*{
++%typemap(directorin) PathWeighter*{
+  if($1)
+  {
+   if($1-&gt;mRubyObject)
+@@ -1716,13 +1766,15 @@
+   else
+    {
+      if(false);
++else if(dynamic_cast&lt;MapPathWeighter*&gt;($1))
++  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_MapPathWeighter,0);
+    else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AntMap,0);
++     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_PathWeighter,0);
+    }
+  }
+  else $input=Qnil;
+ }
+-%typemap(out) AGMenu*{
++%typemap(out) AntMap*{
+  if($1)
+  {
+   if($1-&gt;mRubyObject)
+@@ -1731,12 +1783,12 @@
+    {
+      if(false);
+    else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGMenu,0);
++     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AntMap,0);
+    }
+  }
+  else vresult=Qnil;
+ }
+-%typemap(directorin) AGMenu*{
++%typemap(directorin) AntMap*{
+  if($1)
+  {
+   if($1-&gt;mRubyObject)
+@@ -1745,12 +1797,12 @@
+    {
+      if(false);
+    else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGMenu,0);
++     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AntMap,0);
+    }
+  }
+  else $input=Qnil;
+ }
+-%typemap(out) MiniMap*{
++%typemap(out) AGMenu*{
+  if($1)
+  {
+   if($1-&gt;mRubyObject)
+@@ -1759,12 +1811,12 @@
+    {
+      if(false);
+    else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_MiniMap,0);
++     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGMenu,0);
+    }
+  }
+  else vresult=Qnil;
+ }
+-%typemap(directorin) MiniMap*{
++%typemap(directorin) AGMenu*{
+  if($1)
+  {
+   if($1-&gt;mRubyObject)
+@@ -1773,12 +1825,12 @@
+    {
+      if(false);
+    else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_MiniMap,0);
++     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGMenu,0);
+    }
+  }
+  else $input=Qnil;
+ }
+-%typemap(out) AGColorButton*{
++%typemap(out) MiniMap*{
+  if($1)
+  {
+   if($1-&gt;mRubyObject)
+@@ -1787,12 +1839,12 @@
+    {
+      if(false);
+    else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGColorButton,0);
++     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_MiniMap,0);
+    }
+  }
+  else vresult=Qnil;
+ }
+-%typemap(directorin) AGColorButton*{
++%typemap(directorin) MiniMap*{
+  if($1)
+  {
+   if($1-&gt;mRubyObject)
+@@ -1801,12 +1853,12 @@
+    {
+      if(false);
+    else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGColorButton,0);
++     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_MiniMap,0);
+    }
+  }
+  else $input=Qnil;
+ }
+-%typemap(out) AGImage*{
++%typemap(out) AGColorButton*{
+  if($1)
+  {
+   if($1-&gt;mRubyObject)
+@@ -1815,12 +1867,12 @@
+    {
+      if(false);
+    else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGImage,0);
++     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGColorButton,0);
+    }
+  }
+  else vresult=Qnil;
+ }
+-%typemap(directorin) AGImage*{
++%typemap(directorin) AGColorButton*{
+  if($1)
+  {
+   if($1-&gt;mRubyObject)
+@@ -1829,12 +1881,12 @@
+    {
+      if(false);
+    else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGImage,0);
++     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGColorButton,0);
+    }
+  }
+  else $input=Qnil;
+ }
+-%typemap(out) PathWeighter*{
++%typemap(out) AGImage*{
+  if($1)
+  {
+   if($1-&gt;mRubyObject)
+@@ -1842,15 +1894,13 @@
+   else
+    {
+      if(false);
+-else if(dynamic_cast&lt;MapPathWeighter*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_MapPathWeighter,0);
+    else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_PathWeighter,0);
++     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGImage,0);
+    }
+  }
+  else vresult=Qnil;
+ }
+-%typemap(directorin) PathWeighter*{
++%typemap(directorin) AGImage*{
+  if($1)
+  {
+   if($1-&gt;mRubyObject)
+@@ -1858,10 +1908,8 @@
+   else
+    {
+      if(false);
+-else if(dynamic_cast&lt;MapPathWeighter*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_MapPathWeighter,0);
+    else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_PathWeighter,0);
++     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGImage,0);
+    }
+  }
+  else $input=Qnil;
+@@ -1906,6 +1954,8 @@
+   vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AnimMesh,0);
+ else if(dynamic_cast&lt;WaterPiece*&gt;(result))
+   vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_WaterPiece,0);
++else if(dynamic_cast&lt;AntImpostor*&gt;(result))
++  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AntImpostor,0);
+ else if(dynamic_cast&lt;Smoke*&gt;(result))
+   vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_Smoke,0);
+ else if(dynamic_cast&lt;Mesh*&gt;(result))
+@@ -1932,6 +1982,8 @@
+   $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AnimMesh,0);
+ else if(dynamic_cast&lt;WaterPiece*&gt;($1))
+   $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_WaterPiece,0);
++else if(dynamic_cast&lt;AntImpostor*&gt;($1))
++  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AntImpostor,0);
+ else if(dynamic_cast&lt;Smoke*&gt;($1))
+   $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_Smoke,0);
+ else if(dynamic_cast&lt;Mesh*&gt;($1))
+@@ -1974,6 +2026,34 @@
+  }
+  else $input=Qnil;
+ }
++%typemap(out) AntImpostor*{
++ if($1)
++ {
++  if($1-&gt;mRubyObject)
++    $result=$1-&gt;mRUBY;
++  else
++   {
++     if(false);
++   else
++     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AntImpostor,0);
++   }
++ }
++ else vresult=Qnil;
++}
++%typemap(directorin) AntImpostor*{
++ if($1)
++ {
++  if($1-&gt;mRubyObject)
++    $input=$1-&gt;mRUBY;
++  else
++   {
++     if(false);
++   else
++     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AntImpostor,0);
++   }
++ }
++ else $input=Qnil;
++}
+ %typemap(out) AGRandomizer*{
+  if($1)
+  {
+@@ -3062,6 +3142,16 @@
+  Data_Get_Struct($input,AntFrustum,b);
+  $result=*b;
+ }
++%typemap(directorout) AntImpostor {
++ AntImpostor *b;
++ Data_Get_Struct($input,AntImpostor,b);
++ $result=*b;
++}
++%typemap(directorout) AntImpostorData {
++ AntImpostorData *b;
++ Data_Get_Struct($input,AntImpostorData,b);
++ $result=*b;
++}
+ %typemap(directorout) AntMap {
+  AntMap *b;
+  Data_Get_Struct($input,AntMap,b);
+
+Modified: antargis/trunk/src/scene.h
+===================================================================
+--- antargis/trunk/src/scene.h	2007-04-03 19:08:44 UTC (rev 1071)
++++ antargis/trunk/src/scene.h	2007-04-09 10:50:13 UTC (rev 1072)
+@@ -158,6 +158,8 @@
+   std::map&lt;GLuint,SceneNode*&gt; pickNames;
+ 
+   bool mEnabled;
++
++  friend class AntImpostorData;
+ };
+ 
+ 
+
+Modified: antargis/trunk/src/vertex_array.cc
+===================================================================
+--- antargis/trunk/src/vertex_array.cc	2007-04-03 19:08:44 UTC (rev 1071)
++++ antargis/trunk/src/vertex_array.cc	2007-04-09 10:50:13 UTC (rev 1072)
+@@ -518,8 +518,34 @@
+ }
+ 
+ 
++void VertexArray::onScreenUp()
++{
++    init();
++}
+ 
++void VertexArray::onScreenDown()
++{
++  if(mBuffers &amp;&amp; mVertexBuffer!=0) //mChanged==false)
++    {
++      glDeleteBuffersARB( 1, &amp;mVertexBuffer );
++      glDeleteBuffersARB( 1, &amp;mColorBuffer );
++      glDeleteBuffersARB( 1, &amp;mNormalBuffer );
++      glDeleteBuffersARB( 1, &amp;mTexBuffer );
++      if(!mDynamic)
++	glDeleteBuffersARB( 1, &amp;mIndexBuffer );
++    }
++  mVertexBuffer=mColorBuffer=mNormalBuffer=mTexBuffer=mIndexBuffer=0;
++}
+ 
++
++
++
++////////////////////////////////////////////////////////////////////
++// VertexArrayShader
++////////////////////////////////////////////////////////////////////
++
++
++
+ VertexArrayShader::VertexArrayShader(AntShaderProgram *_p):p(_p)
+ {
+   aInited=false;
+
+Modified: antargis/trunk/src/vertex_array.h
+===================================================================
+--- antargis/trunk/src/vertex_array.h	2007-04-03 19:08:44 UTC (rev 1071)
++++ antargis/trunk/src/vertex_array.h	2007-04-09 10:50:13 UTC (rev 1072)
+@@ -23,7 +23,7 @@
+    if you have to do special drawing like picking, use the corresp. functions (drawDepth,drawPick)
+ */
+ 
+-class VertexArray
++class VertexArray:public AGGLObject
+ {
+   std::vector&lt;AGVector4&gt; mVertices,mColors;
+   std::vector&lt;AGVector3&gt; mNormals;
+@@ -83,6 +83,9 @@
+   bool useVertexArrays() const;
+   friend VertexArray *makeInstances(const VertexArray &amp;va,const std::vector&lt;AGMatrix4&gt; &amp;ts);
+ 
++  void onScreenUp();
++  void onScreenDown();
++
+ };
+ 
+ /**
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000029.html">[Antargis-svn] r1071 - antargis/tags
+</A></li>
+	<LI>Next message: <A HREF="000031.html">[Antargis-svn] r1073 - antargis/tags
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#30">[ date ]</a>
+              <a href="thread.html#30">[ thread ]</a>
+              <a href="subject.html#30">[ subject ]</a>
+              <a href="author.html#30">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

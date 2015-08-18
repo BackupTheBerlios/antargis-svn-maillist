@@ -1,0 +1,315 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1226 - in antargis/trunk/ext: 3dengine video
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2008-February/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1226%20-%20in%20antargis/trunk/ext%3A%203dengine%20video&In-Reply-To=%3C200802021651.m12Gpm7Y017393%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000184.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1226 - in antargis/trunk/ext: 3dengine video</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1226%20-%20in%20antargis/trunk/ext%3A%203dengine%20video&In-Reply-To=%3C200802021651.m12Gpm7Y017393%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1226 - in antargis/trunk/ext: 3dengine video">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sat Feb  2 17:51:48 CET 2008</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000184.html">[Antargis-svn] r1227 - in antargis/trunk: . ext/video ruby
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#183">[ date ]</a>
+              <a href="thread.html#183">[ thread ]</a>
+              <a href="subject.html#183">[ subject ]</a>
+              <a href="author.html#183">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2008-02-02 17:51:48 +0100 (Sat, 02 Feb 2008)
+New Revision: 1226
+
+Modified:
+   antargis/trunk/ext/3dengine/ant_renderer.cc
+   antargis/trunk/ext/video/ag_gltexture.cc
+Log:
+* workaroung for macos/x
+
+Modified: antargis/trunk/ext/3dengine/ant_renderer.cc
+===================================================================
+--- antargis/trunk/ext/3dengine/ant_renderer.cc	2008-01-31 20:08:48 UTC (rev 1225)
++++ antargis/trunk/ext/3dengine/ant_renderer.cc	2008-02-02 16:51:48 UTC (rev 1226)
+@@ -43,7 +43,7 @@
+   shadowInited=false;
+ 
+   if(!GLEE_EXT_texture3D)
+-    std::cerr&lt;&lt;&quot;Sorry, Battles of Antargis won't work without GL_EXT_texture3D extension!&quot;&lt;&lt;std::endl;
++    std::cerr&lt;&lt;&quot;Sorry, Battles of Antargis won't work properly without GL_EXT_texture3D extension!&quot;&lt;&lt;std::endl;
+ }
+ 
+ Renderer::~Renderer()
+
+Modified: antargis/trunk/ext/video/ag_gltexture.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_gltexture.cc	2008-01-31 20:08:48 UTC (rev 1225)
++++ antargis/trunk/ext/video/ag_gltexture.cc	2008-02-02 16:51:48 UTC (rev 1226)
+@@ -32,137 +32,140 @@
+ 
+ AGGLTexture::AGGLTexture(size_t W,size_t H,GLint format):w(W),h(H),d(1),m3d(false)
+ {
+-  assertGL;
+-  getSurfaceManager()-&gt;registerMe(this);
+-  assertGL;
+-  glGenTextures( 1, &amp;mID);
+-  assertGL;
+-  glBindTexture( GL_TEXTURE_2D,mID);
+-  assertGL;
++	assertGL;
++	getSurfaceManager()-&gt;registerMe(this);
++	assertGL;
++	glGenTextures( 1, &amp;mID);
++	assertGL;
++	glBindTexture( GL_TEXTURE_2D,mID);
++	assertGL;
+ 
+-  glTexImage2D(GL_TEXTURE_2D, 0, format, w, h, 0, GL_RGBA,
+-               GL_UNSIGNED_BYTE, 0);
++	glTexImage2D(GL_TEXTURE_2D, 0, format, w, h, 0, GL_RGBA,
++			GL_UNSIGNED_BYTE, 0);
+ 
+-  assertGL;
+-  gUsedTexMemory+=w*h*4;
++	assertGL;
++	gUsedTexMemory+=w*h*4;
+ 
+-  dbout(4,&quot;used memory:&quot;&lt;&lt;gUsedTexMemory);
++	dbout(4,&quot;used memory:&quot;&lt;&lt;gUsedTexMemory);
+ 
+-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+-  assertGL;
+-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+-  assertGL;
++	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
++	assertGL;
++	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
++	assertGL;
+ }
+ AGGLTexture::AGGLTexture(size_t W,size_t H,size_t D,GLint format):w(W),h(H),d(D),m3d(true)
+ {
+-  assertGL;
+-  getSurfaceManager()-&gt;registerMe(this);
+-  assertGL;
++	assertGL;
++	getSurfaceManager()-&gt;registerMe(this);
++	assertGL;
+ 
+-  glGenTextures( 1, &amp;mID);
+-  assertGL;
+-  glBindTexture( GL_TEXTURE_3D,mID);
+-  assertGL;
++	glGenTextures( 1, &amp;mID);
++	assertGL;
++	glBindTexture( GL_TEXTURE_3D,mID);
++	assertGL;
+ 
+-  glTexImage3D(GL_TEXTURE_3D, 0, format, w, h, d, 0, GL_RGBA,
+-               GL_UNSIGNED_BYTE, 0);
+-  assertGL;
++	//w=h=128;
++	//d=2;
+ 
+-  gUsedTexMemory+=w*h*d*4;
+-  dbout(4,&quot;used memory:&quot;&lt;&lt;gUsedTexMemory);
++	glTexImage3D(GL_TEXTURE_3D, 0, format, w, h, d, 0, GL_RGBA,
++			GL_UNSIGNED_BYTE, 0);
++	assertGL;
+ 
+-  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+-  assertGL;
+-  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+-  assertGL;
++	gUsedTexMemory+=w*h*d*4;
++	dbout(4,&quot;used memory:&quot;&lt;&lt;gUsedTexMemory);
++
++	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
++	assertGL;
++	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
++	assertGL;
+ }
+ 
+ AGGLTexture::~AGGLTexture()
+ {
+-  assertGL;
+-  glDeleteTextures(1,&amp;mID);
++	assertGL;
++	glDeleteTextures(1,&amp;mID);
+ 
+-  if(m3d)
+-    gUsedTexMemory-=w*h*d*4;
+-  else
+-    gUsedTexMemory-=w*h*4;
++	if(m3d)
++		gUsedTexMemory-=w*h*d*4;
++	else
++		gUsedTexMemory-=w*h*4;
+ 
+-  assertGL;
+-  getSurfaceManager()-&gt;deregisterMe(this);
++	assertGL;
++	getSurfaceManager()-&gt;deregisterMe(this);
+ }
+ 
+ void AGGLTexture::setSurface(AGInternalSurface *pSurface,const AGVector2 &amp;offset)
+ {
+-  assertGL;
+-  GLint format;
++	assertGL;
++	GLint format;
+ 
+-  SDL_Surface *surface=pSurface-&gt;surface;
++	SDL_Surface *surface=pSurface-&gt;surface;
+ 
+-  switch(surface-&gt;format-&gt;BytesPerPixel)
+-    {
+-    case 3:
+-      format = GL_RGB;break;
+-    case 4:
+-      format = GL_RGBA;break;
+-    default:
+-      throw std::runtime_error(&quot;Surface-format not supported for texturing!&quot;);
+-    }
++	switch(surface-&gt;format-&gt;BytesPerPixel)
++	{
++	case 3:
++		format = GL_RGB;break;
++	case 4:
++		format = GL_RGBA;break;
++	default:
++		throw std::runtime_error(&quot;Surface-format not supported for texturing!&quot;);
++	}
+ 
+-  AGRenderContext c;
+-  c.setTexture(this);
+-  c.begin();
+-  assertGL;
+-  
+-  /*
++	AGRenderContext c;
++	c.setTexture(this);
++	c.begin();
++	assertGL;
++
++	
+   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+   assertGL;
+   glPixelStorei(GL_UNPACK_ROW_LENGTH,
+                 surface-&gt;pitch / surface-&gt;format-&gt;BytesPerPixel);
+-  */
++	 
+ 
+-  if(m3d)
+-    {
+-      int mw=std::min(surface-&gt;w,surface-&gt;h);
+-      int mh=std::max(surface-&gt;w,surface-&gt;h)/mw;
+-SDL_SaveBMP(surface,&quot;terrain.bmp&quot;);
+-	cdebug(&quot;OFFSET:&quot;&lt;&lt;offset);
+-	cdebug(&quot;size:&quot;&lt;&lt;mw&lt;&lt;&quot;,&quot;&lt;&lt;mw&lt;&lt;&quot;;&quot;&lt;&lt;mh&lt;&lt;(int)(format==GL_RGBA));
+-    glTexSubImage3D(GL_TEXTURE_3D,0,int(offset[0]),int(offset[1]),0,
+-		      mw,mw,mh,format,GL_UNSIGNED_BYTE,surface-&gt;pixels);
+-    std::cout&lt;&lt;(&quot;PIXELFORMAT:&quot;)&lt;&lt;surface-&gt;format&lt;&lt;std::endl;
+-//    glTexSubImage3D(GL_TEXTURE_3D,0,int(offset[0]),int(offset[1]),0,
+-//		      mw,mw,mh,format,GL_UNSIGNED_BYTE,surface-&gt;pixels);
+-    }
+-  else
+-    {
+-      assertGL;
+-      
+-      glTexSubImage2D(GL_TEXTURE_2D, 0, int(offset[0]), int(offset[1]),
+-		      surface-&gt;w, surface-&gt;h, format, GL_UNSIGNED_BYTE,
+-		      surface-&gt;pixels);
+-    }
+-  assertGL;
++	assertGL;
++	if(m3d)
++	{
++		assert(glIsEnabled(GL_TEXTURE_3D));
++		int mw=std::min(surface-&gt;w,surface-&gt;h);
++		int mh=std::max(surface-&gt;w,surface-&gt;h)/mw;
++
++	//	glTexImage3D(GL_TEXTURE_3D, 0, format, w, h, d, 0, GL_RGBA,
++	//			GL_UNSIGNED_BYTE, surface-&gt;pixels);
++	    glTexSubImage3D(GL_TEXTURE_3D,0,int(offset[0]),int(offset[1]),0,
++				      mw,mw,mh,format,GL_UNSIGNED_BYTE,surface-&gt;pixels);
++	}
++	else
++	{
++		assertGL;
++
++		glTexSubImage2D(GL_TEXTURE_2D, 0, int(offset[0]), int(offset[1]),
++				surface-&gt;w, surface-&gt;h, format, GL_UNSIGNED_BYTE,
++				surface-&gt;pixels);
++	}
++	assertGL;
++	AGRenderContext().begin();
+ }
+ 
+ GLuint AGGLTexture::id()
+ {
+ 
+-  return mID;
++	return mID;
+ }
+ bool AGGLTexture::is3d() const
+ {
+-  return m3d;
++	return m3d;
+ }
+ 
+ size_t AGGLTexture::width() const
+ {
+-  return w;
++	return w;
+ }
+ size_t AGGLTexture::height() const
+ {
+-  return h;
++	return h;
+ }
+ size_t AGGLTexture::depth() const
+ {
+-  return d;
++	return d;
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000184.html">[Antargis-svn] r1227 - in antargis/trunk: . ext/video ruby
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#183">[ date ]</a>
+              <a href="thread.html#183">[ thread ]</a>
+              <a href="subject.html#183">[ subject ]</a>
+              <a href="author.html#183">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

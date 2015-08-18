@@ -1,0 +1,1434 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1258 - in antargis/trunk: . ext/basic ext/game	ext/gui ruby/entities ruby/jobs ruby/spec
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2008-May/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1258%20-%20in%20antargis/trunk%3A%20.%20ext/basic%20ext/game%0A%09ext/gui%20ruby/entities%20ruby/jobs%20ruby/spec&In-Reply-To=%3C200805300346.m4U3kUfj009681%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000213.html">
+   <LINK REL="Next"  HREF="000215.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1258 - in antargis/trunk: . ext/basic ext/game	ext/gui ruby/entities ruby/jobs ruby/spec</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1258%20-%20in%20antargis/trunk%3A%20.%20ext/basic%20ext/game%0A%09ext/gui%20ruby/entities%20ruby/jobs%20ruby/spec&In-Reply-To=%3C200805300346.m4U3kUfj009681%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1258 - in antargis/trunk: . ext/basic ext/game	ext/gui ruby/entities ruby/jobs ruby/spec">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Fri May 30 05:46:30 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000213.html">[Antargis-svn] r1257 - in antargis/trunk: . data/gui/layout	ext/basic ext/game ext/gui rookey ruby ruby/entities	ruby/jobs ruby/spec
+</A></li>
+        <LI>Next message: <A HREF="000215.html">[Antargis-svn] r1259 - in antargis/trunk: data/gui/layout ext/basic	ext/game ext/gui ruby ruby/ai ruby/jobs ruby/spec
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#214">[ date ]</a>
+              <a href="thread.html#214">[ thread ]</a>
+              <a href="subject.html#214">[ subject ]</a>
+              <a href="author.html#214">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2008-05-30 05:46:26 +0200 (Fri, 30 May 2008)
+New Revision: 1258
+
+Modified:
+   antargis/trunk/TODO
+   antargis/trunk/ext/basic/ag_geometry.cc
+   antargis/trunk/ext/basic/ag_geometry.h
+   antargis/trunk/ext/game/map.cc
+   antargis/trunk/ext/gui/ag_theme_v2.cc
+   antargis/trunk/ext/gui/ag_window.cc
+   antargis/trunk/ext/gui/ag_window.h
+   antargis/trunk/ruby/entities/ant_boss.rb
+   antargis/trunk/ruby/jobs/ant_hljob_base.rb
+   antargis/trunk/ruby/jobs/ant_state_machine.rb
+   antargis/trunk/ruby/jobs/saving.rb
+   antargis/trunk/ruby/spec/spec_hljob_saving.rb
+   antargis/trunk/ruby/spec/spec_math.rb
+Log:
+Incomplete - task 21: Remove unnecessary dependencies 
+<A HREF="http://localhost:3000/issues/show/21">http://localhost:3000/issues/show/21</A>
+Incomplete - task 7: Saving doesn't work 
+<A HREF="http://localhost:3000/issues/show/7">http://localhost:3000/issues/show/7</A>
+Incomplete - task 22: Use the same ID for saving as for loading entities 
+<A HREF="http://localhost:3000/issues/show/22">http://localhost:3000/issues/show/22</A>
+
+Modified: antargis/trunk/TODO
+===================================================================
+--- antargis/trunk/TODO	2008-05-28 18:06:10 UTC (rev 1257)
++++ antargis/trunk/TODO	2008-05-30 03:46:26 UTC (rev 1258)
+@@ -1,6 +1,3 @@
+-* fix saving - problem occurs only if game is loaded ? (in editor, too)
+-** hljobs can't be saved right now
+-
+ * move build/*.rb files to build/unused_tools/* if they're not used
+ * issue with mingw: 
+ ** google for &quot;/tmp/cciSLVG5.s:932678: Warning: .stabs: description field '1c216' too big, try a different debug format&quot;
+
+Modified: antargis/trunk/ext/basic/ag_geometry.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_geometry.cc	2008-05-28 18:06:10 UTC (rev 1257)
++++ antargis/trunk/ext/basic/ag_geometry.cc	2008-05-30 03:46:26 UTC (rev 1258)
+@@ -51,66 +51,66 @@
+   }
+ 
+ struct AGSweepResult
+-{
+-  enum CollisionState { COL_AT, COL_ALWAYS, COL_NEVER };
+-  CollisionState state;
+-  float t0;
+-  float t1;
++  {
++    enum CollisionState { COL_AT, COL_ALWAYS, COL_NEVER };
++    CollisionState state;
++    float t0;
++    float t1;
+ 
+-  AGSweepResult()
++    AGSweepResult()
++      {
++        state=COL_ALWAYS;
++      }
++
++    void combine(const AGSweepResult &amp;r)
++      {
++        if(state==COL_AT)
++          {
++            if(r.state==COL_NEVER)
++              state=COL_NEVER;
++            else if(r.state!=COL_ALWAYS) // ALWAYS has no effect
++              {
++                t0=std::max(t0,r.t0);
++                t1=std::min(t1,r.t1);
++              }
++          }
++        else if(state==COL_ALWAYS)
++          {
++            if(r.state==COL_NEVER)
++              state=COL_NEVER;
++            else if(r.state!=COL_ALWAYS) // ALWAYS has no effect
++              {
++                state=COL_AT;
++                t0=r.t0;
++                t1=r.t1;
++              }
++
++          }
++        // COL_NEVER cannot be changed
++      }
++
++    bool collision(float delta) const
+     {
+-      state=COL_ALWAYS;
++      return state==COL_ALWAYS || (state==COL_AT &amp;&amp; t1&gt;0 &amp;&amp; t0&lt;delta);
+     }
+ 
+-  void combine(const AGSweepResult &amp;r)
++    float begin(float delta) const
+     {
+-      if(state==COL_AT)
+-        {
+-          if(r.state==COL_NEVER)
+-            state=COL_NEVER;
+-          else if(r.state!=COL_ALWAYS) // ALWAYS has no effect
+-            {
+-              t0=std::max(t0,r.t0);
+-              t1=std::min(t1,r.t1);
+-            }
+-        }
+-      else if(state==COL_ALWAYS)
+-        {
+-          if(r.state==COL_NEVER)
+-            state=COL_NEVER;
+-          else if(r.state!=COL_ALWAYS) // ALWAYS has no effect
+-            {
+-              state=COL_AT;
+-              t0=r.t0;
+-              t1=r.t1;
+-            }
++      if(state==COL_ALWAYS || state==COL_NEVER)
++        return MAXF;
+ 
+-        }
+-      // COL_NEVER cannot be changed
++      if(t0&gt;=0.0f &amp;&amp; t0&lt;delta)
++        return t0;
++      else
++        return MAXF;
+     }
+ 
+-  bool collision(float delta) const
+-  {
+-    return state==COL_ALWAYS || (state==COL_AT &amp;&amp; t1&gt;0 &amp;&amp; t0&lt;delta);
+-  }
++    bool always() const
++    {
++      return state == COL_ALWAYS;
++    }
++  };
+ 
+-  float begin(float delta) const
+-  {
+-    if(state==COL_ALWAYS || state==COL_NEVER)
+-      return MAXF;
+-
+-    if(t0&gt;=0.0f &amp;&amp; t0&lt;delta)
+-      return t0;
+-    else
+-      return MAXF;
+-  }
+-
+-  bool always() const
+-  {
+-    return state == COL_ALWAYS;
+-  }
+-};
+-
+ AGSweepResult collide1d(float pa1,float pa2,float pb1,float pb2,float v)
+   {
+     float a1=std::min(pa1,pa2);
+@@ -150,8 +150,8 @@
+ /////////////////////////////////////////////////////////////////////////////
+ 
+ AGAngle::AGAngle(float p):angle(p)
+-{
+-}
++  {
++  }
+ 
+ /////////////////////////////////////////////////////////////////////////////
+ // AGVector2
+@@ -297,9 +297,9 @@
+ }
+ 
+ (AGVector2::operator float*)()
+-{
+-  return v;
+-}
++  {
++    return v;
++  }
+ (AGVector2::operator const float*)() const
+ {
+   return v;
+@@ -314,34 +314,34 @@
+   return AGVector2(v[0]+p.v[0],v[1]+p.v[1]);
+ }
+ AGVector2 &amp;AGVector2::operator+=(const AGVector2 &amp;p)
+-{
+-  v[0]+=p.v[0];
+-  v[1]+=p.v[1];
+-  return *this;
+-}
++  {
++    v[0]+=p.v[0];
++    v[1]+=p.v[1];
++    return *this;
++  }
+ AGVector2 &amp;AGVector2::operator-=(const AGVector2 &amp;p)
+-{
+-  v[0]-=p.v[0];
+-  v[1]-=p.v[1];
+-  return *this;
+-}
++  {
++    v[0]-=p.v[0];
++    v[1]-=p.v[1];
++    return *this;
++  }
+ 
+ float AGVector2::operator*(const AGVector2 &amp;p) const
+ {
+   return v[0]*p.v[0]+v[1]*p.v[1];
+ }
+ AGVector2 &amp;AGVector2::operator*=(float f)
+-{
+-  v[0]*=f;
+-  v[1]*=f;
+-  return *this;
+-}
++  {
++    v[0]*=f;
++    v[1]*=f;
++    return *this;
++  }
+ AGVector2 &amp;AGVector2::operator/=(float f)
+-{
+-  v[0]/=f;
+-  v[1]/=f;
+-  return *this;
+-}
++  {
++    v[0]/=f;
++    v[1]/=f;
++    return *this;
++  }
+ AGVector2 AGVector2::operator*(float f) const
+ {
+   return AGVector2(v[0]*f,v[1]*f);
+@@ -376,10 +376,10 @@
+   return v[index];
+ }
+ float &amp;AGVector2::operator[](int index)
+-{
+-  assert(index&gt;=0 &amp;&amp; index&lt;2);
+-  return v[index];
+-}
++  {
++    assert(index&gt;=0 &amp;&amp; index&lt;2);
++    return v[index];
++  }
+ 
+ 
+ /////////////////////////////////////////////////////////////////////////////
+@@ -537,9 +537,9 @@
+ }
+ 
+ (AGVector3::operator float*)()
+-{
+-  return v;
+-}
++  {
++    return v;
++  }
+ AGVector3 AGVector3::operator%(const AGVector3 &amp;a) const
+ {
+   return AGVector3(v[1] * a.v[2] - v[2] * a.v[1],
+@@ -557,34 +557,34 @@
+   return AGVector3(v[0]+p.v[0],v[1]+p.v[1],v[2]+p.v[2]);
+ }
+ AGVector3 &amp;AGVector3::operator+=(const AGVector3 &amp;p)
+-{
+-  v[0]+=p.v[0];
+-  v[1]+=p.v[1];
+-  v[2]+=p.v[2];
+-  return *this;
+-}
++  {
++    v[0]+=p.v[0];
++    v[1]+=p.v[1];
++    v[2]+=p.v[2];
++    return *this;
++  }
+ AGVector3 &amp;AGVector3::operator-=(const AGVector3 &amp;p)
+-{
+-  v[0]+=p.v[0];
+-  v[1]+=p.v[1];
+-  v[2]+=p.v[2];
+-  return *this;
+-}
++  {
++    v[0]+=p.v[0];
++    v[1]+=p.v[1];
++    v[2]+=p.v[2];
++    return *this;
++  }
+ 
+ AGVector3 &amp;AGVector3::operator*=(float f)
+-{
+-  v[0]*=f;
+-  v[1]*=f;
+-  v[2]*=f;
+-  return *this;
+-}
++  {
++    v[0]*=f;
++    v[1]*=f;
++    v[2]*=f;
++    return *this;
++  }
+ AGVector3 &amp;AGVector3::operator/=(float f)
+-{
+-  v[0]/=f;
+-  v[1]/=f;
+-  v[2]/=f;
+-  return *this;
+-}
++  {
++    v[0]/=f;
++    v[1]/=f;
++    v[2]/=f;
++    return *this;
++  }
+ AGVector3 AGVector3::operator*(float f) const
+ {
+   return AGVector3(v[0]*f,v[1]*f,v[2]*f);
+@@ -619,10 +619,10 @@
+   return v[index];
+ }
+ float &amp;AGVector3::operator[](int index)
+-{
+-  assert(index&gt;=0 &amp;&amp; index&lt;3);
+-  return v[index];
+-}
++  {
++    assert(index&gt;=0 &amp;&amp; index&lt;3);
++    return v[index];
++  }
+ 
+ 
+ ////////////////////////////////////////////////////////////////////////////
+@@ -748,13 +748,25 @@
+     return a[x][y];
+   }
+ 
+-AGMatrix3::Row AGMatrix3::operator[](size_t y)
++bool AGMatrix3::operator==(const AGMatrix3&amp;p) const
+ {
+-  Row r;
+-  r.matrix=this;
+-  r.y=y;
+-  return r;
++  for(size_t x=0;x&lt;3;x++)
++    for(size_t y=0;y&lt;3;y++)
++      {
++        if(fabs(get(x,y)-p.get(x,y))&gt;0.0001)
++          return false;
++      }
++  return true;
+ }
++
++
++AGMatrix3::Row AGMatrix3::operator[](size_t y)
++  {
++    Row r;
++    r.matrix=this;
++    r.y=y;
++    return r;
++  }
+ const AGMatrix3::Row AGMatrix3::operator[](size_t y) const
+ {
+   Row r;
+@@ -786,10 +798,10 @@
+   return n;
+ }
+ AGMatrix3 &amp;AGMatrix3::operator*=(const AGMatrix3 &amp;m)
+-{
+-  *this=(*this)*m;
+-  return *this;
+-}
++  {
++    *this=(*this)*m;
++    return *this;
++  }
+ 
+ AGVector3 AGMatrix3::operator*(const AGVector3 &amp;v) const
+ {
+@@ -813,7 +825,7 @@
+ 
+ AGTriangle2::AGTriangle2()
+   {
+-    
++
+   }
+ 
+ AGTriangle2::AGTriangle2(const AGVector2 &amp;v0,const AGVector2 &amp;v1,const AGVector2 &amp;v2)
+@@ -876,7 +888,7 @@
+             max2=std::max(max2,v1);
+           }
+       }
+-      
++
+       float a1=
+     }
+ }
+@@ -977,15 +989,15 @@
+ bool AGTriangle2::contains(const AGVector2 &amp;pp) const
+ {
+   std::vector&lt;AGVector2&gt; l=getNormals(); // BEWARE: dont' change the order in getNormals!!!
+-cdebug(pp);
++  cdebug(pp);
+   cdebug(l[0]);
+   cdebug(l[1]);
+   cdebug(l[2]);
+-  
++
+   cdebug(p[0]);
+   cdebug(p[1]);
+   cdebug(p[2]);
+-  
++
+   cdebug((pp-p[2])*l[0]);
+   cdebug((pp-p[0])*l[1]);
+   cdebug((pp-p[1])*l[2]);
+@@ -995,13 +1007,13 @@
+     if(AGsign((pp-p[0])*l[1])==AGsign((p[1]-p[0])*l[1]))
+       if(AGsign((pp-p[1])*l[2])==AGsign((p[0]-p[1])*l[2]))
+         return true;
+-  
++
+   /*
+   if(AGsign((pp-p[2])*l[0])==AGsign((p[2]-p[2])*l[0]))
+     if(AGsign((pp-p[0])*l[1])==AGsign((p[0]-p[0])*l[1]))
+       if(AGsign((pp-p[1])*l[2])==AGsign((p[1]-p[1])*l[2]))
+         return true;
+-        */
++   */
+   return false;
+ }
+ 
+@@ -1051,18 +1063,18 @@
+   // FIXME: not found - find other approximation
+ 
+   //#else
+-    {
+-      size_t i;
+-      for(i=0;i&lt;3;i++)
+-        {
+-          if(contains(t[i]))
+-            return nearestLine(t[i]).normal();
+-          else if(t.contains((*this)[i]))
+-            return t.nearestLine((*this)[i]).normal();
+-        }
+-      return invalidVec2;
+-    }
+-    //#endif
++  {
++    size_t i;
++    for(i=0;i&lt;3;i++)
++      {
++        if(contains(t[i]))
++          return nearestLine(t[i]).normal();
++        else if(t.contains((*this)[i]))
++          return t.nearestLine((*this)[i]).normal();
++      }
++    return invalidVec2;
++  }
++  //#endif
+ }
+ 
+ AGLine2 AGTriangle2::nearestLine(const AGVector2 &amp;v) const
+@@ -1083,8 +1095,8 @@
+ /////////////////////////////////////////////////////////////////////////////
+ 
+ AGCircle2::AGCircle2(const AGVector2 &amp;v,float rad):p(v),radius(rad)
+-{
+-}
++  {
++  }
+ 
+ std::list&lt;AGVector2&gt; AGCircle2::collide(const AGLine2 &amp;pLine) const
+ {
+@@ -1253,19 +1265,19 @@
+ 
+ AGRect2::AGRect2(const AGVector2 &amp;pv0,const AGVector2 &amp;pv1):
+   v0(pv0),v1(pv1)
+-  {
+-  }
++    {
++    }
+ 
+ AGRect2::AGRect2(float x,float y,float w,float h):
+   v0(x,y),v1(x+w,y+h)
+-  {
+-  }
++    {
++    }
+ 
+ AGVector2 AGRect2::clip(const AGVector2 &amp;v) const
+ {
+   return AGVector2(std::max(std::min(v[0],v1[0]),v0[0]),
+       std::max(std::min(v[1],v1[1]),v0[1])
+-      );
++  );
+ }
+ 
+ 
+@@ -1298,16 +1310,16 @@
+ }
+ 
+ AGRect2&amp; AGRect2::operator+=(const AGRect2 &amp;r)
+-{
+-  if(width()==0 || height()==0)
+-    *this=r;
+-  else
+-    {
+-      include(r[0]);
+-      include(r[1]);
+-    }
+-  return *this;
+-}
++  {
++    if(width()==0 || height()==0)
++      *this=r;
++    else
++      {
++        include(r[0]);
++        include(r[1]);
++      }
++    return *this;
++  }
+ 
+ 
+ 
+@@ -1340,7 +1352,7 @@
+         float nx,ny,nw,nh;
+ 
+         switch(i)
+-        {
++          {
+         case 0:
+           nx=x0();
+           nw=r.x0()-x0();
+@@ -1353,9 +1365,9 @@
+           nx=r.x1();
+           nw=x1()-r.x1();
+           break;
+-        };
++          };
+         switch(j)
+-        {
++          {
+         case 0:
+           ny=y0();
+           nh=r.y0()-y0();
+@@ -1368,7 +1380,7 @@
+           ny=r.y1();
+           nh=y1()-r.y1();
+           break;
+-        };
++          };
+         if(nw&gt;0 &amp;&amp; nh&gt;0)
+           {
+             AGRect2 n=intersect(AGRect2(nx,ny,nw,nh));
+@@ -1385,29 +1397,29 @@
+ AGVector2 AGRect2::operator[](size_t i) const
+ {
+   switch(i)
+-  {
++    {
+   case 0:
+     return v0;
+   case 1:
+     return v1;
+   default:
+     throw AGString(&quot;invalid index in AGRect2::operator[]&quot;);
+-  }
++    }
+   return v0;
+ }
+ AGVector2 &amp;AGRect2::operator[](size_t i)
+-{
+-  switch(i)
+   {
+-  case 0:
++    switch(i)
++      {
++    case 0:
++      return v0;
++    case 1:
++      return v1;
++    default:
++      throw AGString(&quot;invalid index in AGRect2::operator[]&quot;);
++      }
+     return v0;
+-  case 1:
+-    return v1;
+-  default:
+-    throw AGString(&quot;invalid index in AGRect2::operator[]&quot;);
+   }
+-  return v0;
+-}
+ 
+ AGRect2 AGRect2::shrink(float f) const
+ {
+@@ -1596,18 +1608,18 @@
+   return AGRect2(v0-v,v1-v);
+ }
+ AGRect2 &amp;AGRect2::operator+=(const AGVector2 &amp;v)
+-{
+-  v0+=v;
+-  v1+=v;
+-  return *this;
+-}
++  {
++    v0+=v;
++    v1+=v;
++    return *this;
++  }
+ 
+ AGRect2 &amp;AGRect2::operator-=(const AGVector2 &amp;v)
+-{
+-  v0-=v;
+-  v1-=v;
+-  return *this;
+-}
++  {
++    v0-=v;
++    v1-=v;
++    return *this;
++  }
+ 
+ float AGRect2::x() const
+ {
+@@ -1646,33 +1658,33 @@
+ 
+ AGLine2::AGLine2(const AGVector2 &amp;pv0,const AGVector2 &amp;pv1):
+   v0(pv0),v1(pv1)
+-  {
+-  }
++    {
++    }
+ 
+ AGVector2 &amp;AGLine2::operator[](size_t i)
+-{
+-  switch(i)
+   {
+-  case 0:
++    switch(i)
++      {
++    case 0:
++      return v0;
++    case 1:
++      return v1;
++    default:
++      throw AGString(&quot;wrong index in AGLine::op[]&quot;);
++      }
+     return v0;
+-  case 1:
+-    return v1;
+-  default:
+-    throw AGString(&quot;wrong index in AGLine::op[]&quot;);
+   }
+-  return v0;
+-}
+ AGVector2 AGLine2::operator[](size_t i) const
+ {
+   switch(i)
+-  {
++    {
+   case 0:
+     return v0;
+   case 1:
+     return v1;
+   default:
+     throw AGString(&quot;wrong index in AGLine::op[]&quot;);
+-  }
++    }
+   return v0;
+ }
+ 
+@@ -1824,8 +1836,8 @@
+ 
+ AGLine3::AGLine3(const AGVector3 &amp;pv0,const AGVector3 &amp;pv1):
+   v0(pv0),v1(pv1)
+-  {
+-  }
++    {
++    }
+ 
+ float AGLine3::distance(const AGVector3 &amp;p) const
+ {
+@@ -1970,21 +1982,21 @@
+       v[3]+p.v[3]);
+ }
+ AGVector4 &amp;AGVector4::operator+=(const AGVector4 &amp;p)
+-{
+-  v[0]+=p.v[0];
+-  v[1]+=p.v[1];
+-  v[2]+=p.v[2];
+-  v[3]+=p.v[3];
+-  return *this;
+-}
++  {
++    v[0]+=p.v[0];
++    v[1]+=p.v[1];
++    v[2]+=p.v[2];
++    v[3]+=p.v[3];
++    return *this;
++  }
+ AGVector4 &amp;AGVector4::operator-=(const AGVector4 &amp;p)
+-{
+-  v[0]-=p.v[0];
+-  v[1]-=p.v[1];
+-  v[2]-=p.v[2];
+-  v[3]-=p.v[3];
+-  return *this;
+-}
++  {
++    v[0]-=p.v[0];
++    v[1]-=p.v[1];
++    v[2]-=p.v[2];
++    v[3]-=p.v[3];
++    return *this;
++  }
+ 
+ float AGVector4::operator*(const AGVector4 &amp;p) const
+ {
+@@ -1994,21 +2006,21 @@
+   v[3]*p.v[3];
+ }
+ AGVector4 &amp;AGVector4::operator*=(float f)
+-{
+-  v[0]*=f;
+-  v[1]*=f;
+-  v[2]*=f;
+-  v[3]*=f;
+-  return *this;
+-}
++  {
++    v[0]*=f;
++    v[1]*=f;
++    v[2]*=f;
++    v[3]*=f;
++    return *this;
++  }
+ AGVector4 &amp;AGVector4::operator/=(float f)
+-{
+-  v[0]/=f;
+-  v[1]/=f;
+-  v[2]/=f;
+-  v[3]/=f;
+-  return *this;
+-}
++  {
++    v[0]/=f;
++    v[1]/=f;
++    v[2]/=f;
++    v[3]/=f;
++    return *this;
++  }
+ AGVector4 AGVector4::operator*(float f) const
+ {
+   return AGVector4(v[0]*f,v[1]*f,v[2]*f,v[3]*f);
+@@ -2066,10 +2078,10 @@
+   }
+ 
+ float &amp;AGVector4::operator[](int index)
+-{
+-  assert(index&gt;=0 &amp;&amp; index&lt;4);
+-  return v[index];
+-}
++  {
++    assert(index&gt;=0 &amp;&amp; index&lt;4);
++    return v[index];
++  }
+ 
+ float AGVector4::operator[](int index) const
+ {
+@@ -2093,9 +2105,9 @@
+ }
+ 
+ (AGVector4::operator float*)()
+-{
+-  return v;
+-}
++  {
++    return v;
++  }
+ 
+ (AGVector4::operator const float*)() const
+ {
+@@ -2181,12 +2193,12 @@
+   }
+ 
+ AGMatrix4 &amp;AGMatrix4::operator+=(const AGMatrix4 &amp;m)
+-{
+-  for(size_t x=0;x&lt;4;x++)
+-    for(size_t y=0;y&lt;4;y++)
+-      get(x,y)+=m.get(x,y);
+-  return *this;
+-}
++  {
++    for(size_t x=0;x&lt;4;x++)
++      for(size_t y=0;y&lt;4;y++)
++        get(x,y)+=m.get(x,y);
++    return *this;
++  }
+ 
+ AGMatrix4 AGMatrix4::transposed() const
+ {
+@@ -2283,10 +2295,10 @@
+   return n;
+ }
+ AGMatrix4 &amp;AGMatrix4::operator*=(const AGMatrix4 &amp;m)
+-{
+-  *this=(*this)*m;
+-  return *this;
+-}
++  {
++    *this=(*this)*m;
++    return *this;
++  }
+ 
+ AGVector4 AGMatrix4::operator*(const AGVector4 &amp;v) const
+ {
+@@ -2307,9 +2319,9 @@
+ }
+ 
+ (AGMatrix4::operator float*)()
+-{
+-  return a;
+-}
++  {
++    return a;
++  }
+ 
+ (AGMatrix4::operator const float*)() const
+ {
+@@ -2330,9 +2342,9 @@
+   return get(x,y);
+ }
+ float &amp;AGMatrix4::operator()(size_t x,size_t y)
+-{
+-  return get(x,y);
+-}
++  {
++    return get(x,y);
++  }
+ 
+ AGVector4 AGMatrix4::getRow(size_t i) const
+ {
+@@ -2342,12 +2354,12 @@
+ 
+ 
+ AGMatrix4::MRow AGMatrix4::operator[](size_t y)
+-{
+-  MRow r;
+-  r.matrix=this;
+-  r.y=y;
+-  return r;
+-}
++  {
++    MRow r;
++    r.matrix=this;
++    r.y=y;
++    return r;
++  }
+ /*
+ const AGMatrix4::Row AGMatrix4::operator[](size_t y) const
+ {
+@@ -2364,23 +2376,23 @@
+ 
+ AGBox3::AGBox3(const AGVector3 &amp;pBase,const AGVector3 &amp;pDir):
+   base(pBase),dir(pDir)
+-  {
+-    // assert that pDir[i]&gt;0
+-    for(size_t i=0;i&lt;3;i++)
+-      if(dir[i]&lt;0)
+-        {
+-          base[i]+=dir[i];
+-          dir[i]=-dir[i];
+-        }
+-    mValid=true;
+-  }
++    {
++      // assert that pDir[i]&gt;0
++      for(size_t i=0;i&lt;3;i++)
++        if(dir[i]&lt;0)
++          {
++            base[i]+=dir[i];
++            dir[i]=-dir[i];
++          }
++      mValid=true;
++    }
+ 
+ 
+ 
+ AGBox3::AGBox3():base(AGVector3(0,0,0)),dir(AGVector3(0,0,0))
+-{
+-  mValid=false;
+-}
++  {
++    mValid=false;
++  }
+ 
+ bool AGBox3::valid() const
+ {
+@@ -2573,15 +2585,15 @@
+ 
+ AGRect3::AGRect3(const AGVector3 &amp;pBase,const AGVector3 &amp;pDir):
+   base(pBase),dir(pDir)
+-  {
+-    // assert that dir[i]&gt;=0
+-    for(size_t i=0;i&lt;3;i++)
+-      if(dir[i]&lt;0)
+-        {
+-          base[i]+=dir[i];
+-          dir[i]=-dir[i];
+-        }
+-  }
++    {
++      // assert that dir[i]&gt;=0
++      for(size_t i=0;i&lt;3;i++)
++        if(dir[i]&lt;0)
++          {
++            base[i]+=dir[i];
++            dir[i]=-dir[i];
++          }
++    }
+ 
+ bool AGRect3::collides(const AGLine3&amp;pLine) const
+ {
+
+Modified: antargis/trunk/ext/basic/ag_geometry.h
+===================================================================
+--- antargis/trunk/ext/basic/ag_geometry.h	2008-05-28 18:06:10 UTC (rev 1257)
++++ antargis/trunk/ext/basic/ag_geometry.h	2008-05-30 03:46:26 UTC (rev 1258)
+@@ -257,6 +257,8 @@
+ 
+   void swapRows(size_t a,size_t b);
+   void swapCols(size_t a,size_t b);
++  
++  bool operator==(const AGMatrix3&amp;p) const;
+ 
+ 
+ #ifdef SWIG
+
+Modified: antargis/trunk/ext/game/map.cc
+===================================================================
+--- antargis/trunk/ext/game/map.cc	2008-05-28 18:06:10 UTC (rev 1257)
++++ antargis/trunk/ext/game/map.cc	2008-05-30 03:46:26 UTC (rev 1258)
+@@ -221,15 +221,14 @@
+ 
+ std::vector&lt;AntEntity*&gt; AntMap::getNextList(AntEntity *me,const AGString &amp;pType,size_t atLeast)
+   {
+-    //  assert(mHeuristicFunction);
++    // reachability is checked through heuristic
++    // optimization using quadtree is not possible, because heuristic cannot be used then
+ 
+-    // FIXME: optimize this - use quadtree
+-
+     std::multimap&lt;float,AntEntity*&gt; ents;
+ 
+ 
+     EntityList::iterator i=mEntities.begin();
+-    AGVector2 p=me-&gt;getPos2D(); // FIXME: check for reachability, too ??
++    AGVector2 p=me-&gt;getPos2D(); 
+ 
+     for(;i!=mEntities.end();i++)
+       {
+@@ -237,9 +236,6 @@
+           {
+             if((*i)-&gt;provides(pType) &amp;&amp; (*i)-&gt;resource.get(pType)&gt;=atLeast)
+               {
+-                /*
+-              AGVector2 p2=(*i)-&gt;getPos2D()-p;
+-              float norm=p2.length2();*/
+                 float norm;
+                 if(mHeuristicFunction)
+                   norm=(*mHeuristicFunction)(std::make_pair((*i)-&gt;getPos2D(),p));
+@@ -253,7 +249,6 @@
+     std::vector&lt;AntEntity*&gt; vec;
+ 
+     // take one of the nearest, but no farer away than 30% of nearest
+-    //  AntEntity *e=0;
+     if(ents.size())
+       {
+         std::multimap&lt;float,AntEntity*&gt;::iterator j=ents.begin();
+@@ -269,10 +264,9 @@
+   }
+ 
+ 
++/// works like getNextList, but returns only one random entity on the list
+ AntEntity *AntMap::getNext(AntEntity *me,const AGString &amp;pType,size_t atLeast)
+   {
+-    // FIXME: optimize this - use quadtree
+-
+     assert(me);
+ 
+     std::multimap&lt;float,AntEntity*&gt; ents;
+
+Modified: antargis/trunk/ext/gui/ag_theme_v2.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_theme_v2.cc	2008-05-28 18:06:10 UTC (rev 1257)
++++ antargis/trunk/ext/gui/ag_theme_v2.cc	2008-05-30 03:46:26 UTC (rev 1258)
+@@ -145,7 +145,7 @@
+         if(c.getName()==&quot;font&quot;)
+           {
+             AGString name=c.get(&quot;name&quot;);
+-            //FIXME: add checks (?)
++            //TODO: add checks (?)
+ 
+             AGFont f(c.get(&quot;file&quot;),c.get(&quot;size&quot;).toInt());
+             f.setColor(AGColor(c.get(&quot;color&quot;)));
+
+Modified: antargis/trunk/ext/gui/ag_window.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_window.cc	2008-05-28 18:06:10 UTC (rev 1257)
++++ antargis/trunk/ext/gui/ag_window.cc	2008-05-30 03:46:26 UTC (rev 1258)
+@@ -131,13 +131,6 @@
+     arrange();
+   }
+ 
+-void AGWindow::addChild(AGWidget *w)
+-  {
+-    // FIXME: change this somehow?
+-    AGWidget::addChild(w);
+-    //  mClient-&gt;addChild(w);
+-  }
+-
+ AGWidget *AGWindow::getClient()
+   {
+     return mClient;
+
+Modified: antargis/trunk/ext/gui/ag_window.h
+===================================================================
+--- antargis/trunk/ext/gui/ag_window.h	2008-05-28 18:06:10 UTC (rev 1257)
++++ antargis/trunk/ext/gui/ag_window.h	2008-05-30 03:46:26 UTC (rev 1258)
+@@ -30,8 +30,6 @@
+  public:
+   AGWindow(AGWidget *pWidget,const AGRect2 &amp;pRect,const AGStringUtf8 &amp;pTitle=&quot;&quot;,const AGString &amp;pTheme=&quot;&quot;);
+ 
+-  void addChild(AGWidget *w);
+-
+   AGWidget *getClient();
+ 
+   virtual bool eventMouseButtonDown(AGEvent *m);
+
+Modified: antargis/trunk/ruby/entities/ant_boss.rb
+===================================================================
+--- antargis/trunk/ruby/entities/ant_boss.rb	2008-05-28 18:06:10 UTC (rev 1257)
++++ antargis/trunk/ruby/entities/ant_boss.rb	2008-05-30 03:46:26 UTC (rev 1258)
+@@ -47,7 +47,9 @@
+ 				@createMen=node.get(&quot;men&quot;).to_i
+ 			end
+ 		end
+-    @job=XMLLoader.loadXML(self,node)
++    node.getChildren(&quot;hljob&quot;).each{|hlnode|
++      @job=XMLLoader.loadXML(self,hlnode)
++    }
+     
+     if false
+ 		node.getChildren(&quot;hljob&quot;).each{|n|
+@@ -144,11 +146,12 @@
+ 		if not @men.member?(man) then	
+ 			@men.push(man)
+ 			man.setAggression(getAggression)
+-			if @job.is_a?(AntHeroRestJob)
+-				newHLRestJob(1)
+-			elsif @job
+-				@job.check(man)
+-			end
++      # FIXME: is this to be moved somewhere else ???
++#			if @job.is_a?(AntHeroRestJob)
++#				newHLRestJob(1)
++#			elsif @job
++#				@job.check(man)
++#			end
+ 		end
+ 		resourceChanged
+ 	end
+@@ -225,6 +228,8 @@
+ 	end
+ 	
+ 	def assignJob2All
++	  assert{@job}
++    @job.firstCall
+ 		if getMap
+ 			getMap.eventNewJobAssignedToBoss(self) if getMap.respond_to?(:eventNewJobAssignedToBoss)
+ 		end
+
+Modified: antargis/trunk/ruby/jobs/ant_hljob_base.rb
+===================================================================
+--- antargis/trunk/ruby/jobs/ant_hljob_base.rb	2008-05-28 18:06:10 UTC (rev 1257)
++++ antargis/trunk/ruby/jobs/ant_hljob_base.rb	2008-05-30 03:46:26 UTC (rev 1258)
+@@ -12,7 +12,8 @@
+ 
+ 		@finished=false
+ 
+-		firstCall
++    # FIXME: is this to be moved somewhere else ?
++		#firstCall
+ 	end
+   
+   def xmlName
+@@ -56,6 +57,7 @@
+ 	end
+ 
+ 	def check(man)
++	  assert{self.started}
+ 		#raise 1
+ 		if @state.nil?
+ 			@finished=true
+
+Modified: antargis/trunk/ruby/jobs/ant_state_machine.rb
+===================================================================
+--- antargis/trunk/ruby/jobs/ant_state_machine.rb	2008-05-28 18:06:10 UTC (rev 1257)
++++ antargis/trunk/ruby/jobs/ant_state_machine.rb	2008-05-30 03:46:26 UTC (rev 1258)
+@@ -1,9 +1,11 @@
+ class BaseState
++  attr_reader :started
+ 	@@states={}
+ 	@@edges={}
+ 	@@endstates={}
+ 	@@startstate={}
+ 	def BaseState.state(p)
++	  @started=false
+ 		s=@@states[self]
+ 		s||={}
+ 		p.each{|k,v|s[k]=v}
+@@ -60,6 +62,7 @@
+ 	end
+ 
+ 	def firstCall
++	  @started=true
+ 		enterRecursive
+ 	end
+ 
+
+Modified: antargis/trunk/ruby/jobs/saving.rb
+===================================================================
+--- antargis/trunk/ruby/jobs/saving.rb	2008-05-28 18:06:10 UTC (rev 1257)
++++ antargis/trunk/ruby/jobs/saving.rb	2008-05-30 03:46:26 UTC (rev 1258)
+@@ -28,7 +28,7 @@
+       when AntEntity
+         node.set(&quot;value&quot;,what.uid.to_s)
+       when Hash
+-        what.keys.each{|k|
++        what.keys.sort{|a,b|a.to_s&lt;=&gt;b.to_s}.each{|k|
+           v=what[k]
+           n=node.addChild(&quot;element&quot;)
+           saveXML(k,n.addChild(&quot;key&quot;))
+@@ -63,70 +63,92 @@
+ end
+ 
+ module XMLLoader
+-  def XMLLoader.loadXML(entity,node,current=nil)
+-    current||=entity
+-    job=nil
+-    case current
+-      when AntEntity
+-        node.getChildren(&quot;hljob&quot;).each{|n|
+-          t=n.get(&quot;type&quot;)
+-          case t
+-            when &quot;AntHeroMoveJob&quot;
+-              job=AntHeroMoveJob.new(entity,0,AGVector2.new(0,0),0)
+-            when &quot;AntHeroRestJob&quot;
+-              job=AntHeroRestJob.new(entity,10)
+-            when &quot;AntHeroRecruitJob&quot;
+-              target=n.getChildren.select{|c|c.get(&quot;name&quot;)==&quot;@target&quot;}[0]
+-              if target
+-                target=entity.getMap.getByUID(target.get(&quot;value&quot;))
+-              
+-                job=AntHeroRecruitJob.new(entity,target)
+-              else
+-                raise &quot;target missing in saved AntHeroRecruitJob&quot;
+-              end
++  def XMLLoader.loadXML(entity,node)
++    return if node.nil?
++    value=nil
++    case node.getName
++      when &quot;hljob&quot;
++        job=nil
++        case node.get(&quot;type&quot;)
++          when &quot;AntHeroMoveJob&quot;
++            job=AntHeroMoveJob.new(entity,0,AGVector2.new(0,0),0)
++          when &quot;AntHeroRestJob&quot;
++            job=AntHeroRestJob.new(entity,10)
++          when &quot;AntHeroRecruitJob&quot;
++            target=n.getChildren.select{|c|c.get(&quot;name&quot;)==&quot;@target&quot;}[0]
++            if target
++              target=entity.getMap.getByUID(target.get(&quot;value&quot;))
++            
++              job=AntHeroRecruitJob.new(entity,target)
+             else
+-              # FIXME!!!
+-              raise &quot;unknown job: #{t}&quot;
+-          end
+-          XMLLoader.loadXML(entity,n,job)
+-          #job.loadXML(n)
+-        }
++              raise &quot;target missing in saved AntHeroRecruitJob&quot;
++            end
++          else
++            # FIXME!!!
++            raise &quot;unknown job: #{t}&quot;
++        end
++        node.getChildren(&quot;member&quot;)
++        value=job
++        #XMLLoader.loadMembers(entity,node,job)
++        #return job
+       else
+-        node.getChildren.each{|c|
+-          if c.getName==&quot;member&quot;
+-            name=c.get(&quot;name&quot;)
+-            type=c.get(&quot;type&quot;)
+-            value=c.get(&quot;value&quot;)
+-            if value!=&quot;&quot;
+-              value=case type
+-                when &quot;Integer&quot;,&quot;Fixnum&quot;
+-                  value.to_i
+-                when &quot;Float&quot;
+-                  value.to_f
+-                when &quot;String&quot;
+-                  value
+-                when &quot;Symbol&quot;
+-                  value.intern
+-                when &quot;FalseClass&quot;
+-                  false
+-                when &quot;TrueClass&quot;
+-                  true
+-                when *getDescendantsOfClass(AntRubyEntity).map{|c|c.to_s}
+-                  entity.getMap.getByUID(value.to_i)
+-                else
+-                  pp getDescendantsOfClass(AntRubyEntity).map{|c|c.to_s}
+-                  raise &quot;Unknnown type #{type}&quot;
+-              end
+-              current.instance_variable_set(name,value)
++        type=node.get(&quot;type&quot;)
++        value=node.get(&quot;value&quot;)
++        if value!=&quot;&quot;
++          value=case type
++            when &quot;Integer&quot;,&quot;Fixnum&quot;
++              value.to_i
++            when &quot;Float&quot;
++              value.to_f
++            when &quot;String&quot;
++              value
++            when &quot;Symbol&quot;
++              value.intern
++            when &quot;FalseClass&quot;
++              false
++            when &quot;TrueClass&quot;
++              true
++            when *getDescendantsOfClass(AntRubyEntity).map{|c|c.to_s}
++              entity.getMap.getByUID(value.to_i)
+             else
+-              case type
+-                when Hash
+-                when Array 
+-              end
+-            end
++              pp getDescendantsOfClass(AntRubyEntity).map{|c|c.to_s}
++              raise &quot;Unknnown type #{type}&quot;
+           end
+-        }
++        else
++          value=case type
++            when &quot;Hash&quot;
++              h={}
++              node.getChildren(&quot;element&quot;).each{|child|
++                key=XMLLoader.loadXML(entity,child.getChildren(&quot;key&quot;)[0])
++                value=XMLLoader.loadXML(entity,child.getChildren(&quot;value&quot;)[0])
++                h[key]=value
++              }
++              h
++            when &quot;Array&quot;
++              h=[]
++              node.getChildren(&quot;element&quot;).each{|child|
++                value=XMLLoader.loadXML(entity,child.getChildren(&quot;value&quot;)[0])
++                h &lt;&lt; value
++              }
++              h
++            when *getDescendantsOfClass(HLJob_BaseState).map{|c|c.to_s}
++              value=eval(type).new
++          end
++        end
+     end
+-    job
++    XMLLoader.loadMembers(entity,node,value)
++    return value
+   end
++  def XMLLoader.loadMembers(entity,node,current=nil)
++    current||=entity  
++    node.getChildren(&quot;member&quot;).each{|mNode|
++      name=mNode.get(&quot;name&quot;)
++      current.instance_variable_set(name,XMLLoader.loadXML(entity,mNode))
++    }
++  end
++    
++    
++    
++    
++    
+ end
+\ No newline at end of file
+
+Modified: antargis/trunk/ruby/spec/spec_hljob_saving.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_hljob_saving.rb	2008-05-28 18:06:10 UTC (rev 1257)
++++ antargis/trunk/ruby/spec/spec_hljob_saving.rb	2008-05-30 03:46:26 UTC (rev 1258)
+@@ -19,8 +19,8 @@
+       load(SAVEGAME)
+       newText=save(SAVEGAME2)
+       puts newText
+-      #newText.should == saveText
+-      exit
++      (newText==saveText).should be_true
++      #exit
+       #advance
+     end
+   end
+@@ -52,7 +52,7 @@
+ 	    filename=files.getValues.keys.select{|f|f=~/#{file}/}[0]
+ 	    files.selectItem(filename)
+ 	    click(dialog.getChild(&quot;ok&quot;).getScreenRect.getMiddle)
+-    }.should_not cross(AntNewHLJob,:check)
++    }.should_not cross(AntEntity,:newMoveJob) #AntNewHLJob,:check)
+     checkRowenRest
+   end
+   
+
+Modified: antargis/trunk/ruby/spec/spec_math.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_math.rb	2008-05-28 18:06:10 UTC (rev 1257)
++++ antargis/trunk/ruby/spec/spec_math.rb	2008-05-30 03:46:26 UTC (rev 1258)
+@@ -39,4 +39,33 @@
+     p result
+     result.should&gt;0
+   end
++end
++
++describe &quot;AGMatrix3D(one with 0s on the main axis)&quot; do
++  it &quot;should be invertable&quot; do
++    m=AGMatrix3.new
++    m.set(0,0,0)
++    m.set(1,0,1)
++    m.set(2,0,0)
++    m.set(0,1,0)
++    m.set(1,1,0)
++    m.set(2,1,1)
++    m.set(0,2,1)
++    m.set(1,2,0)
++    m.set(2,2,0)
++    (m.inverted*m).should == singleMatrix 
++  end
++  def singleMatrix
++    m=AGMatrix3.new
++    m.set(0,0,1)
++    m.set(1,0,0)
++    m.set(2,0,0)
++    m.set(0,1,0)
++    m.set(1,1,1)
++    m.set(2,1,0)
++    m.set(0,2,0)
++    m.set(1,2,0)
++    m.set(2,2,1)
++    m 
++  end
+ end
+\ No newline at end of file
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000213.html">[Antargis-svn] r1257 - in antargis/trunk: . data/gui/layout	ext/basic ext/game ext/gui rookey ruby ruby/entities	ruby/jobs ruby/spec
+</A></li>
+	<LI>Next message: <A HREF="000215.html">[Antargis-svn] r1259 - in antargis/trunk: data/gui/layout ext/basic	ext/game ext/gui ruby ruby/ai ruby/jobs ruby/spec
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#214">[ date ]</a>
+              <a href="thread.html#214">[ thread ]</a>
+              <a href="subject.html#214">[ subject ]</a>
+              <a href="author.html#214">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,305 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1219 - in antargis/trunk/ruby: . spec
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2008-January/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1219%20-%20in%20antargis/trunk/ruby%3A%20.%20spec&In-Reply-To=%3C200801281936.m0SJaM81001941%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000175.html">
+   <LINK REL="Next"  HREF="000177.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1219 - in antargis/trunk/ruby: . spec</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1219%20-%20in%20antargis/trunk/ruby%3A%20.%20spec&In-Reply-To=%3C200801281936.m0SJaM81001941%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1219 - in antargis/trunk/ruby: . spec">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Mon Jan 28 20:36:22 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000175.html">[Antargis-svn] r1218 - in antargis/trunk: . ext ext/3dengine	ext/basic ext/game ext/gui ext/math ext/sound ext/video
+</A></li>
+        <LI>Next message: <A HREF="000177.html">[Antargis-svn] r1220 - in antargis/trunk/ruby: . editor/test gui
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#176">[ date ]</a>
+              <a href="thread.html#176">[ thread ]</a>
+              <a href="subject.html#176">[ subject ]</a>
+              <a href="author.html#176">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2008-01-28 20:36:21 +0100 (Mon, 28 Jan 2008)
+New Revision: 1219
+
+Modified:
+   antargis/trunk/ruby/campaign.rb
+   antargis/trunk/ruby/spec/spec_call.rb
+   antargis/trunk/ruby/spec/spec_campaign.rb
+   antargis/trunk/ruby/spec/spec_menu.rb
+Log:
+* some more checks
+
+
+Modified: antargis/trunk/ruby/campaign.rb
+===================================================================
+--- antargis/trunk/ruby/campaign.rb	2008-01-27 15:47:21 UTC (rev 1218)
++++ antargis/trunk/ruby/campaign.rb	2008-01-28 19:36:21 UTC (rev 1219)
+@@ -167,6 +167,9 @@
+ 	end
+ end
+ 
++class TestClass
++end
++
+ class CutScene
+ 	#attr_reader :finished
+ 	def initialize(node)
+@@ -195,6 +198,10 @@
+ 			c.addChild(&quot;image&quot;).set(&quot;filename&quot;,s[:imageName]) if s[:imageName]
+ 		}
+ 	end
++	def mytest
++		puts &quot;muh&quot;
++		#TestClass.new
++	end
+ 	def play
+ 		display=CutSceneDisplay.new(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">image, at text</A>)
+ 		@screens.each{|s|
+
+Modified: antargis/trunk/ruby/spec/spec_call.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_call.rb	2008-01-27 15:47:21 UTC (rev 1218)
++++ antargis/trunk/ruby/spec/spec_call.rb	2008-01-28 19:36:21 UTC (rev 1219)
+@@ -7,7 +7,7 @@
+ describe &quot;Call-predicate in spec-helper&quot; do
+   it &quot;should work with global functions&quot; do
+     globalTestFunction.should == &quot;myFunc&quot;
+-    lambda {globalTestFunction.should be_nil}.should call(:globalTestFunction)
++    lambda {globalTestFunction.should be_nil}.should cross(:globalTestFunction)
+     globalTestFunction.should == &quot;myFunc&quot;
+   end
+   it &quot;should work with methods&quot; do
+@@ -18,11 +18,11 @@
+     end
+     a=A.new
+ 		a.y.should == &quot;hi&quot;
+-    lambda{a.y.should be_nil}.should call(a,:y)
++    lambda{a.y.should be_nil}.should cross(a,:y)
+ 		a.y.should == &quot;hi&quot;
+   end
+ 	it &quot;should work with should_not&quot; do
+-		lambda{}.should_not call(:globalTestFunction)
++		lambda{}.should_not cross(:globalTestFunction)
+ 	end
+ 
+ 	it &quot;should work with new method&quot; do
+@@ -33,10 +33,89 @@
+ 			end
+ 		end
+ 		
+-		lambda{A.new}.should call(A,:new)
+-		lambda{}.should_not call(A,:new)
+-		lambda{a=A.new}.should call(A,:new)
++		lambda{A.new}.should cross(A,:initialize)
++		lambda{}.should_not cross(A,:initialize)
++		lambda{a=A.new}.should cross(A,:initialize)
+ 	end
+ 
+ end
+ 
++
++
++
++def myGlobalFunction
++  :test1
++end
++
++def myGlobalCaller
++  myGlobalFunction
++end
++
++class Test
++  def initialize
++    puts &quot;new Test&quot;
++  end
++  def Test.test2
++    :test_2
++  end
++  def test3
++    :test_3
++  end
++end
++
++describe &quot;Cross&quot; do
++  it &quot;should work for global functions&quot; do
++    myGlobalCaller.should equal(:test1)
++    lambda{myGlobalCaller.should be_nil}.should cross(:myGlobalFunction)
++    myGlobalCaller.should equal(:test1)
++  end
++  
++  it &quot;should work for class-methods&quot; do
++    lambda{Test.test2}.should cross(Test,:test2)
++		Test.test2.should equal(:test_2)
++  end
++  
++  it &quot;should work for object-methods&quot; do
++    t=Test.new
++    t.test3.should equal(:test_3)
++    lambda{t.test3}.should cross(t,:test3)
++    t.test3.should equal(:test_3)
++  end
++  
++  it &quot;should work with new on global class,too&quot; do
++    lambda{Test.new}.should cross(Test,:initialize)
++  end
++
++	it &quot;failure measure&quot; do
++		Cross.new(&quot;A&quot;,&quot;B&quot;).failure_message.should =~/expected .* to call A.B.*/
++	end
++	it &quot;negative failure measure&quot; do
++		Cross.new(&quot;A&quot;,&quot;B&quot;).negative_failure_message.should =~/expected .* not to call A.B.*/
++	end
++  
++  it &quot;should work with local classes&quot; do
++    class A
++      attr_reader :x
++      def initialize
++        @x=20
++      end
++      def y
++        10
++      end
++      def A.z        
++        :az
++      end
++    end
++    a=nil
++    a=A.new
++    lambda {a.y}.should cross(a,:y)
++    lambda {a=A.new}.should cross(A,:initialize)
++    A.new.y.should equal(10)
++    lambda {}.should_not cross(A,:initialize)
++    
++    lambda{A.z}.should cross(A,:z)
++    lambda{}.should_not cross(A,:z)
++    A.z.should equal(:az)
++  end
++end
++
+
+Modified: antargis/trunk/ruby/spec/spec_campaign.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_campaign.rb	2008-01-27 15:47:21 UTC (rev 1218)
++++ antargis/trunk/ruby/spec/spec_campaign.rb	2008-01-28 19:36:21 UTC (rev 1219)
+@@ -26,11 +26,36 @@
+ 	it &quot;birth campaign starts with cutscene&quot; do
+ 		@birth.getCurrentPart.should be_a_kind_of(CutScene)
+ 	end
+-	it &quot;should run a story fine&quot; do
+-		cutscene=@birth.getCurrentPart
+-		lambda {cutscene.play}.should_not cross(CutSceneDisplay,:new)
+-		
+-	end
++ 	it &quot;should run a story fine&quot; do
++		OldDisplay=CutSceneDisplay.clone
++		class CutSceneDisplay
++			@@ok=false
++			@@calls={}
++			
++			# remove all methods
++			self.instance_methods.each{|m|undef_method(m) unless m=~/__.*__/}
++			def initialize
++				@@ok=true
++			end
++			def CutSceneDisplay.initok
++				@@ok 
++			end
++			def CutSceneDisplay.callCount(name)
++				@@calls[name]
++			end
++			def method_missing(name,*s)
++				@@calls[name]||=0
++				@@calls[name]+=1
++			end
++		end
++ 		cutscene=@birth.getCurrentPart
++ 		lambda {cutscene.play}.should cross(CutSceneDisplay,:initialize)
++		CutSceneDisplay.initok.should be_false # because it wasn't hit due to &quot;should cross&quot;
++		CutSceneDisplay.callCount(:setImage).should &gt;0
++		CutSceneDisplay.callCount(:setImage).should equal(CutSceneDisplay.callCount(:setText))
++		CutSceneDisplay.callCount(:setImage).should equal(CutSceneDisplay.callCount(:run))
++ 		CutSceneDisplay=OldDisplay
++ 	end
+ 
+ 
+ end
+
+Modified: antargis/trunk/ruby/spec/spec_menu.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_menu.rb	2008-01-27 15:47:21 UTC (rev 1218)
++++ antargis/trunk/ruby/spec/spec_menu.rb	2008-01-28 19:36:21 UTC (rev 1219)
+@@ -1,9 +1,7 @@
+-if false
+-Dir.chdir(File.split(File.split(File.split(File.expand_path(__FILE__))[0])[0])[0])
+-puts Dir.pwd
++Dir.chdir(File.split(__FILE__)[0])
+ 
++require '../spec_helper.rb'
+ require 'ruby/gui/testing.rb'
+-require 'ruby/spec_helper.rb'
+ require 'ruby/mainmenu.rb'
+ 
+ describe 'Main-Menu' do
+@@ -31,7 +29,7 @@
+ 	it &quot;should be possible to select tutorial and this will start this one&quot; do
+ 		tutorialButton=widget(&quot;tutorial&quot;)
+ 		tutorialButton.should be_an_instance_of(AGButton)
+-		lambda {tutorialButton.click}.should call(:startCampaign)
++		lambda {tutorialButton.click}.should cross(:startCampaign)
+ 	end
+ 	it &quot;should be possible to select the tutorial in the campaign section and start it&quot; do
+ 		playCampaign(0)
+@@ -65,8 +63,7 @@
+ 		campaignRadio.should be_checked
+ 		startButton=menu.child(&quot;start&quot;)
+ 		startButton.should be_a_kind_of(AGButton)
+-		lambda {startButton.click}.should call(:startCampaign)
++		lambda {startButton.click}.should cross(:startCampaign)
+ 	end
+ end
+ 
+-end
+\ No newline at end of file
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000175.html">[Antargis-svn] r1218 - in antargis/trunk: . ext ext/3dengine	ext/basic ext/game ext/gui ext/math ext/sound ext/video
+</A></li>
+	<LI>Next message: <A HREF="000177.html">[Antargis-svn] r1220 - in antargis/trunk/ruby: . editor/test gui
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#176">[ date ]</a>
+              <a href="thread.html#176">[ thread ]</a>
+              <a href="subject.html#176">[ subject ]</a>
+              <a href="author.html#176">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

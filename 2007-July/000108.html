@@ -1,0 +1,539 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1151 - antargis/branches/rant/ext/game
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-July/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1151%20-%20antargis/branches/rant/ext/game&In-Reply-To=%3C200707291014.l6TAEK5n018707%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000107.html">
+   <LINK REL="Next"  HREF="000109.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1151 - antargis/branches/rant/ext/game</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1151%20-%20antargis/branches/rant/ext/game&In-Reply-To=%3C200707291014.l6TAEK5n018707%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1151 - antargis/branches/rant/ext/game">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sun Jul 29 12:14:20 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000107.html">[Antargis-svn] r1150 - in antargis/branches/rant: . build ext/basic	ext/game ext/gui ext/video ruby ruby/entities
+</A></li>
+        <LI>Next message: <A HREF="000109.html">[Antargis-svn] r1152 - in antargis/branches/rant/ruby/tests: . path
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#108">[ date ]</a>
+              <a href="thread.html#108">[ thread ]</a>
+              <a href="subject.html#108">[ subject ]</a>
+              <a href="author.html#108">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-07-29 12:14:20 +0200 (Sun, 29 Jul 2007)
+New Revision: 1151
+
+Added:
+   antargis/branches/rant/ext/game/path_data_v3.cc
+   antargis/branches/rant/ext/game/path_data_v3.h
+   antargis/branches/rant/ext/game/path_v3.h
+   antargis/branches/rant/ext/game/path_vector_sort.h
+   antargis/branches/rant/ext/game/path_weighter.cc
+   antargis/branches/rant/ext/game/path_weighter.h
+Log:
+* missing files
+
+
+Added: antargis/branches/rant/ext/game/path_data_v3.cc
+===================================================================
+--- antargis/branches/rant/ext/game/path_data_v3.cc	2007-07-29 10:13:56 UTC (rev 1150)
++++ antargis/branches/rant/ext/game/path_data_v3.cc	2007-07-29 10:14:20 UTC (rev 1151)
+@@ -0,0 +1,160 @@
++#include &quot;path_data_v3.h&quot;
++#include &quot;path_vector_sort.h&quot;
++
++#include &lt;ag_debug.h&gt;
++#include &lt;algorithm&gt;
++
++#include &lt;math.h&gt;
++
++namespace PathFinding
++{
++
++  Field::Field(const AGVector2 &amp;pMiddle,size_t pID):mID(pID),
++						    mMiddle(pMiddle)
++  {
++  }
++
++  void Field::insert(const AGVector2 &amp;v,DistanceComputer &amp;pDist)
++  {
++    mVectors.insert(v);
++    mNeighbors.erase(v);
++    
++    std::list&lt;AGVector2&gt; neighbors=pDist.getNeighbors(v);
++
++    for(std::list&lt;AGVector2&gt;::iterator i=neighbors.begin();i!=neighbors.end();i++)
++      {
++	if(mVectors.find(*i)==mVectors.end())
++	  mNeighbors.insert(*i);
++      }
++
++  }
++
++  bool Field::isNeighbor(const AGVector2 &amp;v) const
++  {
++    return mNeighbors.find(v)!=mNeighbors.end();
++  }
++
++  bool Field::hasVector(const AGVector2 &amp;v) const
++  {
++    return mVectors.find(v)!=mVectors.end();
++  }
++
++  AGVector2 Field::getMiddle() const
++  {
++    return mMiddle;
++  }
++
++
++
++
++
++
++
++  void FieldCollection::assign(const AGVector2 &amp;v,size_t pField,DistanceComputer &amp;pDist)
++  {
++    assert(pField&lt;mFields.size());
++
++    mFields[pField].insert(v,pDist);
++    mVec2Field[v]=pField;
++  }
++
++
++  size_t FieldCollection::newField(const AGVector2 &amp;pMiddle)
++  {
++    size_t id=mFields.size();
++    mFields.push_back(Field(pMiddle,id));
++    return id;
++  }
++
++Field *FieldCollection::getField(size_t pField)
++{
++  return &amp;(mFields[pField]);
++}
++
++  size_t FieldCollection::getFieldId(const AGVector2 &amp;pVector) const
++  {
++    std::map&lt;AGVector2,size_t&gt;::const_iterator i=mVec2Field.find(pVector);
++
++    if(i!=mVec2Field.end())
++      return i-&gt;second;
++
++    return  -1;
++  }
++
++  size_t FieldCollection::getFieldCount() const
++  {
++    return mFields.size();
++  }
++
++
++
++
++
++
++
++
++
++
++
++
++  AGVector2 takeRandom(const std::set&lt;AGVector2&gt; &amp;pSet)
++  {
++    assert(pSet.size()&gt;0);
++    int pos=(int)(rand()%pSet.size());
++    std::set&lt;AGVector2&gt;::const_iterator i=pSet.begin();
++    for(;i!=pSet.end() &amp;&amp; pos&gt;0;pos--,i++);
++    return *i;
++  }
++
++  void assignFields(FieldCollection &amp;pCollection,DistanceComputer &amp;pDist,size_t pFieldCount)
++  {
++    std::list&lt;AGVector2&gt; allVectorList=pDist.getAllPassable();
++
++    float maxFieldWidth=sqrt(pDist.width()*pDist.height()/pFieldCount);
++
++    std::set&lt;AGVector2&gt; restOfVectors;
++
++    std::copy(allVectorList.begin(),allVectorList.end(),std::inserter(restOfVectors,restOfVectors.begin()));
++
++    while(restOfVectors.size()&gt;0)
++      {
++	AGVector2 fieldMiddle=takeRandom(restOfVectors);
++	DistanceOrder order(fieldMiddle);
++
++	size_t newField=pCollection.newField(fieldMiddle);
++	
++
++	std::set&lt;AGVector2,DistanceOrder&gt; growField(order);
++	std::copy(restOfVectors.begin(),restOfVectors.end(),std::inserter(growField,growField.begin()));
++
++	cdebug(&quot;MIDDLE:&quot;&lt;&lt;fieldMiddle);
++	
++	size_t k=0;
++	for(std::set&lt;AGVector2,DistanceOrder&gt;::iterator i=growField.begin();i!=growField.end() &amp;&amp; k&lt;30;i++,k++)
++	  {
++	    cdebug(&quot; &quot;&lt;&lt;*i&lt;&lt;&quot;  &quot;&lt;&lt;(*i-fieldMiddle).length());
++	  }
++
++	do
++	  {
++	    AGVector2 current=*growField.begin();
++	    
++	    if((current-fieldMiddle).length()&lt;maxFieldWidth)
++	      {
++		growField.erase(growField.begin());
++		restOfVectors.erase(current);
++		pCollection.assign(current,newField,pDist);
++	      }
++	    else
++	      break;
++	  }while(growField.size()&gt;0);
++      }
++    
++
++
++    cdebug(&quot;FIELDS:&quot;&lt;&lt;pCollection.getFieldCount());
++  }
++
++
++
++}
+
+Added: antargis/branches/rant/ext/game/path_data_v3.h
+===================================================================
+--- antargis/branches/rant/ext/game/path_data_v3.h	2007-07-29 10:13:56 UTC (rev 1150)
++++ antargis/branches/rant/ext/game/path_data_v3.h	2007-07-29 10:14:20 UTC (rev 1151)
+@@ -0,0 +1,67 @@
++#ifndef PATH_DATA_V3_H
++#define PATH_DATA_V3_H
++
++// INCLUDE_SWIG - used to filter, which files are included in swig-interfacing
++
++#include &lt;ag_geometry.h&gt;
++
++#include &quot;path_weighter.h&quot;
++
++#include &lt;vector&gt;
++#include &lt;map&gt;
++#include &lt;set&gt;
++
++namespace PathFinding
++{
++
++  class Field
++  {
++  public:
++    Field(const AGVector2 &amp;pMiddle,size_t pID);
++
++    void insert(const AGVector2 &amp;v,DistanceComputer &amp;pDist);
++
++    bool hasVector(const AGVector2 &amp;v) const;
++    bool isNeighbor(const AGVector2 &amp;v) const;
++
++    AGVector2 getMiddle() const;
++
++  private:
++    size_t mID;
++    std::set&lt;AGVector2&gt; mVectors;
++
++    std::set&lt;AGVector2&gt; mNeighbors;
++
++    AGVector2 mMiddle;
++  };
++
++  class FieldCollection
++  {
++  public:
++    void assign(const AGVector2 &amp;v,size_t pField,DistanceComputer &amp;pDist);
++    size_t newField(const AGVector2 &amp;pMiddle);
++
++    Field *getField(size_t pField);
++
++    size_t getFieldId(const AGVector2 &amp;pVector) const;
++
++    size_t getFieldCount() const;
++
++  private:
++    std::vector&lt;Field&gt; mFields;
++    std::map&lt;AGVector2,size_t&gt; mVec2Field;
++  };
++
++
++void assignFields(FieldCollection &amp;pCollection,DistanceComputer &amp;pDist,size_t pFieldCount);
++
++
++  class FieldAssigner
++  {
++  public:
++    
++  };
++}
++
++#endif
++
+
+Added: antargis/branches/rant/ext/game/path_v3.h
+===================================================================
+--- antargis/branches/rant/ext/game/path_v3.h	2007-07-29 10:13:56 UTC (rev 1150)
++++ antargis/branches/rant/ext/game/path_v3.h	2007-07-29 10:14:20 UTC (rev 1151)
+@@ -0,0 +1,7 @@
++#ifndef PATH_V3_H
++#define PATH_V3_H
++
++#include &quot;path_data_v3.h&quot;
++
++
++#endif
+
+Added: antargis/branches/rant/ext/game/path_vector_sort.h
+===================================================================
+--- antargis/branches/rant/ext/game/path_vector_sort.h	2007-07-29 10:13:56 UTC (rev 1150)
++++ antargis/branches/rant/ext/game/path_vector_sort.h	2007-07-29 10:14:20 UTC (rev 1151)
+@@ -0,0 +1,19 @@
++#ifndef PATH_VECTOR_SORT_H
++#define PATH_VECTOR_SORT_H
++
++class DistanceOrder
++{
++public:
++  DistanceOrder(const AGVector2 &amp;pBase):mBase(pBase)
++  {
++  }
++  bool operator()(const AGVector2 &amp;a,const AGVector2 &amp;b) const
++  {
++    return (a-mBase).length2()&lt;(b-mBase).length2();
++  }
++private:
++  AGVector2 mBase;
++
++};
++
++#endif
+
+Added: antargis/branches/rant/ext/game/path_weighter.cc
+===================================================================
+--- antargis/branches/rant/ext/game/path_weighter.cc	2007-07-29 10:13:56 UTC (rev 1150)
++++ antargis/branches/rant/ext/game/path_weighter.cc	2007-07-29 10:14:20 UTC (rev 1151)
+@@ -0,0 +1,125 @@
++#include &quot;path_weighter.h&quot;
++
++#include &lt;ag_debug.h&gt;
++#include &quot;height_map.h&quot;
++#include &lt;math.h&gt;
++
++DistanceComputer::DistanceComputer(HeightMap *pHeightMap,
++				   float pStepX,float pStepY):
++  mHeightMap(pHeightMap),
++  mStepX(pStepX),mStepY(pStepY)
++{
++  assert(mHeightMap);
++}
++
++bool DistanceComputer::isPassable(const AGVector2 &amp;pPoint) const
++{
++  return mHeightMap-&gt;getHeight(pPoint[0],pPoint[1])&gt;-0.2;
++}
++
++float DistanceComputer::beginX() const
++{
++  return 0;
++}
++float DistanceComputer::beginY() const
++{
++  return 0;
++}
++float DistanceComputer::stepX() const
++{
++  return mStepX;
++}
++float DistanceComputer::stepY() const
++{
++  return mStepY;
++}
++float DistanceComputer::endX() const
++{
++  return mHeightMap-&gt;getW();
++}
++float DistanceComputer::endY() const
++{
++  return mHeightMap-&gt;getH();
++}
++
++float DistanceComputer::width() const
++{
++  return endX()-beginX();
++}
++
++float DistanceComputer::height() const
++{
++  return endY()-beginY();
++}
++
++
++// FIXME: maybe move this to other class ?
++float DistanceComputer::simpleWeight(const AGVector2 &amp;a,const AGVector2 &amp;b) const
++{
++  float ha=mHeightMap-&gt;getHeight(a[0],a[1]);
++  float hb=mHeightMap-&gt;getHeight(b[0],b[1]);
++
++  float d=(a-b).length();
++  float hd=ha-hb;
++
++  if(hb&gt;ha) // up hill
++    return sqrt(d*d+hd*hd);
++  return d; // down hill - normal speed
++}
++
++/**
++ * compute possible neighbors (w.r.t. to map-borders)
++ */
++std::list&lt;AGVector2&gt; DistanceComputer::getNeighbors(const AGVector2 &amp;p) const
++{
++  std::list&lt;AGVector2&gt; diffList,rList;
++  AGVector2 t;
++
++  diffList.push_back(AGVector2(-stepX(),0));
++  diffList.push_back(AGVector2(+stepX(),0));
++  diffList.push_back(AGVector2(0,-stepY()));
++  diffList.push_back(AGVector2(0,+stepY()));
++
++  for(std::list&lt;AGVector2&gt;::iterator i=diffList.begin();i!=diffList.end();i++)
++    {
++      t=*i+p;
++      if(t.getX() &gt;= beginX() &amp;&amp;
++	 t.getX()&lt;=endX() &amp;&amp; 
++	 t.getY()&gt;=beginY() &amp;&amp; 
++	 t.getY()&lt;=endY())
++	rList.push_back(t);
++    }
++
++  return rList;
++}
++
++std::map&lt;AGVector2,float&gt; DistanceComputer::getAllReachableFrom(const AGVector2 &amp;p) const
++{
++  float w;
++  std::map&lt;AGVector2,float&gt; rList;
++  std::list&lt;AGVector2&gt; nList=getNeighbors(p);
++
++  for(std::list&lt;AGVector2&gt;::iterator i=nList.begin();i!=nList.end();i++)
++    {
++      w=simpleWeight(p,*i);
++      rList.insert(std::make_pair(*i,w));
++    }
++  return rList;
++}
++
++
++std::list&lt;AGVector2&gt; DistanceComputer::getAllPassable() const
++{
++  std::list&lt;AGVector2&gt; l;
++
++  float x,y;
++  AGVector2 v(x,y);
++  for(x=beginX();x&lt;=endX();x+=stepX())
++    for(y=beginY();y&lt;=endY();y+=stepY())
++      {
++	v=AGVector2(x,y);
++	if(isPassable(v))
++	  l.push_back(v);
++      }
++  return l;
++}
+
+Added: antargis/branches/rant/ext/game/path_weighter.h
+===================================================================
+--- antargis/branches/rant/ext/game/path_weighter.h	2007-07-29 10:13:56 UTC (rev 1150)
++++ antargis/branches/rant/ext/game/path_weighter.h	2007-07-29 10:14:20 UTC (rev 1151)
+@@ -0,0 +1,49 @@
++#ifndef PATH_WEIGHTER_H
++#define PATH_WEIGHTER_H
++
++// INCLUDE_SWIG - used to filter, which files are included in swig-interfacing
++
++#include &lt;path_base.h&gt;
++
++#include &lt;map&gt;
++
++class HeightMap;
++
++/**
++ * Computes distances from a height field
++ */
++class AGEXPORT DistanceComputer
++{
++ public:
++  DistanceComputer(HeightMap *pHeightMap,float pStepX=1,float pStepY=1);
++
++  float beginX() const;
++  float beginY() const;
++  float stepX() const;
++  float stepY() const;
++  float endX() const;
++  float endY() const;
++
++  float width() const;
++  float height() const;
++
++  std::map&lt;AGVector2,float&gt; getAllReachableFrom(const AGVector2 &amp;p) const;
++
++  // compute weight for to neighboring points (from a to b)
++  float simpleWeight(const AGVector2 &amp;a,const AGVector2 &amp;b) const;
++
++  bool isPassable(const AGVector2 &amp;pPoint) const;
++
++  std::list&lt;AGVector2&gt; getNeighbors(const AGVector2 &amp;p) const;
++
++
++  std::list&lt;AGVector2&gt; getAllPassable() const;
++
++ private:
++
++  HeightMap *mHeightMap;
++  float mStepX,mStepY;
++};
++
++
++#endif
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000107.html">[Antargis-svn] r1150 - in antargis/branches/rant: . build ext/basic	ext/game ext/gui ext/video ruby ruby/entities
+</A></li>
+	<LI>Next message: <A HREF="000109.html">[Antargis-svn] r1152 - in antargis/branches/rant/ruby/tests: . path
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#108">[ date ]</a>
+              <a href="thread.html#108">[ thread ]</a>
+              <a href="subject.html#108">[ subject ]</a>
+              <a href="author.html#108">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

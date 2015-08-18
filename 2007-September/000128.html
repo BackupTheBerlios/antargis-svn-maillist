@@ -1,0 +1,1444 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1171 - in antargis/branches/rant: . build ext/basic	ext/game ruby ruby/entities ruby/jobs ruby/state_machine	ruby/state_machine/spec
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-September/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1171%20-%20in%20antargis/branches/rant%3A%20.%20build%20ext/basic%0A%09ext/game%20ruby%20ruby/entities%20ruby/jobs%20ruby/state_machine%0A%09ruby/state_machine/spec&In-Reply-To=%3C200709051830.l85IUJa2006777%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000127.html">
+   <LINK REL="Next"  HREF="000129.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1171 - in antargis/branches/rant: . build ext/basic	ext/game ruby ruby/entities ruby/jobs ruby/state_machine	ruby/state_machine/spec</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1171%20-%20in%20antargis/branches/rant%3A%20.%20build%20ext/basic%0A%09ext/game%20ruby%20ruby/entities%20ruby/jobs%20ruby/state_machine%0A%09ruby/state_machine/spec&In-Reply-To=%3C200709051830.l85IUJa2006777%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1171 - in antargis/branches/rant: . build ext/basic	ext/game ruby ruby/entities ruby/jobs ruby/state_machine	ruby/state_machine/spec">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Wed Sep  5 20:30:19 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000127.html">[Antargis-svn] r1170 - antargis/branches/rant/ruby
+</A></li>
+        <LI>Next message: <A HREF="000129.html">[Antargis-svn] r1172 - in	antargis/branches/rant/ruby/state_machine: . spec
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#128">[ date ]</a>
+              <a href="thread.html#128">[ thread ]</a>
+              <a href="subject.html#128">[ subject ]</a>
+              <a href="author.html#128">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-09-05 20:30:18 +0200 (Wed, 05 Sep 2007)
+New Revision: 1171
+
+Removed:
+   antargis/branches/rant/ext/game/path_data_v3.cc
+   antargis/branches/rant/ext/game/path_data_v3.h
+   antargis/branches/rant/ext/game/path_weighter.cc
+   antargis/branches/rant/ext/game/path_weighter.h
+Modified:
+   antargis/branches/rant/Rantfile
+   antargis/branches/rant/build/create_interface.rb
+   antargis/branches/rant/ext/basic/ag_messageobject.cc
+   antargis/branches/rant/ext/basic/ag_messageobject.h
+   antargis/branches/rant/ext/game/entity.cc
+   antargis/branches/rant/ext/game/entity.h
+   antargis/branches/rant/ext/game/headers.hh
+   antargis/branches/rant/ruby/ant_hljobs.rb
+   antargis/branches/rant/ruby/ant_tools.rb
+   antargis/branches/rant/ruby/entities/ant_boss.rb
+   antargis/branches/rant/ruby/jobs/ant_hljob_base.rb
+   antargis/branches/rant/ruby/jobs/ant_hljob_states.rb
+   antargis/branches/rant/ruby/jobs/ant_new_hljobs.rb
+   antargis/branches/rant/ruby/state_machine/spec/state_machine.rb
+   antargis/branches/rant/ruby/state_machine/state_machine.rb
+Log:
+* many improvements
+
+
+Modified: antargis/branches/rant/Rantfile
+===================================================================
+--- antargis/branches/rant/Rantfile	2007-09-02 17:23:48 UTC (rev 1170)
++++ antargis/branches/rant/Rantfile	2007-09-05 18:30:18 UTC (rev 1171)
+@@ -229,7 +229,7 @@
+ 
+ 	incs=&quot;-DAGEXPORT -Ibuild -I#{sys.expand_path(getDir(t.name))} #{var :INCLUDESTR}&quot;
+ 	out=&quot;.deps&quot;+Dir.separator+sys.expand_path(t.name).gsub(&quot;/&quot;,&quot;_&quot;)
+-	cmd=makeCommand(&quot;SWIGDEPS&quot;,out,incs+&quot; &quot;+sys.expand_path(t.name.gsub(/[0-9_a-z]*\.h$/,&quot;interface.i&quot;)))
++	cmd=makeCommand(&quot;SWIGDEPS&quot;,out,incs+&quot; &quot;+sys.expand_path(t.name.gsub(/[0-9_a-z]*\.(h|cc)$/,&quot;interface.i&quot;)))
+ 	sys cmd
+ 	puts
+ 
+
+Modified: antargis/branches/rant/build/create_interface.rb
+===================================================================
+--- antargis/branches/rant/build/create_interface.rb	2007-09-02 17:23:48 UTC (rev 1170)
++++ antargis/branches/rant/build/create_interface.rb	2007-09-05 18:30:18 UTC (rev 1171)
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env ruby
+-#
++#--
+ # Copyright (c) 2005 by David Kamphausen. All rights reserved.
+ #
+ # create_interface.rb
+@@ -17,18 +17,28 @@
+ #
+ # You should have received a copy of the GNU General Public
+ # License along with this program.
++#++
++# == Short Description
++# This ruby-script generates swig-interface (input)-files out of
++# C++-header files.
++# The header-files to include are marked with INCLUDE_SWIG somewhere in the file.
++# Apart from simple including classes that are derived from AGRubyObject get
++# a special treatment to be handled within the garbage collection.
+ #
+ 
+-# = Short Description =
+-# 
+-
+-
+-
+-
+ require 'build/interface_template.rb'
+ require 'build/base_tools.rb'
+ require 'find.rb'
+ 
++def vputs(*a)
++	puts *a if $verbose
++end
++
++def iputs(*a)
++	print &quot;   &quot;
++	puts *a
++end
++
+ class MyInput
+ 	attr_reader :swigInput, :outputDir
+ 	def initialize
+@@ -43,12 +53,15 @@
+ 					@outputDir=a[3..-1]
+ 				when /^-i=/
+ 					@swigInput=a[3..-1]
++				when /^-v$/
++					$verbose=true
+ 				when /^-h/, /^--help/
+ 					@help=true
+ 					puts &quot;Arguments:&quot;
+ 					puts &quot; -h, --help     print this help&quot;
+ 					puts &quot; -d=&lt;DIR&gt;       define output-directory&quot;
+ 					puts &quot; -i=&lt;SWIGFILE&gt;  define SWIG-input-file (swig.h) - can be set multiple times&quot;
++					puts &quot; -v             verbose output&quot;
+ 			end
+ 		}
+ 
+@@ -61,7 +74,6 @@
+ 
+ 	def interfaceName
+ 		name=@outputDir+Dir.separator+&quot;interface.i&quot;
+-		puts &quot;INTERFACENAME:&quot;,name
+ 		name
+ 	end
+ 
+@@ -77,10 +89,9 @@
+ end
+ 
+ def getFiles(dir)
+-    pattern=dir+&quot;/&quot;+&quot;*.h&quot;
++	pattern=dir+&quot;/&quot;+&quot;*.h&quot;
+ 	files=Dir[pattern].select{|f|not f=~/swig.h/} #-[dir+Dir.separator+&quot;swig.h&quot;]
+-    #puts &quot;getFiles #{dir}&quot;,pattern,&quot;--&quot;,files,&quot;----&quot;
+-    files  
++	files  
+ end
+ 
+ ## check if the given string is contained in the file specified by filename
+@@ -183,7 +194,7 @@
+ 	end
+ 
+ 	def initLevels
+-		puts &quot;initLevels...&quot;
++		vputs &quot;initLevels...&quot;
+ 		@levels={}
+ 		@levels[&quot;AGRubyObject&quot;]=0
+ 		spreadLevels
+@@ -214,24 +225,6 @@
+ 		end
+ 
+ 		l=@levels.values.max
+-
+-		# 		# output levels
+-		# 		(0..l).each{|i|
+-		# 			@levels.each{|n,level|
+-		# 				if level==i
+-		# 					puts &quot;#{i} #{n}&quot;
+-		# 				end
+-		# 			}
+-		# 		}
+-		# 		# check for failed classes
+-		# 		failed=false
+-		# 		@classList.each{|c|
+-		# 			if @levels[c].nil?
+-		# 				puts &quot;-- #{c}&quot;
+-		# 				failed=true
+-		# 			end
+-		# 		}
+-		# 		raise &quot;Non processes classes found!&quot; if failed
+ 	end
+ 
+ 	# in correct order
+@@ -241,14 +234,14 @@
+ 		files=[]
+ 		l=@levels.values.max
+ 		(0..l).each{|i|
+-            puts &quot;LEVEL #{i}&quot;
++            vputs &quot;LEVEL #{i}&quot;
+ 			@levels.each{|n,level|
+ 				if level==i and @class2File[n]
+-                    puts n
++                    vputs n
+ 					files &lt;&lt; @class2File[n]
+ 				end
+ 			}
+-            puts &quot;----&quot;
++            vputs &quot;----&quot;
+ 		}
+ 
+ 		# add files of classes with unknown level
+@@ -257,20 +250,20 @@
+ 				files &lt;&lt; @class2File[c]
+ 			end
+ 		}
+-        puts &quot;myfiles:&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at myfiles</A>,&quot;---&quot;
++        vputs &quot;myfiles:&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at myfiles</A>,&quot;---&quot;
+         
+-        puts &quot;FILES:&quot;,files,&quot;---&quot;
++        vputs &quot;FILES:&quot;,files,&quot;---&quot;
+ 		files=files.select{|f|@myfiles.member?(f)} # select only &quot;my&quot; files - those included in this directory
+-        puts &quot;FILES after select:&quot;,files,&quot;---&quot;
++        vputs &quot;FILES after select:&quot;,files,&quot;---&quot;
+ 		addfiles=@files-files
+ 		files+=addfiles                            # add files that are in other directories
+-        puts &quot;FILES (add:&quot;,files,&quot;---&quot;
++        vputs &quot;FILES (add:&quot;,files,&quot;---&quot;
+ 
+ 		# unique the array
+ 		if files.length&gt;0
+ 			files.uniq!
+ 		end
+-        puts &quot;FILES (uniq):&quot;,files,&quot;---&quot;
++        vputs &quot;FILES (uniq):&quot;,files,&quot;---&quot;
+ 
+ 		files
+ 	end
+@@ -323,13 +316,21 @@
+     #Dir[&quot;*/*&quot;].collect{|f|f.gsub(/\/.*/,&quot;&quot;)}.uniq
+ end
+ 
+-
++iputs &quot;processing input parameter...&quot;
+ myInput=MyInput.new
+ 
++iputs &quot;getting input interface files (of current directory #{myInput.outputDir})...&quot;
+ files=getSwigInterfaceFiles(getFiles(myInput.outputDir))
+-
+-
++vputs &quot;--&quot;
++vputs files.join(&quot;\n&quot;)
++vputs &quot;--&quot;
++iputs &quot;found #{files.length} files&quot;
++iputs &quot;filtering INCLUDE_SWIG to get header files (all of the whole project)...&quot;
+ cfiles=findFilesWith(&quot;INCLUDE_SWIG&quot;)
++iputs &quot;found #{cfiles.length} files&quot;
++vputs &quot;--&quot;
++vputs cfiles.join(&quot;\n&quot;)
++vputs &quot;--&quot;
+ #exit
+ 
+ #parsedClasses=ParsedClasses.new(files,`find $(pwd) -name &quot;*.h&quot;|grep -v swig`.split(&quot;\n&quot;))
+@@ -338,9 +339,9 @@
+ 
+ addfiles=[]
+ myInput.swigInput.each{|inDir|
+-    puts &quot;inDir #{inDir}&quot;
++  vputs &quot;inDir #{inDir}&quot;
+ 	pattern=getDirUnix(inDir)+&quot;/*.h&quot;
+-	puts &quot;PATTERN:&quot;,pattern,&quot;!!!!&quot;
++	vputs &quot;PATTERN:&quot;,pattern,&quot;!!!!&quot;
+ 	addfiles+=Dir[pattern].select{|f|not f=~/swig.h/}.select{|f|File.open(f).read=~/INCLUDE_SWIG/}
+ }
+ 
+
+Modified: antargis/branches/rant/ext/basic/ag_messageobject.cc
+===================================================================
+--- antargis/branches/rant/ext/basic/ag_messageobject.cc	2007-09-02 17:23:48 UTC (rev 1170)
++++ antargis/branches/rant/ext/basic/ag_messageobject.cc	2007-09-05 18:30:18 UTC (rev 1171)
+@@ -117,7 +117,7 @@
+   return mEvent.key.keysym.sym;
+ }
+ 
+-SDLMod AGEvent::getMod() const
++MSDLMod AGEvent::getMod() const
+ {
+   assert(eventOk(mEvent));
+   return mEvent.key.keysym.mod;
+@@ -471,7 +471,7 @@
+   AGString b=s;
+   k.scancode=getUntil(b,&quot;:&quot;).toUint8();
+   k.sym=(SDLKey)getUntil(b,&quot;:&quot;).toUint8();
+-  k.mod=(SDLMod)getUntil(b,&quot;:&quot;).toUint8();
++  k.mod=(MSDLMod)getUntil(b,&quot;:&quot;).toUint8();
+   k.unicode=getUntil(b,&quot;:&quot;).toSint16();
+   
+ 
+
+Modified: antargis/branches/rant/ext/basic/ag_messageobject.h
+===================================================================
+--- antargis/branches/rant/ext/basic/ag_messageobject.h	2007-09-02 17:23:48 UTC (rev 1170)
++++ antargis/branches/rant/ext/basic/ag_messageobject.h	2007-09-05 18:30:18 UTC (rev 1171)
+@@ -28,9 +28,15 @@
+ #include &lt;set&gt;
+ 
+ #include &quot;ag_geometry.h&quot;
+-#include &quot;ag_rubyobj.h&quot;
++#include &quot;ag_rubyobj.h&quot;
+ #include &lt;ag_string.h&gt;
+ 
++#if SDL_COMPILEDVERSION&gt;1300
++#define MSDLMod Uint16
++#else
++#define MSDLMod SDLMod
++#endif
++
+ class AGListener;
+ class AGSignal;
+ 
+@@ -64,7 +70,7 @@
+ 
+   AGVector2 getMousePosition() const;
+   SDLKey getKey() const;
+-  SDLMod getMod() const;
++  MSDLMod getMod() const;
+   Uint16 getUnicode() const;
+   int getButton() const;
+ 
+
+Modified: antargis/branches/rant/ext/game/entity.cc
+===================================================================
+--- antargis/branches/rant/ext/game/entity.cc	2007-09-02 17:23:48 UTC (rev 1170)
++++ antargis/branches/rant/ext/game/entity.cc	2007-09-05 18:30:18 UTC (rev 1171)
+@@ -544,6 +544,14 @@
+         return mJob;
+       }
+ 
++AGString AntEntity::getJobName() const
++{
++  if(mJob)
++    return mJob-&gt;xmlName();
++  return &quot;&quot;;
++}
++
++
+ float AntEntity::getHealSpeed() const
+       {
+         return mHealSpeed;
+
+Modified: antargis/branches/rant/ext/game/entity.h
+===================================================================
+--- antargis/branches/rant/ext/game/entity.h	2007-09-02 17:23:48 UTC (rev 1170)
++++ antargis/branches/rant/ext/game/entity.h	2007-09-05 18:30:18 UTC (rev 1171)
+@@ -175,6 +175,7 @@
+     virtual void resourceChanged();
+ 
+     bool hasJob() const;
++    AGString getJobName() const;
+ 
+     AGRect2 getRect() const;
+ 
+
+Modified: antargis/branches/rant/ext/game/headers.hh
+===================================================================
+--- antargis/branches/rant/ext/game/headers.hh	2007-09-02 17:23:48 UTC (rev 1170)
++++ antargis/branches/rant/ext/game/headers.hh	2007-09-05 18:30:18 UTC (rev 1171)
+@@ -72,9 +72,6 @@
+ #include &quot;ext/3dengine/ag_glwidget.h&quot;
+ #include &quot;ext/3dengine/boa_3d_wireframe.h&quot;
+ #include &quot;ext/game/path.h&quot;
+-#include &quot;ext/game/path_data_v3.h&quot;
+-#include &quot;ext/game/path_v2.h&quot;
+-#include &quot;ext/game/path_base.h&quot;
+ #include &quot;ext/game/terrain.h&quot;
+ #include &quot;ext/game/entity.h&quot;
+ #include &quot;ext/game/water.h&quot;
+@@ -83,14 +80,10 @@
+ #include &quot;ext/game/minimap.h&quot;
+ #include &quot;ext/game/map.h&quot;
+ #include &quot;ext/game/heuristic.h&quot;
+-#include &quot;ext/game/path_weighter.h&quot;
+ #include &quot;ext/game/jobs.h&quot;
+ #include &quot;ext/game/resource.h&quot;
+ #ifdef SWIG
+ %include &quot;ext/game/path.h&quot;
+-%include &quot;ext/game/path_data_v3.h&quot;
+-%include &quot;ext/game/path_v2.h&quot;
+-%include &quot;ext/game/path_base.h&quot;
+ %include &quot;ext/game/terrain.h&quot;
+ %include &quot;ext/game/entity.h&quot;
+ %include &quot;ext/game/water.h&quot;
+@@ -99,7 +92,6 @@
+ %include &quot;ext/game/minimap.h&quot;
+ %include &quot;ext/game/map.h&quot;
+ %include &quot;ext/game/heuristic.h&quot;
+-%include &quot;ext/game/path_weighter.h&quot;
+ %include &quot;ext/game/jobs.h&quot;
+ %include &quot;ext/game/resource.h&quot;
+ #endif
+
+Deleted: antargis/branches/rant/ext/game/path_data_v3.cc
+===================================================================
+--- antargis/branches/rant/ext/game/path_data_v3.cc	2007-09-02 17:23:48 UTC (rev 1170)
++++ antargis/branches/rant/ext/game/path_data_v3.cc	2007-09-05 18:30:18 UTC (rev 1171)
+@@ -1,442 +0,0 @@
+-#include &quot;path_data_v3.h&quot;
+-#include &quot;path_vector_sort.h&quot;
+-
+-#include &lt;ag_profiler.h&gt;
+-
+-#include &lt;ag_debug.h&gt;
+-#include &lt;algorithm&gt;
+-
+-#include &lt;math.h&gt;
+-
+-//namespace PathFinding
+-//{
+-
+-  Field::Field(const AGVector2 &amp;pMiddle,size_t pID):mID(pID),
+-						    mMiddle(pMiddle)
+-  {
+-  }
+-
+-  Field::~Field()
+-  {
+-  }
+-
+-  void Field::insert(const AGVector2 &amp;v,DistanceComputer &amp;pDist)
+-  {
+-    mVectors.insert(v);
+-    mNeighbors.erase(v);
+-    
+-    std::vector&lt;AGVector2&gt; neighbors=pDist.getNeighbors(v);
+-
+-    for(std::vector&lt;AGVector2&gt;::iterator i=neighbors.begin();i!=neighbors.end();i++)
+-      {
+-	if(mVectors.find(*i)==mVectors.end())
+-	  mNeighbors.insert(*i);
+-      }
+-
+-  }
+-
+-  bool Field::isNeighbor(const AGVector2 &amp;v) const
+-  {
+-    return mNeighbors.find(v)!=mNeighbors.end();
+-  }
+-
+-  bool Field::hasVector(const AGVector2 &amp;v) const
+-  {
+-    return mVectors.find(v)!=mVectors.end();
+-  }
+-
+-  AGVector2 Field::getMiddle() const
+-  {
+-    return mMiddle;
+-  }
+-
+-  std::vector&lt;AGVector2&gt; Field::getVectors() const
+-  {
+-    std::vector&lt;AGVector2&gt; v;
+-    std::copy(mVectors.begin(),mVectors.end(),std::back_inserter(v));
+-    return v;
+-  }
+-
+-  std::vector&lt;AGVector2&gt; Field::getNeighbors() const
+-  {
+-    std::vector&lt;AGVector2&gt; v;
+-    std::copy(mNeighbors.begin(),mNeighbors.end(),std::back_inserter(v));
+-    return v;
+-  }
+-
+-
+-
+-
+-
+-////////////////////////////////////////////////////////
+-// FieldCollection
+-////////////////////////////////////////////////////////
+-
+-
+-  FieldCollection::~FieldCollection()
+-  {
+-  }
+-
+-  Field *FieldCollection::createField(const AGVector2 &amp;pMiddle,size_t pId)
+-  {
+-    return new FieldWithDistances(pMiddle,pId);
+-  }
+-  
+-
+-  //
+-  void FieldCollection::assign(const AGVector2 &amp;v,size_t pField,DistanceComputer &amp;pDist)
+-  {
+-    assert(pField&lt;mFields.size());
+-
+-    mFields[pField]-&gt;insert(v,pDist);
+-    mVec2Field[v]=pField;
+-  }
+-
+-
+-  size_t FieldCollection::newField(const AGVector2 &amp;pMiddle)
+-  {
+-    size_t id=mFields.size();
+-    mFields.push_back(createField(pMiddle,id));
+-    return id;
+-  }
+-
+-Field *FieldCollection::getField(size_t pField)
+-{
+-  return mFields[pField];
+-}
+-
+-  size_t FieldCollection::getFieldId(const AGVector2 &amp;pVector) const
+-  {
+-    std::map&lt;AGVector2,size_t&gt;::const_iterator i=mVec2Field.find(pVector);
+-
+-    if(i!=mVec2Field.end())
+-      return i-&gt;second;
+-
+-    return  -1;
+-  }
+-
+-  size_t FieldCollection::getFieldCount() const
+-  {
+-    return mFields.size();
+-  }
+-
+-  void FieldCollection::mark()
+-  {
+-    CTRACE;
+-    for(std::vector&lt;Field*&gt;::iterator i=mFields.begin();i!=mFields.end();i++)
+-      markObject(*i);
+-  }
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-  AGVector2 takeRandom(const std::set&lt;AGVector2&gt; &amp;pSet)
+-  {
+-    assert(pSet.size()&gt;0);
+-    int pos=(int)(rand()%pSet.size());
+-    std::set&lt;AGVector2&gt;::const_iterator i=pSet.begin();
+-    for(;i!=pSet.end() &amp;&amp; pos&gt;0;pos--,i++);
+-    return *i;
+-  }
+-
+-  void assignFields(FieldCollection &amp;pCollection,DistanceComputer &amp;pDist,size_t pFieldCount)
+-  {
+-    std::vector&lt;AGVector2&gt; allVectorList=pDist.getAllPassable();
+-
+-    float maxFieldWidth=sqrt(allVectorList.size()/pFieldCount)*0.7;
+-
+-
+-    //    maxFieldWidth=3;
+-
+-    std::set&lt;AGVector2&gt; restOfVectors;
+-
+-    std::copy(allVectorList.begin(),allVectorList.end(),std::inserter(restOfVectors,restOfVectors.begin()));
+-
+-    while(restOfVectors.size()&gt;0)
+-      {
+-	AGVector2 fieldMiddle=takeRandom(restOfVectors);
+-	DistanceOrder order(fieldMiddle);
+-
+-	size_t newField=pCollection.newField(fieldMiddle);
+-	
+-
+-	std::set&lt;AGVector2,DistanceOrder&gt; growField(order);
+-	std::copy(restOfVectors.begin(),restOfVectors.end(),std::inserter(growField,growField.begin()));
+-
+-	cdebug(&quot;MIDDLE:&quot;&lt;&lt;fieldMiddle);
+-	
+-	size_t k=0;
+-	for(std::set&lt;AGVector2,DistanceOrder&gt;::iterator i=growField.begin();i!=growField.end() &amp;&amp; k&lt;30;i++,k++)
+-	  {
+-	    //	    cdebug(&quot; &quot;&lt;&lt;*i&lt;&lt;&quot;  &quot;&lt;&lt;(*i-fieldMiddle).length());
+-	  }
+-
+-	do
+-	  {
+-	    AGVector2 current=*growField.begin();
+-	    
+-	    if((current-fieldMiddle).length()&lt;maxFieldWidth)
+-	      {
+-		growField.erase(growField.begin());
+-		restOfVectors.erase(current);
+-		pCollection.assign(current,newField,pDist);
+-	      }
+-	    else
+-	      break;
+-	  }while(growField.size()&gt;0);
+-      }
+-    
+-
+-
+-    cdebug(&quot;FIELDS:&quot;&lt;&lt;pCollection.getFieldCount());
+-  }
+-
+-
+-
+-
+-  // FieldWithDistances
+-
+-
+-  FieldWithDistances::FieldWithDistances(const AGVector2 &amp;pMiddle,size_t pID):
+-    Field(pMiddle,pID)
+-  {
+-  }
+-
+-void FieldWithDistances::initLocalDistances(const DistanceComputer &amp;pComputer,const std::vector&lt;AGVector2&gt; &amp;pVectors)
+-  {
+-    STACKTRACE;
+-    AGVector2 m=getMiddle();
+-    std::set&lt;AGVector2&gt; baseVectors;
+-    std::copy(pVectors.begin(),pVectors.end(),std::inserter(baseVectors,baseVectors.begin()));
+-
+-    std::vector&lt;AGVector2&gt; vectors=getVectors();
+-
+-    for(std::vector&lt;AGVector2&gt;::iterator i=vectors.begin();i!=vectors.end();i++)
+-      {
+-	STACKTRACE;
+-	std::map&lt;AGVector2,float&gt; curDists;
+-
+-	// compute distances for paths starting at *i
+-	DistanceOrder order(*i);
+-	std::set&lt;AGVector2,DistanceOrder&gt; vecSet(order);
+-	vecSet.insert(*i);
+-	//	cdebug(&quot;VEC:&quot;&lt;&lt;*i);
+-	while(vecSet.size()&gt;0)
+-	  {
+-	    STACKTRACE;
+-	    AGVector2 currentVec=*vecSet.begin();
+-	    vecSet.erase(vecSet.begin());
+-	    std::vector&lt;std::pair&lt;AGVector2,float&gt; &gt; newVecs;
+-	    {
+-	      STACKTRACE;
+-	      newVecs=pComputer.getAllReachableFrom(currentVec);
+-	    }
+-	    //	    cdebug(&quot;newVecs:&quot;&lt;&lt;newVecs.size());
+-	    for(std::vector&lt;std::pair&lt;AGVector2,float&gt; &gt;::iterator ni=newVecs.begin();ni!=newVecs.end();ni++)
+-	      {
+-		STACKTRACE;
+-		// FIXME: check if in &quot;my Field&quot; or neighbor !!!
+-		if(ni-&gt;first!=*i) // don't store initial vector
+-		  {
+-		    STACKTRACE;
+-		    if(baseVectors.find(ni-&gt;first)!=baseVectors.end())
+-		      {
+-			STACKTRACE;
+-			std::map&lt;AGVector2,float&gt;::iterator found=curDists.find(ni-&gt;first);
+-			if(ni-&gt;second&gt;0)
+-			  if(found==curDists.end() || (found-&gt;second&gt;ni-&gt;second))
+-			    //			if((curDists[ni-&gt;first]&gt;ni-&gt;second || curDists[ni-&gt;first]==0) &amp;&amp; ni-&gt;second&gt;0)
+-			    {
+-			      STACKTRACE;
+-			      curDists[ni-&gt;first]=ni-&gt;second;
+-			      vecSet.insert(ni-&gt;first);
+-			    }
+-		      }
+-		  }
+-	      }
+-
+-	  }
+-	
+-
+-
+-	// store them into the distance-field
+-
+-	for(std::map&lt;AGVector2,float&gt;::iterator di=curDists.begin();di!=curDists.end();di++)
+-	  {
+-	    STACKTRACE;
+-	    mDistances.insert(std::make_pair(std::make_pair(*i,di-&gt;first),di-&gt;second));
+-	  }
+-	
+-      }
+-  }
+-
+-  // FIXME: make this const !
+-  float FieldWithDistances::getDistance(const AGVector2 &amp;a,const AGVector2 &amp;b)
+-  {
+-    return mDistances[std::make_pair(a,b)];
+-  }
+-
+-
+-
+-////////////////////////////////////////////////////////
+-// FieldWithNeighborDistances
+-////////////////////////////////////////////////////////
+-FieldWithNeighborDistances::FieldWithNeighborDistances(const AGVector2 &amp;pMiddle,size_t pID):
+-  FieldWithDistances(pMiddle,pID)
+-{
+-}
+-
+-// from my a to b, that is in neighbor field
+-void FieldWithNeighborDistances::setNeighborDistance(const AGVector2 &amp;a,const AGVector2 &amp;b,float value)
+-{
+-  mNeighborDistances[std::make_pair(a,b)]=value;
+-}
+-float FieldWithNeighborDistances::getNeighborDistance(const AGVector2 &amp;a,const AGVector2 &amp;b)
+-{
+-  return mNeighborDistances[std::make_pair(a,b)];
+-}
+-
+-void FieldWithNeighborDistances::setFieldDistance(const AGVector2 &amp;a,size_t pField,float value)
+-{
+-  mFieldDistances[std::make_pair(a,pField)]=value;
+-}
+-float FieldWithNeighborDistances::getFieldDistance(const AGVector2 &amp;a,size_t pField)
+-{
+-  return mFieldDistances[std::make_pair(a,pField)];
+-}
+-
+-
+-
+-
+-
+-
+-
+-////////////////////////////////////////////////////////
+-// FieldCollectionWithDistances
+-////////////////////////////////////////////////////////
+-
+-
+-
+-Field *FieldCollectionWithDistances::createField(const AGVector2 &amp;pMiddle,size_t pId)
+-{
+-  return new FieldWithNeighborDistances(pMiddle,pId);
+-}
+-
+-
+-void FieldCollectionWithDistances::computeFieldNeighbors()
+-{
+-  if(mFieldNeighbors.size()&gt;0)
+-    return;
+-  for(size_t i=0;i&lt;getFieldCount();i++)
+-    {
+-      std::set&lt;size_t&gt; ns;
+-      std::vector&lt;AGVector2&gt; vs=getField(i)-&gt;getNeighbors();
+-      for(std::vector&lt;AGVector2&gt;::iterator j=vs.begin();j!=vs.end();j++)
+-	{
+-	  size_t id=getFieldId(*j);
+-	  if(id&lt;getFieldCount())
+-	    ns.insert(id);
+-	}
+-      mFieldNeighbors[i]=ns;
+-    }
+-}
+-
+-std::set&lt;size_t&gt; FieldCollectionWithDistances::getNeighborFields(size_t fieldNum)
+-{
+-  return mFieldNeighbors[fieldNum];
+-}
+-
+-
+-void FieldCollectionWithDistances::computeDistances(const DistanceComputer &amp;pDist)
+-{
+-
+-  computeFieldNeighbors();
+-
+-  for(size_t fieldNum=0;fieldNum&lt;getFieldCount();fieldNum++)
+-    {
+-      STACKTRACE;
+-      std::set&lt;size_t&gt; fields;
+-
+-      if(true)
+-	fields=getNeighborFields(fieldNum);
+-      else
+-	fields.insert(fieldNum);
+-
+-      std::vector&lt;AGVector2&gt; vectors;
+-
+-      fields.insert(fieldNum);
+-
+-      for(std::set&lt;size_t&gt;::iterator i=fields.begin();i!=fields.end();i++)
+-	{
+-	  assert(*i&lt;getFieldCount());
+-	  std::vector&lt;AGVector2&gt; tmp=getField(*i)-&gt;getVectors();
+-	  std::copy(tmp.begin(),tmp.end(),std::back_inserter(vectors));
+-	}
+-      Field *f=getField(fieldNum);
+-      FieldWithDistances *df=dynamic_cast&lt;FieldWithDistances*&gt;(f);
+-      assert(df);
+-      cdebug(&quot;FIELD:&quot;&lt;&lt;fieldNum&lt;&lt;&quot; vecs:&quot;&lt;&lt;vectors.size());
+-      df-&gt;initLocalDistances(pDist,vectors);
+-    }
+-
+-
+-
+-
+-  /*
+-  for(size_t fieldNum=0;fieldNum&lt;getFieldCount();fieldNum++)
+-    {
+-      cdebug(&quot;fieldNum:&quot;&lt;&lt;fieldNum&lt;&lt;&quot; of &quot;&lt;&lt;getFieldCount());
+-      FieldWithNeighborDistances *curField=dynamic_cast&lt;FieldWithNeighborDistances*&gt;(getField(fieldNum));
+-      assert(curField);
+-      if(curField)
+-	{
+-	  std::vector&lt;AGVector2&gt; curVectors=curField-&gt;getVectors();
+-	  std::vector&lt;AGVector2&gt; curNeighbors=curField-&gt;getNeighbors();
+-	  std::map&lt;std::pair&lt;AGVector2,AGVector2&gt;,float&gt; distances;
+-	  
+-	  cdebug(&quot;curVectors:&quot;&lt;&lt;curVectors.size());
+-	  cdebug(&quot;curNeighbors:&quot;&lt;&lt;curNeighbors.size());
+-
+-	  for(std::vector&lt;AGVector2&gt;::iterator curVector=curVectors.begin();curVector!=curVectors.end();curVector++)
+-	    {
+-	      for(std::vector&lt;AGVector2&gt;::iterator curNeighbor=curNeighbors.begin();curNeighbor!=curNeighbors.end();curNeighbor++)
+-		{
+-		  size_t neighborField=getFieldId(*curNeighbor);
+-
+-		  if(neighborField&lt;getFieldCount()) // check if field is valid
+-		    {
+-		      FieldWithNeighborDistances *curField2=dynamic_cast&lt;FieldWithNeighborDistances*&gt;(getField(neighborField));
+-		      assert(curField2);
+-		      if(curField2)
+-			{
+-			  std::vector&lt;AGVector2&gt; field2Vecs=curField2-&gt;getVectors();
+-			  for(std::vector&lt;AGVector2&gt;::iterator field2Vec=field2Vecs.begin();field2Vec!=field2Vecs.end();field2Vec++)
+-			    {
+-			      float nDist=curField-&gt;getDistance(*curVector,*curNeighbor)+curField2-&gt;getDistance(*curNeighbor,*field2Vec);
+-			      std::pair&lt;AGVector2,AGVector2&gt; index(*curVector,*field2Vec);
+-			      float oldDist=distances[index];
+-			      if(oldDist==0 || oldDist&gt;nDist)
+-				distances[index]=nDist;
+-			    }
+-			}
+-		    }
+-		}
+-	    }
+-	}
+-    }
+-
+-  */
+-}
+-
+-
+-
+-
+-
+-//}
+
+Deleted: antargis/branches/rant/ext/game/path_data_v3.h
+===================================================================
+--- antargis/branches/rant/ext/game/path_data_v3.h	2007-09-02 17:23:48 UTC (rev 1170)
++++ antargis/branches/rant/ext/game/path_data_v3.h	2007-09-05 18:30:18 UTC (rev 1171)
+@@ -1,140 +0,0 @@
+-#ifndef PATH_DATA_V3_H
+-#define PATH_DATA_V3_H
+-
+-// INCLUDE_SWIG - used to filter, which files are included in swig-interfacing
+-
+-#include &lt;ag_geometry.h&gt;
+-
+-#include &quot;path_weighter.h&quot;
+-
+-#include &lt;vector&gt;
+-#include &lt;map&gt;
+-#include &lt;set&gt;
+-#include &lt;ag_rubyobj.h&gt;
+-
+-//namespace PathFinding
+-//{
+-
+-  class AGEXPORT Field:public AGRubyObject
+-  {
+-  public:
+-    Field(const AGVector2 &amp;pMiddle,size_t pID);
+-    virtual ~Field();
+-
+-    void insert(const AGVector2 &amp;v,DistanceComputer &amp;pDist);
+-
+-    bool hasVector(const AGVector2 &amp;v) const;
+-    bool isNeighbor(const AGVector2 &amp;v) const;
+-
+-    AGVector2 getMiddle() const;
+-
+-    std::vector&lt;AGVector2&gt; getVectors() const;
+-    std::vector&lt;AGVector2&gt; getNeighbors() const;
+-
+-  private:
+-    size_t mID;
+-  protected:
+-    std::set&lt;AGVector2&gt; mVectors;
+-
+-    std::set&lt;AGVector2&gt; mNeighbors;
+-  private:
+-    AGVector2 mMiddle;
+-  };
+-
+-  class AGEXPORT FieldCollection:public AGRubyObject
+-  {
+-  public:
+-    virtual ~FieldCollection();
+-
+-    void assign(const AGVector2 &amp;v,size_t pField,DistanceComputer &amp;pDist);
+-    size_t newField(const AGVector2 &amp;pMiddle);
+-
+-    Field *getField(size_t pField);
+-
+-    size_t getFieldId(const AGVector2 &amp;pVector) const;
+-
+-    size_t getFieldCount() const;
+-
+-    void mark();
+-
+-  protected:
+-    virtual Field *createField(const AGVector2 &amp;pMiddle,size_t pId);
+-
+-  private:
+-
+-
+-    std::vector&lt;Field*&gt; mFields;
+-    std::map&lt;AGVector2,size_t&gt; mVec2Field;
+-  };
+-
+-class AGEXPORT FieldCollectionWithDistances:public FieldCollection
+-{
+- public:
+-  /*
+-    Does the following:
+-    1) save distances from vec a =&gt; vec b (in neighboring fields) into fieldwithneighbordistances.neighbordistances
+-    2) compute this.mDistances from middle to middle
+-    * 3) save distances from vec a =&gt; neighbor middle from there to field x in fieldwithneighbordistances.fielddistance
+-    * last is not needed necessarily
+-   */
+-  void computeDistances(const DistanceComputer &amp;pDist);
+-
+-  void computeFieldNeighbors();
+-
+-  std::set&lt;size_t&gt; getNeighborFields(size_t fieldNum);
+-
+-
+-  protected:
+-  virtual Field *createField(const AGVector2 &amp;pMiddle,size_t pId);
+-    
+- private:
+-  std::map&lt;size_t,size_t&gt; mDistances;
+-  std::map&lt;size_t,std::set&lt;size_t&gt; &gt; mFieldNeighbors;
+-};
+-
+-
+-  AGEXPORT void assignFields(FieldCollection &amp;pCollection,DistanceComputer &amp;pDist,size_t pFieldCount);
+-
+-
+-  class AGEXPORT FieldAssigner
+-  {
+-  public:
+-    
+-  };
+-
+-  class AGEXPORT FieldWithDistances:public Field
+-  {
+-  public:
+-    FieldWithDistances(const AGVector2 &amp;pMiddle,size_t pID);
+-
+-
+-    void initLocalDistances(const DistanceComputer &amp;pComputer,const std::vector&lt;AGVector2&gt; &amp;pVectors);
+-    
+-    float getDistance(const AGVector2 &amp;a,const AGVector2 &amp;b);
+-
+-    
+-  private:
+-    std::map&lt;std::pair&lt;AGVector2,AGVector2&gt;,float&gt; mDistances;
+-  };
+-
+-class AGEXPORT FieldWithNeighborDistances:public FieldWithDistances
+-{
+- public:
+-  FieldWithNeighborDistances(const AGVector2 &amp;pMiddle,size_t pID);
+-
+-  // from my a to b, that is in neighbor field
+-  void setNeighborDistance(const AGVector2 &amp;a,const AGVector2 &amp;b,float value);
+-  float getNeighborDistance(const AGVector2 &amp;a,const AGVector2 &amp;b);
+-
+-  void setFieldDistance(const AGVector2 &amp;a,size_t pField,float value);
+-  float getFieldDistance(const AGVector2 &amp;a,size_t pField);
+-
+- private:
+-  std::map&lt;std::pair&lt;AGVector2,AGVector2&gt;,float&gt; mNeighborDistances;
+-  std::map&lt;std::pair&lt;AGVector2,size_t&gt;, float&gt; mFieldDistances;
+-};
+-
+-//}
+-
+-#endif
+-
+
+Deleted: antargis/branches/rant/ext/game/path_weighter.cc
+===================================================================
+--- antargis/branches/rant/ext/game/path_weighter.cc	2007-09-02 17:23:48 UTC (rev 1170)
++++ antargis/branches/rant/ext/game/path_weighter.cc	2007-09-05 18:30:18 UTC (rev 1171)
+@@ -1,145 +0,0 @@
+-#include &quot;path_weighter.h&quot;
+-
+-#include &lt;ag_debug.h&gt;
+-#include &lt;ag_profiler.h&gt;
+-#include &quot;height_map.h&quot;
+-#include &lt;math.h&gt;
+-
+-DistanceComputer::DistanceComputer(HeightMap *pHeightMap,
+-				   float pStepX,float pStepY):
+-  mHeightMap(pHeightMap),
+-  mStepX(pStepX),mStepY(pStepY)
+-{
+-  assert(mHeightMap);
+-}
+-
+-bool DistanceComputer::isPassable(const AGVector2 &amp;pPoint) const
+-{
+-  return mHeightMap-&gt;getHeight(pPoint[0],pPoint[1])&gt;-0.2;
+-}
+-
+-float DistanceComputer::beginX() const
+-{
+-  return 0;
+-}
+-float DistanceComputer::beginY() const
+-{
+-  return 0;
+-}
+-float DistanceComputer::stepX() const
+-{
+-  return mStepX;
+-}
+-float DistanceComputer::stepY() const
+-{
+-  return mStepY;
+-}
+-float DistanceComputer::endX() const
+-{
+-  return mHeightMap-&gt;getW();
+-}
+-float DistanceComputer::endY() const
+-{
+-  return mHeightMap-&gt;getH();
+-}
+-
+-float DistanceComputer::width() const
+-{
+-  return endX()-beginX();
+-}
+-
+-float DistanceComputer::height() const
+-{
+-  return endY()-beginY();
+-}
+-
+-
+-// FIXME: maybe move this to other class ?
+-float DistanceComputer::simpleWeight(const AGVector2 &amp;a,const AGVector2 &amp;b) const
+-{
+-  STACKTRACE;
+-  float ha=mHeightMap-&gt;getHeight(a[0],a[1]);
+-  float hb=mHeightMap-&gt;getHeight(b[0],b[1]);
+-
+-  float d=(a-b).length();
+-  float hd=ha-hb;
+-
+-  if(hb&gt;ha) // up hill
+-    return sqrt(d*d+hd*hd);
+-  return d; // down hill - normal speed
+-}
+-
+-/**
+- * compute possible neighbors (w.r.t. to map-borders)
+- */
+-std::vector&lt;AGVector2&gt; DistanceComputer::getNeighbors(const AGVector2 &amp;p) const
+-{
+-  STACKTRACE;
+-
+-  std::vector&lt;AGVector2&gt; diffList,rList;
+-  AGVector2 t;
+-
+-  diffList.push_back(AGVector2(-stepX(),0));
+-  diffList.push_back(AGVector2(+stepX(),0));
+-  diffList.push_back(AGVector2(0,-stepY()));
+-  diffList.push_back(AGVector2(0,+stepY()));
+-
+-  /*  
+-  diffList.push_back(AGVector2(-stepX(),-stepY()));
+-  diffList.push_back(AGVector2(+stepX(),-stepY()));
+-  diffList.push_back(AGVector2(-stepX(),+stepY()));
+-  diffList.push_back(AGVector2(+stepX(),+stepY()));
+-  */
+-  for(std::vector&lt;AGVector2&gt;::iterator i=diffList.begin();i!=diffList.end();i++)
+-    {
+-      t=*i+p;
+-      {
+-	STACKTRACE;
+-	
+-	if(t.getX() &gt;= beginX() &amp;&amp;
+-	   t.getX()&lt;=endX() &amp;&amp; 
+-	   t.getY()&gt;=beginY() &amp;&amp; 
+-	   t.getY()&lt;=endY())
+-	  rList.push_back(t);
+-      }
+-    }
+-
+-  return rList;
+-}
+-
+-std::vector&lt;std::pair&lt;AGVector2,float&gt; &gt; DistanceComputer::getAllReachableFrom(const AGVector2 &amp;p) const
+-{
+-  STACKTRACE;
+-  float w;
+-  std::vector&lt;std::pair&lt;AGVector2,float&gt; &gt; rList;
+-  std::vector&lt;AGVector2&gt; nList=getNeighbors(p);
+-
+-  for(std::vector&lt;AGVector2&gt;::iterator i=nList.begin();i!=nList.end();i++)
+-    {
+-      STACKTRACE;
+-
+-      {
+-	w=simpleWeight(p,*i);
+-	STACKTRACE;
+-      }
+-      rList.push_back(std::make_pair(*i,w));
+-    }
+-  return rList;
+-}
+-
+-
+-std::vector&lt;AGVector2&gt; DistanceComputer::getAllPassable() const
+-{
+-  std::vector&lt;AGVector2&gt; l;
+-
+-  float x,y;
+-  AGVector2 v(x,y);
+-  for(x=beginX();x&lt;=endX();x+=stepX())
+-    for(y=beginY();y&lt;=endY();y+=stepY())
+-      {
+-	v=AGVector2(x,y);
+-	if(isPassable(v))
+-	  l.push_back(v);
+-      }
+-  return l;
+-}
+
+Deleted: antargis/branches/rant/ext/game/path_weighter.h
+===================================================================
+--- antargis/branches/rant/ext/game/path_weighter.h	2007-09-02 17:23:48 UTC (rev 1170)
++++ antargis/branches/rant/ext/game/path_weighter.h	2007-09-05 18:30:18 UTC (rev 1171)
+@@ -1,49 +0,0 @@
+-#ifndef PATH_WEIGHTER_H
+-#define PATH_WEIGHTER_H
+-
+-// INCLUDE_SWIG - used to filter, which files are included in swig-interfacing
+-
+-#include &lt;path_base.h&gt;
+-
+-#include &lt;map&gt;
+-
+-class HeightMap;
+-
+-/**
+- * Computes distances from a height field
+- */
+-class AGEXPORT DistanceComputer
+-{
+- public:
+-  DistanceComputer(HeightMap *pHeightMap,float pStepX=1,float pStepY=1);
+-
+-  float beginX() const;
+-  float beginY() const;
+-  float stepX() const;
+-  float stepY() const;
+-  float endX() const;
+-  float endY() const;
+-
+-  float width() const;
+-  float height() const;
+-
+-  std::vector&lt;std::pair&lt;AGVector2,float&gt; &gt; getAllReachableFrom(const AGVector2 &amp;p) const;
+-
+-  // compute weight for to neighboring points (from a to b)
+-  float simpleWeight(const AGVector2 &amp;a,const AGVector2 &amp;b) const;
+-
+-  bool isPassable(const AGVector2 &amp;pPoint) const;
+-
+-  std::vector&lt;AGVector2&gt; getNeighbors(const AGVector2 &amp;p) const;
+-
+-
+-  std::vector&lt;AGVector2&gt; getAllPassable() const;
+-
+- private:
+-
+-  HeightMap *mHeightMap;
+-  float mStepX,mStepY;
+-};
+-
+-
+-#endif
+
+Modified: antargis/branches/rant/ruby/ant_hljobs.rb
+===================================================================
+--- antargis/branches/rant/ruby/ant_hljobs.rb	2007-09-02 17:23:48 UTC (rev 1170)
++++ antargis/branches/rant/ruby/ant_hljobs.rb	2007-09-05 18:30:18 UTC (rev 1171)
+@@ -27,7 +27,7 @@
+ 
+ require 'entities.rb'
+ 
+-if false
++if true
+ 
+ 
+ # Base class for high-level jobs. It contains the basic functions that're needed for usage within
+@@ -1126,5 +1126,5 @@
+ 
+ end
+ 
+-require 'jobs/ant_new_hljobs.rb'
++#require 'jobs/ant_new_hljobs.rb'
+ 
+
+Modified: antargis/branches/rant/ruby/ant_tools.rb
+===================================================================
+--- antargis/branches/rant/ruby/ant_tools.rb	2007-09-02 17:23:48 UTC (rev 1170)
++++ antargis/branches/rant/ruby/ant_tools.rb	2007-09-05 18:30:18 UTC (rev 1171)
+@@ -74,6 +74,10 @@
+ 
+ class AntargisException&lt;Exception
+ 	attr_accessor :text
++	
++	def to_s
++		super+&quot;:&quot;+text.to_s
++	end
+ end
+ 
+ def assert(text=&quot;&quot;,&amp;block)
+
+Modified: antargis/branches/rant/ruby/entities/ant_boss.rb
+===================================================================
+--- antargis/branches/rant/ruby/entities/ant_boss.rb	2007-09-02 17:23:48 UTC (rev 1170)
++++ antargis/branches/rant/ruby/entities/ant_boss.rb	2007-09-05 18:30:18 UTC (rev 1171)
+@@ -225,7 +225,7 @@
+ 	
+ 	def assignJob2All
+ 		if getMap
+-			getMap.eventNewJobAssignedToBoss(self)
++			getMap.eventNewJobAssignedToBoss(self) if getMap.respond_to?(:eventNewJobAssignedToBoss)
+ 		end
+ 
+ 		begin
+
+Modified: antargis/branches/rant/ruby/jobs/ant_hljob_base.rb
+===================================================================
+--- antargis/branches/rant/ruby/jobs/ant_hljob_base.rb	2007-09-02 17:23:48 UTC (rev 1170)
++++ antargis/branches/rant/ruby/jobs/ant_hljob_base.rb	2007-09-05 18:30:18 UTC (rev 1171)
+@@ -29,6 +29,10 @@
+ 	def hero
+ 		@hero
+ 	end
++	
++	def getRand
++		@hero.getRand
++	end
+ 
+ 	def stopJob
+ 		@stopped=true
+
+Modified: antargis/branches/rant/ruby/jobs/ant_hljob_states.rb
+===================================================================
+--- antargis/branches/rant/ruby/jobs/ant_hljob_states.rb	2007-09-02 17:23:48 UTC (rev 1170)
++++ antargis/branches/rant/ruby/jobs/ant_hljob_states.rb	2007-09-05 18:30:18 UTC (rev 1171)
+@@ -17,7 +17,7 @@
+ 
+ module HLJob_Additions
+ 	attr_accessor :machine
+-	[&quot;hero&quot;,&quot;allMen&quot;,&quot;getTime&quot;,&quot;targetPos&quot;,&quot;targetPos=&quot;,&quot;formatDir&quot;,&quot;formatDir=&quot;,&quot;target&quot;].each{|n|wrap &quot;machine&quot;,n}
++	[&quot;getRand&quot;,&quot;hero&quot;,&quot;allMen&quot;,&quot;getTime&quot;,&quot;targetPos&quot;,&quot;targetPos=&quot;,&quot;formatDir&quot;,&quot;formatDir=&quot;,&quot;target&quot;].each{|n|wrap &quot;machine&quot;,n}
+ end
+ 
+ class HLJob_BaseState
+@@ -726,6 +726,7 @@
+ 
+ class HLJob_Recruit&lt;HLJob_BaseState
+ 	def enter
++		raise &quot;IMPLEMENT ME&quot;
+ 	end
+ 	
+ 	private
+
+Modified: antargis/branches/rant/ruby/jobs/ant_new_hljobs.rb
+===================================================================
+--- antargis/branches/rant/ruby/jobs/ant_new_hljobs.rb	2007-09-02 17:23:48 UTC (rev 1170)
++++ antargis/branches/rant/ruby/jobs/ant_new_hljobs.rb	2007-09-05 18:30:18 UTC (rev 1171)
+@@ -257,6 +257,8 @@
+ 
+ 
+ 
++
++
+ # AntHeroFightAnimalJobOld=AntHeroFightAnimalJob
+ # AntHeroFightAnimalJob=AntNewHLKillAnimal
+ # 
+@@ -265,9 +267,44 @@
+ rescue;end
+ AntHeroFightJob=AntNewHLFight
+ 
+-if false
++class AntNewHLRecruitJob&lt;AntNewHLJob
++	state :moveComplete=&gt;	HLJob_MoveComplete
++	state :recruit=&gt;HLJob_Recruit
++	state :endState =&gt; HLJob_DummyState
+ 
++	startState :moveComplete
++	endState :endState
++
++	edge :moveComplete,:endState
++
++	attr_accessor :targetPos
++	attr_accessor :formatDir
++	attr_accessor :target
++
++	def initialize(hero,target)
++		@targetPos=target.getPos2D
++		@target=target
++		super(hero)
++		@states[:moveComplete].near=4
++		
++		if (hero.getPos2D-target.getPos2D).length&lt;4
++			state.moveDirectly			
++		end
++	end
++	# FIXME: move this to a config-file !
++	def image
++		&quot;data/gui/move.png&quot;
++	end
++	# FIXME: discard this
++	def makeMessage(boss)
++		MoveMessage.new(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">boss,targetPos, at dist</A>)
++	end
++
+ end
++begin
++AntHeroRecruitJobOld=AntHeroRecruitJob
++rescue ; end
++AntHeroRecruitJob=AntNewHLRecruitJob
+ 
+ 
+ # FIXME:
+
+Modified: antargis/branches/rant/ruby/state_machine/spec/state_machine.rb
+===================================================================
+--- antargis/branches/rant/ruby/state_machine/spec/state_machine.rb	2007-09-02 17:23:48 UTC (rev 1170)
++++ antargis/branches/rant/ruby/state_machine/spec/state_machine.rb	2007-09-05 18:30:18 UTC (rev 1171)
+@@ -74,7 +74,7 @@
+ 	def finished=(f)
+ 		@finished=f
+ 	end
+-	def isFinished?
++	def ready
+ 		@finished
+ 	end
+ 
+@@ -194,7 +194,7 @@
+ 		t-=d
+ 		t
+ 	end
+-	def isFinished?
++	def ready
+ 		@time&lt;=0
+ 	end
+ end
+
+Modified: antargis/branches/rant/ruby/state_machine/state_machine.rb
+===================================================================
+--- antargis/branches/rant/ruby/state_machine/state_machine.rb	2007-09-02 17:23:48 UTC (rev 1170)
++++ antargis/branches/rant/ruby/state_machine/state_machine.rb	2007-09-05 18:30:18 UTC (rev 1171)
+@@ -19,10 +19,14 @@
+ 	def eventLeave
+ 	end
+ 	def eventFrame(t)
+-		t	
++		#raise &quot;should not be used!&quot;
++		t-0.5
+ 	end
+ 
+-	def isFinished?
++	def assign(entity)
++	end
++
++	def ready
+ 		true
+ 	end
+ 
+@@ -123,6 +127,7 @@
+ 	MAX_LOOPS=20
+ 	attr_reader :finished
+ 	attr_accessor :dict
++	attr_accessor :debug
+ 
+ 	def initialize(definition)
+ 		assert{definition.is_a?(StateMachineDefinition)}
+@@ -141,11 +146,12 @@
+ 		while restTime&gt;0 and loops&lt;MAX_LOOPS
+ 			if not @started
+ 				@started=true
++				puts &quot;#{@currentNode.id}.eventEnter&quot; if @debug
+ 				@currentNode.eventEnter
+ 			end
+ 			restTime=@currentNode.eventFrame(restTime)
+ 			assert{restTime.is_a?(Numeric)}
+-			if @currentNode.isFinished?
++			if @currentNode.ready
+ 				output=@currentNode.output
+ 				nextNodeName=@definition.getNextNode(@currentNode.id,output)
+ 				#sputs &quot;FROM #{@currentNode.id} TO #{nextNodeName}&quot;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000127.html">[Antargis-svn] r1170 - antargis/branches/rant/ruby
+</A></li>
+	<LI>Next message: <A HREF="000129.html">[Antargis-svn] r1172 - in	antargis/branches/rant/ruby/state_machine: . spec
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#128">[ date ]</a>
+              <a href="thread.html#128">[ thread ]</a>
+              <a href="subject.html#128">[ subject ]</a>
+              <a href="author.html#128">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,1601 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1242 - in antargis/trunk: . data ext/basic ext/game	ext/gui ext/sound rookey
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2008-May/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1242%20-%20in%20antargis/trunk%3A%20.%20data%20ext/basic%20ext/game%0A%09ext/gui%20ext/sound%20rookey&In-Reply-To=%3C200805031252.m43CqVk0007791%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000197.html">
+   <LINK REL="Next"  HREF="000199.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1242 - in antargis/trunk: . data ext/basic ext/game	ext/gui ext/sound rookey</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1242%20-%20in%20antargis/trunk%3A%20.%20data%20ext/basic%20ext/game%0A%09ext/gui%20ext/sound%20rookey&In-Reply-To=%3C200805031252.m43CqVk0007791%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1242 - in antargis/trunk: . data ext/basic ext/game	ext/gui ext/sound rookey">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sat May  3 14:52:31 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000197.html">[Antargis-svn] r1241 - in antargis/trunk: . data/gui/images/basic	data/gui/layout/editor/campaign dev ext/basic ext/game	ext/gui ext/math ext/video rookey rookey/cpp	ruby/editor/campaign ruby/spec
+</A></li>
+        <LI>Next message: <A HREF="000199.html">[Antargis-svn] r1243 - antargis/trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#198">[ date ]</a>
+              <a href="thread.html#198">[ thread ]</a>
+              <a href="subject.html#198">[ subject ]</a>
+              <a href="author.html#198">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2008-05-03 14:52:29 +0200 (Sat, 03 May 2008)
+New Revision: 1242
+
+Added:
+   antargis/trunk/data/theme_v2.xml
+   antargis/trunk/debug.txt
+   antargis/trunk/ext/gui/ag_gradient.cc
+   antargis/trunk/ext/gui/ag_gradient.h
+   antargis/trunk/ext/gui/ag_theme_v2.cc
+   antargis/trunk/ext/gui/ag_theme_v2.h
+Removed:
+   antargis/trunk/.build_/
+   antargis/trunk/test.c
+Modified:
+   antargis/trunk/.project
+   antargis/trunk/ext/basic/ag_geometry.cc
+   antargis/trunk/ext/basic/ag_geometry.h
+   antargis/trunk/ext/basic/ag_rtools.cc
+   antargis/trunk/ext/basic/ag_rtools.h
+   antargis/trunk/ext/basic/ag_string.cc
+   antargis/trunk/ext/basic/ag_string.h
+   antargis/trunk/ext/basic/ag_xml.cc
+   antargis/trunk/ext/basic/ag_xml.h
+   antargis/trunk/ext/game/entity.h
+   antargis/trunk/ext/game/path.cc
+   antargis/trunk/ext/gui/ag_background.cc
+   antargis/trunk/ext/gui/ag_background.h
+   antargis/trunk/ext/gui/ag_border.cc
+   antargis/trunk/ext/gui/ag_border.h
+   antargis/trunk/ext/gui/ag_button.cc
+   antargis/trunk/ext/gui/ag_edit.cc
+   antargis/trunk/ext/gui/ag_local.cc
+   antargis/trunk/ext/gui/ag_local.h
+   antargis/trunk/ext/gui/ag_theme.h
+   antargis/trunk/ext/sound/ag_mixer.cc
+   antargis/trunk/rookey/compile.rb
+   antargis/trunk/rookey/tasks.rb
+Log:
+* cleanup
+
+Modified: antargis/trunk/.project
+===================================================================
+--- antargis/trunk/.project	2008-05-01 18:55:39 UTC (rev 1241)
++++ antargis/trunk/.project	2008-05-03 12:52:29 UTC (rev 1242)
+@@ -78,6 +78,7 @@
+ 		&lt;nature&gt;org.eclipse.cdt.managedbuilder.core.ScannerConfigNature&lt;/nature&gt;
+ 		&lt;nature&gt;org.eclipse.cdt.core.ccnature&lt;/nature&gt;
+ 		&lt;nature&gt;org.eclipse.cdt.managedbuilder.core.managedBuildNature&lt;/nature&gt;
++&lt;nature&gt;org.eclipse.dltk.ruby.core.nature&lt;/nature&gt;
+ 	&lt;/natures&gt;
+ 	&lt;linkedResources&gt;
+ 		&lt;link&gt;
+
+Added: antargis/trunk/data/theme_v2.xml
+===================================================================
+--- antargis/trunk/data/theme_v2.xml	2008-05-01 18:55:39 UTC (rev 1241)
++++ antargis/trunk/data/theme_v2.xml	2008-05-03 12:52:29 UTC (rev 1242)
+@@ -0,0 +1,64 @@
++&lt;?xml version=&quot;1.0&quot;?&gt;
++&lt;themes&gt;
++  &lt;default name=&quot;antargis&quot;/&gt;
++	&lt;theme name=&quot;antargis&quot;&gt;
++		&lt;gradients&gt;
++		  &lt;gradient name=&quot;button_normal&quot;   color0='#54555b' color1='#3c3d41' color2='#3c3d41' color4='#12141c'/&gt;
++      &lt;gradient name=&quot;button_lighted&quot;  color0='#515488' color1='#434674' color2='#434674' color4='#262849'/&gt;
++      &lt;gradient name=&quot;button_disabled&quot; color0='#12141c' color1='#12141c' color2='#12141c' color4='#12141c'/&gt;
++      &lt;gradient name=&quot;button_pressed&quot;  color0='#262849' color1='#434674' color2='#434674' color4='#515488'/&gt;
++      &lt;gradient name=&quot;button_checkedlighted&quot;  color0='#856c30' color1='#6f5926' color2='#6f5926' color4='#645021'/&gt;
++      &lt;gradient name=&quot;button_checked&quot;  color0='#765f27' color1='#614e20' color2='#53431b' color4='#443616'/&gt;
++		&lt;/gradients&gt;
++		&lt;images&gt;
++      &lt;image name=&quot;button_border_normal&quot; file=&quot;data/gui/buttontest3.png&quot;/&gt;
++      &lt;image name=&quot;button_border_inset&quot; file=&quot;data/gui/buttontest3b.png&quot;/&gt;
++      &lt;image name=&quot;screen_background&quot; file=&quot;data/gui/bigbg_tile.png&quot;/&gt;
++	  &lt;/images&gt;
++	  &lt;fonts&gt;
++	    &lt;font name=&quot;default&quot; file=&quot;FreeSans.ttf&quot; color=&quot;#000000&quot; size=&quot;14&quot;/&gt;
++	    &lt;font name=&quot;big_white&quot; file=&quot;FreeSans.ttf&quot; color=&quot;#FFFFFF&quot; size=&quot;16&quot;/&gt;
++	    &lt;font name=&quot;outset&quot; file=&quot;FreeSans.ttf&quot; size=&quot;22&quot; color=&quot;#f3ac0e&quot; embossed=&quot;true&quot; borderColor=&quot;#000000&quot; borderWidth=&quot;3&quot; inset=&quot;false&quot;/&gt;
++	  &lt;/fonts&gt;
++		&lt;button&gt;
++		  &lt;font name=&quot;default&quot;/&gt;
++      &lt;state name=&quot;normal&quot;&gt;
++        &lt;border image=&quot;button_border_normal&quot;/&gt;
++        &lt;background gradient=&quot;button_normal&quot;/&gt;
++      &lt;/state&gt;
++      &lt;state name=&quot;lighted&quot;&gt;
++        &lt;border image=&quot;button_border_normal&quot;/&gt;
++        &lt;background gradient=&quot;button_lighted&quot;/&gt;
++      &lt;/state&gt;
++      &lt;state name=&quot;disabled&quot;&gt;
++        &lt;border image=&quot;button_border_normal&quot;/&gt;
++        &lt;background gradient=&quot;button_disabled&quot;/&gt;
++      &lt;/state&gt;
++      &lt;state name=&quot;pressed&quot;&gt;
++        &lt;border image=&quot;button_border_inset&quot;/&gt;
++        &lt;background gradient=&quot;button_pressed&quot;/&gt;
++      &lt;/state&gt;
++      &lt;state name=&quot;checkedlighted&quot;&gt;
++        &lt;border image=&quot;button_border_inset&quot;/&gt;
++        &lt;background gradient=&quot;button_checkedlighted&quot;/&gt;
++      &lt;/state&gt;
++      &lt;state name=&quot;checked&quot;&gt;
++        &lt;border image=&quot;button_border_inset&quot;/&gt;
++        &lt;background gradient=&quot;button_checked&quot;/&gt;
++      &lt;/state&gt;
++		&lt;/button&gt;
++		&lt;window&gt;
++		  &lt;state name=&quot;focused&quot;&gt;
++		    &lt;title&gt;
++		      &lt;font name=&quot;big_white&quot;/&gt;
++		      &lt;background gradient=&quot;button_normal&quot;/&gt;
++		    &lt;/title&gt;
++		  &lt;/state&gt;
++		  &lt;state name=&quot;normal&quot;&gt;
++		  &lt;/state&gt;
++		&lt;/window&gt;
++		&lt;screen&gt;
++		  &lt;background image=&quot;screen_background&quot;/&gt;
++		&lt;/screen&gt;
++	&lt;/theme&gt;
++&lt;/themes&gt;
+\ No newline at end of file
+
+
+Property changes on: antargis/trunk/data/theme_v2.xml
+___________________________________________________________________
+Name: svn:mime-type
+   + text/plain
+
+Added: antargis/trunk/debug.txt
+===================================================================
+
+
+Property changes on: antargis/trunk/debug.txt
+___________________________________________________________________
+Name: svn:mime-type
+   + text/plain
+
+Modified: antargis/trunk/ext/basic/ag_geometry.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_geometry.cc	2008-05-01 18:55:39 UTC (rev 1241)
++++ antargis/trunk/ext/basic/ag_geometry.cc	2008-05-03 12:52:29 UTC (rev 1242)
+@@ -804,6 +804,11 @@
+ // AGTriangle2
+ /////////////////////////////////////////////////////////////////////////////
+ 
++AGTriangle2::AGTriangle2()
++  {
++    
++  }
++
+ AGTriangle2::AGTriangle2(const AGVector2 &amp;v0,const AGVector2 &amp;v1,const AGVector2 &amp;v2)
+   {
+     p[0]=v0;
+
+Modified: antargis/trunk/ext/basic/ag_geometry.h
+===================================================================
+--- antargis/trunk/ext/basic/ag_geometry.h	2008-05-01 18:55:39 UTC (rev 1241)
++++ antargis/trunk/ext/basic/ag_geometry.h	2008-05-03 12:52:29 UTC (rev 1242)
+@@ -44,7 +44,7 @@
+    - AGTriangle2 - 2d triangle (eats AGVector3)
+ 
+    ATTENTION: the classes may NOT be virtual, as they're possibly used in an array, where then the size is NOT sizeof(v[x]) !!!
+-*/
++ */
+ 
+ 
+ class AGRect2;
+@@ -54,16 +54,16 @@
+ /** \brief Simple structure holding an angle in degrees
+  */
+ struct AGEXPORT AGAngle
+-{
+-  float angle;
+-  
+-  /// @param an angle in degrees
+-  explicit AGAngle(float a);
+-};
++  {
++    float angle;
+ 
++    /// @param an angle in degrees
++    explicit AGAngle(float a);
++  };
++
+ class AGEXPORT AGVector2
+-{
+- public:
++  {
++public:
+   float v[2];
+ 
+   AGVector2(const AGString &amp;s);
+@@ -77,7 +77,7 @@
+ 
+   AGVector2 dim2() const;
+ 
+-  
++
+ #ifdef SWIG
+   %rename(x) getX() const;
+   %rename(y) getY() const;
+@@ -133,12 +133,12 @@
+   (operator float*)();
+   (operator const float*)() const;
+ #endif
+-};
++  };
+ 
+ // 2-dim homogenous vector
+ class AGEXPORT AGVector3
+-{
+- public:
++  {
++public:
+   float v[3];
+ 
+   AGVector3(const AGVector2 &amp;p,float h=1.0f);
+@@ -151,7 +151,7 @@
+   void setY(float pY);
+   void setZ(float pZ);
+ 
+-  
++
+ #ifdef SWIG
+   %rename(x) getX() const;
+   %rename(y) getY() const;
+@@ -168,8 +168,8 @@
+   AGVector3 operator-(const AGVector3 &amp;p) const;
+   AGVector3 operator+(const AGVector3 &amp;p) const;
+ #ifdef SWIG
+-%rename(add) operator+=(const AGVector3 &amp;p);
+-%rename(sub) operator-=(const AGVector3 &amp;p);
++  %rename(add) operator+=(const AGVector3 &amp;p);
++  %rename(sub) operator-=(const AGVector3 &amp;p);
+ #endif
+   AGVector3 &amp;operator+=(const AGVector3 &amp;p);
+   AGVector3 &amp;operator-=(const AGVector3 &amp;p);
+@@ -210,28 +210,28 @@
+ #ifndef SWIG
+   (operator float*)();
+ #endif
+-};
++  };
+ 
+ 
+ class AGEXPORT AGMatrix3
+-{
+-  float a[3][3];
+- public:
+-  struct Row
+   {
+-    AGMatrix3 *matrix;
+-    int y;
+-
+-    float &amp;operator[](size_t x)
++    float a[3][3];
++public:
++  struct Row
+     {
+-      return matrix-&gt;get(x,y);
+-    }
+-    float operator[](size_t x) const
+-    {
+-      return matrix-&gt;get(x,y);
+-    }
+-  };
++      AGMatrix3 *matrix;
++      int y;
+ 
++      float &amp;operator[](size_t x)
++      {
++        return matrix-&gt;get(x,y);
++      }
++      float operator[](size_t x) const
++      {
++        return matrix-&gt;get(x,y);
++      }
++    };
++
+   AGMatrix3();
+   AGMatrix3(const AGAngle &amp;a); // rotate
+   AGMatrix3(const AGVector3 &amp;a); // transpose
+@@ -256,21 +256,21 @@
+ 
+   void swapRows(size_t a,size_t b);
+   void swapCols(size_t a,size_t b);
+-  
+ 
++
+ #ifdef SWIG
+   %rename(to_s) toString() const;
+ #endif
+   AGString toString() const;
+-};
++  };
+ 
+ class AGEXPORT AGLine2
+-{
+-  AGVector2 v0,v1;
+- public:
++  {
++    AGVector2 v0,v1;
++public:
+   AGLine2();
+   AGLine2(const AGVector2 &amp;pv0,const AGVector2 &amp;pv1);
+-  
++
+   AGVector2 getV0() const;
+   AGVector2 getV1() const;
+ 
+@@ -295,15 +295,15 @@
+   %rename(to_s) toString() const;
+ #endif
+   AGString toString() const;
+-};
++  };
+ 
+ class AGEXPORT AGLine3
+-{
+-  AGVector3 v0,v1;
+- public:
++  {
++    AGVector3 v0,v1;
++public:
+   AGLine3();
+   AGLine3(const AGVector3 &amp;pv0,const AGVector3 &amp;pv1);
+-  
++
+   AGVector3 getV0() const;
+   AGVector3 getV1() const;
+ 
+@@ -313,7 +313,7 @@
+   AGVector3 collisionPoint(const AGLine3 &amp;l) const;
+   AGVector3 collisionPointNI(const AGLine3 &amp;l) const; // no inclusion test
+   bool includes(const AGVector3 &amp;v) const;
+-  */
++   */
+   //  AGBox3 getBBox() const;
+ 
+   //  AGVector3 normal() const;
+@@ -327,18 +327,19 @@
+   %rename(to_s) toString() const;
+ #endif
+   AGString toString() const;
+-};
++  };
+ 
+ class AGEXPORT AGCollisionData
+-{
+-};
++  {
++  };
+ 
+ class AGRect2;
+ 
+ class AGEXPORT AGTriangle2
+-{
+-  AGVector2 p[3];
+- public:
++  {
++    AGVector2 p[3];
++public:
++  AGTriangle2();
+   AGTriangle2(const AGVector2 &amp;v0,const AGVector2 &amp;v1,const AGVector2 &amp;v2);
+ 
+   AGVector2 operator[](int index) const;
+@@ -372,13 +373,13 @@
+   %rename(to_s) toString() const;
+ #endif
+   AGString toString() const;
+-};
++  };
+ 
+ class AGEXPORT AGCircle2
+-{
+-  AGVector2 p;
+-  float radius;
+- public:
++  {
++    AGVector2 p;
++    float radius;
++public:
+   AGCircle2(const AGVector2 &amp;v,float rad);
+ 
+   bool inCircle(const AGTriangle2 &amp;t) const;
+@@ -390,15 +391,15 @@
+   float getRadius() const;
+ 
+   std::list&lt;AGVector2&gt; collide(const AGLine2 &amp;pLine) const;
+-};
++  };
+ 
+ class AGVector4;
+ class AGEXPORT AGTriangle3
+-{
+-  AGVector3 p[3];
+- public:
++  {
++    AGVector3 p[3];
++public:
+   AGTriangle3(const AGVector3 &amp;v0,const AGVector3 &amp;v1,const AGVector3 &amp;v2);
+-  
++
+   // (x,y,z,0) for no collision 
+   // (x,y,z,1) for collision in point (x,y,z)
+   AGVector4 collide(const AGLine3 &amp;pLine) const;
+@@ -406,12 +407,12 @@
+   AGString toString() const;
+ 
+   AGVector3 operator[](int index) const;
+-};
++  };
+ 
+ class AGEXPORT AGRect2
+-{
+-  AGVector2 v0,v1;
+- public:
++  {
++    AGVector2 v0,v1;
++public:
+   AGRect2();
+   AGRect2(const AGVector2 &amp;pv0,const AGVector2 &amp;pv1);
+   AGRect2(float x,float y,float w,float h);
+@@ -441,7 +442,7 @@
+   AGVector2 getV1() const;
+   AGVector2 getV01() const;
+   AGVector2 getV10() const;
+-  
++
+   AGVector2 getMiddle() const;
+ 
+   AGRect2 shrink(float f) const;
+@@ -471,7 +472,7 @@
+   float y0() const;
+   float x1() const;
+   float y1() const;
+-  
++
+   AGVector2 clip(const AGVector2 &amp;v) const;
+ 
+   AGRect2 origin() const;
+@@ -496,12 +497,12 @@
+   %rename(to_s) toString() const;
+ #endif
+   AGString toString() const;
+-};
++  };
+ 
+ 
+ class AGEXPORT AGVector4
+-{
+- public:
++  {
++public:
+   float v[4];
+ 
+   AGVector4(float pX,float pY,float pZ,float pW=1.0f);
+@@ -514,7 +515,7 @@
+   void setZ(float pZ);
+   void setW(float pW);
+ 
+-  
++
+ #ifdef SWIG
+   %rename(x) getX() const;
+   %rename(y) getY() const;
+@@ -529,8 +530,8 @@
+   AGVector4 operator-(const AGVector4 &amp;p) const;
+   AGVector4 operator+(const AGVector4 &amp;p) const;
+ #ifdef SWIG
+-%rename(add) operator+=(const AGVector4 &amp;p);
+-%rename(sub) operator-=(const AGVector4 &amp;p);
++  %rename(add) operator+=(const AGVector4 &amp;p);
++  %rename(sub) operator-=(const AGVector4 &amp;p);
+ #endif
+   AGVector4 &amp;operator+=(const AGVector4 &amp;p);
+   AGVector4 &amp;operator-=(const AGVector4 &amp;p);
+@@ -587,32 +588,30 @@
+   (operator float*)();
+   (operator const float*)() const;
+ #endif
+-};
++  };
+ 
+ class AGEXPORT AGMatrix4
+-{
+-  float a[16];
+- public:
+-  struct MRow
+   {
+-    AGMatrix4 *matrix;
+-    int y;
+-
+-    float &amp;operator[](size_t x)
++    float a[16];
++public:
++  struct MRow
+     {
+-      return matrix-&gt;get(x,y);
+-    }
+-    float operator[](size_t x) const
+-    {
+-      return matrix-&gt;get(x,y);
+-    }
+-  };
++      AGMatrix4 *matrix;
++      int y;
+ 
++      float &amp;operator[](size_t x)
++      {
++        return matrix-&gt;get(x,y);
++      }
++      float operator[](size_t x) const
++      {
++        return matrix-&gt;get(x,y);
++      }
++    };
++
+   AGMatrix4();
+   AGMatrix4(float v[16]);
+   AGMatrix4(float angle,const AGVector3 &amp;d);
+-  // FIXME: add quaternion
+-  //  AGMatrix4(const AGAngle &amp;a);
+   AGMatrix4(const AGVector4 &amp;a);
+   void set(size_t x,size_t y,float f);
+   float get(size_t x,size_t y) const;
+@@ -650,24 +649,24 @@
+ #endif
+ 
+   AGVector4 getRow(size_t i) const;
+-};
++  };
+ 
+ // axis-aligned
+ class AGEXPORT AGRect3
+-{
+-  AGVector3 base,dir;
+- public:
++  {
++    AGVector3 base,dir;
++public:
+   AGRect3(const AGVector3 &amp;pBase,const AGVector3 &amp;pDir);
+ 
+   bool collides(const AGLine3&amp;pLine) const;
+ 
+   AGString toString() const;
+-};
++  };
+ 
+ // axis-aligned
+ class AGEXPORT AGBox3
+-{
+- public:
++  {
++public:
+   AGVector3 base,dir;
+ 
+   AGBox3();
+@@ -698,9 +697,9 @@
+ 
+   bool valid() const;
+ 
+- private:
++private:
+   bool mValid;
+-};
++  };
+ 
+ #ifndef SWIG
+ AGEXPORT std::ostream &amp;operator&lt;&lt;(std::ostream &amp;o,const AGVector2&amp;v);
+
+Modified: antargis/trunk/ext/basic/ag_rtools.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_rtools.cc	2008-05-01 18:55:39 UTC (rev 1241)
++++ antargis/trunk/ext/basic/ag_rtools.cc	2008-05-03 12:52:29 UTC (rev 1242)
+@@ -37,3 +37,13 @@
+ 
+   return s;
+ }
++
++
++bool rubyMatchRegex(const std::string &amp;p,const std::string &amp;pregex)
++  {
++    VALUE rp=rb_str_new(p.c_str(),p.length());
++    VALUE rregex=rb_str_new(pregex.c_str(),pregex.length());
++    
++    VALUE ret=rb_reg_match(rp,rregex);
++    return ret==Qtrue;
++  }
+
+Modified: antargis/trunk/ext/basic/ag_rtools.h
+===================================================================
+--- antargis/trunk/ext/basic/ag_rtools.h	2008-05-01 18:55:39 UTC (rev 1241)
++++ antargis/trunk/ext/basic/ag_rtools.h	2008-05-03 12:52:29 UTC (rev 1242)
+@@ -5,6 +5,7 @@
+ #include &lt;string&gt;
+ 
+ AGEXPORT std::string rubyHash(const std::string &amp;p);
++AGEXPORT bool rubyMatchRegex(const std::string &amp;p,const std::string &amp;pregex);
+ 
+ 
+ 
+
+Modified: antargis/trunk/ext/basic/ag_string.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_string.cc	2008-05-01 18:55:39 UTC (rev 1241)
++++ antargis/trunk/ext/basic/ag_string.cc	2008-05-03 12:52:29 UTC (rev 1242)
+@@ -1,6 +1,7 @@
+ #include &lt;ag_string.h&gt;
+ #include &lt;ag_debug.h&gt;
+ #include &lt;ag_utf8.h&gt;
++#include &lt;ag_rtools.h&gt;
+ 
+ ///////////
+ // AGString
+@@ -218,20 +219,7 @@
+ }
+ 
+ 
+-/*std::string AGString::get(size_t pos) const
++bool AGString::matches(const std::string &amp;regex) const
+ {
+-  return agSubStr(s,pos,1);
++  return rubyMatchRegex(*this,regex);
+ }
+-void AGString::set(size_t pos,const std::string &amp;pStr)
+-{
+-  mLength=npos;
+-  s=agSubStr(s,0,pos)+pStr+agSubStr(s,pos+1,std::string::npos);
+-  }*/
+-
+-/*
+-std::ostream &amp;operator&lt;&lt;(std::ostream &amp;o,const AGString &amp;s)
+-{
+-  o&lt;&lt;s;
+-  return o;
+-}
+- */
+
+Modified: antargis/trunk/ext/basic/ag_string.h
+===================================================================
+--- antargis/trunk/ext/basic/ag_string.h	2008-05-01 18:55:39 UTC (rev 1241)
++++ antargis/trunk/ext/basic/ag_string.h	2008-05-03 12:52:29 UTC (rev 1242)
+@@ -55,6 +55,8 @@
+   int parseHex() const;
+ 
+   static AGString toHex(int i);
++  
++  bool matches(const std::string &amp;regex) const;
+ };
+ 
+ #endif
+
+Modified: antargis/trunk/ext/basic/ag_xml.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_xml.cc	2008-05-01 18:55:39 UTC (rev 1241)
++++ antargis/trunk/ext/basic/ag_xml.cc	2008-05-03 12:52:29 UTC (rev 1242)
+@@ -373,6 +373,12 @@
+     return *mRoot;
+   }
+ 
++const Node &amp;Document::root() const
++{
++  return *mRoot;
++}
++
++
+ /*
+ Node *Document::getRootNode()
+ {
+
+Modified: antargis/trunk/ext/basic/ag_xml.h
+===================================================================
+--- antargis/trunk/ext/basic/ag_xml.h	2008-05-01 18:55:39 UTC (rev 1241)
++++ antargis/trunk/ext/basic/ag_xml.h	2008-05-03 12:52:29 UTC (rev 1242)
+@@ -115,6 +115,7 @@
+     bool parseFile(const AGString &amp;pFilename);
+ 
+     Node &amp;root();
++    const Node &amp;root() const;
+ 
+     AGString toString(bool forceIndent=false) const;
+ 
+
+Modified: antargis/trunk/ext/game/entity.h
+===================================================================
+--- antargis/trunk/ext/game/entity.h	2008-05-01 18:55:39 UTC (rev 1241)
++++ antargis/trunk/ext/game/entity.h	2008-05-03 12:52:29 UTC (rev 1242)
+@@ -260,7 +260,7 @@
+ 
+     // used only by Map - so that Position gets updated, when onGround
+     void eventMapChanged();
+-    virtual void move(float pTime); // move entity FIXME: del move
++    void move(float pTime); // move entity FIXME: del move
+ 
+     void mark();
+ 
+
+Modified: antargis/trunk/ext/game/path.cc
+===================================================================
+--- antargis/trunk/ext/game/path.cc	2008-05-01 18:55:39 UTC (rev 1241)
++++ antargis/trunk/ext/game/path.cc	2008-05-03 12:52:29 UTC (rev 1242)
+@@ -694,7 +694,6 @@
+     for(x=-r+1;x&lt;r;x++)
+       for(y=0;y&lt;r;y++)
+         if(x&gt;0 || y&gt;0)
+-          //  if(x!=y) // FIXME
+           {
+             dx=x*res+curPos.first;
+             dy=y*res+curPos.second;
+
+Modified: antargis/trunk/ext/gui/ag_background.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_background.cc	2008-05-01 18:55:39 UTC (rev 1241)
++++ antargis/trunk/ext/gui/ag_background.cc	2008-05-03 12:52:29 UTC (rev 1242)
+@@ -82,26 +82,6 @@
+   mBorder=theme-&gt;getInt(pThemeName+&quot;.&quot;+&quot;border&quot;);
+ }
+ 
+-/*
+-AGBackground::AGBackground(const AGBackground &amp;p):mTexture(0)
+-{
+-  if(p.mTexture)
+-    mTexture=new AGTexture(*p.mTexture);
+-  mColors[0]=p.mColors[0];
+-  mColors[1]=p.mColors[1];
+-  mColors[2]=p.mColors[2];
+-  mColors[3]=p.mColors[3];
+-
+-  mColor=p.mColor;
+-  mBorder=p.mBorder;
+-}
+-
+-AGBackground::~AGBackground()
+-{
+-  delete mTexture;
+-  }*/
+-
+-
+ /// draws the background on painter in the given rectangle
+ void AGBackground::draw(const AGRect2 &amp;r,AGPainter &amp;p)
+   {
+
+Modified: antargis/trunk/ext/gui/ag_background.h
+===================================================================
+--- antargis/trunk/ext/gui/ag_background.h	2008-05-01 18:55:39 UTC (rev 1241)
++++ antargis/trunk/ext/gui/ag_background.h	2008-05-03 12:52:29 UTC (rev 1242)
+@@ -39,8 +39,6 @@
+  public:
+   AGBackground(const AGString &amp;pThemeName=&quot;&quot;);
+   AGBackground(const AGColor &amp;pColor);
+-  //  AGBackground(const AGBackground &amp;pBackground);
+-  //  ~AGBackground();
+ 
+   void draw(const AGRect2 &amp;r,AGPainter &amp;p);
+ 
+
+Modified: antargis/trunk/ext/gui/ag_border.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_border.cc	2008-05-01 18:55:39 UTC (rev 1241)
++++ antargis/trunk/ext/gui/ag_border.cc	2008-05-03 12:52:29 UTC (rev 1242)
+@@ -30,8 +30,7 @@
+ 
+     if((mEnable=getTheme()-&gt;hasSurface(imageName)))
+       {
+-        AGSurface surface(getTheme()-&gt;getSurface(imageName));
+-        //      mSurface=getTextureManager()-&gt;makeTexture(getTheme()-&gt;getSurface(pTheme+&quot;.image&quot;));
++        //AGSurface surface(getTheme()-&gt;getSurface(imageName)); // not used ???
+         mTexture=&amp;getTextureCache()-&gt;get(getTheme()-&gt;getSurfaceName(imageName));
+         mWidth=mTexture-&gt;width()/3;
+ 
+@@ -50,6 +49,21 @@
+       }
+   }
+ 
++AGBorder::AGBorder(const AGSurface &amp;pSurface,const AGString &amp;pFilename)
++  {
++    mTexture=&amp;getTextureCache()-&gt;get(pFilename);
++    mWidth=mTexture-&gt;width()/3;
++
++    // build textures
++    for(int y=0;y&lt;3;y++)
++      for(int x=0;x&lt;3;x++)
++        {
++          AGRect2 r(x*mWidth,y*mWidth,mWidth,mWidth);
++          mTextures.push_back(&amp;getTextureCache()-&gt;get(pFilename,r));
++        }
++    
++  }
++
+ void AGBorder::draw(const AGRect2 &amp;pd,AGPainter &amp;p)
+   {
+     AGRect2 d=pd.alignGrid();
+
+Modified: antargis/trunk/ext/gui/ag_border.h
+===================================================================
+--- antargis/trunk/ext/gui/ag_border.h	2008-05-01 18:55:39 UTC (rev 1241)
++++ antargis/trunk/ext/gui/ag_border.h	2008-05-03 12:52:29 UTC (rev 1242)
+@@ -34,6 +34,7 @@
+ {
+  public:
+   AGBorder(const AGString &amp;pTheme=&quot;&quot;);
++  AGBorder(const AGSurface &amp;pSurface,const AGString &amp;pSurfaceName);
+ 
+   void draw(const AGRect2 &amp;r,AGPainter &amp;p);
+ 
+
+Modified: antargis/trunk/ext/gui/ag_button.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_button.cc	2008-05-01 18:55:39 UTC (rev 1241)
++++ antargis/trunk/ext/gui/ag_button.cc	2008-05-03 12:52:29 UTC (rev 1242)
+@@ -58,7 +58,6 @@
+     setTheme(&quot;&quot;);
+     mChecked=false;
+ 
+-    //  cdebug(&quot;borderWidth:&quot;&lt;&lt;borderWidth);
+     mEnabled=true;
+ 
+     if(opengl())
+
+Modified: antargis/trunk/ext/gui/ag_edit.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_edit.cc	2008-05-01 18:55:39 UTC (rev 1241)
++++ antargis/trunk/ext/gui/ag_edit.cc	2008-05-03 12:52:29 UTC (rev 1242)
+@@ -304,7 +304,7 @@
+     int completeHeight=0;
+     x=y=cy=0;
+ 
+-    drawBackground(p);//pRect);
++    drawBackground(p);
+ 
+     std::list&lt;AGEditLine&gt;::iterator i=mLines.begin();
+ 
+@@ -323,28 +323,18 @@
+         completeHeight+=i-&gt;height();
+       }
+ 
+-    //  cdebug(&quot;completeHeight:&quot;&lt;&lt;completeHeight);
+-    //  cdebug(&quot;height:&quot;&lt;&lt;getRect().h);
+     if(mVAlign==EDIT_VCENTER)
+       y=(int)(getRect().h()/2-completeHeight/2);
+-    //  cdebug(&quot;y:&quot;&lt;&lt;y);
+ 
+     i=mLines.begin();
+ 
+-
+-    //  cdebug(&quot;mRect:&quot;&lt;&lt;getRect());
+-    //  cdebug(&quot;mViewCy:&quot;&lt;&lt;mViewCy);
+     for(int k=0;k&lt;mViewCy;k++)
+       i++;
+ 
+-    //  cdebug(&quot;mLines:&quot;&lt;&lt;mLines.size());
+     for(;i!=mLines.end();i++)
+       {
+-        //      cdebug((*i).getText());
+-        //      cdebug(&quot;(&quot;&lt;&lt;x&lt;&lt;&quot;;&quot;&lt;&lt;y&lt;&lt;&quot;)&quot;);
+-        //      cdebug(mr);
+-        i-&gt;draw(p,AGVector2(x,y),getRect().origin());//pRect.project(getRect()));
+-        if(cy+mViewCy==mCy &amp;&amp; mMutable &amp;&amp; hasFocus()) // FIXME: Change show cursor only if widget has focus
++        i-&gt;draw(p,AGVector2(x,y),getRect().origin());
++        if(cy+mViewCy==mCy &amp;&amp; mMutable &amp;&amp; hasFocus())
+           i-&gt;drawCursor(p,mCx,AGVector2(x,y),getRect(),cursorC);
+         y+=i-&gt;height();
+         if(y&gt;getRect().h())
+
+Added: antargis/trunk/ext/gui/ag_gradient.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_gradient.cc	2008-05-01 18:55:39 UTC (rev 1241)
++++ antargis/trunk/ext/gui/ag_gradient.cc	2008-05-03 12:52:29 UTC (rev 1242)
+@@ -0,0 +1,32 @@
++/*
++ * Copyright (c) 2008 by David Kamphausen. All rights reserved.
++ *
++ * ag_gradient.cc
++ * by David Kamphausen (<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">david.kamphausen at web.de</A>)
++ *
++ * The &quot;Antargis&quot; project, including all files needed to compile it,
++ * is free software; you can redistribute it and/or use it and/or modify it
++ * under the terms of the GNU General Public License as published
++ * by the Free Software Foundation; either version 2 of the License,
++ * or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
++ *
++ * You should have received a copy of the GNU General Public
++ * License along with this program.
++ */
++
++#include &quot;ag_gradient.h&quot;
++
++AGGradient::AGGradient()
++  {}
++
++AGGradient::AGGradient(const AGColor &amp;c0,const AGColor &amp;c1,const AGColor &amp;c2,const AGColor &amp;c3)
++  {
++    mColors[0]=c0;
++    mColors[1]=c1;
++    mColors[2]=c2;
++    mColors[3]=c3;
++  }
+
+
+Property changes on: antargis/trunk/ext/gui/ag_gradient.cc
+___________________________________________________________________
+Name: svn:mime-type
+   + text/plain
+
+Added: antargis/trunk/ext/gui/ag_gradient.h
+===================================================================
+--- antargis/trunk/ext/gui/ag_gradient.h	2008-05-01 18:55:39 UTC (rev 1241)
++++ antargis/trunk/ext/gui/ag_gradient.h	2008-05-03 12:52:29 UTC (rev 1242)
+@@ -0,0 +1,37 @@
++/*
++ * Copyright (c) 2008 by David Kamphausen. All rights reserved.
++ *
++ * ag_gradient.h
++ * by David Kamphausen (<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">david.kamphausen at web.de</A>)
++ *
++ * The &quot;Antargis&quot; project, including all files needed to compile it,
++ * is free software; you can redistribute it and/or use it and/or modify it
++ * under the terms of the GNU General Public License as published
++ * by the Free Software Foundation; either version 2 of the License,
++ * or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
++ *
++ * You should have received a copy of the GNU General Public
++ * License along with this program.
++ */
++
++#ifndef AG_GRADIENT_H
++#define AG_GRADIENT_H
++
++#include &quot;ag_color.h&quot;
++
++class AGGradient
++  {
++public:
++  AGGradient();
++  AGGradient(const AGColor &amp;c0,const AGColor &amp;c1,const AGColor &amp;c2,const AGColor &amp;c3);
++  
++  
++private:
++  AGColor mColors[4];
++  };
++
++#endif
+
+
+Property changes on: antargis/trunk/ext/gui/ag_gradient.h
+___________________________________________________________________
+Name: svn:mime-type
+   + text/plain
+
+Modified: antargis/trunk/ext/gui/ag_local.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_local.cc	2008-05-01 18:55:39 UTC (rev 1241)
++++ antargis/trunk/ext/gui/ag_local.cc	2008-05-03 12:52:29 UTC (rev 1242)
+@@ -32,6 +32,7 @@
+ 
+ AGStringUtf8 AGLocalizer::find(const AGString &amp;p)
+   {
++    cdebug(&quot;WARNING: Default Localizer used!&quot;);
+     return AGStringUtf8(p);
+   }
+ 
+@@ -53,5 +54,7 @@
+ 
+     if(l)
+       return l-&gt;find(s);
++    else
++      cdebug(&quot;No Localizer found!&quot;);
+     return AGStringUtf8(s);
+   }
+
+Modified: antargis/trunk/ext/gui/ag_local.h
+===================================================================
+--- antargis/trunk/ext/gui/ag_local.h	2008-05-01 18:55:39 UTC (rev 1241)
++++ antargis/trunk/ext/gui/ag_local.h	2008-05-03 12:52:29 UTC (rev 1242)
+@@ -23,10 +23,11 @@
+ #ifndef AG_LOCAL_H
+ #define AG_LOCAL_H
+ 
++#include &lt;ag_rubyobj.h&gt;
+ #include &lt;ag_string.h&gt;
+ #include &lt;ag_string_utf8.h&gt;
+ 
+-class AGEXPORT AGLocalizer
++class AGEXPORT AGLocalizer:public AGRubyObject
+ {
+  public:
+   virtual ~AGLocalizer();
+
+Modified: antargis/trunk/ext/gui/ag_theme.h
+===================================================================
+--- antargis/trunk/ext/gui/ag_theme.h	2008-05-01 18:55:39 UTC (rev 1241)
++++ antargis/trunk/ext/gui/ag_theme.h	2008-05-03 12:52:29 UTC (rev 1242)
+@@ -23,6 +23,7 @@
+ #ifndef AG_THEME_H
+ #define AG_THEME_H
+ 
++#include &quot;ag_base.h&quot;
+ #include &quot;ag_font.h&quot;
+ #include &quot;ag_surface.h&quot;
+ 
+@@ -49,7 +50,6 @@
+   std::string getSurfaceName(const AGString &amp;pName);
+   void setSurfaceName(const AGString &amp;pName,const std::string &amp;pSurface);
+ 
+-
+   bool hasSurface(const AGString &amp;pName) const;
+   bool hasColor(const AGString &amp;pName) const;
+ 
+
+Added: antargis/trunk/ext/gui/ag_theme_v2.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_theme_v2.cc	2008-05-01 18:55:39 UTC (rev 1241)
++++ antargis/trunk/ext/gui/ag_theme_v2.cc	2008-05-03 12:52:29 UTC (rev 1242)
+@@ -0,0 +1,312 @@
++/*
++ * Copyright (c) 2008 by David Kamphausen. All rights reserved.
++ *
++ * ag_theme_v2.cc
++ * by David Kamphausen (<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">david.kamphausen at web.de</A>)
++ *
++ * The &quot;Antargis&quot; project, including all files needed to compile it,
++ * is free software; you can redistribute it and/or use it and/or modify it
++ * under the terms of the GNU General Public License as published
++ * by the Free Software Foundation; either version 2 of the License,
++ * or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
++ *
++ * You should have received a copy of the GNU General Public
++ * License along with this program.
++ */
++
++#include &quot;ag_theme_v2.h&quot;
++#include &quot;ag_debug.h&quot;
++#include &quot;ag_xml.h&quot;
++#include &quot;ag_tools.h&quot;
++#include &quot;ag_config.h&quot;
++
++#include &lt;iostream&gt;
++using namespace std;
++
++std::map&lt;AGString,AGThemeV2*&gt; AGThemeV2::gThemes;
++
++AGThemeV2::AGThemeV2(const std::string &amp;pFilename,const std::string &amp;pTheme):mFilename(pFilename),mDocument(pFilename),
++mTheme(pTheme)
++  {
++    Node root=mDocument.root();
++
++    for(Node::iterator ti=root.begin();ti!=root.end();ti++)
++      {
++        const Node &amp;node=**ti;
++
++        if(mTheme==&quot;&quot;)
++          if(node.getName()==&quot;default&quot;)
++            mTheme=node.get(&quot;name&quot;);
++
++        if(node.getName()==&quot;theme&quot; &amp;&amp; node.get(&quot;name&quot;)==pTheme)
++          {
++            for(Node::const_iterator ci=node.begin();ci!=node.end();ci++)
++              {
++                if((*ci)-&gt;getName()==&quot;colors&quot;)
++                  parseColors(*ci);
++                if((*ci)-&gt;getName()==&quot;gradients&quot;)
++                  parseGradients(*ci);
++                if((*ci)-&gt;getName()==&quot;images&quot;)
++                  parseImages(*ci);
++                if((*ci)-&gt;getName()==&quot;fonts&quot;)
++                  parseFonts(*ci);
++              }
++          }
++      }
++  }
++
++AGThemeV2::~AGThemeV2()
++  {
++  }
++
++AGThemeV2 *AGThemeV2::getTheme(const std::string &amp;pFilename,const std::string &amp;pTheme)
++  {
++    AGString filename=pFilename;
++    if(filename==&quot;&quot;)
++      filename=&quot;data/theme_v2.xml&quot;;
++    AGString name=filename+pTheme;
++    std::map&lt;AGString,AGThemeV2*&gt;::const_iterator i=gThemes.find(name);
++    if(i!=gThemes.end())
++      return i-&gt;second;
++    AGThemeV2 *p=new AGThemeV2(filename,pTheme);
++    gThemes.insert(std::make_pair(name,p));
++    return p;
++  }
++
++
++bool AGThemeV2::checkColor(const AGString &amp;p) const
++{
++  return p.matches(&quot;/#[0-9A-Fa-f]{6}/&quot;);
++}
++
++
++void AGThemeV2::parseColors(const Node &amp;pNode)
++  {
++    for(Node::const_iterator i=pNode.begin();i!=pNode.end();i++)
++      {
++        const Node &amp;c=**i;
++
++        if(c.getName()==&quot;color&quot;)
++          {
++
++            AGString name=c.get(&quot;name&quot;);
++            AGString color=c.get(&quot;color&quot;);
++
++            if(name.length()&gt;0 &amp;&amp; checkColor(color))
++              mColors.insert(std::make_pair(name,AGColor(color)));
++            else
++              cdebug(&quot;Problem with color name:&quot;&lt;&lt;name&lt;&lt;&quot; color:&quot;&lt;&lt;color);
++          }
++      }
++    mDefaultColor=getColor(&quot;default&quot;);
++  }
++
++void AGThemeV2::parseGradients(const Node &amp;pNode)
++  {
++    for(Node::const_iterator i=pNode.begin();i!=pNode.end();i++)
++      {
++        const Node &amp;c=**i;
++
++        if(c.getName()==&quot;gradient&quot;)
++          {
++            AGString name=c.get(&quot;name&quot;);
++            size_t numColors=4,k;
++            AGString colors[numColors];
++            if(name.length()==0)
++              {
++                cdebug(&quot;Problem with name:&quot;&lt;&lt;name);
++                continue;
++              }
++
++            for(k=0;k&lt;numColors;k++)
++              {
++                if(!checkColor(c.get(AGString(&quot;color&quot;)+AGString(k))))
++                  {
++                    cdebug(&quot;Problem with color&quot;&lt;&lt;k&lt;&lt;&quot;:&quot;&lt;&lt;c.get(AGString(&quot;color&quot;)+AGString(k)));
++                    break;
++                  }
++              }
++            if(k==numColors)
++              mGradients.insert(std::make_pair(name,AGGradient(colors[0],colors[1],colors[2],colors[3])));
++          }
++      }
++    mDefaultGradient=getGradient(&quot;default&quot;);
++  }
++void AGThemeV2::parseFonts(const Node &amp;pNode)
++  {
++    for(Node::const_iterator i=pNode.begin();i!=pNode.end();i++)
++      {
++        const Node &amp;c=**i;
++
++        if(c.getName()==&quot;font&quot;)
++          {
++            AGString name=c.get(&quot;name&quot;);
++            //FIXME: add checks (?)
++
++            AGFont f(c.get(&quot;file&quot;),c.get(&quot;size&quot;).toInt());
++            f.setColor(AGColor(c.get(&quot;color&quot;)));
++            f.setEmbossed(c.get(&quot;embossed&quot;)==&quot;true&quot;);
++            f.setInset(c.get(&quot;inset&quot;)==&quot;true&quot;);
++            if(c.get(&quot;style&quot;)==&quot;bold&quot;)
++              f.setStyle(AGFont::BOLD);
++            f.setBorderColor(AGColor(c.get(&quot;borderColor&quot;)));
++            f.setBorder(c.get(&quot;borderWidth&quot;).toInt());
++
++            mFonts.insert(std::make_pair(name,f));
++          }
++      }
++    mDefaultFont=getFont(&quot;default&quot;);
++  }
++void AGThemeV2::parseImages(const Node &amp;pNode)
++  {
++    for(Node::const_iterator i=pNode.begin();i!=pNode.end();i++)
++      {
++        const Node &amp;c=**i;
++
++        if(c.getName()==&quot;image&quot;)
++          {
++            AGString name=c.get(&quot;name&quot;);
++            AGString file=c.get(&quot;file&quot;);
++            if(!fileExists(file))
++              {
++                cdebug(&quot;Problem: File &quot;&lt;&lt;file&lt;&lt;&quot; does not exist!&quot;);
++                continue;
++              }
++            if(name.length()==0)
++              {
++                cdebug(&quot;Problem with name in image-tage with file:&quot;&lt;&lt;file);
++                continue;
++              }
++            mSurfaceNames.insert(std::make_pair(name,file));
++            mSurfaces.insert(std::make_pair(name,AGSurface::load(file)));
++
++
++          }
++
++      }
++    mDefaultSurface=getSurface(&quot;default&quot;);
++  }
++AGGradient AGThemeV2::getGradient(const AGString &amp;pName) const
++{
++  Gradients::const_iterator i=mGradients.find(pName);
++  if(i==mGradients.end())
++    return mDefaultGradient;
++  return i-&gt;second;
++}
++
++AGFont AGThemeV2::getFont(const AGString &amp;pName) const
++{
++  Fonts::const_iterator i=mFonts.find(pName);
++  if(i==mFonts.end())
++    return mDefaultFont;
++  return i-&gt;second;
++}
++AGColor AGThemeV2::getColor(const AGString &amp;pName) const
++{
++  Colors::const_iterator i=mColors.find(pName);
++  if(i==mColors.end())
++    return mDefaultColor;
++  return i-&gt;second;
++}
++
++int AGThemeV2::getInt(const AGString &amp;pName) const
++{
++  Integers::const_iterator i=mIntegers.find(pName);
++  if(i==mIntegers.end())
++    return mDefaultInteger;
++  return i-&gt;second;
++}
++
++
++AGSurface AGThemeV2::getSurface(const AGString &amp;pName) const
++{
++  Surfaces::const_iterator i=mSurfaces.find(pName);
++  if(i==mSurfaces.end())
++    return mDefaultSurface;
++  return i-&gt;second;
++}
++
++std::string AGThemeV2::getSurfaceName(const AGString &amp;pName) const
++{
++  SurfaceNames::const_iterator i=mSurfaceNames.find(pName);
++  if(i==mSurfaceNames.end())
++    return &quot;&quot;;
++  return i-&gt;second;
++}
++
++Node *getStateNode(const Document &amp;pDoc,const AGString &amp;mTheme,const AGString &amp;pClass,const AGString &amp;pState)
++  {
++    const Node &amp;root=pDoc.root();
++
++    for(Node::const_iterator i=root.begin();i!=root.end();i++)
++      {
++        if((*i)-&gt;getName()==&quot;theme&quot; &amp;&amp; (*i)-&gt;get(&quot;name&quot;)==mTheme)
++          {
++            for(Node::const_iterator j=(*i)-&gt;begin();j!=(*i)-&gt;end();j++)
++              {
++                if((*j)-&gt;getName()==pClass)
++                  {
++                    for(Node::const_iterator k=(*j)-&gt;begin();k!=(*j)-&gt;end();k++)
++                      {
++                        if((*k)-&gt;getName()==pState)
++                          return *k;
++                      }
++
++                  }
++              }
++
++          }
++      }
++    return 0;
++  }
++
++AGThemeItem AGThemeV2::getItem(const AGString &amp;pClass,const AGString &amp;pState) const
++{
++  //FIXME: insert XPath here !
++  Node *stateNode=getStateNode(mDocument,mTheme,pClass,pState);
++  assert(stateNode);
++  return AGThemeItem(this,stateNode);
++}
++AGThemeItem AGThemeV2::getItem(const AGString &amp;pClass,const AGString &amp;pState,const AGString &amp;pElement) const
++{
++  //FIXME: insert XPath here !
++  Node *stateNode=getStateNode(mDocument,mTheme,pClass,pState);
++  assert(stateNode);
++  Node *nextNode=0;
++  for(Node::iterator i=stateNode-&gt;begin();i!=stateNode-&gt;end();i++)
++    if((*i)-&gt;getName()==pElement)
++      nextNode=*i;
++  assert(nextNode);
++  return AGThemeItem(this,nextNode);
++}
++
++
++
++////////////////////////////////////////////////////////
++// AGThemeItem
++////////////////////////////////////////////////////////
++AGThemeItem::AGThemeItem(const AGThemeV2 *pTheme,Node *pNode):
++  mTheme(pTheme),
++  mNode(pNode)
++  {
++
++  }
++
++AGBorder AGThemeItem::getBorder() const
++{
++  return AGBorder(mTheme-&gt;getSurface(mNode-&gt;get(&quot;image&quot;)),mTheme-&gt;getSurfaceName(mNode-&gt;get(&quot;image&quot;)));
++}
++AGBackground AGThemeItem::getBackground() const
++{
++   
++}
++AGFont AGThemeItem::getFont() const
++{
++  
++}
++
++
+
+
+Property changes on: antargis/trunk/ext/gui/ag_theme_v2.cc
+___________________________________________________________________
+Name: svn:mime-type
+   + text/plain
+
+Added: antargis/trunk/ext/gui/ag_theme_v2.h
+===================================================================
+--- antargis/trunk/ext/gui/ag_theme_v2.h	2008-05-01 18:55:39 UTC (rev 1241)
++++ antargis/trunk/ext/gui/ag_theme_v2.h	2008-05-03 12:52:29 UTC (rev 1242)
+@@ -0,0 +1,118 @@
++/*
++ * Copyright (c) 2008 by David Kamphausen. All rights reserved.
++ *
++ * ag_theme_v2.h
++ * by David Kamphausen (<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">david.kamphausen at web.de</A>)
++ *
++ * The &quot;Antargis&quot; project, including all files needed to compile it,
++ * is free software; you can redistribute it and/or use it and/or modify it
++ * under the terms of the GNU General Public License as published
++ * by the Free Software Foundation; either version 2 of the License,
++ * or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
++ *
++ * You should have received a copy of the GNU General Public
++ * License along with this program.
++ */
++
++// INCLUDE_SWIG - used to filter, which files are included in swig-interfacing
++
++#ifndef AG_THEME_V2_H
++#define AG_THEME_V2_H
++
++#include &quot;ag_base.h&quot;
++#include &quot;ag_font.h&quot;
++#include &quot;ag_surface.h&quot;
++#include &quot;ag_gradient.h&quot;
++#include &quot;ag_xml.h&quot;
++#include &quot;ag_border.h&quot;
++#include &quot;ag_background.h&quot;
++
++#include &lt;map&gt;
++
++class AGThemeV2;
++
++class AGEXPORT AGThemeItem
++  {
++    const AGThemeV2 *mTheme;
++    Node *mNode;
++public:
++  AGBorder getBorder() const;
++  AGBackground getBackground() const;
++  AGFont getFont() const;
++
++private:
++  AGThemeItem(const AGThemeV2 *pTheme,Node *pNode);
++
++  friend class AGThemeV2;
++  };
++
++class AGEXPORT AGThemeV2
++  {
++public:
++  AGThemeV2(const std::string &amp;pFilename,const std::string &amp;pTheme=&quot;&quot;);
++  virtual ~AGThemeV2();
++
++  static AGThemeV2 *getTheme(const std::string &amp;pFilename=&quot;&quot;,const std::string &amp;pTheme=&quot;&quot;);
++
++  AGFont getFont(const AGString &amp;pName) const;
++  AGColor getColor(const AGString &amp;pName) const;
++  int getInt(const AGString &amp;pName) const;
++  AGSurface getSurface(const AGString &amp;pName) const;
++  AGGradient getGradient(const AGString &amp;pName) const;
++  std::string getSurfaceName(const AGString &amp;pName) const;
++
++  bool hasSurface(const AGString &amp;pName) const;
++  bool hasColor(const AGString &amp;pName) const;
++
++  AGThemeItem getItem(const AGString &amp;pClass,const AGString &amp;pState) const;
++  AGThemeItem getItem(const AGString &amp;pClass,const AGString &amp;pState,const AGString &amp;pElement) const;
++
++private:
++#ifndef SWIG
++
++  AGString mFilename;
++  Document mDocument;
++  AGString mTheme;
++
++  void parseColors(const Node &amp;pNode);
++  void parseGradients(const Node &amp;pNode);
++  void parseFonts(const Node &amp;pNode);
++  void parseImages(const Node &amp;pNode);
++
++  bool checkColor(const AGString &amp;p) const;
++
++  template&lt;class T&gt;
++  class Cont:public std::map&lt;AGString,T&gt;
++  {};
++
++
++  typedef Cont&lt;AGFont&gt; Fonts;
++  typedef Cont&lt;AGColor&gt; Colors;
++  typedef Cont&lt;AGSurface&gt; Surfaces;
++  typedef Cont&lt;AGGradient&gt; Gradients;
++  typedef Cont&lt;int&gt; Integers;
++  typedef Cont&lt;std::string&gt; SurfaceNames;
++
++  Fonts mFonts;
++  Colors mColors;
++  Surfaces mSurfaces;
++  Gradients mGradients;
++  Integers mIntegers;
++  SurfaceNames mSurfaceNames;
++
++  AGFont mDefaultFont;
++  AGColor mDefaultColor;
++  AGSurface mDefaultSurface;
++  AGGradient mDefaultGradient;
++  int mDefaultInteger;
++  std::string mSurfaceName;
++
++  static std::map&lt;AGString,AGThemeV2*&gt; gThemes;
++#endif
++  };
++
++#endif
+
+
+Property changes on: antargis/trunk/ext/gui/ag_theme_v2.h
+___________________________________________________________________
+Name: svn:mime-type
+   + text/plain
+
+Modified: antargis/trunk/ext/sound/ag_mixer.cc
+===================================================================
+--- antargis/trunk/ext/sound/ag_mixer.cc	2008-05-01 18:55:39 UTC (rev 1241)
++++ antargis/trunk/ext/sound/ag_mixer.cc	2008-05-03 12:52:29 UTC (rev 1242)
+@@ -58,14 +58,12 @@
+ int getFreeChannel()
+   {
+     mSoundMutex-&gt;enter();
+-    // FIXME: lock
+     int c=-1;
+     if(mFreeChannels.size())
+       {
+         c=*mFreeChannels.begin();
+         mFreeChannels.erase(c);
+       }
+-    // FIXME: unlock
+     mSoundMutex-&gt;leave();
+     return c;
+   }
+
+Modified: antargis/trunk/rookey/compile.rb
+===================================================================
+--- antargis/trunk/rookey/compile.rb	2008-05-01 18:55:39 UTC (rev 1241)
++++ antargis/trunk/rookey/compile.rb	2008-05-03 12:52:29 UTC (rev 1242)
+@@ -120,8 +120,12 @@
+ 	    objectName.sub(/\.o$/,&quot;&quot;).sub(/^#{getBuildDir}[\/\\]/,&quot;&quot;)
+ 	  end
+ 	  
++    def getPlainBuildDir
++      &quot;.build_&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">+ at config</A>[&quot;host_os&quot;]
++    end
++    
+ 	  def getBuildDir
+-	    File.join(Dir.pwd,&quot;.build_&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">+ at config</A>[&quot;host_os&quot;])
++	    File.join(Dir.pwd,getPlainBuildDir)
+ 	  end
+     def Compiler.getDepsDir
+       File.join(Dir.pwd,&quot;.deps&quot;)
+
+Modified: antargis/trunk/rookey/tasks.rb
+===================================================================
+--- antargis/trunk/rookey/tasks.rb	2008-05-01 18:55:39 UTC (rev 1241)
++++ antargis/trunk/rookey/tasks.rb	2008-05-03 12:52:29 UTC (rev 1242)
+@@ -151,9 +151,12 @@
+     sourceDirs=files.map{|file|File.split(file)[0]}.sort.uniq
+     
+     config=Rookey::getConfig
++    sourceDirs &lt;&lt; &quot;.&quot;
+     config.add(&quot;INCLUDEDIRS&quot;,sourceDirs.join(&quot; &quot;))
++    
++    compiler=Rookey::Compiler.new(config)
+         
+-    swigTarget = Rookey::swig({name+&quot;_swig.cc&quot;=&gt;swigInterface},config)
++    swigTarget = Rookey::swig({File.join(compiler.getPlainBuildDir,name+&quot;_swig.cc&quot;)=&gt;swigInterface},config)
+     
+     
+     targets = Rookey::compile(cppFiles+[swigTarget],config)
+
+Deleted: antargis/trunk/test.c
+===================================================================
+--- antargis/trunk/test.c	2008-05-01 18:55:39 UTC (rev 1241)
++++ antargis/trunk/test.c	2008-05-03 12:52:29 UTC (rev 1242)
+@@ -1 +0,0 @@
+-extern &quot;C&quot; void png_get_io_ptr();int main(){return 0;}
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000197.html">[Antargis-svn] r1241 - in antargis/trunk: . data/gui/images/basic	data/gui/layout/editor/campaign dev ext/basic ext/game	ext/gui ext/math ext/video rookey rookey/cpp	ruby/editor/campaign ruby/spec
+</A></li>
+	<LI>Next message: <A HREF="000199.html">[Antargis-svn] r1243 - antargis/trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#198">[ date ]</a>
+              <a href="thread.html#198">[ thread ]</a>
+              <a href="subject.html#198">[ subject ]</a>
+              <a href="author.html#198">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

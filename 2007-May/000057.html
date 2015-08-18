@@ -1,0 +1,4091 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1099 - in antargis/branches/branch_2d: gui/src ruby	ruby/tests src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-May/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1099%20-%20in%20antargis/branches/branch_2d%3A%20gui/src%20ruby%0A%09ruby/tests%20src&In-Reply-To=%3C200705271435.l4REZtE6020554%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000056.html">
+   <LINK REL="Next"  HREF="000058.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1099 - in antargis/branches/branch_2d: gui/src ruby	ruby/tests src</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1099%20-%20in%20antargis/branches/branch_2d%3A%20gui/src%20ruby%0A%09ruby/tests%20src&In-Reply-To=%3C200705271435.l4REZtE6020554%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1099 - in antargis/branches/branch_2d: gui/src ruby	ruby/tests src">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sun May 27 16:35:55 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000056.html">[Antargis-svn] r1098 - in antargis/branches/branch_2d: . gui/src	ruby ruby/tests src
+</A></li>
+        <LI>Next message: <A HREF="000058.html">[Antargis-svn] r1100 - in antargis/branches/branch_2d: gui/src	ruby/tests src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#57">[ date ]</a>
+              <a href="thread.html#57">[ thread ]</a>
+              <a href="subject.html#57">[ subject ]</a>
+              <a href="author.html#57">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-05-27 16:35:54 +0200 (Sun, 27 May 2007)
+New Revision: 1099
+
+Added:
+   antargis/branches/branch_2d/src/tests/
+Modified:
+   antargis/branches/branch_2d/gui/src/ag_application.cc
+   antargis/branches/branch_2d/gui/src/ag_clip.cc
+   antargis/branches/branch_2d/gui/src/ag_clip_painttarget.cc
+   antargis/branches/branch_2d/gui/src/ag_clip_painttarget.h
+   antargis/branches/branch_2d/gui/src/ag_draw.h
+   antargis/branches/branch_2d/gui/src/ag_gradient.cc
+   antargis/branches/branch_2d/gui/src/ag_painter.cc
+   antargis/branches/branch_2d/gui/src/ag_painttarget.h
+   antargis/branches/branch_2d/gui/src/ag_projection.cc
+   antargis/branches/branch_2d/gui/src/ag_sdlsurface.cc
+   antargis/branches/branch_2d/gui/src/ag_surface.cc
+   antargis/branches/branch_2d/gui/src/ag_texture.cc
+   antargis/branches/branch_2d/gui/src/ag_widget.cc
+   antargis/branches/branch_2d/gui/src/createmarker.rb
+   antargis/branches/branch_2d/ruby/tests/clip_widget_test.rb
+   antargis/branches/branch_2d/ruby/two_d_app.rb
+   antargis/branches/branch_2d/ruby/view.rb
+   antargis/branches/branch_2d/src/interface.i
+   antargis/branches/branch_2d/src/mesh_2d.cc
+   antargis/branches/branch_2d/src/mesh_2d.h
+   antargis/branches/branch_2d/src/nantmarker.hh
+Log:
+* some speed improvements on sdl-mode
+* some cleanup with swig
+
+
+Modified: antargis/branches/branch_2d/gui/src/ag_application.cc
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_application.cc	2007-05-19 14:30:14 UTC (rev 1098)
++++ antargis/branches/branch_2d/gui/src/ag_application.cc	2007-05-27 14:35:54 UTC (rev 1099)
+@@ -343,6 +343,7 @@
+ 
+ void AGApplication::draw()
+ {
++  CTRACE;
+   if(delCue.size()&gt;0)
+     {
+       for(std::list&lt;AGWidget*&gt;::iterator i=delCue.begin();i!=delCue.end();i++)
+@@ -359,11 +360,20 @@
+ 
+   STACKTRACE;
+   beginRender();
++
++  cdebug(&quot;mainWidget:&quot;&lt;&lt;mainWidget);
+   if(mainWidget)
+     {
+       getScreen().begin();
++      
++      AGPainter *p;
+       AGClipPaintTarget paintTarget(&amp;getScreen());
+-      AGPainter p(paintTarget);
++
++      if(opengl())
++	p=new AGPainter(getScreen());
++      else
++	p=new AGPainter(paintTarget);
++
+       clip.exclude(mainWidget-&gt;getScreenRect());
+       if(pLastDrawn==mainWidget &amp;&amp; !opengl())
+ 	{
+@@ -373,7 +383,7 @@
+ 	      if(mCursor)
+ 		r+=mCursorOld;
+ 	      
+-	      p.clip(r);
++	      p-&gt;clip(r);
+ 	    }
+ 	  else
+ 	    {
+@@ -381,10 +391,14 @@
+ 	      mainWidget-&gt;acquireClipping(clip);
+ 	    }
+ 	}
++      else
++	{
++	  clip.include(mainWidget-&gt;getScreenRect());
++	}
+ 
+       cdebug(&quot;CLIP:&quot;&lt;&lt;clip.toString());
+       paintTarget.clip(clip);
+-      mainWidget-&gt;drawAll(p);
++      mainWidget-&gt;drawAll(*p);
+ 
+       if(mTooltip)
+ 	{
+@@ -398,6 +412,8 @@
+ 	}
+ 
+       pLastDrawn=mainWidget;
++
++      delete p;
+     }
+   else
+     cdebug(&quot;no mainwidget&quot;);
+
+Modified: antargis/branches/branch_2d/gui/src/ag_clip.cc
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_clip.cc	2007-05-19 14:30:14 UTC (rev 1098)
++++ antargis/branches/branch_2d/gui/src/ag_clip.cc	2007-05-27 14:35:54 UTC (rev 1099)
+@@ -1,4 +1,5 @@
+ #include &quot;ag_clip.h&quot;
++#include &quot;ag_projection.h&quot;
+ #include &quot;ag_stringstream.h&quot;
+ #include &lt;stdexcept&gt;
+ 
+@@ -62,12 +63,14 @@
+   std::vector&lt;std::pair&lt;AGRect2,AGRect2&gt; &gt; n;
+ 
+   std::vector&lt;AGRect2&gt; t=clip(r);
++
++  AGProjection2D p(r,sync);
+   
+   for(std::vector&lt;AGRect2&gt;::iterator i=t.begin();i!=t.end();i++)
+     {
+-      
++      n.push_back(std::make_pair(*i,p.project(*i)));
+     }
+-  throw std::runtime_error(&quot;not implemented yet!&quot;);
++
+   return n;
+ }
+ 
+@@ -82,3 +85,11 @@
+ 
+   return os.str();
+ }
++
++std::vector&lt;AGLine2&gt; AGClipping::clip(const AGLine2 &amp;p)
++{
++  #warning &quot;implement me&quot;
++  std::vector&lt;AGLine2&gt; l;
++  l.push_back(p);
++  return l;
++}
+
+Modified: antargis/branches/branch_2d/gui/src/ag_clip_painttarget.cc
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_clip_painttarget.cc	2007-05-19 14:30:14 UTC (rev 1098)
++++ antargis/branches/branch_2d/gui/src/ag_clip_painttarget.cc	2007-05-27 14:35:54 UTC (rev 1099)
+@@ -1,5 +1,6 @@
+ #include &quot;ag_clip_painttarget.h&quot;
+ #include &quot;ag_debug.h&quot;
++#include &quot;ag_projection.h&quot;
+ 
+ AGClipPaintTarget::AGClipPaintTarget(AGPaintTarget *pTarget):mTarget(pTarget)
+ {
+@@ -111,3 +112,86 @@
+ {
+   return mTarget-&gt;getRect();
+ }
++
++void AGClipPaintTarget::drawGradientAlpha(const AGRect2&amp; rect, const AGColor&amp; ul, const AGColor&amp; ur, const AGColor&amp; dl, const AGColor&amp; dr)
++{
++  CTRACE;
++  std::vector&lt;AGRect2&gt; rs=mClipping.clip(rect);
++
++  AGRect2 t(0,0,1,1);
++  AGProjection2D p(rect,t);
++
++  for(std::vector&lt;AGRect2&gt;::iterator i=rs.begin();i!=rs.end();i++)
++    {
++      AGRect2 r2=p.project(*i);
++      float x,y;
++      AGColor ul2,ur2,dl2,dr2;
++      
++      x=r2.x0();y=r2.y0();
++      ul2=(ul*(1-x)+ur*x)*(1-y)+
++	(dl*(1-x)+dr*x)*y;
++
++      x=r2.x1();y=r2.y0();
++      ur2=(ul*(1-x)+ur*x)*(1-y)+
++	(dl*(1-x)+dr*x)*y;
++
++      x=r2.x0();y=r2.y1();
++      dl2=(ul*(1-x)+ur*x)*(1-y)+
++	(dl*(1-x)+dr*x)*y;
++
++      x=r2.x1();y=r2.y1();
++      dr2=(ul*(1-x)+ur*x)*(1-y)+
++	(dl*(1-x)+dr*x)*y;
++
++      mTarget-&gt;drawGradientAlpha(*i,ul2,ur2,dl2,dr2);
++			    
++    }
++}
++
++void AGClipPaintTarget::drawGradient(const AGRect2&amp; rect, const AGColor&amp; ul, const AGColor&amp; ur, const AGColor&amp; dl, const AGColor&amp; dr)
++{
++  std::vector&lt;AGRect2&gt; rs=mClipping.clip(rect);
++
++  AGRect2 t(0,0,1,1);
++  AGProjection2D p(rect,t);
++
++  for(std::vector&lt;AGRect2&gt;::iterator i=rs.begin();i!=rs.end();i++)
++    {
++      AGRect2 r2=p.project(*i);
++      float x,y;
++      AGColor ul2,ur2,dl2,dr2;
++
++      cdebug(&quot;rect:&quot;&lt;&lt;rect);
++      cdebug(&quot;r2:&quot;&lt;&lt;r2);
++      cdebug(&quot;i:&quot;&lt;&lt;*i);
++      
++      x=r2.x0();y=r2.y0();
++      ul2=(ul*(1-x)+ur*x)*(1-y)+
++	(dl*(1-x)+dr*x)*y;
++
++      x=r2.x1();y=r2.y0();
++      ur2=(ul*(1-x)+ur*x)*(1-y)+
++	(dl*(1-x)+dr*x)*y;
++
++      x=r2.x0();y=r2.y1();
++      dl2=(ul*(1-x)+ur*x)*(1-y)+
++	(dl*(1-x)+dr*x)*y;
++
++      x=r2.x1();y=r2.y1();
++      dr2=(ul*(1-x)+ur*x)*(1-y)+
++	(dl*(1-x)+dr*x)*y;
++
++      cdebug(&quot;ul:&quot;&lt;&lt;ul);
++      cdebug(&quot;ur:&quot;&lt;&lt;ur);
++      cdebug(&quot;dl:&quot;&lt;&lt;dl);
++      cdebug(&quot;dr:&quot;&lt;&lt;dr);
++
++      cdebug(&quot;ul2:&quot;&lt;&lt;ul2);
++      cdebug(&quot;ur2:&quot;&lt;&lt;ur2);
++      cdebug(&quot;dl2:&quot;&lt;&lt;dl2);
++      cdebug(&quot;dr2:&quot;&lt;&lt;dr2);
++
++      mTarget-&gt;drawGradient(*i,ul2,ur2,dl2,dr2);
++			    
++    }
++}
+
+Modified: antargis/branches/branch_2d/gui/src/ag_clip_painttarget.h
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_clip_painttarget.h	2007-05-19 14:30:14 UTC (rev 1098)
++++ antargis/branches/branch_2d/gui/src/ag_clip_painttarget.h	2007-05-27 14:35:54 UTC (rev 1099)
+@@ -44,6 +44,9 @@
+   virtual void blit(const AGTexture &amp;pSource,const std::vector&lt;std::pair&lt;AGRect2,AGRect2&gt; &gt; &amp;pSrcDestRects,const AGColor &amp;pColor);
+ 
+   virtual void tile(const AGTexture &amp;pSource,const AGRect2 &amp;pTarget, const AGColor &amp;pColor);
++
++  virtual void drawGradientAlpha(const AGRect2&amp; rect, const AGColor&amp; ul, const AGColor&amp; ur, const AGColor&amp; dl, const AGColor&amp; dr);
++  virtual void drawGradient(const AGRect2&amp; rect, const AGColor&amp; ul, const AGColor&amp; ur, const AGColor&amp; dl, const AGColor&amp; dr);
+    
+   virtual AGRect2 getRect() const;
+ 
+
+Modified: antargis/branches/branch_2d/gui/src/ag_draw.h
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_draw.h	2007-05-19 14:30:14 UTC (rev 1098)
++++ antargis/branches/branch_2d/gui/src/ag_draw.h	2007-05-27 14:35:54 UTC (rev 1099)
+@@ -24,9 +24,9 @@
+ #include &quot;ag_surface.h&quot;
+ #include &quot;ag_geometry.h&quot;
+ #include &quot;ag_color.h&quot;
+-
++/*
+ void AGDrawGradient(SDL_Surface *surface, const AGRect2&amp; prect, const AGColor&amp; ul, const AGColor&amp; ur, const AGColor&amp; dl, const AGColor&amp; dr);
+ void AGDrawGradientAlpha(SDL_Surface *surface, const AGRect2&amp; prect, const AGColor&amp; ul, const AGColor&amp; ur, const AGColor&amp; dl, const AGColor&amp; dr);
+ void AGDrawBorder(SDL_Surface *surface, const AGRect2&amp; rect,int width, const AGColor&amp; c1, const AGColor&amp; c2);
+-
++*/
+ #endif
+
+Modified: antargis/branches/branch_2d/gui/src/ag_gradient.cc
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_gradient.cc	2007-05-19 14:30:14 UTC (rev 1098)
++++ antargis/branches/branch_2d/gui/src/ag_gradient.cc	2007-05-27 14:35:54 UTC (rev 1099)
+@@ -27,7 +27,9 @@
+ #include &quot;ag_draw.h&quot;
+ #include &quot;ag_sgeexport.h&quot;
+ 
+-void AGDrawGradient(SDL_Surface *surface, const AGRect2&amp; prect, const AGColor&amp; ul, const AGColor&amp; ur, const AGColor&amp; dl, const AGColor&amp; dr) 
++namespace AGSDLPainter
++{
++void drawGradient(SDL_Surface *surface, const AGRect2&amp; prect, const AGColor&amp; ul, const AGColor&amp; ur, const AGColor&amp; dl, const AGColor&amp; dr) 
+   {
+     AGRect2 rect=prect;
+     Sint32 v00,v01,v02;
+@@ -199,7 +201,7 @@
+     }		
+   }
+ 
+-void AGDrawGradientAlpha(SDL_Surface *surface, const AGRect2&amp; prect, const AGColor&amp; ul, const AGColor&amp; ur, const AGColor&amp; dl, const AGColor&amp; dr) 
++void drawGradientAlpha(SDL_Surface *surface, const AGRect2&amp; prect, const AGColor&amp; ul, const AGColor&amp; ur, const AGColor&amp; dl, const AGColor&amp; dr) 
+   {
+     AGRect2 rect=prect;
+     Sint32 v00,v01,v02,v03;
+@@ -429,7 +431,7 @@
+   }
+ 
+ 
+-void AGDrawBorder(SDL_Surface *surface, const AGRect2&amp; rect,int width, const AGColor&amp; c1, const AGColor&amp; c2)
++void drawBorder(SDL_Surface *surface, const AGRect2&amp; rect,int width, const AGColor&amp; c1, const AGColor&amp; c2)
+ {
+   AGRect2 r=rect;
+ 
+@@ -463,3 +465,5 @@
+   surface-&gt;drawBorder(rect,width,c1,c2);
+ }
+ */
++
++}
+
+Modified: antargis/branches/branch_2d/gui/src/ag_painter.cc
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_painter.cc	2007-05-19 14:30:14 UTC (rev 1098)
++++ antargis/branches/branch_2d/gui/src/ag_painter.cc	2007-05-27 14:35:54 UTC (rev 1099)
+@@ -406,6 +406,8 @@
+ 
+   if(p.first.w()&gt;0 &amp;&amp; p.first.h()&gt;0 &amp;&amp; p.second.w()&gt;0 &amp;&amp; p.second.h()&gt;0)
+     {
++      mTarget-&gt;drawGradient(r,c0,c1,c2,c3);
++      /*
+       if(glScreen)
+ 	{
+ 	  glScreen-&gt;drawGradient(r,c0,c1,c2,c3);
+@@ -433,7 +435,7 @@
+ 		  putPixel(AGVector2(x,y),(c0*(1-cx)+c1*cx)*(1-cy)+(c2*(1-cx)+c3*cx)*cy);
+ 	    }
+ 
+-	}
++	    }*/
+     }
+ }
+ void AGPainter::renderText(const AGStringUtf8 &amp;pText,const AGVector2 &amp;p,const AGFont &amp;f)
+
+Modified: antargis/branches/branch_2d/gui/src/ag_painttarget.h
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_painttarget.h	2007-05-19 14:30:14 UTC (rev 1098)
++++ antargis/branches/branch_2d/gui/src/ag_painttarget.h	2007-05-27 14:35:54 UTC (rev 1099)
+@@ -51,6 +51,9 @@
+   virtual void blit(const AGTexture &amp;pSource,const std::vector&lt;std::pair&lt;AGRect2,AGRect2&gt; &gt; &amp;pSrcDestRects,const AGColor &amp;pColor)
+     MSTUB
+ 
++  virtual void drawGradientAlpha(const AGRect2&amp; rect, const AGColor&amp; ul, const AGColor&amp; ur, const AGColor&amp; dl, const AGColor&amp; dr) MSTUB
++  virtual void drawGradient(const AGRect2&amp; rect, const AGColor&amp; ul, const AGColor&amp; ur, const AGColor&amp; dl, const AGColor&amp; dr) MSTUB
++
+   virtual void tile(const AGTexture &amp;pSource,const AGRect2 &amp;pTarget, const AGColor &amp;pColor) MSTUB
+    
+   virtual AGRect2 getRect() const
+
+Modified: antargis/branches/branch_2d/gui/src/ag_projection.cc
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_projection.cc	2007-05-19 14:30:14 UTC (rev 1098)
++++ antargis/branches/branch_2d/gui/src/ag_projection.cc	2007-05-27 14:35:54 UTC (rev 1099)
+@@ -8,8 +8,19 @@
+ 
+   float sx=to.w()/from.w();
+   float sy=to.h()/from.h();
++  AGMatrix3 m1(-from.getV0());
++  AGMatrix3 m2(sx,sy);
++  AGMatrix3 m3(to.getV0());
+ 
+-  m=AGMatrix3(-from.getV0())*AGMatrix3(sx,sy)*AGMatrix3(to.getV0());
++  m=m3*m2*m1;
++  /*  cdebug(&quot;m1:&quot;&lt;&lt;m1.toString());
++  cdebug(&quot;m2:&quot;&lt;&lt;m2.toString());
++  cdebug(&quot;m3:&quot;&lt;&lt;m3.toString());
++  
++
++  cdebug(&quot;sx:&quot;&lt;&lt;sx);
++  cdebug(&quot;sy:&quot;&lt;&lt;sy);
++  cdebug(&quot;M:&quot;&lt;&lt;m.toString());*/
+ }
+   
+ AGRect2 AGProjection2D::project(const AGRect2 &amp;r)
+
+Modified: antargis/branches/branch_2d/gui/src/ag_sdlsurface.cc
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_sdlsurface.cc	2007-05-19 14:30:14 UTC (rev 1098)
++++ antargis/branches/branch_2d/gui/src/ag_sdlsurface.cc	2007-05-27 14:35:54 UTC (rev 1099)
+@@ -29,6 +29,8 @@
+ #include &quot;ag_sgeexport.h&quot;
+ #include &lt;math.h&gt;
+ 
++#include &quot;ag_sdlpainter.h&quot;
++
+ static bool gUseSDLclipping=true;
+ 
+ SDL_Surface *AGCreate32BitSurface(size_t width,size_t height);
+@@ -124,15 +126,8 @@
+   SDL_Rect sr=pSrc.sdl();
+   SDL_Rect dr=pDest.sdl();
+ 
+-  //  cdebug(pDest&lt;&lt;&quot;  &quot;&lt;&lt;pSrc);
+-
+   SDL_Surface *source=const_cast&lt;AGTexture&amp;&gt;(pSource).sdlTexture()-&gt;surface;
+ 
+-  //  cdebug(source-&gt;w&lt;&lt;&quot;  &quot;&lt;&lt;source-&gt;h);
+-
+-  //  cdebug(sr.x&lt;&lt;&quot; &quot;&lt;&lt;sr.y&lt;&lt;&quot; &quot;&lt;&lt;sr.w&lt;&lt;&quot; &quot;&lt;&lt;sr.h);
+-  //  cdebug(dr.x&lt;&lt;&quot; &quot;&lt;&lt;dr.y&lt;&lt;&quot; &quot;&lt;&lt;dr.w&lt;&lt;&quot; &quot;&lt;&lt;dr.h);
+-
+   SDL_BlitSurface(source,&amp;sr,s,&amp;dr);
+ }
+ 
+@@ -171,84 +166,17 @@
+ 
+ void AGSDLScreen::drawGradientAlpha(const AGRect2&amp; rect, const AGColor&amp; ul, const AGColor&amp; ur, const AGColor&amp; dl, const AGColor&amp; dr)
+ {
+-  AGDrawGradientAlpha(s,rect,ul,ur,dl,dr);
++  AGSDLPainter::drawGradientAlpha(s,rect,ul,ur,dl,dr);
+ 
+ }
+ void AGSDLScreen::drawGradient(const AGRect2&amp; rect, const AGColor&amp; ul, const AGColor&amp; ur, const AGColor&amp; dl, const AGColor&amp; dr)
+ {
+-  AGDrawGradient(s,rect,ul,ur,dl,dr);
++  AGSDLPainter::drawGradient(s,rect,ul,ur,dl,dr);
+ }
+ 
+ void AGSDLScreen::drawLine(const AGVector2 &amp;pp0,const AGVector2 &amp;pp1,const AGColor &amp;c)
+ {
+-  AGVector2 p0,p1;
+-
+-  p0=pp0;
+-  p1=pp1;
+-
+-  float dx=p1[0]-p0[0];
+-  float dy=p1[1]-p0[1];
+-
+-  if(fabs(dx)&gt;fabs(dy))
+-    {
+-      if(dx&lt;0)
+-	{
+-	  p0=pp1;
+-	  p1=pp0;
+-	}
+-
+-      dx=p1[0]-p0[0];
+-      dy=p1[1]-p0[1];
+-
+-      float y=p0[1];
+-      float e=0;
+-      float de=((float)dy)/dx;
+-      for(float x=p0[0];x&lt;=p1[0];x++)
+-	{
+-	  sge_PutPixel(s,int(x),int(y),c.mapRGB(s-&gt;format));
+-	  e+=de;
+-	  if(e&gt;0.5)
+-	    {
+-	      e-=1.0;
+-	      y++;
+-	    }
+-	  else if(e&lt;-0.5)
+-	    {
+-	      e+=1.0;
+-	      y--;
+-	    }
+-	}
+-    }
+-  else
+-    {
+-      if(dy&lt;0)
+-	{
+-	  p0=pp1;
+-	  p1=pp0;
+-	}
+-
+-      dx=p1[0]-p0[0];
+-      dy=p1[1]-p0[1];
+-
+-      float x=p0[0];
+-      float e=0;
+-      float de=((float)dx)/dy;
+-      for(float y=p0[1];y&lt;=p1[1];y++)
+-	{
+-	  sge_PutPixel(s,int(x),int(y),c.mapRGB(s-&gt;format));
+-	  e+=de;
+-	  if(e&gt;0.5)
+-	    {
+-	      e-=1.0;
+-	      x++;
+-	    }
+-	  else if(e&lt;-0.5)
+-	    {
+-	      e+=1.0;
+-	      x--;
+-	    }
+-	}
+-    }
++  AGSDLPainter::drawLine(s,pp0,pp1,c);
+ }
+ 
+ size_t AGSDLScreen::getWidth() const
+@@ -284,10 +212,3 @@
+   surface-&gt;surface=s;
+   return AGSurface(surface).copy();
+ }
+-/*
+-extern &quot;C&quot;
+-BOOL APIENTRY DllMain (HINSTANCE hInst, DWORD reason, LPVOID reserved)
+-{
+-	return true;
+-}
+-*/
+
+Modified: antargis/branches/branch_2d/gui/src/ag_surface.cc
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_surface.cc	2007-05-19 14:30:14 UTC (rev 1098)
++++ antargis/branches/branch_2d/gui/src/ag_surface.cc	2007-05-27 14:35:54 UTC (rev 1099)
+@@ -30,6 +30,7 @@
+ #include &quot;ag_kill.h&quot;
+ #include &quot;ag_png.h&quot;
+ #include &quot;ag_glscreen.h&quot;
++#include &quot;ag_sdlpainter.h&quot;
+ #include &quot;ag_surfacemanager.h&quot;
+ 
+ #include &quot;SDL_image.h&quot;
+@@ -274,20 +275,20 @@
+ void AGSurface::drawGradient(const AGRect2&amp; rect, const AGColor&amp; ul, const AGColor&amp; ur, const AGColor&amp; dl, const AGColor&amp; dr)
+ {
+   CHECK_ZERO(s);
+-  AGDrawGradientAlpha(s-&gt;surface,rect,ul,ur,dl,dr);
++  AGSDLPainter::drawGradientAlpha(s-&gt;surface,rect,ul,ur,dl,dr);
+   s-&gt;version++;
+ }
+ 
+ void AGSurface::drawGradientAlpha(const AGRect2&amp; rect, const AGColor&amp; ul, const AGColor&amp; ur, const AGColor&amp; dl, const AGColor&amp; dr)
+ {
+   CHECK_ZERO(s);
+-  AGDrawGradientAlpha(s-&gt;surface,rect,ul,ur,dl,dr);
++  AGSDLPainter::drawGradientAlpha(s-&gt;surface,rect,ul,ur,dl,dr);
+   s-&gt;version++;
+ }
+ void AGSurface::drawBorder(const AGRect2&amp; rect,int W, const AGColor&amp; c1, const AGColor&amp; c2)
+ {
+   CHECK_ZERO(s);
+-  AGDrawBorder(s-&gt;surface,rect,W,c1,c2);
++  AGSDLPainter::drawBorder(s-&gt;surface,rect,W,c1,c2);
+   s-&gt;version++;
+ }
+ 
+
+Modified: antargis/branches/branch_2d/gui/src/ag_texture.cc
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_texture.cc	2007-05-19 14:30:14 UTC (rev 1098)
++++ antargis/branches/branch_2d/gui/src/ag_texture.cc	2007-05-27 14:35:54 UTC (rev 1099)
+@@ -28,6 +28,7 @@
+ #include &quot;ag_glpainter.h&quot;
+ #include &quot;ag_fbo.h&quot;
+ #include &quot;ag_main.h&quot;
++#include &quot;ag_sdlpainter.h&quot;
+ #include &lt;stdexcept&gt;
+ 
+ size_t nextpow2(size_t i)
+@@ -470,7 +471,8 @@
+       AGGLPainter::drawLine(p0,p1,c,2);
+     }
+   else
+-    throw std::runtime_error(&quot;implement drawLine for sdl-texture&quot;);
++    AGSDLPainter::drawLine(mSDLTexture-&gt;surface,p0,p1,c);
++  //    throw std::runtime_error(&quot;implement drawLine for sdl-texture&quot;);
+ }
+ 
+ void AGTexture::drawGradient(const AGRect2&amp; rect, const AGColor&amp; ul, const AGColor&amp; ur, const AGColor&amp; dl, const AGColor&amp; dr)
+@@ -481,7 +483,8 @@
+       AGGLPainter::drawGradientAlpha(rect,ul,ur,dl,dr);
+     }
+   else
+-    throw std::runtime_error(&quot;implement drawLine for sdl-texture&quot;);
++    AGSDLPainter::drawGradientAlpha(mSDLTexture-&gt;surface,rect,ul,ur,dl,dr);
++  //    throw std::runtime_error(&quot;implement drawLine for sdl-texture&quot;);
+ }
+ 
+ void AGTexture::drawGradientAlpha(const AGRect2&amp; rect, const AGColor&amp; ul, const AGColor&amp; ur, const AGColor&amp; dl, const AGColor&amp; dr)
+@@ -492,7 +495,8 @@
+       AGGLPainter::drawGradientAlpha(rect,ul,ur,dl,dr);
+     }
+   else
+-    throw std::runtime_error(&quot;implement drawLine for sdl-texture&quot;);
++    AGSDLPainter::drawGradientAlpha(mSDLTexture-&gt;surface,rect,ul,ur,dl,dr);
++  //    throw std::runtime_error(&quot;implement drawLine for sdl-texture&quot;);
+ }
+ 
+ 
+
+Modified: antargis/branches/branch_2d/gui/src/ag_widget.cc
+===================================================================
+--- antargis/branches/branch_2d/gui/src/ag_widget.cc	2007-05-19 14:30:14 UTC (rev 1098)
++++ antargis/branches/branch_2d/gui/src/ag_widget.cc	2007-05-27 14:35:54 UTC (rev 1099)
+@@ -1063,19 +1063,19 @@
+   if(!visible())
+     return;
+ 
+-  cdebug(&quot;clipping before:&quot;&lt;&lt;p.toString());
++  //  cdebug(&quot;clipping before:&quot;&lt;&lt;p.toString());
+   if(isOpaque())
+     p.exclude(getScreenRect());
+   
+   for(std::list&lt;AGRect2&gt;::iterator i=mMyChanges.begin();i!=mMyChanges.end();i++)
+-    p.include(*i+getScreenPosition());
++    p.include(*i);//+getScreenPosition());
+ 
+-  cdebug(&quot;clipping in:&quot;&lt;&lt;p.toString());
++  //  cdebug(&quot;clipping in:&quot;&lt;&lt;p.toString());
+   
+   for(std::list&lt;AGWidget*&gt;::iterator i=mChildren.begin();i!=mChildren.end();i++)
+     (*i)-&gt;acquireClipping(p);
+ 
+-  cdebug(&quot;clipping after:&quot;&lt;&lt;p.toString());
++  //  cdebug(&quot;clipping after:&quot;&lt;&lt;p.toString());
+   return;
+ }
+ 
+
+Modified: antargis/branches/branch_2d/gui/src/createmarker.rb
+===================================================================
+--- antargis/branches/branch_2d/gui/src/createmarker.rb	2007-05-19 14:30:14 UTC (rev 1098)
++++ antargis/branches/branch_2d/gui/src/createmarker.rb	2007-05-27 14:35:54 UTC (rev 1099)
+@@ -124,25 +124,27 @@
+ 		file.puts &quot;%typemap(out) #{s}*{&quot;
+ 		file.puts &quot; if($1)&quot;
+ 		file.puts &quot; {&quot;
+-		file.puts &quot;  if($1-&gt;mRubyObject)&quot;
+-		file.puts &quot;    $result=$1-&gt;mRUBY;&quot;
+-		file.puts &quot;  else&quot;
+-		file.puts &quot;   {&quot;
+-		file.puts &quot;     if(false);&quot;
+-		for i in 0..30
+-			derivations.each{|a,cs|
+-				if cs.length==i &amp;&amp; derivations[s].member?(a)
+-					#puts s+&quot;  &quot;+a+&quot; &quot;+i.to_s
+-					file.puts &quot;else if(dynamic_cast&lt;#{a}*&gt;(result))&quot;
+-					file.puts &quot;  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_#{a},0);&quot;
+-				end
+-			}
+-		end
+-		file.puts &quot;   else&quot;
+-		file.puts &quot;     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_#{s},0);&quot;
+-		file.puts &quot;   }&quot;
++		file.puts &quot;   $result=AG_NewPointerObj($1,SWIGTYPE_p_#{s},0);&quot;
+ 		file.puts &quot; }&quot;
+-		file.puts &quot; else vresult=Qnil;&quot;
++# 		file.puts &quot;  if($1-&gt;mRubyObject)&quot;
++# 		file.puts &quot;    $result=$1-&gt;mRUBY;&quot;
++# 		file.puts &quot;  else&quot;
++# 		file.puts &quot;   {&quot;
++# 		file.puts &quot;     if(false);&quot;
++# 		for i in 0..30
++# 			derivations.each{|a,cs|
++# 				if cs.length==i &amp;&amp; derivations[s].member?(a)
++# 					#puts s+&quot;  &quot;+a+&quot; &quot;+i.to_s
++# 					file.puts &quot;else if(dynamic_cast&lt;#{a}*&gt;(result))&quot;
++# 					file.puts &quot;  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_#{a},0);&quot;
++# 				end
++# 			}
++# 		end
++# 		file.puts &quot;   else&quot;
++# 		file.puts &quot;     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_#{s},0);&quot;
++# 		file.puts &quot;   }&quot;
++# 		file.puts &quot; }&quot;
++# 		file.puts &quot; else vresult=Qnil;&quot;
+ 		file.puts &quot;}&quot;
+ 
+ 
+@@ -150,25 +152,27 @@
+ 		file.puts &quot;%typemap(directorin) #{s}*{&quot;
+ 		file.puts &quot; if($1)&quot;
+ 		file.puts &quot; {&quot;
+-		file.puts &quot;  if($1-&gt;mRubyObject)&quot;
+-		file.puts &quot;    $input=$1-&gt;mRUBY;&quot;
+-		file.puts &quot;  else&quot;
+-		file.puts &quot;   {&quot;
+-		file.puts &quot;     if(false);&quot;
+-		for i in 0..30
+-			derivations.each{|a,cs|
+-				if cs.length==i &amp;&amp; derivations[s].member?(a)
+-					#puts s+&quot;  &quot;+a+&quot; &quot;+i.to_s
+-					file.puts &quot;else if(dynamic_cast&lt;#{a}*&gt;($1))&quot;
+-					file.puts &quot;  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_#{a},0);&quot;
+-				end
+-			}
+-		end
+-		file.puts &quot;   else&quot;
+-		file.puts &quot;     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_#{s},0);&quot;
+-		file.puts &quot;   }&quot;
++		file.puts &quot;   $input=AG_NewPointerObj($1,SWIGTYPE_p_#{s},0);&quot;
+ 		file.puts &quot; }&quot;
+-		file.puts &quot; else $input=Qnil;&quot;
++# 		file.puts &quot;  if($1-&gt;mRubyObject)&quot;
++# 		file.puts &quot;    $input=$1-&gt;mRUBY;&quot;
++# 		file.puts &quot;  else&quot;
++# 		file.puts &quot;   {&quot;
++# 		file.puts &quot;     if(false);&quot;
++# 		for i in 0..30
++# 			derivations.each{|a,cs|
++# 				if cs.length==i &amp;&amp; derivations[s].member?(a)
++# 					#puts s+&quot;  &quot;+a+&quot; &quot;+i.to_s
++# 					file.puts &quot;else if(dynamic_cast&lt;#{a}*&gt;($1))&quot;
++# 					file.puts &quot;  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_#{a},0);&quot;
++# 				end
++# 			}
++# 		end
++# 		file.puts &quot;   else&quot;
++# 		file.puts &quot;     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_#{s},0);&quot;
++# 		file.puts &quot;   }&quot;
++# 		file.puts &quot; }&quot;
++# 		file.puts &quot; else $input=Qnil;&quot;
+ 		file.puts &quot;}&quot;
+ end
+ 
+@@ -186,6 +190,45 @@
+ file.puts &quot;%typemap(directorout) Uint8 {&quot;
+ file.puts &quot; $result=NUM2INT($input);&quot;
+ file.puts &quot;}&quot;
++
++
++truncClasses={}
++
++deriveList.each{|b,a|
++	if rubyClasses[b] and rubyClasses[a]
++		#puts &quot;DERIVE #{a} #{b}&quot;
++		truncClasses[a]||=[]
++		truncClasses[a] &lt;&lt; b
++	end
++}
++truncClasses.each{|k,a|
++	file.puts &lt;&lt;EOT
++%{
++static swig_type_info* #{k}_dynamic_cast(void **ptr) {
++EOT
++			a.each{|x|
++				file.puts &lt;&lt;EOT
++  {
++		#{x} *e = dynamic_cast&lt;#{x} *&gt;((#{k}*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_#{x};
++		}
++  }
++EOT
++			}
++	file.puts &lt;&lt;EOT
++  return 0;
++ }
++%}
++DYNAMIC_CAST(SWIGTYPE_p_#{k}, #{k}_dynamic_cast);
++EOT
++
++
++}
++exit
++
+ file.close
+ 
+ # now generate antargis.h
+
+Modified: antargis/branches/branch_2d/ruby/tests/clip_widget_test.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/tests/clip_widget_test.rb	2007-05-19 14:30:14 UTC (rev 1098)
++++ antargis/branches/branch_2d/ruby/tests/clip_widget_test.rb	2007-05-27 14:35:54 UTC (rev 1099)
+@@ -25,9 +25,10 @@
+ 	end
+ 	def draw(p)
+ 		c=AGColor.new((rand*0xFF).to_i,(rand*0xFF).to_i,(rand*0xFF).to_i)
++		#c=AGColor.new(0,0,0)
+ 		p.fillRect(getRect.origin,c) #AGColor.new(0,0,0))
+ 		c=AGColor.new(0,0xFF,0) #(rand*0xFF).to_i,(rand*0xFF).to_i,(rand*0xFF).to_i)
+-		p.fillRect(@r,c)
++		#p.fillRect(@r,c)
+ 	end
+ 	def eventFrame(t)
+ 		if @inited
+
+Modified: antargis/branches/branch_2d/ruby/two_d_app.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/two_d_app.rb	2007-05-19 14:30:14 UTC (rev 1098)
++++ antargis/branches/branch_2d/ruby/two_d_app.rb	2007-05-27 14:35:54 UTC (rev 1099)
+@@ -12,27 +12,70 @@
+ 	end
+ end
+ 
+-class AntBaseMapView&lt;AGApplication
+-	def initialize(w,h)
+-		super()
+-		@scene=Scene2D.new(w,h)
+-		@submain=nil
++class AntBaseMapViewWidget&lt;AGWidget
++	def initialize(p,r,scene)
++		super(p,r)
++		@scene=scene
+ 	end
+ 
+-	def draw
++	def draw(p)
+ 		@frame||=0
+ 		@frame+=1
+ 
+ 		#if (@frame%2)==0
+-			p=AGPainter.new
++			#p=AGPainter.new
+ 			@scene.setPainter(p)
+ 			@scene.draw
+ 			@scene.discardPainter
+-			p=nil
+-			GC.start
++			#p=nil
++			#GC.start
+ 		#end
+ 		super
+ 	end
++	def prepareDraw
++		queryRedraw
++		return
++		currentNodes=@scene.getCurrentNodes
++		puts &quot;currentNodes:#{currentNodes}(#{currentNodes.class})!&quot;
++		currentNodes.each{|n|
++			r=n.getLastDrawingRect
++			r2=n.getDrawingRect
++			if r!=r2
++				pushChangeRect(r)
++				pushChangeRect(r2)
++			end
++		}
++
++	end
++end
++
++class AntBaseMapView&lt;AGApplication
++	def initialize(w,h)
++		super()
++		@scene=Scene2D.new(w,h)
++		@submain=nil
++		@mainWidget=nil
++		setMainWidget(@realMainWidget=AntBaseMapViewWidget.new(nil,AGRect2.new(0,0,w,h)<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at scene</A>))
++	end
++
++ 	def setMainWidget(w)
++ 		if w.is_a?(AntBaseMapViewWidget)
++ 			super(w)
++ 		else
++ 			@realMainWidget.removeChild(@mainWidget) if @mainWidget
++ 			@mainWidget=w
++ 			@realMainWidget.addChild(w)
++ 		end
++ 	end
++ 
++ 	def getMainWidget
++ 		@mainWidget
++ 	end
++# 	def draw()
++# 		super()
++# 	end
++
++
+ 	def getScene
+ 		@scene
+ 	end
+
+Modified: antargis/branches/branch_2d/ruby/view.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/view.rb	2007-05-19 14:30:14 UTC (rev 1098)
++++ antargis/branches/branch_2d/ruby/view.rb	2007-05-27 14:35:54 UTC (rev 1099)
+@@ -43,7 +43,7 @@
+ 		@controls=true
+ 	end
+ 
+-	def draw
++	def prepareDraw
+ 		updateNamePositions
+ 		super
+ 	end
+
+Modified: antargis/branches/branch_2d/src/interface.i
+===================================================================
+--- antargis/branches/branch_2d/src/interface.i	2007-05-19 14:30:14 UTC (rev 1098)
++++ antargis/branches/branch_2d/src/interface.i	2007-05-27 14:35:54 UTC (rev 1099)
+@@ -6,8 +6,40 @@
+ %include &quot;std_vector.i&quot;
+ %include &quot;std_pair.i&quot;
+ %include &quot;std_map.i&quot;
+-//%include &quot;std_list.i&quot;
++%include &quot;std_list.i&quot;
++#include &quot;antargis.h&quot;
+ 
++%{
++#include &quot;scene.h&quot;
++#include &quot;antargisgui.h&quot;
++
++%}
++
++%{
++
++SWIGRUNTIME VALUE
++AG_NewPointerObj(void *ptr, swig_type_info *type, int flags)
++{
++/* 	cdebug(&quot;ptr:&quot;&lt;&lt;ptr); */
++	AGRubyObject *o=(AGRubyObject*)ptr;
++/*	cdebug(&quot;o:&quot;&lt;&lt;o);
++	cdebug(&quot;o:&quot;&lt;&lt;o-&gt;mRubyObject);
++	cdebug(&quot;o:&quot;&lt;&lt;o-&gt;mRUBY);*/
++	if(o-&gt;mRubyObject)
++		return o-&gt;mRUBY;
++
++	swig_type_info *t=SWIG_TypeDynamicCast(type,(void**)&amp;o);
++
++	o-&gt;mRubyObject=true;
++	o-&gt;mRUBY=SWIG_NewPointerObj((void *) o, t,flags);
++/*	cdebug(&quot;o:&quot;&lt;&lt;o);
++	cdebug(&quot;o:&quot;&lt;&lt;o-&gt;mRubyObject);
++	cdebug(&quot;o:&quot;&lt;&lt;o-&gt;mRUBY);*/
++	return o-&gt;mRUBY;
++}
++
++%}
++
+ %include &quot;nantmarker.hh&quot;
+ /*
+ %typemap(typecheck) AGString= char *;
+@@ -68,6 +100,7 @@
+ %{
+ #include &quot;scene.h&quot;
+ #include &quot;antargisgui.h&quot;
++
+ %}
+ 
+ %template(StringVector) std::vector&lt;std::string&gt;;
+@@ -83,7 +116,8 @@
+ %template(AGVector2List) std::vector&lt;AGVector2&gt;;
+ %template(AGPairVec2Surface) std::pair&lt;AGVector2,AGSurface*&gt;;
+ %template(AGRect2Vector) std::vector&lt;AGRect2&gt;;
+-//%template(AGRect2List) std::list&lt;AGRect2&gt;;
++%template(AGRect2List) std::list&lt;AGRect2&gt;;
++%template(SceneNodeList) std::list&lt;SceneNode*&gt;;
+ 
+ %include &quot;antargisgui.h&quot;
+ 
+
+Modified: antargis/branches/branch_2d/src/mesh_2d.cc
+===================================================================
+--- antargis/branches/branch_2d/src/mesh_2d.cc	2007-05-19 14:30:14 UTC (rev 1098)
++++ antargis/branches/branch_2d/src/mesh_2d.cc	2007-05-27 14:35:54 UTC (rev 1099)
+@@ -41,9 +41,16 @@
+   float h=t-&gt;height();
+   AGRect2 r(middle.getX()-w/2,middle.getY()-h/2,w,h);
+ 
++  mLast=r;
++
+   return r;
+ }
+ 
++AGRect2 Mesh2D::getLastDrawingRect()
++{
++  return mLast;
++}
++
+ AGVector4 Mesh2D::lineHit(const AGLine3 &amp;pLine) const
+ {
+   //FIXME
+
+Modified: antargis/branches/branch_2d/src/mesh_2d.h
+===================================================================
+--- antargis/branches/branch_2d/src/mesh_2d.h	2007-05-19 14:30:14 UTC (rev 1098)
++++ antargis/branches/branch_2d/src/mesh_2d.h	2007-05-27 14:35:54 UTC (rev 1099)
+@@ -31,8 +31,13 @@
+  public:
+ 
+   AGRect2 getDrawingRect();
++  AGRect2 getLastDrawingRect();
+ 
+   Mesh2DData *mData;
++
++
++ private:
++  AGRect2 mLast;
+ };
+ 
+ 
+
+Modified: antargis/branches/branch_2d/src/nantmarker.hh
+===================================================================
+--- antargis/branches/branch_2d/src/nantmarker.hh	2007-05-19 14:30:14 UTC (rev 1098)
++++ antargis/branches/branch_2d/src/nantmarker.hh	2007-05-27 14:35:54 UTC (rev 1099)
+@@ -661,2270 +661,782 @@
+ %typemap(out) MapPathWeighter*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_MapPathWeighter,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_MapPathWeighter,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) MapPathWeighter*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_MapPathWeighter,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_MapPathWeighter,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AGRadio*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGRadio,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AGRadio,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AGRadio*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGRadio,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AGRadio,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) GLApp*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_GLApp,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_GLApp,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) GLApp*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_GLApp,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_GLApp,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AGDialog*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGDialog,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AGDialog,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AGDialog*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGDialog,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AGDialog,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AnimMeshData*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AnimMeshData,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AnimMeshData,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AnimMeshData*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AnimMeshData,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AnimMeshData,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AGScroller*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGScroller,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AGScroller,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AGScroller*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGScroller,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AGScroller,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AnimMesh*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AnimMesh,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AnimMesh,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AnimMesh*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AnimMesh,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AnimMesh,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) Scene*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_Scene,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_Scene,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) Scene*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_Scene,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_Scene,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) WaterPiece*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_WaterPiece,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_WaterPiece,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) WaterPiece*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_WaterPiece,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_WaterPiece,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) Mesh2D*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_Mesh2D,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_Mesh2D,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) Mesh2D*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_Mesh2D,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_Mesh2D,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AGText*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-else if(dynamic_cast&lt;AGCaption*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGCaption,0);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGText,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AGText,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AGText*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-else if(dynamic_cast&lt;AGCaption*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGCaption,0);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGText,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AGText,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AGScreenWidget*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGScreenWidget,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AGScreenWidget,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AGScreenWidget*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGScreenWidget,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AGScreenWidget,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AGSubMenu*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGSubMenu,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AGSubMenu,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AGSubMenu*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGSubMenu,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AGSubMenu,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AGWidget*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-else if(dynamic_cast&lt;AGRadio*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGRadio,0);
+-else if(dynamic_cast&lt;AGDialog*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGDialog,0);
+-else if(dynamic_cast&lt;AGScroller*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGScroller,0);
+-else if(dynamic_cast&lt;AGScreenWidget*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGScreenWidget,0);
+-else if(dynamic_cast&lt;AGSubMenu*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGSubMenu,0);
+-else if(dynamic_cast&lt;AGComboBox*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGComboBox,0);
+-else if(dynamic_cast&lt;AGListBox*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGListBox,0);
+-else if(dynamic_cast&lt;AGCaption*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGCaption,0);
+-else if(dynamic_cast&lt;AGRadioGroup*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGRadioGroup,0);
+-else if(dynamic_cast&lt;AGWindow*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGWindow,0);
+-else if(dynamic_cast&lt;MiniMap*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_MiniMap,0);
+-else if(dynamic_cast&lt;AGMenu*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGMenu,0);
+-else if(dynamic_cast&lt;AGColorButton*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGColorButton,0);
+-else if(dynamic_cast&lt;AGImage*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGImage,0);
+-else if(dynamic_cast&lt;AGGLWidget*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGGLWidget,0);
+-else if(dynamic_cast&lt;AGEdit*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGEdit,0);
+-else if(dynamic_cast&lt;AGSound*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGSound,0);
+-else if(dynamic_cast&lt;AGText*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGText,0);
+-else if(dynamic_cast&lt;AGLayout*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGLayout,0);
+-else if(dynamic_cast&lt;AGMenuItem*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGMenuItem,0);
+-else if(dynamic_cast&lt;AGCheckBox*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGCheckBox,0);
+-else if(dynamic_cast&lt;AGButton*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGButton,0);
+-else if(dynamic_cast&lt;AGTable*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGTable,0);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGWidget,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AGWidget,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AGWidget*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-else if(dynamic_cast&lt;AGRadio*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGRadio,0);
+-else if(dynamic_cast&lt;AGDialog*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGDialog,0);
+-else if(dynamic_cast&lt;AGScroller*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGScroller,0);
+-else if(dynamic_cast&lt;AGScreenWidget*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGScreenWidget,0);
+-else if(dynamic_cast&lt;AGSubMenu*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGSubMenu,0);
+-else if(dynamic_cast&lt;AGComboBox*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGComboBox,0);
+-else if(dynamic_cast&lt;AGListBox*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGListBox,0);
+-else if(dynamic_cast&lt;AGCaption*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGCaption,0);
+-else if(dynamic_cast&lt;AGRadioGroup*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGRadioGroup,0);
+-else if(dynamic_cast&lt;AGWindow*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGWindow,0);
+-else if(dynamic_cast&lt;MiniMap*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_MiniMap,0);
+-else if(dynamic_cast&lt;AGMenu*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGMenu,0);
+-else if(dynamic_cast&lt;AGColorButton*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGColorButton,0);
+-else if(dynamic_cast&lt;AGImage*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGImage,0);
+-else if(dynamic_cast&lt;AGGLWidget*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGGLWidget,0);
+-else if(dynamic_cast&lt;AGEdit*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGEdit,0);
+-else if(dynamic_cast&lt;AGSound*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGSound,0);
+-else if(dynamic_cast&lt;AGText*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGText,0);
+-else if(dynamic_cast&lt;AGLayout*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGLayout,0);
+-else if(dynamic_cast&lt;AGMenuItem*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGMenuItem,0);
+-else if(dynamic_cast&lt;AGCheckBox*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGCheckBox,0);
+-else if(dynamic_cast&lt;AGButton*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGButton,0);
+-else if(dynamic_cast&lt;AGTable*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGTable,0);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGWidget,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AGWidget,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AGApplication*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-else if(dynamic_cast&lt;GLApp*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_GLApp,0);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGApplication,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AGApplication,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AGApplication*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-else if(dynamic_cast&lt;GLApp*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_GLApp,0);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGApplication,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AGApplication,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) Mesh2DData*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_Mesh2DData,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_Mesh2DData,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) Mesh2DData*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_Mesh2DData,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_Mesh2DData,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AGFontEngine*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGFontEngine,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AGFontEngine,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AGFontEngine*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGFontEngine,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AGFontEngine,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) Pathfinder*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_Pathfinder,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_Pathfinder,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) Pathfinder*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_Pathfinder,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_Pathfinder,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) TerrainBase*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-else if(dynamic_cast&lt;Terrain*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_Terrain,0);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_TerrainBase,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_TerrainBase,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) TerrainBase*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-else if(dynamic_cast&lt;Terrain*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_Terrain,0);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_TerrainBase,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_TerrainBase,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AGComboBox*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGComboBox,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AGComboBox,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AGComboBox*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGComboBox,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AGComboBox,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AGTexture*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGTexture,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AGTexture,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AGTexture*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGTexture,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AGTexture,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AGSingleton*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-else if(dynamic_cast&lt;AGFontEngine*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGFontEngine,0);
+-else if(dynamic_cast&lt;AGLayoutCreator*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGLayoutCreator,0);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGSingleton,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AGSingleton,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AGSingleton*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-else if(dynamic_cast&lt;AGFontEngine*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGFontEngine,0);
+-else if(dynamic_cast&lt;AGLayoutCreator*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGLayoutCreator,0);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGSingleton,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AGSingleton,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AGPlugin*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGPlugin,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AGPlugin,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AGPlugin*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGPlugin,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AGPlugin,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AGTable*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-else if(dynamic_cast&lt;AGSubMenu*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGSubMenu,0);
+-else if(dynamic_cast&lt;AGWindow*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGWindow,0);
+-else if(dynamic_cast&lt;AGMenu*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGMenu,0);
+-else if(dynamic_cast&lt;AGMenuItem*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGMenuItem,0);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGTable,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AGTable,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AGTable*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-else if(dynamic_cast&lt;AGSubMenu*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGSubMenu,0);
+-else if(dynamic_cast&lt;AGWindow*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGWindow,0);
+-else if(dynamic_cast&lt;AGMenu*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGMenu,0);
+-else if(dynamic_cast&lt;AGMenuItem*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGMenuItem,0);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGTable,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AGTable,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) HeightMap*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-else if(dynamic_cast&lt;AntMap*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AntMap,0);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_HeightMap,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_HeightMap,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) HeightMap*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-else if(dynamic_cast&lt;AntMap*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AntMap,0);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_HeightMap,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_HeightMap,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AGLayout*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-else if(dynamic_cast&lt;AGDialog*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGDialog,0);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGLayout,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AGLayout,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AGLayout*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-else if(dynamic_cast&lt;AGDialog*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGDialog,0);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGLayout,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AGLayout,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AGListBox*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGListBox,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AGListBox,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AGListBox*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGListBox,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AGListBox,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) MeshData*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_MeshData,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_MeshData,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) MeshData*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_MeshData,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_MeshData,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AGMessageObject*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-else if(dynamic_cast&lt;AGRadio*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGRadio,0);
+-else if(dynamic_cast&lt;GLApp*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_GLApp,0);
+-else if(dynamic_cast&lt;AGDialog*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGDialog,0);
+-else if(dynamic_cast&lt;AGScroller*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGScroller,0);
+-else if(dynamic_cast&lt;AGScreenWidget*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGScreenWidget,0);
+-else if(dynamic_cast&lt;AGSubMenu*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGSubMenu,0);
+-else if(dynamic_cast&lt;AGComboBox*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGComboBox,0);
+-else if(dynamic_cast&lt;AGListBox*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGListBox,0);
+-else if(dynamic_cast&lt;AGCaption*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGCaption,0);
+-else if(dynamic_cast&lt;AGRadioGroup*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGRadioGroup,0);
+-else if(dynamic_cast&lt;AGWindow*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGWindow,0);
+-else if(dynamic_cast&lt;AntMap*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AntMap,0);
+-else if(dynamic_cast&lt;MiniMap*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_MiniMap,0);
+-else if(dynamic_cast&lt;AGMenu*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGMenu,0);
+-else if(dynamic_cast&lt;AGColorButton*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGColorButton,0);
+-else if(dynamic_cast&lt;AGImage*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGImage,0);
+-else if(dynamic_cast&lt;AGGLWidget*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGGLWidget,0);
+-else if(dynamic_cast&lt;AGEdit*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGEdit,0);
+-else if(dynamic_cast&lt;AGSound*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGSound,0);
+-else if(dynamic_cast&lt;AGText*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGText,0);
+-else if(dynamic_cast&lt;AGApplication*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGApplication,0);
+-else if(dynamic_cast&lt;HeightMap*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_HeightMap,0);
+-else if(dynamic_cast&lt;AGLayout*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGLayout,0);
+-else if(dynamic_cast&lt;AGMenuItem*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGMenuItem,0);
+-else if(dynamic_cast&lt;AGCheckBox*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGCheckBox,0);
+-else if(dynamic_cast&lt;AGButton*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGButton,0);
+-else if(dynamic_cast&lt;AGTable*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGTable,0);
+-else if(dynamic_cast&lt;AGWidget*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGWidget,0);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGMessageObject,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AGMessageObject,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AGMessageObject*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-else if(dynamic_cast&lt;AGRadio*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGRadio,0);
+-else if(dynamic_cast&lt;GLApp*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_GLApp,0);
+-else if(dynamic_cast&lt;AGDialog*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGDialog,0);
+-else if(dynamic_cast&lt;AGScroller*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGScroller,0);
+-else if(dynamic_cast&lt;AGScreenWidget*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGScreenWidget,0);
+-else if(dynamic_cast&lt;AGSubMenu*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGSubMenu,0);
+-else if(dynamic_cast&lt;AGComboBox*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGComboBox,0);
+-else if(dynamic_cast&lt;AGListBox*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGListBox,0);
+-else if(dynamic_cast&lt;AGCaption*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGCaption,0);
+-else if(dynamic_cast&lt;AGRadioGroup*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGRadioGroup,0);
+-else if(dynamic_cast&lt;AGWindow*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGWindow,0);
+-else if(dynamic_cast&lt;AntMap*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AntMap,0);
+-else if(dynamic_cast&lt;MiniMap*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_MiniMap,0);
+-else if(dynamic_cast&lt;AGMenu*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGMenu,0);
+-else if(dynamic_cast&lt;AGColorButton*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGColorButton,0);
+-else if(dynamic_cast&lt;AGImage*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGImage,0);
+-else if(dynamic_cast&lt;AGGLWidget*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGGLWidget,0);
+-else if(dynamic_cast&lt;AGEdit*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGEdit,0);
+-else if(dynamic_cast&lt;AGSound*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGSound,0);
+-else if(dynamic_cast&lt;AGText*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGText,0);
+-else if(dynamic_cast&lt;AGApplication*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGApplication,0);
+-else if(dynamic_cast&lt;HeightMap*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_HeightMap,0);
+-else if(dynamic_cast&lt;AGLayout*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGLayout,0);
+-else if(dynamic_cast&lt;AGMenuItem*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGMenuItem,0);
+-else if(dynamic_cast&lt;AGCheckBox*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGCheckBox,0);
+-else if(dynamic_cast&lt;AGButton*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGButton,0);
+-else if(dynamic_cast&lt;AGTable*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGTable,0);
+-else if(dynamic_cast&lt;AGWidget*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGWidget,0);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGMessageObject,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AGMessageObject,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AGCaption*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGCaption,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AGCaption,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AGCaption*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGCaption,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AGCaption,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AntImpostorData*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AntImpostorData,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AntImpostorData,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AntImpostorData*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AntImpostorData,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AntImpostorData,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) Terrain*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_Terrain,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_Terrain,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) Terrain*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_Terrain,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_Terrain,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AGRadioGroup*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGRadioGroup,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AGRadioGroup,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AGRadioGroup*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGRadioGroup,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AGRadioGroup,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AGWindow*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGWindow,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AGWindow,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AGWindow*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGWindow,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AGWindow,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AntEntity*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AntEntity,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AntEntity,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AntEntity*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AntEntity,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AntEntity,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AGMenuItem*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-else if(dynamic_cast&lt;AGSubMenu*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGSubMenu,0);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGMenuItem,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AGMenuItem,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AGMenuItem*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-else if(dynamic_cast&lt;AGSubMenu*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGSubMenu,0);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGMenuItem,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AGMenuItem,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) PathWeighter*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-else if(dynamic_cast&lt;MapPathWeighter*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_MapPathWeighter,0);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_PathWeighter,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_PathWeighter,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) PathWeighter*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-else if(dynamic_cast&lt;MapPathWeighter*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_MapPathWeighter,0);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_PathWeighter,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_PathWeighter,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AntMap*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AntMap,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AntMap,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AntMap*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AntMap,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AntMap,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AGMenu*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGMenu,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AGMenu,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AGMenu*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGMenu,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AGMenu,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) MiniMap*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_MiniMap,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_MiniMap,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) MiniMap*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_MiniMap,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_MiniMap,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AGColorButton*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGColorButton,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AGColorButton,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AGColorButton*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGColorButton,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AGColorButton,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AGImage*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGImage,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AGImage,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AGImage*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGImage,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AGImage,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AGMain*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGMain,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AGMain,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AGMain*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGMain,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AGMain,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) SceneNode*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-else if(dynamic_cast&lt;AnimMesh*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AnimMesh,0);
+-else if(dynamic_cast&lt;Mesh2D*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_Mesh2D,0);
+-else if(dynamic_cast&lt;WaterPiece*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_WaterPiece,0);
+-else if(dynamic_cast&lt;AntImpostor*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AntImpostor,0);
+-else if(dynamic_cast&lt;Smoke*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_Smoke,0);
+-else if(dynamic_cast&lt;Mesh*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_Mesh,0);
+-else if(dynamic_cast&lt;NewDecal*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_NewDecal,0);
+-else if(dynamic_cast&lt;TerrainPiece*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_TerrainPiece,0);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_SceneNode,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_SceneNode,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) SceneNode*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-else if(dynamic_cast&lt;AnimMesh*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AnimMesh,0);
+-else if(dynamic_cast&lt;Mesh2D*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_Mesh2D,0);
+-else if(dynamic_cast&lt;WaterPiece*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_WaterPiece,0);
+-else if(dynamic_cast&lt;AntImpostor*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AntImpostor,0);
+-else if(dynamic_cast&lt;Smoke*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_Smoke,0);
+-else if(dynamic_cast&lt;Mesh*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_Mesh,0);
+-else if(dynamic_cast&lt;NewDecal*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_NewDecal,0);
+-else if(dynamic_cast&lt;TerrainPiece*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_TerrainPiece,0);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_SceneNode,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_SceneNode,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AGLayoutCreator*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGLayoutCreator,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AGLayoutCreator,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AGLayoutCreator*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGLayoutCreator,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AGLayoutCreator,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) Scene2D*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_Scene2D,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_Scene2D,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) Scene2D*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_Scene2D,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_Scene2D,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AntImpostor*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AntImpostor,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AntImpostor,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AntImpostor*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AntImpostor,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AntImpostor,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AGRandomizer*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGRandomizer,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AGRandomizer,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AGRandomizer*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGRandomizer,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AGRandomizer,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AGGLScreen*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGGLScreen,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AGGLScreen,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AGGLScreen*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGGLScreen,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AGGLScreen,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) SceneBase*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-else if(dynamic_cast&lt;Scene*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_Scene,0);
+-else if(dynamic_cast&lt;Scene2D*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_Scene2D,0);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_SceneBase,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_SceneBase,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) SceneBase*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-else if(dynamic_cast&lt;Scene*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_Scene,0);
+-else if(dynamic_cast&lt;Scene2D*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_Scene2D,0);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_SceneBase,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_SceneBase,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) DecimatedGraph*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_DecimatedGraph,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_DecimatedGraph,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) DecimatedGraph*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_DecimatedGraph,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_DecimatedGraph,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AGGLWidget*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGGLWidget,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AGGLWidget,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AGGLWidget*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGGLWidget,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AGGLWidget,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AGSurface*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGSurface,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AGSurface,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AGSurface*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGSurface,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AGSurface,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AGScreen*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-else if(dynamic_cast&lt;AGGLScreen*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGGLScreen,0);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGScreen,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AGScreen,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AGScreen*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-else if(dynamic_cast&lt;AGGLScreen*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGGLScreen,0);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGScreen,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AGScreen,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AGEdit*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGEdit,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AGEdit,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AGEdit*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGEdit,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AGEdit,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AGCheckBox*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-else if(dynamic_cast&lt;AGRadio*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGRadio,0);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGCheckBox,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AGCheckBox,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AGCheckBox*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-else if(dynamic_cast&lt;AGRadio*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGRadio,0);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGCheckBox,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AGCheckBox,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) Smoke*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_Smoke,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_Smoke,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) Smoke*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_Smoke,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_Smoke,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) SimpleGraph*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-else if(dynamic_cast&lt;DecimatedGraph*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_DecimatedGraph,0);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_SimpleGraph,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_SimpleGraph,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) SimpleGraph*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-else if(dynamic_cast&lt;DecimatedGraph*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_DecimatedGraph,0);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_SimpleGraph,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_SimpleGraph,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AGSound*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGSound,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AGSound,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AGSound*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGSound,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AGSound,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AGPaintTarget*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-else if(dynamic_cast&lt;AGTexture*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGTexture,0);
+-else if(dynamic_cast&lt;AGGLScreen*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGGLScreen,0);
+-else if(dynamic_cast&lt;AGSurface*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGSurface,0);
+-else if(dynamic_cast&lt;AGScreen*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGScreen,0);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGPaintTarget,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AGPaintTarget,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AGPaintTarget*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-else if(dynamic_cast&lt;AGTexture*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGTexture,0);
+-else if(dynamic_cast&lt;AGGLScreen*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGGLScreen,0);
+-else if(dynamic_cast&lt;AGSurface*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGSurface,0);
+-else if(dynamic_cast&lt;AGScreen*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGScreen,0);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGPaintTarget,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AGPaintTarget,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AGButton*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-else if(dynamic_cast&lt;AGRadio*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGRadio,0);
+-else if(dynamic_cast&lt;AGCheckBox*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGCheckBox,0);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGButton,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AGButton,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AGButton*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-else if(dynamic_cast&lt;AGRadio*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGRadio,0);
+-else if(dynamic_cast&lt;AGCheckBox*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGCheckBox,0);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGButton,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AGButton,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) AGListener*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-else if(dynamic_cast&lt;AGRadio*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGRadio,0);
+-else if(dynamic_cast&lt;GLApp*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_GLApp,0);
+-else if(dynamic_cast&lt;AGDialog*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGDialog,0);
+-else if(dynamic_cast&lt;AGScroller*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGScroller,0);
+-else if(dynamic_cast&lt;AGScreenWidget*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGScreenWidget,0);
+-else if(dynamic_cast&lt;AGSubMenu*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGSubMenu,0);
+-else if(dynamic_cast&lt;AGComboBox*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGComboBox,0);
+-else if(dynamic_cast&lt;AGListBox*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGListBox,0);
+-else if(dynamic_cast&lt;AGCaption*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGCaption,0);
+-else if(dynamic_cast&lt;AGRadioGroup*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGRadioGroup,0);
+-else if(dynamic_cast&lt;AGWindow*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGWindow,0);
+-else if(dynamic_cast&lt;AntMap*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AntMap,0);
+-else if(dynamic_cast&lt;MiniMap*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_MiniMap,0);
+-else if(dynamic_cast&lt;AGMenu*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGMenu,0);
+-else if(dynamic_cast&lt;AGColorButton*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGColorButton,0);
+-else if(dynamic_cast&lt;AGImage*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGImage,0);
+-else if(dynamic_cast&lt;AGGLWidget*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGGLWidget,0);
+-else if(dynamic_cast&lt;AGEdit*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGEdit,0);
+-else if(dynamic_cast&lt;AGSound*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGSound,0);
+-else if(dynamic_cast&lt;AGText*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGText,0);
+-else if(dynamic_cast&lt;AGApplication*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGApplication,0);
+-else if(dynamic_cast&lt;HeightMap*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_HeightMap,0);
+-else if(dynamic_cast&lt;AGLayout*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGLayout,0);
+-else if(dynamic_cast&lt;AGMenuItem*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGMenuItem,0);
+-else if(dynamic_cast&lt;AGCheckBox*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGCheckBox,0);
+-else if(dynamic_cast&lt;AGButton*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGButton,0);
+-else if(dynamic_cast&lt;AGTable*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGTable,0);
+-else if(dynamic_cast&lt;AGWidget*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGWidget,0);
+-else if(dynamic_cast&lt;AGMessageObject*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGMessageObject,0);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGListener,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_AGListener,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) AGListener*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-else if(dynamic_cast&lt;AGRadio*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGRadio,0);
+-else if(dynamic_cast&lt;GLApp*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_GLApp,0);
+-else if(dynamic_cast&lt;AGDialog*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGDialog,0);
+-else if(dynamic_cast&lt;AGScroller*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGScroller,0);
+-else if(dynamic_cast&lt;AGScreenWidget*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGScreenWidget,0);
+-else if(dynamic_cast&lt;AGSubMenu*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGSubMenu,0);
+-else if(dynamic_cast&lt;AGComboBox*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGComboBox,0);
+-else if(dynamic_cast&lt;AGListBox*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGListBox,0);
+-else if(dynamic_cast&lt;AGCaption*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGCaption,0);
+-else if(dynamic_cast&lt;AGRadioGroup*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGRadioGroup,0);
+-else if(dynamic_cast&lt;AGWindow*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGWindow,0);
+-else if(dynamic_cast&lt;AntMap*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AntMap,0);
+-else if(dynamic_cast&lt;MiniMap*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_MiniMap,0);
+-else if(dynamic_cast&lt;AGMenu*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGMenu,0);
+-else if(dynamic_cast&lt;AGColorButton*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGColorButton,0);
+-else if(dynamic_cast&lt;AGImage*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGImage,0);
+-else if(dynamic_cast&lt;AGGLWidget*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGGLWidget,0);
+-else if(dynamic_cast&lt;AGEdit*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGEdit,0);
+-else if(dynamic_cast&lt;AGSound*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGSound,0);
+-else if(dynamic_cast&lt;AGText*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGText,0);
+-else if(dynamic_cast&lt;AGApplication*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGApplication,0);
+-else if(dynamic_cast&lt;HeightMap*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_HeightMap,0);
+-else if(dynamic_cast&lt;AGLayout*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGLayout,0);
+-else if(dynamic_cast&lt;AGMenuItem*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGMenuItem,0);
+-else if(dynamic_cast&lt;AGCheckBox*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGCheckBox,0);
+-else if(dynamic_cast&lt;AGButton*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGButton,0);
+-else if(dynamic_cast&lt;AGTable*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGTable,0);
+-else if(dynamic_cast&lt;AGWidget*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGWidget,0);
+-else if(dynamic_cast&lt;AGMessageObject*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGMessageObject,0);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGListener,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_AGListener,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) Mesh*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_Mesh,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_Mesh,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) Mesh*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_Mesh,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_Mesh,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) TerrainPiece*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_TerrainPiece,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_TerrainPiece,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) TerrainPiece*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_TerrainPiece,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_TerrainPiece,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(out) NewDecal*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $result=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_NewDecal,0);
+-   }
++   $result=AG_NewPointerObj($1,SWIGTYPE_p_NewDecal,0);
+  }
+- else vresult=Qnil;
+ }
+ %typemap(directorin) NewDecal*{
+  if($1)
+  {
+-  if($1-&gt;mRubyObject)
+-    $input=$1-&gt;mRUBY;
+-  else
+-   {
+-     if(false);
+-   else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_NewDecal,0);
+-   }
++   $input=AG_NewPointerObj($1,SWIGTYPE_p_NewDecal,0);
+  }
+- else $input=Qnil;
+ }
+ %typemap(directorout) AGApplication {
+  AGApplication *b;
+@@ -3669,3 +2181,643 @@
+ %typemap(directorout) Uint8 {
+  $result=NUM2INT($input);
+ }
++%{
++static swig_type_info* AGMessageObject_dynamic_cast(void **ptr) {
++  {
++		AGWidget *e = dynamic_cast&lt;AGWidget *&gt;((AGMessageObject*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AGWidget;
++		}
++  }
++  {
++		AGApplication *e = dynamic_cast&lt;AGApplication *&gt;((AGMessageObject*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AGApplication;
++		}
++  }
++  {
++		HeightMap *e = dynamic_cast&lt;HeightMap *&gt;((AGMessageObject*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_HeightMap;
++		}
++  }
++  return 0;
++ }
++%}
++DYNAMIC_CAST(SWIGTYPE_p_AGMessageObject, AGMessageObject_dynamic_cast);
++%{
++static swig_type_info* SceneBase_dynamic_cast(void **ptr) {
++  {
++		Scene *e = dynamic_cast&lt;Scene *&gt;((SceneBase*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_Scene;
++		}
++  }
++  {
++		Scene2D *e = dynamic_cast&lt;Scene2D *&gt;((SceneBase*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_Scene2D;
++		}
++  }
++  return 0;
++ }
++%}
++DYNAMIC_CAST(SWIGTYPE_p_SceneBase, SceneBase_dynamic_cast);
++%{
++static swig_type_info* AGTable_dynamic_cast(void **ptr) {
++  {
++		AGWindow *e = dynamic_cast&lt;AGWindow *&gt;((AGTable*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AGWindow;
++		}
++  }
++  {
++		AGMenuItem *e = dynamic_cast&lt;AGMenuItem *&gt;((AGTable*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AGMenuItem;
++		}
++  }
++  {
++		AGMenu *e = dynamic_cast&lt;AGMenu *&gt;((AGTable*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AGMenu;
++		}
++  }
++  return 0;
++ }
++%}
++DYNAMIC_CAST(SWIGTYPE_p_AGTable, AGTable_dynamic_cast);
++%{
++static swig_type_info* AGText_dynamic_cast(void **ptr) {
++  {
++		AGCaption *e = dynamic_cast&lt;AGCaption *&gt;((AGText*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AGCaption;
++		}
++  }
++  return 0;
++ }
++%}
++DYNAMIC_CAST(SWIGTYPE_p_AGText, AGText_dynamic_cast);
++%{
++static swig_type_info* AGMenuItem_dynamic_cast(void **ptr) {
++  {
++		AGSubMenu *e = dynamic_cast&lt;AGSubMenu *&gt;((AGMenuItem*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AGSubMenu;
++		}
++  }
++  return 0;
++ }
++%}
++DYNAMIC_CAST(SWIGTYPE_p_AGMenuItem, AGMenuItem_dynamic_cast);
++%{
++static swig_type_info* AGCheckBox_dynamic_cast(void **ptr) {
++  {
++		AGRadio *e = dynamic_cast&lt;AGRadio *&gt;((AGCheckBox*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AGRadio;
++		}
++  }
++  return 0;
++ }
++%}
++DYNAMIC_CAST(SWIGTYPE_p_AGCheckBox, AGCheckBox_dynamic_cast);
++%{
++static swig_type_info* AGWidget_dynamic_cast(void **ptr) {
++  {
++		AGScroller *e = dynamic_cast&lt;AGScroller *&gt;((AGWidget*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AGScroller;
++		}
++  }
++  {
++		AGText *e = dynamic_cast&lt;AGText *&gt;((AGWidget*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AGText;
++		}
++  }
++  {
++		AGScreenWidget *e = dynamic_cast&lt;AGScreenWidget *&gt;((AGWidget*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AGScreenWidget;
++		}
++  }
++  {
++		AGComboBox *e = dynamic_cast&lt;AGComboBox *&gt;((AGWidget*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AGComboBox;
++		}
++  }
++  {
++		AGTable *e = dynamic_cast&lt;AGTable *&gt;((AGWidget*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AGTable;
++		}
++  }
++  {
++		AGLayout *e = dynamic_cast&lt;AGLayout *&gt;((AGWidget*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AGLayout;
++		}
++  }
++  {
++		AGListBox *e = dynamic_cast&lt;AGListBox *&gt;((AGWidget*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AGListBox;
++		}
++  }
++  {
++		AGRadioGroup *e = dynamic_cast&lt;AGRadioGroup *&gt;((AGWidget*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AGRadioGroup;
++		}
++  }
++  {
++		MiniMap *e = dynamic_cast&lt;MiniMap *&gt;((AGWidget*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_MiniMap;
++		}
++  }
++  {
++		AGColorButton *e = dynamic_cast&lt;AGColorButton *&gt;((AGWidget*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AGColorButton;
++		}
++  }
++  {
++		AGImage *e = dynamic_cast&lt;AGImage *&gt;((AGWidget*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AGImage;
++		}
++  }
++  {
++		AGGLWidget *e = dynamic_cast&lt;AGGLWidget *&gt;((AGWidget*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AGGLWidget;
++		}
++  }
++  {
++		AGEdit *e = dynamic_cast&lt;AGEdit *&gt;((AGWidget*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AGEdit;
++		}
++  }
++  {
++		AGSound *e = dynamic_cast&lt;AGSound *&gt;((AGWidget*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AGSound;
++		}
++  }
++  {
++		AGButton *e = dynamic_cast&lt;AGButton *&gt;((AGWidget*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AGButton;
++		}
++  }
++  return 0;
++ }
++%}
++DYNAMIC_CAST(SWIGTYPE_p_AGWidget, AGWidget_dynamic_cast);
++%{
++static swig_type_info* AGApplication_dynamic_cast(void **ptr) {
++  {
++		GLApp *e = dynamic_cast&lt;GLApp *&gt;((AGApplication*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_GLApp;
++		}
++  }
++  return 0;
++ }
++%}
++DYNAMIC_CAST(SWIGTYPE_p_AGApplication, AGApplication_dynamic_cast);
++%{
++static swig_type_info* PathWeighter_dynamic_cast(void **ptr) {
++  {
++		MapPathWeighter *e = dynamic_cast&lt;MapPathWeighter *&gt;((PathWeighter*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_MapPathWeighter;
++		}
++  }
++  return 0;
++ }
++%}
++DYNAMIC_CAST(SWIGTYPE_p_PathWeighter, PathWeighter_dynamic_cast);
++%{
++static swig_type_info* AGListener_dynamic_cast(void **ptr) {
++  {
++		AGMessageObject *e = dynamic_cast&lt;AGMessageObject *&gt;((AGListener*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AGMessageObject;
++		}
++  }
++  return 0;
++ }
++%}
++DYNAMIC_CAST(SWIGTYPE_p_AGListener, AGListener_dynamic_cast);
++%{
++static swig_type_info* AGLayout_dynamic_cast(void **ptr) {
++  {
++		AGDialog *e = dynamic_cast&lt;AGDialog *&gt;((AGLayout*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AGDialog;
++		}
++  }
++  return 0;
++ }
++%}
++DYNAMIC_CAST(SWIGTYPE_p_AGLayout, AGLayout_dynamic_cast);
++%{
++static swig_type_info* AGButton_dynamic_cast(void **ptr) {
++  {
++		AGCheckBox *e = dynamic_cast&lt;AGCheckBox *&gt;((AGButton*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AGCheckBox;
++		}
++  }
++  return 0;
++ }
++%}
++DYNAMIC_CAST(SWIGTYPE_p_AGButton, AGButton_dynamic_cast);
++%{
++static swig_type_info* SimpleGraph_dynamic_cast(void **ptr) {
++  {
++		DecimatedGraph *e = dynamic_cast&lt;DecimatedGraph *&gt;((SimpleGraph*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_DecimatedGraph;
++		}
++  }
++  return 0;
++ }
++%}
++DYNAMIC_CAST(SWIGTYPE_p_SimpleGraph, SimpleGraph_dynamic_cast);
++%{
++static swig_type_info* AGScreen_dynamic_cast(void **ptr) {
++  {
++		AGGLScreen *e = dynamic_cast&lt;AGGLScreen *&gt;((AGScreen*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AGGLScreen;
++		}
++  }
++  return 0;
++ }
++%}
++DYNAMIC_CAST(SWIGTYPE_p_AGScreen, AGScreen_dynamic_cast);
++%{
++static swig_type_info* SceneNode_dynamic_cast(void **ptr) {
++  {
++		AnimMesh *e = dynamic_cast&lt;AnimMesh *&gt;((SceneNode*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AnimMesh;
++		}
++  }
++  {
++		WaterPiece *e = dynamic_cast&lt;WaterPiece *&gt;((SceneNode*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_WaterPiece;
++		}
++  }
++  {
++		Mesh2D *e = dynamic_cast&lt;Mesh2D *&gt;((SceneNode*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_Mesh2D;
++		}
++  }
++  {
++		AntImpostor *e = dynamic_cast&lt;AntImpostor *&gt;((SceneNode*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AntImpostor;
++		}
++  }
++  {
++		Smoke *e = dynamic_cast&lt;Smoke *&gt;((SceneNode*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_Smoke;
++		}
++  }
++  {
++		Mesh *e = dynamic_cast&lt;Mesh *&gt;((SceneNode*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_Mesh;
++		}
++  }
++  {
++		TerrainPiece *e = dynamic_cast&lt;TerrainPiece *&gt;((SceneNode*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_TerrainPiece;
++		}
++  }
++  {
++		NewDecal *e = dynamic_cast&lt;NewDecal *&gt;((SceneNode*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_NewDecal;
++		}
++  }
++  return 0;
++ }
++%}
++DYNAMIC_CAST(SWIGTYPE_p_SceneNode, SceneNode_dynamic_cast);
++%{
++static swig_type_info* AGPaintTarget_dynamic_cast(void **ptr) {
++  {
++		AGTexture *e = dynamic_cast&lt;AGTexture *&gt;((AGPaintTarget*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AGTexture;
++		}
++  }
++  {
++		AGSurface *e = dynamic_cast&lt;AGSurface *&gt;((AGPaintTarget*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AGSurface;
++		}
++  }
++  {
++		AGScreen *e = dynamic_cast&lt;AGScreen *&gt;((AGPaintTarget*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AGScreen;
++		}
++  }
++  return 0;
++ }
++%}
++DYNAMIC_CAST(SWIGTYPE_p_AGPaintTarget, AGPaintTarget_dynamic_cast);
++%{
++static swig_type_info* AGSingleton_dynamic_cast(void **ptr) {
++  {
++		AGFontEngine *e = dynamic_cast&lt;AGFontEngine *&gt;((AGSingleton*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AGFontEngine;
++		}
++  }
++  {
++		AGLayoutCreator *e = dynamic_cast&lt;AGLayoutCreator *&gt;((AGSingleton*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AGLayoutCreator;
++		}
++  }
++  return 0;
++ }
++%}
++DYNAMIC_CAST(SWIGTYPE_p_AGSingleton, AGSingleton_dynamic_cast);
++%{
++static swig_type_info* AGRubyObject_dynamic_cast(void **ptr) {
++  {
++		AnimMeshData *e = dynamic_cast&lt;AnimMeshData *&gt;((AGRubyObject*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AnimMeshData;
++		}
++  }
++  {
++		Mesh2DData *e = dynamic_cast&lt;Mesh2DData *&gt;((AGRubyObject*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_Mesh2DData;
++		}
++  }
++  {
++		Pathfinder *e = dynamic_cast&lt;Pathfinder *&gt;((AGRubyObject*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_Pathfinder;
++		}
++  }
++  {
++		TerrainBase *e = dynamic_cast&lt;TerrainBase *&gt;((AGRubyObject*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_TerrainBase;
++		}
++  }
++  {
++		AGSingleton *e = dynamic_cast&lt;AGSingleton *&gt;((AGRubyObject*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AGSingleton;
++		}
++  }
++  {
++		AGPlugin *e = dynamic_cast&lt;AGPlugin *&gt;((AGRubyObject*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AGPlugin;
++		}
++  }
++  {
++		MeshData *e = dynamic_cast&lt;MeshData *&gt;((AGRubyObject*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_MeshData;
++		}
++  }
++  {
++		AntImpostorData *e = dynamic_cast&lt;AntImpostorData *&gt;((AGRubyObject*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AntImpostorData;
++		}
++  }
++  {
++		AntEntity *e = dynamic_cast&lt;AntEntity *&gt;((AGRubyObject*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AntEntity;
++		}
++  }
++  {
++		PathWeighter *e = dynamic_cast&lt;PathWeighter *&gt;((AGRubyObject*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_PathWeighter;
++		}
++  }
++  {
++		AGMain *e = dynamic_cast&lt;AGMain *&gt;((AGRubyObject*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AGMain;
++		}
++  }
++  {
++		SceneNode *e = dynamic_cast&lt;SceneNode *&gt;((AGRubyObject*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_SceneNode;
++		}
++  }
++  {
++		AGRandomizer *e = dynamic_cast&lt;AGRandomizer *&gt;((AGRubyObject*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AGRandomizer;
++		}
++  }
++  {
++		SceneBase *e = dynamic_cast&lt;SceneBase *&gt;((AGRubyObject*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_SceneBase;
++		}
++  }
++  {
++		SimpleGraph *e = dynamic_cast&lt;SimpleGraph *&gt;((AGRubyObject*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_SimpleGraph;
++		}
++  }
++  {
++		AGPaintTarget *e = dynamic_cast&lt;AGPaintTarget *&gt;((AGRubyObject*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AGPaintTarget;
++		}
++  }
++  {
++		AGListener *e = dynamic_cast&lt;AGListener *&gt;((AGRubyObject*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AGListener;
++		}
++  }
++  return 0;
++ }
++%}
++DYNAMIC_CAST(SWIGTYPE_p_AGRubyObject, AGRubyObject_dynamic_cast);
++%{
++static swig_type_info* HeightMap_dynamic_cast(void **ptr) {
++  {
++		AntMap *e = dynamic_cast&lt;AntMap *&gt;((HeightMap*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_AntMap;
++		}
++  }
++  return 0;
++ }
++%}
++DYNAMIC_CAST(SWIGTYPE_p_HeightMap, HeightMap_dynamic_cast);
++%{
++static swig_type_info* TerrainBase_dynamic_cast(void **ptr) {
++  {
++		Terrain *e = dynamic_cast&lt;Terrain *&gt;((TerrainBase*)*ptr);
++		if (e) 
++		{
++			*ptr = (void *) e;
++			return SWIGTYPE_p_Terrain;
++		}
++  }
++  return 0;
++ }
++%}
++DYNAMIC_CAST(SWIGTYPE_p_TerrainBase, TerrainBase_dynamic_cast);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000056.html">[Antargis-svn] r1098 - in antargis/branches/branch_2d: . gui/src	ruby ruby/tests src
+</A></li>
+	<LI>Next message: <A HREF="000058.html">[Antargis-svn] r1100 - in antargis/branches/branch_2d: gui/src	ruby/tests src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#57">[ date ]</a>
+              <a href="thread.html#57">[ thread ]</a>
+              <a href="subject.html#57">[ subject ]</a>
+              <a href="author.html#57">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

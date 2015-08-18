@@ -1,0 +1,652 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1148 - antargis/branches/rant/ext/game
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-July/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1148%20-%20antargis/branches/rant/ext/game&In-Reply-To=%3C200707221225.l6MCPCDi017931%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000104.html">
+   <LINK REL="Next"  HREF="000106.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1148 - antargis/branches/rant/ext/game</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1148%20-%20antargis/branches/rant/ext/game&In-Reply-To=%3C200707221225.l6MCPCDi017931%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1148 - antargis/branches/rant/ext/game">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sun Jul 22 14:25:12 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000104.html">[Antargis-svn] r1147 - in antargis/branches/rant: . build/configs	ext/3dengine ext/basic ext/external ext/game ext/gui ext/math	ext/sound ext/video
+</A></li>
+        <LI>Next message: <A HREF="000106.html">[Antargis-svn] r1149 - in antargis/branches/rant: . build
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#105">[ date ]</a>
+              <a href="thread.html#105">[ thread ]</a>
+              <a href="subject.html#105">[ subject ]</a>
+              <a href="author.html#105">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-07-22 14:25:12 +0200 (Sun, 22 Jul 2007)
+New Revision: 1148
+
+Added:
+   antargis/branches/rant/ext/game/path_base.cc
+   antargis/branches/rant/ext/game/path_base.h
+   antargis/branches/rant/ext/game/path_v2.cc
+   antargis/branches/rant/ext/game/path_v2.h
+Log:
+* new path-finder started
+
+
+Added: antargis/branches/rant/ext/game/path_base.cc
+===================================================================
+--- antargis/branches/rant/ext/game/path_base.cc	2007-07-22 10:27:00 UTC (rev 1147)
++++ antargis/branches/rant/ext/game/path_base.cc	2007-07-22 12:25:12 UTC (rev 1148)
+@@ -0,0 +1,9 @@
++#include &lt;path_base.h&gt;
++
++AGPathBase::~AGPathBase()
++{
++}
++float AGPathBase::weight(const AGVector2 &amp;a,const AGVector2 &amp;b)
++{
++  return 0;
++}
+
+Added: antargis/branches/rant/ext/game/path_base.h
+===================================================================
+--- antargis/branches/rant/ext/game/path_base.h	2007-07-22 10:27:00 UTC (rev 1147)
++++ antargis/branches/rant/ext/game/path_base.h	2007-07-22 12:25:12 UTC (rev 1148)
+@@ -0,0 +1,16 @@
++#ifndef PATH_BASE_H
++#define PATH_BASE_H
++
++// INCLUDE_SWIG - used to filter, which files are included in swig-interfacing
++
++#include &lt;ag_geometry.h&gt;
++#include &lt;ag_rubyobj.h&gt;
++
++class AGEXPORT AGPathBase:public AGRubyObject
++{
++ public:
++  virtual ~AGPathBase();
++  virtual float weight(const AGVector2 &amp;a,const AGVector2 &amp;b);
++};
++
++#endif
+
+Added: antargis/branches/rant/ext/game/path_v2.cc
+===================================================================
+--- antargis/branches/rant/ext/game/path_v2.cc	2007-07-22 10:27:00 UTC (rev 1147)
++++ antargis/branches/rant/ext/game/path_v2.cc	2007-07-22 12:25:12 UTC (rev 1148)
+@@ -0,0 +1,410 @@
++#include &quot;path_v2.h&quot;
++#include &lt;ag_debug.h&gt;
++#include &lt;height_map.h&gt;
++#include &lt;math.h&gt;
++#include &lt;ag_geometry.h&gt;
++#include &lt;set&gt;
++
++
++DistanceComputer::DistanceComputer(HeightMap *pHeightMap,
++				   float pStepX,float pStepY):
++  mHeightMap(pHeightMap),
++  mStepX(pStepX),mStepY(pStepY)
++{
++  assert(mHeightMap);
++}
++
++bool DistanceComputer::isPassable(const AGVector2 &amp;pPoint) const
++{
++  return mHeightMap-&gt;getHeight(pPoint[0],pPoint[1])&gt;0;
++}
++
++float DistanceComputer::beginX() const
++{
++  return 0;
++}
++float DistanceComputer::beginY() const
++{
++  return 0;
++}
++float DistanceComputer::stepX() const
++{
++  return mStepX;
++}
++float DistanceComputer::stepY() const
++{
++  return mStepY;
++}
++float DistanceComputer::endX() const
++{
++  return mHeightMap-&gt;getW();
++}
++float DistanceComputer::endY() const
++{
++  return mHeightMap-&gt;getH();
++}
++
++// FIXME: maybe move this to other class ?
++float DistanceComputer::simpleWeight(const AGVector2 &amp;a,const AGVector2 &amp;b) const
++{
++  float ha=mHeightMap-&gt;getHeight(a[0],a[1]);
++  float hb=mHeightMap-&gt;getHeight(b[0],b[1]);
++
++  float d=(a-b).length();
++  float hd=ha-hb;
++
++  if(hb&gt;ha) // up hill
++    return sqrt(d*d+hd*hd);
++  return d; // down hill - normal speed
++}
++
++/**
++ * compute possible neighbors (w.r.t. to map-borders)
++ */
++std::list&lt;AGVector2&gt; DistanceComputer::getNeighbors(const AGVector2 &amp;p) const
++{
++  std::list&lt;AGVector2&gt; diffList,rList;
++  AGVector2 t;
++
++  diffList.push_back(AGVector2(-stepX(),0));
++  diffList.push_back(AGVector2(+stepX(),0));
++  diffList.push_back(AGVector2(0,-stepY()));
++  diffList.push_back(AGVector2(0,+stepY()));
++
++  for(std::list&lt;AGVector2&gt;::iterator i=diffList.begin();i!=diffList.end();i++)
++    {
++      t=*i+p;
++      if(t.getX() &gt;= beginX() &amp;&amp;
++	 t.getX()&lt;=endX() &amp;&amp; 
++	 t.getY()&gt;=beginY() &amp;&amp; 
++	 t.getY()&lt;=endY())
++	rList.push_back(t);
++    }
++
++  return rList;
++}
++
++std::map&lt;AGVector2,float&gt; DistanceComputer::getAllReachableFrom(const AGVector2 &amp;p) const
++{
++  float w;
++  std::map&lt;AGVector2,float&gt; rList;
++  std::list&lt;AGVector2&gt; nList=getNeighbors(p);
++
++  for(std::list&lt;AGVector2&gt;::iterator i=nList.begin();i!=nList.end();i++)
++    {
++      w=simpleWeight(p,*i);
++      rList.insert(std::make_pair(*i,w));
++    }
++  return rList;
++}
++
++
++
++///////////////////////////////////////////////////////////////////////////////////
++
++
++/**
++ * PathV2Data constructor - does nothing yet
++ */
++PathV2Data::PathV2Data(size_t pBaseSize):mBaseSize(pBaseSize)
++{
++}
++
++
++void PathV2Data::compute(const DistanceComputer &amp;pCalc)
++{
++  mMatrices.clear();
++
++  float x,y;
++  size_t ix,iy;
++
++  for(x=pCalc.beginX();x&lt;=pCalc.endX();x+=pCalc.stepX())
++    {
++      for(y=pCalc.beginY();y&lt;=pCalc.endY();y+=pCalc.stepY())
++	{
++	  AGVector2 start(x,y);
++
++	  traceFrom(pCalc,start);
++	}
++    }
++
++}
++
++
++void PathV2Data::traceFrom(const DistanceComputer &amp;pCalc,const AGVector2 &amp;p)
++{
++  // FIXME: maybe store directly into matrix ???
++
++  std::map&lt;AGVector2,float&gt; distances;
++  std::list&lt;AGVector2&gt; queue; // FIXME: use a distance-filter ????
++
++  float cDist,nextDist,oldDist;
++  AGVector2 curPos;
++
++  queue.push_back(p);
++  distances[p]=0;
++
++  while(queue.size()&gt;0)
++    {
++      curPos=queue.front();
++      queue.pop_front();
++      cDist=distances[curPos];
++      std::map&lt;AGVector2,float&gt; neighbors=pCalc.getAllReachableFrom(curPos);
++
++      for(std::map&lt;AGVector2,float&gt;::iterator i=neighbors.begin();i!=neighbors.end();i++)
++	{
++	  nextDist=cDist+i-&gt;second;
++	  oldDist=distances[i-&gt;first];
++	  if(oldDist==0 || nextDist&lt;oldDist)
++	    {
++	      // store in map
++	      distances[i-&gt;first]=nextDist;
++	      // push into queue
++	      queue.push_back(i-&gt;first);
++	    }
++	}
++
++    }
++
++  // ok, we're ready
++  // store into matrix
++  
++  size_t matrixWidth=size_t((pCalc.endX()-pCalc.beginX())/pCalc.stepX()+1);
++  size_t matrixHeight=size_t((pCalc.endY()-pCalc.beginY())/pCalc.stepY()+1);
++
++  AGMatrixN matrix(matrixWidth,matrixHeight);
++
++  for(std::map&lt;AGVector2,float&gt;::iterator i=distances.begin();i!=distances.end();i++)
++    {
++      size_t x=size_t((i-&gt;first[0]-pCalc.beginX())/pCalc.stepX());
++      size_t y=size_t((i-&gt;first[1]-pCalc.beginY())/pCalc.stepY());
++      matrix.set(x,y,i-&gt;second);
++    }
++
++  //FIXME  mMatrices.push_back(matrix);
++  
++}
++
++
++
++
++///////////////////////////////////////////////////////////////////////////////////
++
++/**
++ * PathV2 constructor
++ * \param pData the data that's used to compute distances - is owned by PathV2 later on!
++ */
++PathV2::PathV2(PathV2Data *pData):mData(pData)
++{
++}
++
++PathV2::~PathV2()
++{
++  if(mData)
++    saveDelete(mData);
++}
++
++
++float PathV2::weight(const AGVector2 &amp;a,const AGVector2 &amp;b)
++{
++}
++
++void PathV2::mark()
++{
++  markObject(mData);
++}
++
++
++
++
++
++
++
++///////////////////////////////////////////////////////////////////////////////////
++
++class DistanceOrder
++{
++public:
++  DistanceOrder(const AGVector2 &amp;pBase):mBase(pBase)
++  {
++  }
++  bool operator()(const AGVector2 &amp;a,const AGVector2 &amp;b) const
++  {
++    return (a-mBase).length2()&lt;(b-mBase).length2();
++  }
++private:
++  AGVector2 mBase;
++
++};
++
++
++/**
++ * PathV3Data constructor
++ */
++
++PathV3Data::PathV3Data(size_t pFieldCount):
++  mFieldCount(pFieldCount)
++{
++}
++
++
++void PathV3Data::compute(const DistanceComputer &amp;pCalc)
++{
++  std::vector&lt;AGVector2&gt; allValidPoints;
++  std::set&lt;AGVector2&gt; allValidPointsSet;
++  AGVector2 currentPoint;
++  float x,y;
++
++  for(x=pCalc.beginX();x&lt;=pCalc.endX();x+=pCalc.stepX())
++    {
++      for(y=pCalc.beginY();y&lt;=pCalc.endY();y+=pCalc.stepY())
++	{
++	  currentPoint=AGVector2(x,y);
++	  if(pCalc.isPassable(currentPoint))
++	    {
++	      allValidPoints.push_back(currentPoint);
++	    }
++	}
++    }
++
++  std::copy(allValidPoints.begin(),allValidPoints.end(),std::inserter(allValidPointsSet,allValidPointsSet.begin()));
++
++  size_t estFieldSize=allValidPoints.size()/mFieldCount;
++  // shuffle ???
++
++
++  cdebug(&quot;estFieldSize:&quot;&lt;&lt;estFieldSize);
++
++  while(allValidPoints.size()&gt;0)
++    {
++      // make new field
++      size_t randomIndex=rand()%allValidPoints.size();
++      std::set&lt;AGVector2&gt; currentField;
++      AGVector2 fieldMiddle=allValidPoints[randomIndex];
++
++      currentField.insert(fieldMiddle);
++      allValidPointsSet.erase(fieldMiddle);
++
++      // grow field
++      
++      DistanceOrder order(fieldMiddle);
++      std::set&lt;AGVector2,DistanceOrder&gt; growField(order);//(DistanceOrder(fieldMiddle));
++      //      std::set&lt;AGVector2&gt; growField;
++      growField.insert(fieldMiddle);
++
++      while(currentField.size()&lt;estFieldSize &amp;&amp; growField.size()&gt;0)
++	{
++	  currentPoint=*growField.begin();
++	  growField.erase(currentPoint);
++
++	  std::map&lt;AGVector2,float&gt; reachable=pCalc.getAllReachableFrom(currentPoint);
++
++	  //	  cdebug(&quot;reachable:&quot;&lt;&lt;reachable.size()&lt;&lt;&quot; currentPoint:&quot;&lt;&lt;currentPoint);
++
++	  for(std::map&lt;AGVector2,float&gt;::iterator i=reachable.begin();i!=reachable.end();i++)
++	    {
++	      //	      cdebug(&quot;1&quot;);
++	      if(growField.find(i-&gt;first)==growField.end())
++		{
++		  //		  cdebug(&quot;2&quot;);
++		  if(currentField.find(i-&gt;first)==currentField.end())
++		    {
++		      //		      cdebug(&quot;3&quot;);
++		      //		      cdebug(&quot;allValid:&quot;&lt;&lt;allValidPointsSet.size());
++
++		      //		      for(  std::set&lt;AGVector2&gt;::iterator k=allValidPointsSet.begin();k!=allValidPointsSet.end();k++)
++		      //			{
++		      //			  cdebug(i-&gt;first&lt;&lt;&quot;:&quot;&lt;&lt;*k&lt;&lt;&quot;:&quot;&lt;&lt;(i-&gt;first==*k));
++		      //			}
++
++
++		      if(allValidPointsSet.find(i-&gt;first)!=allValidPointsSet.end())
++			{
++			  //  cdebug(&quot;4&quot;);
++			  growField.insert(i-&gt;first);
++			  currentField.insert(i-&gt;first);
++			  allValidPointsSet.erase(i-&gt;first);
++			}
++		    }
++		}
++	    }
++
++	}
++
++
++      // copy back into vector
++      allValidPoints.clear();
++      std::copy(allValidPointsSet.begin(),allValidPointsSet.end(),std::back_inserter(allValidPoints));
++      std::list&lt;AGVector2&gt; resultField;
++      std::copy(currentField.begin(),currentField.end(),std::back_inserter(resultField));
++      mFields.push_back(resultField);
++
++      for(std::list&lt;AGVector2&gt;::iterator i=resultField.begin();i!=resultField.end();i++)
++	{
++	  cdebug(*i);
++	}
++      cdebug(&quot;----&quot;);
++    }
++  
++}
++
++
++std::list&lt;AGVector2&gt; PathV3Data::vecList(size_t field) const
++{
++  return mFields[field];
++}
++size_t PathV3Data::fieldCount() const
++{
++  return mFields.size();
++}
++
++float PathV3Data::getDistanceFromTo(const AGVector2 &amp;pFrom,const AGVector2 &amp;pTo) const
++{
++  //FIXME
++  return 0;
++}
++
++
++bool PathV3Data::isInField(const AGVector2 &amp;pPoint,size_t pField) const
++{
++  std::map&lt;AGVector2,size_t&gt;::const_iterator i=mVec2Field.find(pPoint);
++
++  if(i==mVec2Field.end())
++    return false; //FIXME: throw exception
++
++  return i-&gt;second==pField;
++}
++
++std::map&lt;size_t,float&gt; PathV3Data::getNeighbors(size_t pField) const
++{
++  std::map&lt;size_t,float&gt; x;
++  //FIXME: implement me
++  return x;
++}
++
++
++size_t PathV3Data::getField(const AGVector2 &amp;a) const
++{
++  std::map&lt;AGVector2,size_t&gt;::const_iterator i=mVec2Field.find(a);
++
++  if(i==mVec2Field.end())
++    return -1;
++
++  return i-&gt;second;
++}
++
++float PathV3Data::directNeighbors(const AGVector2 &amp;a,const AGVector2 &amp;b) const
++{
++  std::map&lt;AGVector2,std::map&lt;AGVector2,float&gt; &gt;::const_iterator i=mDirectMaps.find(a);
++
++  if(i==mDirectMaps.end())
++    return -1;
++  
++  std::map&lt;AGVector2,float&gt;::const_iterator j=i-&gt;second.find(b);
++
++  if(j==i-&gt;second.end())
++    return -2;
++
++  return j-&gt;second;
++
++}
+
+Added: antargis/branches/rant/ext/game/path_v2.h
+===================================================================
+--- antargis/branches/rant/ext/game/path_v2.h	2007-07-22 10:27:00 UTC (rev 1147)
++++ antargis/branches/rant/ext/game/path_v2.h	2007-07-22 12:25:12 UTC (rev 1148)
+@@ -0,0 +1,119 @@
++#ifndef PATH_V2_H
++#define PATH_V2_H
++
++// INCLUDE_SWIG - used to filter, which files are included in swig-interfacing
++
++#include &lt;path_base.h&gt;
++#include &lt;ag_algebra.h&gt;
++
++#include &lt;map&gt;
++
++class HeightMap;
++
++/**
++ * Computes distances from a height field
++ */
++class AGEXPORT DistanceComputer
++{
++ public:
++  DistanceComputer(HeightMap *pHeightMap,float pStepX=1,float pStepY=1);
++
++  float beginX() const;
++  float beginY() const;
++  float stepX() const;
++  float stepY() const;
++  float endX() const;
++  float endY() const;
++
++  std::map&lt;AGVector2,float&gt; getAllReachableFrom(const AGVector2 &amp;p) const;
++
++  // compute weight for to neighboring points (from a to b)
++  float simpleWeight(const AGVector2 &amp;a,const AGVector2 &amp;b) const;
++
++  bool isPassable(const AGVector2 &amp;pPoint) const;
++
++  std::list&lt;AGVector2&gt; getNeighbors(const AGVector2 &amp;p) const;
++
++ private:
++
++  HeightMap *mHeightMap;
++  float mStepX,mStepY;
++};
++
++class AGEXPORT PathV3Data:public AGRubyObject
++{
++ public:
++  PathV3Data(size_t pFieldCount=64);
++
++
++  void compute(const DistanceComputer &amp;pCalc);
++
++  /**
++   * \return -1 if they're no neighbors
++   *         &gt;0 the distance when they're neighbors somehow
++   */
++  float directNeighbors(const AGVector2 &amp;a,const AGVector2 &amp;b) const;
++
++  size_t getField(const AGVector2 &amp;a) const;
++  std::map&lt;size_t,float&gt; getNeighbors(size_t pField) const;
++
++  bool isInField(const AGVector2 &amp;pPoint,size_t pField) const;
++
++  // pFrom and pTo must be in neighboring fields
++  float getDistanceFromTo(const AGVector2 &amp;pFrom,const AGVector2 &amp;pTo) const;
++  
++
++  std::list&lt;AGVector2&gt; vecList(size_t field) const;
++  size_t fieldCount() const;
++
++
++ private:
++  
++  size_t mFieldCount;
++
++
++  std::map&lt;AGVector2,size_t&gt; mVec2Field;
++  std::vector&lt;std::list&lt;AGVector2&gt; &gt; mFields;
++  std::map&lt;AGVector2,std::map&lt;AGVector2,float&gt; &gt; mDirectMaps;
++  std::map&lt;size_t,std::map&lt;size_t,float&gt; &gt; mDirectFieldMaps;
++  
++};
++
++
++class AGEXPORT PathV2Data:public AGRubyObject
++{
++ public:
++  PathV2Data(size_t pBaseSize=8);
++
++  void compute(const DistanceComputer &amp;pCalc);
++
++ private:
++  void traceFrom(const DistanceComputer &amp;pCalc,const AGVector2 &amp;p);
++
++  
++
++  std::map&lt;AGVector2,AGMatrixN&gt; mMatrices;
++  size_t mBaseSize;
++};
++
++
++
++class AGEXPORT PathBase:public AGRubyObject
++{
++};
++
++class AGEXPORT PathV2:public PathBase
++{
++ public:
++  PathV2(PathV2Data *pData);
++  ~PathV2();
++
++  virtual float weight(const AGVector2 &amp;a,const AGVector2 &amp;b);
++
++  virtual void mark();
++ private:
++  
++  PathV2Data *mData;
++};
++
++#endif
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000104.html">[Antargis-svn] r1147 - in antargis/branches/rant: . build/configs	ext/3dengine ext/basic ext/external ext/game ext/gui ext/math	ext/sound ext/video
+</A></li>
+	<LI>Next message: <A HREF="000106.html">[Antargis-svn] r1149 - in antargis/branches/rant: . build
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#105">[ date ]</a>
+              <a href="thread.html#105">[ thread ]</a>
+              <a href="subject.html#105">[ subject ]</a>
+              <a href="author.html#105">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

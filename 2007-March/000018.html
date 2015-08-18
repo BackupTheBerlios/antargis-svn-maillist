@@ -1,0 +1,626 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1060 - in antargis/trunk: gui/src ruby
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-March/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1060%20-%20in%20antargis/trunk%3A%20gui/src%20ruby&In-Reply-To=%3C200703152003.l2FK3wx3007253%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000017.html">
+   <LINK REL="Next"  HREF="000019.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1060 - in antargis/trunk: gui/src ruby</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1060%20-%20in%20antargis/trunk%3A%20gui/src%20ruby&In-Reply-To=%3C200703152003.l2FK3wx3007253%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1060 - in antargis/trunk: gui/src ruby">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Thu Mar 15 21:03:58 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000017.html">[Antargis-svn] r1059 - in antargis/trunk: gui/src ruby ruby/tests	src
+</A></li>
+        <LI>Next message: <A HREF="000019.html">[Antargis-svn] r1061 - in antargis/trunk: . gui/src ruby ruby/tests
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#18">[ date ]</a>
+              <a href="thread.html#18">[ thread ]</a>
+              <a href="subject.html#18">[ subject ]</a>
+              <a href="author.html#18">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-03-15 21:03:57 +0100 (Thu, 15 Mar 2007)
+New Revision: 1060
+
+Modified:
+   antargis/trunk/gui/src/ag_application.cc
+   antargis/trunk/gui/src/ag_debug.cc
+   antargis/trunk/gui/src/ag_debug.h
+   antargis/trunk/gui/src/ag_fs.cc
+   antargis/trunk/gui/src/ag_gltexture.cc
+   antargis/trunk/gui/src/ag_main.h
+   antargis/trunk/gui/src/ag_messageobject.cc
+   antargis/trunk/gui/src/ag_rand.cc
+   antargis/trunk/gui/src/ag_rand.h
+   antargis/trunk/ruby/antargislib.rb
+   antargis/trunk/ruby/ents.rb
+   antargis/trunk/ruby/intro.rb
+   antargis/trunk/ruby/mainmenu.rb
+Log:
+* some modifications with loggin /randomization
+
+
+Modified: antargis/trunk/gui/src/ag_application.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_application.cc	2007-03-14 19:02:05 UTC (rev 1059)
++++ antargis/trunk/gui/src/ag_application.cc	2007-03-15 20:03:57 UTC (rev 1060)
+@@ -123,24 +123,24 @@
+ 	  ;
+ 	*/
+ 	clearOldMousePosition();
+-	cdebug(&quot;loop pre-event:&quot;&lt;&lt;loopCount);
++	dbout(2,&quot;loop pre-event:&quot;&lt;&lt;loopCount);
+ 	event=getNewEvent();
+ 	if(eventOk(event))
+ 	  {
+ 	    do
+ 	      {
+-		cdebug(&quot;eventok  &quot;&lt;&lt;toString(&amp;event));
++		dbout(2,&quot;eventok  &quot;&lt;&lt;toString(&amp;event));
+ 		doEvent(event);
+ 		if(mIdleCalls)
+ 		  {
+-		    cdebug(&quot;getNewEvent...  (idlecalls:&quot;&lt;&lt;mIdleCalls&lt;&lt;&quot;)&quot;);
++		    dbout(2,&quot;getNewEvent...  (idlecalls:&quot;&lt;&lt;mIdleCalls&lt;&lt;&quot;)&quot;);
+ 		    event=getNewEvent();
+ 		  }
+ 		else
+ 		  resetEvent(event);
+ 	      }while(eventOk(event));
+ 	  } 
+-	cdebug(&quot;loop post-event:&quot;&lt;&lt;loopCount);
++	dbout(2,&quot;loop post-event:&quot;&lt;&lt;loopCount);
+ 	/*
+ 	if(mIdleCalls) 
+ 	  {
+@@ -165,7 +165,7 @@
+ 	  {
+ 	    t=mDemoTime;
+ 	    mDemoTime=-1;
+-	    cdebug(&quot;demo time:&quot;&lt;&lt;t);
++	    dbout(2,&quot;demo time:&quot;&lt;&lt;t);
+ 	  }
+ 	else
+ 	  {
+@@ -174,7 +174,7 @@
+ 	if(mainWidget)
+ 	  mainWidget-&gt;sigTick(t);
+ 	
+-	cdebug(&quot;frame events:&quot;&lt;&lt;t);
++	dbout(2,&quot;frame events:&quot;&lt;&lt;t);
+ 	eventPrepareFrame(t);
+ 
+ 	eventFrame(t);
+@@ -196,7 +196,7 @@
+       last=now;
+ 
+       loopCount++;
+-      cdebug(&quot;Running:&quot;&lt;&lt;mRunning);
++      dbout(2,&quot;Running:&quot;&lt;&lt;mRunning);
+     }
+   gApplication=0;
+ 
+@@ -205,7 +205,7 @@
+ 
+ void AGApplication::setDemoTime(float t)
+ {
+-  cdebug(&quot;demoTime:&quot;&lt;&lt;t);
++  dbout(2,&quot;demoTime:&quot;&lt;&lt;t);
+   mDemoTime=t;
+ }
+ 
+@@ -443,7 +443,7 @@
+ /// delays execution for ms milliseconds. This can be used to decrease framerate and cpu-load.
+ void AGApplication::delay(int ms)
+ {
+-  cdebug(&quot;delay:&quot;&lt;&lt;ms);
++  dbout(2,&quot;delay:&quot;&lt;&lt;ms);
+   SDL_Delay(ms);
+ }
+ 
+
+Modified: antargis/trunk/gui/src/ag_debug.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_debug.cc	2007-03-14 19:02:05 UTC (rev 1059)
++++ antargis/trunk/gui/src/ag_debug.cc	2007-03-15 20:03:57 UTC (rev 1060)
+@@ -66,32 +66,43 @@
+ }
+ 
+ size_t gDebugIndex=0;
++size_t gDebugLevel=0;
+ 
+ size_t getDebugIndex()
+ {
+   return gDebugIndex;
+ }
+ 
++size_t getDebugLevel()
++{
++  return gDebugLevel;
++}
++void setDebugLevel(size_t t)
++{
++  gDebugLevel=t;
++}
+ 
++
++
+ D::D(std::string c):
+   m(c)
+ {
+   indent();
+   gDebugIndex++;
+ 
+-  debugout(&quot;start of:&quot;&lt;&lt;c&lt;&lt;&quot;(&quot;&lt;&lt;gDebugIndex&lt;&lt;&quot;)&quot;&lt;&lt;std::endl);
++  dbout(2,&quot;start of:&quot;&lt;&lt;c&lt;&lt;&quot;(&quot;&lt;&lt;gDebugIndex&lt;&lt;&quot;)&quot;&lt;&lt;std::endl);
+   d++;
+ }
+ AGEXPORT D::~D()
+ {
+   d--;
+   indent();
+-  debugout(&quot;end   of:&quot;&lt;&lt;m&lt;&lt;std::endl);
++  dbout(2,&quot;end   of:&quot;&lt;&lt;m&lt;&lt;std::endl);
+ }
+ void D::indent()
+ {
+   for(int i=0;i&lt;d;i++)
+-    debugout(&quot;  &quot;);
++    debugout_checked(2,&quot;  &quot;);
+ }
+ 
+ 
+
+Modified: antargis/trunk/gui/src/ag_debug.h
+===================================================================
+--- antargis/trunk/gui/src/ag_debug.h	2007-03-14 19:02:05 UTC (rev 1059)
++++ antargis/trunk/gui/src/ag_debug.h	2007-03-15 20:03:57 UTC (rev 1060)
+@@ -68,9 +68,13 @@
+ #define cdebug(x) debugout(&quot;(&quot;&lt;&lt;__FILE__&lt;&lt;&quot;:&quot;&lt;&lt;__LINE__&lt;&lt;&quot;:&quot;&lt;&lt;__PRETTY_FUNCTION__&lt;&lt;&quot;):&quot;&lt;&lt;x&lt;&lt;endl)
+ #define ccdebug(x) debugout(&quot;(&quot;&lt;&lt;__FILE__&lt;&lt;&quot;:&quot;&lt;&lt;__LINE__&lt;&lt;&quot;:&quot;&lt;&lt;__PRETTY_FUNCTION__&lt;&lt;&quot;:&quot;&lt;&lt;((void*)this)&lt;&lt;&quot;):&quot;&lt;&lt;x&lt;&lt;endl)
+ 
+-
+ size_t getDebugIndex();
++size_t getDebugLevel();
++void setDebugLevel(size_t t);
+ 
++#define debugout_checked(level,x) { if(level&gt;getDebugLevel()) { getDebug()&lt;&lt;x; }}
++#define dbout(level,x) {if(level&gt;getDebugLevel()) { cdebug(x); }}
++
+ /** A helper class for tracing the program's flow
+     Use it by instantiating it with a proper name, or simply use TRACE; (or CTRACE for classes) in your functions */
+ class AGEXPORT D
+
+Modified: antargis/trunk/gui/src/ag_fs.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_fs.cc	2007-03-14 19:02:05 UTC (rev 1059)
++++ antargis/trunk/gui/src/ag_fs.cc	2007-03-15 20:03:57 UTC (rev 1060)
+@@ -50,7 +50,7 @@
+   char **p=PHYSFS_getSearchPath();
+   for(;*p;p++)
+     {
+-      cdebug(*p);
++      dbout(0,*p);
+ 
+     }
+ #endif
+@@ -66,9 +66,9 @@
+   PHYSFS_setSaneConfig(&quot;Antargis&quot;,&quot;Antargis&quot;,&quot;ZIP&quot;,false,false);
+   FSinited=true;
+   const char *wp=PHYSFS_getWriteDir();
+-  cdebug(&quot;writedir:&quot;&lt;&lt;wp);
++  dbout(0,&quot;writedir:&quot;&lt;&lt;wp);
+ 
+-  cdebug(&quot;searchpath:&quot;);
++  dbout(0,&quot;searchpath:&quot;);
+ 
+   PHYSFS_addToSearchPath(&quot;./data/&quot;,1);
+   PHYSFS_addToSearchPath(&quot;/usr/share/antargisgui/&quot;,1);
+@@ -81,11 +81,11 @@
+   char **p=PHYSFS_getSearchPath();
+   for(;*p;p++)
+     {
+-      cdebug(*p);
++      dbout(0,*p);
+ 
+     }
+ 
+-  cdebug(&quot;--&quot;);
++  dbout(0,&quot;--&quot;);
+ 
+ #endif
+   addPath(&quot;data&quot;);
+@@ -115,8 +115,8 @@
+ 		}
+ 	  else
+ 	  {
+-		  cdebug(&quot;could not create dir:&quot;&lt;&lt;s);
+-		  cdebug(&quot;rc:&quot;&lt;&lt;rc);
++		  dbout(0,&quot;could not create dir:&quot;&lt;&lt;s);
++		  dbout(0,&quot;rc:&quot;&lt;&lt;rc);
+ 		  throw std::runtime_error(&quot;could not create dir&quot;);
+ 		}
+     }
+@@ -133,7 +133,7 @@
+ 	case EACCES: 
+ 	  return; // probably exists - we don't have access
+ 	default:
+-	  cdebug(&quot;could not create dir:&quot;&lt;&lt;s);
++	  dbout(0,&quot;could not create dir:&quot;&lt;&lt;s);
+ 	  throw std::runtime_error(&quot;could not create dir&quot;);
+ 	}
+     }
+@@ -238,9 +238,9 @@
+   //    throw std::runtime_error(&quot;Not yet inited fs-paths!&quot;);
+ 
+   for(std::list&lt;std::string&gt;::iterator i=mFsPaths.begin();i!=mFsPaths.end();i++)
+-    cdebug(&quot;path:&quot;&lt;&lt;*i);
++    dbout(0,&quot;path:&quot;&lt;&lt;*i);
+ 
+-  cdebug(&quot;LOAD FAILED:&quot;&lt;&lt;pName);
++  dbout(0,&quot;LOAD FAILED:&quot;&lt;&lt;pName);
+ 
+   return r;
+ }
+@@ -414,7 +414,7 @@
+ 
+   if(!f)
+     {
+-      cdebug(&quot;Error saving file:&quot;&lt;&lt;pName);
++      dbout(0,&quot;Error saving file:&quot;&lt;&lt;pName);
+     }
+   assert(f);
+ 
+@@ -506,13 +506,13 @@
+   struct dirent *ent;
+   DIR *dir;
+   std::string dirname=pDir;//+&quot;/*&quot;;
+-  cdebug(&quot;DIR:&quot;&lt;&lt;dirname);
++  dbout(0,&quot;DIR:&quot;&lt;&lt;dirname);
+   dir=opendir(dirname.c_str());
+   if(dir)
+     {
+       while((ent=readdir(dir)))
+ 	{
+-	  cdebug(&quot;found:&quot;&lt;&lt;ent-&gt;d_name);
++	  dbout(0,&quot;found:&quot;&lt;&lt;ent-&gt;d_name);
+ 	  v.push_back(ent-&gt;d_name);
+ 	}
+     }
+
+Modified: antargis/trunk/gui/src/ag_gltexture.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_gltexture.cc	2007-03-14 19:02:05 UTC (rev 1059)
++++ antargis/trunk/gui/src/ag_gltexture.cc	2007-03-15 20:03:57 UTC (rev 1060)
+@@ -45,7 +45,7 @@
+   assertGL;
+   gUsedTexMemory+=w*h*4;
+ 
+-  cdebug(&quot;used memory:&quot;&lt;&lt;gUsedTexMemory);
++  dbout(4,&quot;used memory:&quot;&lt;&lt;gUsedTexMemory);
+ 
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+   assertGL;
+@@ -68,7 +68,7 @@
+   assertGL;
+ 
+   gUsedTexMemory+=w*h*d*4;
+-  cdebug(&quot;used memory:&quot;&lt;&lt;gUsedTexMemory);
++  dbout(4,&quot;used memory:&quot;&lt;&lt;gUsedTexMemory);
+ 
+   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+   assertGL;
+
+Modified: antargis/trunk/gui/src/ag_main.h
+===================================================================
+--- antargis/trunk/gui/src/ag_main.h	2007-03-14 19:02:05 UTC (rev 1059)
++++ antargis/trunk/gui/src/ag_main.h	2007-03-15 20:03:57 UTC (rev 1060)
+@@ -94,5 +94,9 @@
+ bool videoInited();
+ std::string AGEXPORT myHash(const std::string &amp;p);
+ 
++// from ag_debug
++size_t getDebugLevel();
++void setDebugLevel(size_t t);
+ 
++
+ #endif
+
+Modified: antargis/trunk/gui/src/ag_messageobject.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_messageobject.cc	2007-03-14 19:02:05 UTC (rev 1059)
++++ antargis/trunk/gui/src/ag_messageobject.cc	2007-03-15 20:03:57 UTC (rev 1060)
+@@ -325,7 +325,7 @@
+ bool AGMessageObject::processEvent(AGEvent* agEvent) 
+ {
+ 
+-  //  cdebug(&quot;typeid:&quot;&lt;&lt;typeid(this).name());
++  //  dbout(1,&quot;typeid:&quot;&lt;&lt;typeid(this).name());
+   //  TRACE;
+   //  SDL_Event e;
+   bool rc=false;
+@@ -531,7 +531,7 @@
+ 	  os&lt;&lt;&quot;SDL_NOEVENT&quot;;
+ 	  break;
+ 	default:
+-	  cdebug(&quot;UNKNOWN SDL_EVENT:&quot;&lt;&lt;pEvent-&gt;type);
++	  dbout(1,&quot;UNKNOWN SDL_EVENT:&quot;&lt;&lt;pEvent-&gt;type);
+ 	  os&lt;&lt;&quot;SDL_NOEVENT&quot;;
+ 	  break;
+ 	}
+@@ -667,7 +667,7 @@
+ }
+ bool eventOk(const SDL_Event &amp;pEvent)
+ {
+-  cdebug(&quot;eventOk: check &quot;&lt;&lt;(int)pEvent.type&lt;&lt;&quot;!=&quot;&lt;&lt;SDL_NOEVENT&lt;&lt;&quot; ???&quot;);
++  dbout(1,&quot;eventOk: check &quot;&lt;&lt;(int)pEvent.type&lt;&lt;&quot;!=&quot;&lt;&lt;SDL_NOEVENT&lt;&lt;&quot; ???&quot;);
+   return (int)pEvent.type!=SDL_NOEVENT;
+ }
+ 
+
+Modified: antargis/trunk/gui/src/ag_rand.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_rand.cc	2007-03-14 19:02:05 UTC (rev 1059)
++++ antargis/trunk/gui/src/ag_rand.cc	2007-03-15 20:03:57 UTC (rev 1060)
+@@ -22,29 +22,49 @@
+ #include &quot;ag_main.h&quot;
+ #include &quot;ag_profiler.h&quot;
+ #include &quot;ag_rand.h&quot;
+-#include &quot;mtwist.h&quot;
+ 
+ #include &lt;sstream&gt;
+ 
+-static mt_state mState;
++//static mt_state mState;
+ 
+ 
+ AGRandomizer::AGRandomizer(const std::string &amp;pSeed)
+ {
++  CTRACE;
++
+   std::istringstream is;
+   is.str(pSeed);
+ 
++  mState.stateptr=0;
++  mState.initialized=0;
++
++
+   is&gt;&gt;mState.stateptr;
+   is&gt;&gt;mState.initialized;
+ 
+   for(unsigned long i=0;i&lt;MT_STATE_SIZE;i++)
+-    is&gt;&gt;mState.statevec[i];
++    {
++      mState.statevec[i]=0;
++      is&gt;&gt;mState.statevec[i];
++    }
++
++  cdebug(&quot;state&quot;&lt;&lt;mState.stateptr);
++  cdebug(&quot;seed:&quot;&lt;&lt;pSeed);
++
++  assert(mState.stateptr&lt;MT_STATE_SIZE &amp;&amp; mState.stateptr&gt;=0);
+   
+   //  mts_seed(&amp;mState);
+ 
+ }
++
++AGRandomizer::~AGRandomizer()
++{
++  CTRACE;
++}
++
+ float AGRandomizer::operator()(float f)
+ {
++  CTRACE;
+   float d=(float)mts_drand(&amp;mState);
+   cdebug(&quot;d:&quot;&lt;&lt;d&lt;&lt;&quot; f:&quot;&lt;&lt;f);
+   d*=f;
+@@ -54,6 +74,7 @@
+ }
+ int AGRandomizer::operator()(int i)
+ {
++  CTRACE;
+   int r=mts_lrand(&amp;mState);
+   cdebug(&quot;r:&quot;&lt;&lt;r&lt;&lt;&quot; i:&quot;&lt;&lt;i);
+   r%=i;
+
+Modified: antargis/trunk/gui/src/ag_rand.h
+===================================================================
+--- antargis/trunk/gui/src/ag_rand.h	2007-03-14 19:02:05 UTC (rev 1059)
++++ antargis/trunk/gui/src/ag_rand.h	2007-03-15 20:03:57 UTC (rev 1060)
+@@ -23,6 +23,7 @@
+ 
+ #include &lt;string&gt;
+ #include &quot;ag_rubyobj.h&quot;
++#include &quot;mtwist.h&quot;
+ 
+ // Randomizer using Mersenne Twister - it's even faster
+ // than the common libc-implementation of rand()
+@@ -36,6 +37,7 @@
+   // restore a randomizer from a state-string (pretty long)
+   // for an initial seed - call with pSeed==&quot;&quot;
+   AGRandomizer(const std::string &amp;pSeed);
++  ~AGRandomizer();
+ #ifdef SWIG
+   %rename(randFloat) operator()(float f);
+   %rename(randInt) operator()(int i);
+@@ -46,6 +48,7 @@
+   // give state-string, to be saved
+   std::string stateToString() const;
+ 
++  mt_state mState;
+ };
+ 
+ /// calls getMain()-&gt;getRand()-&gt;rand()
+
+Modified: antargis/trunk/ruby/antargislib.rb
+===================================================================
+--- antargis/trunk/ruby/antargislib.rb	2007-03-14 19:02:05 UTC (rev 1059)
++++ antargis/trunk/ruby/antargislib.rb	2007-03-15 20:03:57 UTC (rev 1060)
+@@ -56,7 +56,7 @@
+ 					if $enableLogging
+ 						@@eventDebugging||=File.open(&quot;events.txt&quot;,&quot;w&quot;)
+ 						@@eventDebugging.puts s
+-						puts &quot;NEWEVENT: #{self}  #{s}&quot;
++						#puts &quot;NEWEVENT: #{self}  #{s}&quot;
+ 					end
+ 				end
+ 			end
+@@ -72,7 +72,7 @@
+ 		if $enableLogging and not $demoMode
+ 			@@eventDebugging||=File.open(&quot;events.txt&quot;,&quot;w&quot;)
+ 			@@eventDebugging.puts &quot;T: #{t}&quot;
+-			puts &quot;TIME #{t}&quot;
++			#puts &quot;TIME #{t}&quot;
+ 		end
+ 		return false
+ 	end
+@@ -100,6 +100,8 @@
+ 		@@antargislibinited=true
+ 		@@fullscreen=false
+ 		@@antProfiling=false
++
++		setDebugLevel(1000)
+ 	
+ 		# check options
+ 		ARGV.each{|arg|
+@@ -126,6 +128,9 @@
+ 						@@fullscreen=true
+ 					when &quot;window&quot;
+ 						@@fullscreen=false
++					when /debug-level/
++						level=a.split(&quot;=&quot;)[1].to_i
++						setDebugLevel(level)
+ 					when &quot;demo&quot;
+ 						$demoMode=true
+ 					when &quot;gui-test&quot;
+@@ -150,6 +155,8 @@
+ 	--gui-test     tells BoA to use events.txt to produce GUI-events
+ 
+ 	--demo         enable demo mode - reading events from events.txt
++
++	--debug-level=x
+ 	&quot;
+ 	
+ 						exit
+@@ -244,13 +251,14 @@
+ class AntApplication&lt;AGApplication
+ 	include AntMyEventHandler
+ 
+-	def delay(ms)
+-		puts &quot;DELAY  #{ms}&quot;
+-		return 
+-		if not demoMode
+-			super
+-		end
+-	end
++# # Here you can bypass some functions - if you might want to -
++# 	def delay(ms)
++# 		puts &quot;DELAY  #{ms}&quot;
++# 		return 
++# 		if not demoMode
++# 			super
++# 		end
++# 	end
+ end
+ 
+ # def rand
+
+Modified: antargis/trunk/ruby/ents.rb
+===================================================================
+--- antargis/trunk/ruby/ents.rb	2007-03-14 19:02:05 UTC (rev 1059)
++++ antargis/trunk/ruby/ents.rb	2007-03-15 20:03:57 UTC (rev 1060)
+@@ -112,12 +112,18 @@
+ 		@fightTarget
+ 	end
+ 	def getRand
+-		# FIXME - implement me (network code)
+-		#rand
+-# 		@mrand||=AGRandomizer.new(&quot;&quot;)
+-# 		return @mrand.randFloat(1)
+-		puts &quot;#{self} getRand&quot;
+-		puts caller.join(&quot;\n&quot;)
++		if false
++			# FIXME - implement me (network code)
++			#rand
++			puts &quot;mrand:#{@mrand}&quot;
++			@mrand||=AGRandomizer.new(&quot;&quot;)
++			val=@mrand.randFloat(1)
++	
++			puts &quot;#{self} getRand #{val}  #{@mrand}&quot;
++			puts caller.join(&quot;\n&quot;)
++	
++			return val
++		end
+ 		agRand(1.0)
+ 	end
+ 
+
+Modified: antargis/trunk/ruby/intro.rb
+===================================================================
+--- antargis/trunk/ruby/intro.rb	2007-03-14 19:02:05 UTC (rev 1059)
++++ antargis/trunk/ruby/intro.rb	2007-03-15 20:03:57 UTC (rev 1060)
+@@ -78,7 +78,7 @@
+ 	end
+ 	
+ 	def checkPhase
+-		puts &quot;#{@time}&gt;#{@phases[@phase]}&quot;
++		#puts &quot;#{@time}&gt;#{@phases[@phase]}&quot;
+ 		if @time&gt;@phases[@phase]
+ 			@time-=@phases[@phase]
+ 			@phase+=1
+
+Modified: antargis/trunk/ruby/mainmenu.rb
+===================================================================
+--- antargis/trunk/ruby/mainmenu.rb	2007-03-14 19:02:05 UTC (rev 1059)
++++ antargis/trunk/ruby/mainmenu.rb	2007-03-15 20:03:57 UTC (rev 1060)
+@@ -397,7 +397,6 @@
+ 	end
+ 
+ 	def eventFrame(t)
+-		puts &quot;evenFrame #{t}&quot;
+ 		@frameTime||=0
+ 		@frames||=0
+ 		@frameTime+=t
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000017.html">[Antargis-svn] r1059 - in antargis/trunk: gui/src ruby ruby/tests	src
+</A></li>
+	<LI>Next message: <A HREF="000019.html">[Antargis-svn] r1061 - in antargis/trunk: . gui/src ruby ruby/tests
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#18">[ date ]</a>
+              <a href="thread.html#18">[ thread ]</a>
+              <a href="subject.html#18">[ subject ]</a>
+              <a href="author.html#18">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

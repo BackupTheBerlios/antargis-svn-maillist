@@ -1,0 +1,904 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1055 - in antargis/trunk: gui/src ruby src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-March/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1055%20-%20in%20antargis/trunk%3A%20gui/src%20ruby%20src&In-Reply-To=%3C200703050519.l255JXfg019237%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000014.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1055 - in antargis/trunk: gui/src ruby src</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1055%20-%20in%20antargis/trunk%3A%20gui/src%20ruby%20src&In-Reply-To=%3C200703050519.l255JXfg019237%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1055 - in antargis/trunk: gui/src ruby src">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Mon Mar  5 06:19:33 CET 2007</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000014.html">[Antargis-svn] r1056 - in antargis/trunk: . gui/src ruby
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#13">[ date ]</a>
+              <a href="thread.html#13">[ thread ]</a>
+              <a href="subject.html#13">[ subject ]</a>
+              <a href="author.html#13">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-03-05 06:19:31 +0100 (Mon, 05 Mar 2007)
+New Revision: 1055
+
+Modified:
+   antargis/trunk/gui/src/ag_frame.cc
+   antargis/trunk/gui/src/ag_glpainter.cc
+   antargis/trunk/gui/src/ag_glscreen.cc
+   antargis/trunk/gui/src/ag_glscreen.h
+   antargis/trunk/gui/src/ag_gradient.cc
+   antargis/trunk/gui/src/ag_main.cc
+   antargis/trunk/gui/src/ag_painter.cc
+   antargis/trunk/gui/src/ag_string.h
+   antargis/trunk/gui/src/ag_string_utf8.h
+   antargis/trunk/gui/src/ag_texture.cc
+   antargis/trunk/ruby/ant_fire.rb
+   antargis/trunk/ruby/ant_house.rb
+   antargis/trunk/ruby/map_generator2.rb
+   antargis/trunk/src/glsl.cc
+   antargis/trunk/src/glsl.h
+   antargis/trunk/src/nantmarker.hh
+   antargis/trunk/src/scene.cc
+   antargis/trunk/src/scenenode.cc
+   antargis/trunk/src/scenenode.h
+   antargis/trunk/src/terrain.cc
+   antargis/trunk/src/water.cc
+Log:
+* many bug-fixes
+* improved map-generator
+* fire will smoke after being turned out
+
+
+Modified: antargis/trunk/gui/src/ag_frame.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_frame.cc	2007-02-25 18:29:35 UTC (rev 1054)
++++ antargis/trunk/gui/src/ag_frame.cc	2007-03-05 05:19:31 UTC (rev 1055)
+@@ -3,14 +3,14 @@
+ #include &quot;ag_debug.h&quot;
+ 
+ AGFrame::AGFrame(AGWidget *pParent,const AGRect2 &amp;pRect,size_t pWidth):AGWidget(pParent,pRect),
+-								      mWidth(pWidth),mBorder(0),mTexture(width(),height())
++								       mWidth(pWidth),mBorder(0),mTexture((int)width(),(int)height())
+ {
+   mTextureInited=false;
+   mUseTexture=true;
+   mBg=0;
+ }
+ AGFrame::AGFrame(AGWidget *pParent,const AGRect2 &amp;pRect,const AGBorder &amp;pBorder):AGWidget(pParent,pRect),
+-										 mWidth(pBorder.getWidth()),mBorder(new AGBorder(pBorder)),mTexture(width(),height())
++										 mWidth(pBorder.getWidth()),mBorder(new AGBorder(pBorder)),mTexture((int)width(),(int)height())
+ {
+   mTextureInited=false;
+   mUseTexture=true;
+
+Modified: antargis/trunk/gui/src/ag_glpainter.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_glpainter.cc	2007-02-25 18:29:35 UTC (rev 1054)
++++ antargis/trunk/gui/src/ag_glpainter.cc	2007-03-05 05:19:31 UTC (rev 1055)
+@@ -271,7 +271,7 @@
+     
+     glBegin(GL_POINTS);
+     
+-    #warning &quot;really +1 ????????????&quot;
++    // #warning &quot;really +1 ????????????&quot;
+     glVertex2f(x,y+1);
+     
+     glEnd();
+
+Modified: antargis/trunk/gui/src/ag_glscreen.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_glscreen.cc	2007-02-25 18:29:35 UTC (rev 1054)
++++ antargis/trunk/gui/src/ag_glscreen.cc	2007-03-05 05:19:31 UTC (rev 1055)
+@@ -47,6 +47,8 @@
+ 
+ std::set&lt;SDL_Surface *&gt; glTestSurfaces;
+ 
++std::set&lt;AGGLObject*&gt; AGGLScreen::msObjects;
++
+ #define SIMPLE
+ 
+ 
+@@ -85,6 +87,35 @@
+   SDL_GL_SwapBuffers();
+ }
+ 
++////////////////////////////////////////////////////////////////////////
++// AGGLObject
++////////////////////////////////////////////////////////////////////////
++
++
++AGGLObject::AGGLObject()
++{
++  AGGLScreen::addGLObject(this);
++}
++
++AGGLObject::~AGGLObject()
++{
++  AGGLScreen::removeGLObject(this);
++}
++
++void AGGLObject::onScreenDown()
++{
++
++}
++
++void AGGLObject::onScreenUp()
++{
++}
++
++////////////////////////////////////////////////////////////////////////
++// AGGLScreen
++////////////////////////////////////////////////////////////////////////
++
++
+ AGGLScreen::AGGLScreen(int W,int H,int VW,int VH):
+   w(VW),h(VH),
+   rw(W),rh(H)
+@@ -135,7 +166,7 @@
+ {
+   AGSurface s(getWidth(),getHeight());
+ 
+-  SDL_Surface *surface=s.surface()-&gt;surface;
++  //  SDL_Surface *surface=s.surface()-&gt;surface;
+ 
+   unsigned char *buffer=new unsigned char[getWidth()*getHeight()*4];
+   glReadBuffer(GL_FRONT);
+@@ -160,8 +191,8 @@
+     // copy
+     TRACE;
+     int h=getHeight()-1;
+-    for(int x=0;x&lt;getWidth();x++)
+-      for(int y=0;y&lt;getHeight();y++)
++    for(int x=0;x&lt;(int)getWidth();x++)
++      for(int y=0;y&lt;(int)getHeight();y++)
+ 	{
+ 	  unsigned char*p=buffer+((x+(h-y)*getWidth())*4);
+ 	  AGColor c(p[0],p[1],p[2],p[3]);
+@@ -316,16 +347,29 @@
+ }
+ void AGGLScreen::clip(const AGRect2 &amp;r)
+ {
+-  return;
++  //return;
+ #warning &quot;insert clipping facility for opengl&quot;
+ 
+   AGRect2 x=AGRect2(0,0,w,h);
+   AGRect2 m=x.intersect(r);
+ 
++  GLint x0,y0,cw,ch;
++
++  x0=(GLint)m.x0();
++  y0=(GLint)(h-m.y1()); // -1
++  cw=(GLint)m.width();
++  ch=(GLint)m.height(); // +2
++
++  //  cdebug(x0&lt;&lt;&quot;;&quot;&lt;&lt;y0&lt;&lt;&quot;;&quot;&lt;&lt;cw&lt;&lt;&quot;;&quot;&lt;&lt;ch);
++
++  glScissor(x0,y0,cw,ch);
++  /*
++
+   glScissor((GLint)(m.x0()),
+ 	    (GLint)(h-1-m.y1()),
+ 	    (GLint)(m.width()),
+ 	    (GLint)(m.height()));
++  */
+   assertGL;
+   glEnable(GL_SCISSOR_TEST);
+   assertGL;
+@@ -342,7 +386,7 @@
+   //  CTRACE;
+   glMatrixMode(GL_MODELVIEW);
+   glLoadIdentity();
+-  glTranslatef(0,getHeight()+1,0);
++  glTranslatef(0,getHeight(),0);
+   glScalef(1,-1,1);
+ }
+ 
+@@ -357,8 +401,29 @@
+   mLineWidth=w;
+ }
+ 
++void AGGLScreen::addGLObject(AGGLObject *pObject)
++{
++  msObjects.insert(pObject);
++}
+ 
++void AGGLScreen::removeGLObject(AGGLObject *pObject)
++{
++  msObjects.erase(pObject);
++}
+ 
++void AGGLScreen::screenDown()
++{
++  for(std::set&lt;AGGLObject*&gt;::iterator i=msObjects.begin();i!=msObjects.end();i++)
++    (*i)-&gt;onScreenDown();
++
++}
++void AGGLScreen::screenUp()
++{
++  for(std::set&lt;AGGLObject*&gt;::iterator i=msObjects.begin();i!=msObjects.end();i++)
++    (*i)-&gt;onScreenUp();
++}
++
++
+ bool opengl()
+ {
+   return dynamic_cast&lt;AGGLScreen*&gt;(&amp;getScreen());
+
+Modified: antargis/trunk/gui/src/ag_glscreen.h
+===================================================================
+--- antargis/trunk/gui/src/ag_glscreen.h	2007-02-25 18:29:35 UTC (rev 1054)
++++ antargis/trunk/gui/src/ag_glscreen.h	2007-03-05 05:19:31 UTC (rev 1055)
+@@ -35,6 +35,16 @@
+ 
+ typedef GLuint TextureID;
+ 
++class AGGLObject
++{
++ public:
++  AGGLObject();
++  virtual ~AGGLObject();
++
++  virtual void onScreenDown();
++  virtual void onScreenUp();
++};
++
+ class AGGLScreen:public AGScreen
+ {
+  public:
+@@ -83,6 +93,12 @@
+ 
+   void setLineWidth(float w);
+ 
++  void screenDown();
++  void screenUp();
++
++  static void addGLObject(AGGLObject *pObject);
++  static void removeGLObject(AGGLObject *pObject);
++
+  private:
+   AGRect2 getRect(SDL_Surface *s);
+   void checkUnusedTextures();
+@@ -93,6 +109,8 @@
+   float mLineWidth;
+ 
+   friend class AGTexture;
++
++  static std::set&lt;AGGLObject*&gt; msObjects;
+ };
+ 
+ bool opengl();
+
+Modified: antargis/trunk/gui/src/ag_gradient.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_gradient.cc	2007-02-25 18:29:35 UTC (rev 1054)
++++ antargis/trunk/gui/src/ag_gradient.cc	2007-03-05 05:19:31 UTC (rev 1055)
+@@ -438,10 +438,10 @@
+ 
+   for(int i=0;i&lt;width;i++)
+     {
+-      sge_HLine(surface,r.x(),r.x()+r.w()-1,r.y(),uc1);
+-      sge_HLine(surface,r.x(),r.x()+r.w()-1,r.y()+r.h()-1,uc2);
+-      sge_VLine(surface,r.x(),r.y(),r.y()+r.h()-1,uc1);
+-      sge_VLine(surface,r.x()+r.w()-1,r.y(),r.y()+r.h()-1,uc2);
++      sge_HLine(surface,(Sint16)r.x()          , (Sint16)(r.x()+r.w()-1), (Sint16)r.y(),          uc1);
++      sge_HLine(surface,(Sint16)r.x()          , (Sint16)(r.x()+r.w()-1), (Sint16)(r.y()+r.h()-1),uc2);
++      sge_VLine(surface,(Sint16)r.x()          , (Sint16)r.y(),           (Sint16)(r.y()+r.h()-1),uc1);
++      sge_VLine(surface,(Sint16)(r.x()+r.w()-1), (Sint16)r.y(),           (Sint16)(r.y()+r.h()-1),uc2);
+       r=r.shrink(1);
+     }
+ }
+
+Modified: antargis/trunk/gui/src/ag_main.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_main.cc	2007-02-25 18:29:35 UTC (rev 1054)
++++ antargis/trunk/gui/src/ag_main.cc	2007-03-05 05:19:31 UTC (rev 1055)
+@@ -214,7 +214,12 @@
+ 
+ 
+   if(mScreen)
+-    delete mScreen;
++    {
++      AGGLScreen *ms=dynamic_cast&lt;AGGLScreen*&gt;(mScreen);
++      if(ms)
++	ms-&gt;screenDown();
++      delete mScreen;
++    }
+ 
+   if(vw&lt;w)
+     vw=w;
+@@ -227,7 +232,12 @@
+   cdebug(&quot;gl:&quot;&lt;&lt;gl);
+ 
+   if(gl)
+-    setScreen(mScreen=new AGGLScreen(w,h,vw,vh));
++    {
++      AGGLScreen *ms=new AGGLScreen(w,h,vw,vh);
++      ms-&gt;screenUp();
++
++      setScreen(mScreen=ms);
++    }
+   else
+     setScreen(mScreen=new AGSDLScreen(ms));
+ 
+
+Modified: antargis/trunk/gui/src/ag_painter.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_painter.cc	2007-02-25 18:29:35 UTC (rev 1054)
++++ antargis/trunk/gui/src/ag_painter.cc	2007-03-05 05:19:31 UTC (rev 1055)
+@@ -477,6 +477,7 @@
+   STACKTRACE;
+   AGRect2 d,pSrc;
+   d=mCurrent.project(pDest);
++  // FIXME: remove clipRect !!
+   AGRect2 p=mCurrent.clipRect(d);
+   if(p.w()&gt;0 &amp;&amp; p.h()&gt;0)
+     {
+@@ -493,7 +494,8 @@
+   for(std::vector&lt;std::pair&lt;AGRect2,AGVector4&gt; &gt;::const_iterator i=pRects.begin();i!=pRects.end();++i)
+     {
+       AGRect2 d=mCurrent.project(i-&gt;first);
+-      d=mCurrent.clipRect(d);
++      if(!opengl())
++	d=mCurrent.clipRect(d);
+       if(d.w()&gt;0 &amp;&amp; d.h()&gt;0)
+ 	rs.push_back(std::make_pair(d,i-&gt;second));
+     }
+@@ -564,6 +566,7 @@
+ {
+   mCurrent=ps.back();
+   ps.pop_back();
++  mTarget-&gt;clip(mCurrent.clip);
+ }
+ void AGPainter::translate(const AGVector2 &amp;v)
+ {
+
+Modified: antargis/trunk/gui/src/ag_string.h
+===================================================================
+--- antargis/trunk/gui/src/ag_string.h	2007-02-25 18:29:35 UTC (rev 1054)
++++ antargis/trunk/gui/src/ag_string.h	2007-03-05 05:19:31 UTC (rev 1055)
+@@ -26,9 +26,12 @@
+   AGString(const char*c);
+   AGString(const char*c,size_t size);
+   
++#ifndef SWIG
+   AGString &amp;operator=(const AGString &amp;s);
+ 
+   AGString &amp;operator+=(const AGString &amp;p);
++#endif
++
+   // size in UTF-8 characters
+   //  size_t length() const;
+ 
+
+Modified: antargis/trunk/gui/src/ag_string_utf8.h
+===================================================================
+--- antargis/trunk/gui/src/ag_string_utf8.h	2007-02-25 18:29:35 UTC (rev 1054)
++++ antargis/trunk/gui/src/ag_string_utf8.h	2007-03-05 05:19:31 UTC (rev 1055)
+@@ -16,13 +16,16 @@
+   AGCharUtf8(const AGCharUtf8 &amp;p);
+   AGCharUtf8(AGStringUtf8 *ps,size_t ppos);
+ 
++  bool operator==(const AGCharUtf8 &amp;c) const;
++  bool operator==(const char pChar) const;
++
++#ifndef SWIG
+   AGCharUtf8 &amp;operator=(const AGCharUtf8 &amp;c);
+   AGCharUtf8 &amp;operator=(const AGStringUtf8 &amp;c);
+ 
+-  bool operator==(const AGCharUtf8 &amp;c) const;
+-  bool operator==(const char pChar) const;
+   bool operator!=(const AGCharUtf8 &amp;c) const;
+   bool operator!=(const char pChar) const;
++#endif
+   
+ 
+   std::string getString() const;
+@@ -72,8 +75,10 @@
+   AGStringUtf8 &amp;operator=(const AGStringUtf8 &amp;s);
+   AGStringUtf8 &amp;operator=(const AGCharUtf8 &amp;s);
+ 
++#ifndef SWIG
+   AGStringUtf8 &amp;operator+=(const AGStringUtf8 &amp;p);
+   AGStringUtf8 &amp;operator+=(const AGCharUtf8 &amp;p);
++#endif
+   // size in UTF-8 characters
+   size_t length() const;
+ 
+
+Modified: antargis/trunk/gui/src/ag_texture.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_texture.cc	2007-02-25 18:29:35 UTC (rev 1054)
++++ antargis/trunk/gui/src/ag_texture.cc	2007-03-05 05:19:31 UTC (rev 1055)
+@@ -246,6 +246,8 @@
+   assert(!m3d);
+   if(opengl())
+     {
++      glDisable(GL_SCISSOR_TEST); // to make sure
++
+       if(canFBO())
+ 	{
+ 	  //	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+@@ -290,6 +292,7 @@
+ 	    blit(*this,getRect().origin(),getRect().origin());
+ 	  mCleared=false;
+ 	}
++      glDisable(GL_SCISSOR_TEST); // to make sure
+     }
+   else
+     {
+
+Modified: antargis/trunk/ruby/ant_fire.rb
+===================================================================
+--- antargis/trunk/ruby/ant_fire.rb	2007-02-25 18:29:35 UTC (rev 1054)
++++ antargis/trunk/ruby/ant_fire.rb	2007-03-05 05:19:31 UTC (rev 1055)
+@@ -6,7 +6,8 @@
+ 		mp=AGVector3.new(0,0,0)
+ 		mesh=Mesh.new(getMap.getScene,getMeshData(&quot;data/models/fire.ant2&quot;,0.3,&quot;data/textures/models/fire.png&quot;),AGVector4.new(0,0,0),0)
+ 		setMesh(mesh)
+-		addMesh(Smoke.new(getMap.getScene,4),mp)
++		@smokeMesh=Smoke.new(getMap.getScene,4)
++		addMesh(@smokeMesh,mp)
+ 		smoke=Smoke.new(getMap.getScene,40)
+ 		smoke.setFire(true)
+ 		smoke.setMaxTime(0.8)
+@@ -16,6 +17,9 @@
+ 	end
+ 	def disable
+ 		setMesh(Mesh.new(getMap.getScene,getMeshData(&quot;data/models/fire.ant2&quot;,0.3,&quot;data/textures/models/fire2.png&quot;),AGVector4.new(0,0,0),0))
++		getMap.getScene.addNode(@smokeMesh) # FIXME: dirty hack - solve this another way!!!
++		addMesh(@smokeMesh,AGVector3.new(0,0,0))
++		@smokeMesh.setEnabled(false)
+ 		@enabled=false
+ 	end
+ 	def loadXML(n)
+
+Modified: antargis/trunk/ruby/ant_house.rb
+===================================================================
+--- antargis/trunk/ruby/ant_house.rb	2007-02-25 18:29:35 UTC (rev 1054)
++++ antargis/trunk/ruby/ant_house.rb	2007-03-05 05:19:31 UTC (rev 1055)
+@@ -40,7 +40,7 @@
+ class AntVillage
+ 	attr_reader :houses
+ 	def initialize(name,map)
+-		@houses=map.getAllHousesOfVillage(name)		
++		@houses=map.getHousesOfVillage(name)		
+ 	end
+ 	def getTrooperCount
+ 		@houses.collect{|h|h.getMen.length}.inject{|a,b|a+b}
+
+Modified: antargis/trunk/ruby/map_generator2.rb
+===================================================================
+--- antargis/trunk/ruby/map_generator2.rb	2007-02-25 18:29:35 UTC (rev 1054)
++++ antargis/trunk/ruby/map_generator2.rb	2007-03-05 05:19:31 UTC (rev 1055)
+@@ -542,7 +542,7 @@
+ 	myMap.erode([:rock])
+ else
+ 	myMap.computeHeights(:veryrough)
+-	myMap.blurHeights(20)
++	myMap.blurHeights(10)
+ 	myMap.computeHeights(:rough)
+ 	myMap.blurHeights(5)
+ 	myMap.computeDistances(:rock)
+
+Modified: antargis/trunk/src/glsl.cc
+===================================================================
+--- antargis/trunk/src/glsl.cc	2007-02-25 18:29:35 UTC (rev 1054)
++++ antargis/trunk/src/glsl.cc	2007-03-05 05:19:31 UTC (rev 1055)
+@@ -102,27 +102,56 @@
+ 
+ AntShaderProgram::AntShaderProgram(const std::string &amp;pVertexFile,const std::string &amp;pFragFile):
+   //  vertex(getVertexProgram(pVertexFile)),frag(getFragProgram(pFragFile))
+-  vertex(pVertexFile),frag(pFragFile)
++  mVertexFile(pVertexFile),mFragFile(pFragFile),
++  vertex(0),frag(0)
+ {
+   //  CTRACE;
+-  if(glslOk())
++  on=false;
++  matrixBuf=new float[16*100];
++  name=pVertexFile+&quot;:&quot;+pFragFile;
++
++  init();
++}
++
++AntShaderProgram::~AntShaderProgram()
++{
++  takeDown();
++
++  delete [] matrixBuf;
++}
++
++void AntShaderProgram::onScreenUp()
++{
++  CTRACE;
++  init();
++}
++void AntShaderProgram::onScreenDown()
++{
++  CTRACE;
++  takeDown();
++}
++
++
++void AntShaderProgram::init()
++{
++ if(glslOk())
+     {
++      vertex=new AntVertexProgram(mVertexFile);
++      frag=new AntFragProgram(mFragFile);
++
+       p = glCreateProgramObjectARB();
+-      glAttachObjectARB(p,vertex.vertexShader);
+-      if(frag.valid())
+-	glAttachObjectARB(p,frag.fragShader);
++      glAttachObjectARB(p,vertex-&gt;vertexShader);
++      if(frag-&gt;valid())
++	glAttachObjectARB(p,frag-&gt;fragShader);
+       
+       glLinkProgramARB(p);
+       printInfoLog(p);
+ 
+       assert(p);
+     }
+-  on=false;
+-  matrixBuf=new float[16*100];
+-  name=pVertexFile+&quot;:&quot;+pFragFile;
+ }
+ 
+-AntShaderProgram::~AntShaderProgram()
++void AntShaderProgram::takeDown()
+ {
+   disable();
+   CTRACE;
+@@ -130,11 +159,13 @@
+   if(glslOk() &amp;&amp; !hasQuit())
+     glDeleteObjectARB(p);
+   cdebug(&quot;name:&quot;&lt;&lt;name);
+-  delete [] matrixBuf;
+   cdebug(&quot;name:&quot;&lt;&lt;name);
++  delete vertex;
++  delete frag;
+ }
+ 
+ 
++
+ void AntShaderProgram::enable()
+ {
+   if(glslOk())
+
+Modified: antargis/trunk/src/glsl.h
+===================================================================
+--- antargis/trunk/src/glsl.h	2007-02-25 18:29:35 UTC (rev 1054)
++++ antargis/trunk/src/glsl.h	2007-03-05 05:19:31 UTC (rev 1055)
+@@ -4,6 +4,7 @@
+ #include &quot;ant_renderer.h&quot;
+ #include &quot;ag_tools.h&quot;
+ #include &quot;ag_geometry.h&quot;
++#include &quot;ag_glscreen.h&quot;
+ 
+ #include &lt;map&gt;
+ 
+@@ -44,15 +45,17 @@
+   
+ };
+ 
+-class AntShaderProgram
++class AntShaderProgram:public AGGLObject
+ {
+-  AntVertexProgram vertex;
+-  AntFragProgram frag;
++  std::string mVertexFile,mFragFile;
++  AntVertexProgram *vertex;
++  AntFragProgram *frag;
+   std::map&lt;std::string,GLint&gt; locations;
+   std::map&lt;std::string,GLint&gt; attrs;
+   float *matrixBuf;
+   bool on;
+   std::string name;
++
+  protected:  
+   GLhandleARB p;
+ 
+@@ -76,6 +79,16 @@
+   void sendUniform(const std::string &amp;pName,const std::vector&lt;AGMatrix4&gt; &amp;m);
+ 
+   void sendAttribute(const std::string &amp;pName,const std::vector&lt;float&gt; &amp;vf);
++
++  void onScreenUp();
++  void onScreenDown();
++
++
++ private:
++  void check();
++  void init();
++  void takeDown();
++
+ };
+ 
+ class AntShadowShader:public AntShaderProgram
+
+Modified: antargis/trunk/src/nantmarker.hh
+===================================================================
+--- antargis/trunk/src/nantmarker.hh	2007-02-25 18:29:35 UTC (rev 1054)
++++ antargis/trunk/src/nantmarker.hh	2007-03-05 05:19:31 UTC (rev 1055)
+@@ -328,7 +328,7 @@
+ 	result-&gt;mRubyObject=true;
+ }
+ %markfunc PathWeighter &quot;general_markfunc&quot;
+-%exception AntMap::AntMap {
++%exception MiniMap::MiniMap {
+ 	$action
+ 	result-&gt;mRUBY=self;
+ #ifdef GCDEBUG
+@@ -337,8 +337,8 @@
+ #endif
+ 	result-&gt;mRubyObject=true;
+ }
+-%markfunc AntMap &quot;general_markfunc&quot;
+-%exception AGMenu::AGMenu {
++%markfunc MiniMap &quot;general_markfunc&quot;
++%exception AntMap::AntMap {
+ 	$action
+ 	result-&gt;mRUBY=self;
+ #ifdef GCDEBUG
+@@ -347,8 +347,8 @@
+ #endif
+ 	result-&gt;mRubyObject=true;
+ }
+-%markfunc AGMenu &quot;general_markfunc&quot;
+-%exception MiniMap::MiniMap {
++%markfunc AntMap &quot;general_markfunc&quot;
++%exception AGMenu::AGMenu {
+ 	$action
+ 	result-&gt;mRUBY=self;
+ #ifdef GCDEBUG
+@@ -357,7 +357,7 @@
+ #endif
+ 	result-&gt;mRubyObject=true;
+ }
+-%markfunc MiniMap &quot;general_markfunc&quot;
++%markfunc AGMenu &quot;general_markfunc&quot;
+ %exception AGColorButton::AGColorButton {
+ 	$action
+ 	result-&gt;mRUBY=self;
+@@ -936,10 +936,10 @@
+   vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGRadioGroup,0);
+ else if(dynamic_cast&lt;AGWindow*&gt;(result))
+   vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGWindow,0);
++else if(dynamic_cast&lt;MiniMap*&gt;(result))
++  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_MiniMap,0);
+ else if(dynamic_cast&lt;AGMenu*&gt;(result))
+   vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGMenu,0);
+-else if(dynamic_cast&lt;MiniMap*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_MiniMap,0);
+ else if(dynamic_cast&lt;AGColorButton*&gt;(result))
+   vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGColorButton,0);
+ else if(dynamic_cast&lt;AGImage*&gt;(result))
+@@ -996,10 +996,10 @@
+   $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGRadioGroup,0);
+ else if(dynamic_cast&lt;AGWindow*&gt;($1))
+   $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGWindow,0);
++else if(dynamic_cast&lt;MiniMap*&gt;($1))
++  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_MiniMap,0);
+ else if(dynamic_cast&lt;AGMenu*&gt;($1))
+   $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGMenu,0);
+-else if(dynamic_cast&lt;MiniMap*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_MiniMap,0);
+ else if(dynamic_cast&lt;AGColorButton*&gt;($1))
+   $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGColorButton,0);
+ else if(dynamic_cast&lt;AGImage*&gt;($1))
+@@ -1432,10 +1432,10 @@
+   vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGWindow,0);
+ else if(dynamic_cast&lt;AntMap*&gt;(result))
+   vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AntMap,0);
++else if(dynamic_cast&lt;MiniMap*&gt;(result))
++  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_MiniMap,0);
+ else if(dynamic_cast&lt;AGMenu*&gt;(result))
+   vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGMenu,0);
+-else if(dynamic_cast&lt;MiniMap*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_MiniMap,0);
+ else if(dynamic_cast&lt;AGColorButton*&gt;(result))
+   vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGColorButton,0);
+ else if(dynamic_cast&lt;AGImage*&gt;(result))
+@@ -1502,10 +1502,10 @@
+   $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGWindow,0);
+ else if(dynamic_cast&lt;AntMap*&gt;($1))
+   $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AntMap,0);
++else if(dynamic_cast&lt;MiniMap*&gt;($1))
++  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_MiniMap,0);
+ else if(dynamic_cast&lt;AGMenu*&gt;($1))
+   $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGMenu,0);
+-else if(dynamic_cast&lt;MiniMap*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_MiniMap,0);
+ else if(dynamic_cast&lt;AGColorButton*&gt;($1))
+   $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGColorButton,0);
+ else if(dynamic_cast&lt;AGImage*&gt;($1))
+@@ -2368,10 +2368,10 @@
+   vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGWindow,0);
+ else if(dynamic_cast&lt;AntMap*&gt;(result))
+   vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AntMap,0);
++else if(dynamic_cast&lt;MiniMap*&gt;(result))
++  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_MiniMap,0);
+ else if(dynamic_cast&lt;AGMenu*&gt;(result))
+   vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGMenu,0);
+-else if(dynamic_cast&lt;MiniMap*&gt;(result))
+-  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_MiniMap,0);
+ else if(dynamic_cast&lt;AGColorButton*&gt;(result))
+   vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGColorButton,0);
+ else if(dynamic_cast&lt;AGImage*&gt;(result))
+@@ -2440,10 +2440,10 @@
+   $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGWindow,0);
+ else if(dynamic_cast&lt;AntMap*&gt;($1))
+   $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AntMap,0);
++else if(dynamic_cast&lt;MiniMap*&gt;($1))
++  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_MiniMap,0);
+ else if(dynamic_cast&lt;AGMenu*&gt;($1))
+   $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGMenu,0);
+-else if(dynamic_cast&lt;MiniMap*&gt;($1))
+-  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_MiniMap,0);
+ else if(dynamic_cast&lt;AGColorButton*&gt;($1))
+   $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGColorButton,0);
+ else if(dynamic_cast&lt;AGImage*&gt;($1))
+@@ -2694,6 +2694,11 @@
+  Data_Get_Struct($input,AGFontEngine,b);
+  $result=*b;
+ }
++%typemap(directorout) AGGLObject {
++ AGGLObject *b;
++ Data_Get_Struct($input,AGGLObject,b);
++ $result=*b;
++}
+ %typemap(directorout) AGGLScreen {
+  AGGLScreen *b;
+  Data_Get_Struct($input,AGGLScreen,b);
+
+Modified: antargis/trunk/src/scene.cc
+===================================================================
+--- antargis/trunk/src/scene.cc	2007-02-25 18:29:35 UTC (rev 1054)
++++ antargis/trunk/src/scene.cc	2007-03-05 05:19:31 UTC (rev 1055)
+@@ -151,6 +151,8 @@
+ {
+   if(mNodeSet.find(node)==mNodeSet.end())
+     {
++      node-&gt;setScene(this);
++
+       mNodes.push_back(node);
+       mNodeSet.insert(node);
+       assert(node-&gt;getScene()==this);
+
+Modified: antargis/trunk/src/scenenode.cc
+===================================================================
+--- antargis/trunk/src/scenenode.cc	2007-02-25 18:29:35 UTC (rev 1054)
++++ antargis/trunk/src/scenenode.cc	2007-03-05 05:19:31 UTC (rev 1055)
+@@ -28,6 +28,13 @@
+     mScene-&gt;removeNode(this);
+ }
+ 
++void SceneNode::setScene(Scene *pScene)
++{
++  assert(mScene==0 || mScene==pScene);
++  mScene=pScene;
++}
++
++
+ /// release attaching to scene
+ void SceneNode::resetScene()
+ {
+
+Modified: antargis/trunk/src/scenenode.h
+===================================================================
+--- antargis/trunk/src/scenenode.h	2007-02-25 18:29:35 UTC (rev 1054)
++++ antargis/trunk/src/scenenode.h	2007-03-05 05:19:31 UTC (rev 1055)
+@@ -80,6 +80,8 @@
+   int getOrder() const;
+   
+  private:
++  void setScene(Scene *pScene);
++
+   int mOrder;
+ 
+   Scene *mScene;
+@@ -87,6 +89,8 @@
+ 
+   AGVector4 mPos;
+   AGBox3 mBBox;
++
++  friend class Scene;
+ };
+ 
+ typedef SceneNode *SceneNodePtr;
+
+Modified: antargis/trunk/src/terrain.cc
+===================================================================
+--- antargis/trunk/src/terrain.cc	2007-02-25 18:29:35 UTC (rev 1054)
++++ antargis/trunk/src/terrain.cc	2007-03-05 05:19:31 UTC (rev 1055)
+@@ -128,6 +128,8 @@
+ 
+ void TerrainPiece::draw()
+ {
++  assertGL;
++
+   STACKTRACE;
+   AGRenderContext c;
+   c.setLighting(true);
+@@ -137,6 +139,7 @@
+   c.begin();
+ 
+   m3dArray.draw();
++  assertGL;
+ }
+ 
+ 
+
+Modified: antargis/trunk/src/water.cc
+===================================================================
+--- antargis/trunk/src/water.cc	2007-02-25 18:29:35 UTC (rev 1054)
++++ antargis/trunk/src/water.cc	2007-03-05 05:19:31 UTC (rev 1055)
+@@ -100,6 +100,7 @@
+ void WaterPiece::draw()
+ {
+   STACKTRACE;
++  assertGL;
+ 
+   AGRenderContext c;
+   c.setAlpha(0,GL_NONE);
+@@ -118,6 +119,7 @@
+   mArray.draw();
+   if(useWaterAnimation())
+     getWaterShader()-&gt;disable();
++  assertGL;
+ }
+ 
+ void WaterPiece::drawPick()
+@@ -129,7 +131,9 @@
+ 
+ void WaterPiece::advance(float t)
+ {
++  assertGL;
+   getWaterShader()-&gt;update(t);
++  assertGL;
+ }
+ 
+ size_t WaterPiece::getTriangles() const
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000014.html">[Antargis-svn] r1056 - in antargis/trunk: . gui/src ruby
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#13">[ date ]</a>
+              <a href="thread.html#13">[ thread ]</a>
+              <a href="subject.html#13">[ subject ]</a>
+              <a href="author.html#13">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

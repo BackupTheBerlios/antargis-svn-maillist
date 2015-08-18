@@ -1,0 +1,414 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1047 - in antargis/trunk: data/shaders gui/src ruby	src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-January/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1047%20-%20in%20antargis/trunk%3A%20data/shaders%20gui/src%20ruby%0A%09src&In-Reply-To=%3C200701191847.l0JIlbG4013556%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000004.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1047 - in antargis/trunk: data/shaders gui/src ruby	src</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1047%20-%20in%20antargis/trunk%3A%20data/shaders%20gui/src%20ruby%0A%09src&In-Reply-To=%3C200701191847.l0JIlbG4013556%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1047 - in antargis/trunk: data/shaders gui/src ruby	src">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Fri Jan 19 19:47:37 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000004.html">[Antargis-svn] r1046 - antargis/trunk/ruby
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#5">[ date ]</a>
+              <a href="thread.html#5">[ thread ]</a>
+              <a href="subject.html#5">[ subject ]</a>
+              <a href="author.html#5">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-01-19 19:47:35 +0100 (Fri, 19 Jan 2007)
+New Revision: 1047
+
+Modified:
+   antargis/trunk/data/shaders/anim.vert
+   antargis/trunk/gui/src/ag_config.cc
+   antargis/trunk/gui/src/ag_config.h
+   antargis/trunk/gui/src/ag_debug.cc
+   antargis/trunk/gui/src/ag_fontengine.cc
+   antargis/trunk/gui/src/ag_fs.cc
+   antargis/trunk/ruby/antargis.rb
+   antargis/trunk/src/anim_mesh_data.cc
+   antargis/trunk/src/anim_mesh_data.h
+   antargis/trunk/src/vertex_array.cc
+   antargis/trunk/src/vertex_array.h
+Log:
+* some improvements / fixes
+
+
+Modified: antargis/trunk/data/shaders/anim.vert
+===================================================================
+--- antargis/trunk/data/shaders/anim.vert	2007-01-10 19:56:46 UTC (rev 1046)
++++ antargis/trunk/data/shaders/anim.vert	2007-01-19 18:47:35 UTC (rev 1047)
+@@ -10,7 +10,8 @@
+ 
+ 	int i=int(bones); // convert to int
+ 	mat4 m=matrices[i];
+-	gl_Position = gl_ModelViewProjectionMatrix *m*v;
++	//gl_Position = gl_ModelViewProjectionMatrix *m*v;
++	gl_Position = gl_ModelViewProjectionMatrix *v;
+ 
+ 	normal = normalize(gl_NormalMatrix * gl_Normal);
+ 	
+
+Modified: antargis/trunk/gui/src/ag_config.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_config.cc	2007-01-10 19:56:46 UTC (rev 1046)
++++ antargis/trunk/gui/src/ag_config.cc	2007-01-19 18:47:35 UTC (rev 1047)
+@@ -3,6 +3,7 @@
+ 
+ AGConfig::AGConfig()
+ {
++  CTRACE;
+   Document doc(&quot;config.xml&quot;);
+ 
+   Node &amp;root=doc.root();
+@@ -26,7 +27,7 @@
+ 	{
+ 	  singleValue[(*i)-&gt;get(&quot;name&quot;)]=(*i)-&gt;get(&quot;value&quot;);
+ 	  comments[(*i)-&gt;get(&quot;name&quot;)]=comment;
+-	  //	  cdebug((*i)-&gt;get(&quot;name&quot;)&lt;&lt;&quot;:&quot;&lt;&lt;(*i)-&gt;get(&quot;value&quot;)&lt;&lt;&quot;:&quot;&lt;&lt;comment);
++	  cdebug((*i)-&gt;get(&quot;name&quot;)&lt;&lt;&quot;:&quot;&lt;&lt;(*i)-&gt;get(&quot;value&quot;)&lt;&lt;&quot;:&quot;&lt;&lt;comment);
+ 	  comment=&quot;&quot;;
+ 	}
+     }
+@@ -35,7 +36,7 @@
+ 
+   //  std::cerr&lt;&lt;doc.toString()&lt;&lt;std::endl;
+ 
+-  writeToDisc();
++  //  writeToDisc();
+ }
+ 
+ AGString AGConfig::get(const AGString &amp;pValue,const AGString &amp;pDefault,const AGString &amp;pComment)
+@@ -97,3 +98,10 @@
+     gConfig=new AGConfig;
+   return gConfig;
+ }
++
++void updateConfig()
++{
++  delete gConfig;
++  gConfig=0;
++  //  getConfig();
++}
+
+Modified: antargis/trunk/gui/src/ag_config.h
+===================================================================
+--- antargis/trunk/gui/src/ag_config.h	2007-01-10 19:56:46 UTC (rev 1046)
++++ antargis/trunk/gui/src/ag_config.h	2007-01-19 18:47:35 UTC (rev 1047)
+@@ -42,6 +42,7 @@
+ };
+ 
+ AGConfig *getConfig();
++void updateConfig();
+ 
+ 
+ //#define EXPORT __declspec(dllexport)
+
+Modified: antargis/trunk/gui/src/ag_debug.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_debug.cc	2007-01-10 19:56:46 UTC (rev 1046)
++++ antargis/trunk/gui/src/ag_debug.cc	2007-01-19 18:47:35 UTC (rev 1047)
+@@ -107,6 +107,7 @@
+ 	    &lt;&lt; gluErrorString(error);
+ 	
+ 	std::cerr&lt;&lt;msg.str()&lt;&lt;std::endl;
++	throw std::runtime_error(msg.str());
+ 	agRaise(msg.str());
+       }
+     }
+
+Modified: antargis/trunk/gui/src/ag_fontengine.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_fontengine.cc	2007-01-10 19:56:46 UTC (rev 1046)
++++ antargis/trunk/gui/src/ag_fontengine.cc	2007-01-19 18:47:35 UTC (rev 1047)
+@@ -275,13 +275,13 @@
+   delete [] a;
+   delete [] b;
+ 
+-
++  /*
+   static int i=0;
+   i++;
+   std::ostringstream os;
+   os&lt;&lt;&quot;fonttest&quot;&lt;&lt;i&lt;&lt;&quot;.png&quot;;
+   s.save(os.str());
+-
++  */
+ }
+ 
+ AGTexture *AGFontEngine::renderText(int BaseLineX, int BaseLineY, const AGStringUtf8 &amp;pText, const AGFont &amp;pFont)
+
+Modified: antargis/trunk/gui/src/ag_fs.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_fs.cc	2007-01-10 19:56:46 UTC (rev 1046)
++++ antargis/trunk/gui/src/ag_fs.cc	2007-01-19 18:47:35 UTC (rev 1047)
+@@ -22,6 +22,7 @@
+ #include &lt;list&gt;
+ #include &lt;assert.h&gt;
+ #include &lt;ag_fs.h&gt;
++#include &lt;ag_config.h&gt;
+ #include &lt;dirent.h&gt;
+ #include &lt;errno.h&gt;
+ #include &lt;sys/stat.h&gt;
+@@ -53,6 +54,7 @@
+ 
+     }
+ #endif
++  updateConfig();
+ }
+ 
+ 
+@@ -232,6 +234,9 @@
+ 	return r;
+     }
+ 
++  //  if(mFsPaths.size()==0)
++  //    throw std::runtime_error(&quot;Not yet inited fs-paths!&quot;);
++
+   for(std::list&lt;std::string&gt;::iterator i=mFsPaths.begin();i!=mFsPaths.end();i++)
+     cdebug(&quot;path:&quot;&lt;&lt;*i);
+ 
+
+Modified: antargis/trunk/ruby/antargis.rb
+===================================================================
+--- antargis/trunk/ruby/antargis.rb	2007-01-10 19:56:46 UTC (rev 1046)
++++ antargis/trunk/ruby/antargis.rb	2007-01-19 18:47:35 UTC (rev 1047)
+@@ -664,3 +664,5 @@
+ 		startGame(savegame)	
+ 	end
+ end
++
++getConfig.set(&quot;ok&quot;,&quot;ok&quot;)
+
+Modified: antargis/trunk/src/anim_mesh_data.cc
+===================================================================
+--- antargis/trunk/src/anim_mesh_data.cc	2007-01-10 19:56:46 UTC (rev 1046)
++++ antargis/trunk/src/anim_mesh_data.cc	2007-01-19 18:47:35 UTC (rev 1047)
+@@ -192,9 +192,15 @@
+   for(size_t k=0;k&lt;bone.size();k++)
+     {
+       if(bone[k]==-1)
+-	bonef.push_back(nbones);
++	{
++	  bonef.push_back(nbones);
++	  boneui.push_back(nbones);
++	}
+       else
+-	bonef.push_back(bone[k]);
++	{
++	  bonef.push_back(bone[k]);
++	  boneui.push_back(bone[k]);
++	}
+     }
+ 
+ 
+@@ -303,6 +309,7 @@
+ 
+   // set boneIDs
+   mArray.addAttribute(&quot;bones&quot;,bonef);
++  //  mArray.addAttribute(&quot;ibones&quot;,boneui);
+ 
+ 
+ 
+@@ -314,6 +321,7 @@
+ 
+   // set boneIDs
+   mArrayDepth.addAttribute(&quot;bones&quot;,bonef);
++  //  mArrayDepth.addAttribute(&quot;ibones&quot;,boneui);
+ 
+ 
+ }
+
+Modified: antargis/trunk/src/anim_mesh_data.h
+===================================================================
+--- antargis/trunk/src/anim_mesh_data.h	2007-01-10 19:56:46 UTC (rev 1046)
++++ antargis/trunk/src/anim_mesh_data.h	2007-01-19 18:47:35 UTC (rev 1047)
+@@ -59,6 +59,7 @@
+   std::vector&lt;AGVector3&gt; normal;
+   std::vector&lt;int&gt; bone;
+   std::vector&lt;float&gt; bonef;
++  std::vector&lt;Uint16&gt; boneui;
+ 
+   std::vector&lt;size_t&gt; indices;
+ 
+
+Modified: antargis/trunk/src/vertex_array.cc
+===================================================================
+--- antargis/trunk/src/vertex_array.cc	2007-01-10 19:56:46 UTC (rev 1046)
++++ antargis/trunk/src/vertex_array.cc	2007-01-19 18:47:35 UTC (rev 1047)
+@@ -9,8 +9,10 @@
+ static bool useVBO()
+ {
+   AGString s=getConfig()-&gt;get(&quot;useVBO&quot;);
++  //cdebug(&quot;useVBO:&quot;&lt;&lt;s);
+   if(s!=&quot;true&quot; &amp;&amp; s!=&quot;false&quot;)
+     {
++      cdebug(&quot;useVBO:&quot;&lt;&lt;s);
+       s=&quot;true&quot;;
+       getConfig()-&gt;set(&quot;useVBO&quot;,s);
+     }
+@@ -150,6 +152,7 @@
+ 
+ void VertexArray::draw()
+ {
++  assertGL;
+   if(mChanged)
+     init();
+ 
+@@ -246,6 +249,7 @@
+       glDisableClientState(GL_COLOR_ARRAY);
+       glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+     }
++  assertGL;
+ 
+ }
+ 
+@@ -528,6 +532,12 @@
+ 	delete i-&gt;second;
+     }
+ 
++  for(std::map&lt;std::string,std::vector&lt;Uint16&gt;*&gt;::iterator i=elementAs.begin();i!=elementAs.end();++i)
++    {
++      if(i-&gt;second)
++	delete i-&gt;second;
++    }
++
+ }
+ 
+ void VertexArrayShader::addAttribute(const std::string &amp;pName,const std::vector&lt;float&gt; &amp;a)
+@@ -536,13 +546,23 @@
+   aInited=false;
+ }
+ 
++void VertexArrayShader::addAttribute(const std::string &amp;pName,const std::vector&lt;Uint16&gt; &amp;a)
++{
++  elementAs[pName]=new std::vector&lt;Uint16&gt;(a);
++  aInited=false;
++}
++
++
+ void VertexArrayShader::draw()
+ {
++  assertGL;
+   p-&gt;enable();
++  assertGL;
+   if(!aInited)
+     aInit();
+-
++  assertGL;
+   attach();
++  assertGL;
+   VertexArray::draw();
+   p-&gt;disable();
+ }
+@@ -560,6 +580,23 @@
+ 	  glVertexAttribPointerARB(loc,1,GL_FLOAT,0,0,0);
+ 	  //      glTexCoordPointer(2, GL_FLOAT, 0, 0);
+ 	}
++
++      for(std::map&lt;std::string,unsigned int&gt;::iterator i=elementIds.begin();i!=elementIds.end();i++)
++	{
++  assertGL;
++	  GLint loc=p-&gt;getAttr(i-&gt;first);
++  assertGL;
++	  glEnableClientState(GL_VERTEX_ARRAY);
++  assertGL;
++	  glEnableVertexAttribArrayARB(loc); // add array
++  assertGL;
++	  glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, i-&gt;second);
++  assertGL;
++	  glVertexAttribPointerARB(loc,1,GL_UNSIGNED_SHORT,0,0,0);
++  assertGL;
++	  //      glTexCoordPointer(2, GL_FLOAT, 0, 0);
++	}
++
+     }
+ }
+ 
+@@ -575,6 +612,19 @@
+ 
+       aids[i-&gt;first]=id;
+     }
++
++  for(std::map&lt;std::string,std::vector&lt;Uint16&gt;*&gt;::iterator i=elementAs.begin();i!=elementAs.end();i++)
++    {
++      unsigned int id;
++
++      glGenBuffersARB( 1, &amp;id);
++      glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, id);
++      glBufferDataARB( GL_ELEMENT_ARRAY_BUFFER_ARB, i-&gt;second-&gt;size()*sizeof(Uint16), &amp;((*i-&gt;second)[0]), GL_STATIC_DRAW_ARB );
++
++      elementIds[i-&gt;first]=id;
++    }
++
++
+   aInited=true;
+ }
+ 
+
+Modified: antargis/trunk/src/vertex_array.h
+===================================================================
+--- antargis/trunk/src/vertex_array.h	2007-01-10 19:56:46 UTC (rev 1046)
++++ antargis/trunk/src/vertex_array.h	2007-01-19 18:47:35 UTC (rev 1047)
+@@ -101,12 +101,17 @@
+   AntShaderProgram *p;
+   std::map&lt;std::string,std::vector&lt;float&gt;*&gt; as;
+   std::map&lt;std::string,unsigned int&gt; aids;
++
++  std::map&lt;std::string,std::vector&lt;Uint16&gt;*&gt; elementAs;
++  std::map&lt;std::string,unsigned int&gt; elementIds;
++
+   bool aInited;
+  public:
+   VertexArrayShader(AntShaderProgram *_p);
+   ~VertexArrayShader();
+   /// adds attributes to each vertex. the size of a should equal the vertex count
+   void addAttribute(const std::string &amp;pName,const std::vector&lt;float&gt; &amp;a);
++  void addAttribute(const std::string &amp;pName,const std::vector&lt;Uint16&gt; &amp;a);
+ 
+   virtual void draw();
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000004.html">[Antargis-svn] r1046 - antargis/trunk/ruby
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#5">[ date ]</a>
+              <a href="thread.html#5">[ thread ]</a>
+              <a href="subject.html#5">[ subject ]</a>
+              <a href="author.html#5">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,2217 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1108 - in antargis/branches/rant: build data/gui	data/gui/images data/gui/images/basic ext/game
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-June/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1108%20-%20in%20antargis/branches/rant%3A%20build%20data/gui%0A%09data/gui/images%20data/gui/images/basic%20ext/game&In-Reply-To=%3C200706231655.l5NGtANp004243%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000064.html">
+   <LINK REL="Next"  HREF="000066.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1108 - in antargis/branches/rant: build data/gui	data/gui/images data/gui/images/basic ext/game</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1108%20-%20in%20antargis/branches/rant%3A%20build%20data/gui%0A%09data/gui/images%20data/gui/images/basic%20ext/game&In-Reply-To=%3C200706231655.l5NGtANp004243%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1108 - in antargis/branches/rant: build data/gui	data/gui/images data/gui/images/basic ext/game">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sat Jun 23 18:55:10 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000064.html">[Antargis-svn] r1107 - in antargis/branches/rant/ext: basic	external game gui math ruby sound video
+</A></li>
+        <LI>Next message: <A HREF="000066.html">[Antargis-svn] r1109 - in antargis/branches/rant: build	ext/3dengine ext/basic ext/game ext/math ruby ruby/entities
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#65">[ date ]</a>
+              <a href="thread.html#65">[ thread ]</a>
+              <a href="subject.html#65">[ subject ]</a>
+              <a href="author.html#65">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-06-23 18:55:08 +0200 (Sat, 23 Jun 2007)
+New Revision: 1108
+
+Added:
+   antargis/branches/rant/build/ag_data.i
+   antargis/branches/rant/build/ag_filename.i
+   antargis/branches/rant/build/ag_string.i
+   antargis/branches/rant/data/gui/images/
+   antargis/branches/rant/data/gui/images/basic/
+   antargis/branches/rant/data/gui/images/basic/bg_tile.png
+   antargis/branches/rant/data/gui/images/basic/bg_tile2.png
+   antargis/branches/rant/data/gui/images/basic/bigbg_tile.png
+   antargis/branches/rant/data/gui/images/basic/blue_cursor.png
+   antargis/branches/rant/data/gui/images/basic/blue_cursor.svg
+   antargis/branches/rant/data/gui/images/basic/box.png
+   antargis/branches/rant/data/gui/images/basic/box_cross.png
+   antargis/branches/rant/data/gui/images/basic/button1.svg
+   antargis/branches/rant/data/gui/images/basic/buttontest2.png
+   antargis/branches/rant/data/gui/images/basic/buttontest3.png
+   antargis/branches/rant/data/gui/images/basic/buttontest3b.png
+   antargis/branches/rant/data/gui/images/basic/close_button.png
+   antargis/branches/rant/data/gui/images/basic/cursor2.svg
+   antargis/branches/rant/data/gui/images/basic/menu_house_small.png
+   antargis/branches/rant/data/gui/images/basic/oldpaper.png
+   antargis/branches/rant/data/gui/images/basic/right_arrow.png
+   antargis/branches/rant/data/gui/images/basic/round.png
+   antargis/branches/rant/data/gui/images/basic/round_checked.png
+   antargis/branches/rant/data/gui/images/basic/sword.png
+   antargis/branches/rant/data/gui/images/basic/win_border.png
+   antargis/branches/rant/ext/game/path.cc
+   antargis/branches/rant/ext/game/path.h
+Log:
+* some more files
+
+
+Added: antargis/branches/rant/build/ag_data.i
+===================================================================
+--- antargis/branches/rant/build/ag_data.i	2007-06-23 16:54:17 UTC (rev 1107)
++++ antargis/branches/rant/build/ag_data.i	2007-06-23 16:55:08 UTC (rev 1108)
+@@ -0,0 +1,82 @@
++//
++// SWIG typemaps for std::string
++// Luigi Ballabio
++// Apr 8, 2002
++//
++// Ruby implementation
++
++
++// ------------------------------------------------------------------------
++// std::string is typemapped by value
++// This can prevent exporting methods which return a string
++// in order for the user to modify it.
++// However, I think I'll wait until someone asks for it...
++// ------------------------------------------------------------------------
++
++%include exception.i
++
++%{
++#include &lt;ag_string.h&gt;
++#include &lt;ag_fs.h&gt;
++%}
++
++
++    // Ruby wants class names to start with a capital letter
++    // %rename(String) string;
++//    class string;
++
++    /* Overloading check */
++    %typemap(typecheck) AGData = char *;
++    %typemap(typecheck) const AGData &amp; = char *;
++
++    %typemap(in) AGData {
++        if (TYPE($input) == T_STRING) {
++            $1 = AGData(RSTRING($input)-&gt;ptr,RSTRING($input)-&gt;len);
++        } else {
++            SWIG_exception(SWIG_TypeError, &quot;not a string&quot;);
++        }
++    }
++
++    %typemap(in) const AGData &amp; (AGData temp) {
++        if (TYPE($input) == T_STRING) {
++            temp = AGData(RSTRING($input)-&gt;ptr,RSTRING($input)-&gt;len);
++            $1 = &temp;
++        } else {
++            SWIG_exception(SWIG_TypeError, &quot;not a string&quot;);
++        }
++    }
++
++    %typemap(out) AGData {
++        $result = rb_str_new($1.c_str(),$1.length());
++    }
++
++    %typemap(out) const AGData &amp; {
++        $result = rb_str_new($1-&gt;c_str(),$1-&gt;length());
++    }
++
++    %typemap(directorin) AGData, const AGData &amp;, AGData &amp; &quot;$input=rb_str_new($1_name.c_str(),$1_name.length());&quot;;
++
++    %typemap(directorin) AGData *, const AGData * &quot;$1_name-&gt;c_str()&quot;;
++    
++    %typemap(directorout) AGData {
++        if (TYPE($input) == T_STRING)
++            $result = AGData(RSTRING($input)-&gt;ptr,RSTRING($input)-&gt;len);
++        else
++            throw Swig::DirectorTypeMismatchException(&quot;string expected&quot;);
++    }
++    
++    %typemap(directorout) const AGData &amp; (AGData temp) {
++        if (TYPE($input) == T_STRING) {
++            temp = AGData(RSTRING($input)-&gt;ptr,RSTRING($input)-&gt;len);
++            $result = &temp;
++        } else {
++            throw Swig::DirectorTypeMismatchException(&quot;string expected&quot;);
++        }
++    }
++/*
++    %typemap(throws) AGData, const string &amp;
++        &quot;rb_raise(rb_eRuntimeError, $1.c_str());&quot;;
++
++    %typemap(throws) string *, const string *
++        &quot;rb_raise(rb_eRuntimeError, $1-&gt;c_str());&quot;;
++*/
+
+Added: antargis/branches/rant/build/ag_filename.i
+===================================================================
+--- antargis/branches/rant/build/ag_filename.i	2007-06-23 16:54:17 UTC (rev 1107)
++++ antargis/branches/rant/build/ag_filename.i	2007-06-23 16:55:08 UTC (rev 1108)
+@@ -0,0 +1,82 @@
++//
++// SWIG typemaps for std::string
++// Luigi Ballabio
++// Apr 8, 2002
++//
++// Ruby implementation
++
++
++// ------------------------------------------------------------------------
++// std::string is typemapped by value
++// This can prevent exporting methods which return a string
++// in order for the user to modify it.
++// However, I think I'll wait until someone asks for it...
++// ------------------------------------------------------------------------
++
++%include exception.i
++
++%{
++#include &lt;ag_string.h&gt;
++#include &lt;ag_fs.h&gt;
++%}
++
++
++    // Ruby wants class names to start with a capital letter
++    // %rename(String) string;
++//    class string;
++
++    /* Overloading check */
++    %typemap(typecheck) AGFilename = char *;
++    %typemap(typecheck) const AGFilename &amp; = char *;
++
++    %typemap(in) AGFilename {
++        if (TYPE($input) == T_STRING) {
++            $1 = AGFilename(RSTRING($input)-&gt;ptr,RSTRING($input)-&gt;len);
++        } else {
++            SWIG_exception(SWIG_TypeError, &quot;not a string&quot;);
++        }
++    }
++
++    %typemap(in) const AGFilename &amp; (AGFilename temp) {
++        if (TYPE($input) == T_STRING) {
++            temp = AGFilename(RSTRING($input)-&gt;ptr,RSTRING($input)-&gt;len);
++            $1 = &temp;
++        } else {
++            SWIG_exception(SWIG_TypeError, &quot;not a string&quot;);
++        }
++    }
++
++    %typemap(out) AGFilename {
++        $result = rb_str_new($1.c_str(),$1.length());
++    }
++
++    %typemap(out) const AGFilename &amp; {
++        $result = rb_str_new($1-&gt;c_str(),$1-&gt;length());
++    }
++
++    %typemap(directorin) AGFilename, const AGFilename &amp;, AGFilename &amp; &quot;$input=rb_str_new($1_name.c_str(),$1_name.length());&quot;;
++
++    %typemap(directorin) AGFilename *, const AGFilename * &quot;$1_name-&gt;c_str()&quot;;
++    
++    %typemap(directorout) AGFilename {
++        if (TYPE($input) == T_STRING)
++            $result = AGFilename(RSTRING($input)-&gt;ptr,RSTRING($input)-&gt;len);
++        else
++            throw Swig::DirectorTypeMismatchException(&quot;string expected&quot;);
++    }
++    
++    %typemap(directorout) const AGFilename &amp; (AGFilename temp) {
++        if (TYPE($input) == T_STRING) {
++            temp = AGFilename(RSTRING($input)-&gt;ptr,RSTRING($input)-&gt;len);
++            $result = &temp;
++        } else {
++            throw Swig::DirectorTypeMismatchException(&quot;string expected&quot;);
++        }
++    }
++/*
++    %typemap(throws) AGFilename, const string &amp;
++        &quot;rb_raise(rb_eRuntimeError, $1.c_str());&quot;;
++
++    %typemap(throws) string *, const string *
++        &quot;rb_raise(rb_eRuntimeError, $1-&gt;c_str());&quot;;
++*/
+
+Added: antargis/branches/rant/build/ag_string.i
+===================================================================
+--- antargis/branches/rant/build/ag_string.i	2007-06-23 16:54:17 UTC (rev 1107)
++++ antargis/branches/rant/build/ag_string.i	2007-06-23 16:55:08 UTC (rev 1108)
+@@ -0,0 +1,96 @@
++//
++// SWIG typemaps for std::string
++// Luigi Ballabio
++// Apr 8, 2002
++//
++// Ruby implementation
++
++
++// ------------------------------------------------------------------------
++// std::string is typemapped by value
++// This can prevent exporting methods which return a string
++// in order for the user to modify it.
++// However, I think I'll wait until someone asks for it...
++// ------------------------------------------------------------------------
++
++%include exception.i
++
++%{
++#include &lt;ag_string.h&gt;
++%}
++
++
++    // Ruby wants class names to start with a capital letter
++%rename(String) AGString;
++class AGString;
++
++    /* Overloading check */
++    %typemap(typecheck) AGString = char *;
++    %typemap(typecheck) const AGString &amp; = char *;
++
++    %typemap(in) AGString {
++        if (TYPE($input) == T_STRING) {
++            $1 = AGString(RSTRING($input)-&gt;ptr,RSTRING($input)-&gt;len);
++        } else {
++            SWIG_exception(SWIG_TypeError, &quot;not a string&quot;);
++        }
++    }
++
++    %typemap(in) const AGString &amp; (AGString temp) {
++        if (TYPE($input) == T_STRING) {
++            temp = AGString(RSTRING($input)-&gt;ptr,RSTRING($input)-&gt;len);
++            $1 = &temp;
++        } else {
++            SWIG_exception(SWIG_TypeError, &quot;not a string&quot;);
++        }
++    }
++
++    %typemap(out) AGString {
++        $result = rb_str_new($1.c_str(),$1.length());
++    }
++
++    %typemap(out) const AGString &amp; {
++        $result = rb_str_new($1-&gt;c_str(),$1-&gt;length());
++    }
++
++    %typemap(directorin) AGString, const AGString &amp;, AGString &amp; &quot;$input=rb_str_new($1_name.c_str(),$1_name.length());&quot;;
++
++    %typemap(directorin) AGString *, const AGString * &quot;$1_name-&gt;c_str()&quot;;
++    
++    %typemap(directorout) AGString {
++        if (TYPE($input) == T_STRING)
++            $result = AGString(RSTRING($input)-&gt;ptr,RSTRING($input)-&gt;len);
++        else
++            throw Swig::DirectorTypeMismatchException(&quot;string expected&quot;);
++    }
++    
++    %typemap(directorout) const AGString &amp; (AGString temp) {
++        if (TYPE($input) == T_STRING) {
++            temp = AGString(RSTRING($input)-&gt;ptr,RSTRING($input)-&gt;len);
++            $result = &temp;
++        } else {
++            throw Swig::DirectorTypeMismatchException(&quot;string expected&quot;);
++        }
++    }
++/*
++    %typemap(throws) AGString, const string &amp;
++        &quot;rb_raise(rb_eRuntimeError, $1.c_str());&quot;;
++
++    %typemap(throws) string *, const string *
++        &quot;rb_raise(rb_eRuntimeError, $1-&gt;c_str());&quot;;
++*/
++
++%{
++AGString SWIG_RB2AGSTR(VALUE x) {
++    return AGString(RSTRING_PTR(x), RSTRING_LEN(x));
++}
++VALUE SWIG_AGSTR2RB(const AGString&amp; s) {
++    return rb_str_new(s.data(), s.size());
++}
++%}
++namespace std
++{
++	specialize_std_vector(AGString,SWIG_STRING_P,SWIG_RB2AGSTR,SWIG_AGSTR2RB);
++	specialize_std_vector(AGFilename,SWIG_STRING_P,SWIG_RB2AGSTR,SWIG_AGSTR2RB);
++	specialize_std_vector(AGData,SWIG_STRING_P,SWIG_RB2AGSTR,SWIG_AGSTR2RB);
++}
+\ No newline at end of file
+
+Added: antargis/branches/rant/data/gui/images/basic/bg_tile.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/rant/data/gui/images/basic/bg_tile.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/rant/data/gui/images/basic/bg_tile2.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/rant/data/gui/images/basic/bg_tile2.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/rant/data/gui/images/basic/bigbg_tile.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/rant/data/gui/images/basic/bigbg_tile.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/rant/data/gui/images/basic/blue_cursor.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/rant/data/gui/images/basic/blue_cursor.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/rant/data/gui/images/basic/blue_cursor.svg
+===================================================================
+--- antargis/branches/rant/data/gui/images/basic/blue_cursor.svg	2007-06-23 16:54:17 UTC (rev 1107)
++++ antargis/branches/rant/data/gui/images/basic/blue_cursor.svg	2007-06-23 16:55:08 UTC (rev 1108)
+@@ -0,0 +1,111 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;
++&lt;!-- Created with Inkscape (<A HREF="http://www.inkscape.org/">http://www.inkscape.org/</A>) --&gt;
++&lt;svg
++   xmlns:dc=&quot;<A HREF="http://purl.org/dc/elements/1.1/">http://purl.org/dc/elements/1.1/</A>&quot;
++   xmlns:cc=&quot;<A HREF="http://web.resource.org/cc/">http://web.resource.org/cc/</A>&quot;
++   xmlns:rdf=&quot;<A HREF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">http://www.w3.org/1999/02/22-rdf-syntax-ns#</A>&quot;
++   xmlns:svg=&quot;<A HREF="http://www.w3.org/2000/svg">http://www.w3.org/2000/svg</A>&quot;
++   xmlns=&quot;<A HREF="http://www.w3.org/2000/svg">http://www.w3.org/2000/svg</A>&quot;
++   xmlns:xlink=&quot;<A HREF="http://www.w3.org/1999/xlink">http://www.w3.org/1999/xlink</A>&quot;
++   xmlns:sodipodi=&quot;<A HREF="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd">http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd</A>&quot;
++   xmlns:inkscape=&quot;<A HREF="http://www.inkscape.org/namespaces/inkscape">http://www.inkscape.org/namespaces/inkscape</A>&quot;
++   width=&quot;210mm&quot;
++   height=&quot;297mm&quot;
++   id=&quot;svg2&quot;
++   sodipodi:version=&quot;0.32&quot;
++   inkscape:version=&quot;0.43&quot;
++   sodipodi:docbase=&quot;/home/david/projects/antargis/ant/gui/data&quot;
++   sodipodi:docname=&quot;blue_cursor.svg&quot;
++   inkscape:export-filename=&quot;/home/david/projects/antargis/ant/gui/data/blue_cursor.png&quot;
++   inkscape:export-xdpi=&quot;40.119999&quot;
++   inkscape:export-ydpi=&quot;40.119999&quot;&gt;
++  &lt;defs
++     id=&quot;defs4&quot;&gt;
++    &lt;linearGradient
++       id=&quot;linearGradient2187&quot;&gt;
++      &lt;stop
++         style=&quot;stop-color:#756ef4;stop-opacity:1;&quot;
++         offset=&quot;0&quot;
++         id=&quot;stop2189&quot; /&gt;
++      &lt;stop
++         style=&quot;stop-color:#3935eb;stop-opacity:1&quot;
++         offset=&quot;1&quot;
++         id=&quot;stop2191&quot; /&gt;
++    &lt;/linearGradient&gt;
++    &lt;radialGradient
++       inkscape:collect=&quot;always&quot;
++       xlink:href=&quot;#linearGradient2187&quot;
++       id=&quot;radialGradient2193&quot;
++       cx=&quot;108.93887&quot;
++       cy=&quot;279.11292&quot;
++       fx=&quot;108.93887&quot;
++       fy=&quot;279.11292&quot;
++       r=&quot;27.2846&quot;
++       gradientTransform=&quot;matrix(1.360582,2.032202,-0.528133,0.353591,108.1275,-43.79641)&quot;
++       gradientUnits=&quot;userSpaceOnUse&quot; /&gt;
++    &lt;radialGradient
++       inkscape:collect=&quot;always&quot;
++       xlink:href=&quot;#linearGradient2187&quot;
++       id=&quot;radialGradient2205&quot;
++       gradientUnits=&quot;userSpaceOnUse&quot;
++       gradientTransform=&quot;matrix(1.58498,2.423483,-0.615237,0.421672,107.7002,-106.4241)&quot;
++       cx=&quot;108.93887&quot;
++       cy=&quot;279.11292&quot;
++       fx=&quot;108.93887&quot;
++       fy=&quot;279.11292&quot;
++       r=&quot;27.2846&quot; /&gt;
++    &lt;radialGradient
++       inkscape:collect=&quot;always&quot;
++       xlink:href=&quot;#linearGradient2187&quot;
++       id=&quot;radialGradient2209&quot;
++       gradientUnits=&quot;userSpaceOnUse&quot;
++       gradientTransform=&quot;matrix(1.360582,2.032202,-0.528133,0.353591,72.21495,-31.55257)&quot;
++       cx=&quot;108.93887&quot;
++       cy=&quot;279.11292&quot;
++       fx=&quot;108.93887&quot;
++       fy=&quot;279.11292&quot;
++       r=&quot;27.2846&quot; /&gt;
++  &lt;/defs&gt;
++  &lt;sodipodi:namedview
++     id=&quot;base&quot;
++     pagecolor=&quot;#ffffff&quot;
++     bordercolor=&quot;#666666&quot;
++     borderopacity=&quot;1.0&quot;
++     inkscape:pageopacity=&quot;0.0&quot;
++     inkscape:pageshadow=&quot;2&quot;
++     inkscape:zoom=&quot;0.5&quot;
++     inkscape:cx=&quot;115&quot;
++     inkscape:cy=&quot;768&quot;
++     inkscape:document-units=&quot;px&quot;
++     inkscape:current-layer=&quot;layer1&quot;
++     inkscape:window-width=&quot;1392&quot;
++     inkscape:window-height=&quot;964&quot;
++     inkscape:window-x=&quot;0&quot;
++     inkscape:window-y=&quot;0&quot; /&gt;
++  &lt;metadata
++     id=&quot;metadata7&quot;&gt;
++    &lt;rdf:RDF&gt;
++      &lt;cc:Work
++         rdf:about=&quot;&quot;&gt;
++        &lt;dc:format&gt;image/svg+xml&lt;/dc:format&gt;
++        &lt;dc:type
++           rdf:resource=&quot;<A HREF="http://purl.org/dc/dcmitype/StillImage">http://purl.org/dc/dcmitype/StillImage</A>&quot; /&gt;
++      &lt;/cc:Work&gt;
++    &lt;/rdf:RDF&gt;
++  &lt;/metadata&gt;
++  &lt;g
++     inkscape:label=&quot;Ebene 1&quot;
++     inkscape:groupmode=&quot;layer&quot;
++     id=&quot;layer1&quot;&gt;
++    &lt;path
++       style=&quot;fill:#ffffff;fill-opacity:1;stroke:#120fa5;stroke-width:2.14211988;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1&quot;
++       d=&quot;M 83.562661,248.19712 L 96.268641,314.61748 L 109.8252,305.33147 L 124.80482,328.20645 L 139.75187,318.6088 L 124.82872,296.24487 L 139.34585,287.26183 L 83.562661,248.19712 z &quot;
++       id=&quot;path2213&quot;
++       sodipodi:nodetypes=&quot;cccccccc&quot; /&gt;
++    &lt;path
++       style=&quot;fill:url(#radialGradient2193);fill-opacity:1;stroke:#000000;stroke-width:1.68599999;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1&quot;
++       d=&quot;M 88.111305,255.13625 L 98.5493,309.26413 L 110.87601,301.72431 L 125.641,324.24831 L 135.38047,317.80036 L 120.82994,295.31581 L 134.21614,287.44912 L 88.111305,255.13625 z &quot;
++       id=&quot;rect1307&quot;
++       sodipodi:nodetypes=&quot;cccccccc&quot; /&gt;
++  &lt;/g&gt;
++&lt;/svg&gt;
+
+Added: antargis/branches/rant/data/gui/images/basic/box.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/rant/data/gui/images/basic/box.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/rant/data/gui/images/basic/box_cross.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/rant/data/gui/images/basic/box_cross.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/rant/data/gui/images/basic/button1.svg
+===================================================================
+--- antargis/branches/rant/data/gui/images/basic/button1.svg	2007-06-23 16:54:17 UTC (rev 1107)
++++ antargis/branches/rant/data/gui/images/basic/button1.svg	2007-06-23 16:55:08 UTC (rev 1108)
+@@ -0,0 +1,149 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;
++&lt;!-- Created with Inkscape (<A HREF="http://www.inkscape.org/">http://www.inkscape.org/</A>) --&gt;
++&lt;svg
++   xmlns:dc=&quot;<A HREF="http://purl.org/dc/elements/1.1/">http://purl.org/dc/elements/1.1/</A>&quot;
++   xmlns:cc=&quot;<A HREF="http://web.resource.org/cc/">http://web.resource.org/cc/</A>&quot;
++   xmlns:rdf=&quot;<A HREF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">http://www.w3.org/1999/02/22-rdf-syntax-ns#</A>&quot;
++   xmlns:svg=&quot;<A HREF="http://www.w3.org/2000/svg">http://www.w3.org/2000/svg</A>&quot;
++   xmlns=&quot;<A HREF="http://www.w3.org/2000/svg">http://www.w3.org/2000/svg</A>&quot;
++   xmlns:xlink=&quot;<A HREF="http://www.w3.org/1999/xlink">http://www.w3.org/1999/xlink</A>&quot;
++   xmlns:sodipodi=&quot;<A HREF="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd">http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd</A>&quot;
++   xmlns:inkscape=&quot;<A HREF="http://www.inkscape.org/namespaces/inkscape">http://www.inkscape.org/namespaces/inkscape</A>&quot;
++   sodipodi:docname=&quot;button1.svg&quot;
++   sodipodi:docbase=&quot;/home/david/projects/antargis/svn/antargisgui/trunk/data&quot;
++   inkscape:version=&quot;0.41&quot;
++   sodipodi:version=&quot;0.32&quot;
++   id=&quot;svg2&quot;
++   height=&quot;297mm&quot;
++   width=&quot;210mm&quot;&gt;
++  &lt;defs
++     id=&quot;defs3&quot;&gt;
++    &lt;linearGradient
++       id=&quot;linearGradient2094&quot;&gt;
++      &lt;stop
++         id=&quot;stop2096&quot;
++         offset=&quot;0.0000000&quot;
++         style=&quot;stop-color:#dadada;stop-opacity:0.52156866;&quot; /&gt;
++      &lt;stop
++         id=&quot;stop2098&quot;
++         offset=&quot;1.0000000&quot;
++         style=&quot;stop-color:#cea600;stop-opacity:0.51372552;&quot; /&gt;
++    &lt;/linearGradient&gt;
++    &lt;linearGradient
++       id=&quot;linearGradient2084&quot;&gt;
++      &lt;stop
++         id=&quot;stop2086&quot;
++         offset=&quot;0.0000000&quot;
++         style=&quot;stop-color:#dab000;stop-opacity:0.51999998;&quot; /&gt;
++      &lt;stop
++         id=&quot;stop2088&quot;
++         offset=&quot;1.0000000&quot;
++         style=&quot;stop-color:#9b7d00;stop-opacity:0.51333332;&quot; /&gt;
++    &lt;/linearGradient&gt;
++    &lt;linearGradient
++       id=&quot;linearGradient2062&quot;&gt;
++      &lt;stop
++         id=&quot;stop2064&quot;
++         offset=&quot;0.0000000&quot;
++         style=&quot;stop-color:#f5b50e;stop-opacity:1.0000000;&quot; /&gt;
++      &lt;stop
++         id=&quot;stop2066&quot;
++         offset=&quot;1.0000000&quot;
++         style=&quot;stop-color:#694c00;stop-opacity:1.0000000;&quot; /&gt;
++    &lt;/linearGradient&gt;
++    &lt;linearGradient
++       gradientUnits=&quot;userSpaceOnUse&quot;
++       y2=&quot;563.75726&quot;
++       x2=&quot;302.37729&quot;
++       y1=&quot;450.36023&quot;
++       x1=&quot;233.03575&quot;
++       gradientTransform=&quot;scale(0.988786,1.011341)&quot;
++       id=&quot;linearGradient2068&quot;
++       xlink:href=&quot;#linearGradient2062&quot;
++       inkscape:collect=&quot;always&quot; /&gt;
++    &lt;radialGradient
++       gradientUnits=&quot;userSpaceOnUse&quot;
++       r=&quot;90.465416&quot;
++       fy=&quot;425.68250&quot;
++       fx=&quot;201.97609&quot;
++       cy=&quot;425.68250&quot;
++       cx=&quot;201.97609&quot;
++       gradientTransform=&quot;matrix(0.974734,0.000000,0.000000,1.006921,4.490741,0.000000)&quot;
++       id=&quot;radialGradient2082&quot;
++       xlink:href=&quot;#linearGradient2084&quot;
++       inkscape:collect=&quot;always&quot; /&gt;
++    &lt;radialGradient
++       r=&quot;197.00835&quot;
++       fy=&quot;423.10641&quot;
++       fx=&quot;198.80493&quot;
++       cy=&quot;423.10641&quot;
++       cx=&quot;198.80493&quot;
++       gradientTransform=&quot;scale(0.990195,1.009902)&quot;
++       gradientUnits=&quot;userSpaceOnUse&quot;
++       id=&quot;radialGradient2092&quot;
++       xlink:href=&quot;#linearGradient2094&quot;
++       inkscape:collect=&quot;always&quot; /&gt;
++  &lt;/defs&gt;
++  &lt;sodipodi:namedview
++     inkscape:window-y=&quot;0&quot;
++     inkscape:window-x=&quot;0&quot;
++     inkscape:window-height=&quot;960&quot;
++     inkscape:window-width=&quot;1393&quot;
++     inkscape:current-layer=&quot;layer1&quot;
++     inkscape:document-units=&quot;px&quot;
++     inkscape:cy=&quot;519.99988&quot;
++     inkscape:cx=&quot;374.99983&quot;
++     inkscape:zoom=&quot;0.98994949&quot;
++     inkscape:pageshadow=&quot;2&quot;
++     inkscape:pageopacity=&quot;0.0&quot;
++     borderopacity=&quot;1.0&quot;
++     bordercolor=&quot;#666666&quot;
++     pagecolor=&quot;#ffffff&quot;
++     id=&quot;base&quot; /&gt;
++  &lt;metadata
++     id=&quot;metadata4&quot;&gt;
++    &lt;rdf:RDF
++       id=&quot;RDF5&quot;&gt;
++      &lt;cc:Work
++         id=&quot;Work6&quot;
++         rdf:about=&quot;&quot;&gt;
++        &lt;dc:format
++           id=&quot;format7&quot;&gt;image/svg+xml&lt;/dc:format&gt;
++        &lt;dc:type
++           rdf:resource=&quot;<A HREF="http://purl.org/dc/dcmitype/StillImage">http://purl.org/dc/dcmitype/StillImage</A>&quot;
++           id=&quot;type9&quot; /&gt;
++      &lt;/cc:Work&gt;
++    &lt;/rdf:RDF&gt;
++  &lt;/metadata&gt;
++  &lt;g
++     id=&quot;layer1&quot;
++     inkscape:groupmode=&quot;layer&quot;
++     inkscape:label=&quot;Layer 1&quot;&gt;
++    &lt;rect
++       ry=&quot;23.571428&quot;
++       y=&quot;398.07648&quot;
++       x=&quot;166.42857&quot;
++       height=&quot;157.14307&quot;
++       width=&quot;153.57143&quot;
++       id=&quot;rect1291&quot;
++       style=&quot;stroke-opacity:1.0000000;stroke-miterlimit:4.0000000;stroke-width:3.0000000;stroke:url(#linearGradient2068);fill-opacity:1.0000000;fill:#dfb400&quot; /&gt;
++    &lt;rect
++       rx=&quot;23.571428&quot;
++       ry=&quot;23.571428&quot;
++       y=&quot;398.07639&quot;
++       x=&quot;166.78571&quot;
++       height=&quot;156.42879&quot;
++       width=&quot;151.42857&quot;
++       id=&quot;rect2070&quot;
++       style=&quot;fill:url(#radialGradient2082);fill-opacity:1.0000000;stroke:none;stroke-width:3.0000000;stroke-miterlimit:4.0000000;stroke-opacity:1.0000000&quot; /&gt;
++    &lt;rect
++       rx=&quot;23.571428&quot;
++       ry=&quot;23.571428&quot;
++       y=&quot;402.71921&quot;
++       x=&quot;171.42856&quot;
++       height=&quot;146.42879&quot;
++       width=&quot;143.57144&quot;
++       id=&quot;rect2090&quot;
++       style=&quot;stroke-dasharray:none;fill:url(#radialGradient2092);fill-opacity:1.0;stroke:#000000;stroke-width:1.8000000;stroke-miterlimit:4.0000000;stroke-opacity:0.29302326&quot; /&gt;
++  &lt;/g&gt;
++&lt;/svg&gt;
+
+Added: antargis/branches/rant/data/gui/images/basic/buttontest2.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/rant/data/gui/images/basic/buttontest2.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/rant/data/gui/images/basic/buttontest3.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/rant/data/gui/images/basic/buttontest3.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/rant/data/gui/images/basic/buttontest3b.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/rant/data/gui/images/basic/buttontest3b.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/rant/data/gui/images/basic/close_button.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/rant/data/gui/images/basic/close_button.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/rant/data/gui/images/basic/cursor2.svg
+===================================================================
+--- antargis/branches/rant/data/gui/images/basic/cursor2.svg	2007-06-23 16:54:17 UTC (rev 1107)
++++ antargis/branches/rant/data/gui/images/basic/cursor2.svg	2007-06-23 16:55:08 UTC (rev 1108)
+@@ -0,0 +1,203 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;
++&lt;!-- Created with Inkscape (<A HREF="http://www.inkscape.org/">http://www.inkscape.org/</A>) --&gt;
++&lt;svg
++   xmlns:dc=&quot;<A HREF="http://purl.org/dc/elements/1.1/">http://purl.org/dc/elements/1.1/</A>&quot;
++   xmlns:cc=&quot;<A HREF="http://web.resource.org/cc/">http://web.resource.org/cc/</A>&quot;
++   xmlns:rdf=&quot;<A HREF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">http://www.w3.org/1999/02/22-rdf-syntax-ns#</A>&quot;
++   xmlns:svg=&quot;<A HREF="http://www.w3.org/2000/svg">http://www.w3.org/2000/svg</A>&quot;
++   xmlns=&quot;<A HREF="http://www.w3.org/2000/svg">http://www.w3.org/2000/svg</A>&quot;
++   xmlns:xlink=&quot;<A HREF="http://www.w3.org/1999/xlink">http://www.w3.org/1999/xlink</A>&quot;
++   xmlns:sodipodi=&quot;<A HREF="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd">http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd</A>&quot;
++   xmlns:inkscape=&quot;<A HREF="http://www.inkscape.org/namespaces/inkscape">http://www.inkscape.org/namespaces/inkscape</A>&quot;
++   width=&quot;210mm&quot;
++   height=&quot;297mm&quot;
++   id=&quot;svg2&quot;
++   sodipodi:version=&quot;0.32&quot;
++   inkscape:version=&quot;0.43&quot;
++   sodipodi:docbase=&quot;/home/david/projects/antargis/ant/gui/data&quot;
++   sodipodi:docname=&quot;cursor2.svg&quot;
++   inkscape:export-filename=&quot;/home/david/projects/antargis/ant/gui/data/blue_cursor.png&quot;
++   inkscape:export-xdpi=&quot;40.119999&quot;
++   inkscape:export-ydpi=&quot;40.119999&quot;&gt;
++  &lt;defs
++     id=&quot;defs4&quot;&gt;
++    &lt;linearGradient
++       inkscape:collect=&quot;always&quot;
++       id=&quot;linearGradient2196&quot;&gt;
++      &lt;stop
++         style=&quot;stop-color:#515151;stop-opacity:1;&quot;
++         offset=&quot;0&quot;
++         id=&quot;stop2198&quot; /&gt;
++      &lt;stop
++         style=&quot;stop-color:#515151;stop-opacity:0;&quot;
++         offset=&quot;1&quot;
++         id=&quot;stop2200&quot; /&gt;
++    &lt;/linearGradient&gt;
++    &lt;linearGradient
++       id=&quot;linearGradient2185&quot;&gt;
++      &lt;stop
++         style=&quot;stop-color:#0a0a0a;stop-opacity:1;&quot;
++         offset=&quot;0&quot;
++         id=&quot;stop2187&quot; /&gt;
++      &lt;stop
++         style=&quot;stop-color:#ffffff;stop-opacity:0;&quot;
++         offset=&quot;1&quot;
++         id=&quot;stop2190&quot; /&gt;
++    &lt;/linearGradient&gt;
++    &lt;linearGradient
++       id=&quot;linearGradient2187&quot;&gt;
++      &lt;stop
++         style=&quot;stop-color:#c3c2cb;stop-opacity:1;&quot;
++         offset=&quot;0&quot;
++         id=&quot;stop2189&quot; /&gt;
++      &lt;stop
++         style=&quot;stop-color:#ffffff;stop-opacity:1;&quot;
++         offset=&quot;1&quot;
++         id=&quot;stop2191&quot; /&gt;
++    &lt;/linearGradient&gt;
++    &lt;radialGradient
++       inkscape:collect=&quot;always&quot;
++       xlink:href=&quot;#linearGradient2187&quot;
++       id=&quot;radialGradient2193&quot;
++       cx=&quot;108.93887&quot;
++       cy=&quot;279.11292&quot;
++       fx=&quot;108.93887&quot;
++       fy=&quot;279.11292&quot;
++       r=&quot;27.2846&quot;
++       gradientTransform=&quot;matrix(1.360582,2.032202,-0.528133,0.353591,107.6538,-48.04704)&quot;
++       gradientUnits=&quot;userSpaceOnUse&quot; /&gt;
++    &lt;radialGradient
++       inkscape:collect=&quot;always&quot;
++       xlink:href=&quot;#linearGradient2187&quot;
++       id=&quot;radialGradient2205&quot;
++       gradientUnits=&quot;userSpaceOnUse&quot;
++       gradientTransform=&quot;matrix(1.58498,2.423483,-0.615237,0.421672,107.7002,-106.4241)&quot;
++       cx=&quot;108.93887&quot;
++       cy=&quot;279.11292&quot;
++       fx=&quot;108.93887&quot;
++       fy=&quot;279.11292&quot;
++       r=&quot;27.2846&quot; /&gt;
++    &lt;radialGradient
++       inkscape:collect=&quot;always&quot;
++       xlink:href=&quot;#linearGradient2187&quot;
++       id=&quot;radialGradient2209&quot;
++       gradientUnits=&quot;userSpaceOnUse&quot;
++       gradientTransform=&quot;matrix(1.360582,2.032202,-0.528133,0.353591,72.21495,-31.55257)&quot;
++       cx=&quot;108.93887&quot;
++       cy=&quot;279.11292&quot;
++       fx=&quot;108.93887&quot;
++       fy=&quot;279.11292&quot;
++       r=&quot;27.2846&quot; /&gt;
++    &lt;radialGradient
++       inkscape:collect=&quot;always&quot;
++       xlink:href=&quot;#linearGradient2185&quot;
++       id=&quot;radialGradient2192&quot;
++       cx=&quot;111.65727&quot;
++       cy=&quot;288.20178&quot;
++       fx=&quot;111.65727&quot;
++       fy=&quot;288.20178&quot;
++       r=&quot;28.094604&quot;
++       gradientTransform=&quot;matrix(0.787047,1.364371,-0.60534,0.349195,198.6288,36.19876)&quot;
++       gradientUnits=&quot;userSpaceOnUse&quot; /&gt;
++    &lt;radialGradient
++       inkscape:collect=&quot;always&quot;
++       xlink:href=&quot;#linearGradient2196&quot;
++       id=&quot;radialGradient2202&quot;
++       cx=&quot;113.47369&quot;
++       cy=&quot;304.78323&quot;
++       fx=&quot;113.47369&quot;
++       fy=&quot;304.78323&quot;
++       r=&quot;16.210526&quot;
++       gradientTransform=&quot;matrix(1,4.157915e-17,-8.173759e-18,1.753247,-1.760765e-15,-229.577)&quot;
++       gradientUnits=&quot;userSpaceOnUse&quot; /&gt;
++    &lt;radialGradient
++       inkscape:collect=&quot;always&quot;
++       xlink:href=&quot;#linearGradient2196&quot;
++       id=&quot;radialGradient2206&quot;
++       gradientUnits=&quot;userSpaceOnUse&quot;
++       gradientTransform=&quot;matrix(1,1.398079e-16,-2.893131e-16,1.753247,4.064546e-14,-229.577)&quot;
++       cx=&quot;113.47369&quot;
++       cy=&quot;304.78323&quot;
++       fx=&quot;113.47369&quot;
++       fy=&quot;304.78323&quot;
++       r=&quot;16.210526&quot; /&gt;
++    &lt;radialGradient
++       inkscape:collect=&quot;always&quot;
++       xlink:href=&quot;#linearGradient2196&quot;
++       id=&quot;radialGradient2210&quot;
++       gradientUnits=&quot;userSpaceOnUse&quot;
++       gradientTransform=&quot;matrix(0.928885,6.796555e-2,2.995047e-2,1.465559,-1.058698,-149.607)&quot;
++       cx=&quot;114.15783&quot;
++       cy=&quot;305.9628&quot;
++       fx=&quot;114.15783&quot;
++       fy=&quot;305.9628&quot;
++       r=&quot;16.210526&quot; /&gt;
++  &lt;/defs&gt;
++  &lt;sodipodi:namedview
++     id=&quot;base&quot;
++     pagecolor=&quot;#ffffff&quot;
++     bordercolor=&quot;#666666&quot;
++     borderopacity=&quot;1.0&quot;
++     inkscape:pageopacity=&quot;0.0&quot;
++     inkscape:pageshadow=&quot;2&quot;
++     inkscape:zoom=&quot;1&quot;
++     inkscape:cx=&quot;114&quot;
++     inkscape:cy=&quot;764&quot;
++     inkscape:document-units=&quot;px&quot;
++     inkscape:current-layer=&quot;layer1&quot;
++     inkscape:window-width=&quot;1392&quot;
++     inkscape:window-height=&quot;964&quot;
++     inkscape:window-x=&quot;0&quot;
++     inkscape:window-y=&quot;0&quot; /&gt;
++  &lt;metadata
++     id=&quot;metadata7&quot;&gt;
++    &lt;rdf:RDF&gt;
++      &lt;cc:Work
++         rdf:about=&quot;&quot;&gt;
++        &lt;dc:format&gt;image/svg+xml&lt;/dc:format&gt;
++        &lt;dc:type
++           rdf:resource=&quot;<A HREF="http://purl.org/dc/dcmitype/StillImage">http://purl.org/dc/dcmitype/StillImage</A>&quot; /&gt;
++      &lt;/cc:Work&gt;
++    &lt;/rdf:RDF&gt;
++  &lt;/metadata&gt;
++  &lt;g
++     inkscape:label=&quot;Ebene 1&quot;
++     inkscape:groupmode=&quot;layer&quot;
++     id=&quot;layer1&quot;&gt;
++    &lt;path
++       sodipodi:type=&quot;arc&quot;
++       style=&quot;fill:url(#radialGradient2210);fill-opacity:1;stroke:none;stroke-width:0.78600001;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1&quot;
++       id=&quot;path2208&quot;
++       sodipodi:cx=&quot;113.47369&quot;
++       sodipodi:cy=&quot;304.78323&quot;
++       sodipodi:rx=&quot;16.210526&quot;
++       sodipodi:ry=&quot;28.421053&quot;
++       d=&quot;M 129.68421 304.78323 A 16.210526 28.421053 0 1 1  97.263161,304.78323 A 16.210526 28.421053 0 1 1  129.68421 304.78323 z&quot;
++       transform=&quot;matrix(0.57557,-0.529625,0.239928,0.96251,-39.04886,50.60339)&quot; /&gt;
++    &lt;path
++       sodipodi:type=&quot;arc&quot;
++       style=&quot;fill:url(#radialGradient2206);fill-opacity:1;stroke:none;stroke-width:0.78600001;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1&quot;
++       id=&quot;path2204&quot;
++       sodipodi:cx=&quot;113.47369&quot;
++       sodipodi:cy=&quot;304.78323&quot;
++       sodipodi:rx=&quot;16.210526&quot;
++       sodipodi:ry=&quot;28.421053&quot;
++       d=&quot;M 129.68421 304.78323 A 16.210526 28.421053 0 1 1  97.263161,304.78323 A 16.210526 28.421053 0 1 1  129.68421 304.78323 z&quot;
++       transform=&quot;matrix(0.711618,0.200994,-0.58995,0.579657,214.4646,97.61851)&quot; /&gt;
++    &lt;path
++       sodipodi:type=&quot;arc&quot;
++       style=&quot;fill:url(#radialGradient2202);fill-opacity:1;stroke:none;stroke-width:0.78600001;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1&quot;
++       id=&quot;path2194&quot;
++       sodipodi:cx=&quot;113.47369&quot;
++       sodipodi:cy=&quot;304.78323&quot;
++       sodipodi:rx=&quot;16.210526&quot;
++       sodipodi:ry=&quot;28.421053&quot;
++       d=&quot;M 129.68421 304.78323 A 16.210526 28.421053 0 1 1  97.263161,304.78323 A 16.210526 28.421053 0 1 1  129.68421 304.78323 z&quot;
++       transform=&quot;matrix(0.37197,-0.694996,0.584275,0.735324,-100.0865,159.8644)&quot; /&gt;
++    &lt;path
++       style=&quot;fill:url(#radialGradient2193);fill-opacity:1;stroke:#000000;stroke-width:0.78600001;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1&quot;
++       d=&quot;M 91.83311,259.00592 L 102.27111,309.47967 L 110.40233,297.47368 L 125.16732,319.99768 L 134.90679,313.54973 L 120.35626,291.06518 L 133.33644,289.55939 L 91.83311,259.00592 z &quot;
++       id=&quot;rect1307&quot;
++       sodipodi:nodetypes=&quot;cccccccc&quot; /&gt;
++  &lt;/g&gt;
++&lt;/svg&gt;
+
+Added: antargis/branches/rant/data/gui/images/basic/menu_house_small.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/rant/data/gui/images/basic/menu_house_small.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/rant/data/gui/images/basic/oldpaper.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/rant/data/gui/images/basic/oldpaper.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/rant/data/gui/images/basic/right_arrow.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/rant/data/gui/images/basic/right_arrow.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/rant/data/gui/images/basic/round.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/rant/data/gui/images/basic/round.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/rant/data/gui/images/basic/round_checked.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/rant/data/gui/images/basic/round_checked.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/rant/data/gui/images/basic/sword.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/rant/data/gui/images/basic/sword.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/rant/data/gui/images/basic/win_border.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/branches/rant/data/gui/images/basic/win_border.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/branches/rant/ext/game/path.cc
+===================================================================
+--- antargis/branches/rant/ext/game/path.cc	2007-06-23 16:54:17 UTC (rev 1107)
++++ antargis/branches/rant/ext/game/path.cc	2007-06-23 16:55:08 UTC (rev 1108)
+@@ -0,0 +1,913 @@
++#include &quot;path.h&quot;
++#include &lt;math.h&gt;
++#include &lt;stdexcept&gt;
++#include &lt;ag_profiler.h&gt;
++#include &lt;ag_debug.h&gt;
++//#include &lt;SDL.h&gt;
++#include &lt;ag_surface.h&gt;
++#include &lt;ag_painter.h&gt;
++
++
++
++///////////////////////////////////////////////////////////////////////
++// Node
++///////////////////////////////////////////////////////////////////////
++
++
++SimpleGraph::Node::~Node()
++{
++
++}
++
++bool SimpleGraph::NodePtrCompare::operator()(const Node *a,const Node *b)
++{
++  return a-&gt;p&lt;b-&gt;p;
++}
++
++
++SimpleGraph::Node::NodeMap SimpleGraph::Node::getNextNodes()
++{
++  SimpleGraph::Node::NodeMap m;
++
++  for(Edges::iterator i=edges.begin();i!=edges.end();i++)
++    {
++      if((*i)-&gt;a==this)
++	m[(*i)-&gt;b]=(*i)-&gt;w0;
++      else
++	m[(*i)-&gt;a]=(*i)-&gt;w1;
++    }
++
++  return m;
++}
++
++///////////////////////////////////////////////////////////////////////
++// Edge
++///////////////////////////////////////////////////////////////////////
++
++SimpleGraph::Edge::Edge(Node *pa,Node *pb,float p0,float p1)
++{
++  if(pa&lt;pb)
++    {
++      a=pa;
++      b=pb;
++      w0=p0;
++      w1=p1;
++    }
++  else
++    {
++      a=pb;
++      b=pa;
++      w0=p1;
++      w1=p0;
++    }
++}
++SimpleGraph::Edge::~Edge()
++{
++}
++
++bool SimpleGraph::EdgePtrCompare::operator()(const Edge *a,const Edge *b)
++{
++  return(a-&gt;a-&gt;p &lt; b-&gt;a-&gt;p || (a-&gt;a-&gt;p==b-&gt;a-&gt;p &amp;&amp; a-&gt;b-&gt;p&lt;b-&gt;b-&gt;p));
++}
++
++
++bool SimpleGraph::Edge::operator&lt;(const Edge &amp;e) const
++{
++  return a&lt;e.a || (a==e.a &amp;&amp; b&lt;e.b);
++}
++
++float SimpleGraph::Edge::maxWeight() const
++{
++  return std::max(w0,w1);
++}
++
++SimpleGraph::Node *SimpleGraph::Edge::getOther(Node *n)
++{
++  if(a==n)
++    return b;
++  if(b==n)
++    return a;
++  return 0;
++}
++
++/*
++SimpleGraph::HalfEdge *SimpleGraph::Edge::getHalfEdgeFrom(Node *n)
++{
++  HalfEdge *h;
++  if(a==n)
++    {
++      h-&gt;a=a;
++      h-&gt;b=b;
++      h-&gt;w=w0;
++    }
++  else
++    {
++      h-&gt;b=a;
++      h-&gt;a=b;
++      h-&gt;w=w1;
++    }
++  return h;
++}
++SimpleGraph::HalfEdge *SimpleGraph::Edge::getHalfEdgeTo(Node *n)
++{
++  HalfEdge *h;
++  if(a!=n)
++    {
++      h-&gt;a=a;
++      h-&gt;b=b;
++      h-&gt;w=w0;
++    }
++  else
++    {
++      h-&gt;b=a;
++      h-&gt;a=b;
++      h-&gt;w=w1;
++    }
++  return h;
++  }*/
++
++
++///////////////////////////////////////////////////////////////////////
++// PathWeighter
++///////////////////////////////////////////////////////////////////////
++
++PathWeighter::~PathWeighter()
++{
++}
++float PathWeighter::weight(float h0,float h1)
++{
++  if(h0&lt;0.3 || h1&lt;0.3)
++    return 100000; // high weight for non-passable water ;-)
++
++  return fabs(h0-h1);
++}
++
++///////////////////////////////////////////////////////////////////////
++// MapPathWeighter
++///////////////////////////////////////////////////////////////////////
++
++MapPathWeighter::MapPathWeighter(HeightMap *pMap):
++  mMap(pMap)
++{
++}
++float MapPathWeighter::weight(const AGVector2 &amp;a,const AGVector2 &amp;b)
++{
++  return complexWeight(a,b);
++
++
++
++  float w=(a-b).length();
++  if(w&gt;1)
++    throw std::runtime_error(&quot;not implemented&quot;);
++  float h0=mMap-&gt;getHeight(a[0],a[1]);
++  float h1=mMap-&gt;getHeight(b[0],b[1]);
++
++  w+=weightHeight(h0,h1);
++
++  return w;
++}
++
++float MapPathWeighter::complexWeight(const AGVector2 &amp;a,const AGVector2 &amp;b)
++{
++  // simply measure all &quot;1 units&quot;
++  AGVector2 delta=b-a;
++  float dist=delta.length();
++  AGVector2 dir=delta/dist;
++
++  float weight=0;
++  float stepping=0.1;
++
++
++  float i=std::min(stepping,dist);
++  float oi=0;
++
++
++  while(oi!=i)
++    {
++      float d=i-oi;
++      AGVector2 ca=a+dir*oi;
++      AGVector2 cb=a+dir*i;
++
++      float h0=mMap-&gt;getHeight(ca[0],ca[1]);
++      float h1=mMap-&gt;getHeight(cb[0],cb[1]);
++      float cw=d+weightHeight(h0,h1);
++
++      weight+=cw;
++
++      oi=i;
++      i=std::min(i+stepping,dist);
++    }
++  return weight;
++}
++
++float MapPathWeighter::weightHeight(float a,float b) const
++{
++  float f=1; // some factor - to be estimated
++
++
++  if(b&lt;0.2)
++    return (0.2-b)*1000;
++
++  if(b&gt;a)
++    {
++      // uphill
++      return (b-a)*f;
++    }
++  else
++    return -(b-a)*f*0.3; 
++}
++
++
++
++
++bool MapPathWeighter::accessible(const AGVector2 &amp;a)
++{
++  //  return true;
++  float hmin=10;
++  for(int x=-1;x&lt;2;x++)
++    for(int y=-1;y&lt;2;y++)
++      {
++	float px=a[0]+x;
++	float py=a[1]+y;
++	px=std::max(0.0f,std::min(px,mMap-&gt;getW()-1.0f));
++	py=std::max(0.0f,std::min(py,mMap-&gt;getH()-1.0f));
++	hmin=std::min(hmin,mMap-&gt;getHeight(px,py));
++      }
++  return hmin&gt;0;
++}
++
++
++
++///////////////////////////////////////////////////////////////////////
++// Graph
++///////////////////////////////////////////////////////////////////////
++
++SimpleGraph::SimpleGraph()
++{
++  mWidth=0.00001;
++}
++
++
++SimpleGraph::Node *SimpleGraph::addNode(const AGVector2 &amp;p)
++{
++  Node *n=findNode(p);
++  if(!n)
++    {
++      n=new Node;
++      n-&gt;p=p;
++      mNodes.insert(n);
++      mNodeMap[p]=n;
++    }
++
++  mWidth=std::max((double)mWidth,std::max(fabs(p[0]),fabs(p[1])));
++
++  return n;
++}
++
++void SimpleGraph::paintNode(const AGRect2&amp; r,AGPaintTarget &amp;t,const AGVector2 &amp;p,const AGColor &amp;c)
++{
++  AGPainter painter(t);
++  float xscale=r.width()/width();
++  float yscale=r.height()/width();
++
++
++  float x=p[0]*xscale+r.x();
++  float y=p[1]*yscale+r.y();
++  
++  painter.fillRect(AGRect2(x,y,10,10),c);
++  
++}
++
++
++void SimpleGraph::paint(const AGRect2&amp; r,AGPaintTarget &amp;t,Heuristic &amp;heuristic)
++{
++  AGColor green(0,0xFF,0,0xFF);
++  AGColor red(0xFF,0,0,0xFF);
++  float xscale=r.width()/width();
++  float yscale=r.height()/width();
++  AGPainter painter(t);
++
++  for(EdgeSet::iterator i=mEdges.begin();i!=mEdges.end();i++)
++    {
++      AGVector2 p0=(*i)-&gt;a-&gt;p;
++      float x0=p0[0]*xscale+r.x();
++      float y0=p0[1]*yscale+r.y();
++      AGVector2 p1=(*i)-&gt;b-&gt;p;
++      float x1=p1[0]*xscale+r.x();
++      float y1=p1[1]*yscale+r.y();
++
++      painter.drawLine(AGVector2(x0,y0),AGVector2(x1,y1),red);
++
++      AGVector2 m((x0+x1)/2-10,(y0+y1)/2-10);
++
++      painter.renderText(AGStringUtf8((int)(*i)-&gt;w0)+&quot;:&quot;+AGStringUtf8((int)(*i)-&gt;w1),m,AGFont());
++      
++    }
++
++
++  for(NodeSet::iterator i=mNodes.begin();i!=mNodes.end();i++)
++    {
++      AGVector2 p=(*i)-&gt;p;
++      float x=p[0]*xscale+r.x();
++      float y=p[1]*yscale+r.y();
++
++      painter.fillRect(AGRect2(x,y,2,2),green);
++
++      painter.renderText(AGStringUtf8(int(heuristic.distance((*i)-&gt;p))),AGVector2(x-10,y-10),AGFont());
++
++    }
++}
++
++
++
++float SimpleGraph::width() const
++{
++  return mWidth;
++}
++
++size_t SimpleGraph::size() const
++{
++  return mNodes.size();
++}
++
++
++SimpleGraph::Edge *SimpleGraph::addEdge(Node *a, Node *b,float w0,float w1)
++{
++  Node *n1=a;
++  Node *n2=b;
++  assert(n1);
++  assert(n2);
++  Edge *e=new Edge(n1,n2,w0,w1);
++
++  n1-&gt;edges.push_back(e);
++
++  n2-&gt;edges.push_back(e);
++
++  mEdges.insert(e);
++
++  return e;
++}
++
++void SimpleGraph::removeEdge(Edge *e)
++{
++  //  cdebug(&quot;1&quot;);
++  mEdges.erase(e);
++  //  cdebug(&quot;2&quot;);
++
++  e-&gt;a-&gt;edges.remove(e);
++  e-&gt;b-&gt;edges.remove(e);
++  //  cdebug(&quot;3&quot;);
++
++  //  delete e;
++}
++
++void SimpleGraph::removeNode(Node *n)
++{
++  mNodes.erase(n);
++  mNodeMap.erase(n-&gt;p);
++}
++
++
++
++SimpleGraph::~SimpleGraph()
++{
++  for(NodeSet::iterator i=mNodes.begin();i!=mNodes.end();i++)
++    delete *i;
++  for(EdgeSet::iterator i=mEdges.begin();i!=mEdges.end();i++)
++    delete *i;
++}
++
++SimpleGraph::Node *SimpleGraph::findNearest(const AGVector2 &amp;p)
++{
++  if(mNodes.size()==0)
++    return 0;
++
++  NodeSet::iterator i=mNodes.begin();
++  Node *n=*i;
++  float dist=(n-&gt;p-p).length();
++  for(;i!=mNodes.end();i++)
++    {
++      float d=((*i)-&gt;p-p).length();
++      if(d&lt;dist)
++	{
++	  n=*i;
++	  dist=d;
++	}
++    }
++  return n;
++}
++
++AGVector2 SimpleGraph::findNearestVector(const AGVector2 &amp;p)
++{
++  return findNearest(p)-&gt;p;
++}
++
++
++
++SimpleGraph::Node *SimpleGraph::findNode(const AGVector2 &amp;p)
++{
++  return mNodeMap[p];
++}
++
++void SimpleGraph::print()
++{
++  for(EdgeSet::iterator i=mEdges.begin();i!=mEdges.end();i++)
++    std::cout&lt;&lt;(*i)-&gt;a-&gt;p&lt;&lt;&quot;:&quot;&lt;&lt;(*i)-&gt;b-&gt;p&lt;&lt;&quot;:&quot;&lt;&lt;(*i)-&gt;w0&lt;&lt;&quot;:&quot;&lt;&lt;(*i)-&gt;w1&lt;&lt;std::endl;
++}
++
++void SimpleGraph::printInfo()
++{
++  std::cout&lt;&lt;&quot;nodes:&quot;&lt;&lt;mNodes.size()&lt;&lt;std::endl;
++  std::cout&lt;&lt;&quot;edges:&quot;&lt;&lt;mEdges.size()&lt;&lt;std::endl;
++}
++
++void SimpleGraph::check()
++{
++  // check if all nodes have an edge
++  for(NodeSet::iterator i=mNodes.begin();i!=mNodes.end();i++)
++    {
++      if((*i)-&gt;edges.size()==0)
++	{
++	  cdebug(&quot;empty node:&quot;&lt;&lt;(*i)-&gt;p&lt;&lt;&quot;(&quot;&lt;&lt;(*i));
++	  throw std::runtime_error(&quot;check failed 0&quot;);
++	}
++      for(Edges::iterator j=(*i)-&gt;edges.begin();j!=(*i)-&gt;edges.end();j++)
++	{
++	  if((*j)-&gt;a!=(*i) &amp;&amp; (*j)-&gt;b!=(*i))
++	    throw std::runtime_error(&quot;check failed 1&quot;);
++	  if(mEdges.find(*j)==mEdges.end())
++	    throw std::runtime_error(&quot;check failed 2&quot;);
++	}
++    }
++}
++
++
++///////////////////////////////////////////////////////////////////////
++// DecimatedGraph
++///////////////////////////////////////////////////////////////////////
++
++class SortEdges
++{
++public:
++  bool operator()(const SimpleGraph::Edge*e1,const SimpleGraph::Edge*e2)
++  {
++    return e1-&gt;maxWeight()&lt;e2-&gt;maxWeight();
++  }
++};
++
++void DecimatedGraph::decimate(float amount,MapPathWeighter *pWeighter)
++{
++  size_t m=(size_t)(mNodes.size()*(1.0-amount));
++
++  m=std::max((unsigned int)m,2U);
++
++  while(mNodes.size()&gt;m)
++    {
++      cdebug(mNodes.size()&lt;&lt;&quot; vs. &quot;&lt;&lt;m);
++
++      tryRemove(*mEdges.begin(),pWeighter);
++    }
++
++}
++
++void DecimatedGraph::tryRemove(Edge *e,MapPathWeighter *pWeighter)
++{
++  collapseEdge(e,pWeighter);
++}
++
++//   w0-&gt;  w0-&gt; w0-&gt;
++// X  --  a -- b -- Y
++//   w0&lt;-  w0-&gt; w0&lt;-
++//
++
++
++void DecimatedGraph::collapseEdge(Edge *e,MapPathWeighter *pWeighter)
++{
++  if(mNodes.size()&lt;=2)
++    return;
++  
++
++  AGVector2 np=(e-&gt;a-&gt;p+e-&gt;b-&gt;p)*0.5;
++  //  e-&gt;a-&gt;p=np;
++
++  Node *nn=addNode(np);
++
++  Edges all;
++  std::copy(e-&gt;a-&gt;edges.begin(),e-&gt;a-&gt;edges.end(),std::back_inserter(all));
++  std::copy(e-&gt;b-&gt;edges.begin(),e-&gt;b-&gt;edges.end(),std::back_inserter(all));
++
++  //  cdebug(&quot;all:&quot;&lt;&lt;all.size());
++
++  std::set&lt;Edge&gt; nedges; // collect edges and sort out doubles
++
++  for(Edges::iterator i=all.begin();i!=all.end();i++)
++    {
++      if(*i!=e)
++	{
++	  if((*i)-&gt;a==e-&gt;a)
++	    {
++	      // X &lt;- a -&gt; b
++	      nedges.insert(makeEdge((*i)-&gt;b,nn,pWeighter));
++	      //	      nedges.insert(Edge((*i)-&gt;b,nn,(*i)-&gt;w1+e-&gt;w0/2, (*i)-&gt;w0+e-&gt;w1/2));
++	    }
++	  else if((*i)-&gt;b==e-&gt;a)
++	    {
++	      // X -&gt; a -&gt; b
++	      nedges.insert(makeEdge((*i)-&gt;a,nn,pWeighter));
++	      //	      nedges.insert(Edge((*i)-&gt;a,nn,(*i)-&gt;w0+e-&gt;w0/2, (*i)-&gt;w1+e-&gt;w1/2));
++	    }
++	  else if((*i)-&gt;a==e-&gt;b)
++	    {
++	      // a -&gt; b -&gt; X
++	      //nedges.insert(Edge(nn,(*i)-&gt;b,e-&gt;w0/2+(*i)-&gt;w0, e-&gt;w1/2+(*i)-&gt;w1));
++	      nedges.insert(makeEdge(nn,(*i)-&gt;b,pWeighter));
++	    }
++	  else if((*i)-&gt;b==e-&gt;b)
++	    {
++	      // a -&gt; b &lt;- X
++	      //nedges.insert(Edge(nn,(*i)-&gt;a, e-&gt;w0/2+(*i)-&gt;w1, e-&gt;w1/2+(*i)-&gt;w0));
++	      nedges.insert(makeEdge(nn,(*i)-&gt;a,pWeighter));
++	    }
++	}
++    }
++
++  for(std::set&lt;Edge&gt;::iterator i=nedges.begin();i!=nedges.end();i++)
++    addEdge(i-&gt;a,i-&gt;b,i-&gt;w0,i-&gt;w1);
++  
++
++  //  cdebug(&quot;ok&quot;);
++  //  print();
++  //  cdebug(&quot;removing:&quot;&lt;&lt;e-&gt;b-&gt;p&lt;&lt;&quot;(&quot;&lt;&lt;e-&gt;b);
++  removeNode(e-&gt;b);
++  //  cdebug(&quot;removing:&quot;&lt;&lt;e-&gt;a-&gt;p&lt;&lt;&quot;(&quot;&lt;&lt;e-&gt;a);
++  removeNode(e-&gt;a);
++
++  for(Edges::iterator i=all.begin();i!=all.end();i++)
++    removeEdge(*i);
++
++  //  cdebug(&quot;ok........&quot;);
++  
++}
++
++
++SimpleGraph::Edge DecimatedGraph::makeEdge(Node *a,Node *b,MapPathWeighter *pWeighter)
++{
++  return Edge(a,b,pWeighter-&gt;weight(a-&gt;p,b-&gt;p),pWeighter-&gt;weight(b-&gt;p,a-&gt;p));
++}
++
++
++
++///////////////////////////////////////////////////////////////////////
++// Graph generation
++///////////////////////////////////////////////////////////////////////
++
++SimpleGraph *makeGraph(HeightMap *pMap, MapPathWeighter *pWeighter,size_t res)
++{
++  size_t x,y;
++  SimpleGraph *graph=new SimpleGraph;
++  std::map&lt;std::pair&lt;size_t,size_t&gt;,SimpleGraph::Node*&gt; nodes;
++
++  size_t w=pMap-&gt;getW();
++  size_t h=pMap-&gt;getH();
++
++
++  //  w=h=4;
++
++  for(x=0;x&lt;w;x+=res)
++    for(y=0;y&lt;h;y+=res)
++      {
++	if(pWeighter-&gt;accessible(AGVector2(x,y)))
++	  nodes[std::make_pair(x,y)]=graph-&gt;addNode(AGVector2(x,y));
++      }
++
++  for(x=0;x&lt;w;x+=res)
++    for(y=0;y&lt;h;y+=res)
++      {
++	std::pair&lt;size_t,size_t&gt; p(x,y);
++	std::pair&lt;size_t,size_t&gt; p1(x+res,y);
++	std::pair&lt;size_t,size_t&gt; p2(x,y+res);
++	if(x&lt;w-1)
++	  {
++	    SimpleGraph::Node *a=nodes[p];
++	    SimpleGraph::Node *b=nodes[p1];
++	    if(a &amp;&amp; b)
++	      graph-&gt;addEdge(a,b,pWeighter-&gt;weight(AGVector2(x,y),AGVector2(x+res,y)),pWeighter-&gt;weight(AGVector2(x+res,y),AGVector2(x,y)));
++	  }
++	if(y&lt;h-1)
++	  {
++	    SimpleGraph::Node *a=nodes[p];
++	    SimpleGraph::Node *b=nodes[p2];
++	    if(a &amp;&amp; b)
++	      graph-&gt;addEdge(a,b,pWeighter-&gt;weight(AGVector2(x,y),AGVector2(x,y+res)),pWeighter-&gt;weight(AGVector2(x,y+res),AGVector2(x,y)));
++	  }
++      }
++  return graph;
++
++}
++
++HeuristicFunction *computeHeuristic(SimpleGraph *g)
++{
++  StoredHeuristicFunction *h=new StoredHeuristicFunction(32,g-&gt;width());
++
++  size_t c=0;
++
++  AGSurface ms(32,32);
++
++
++  //  SimpleGraph::NodeSet testSet;
++  //  testSet.insert(g-&gt;findNearest(AGVector2(176,167)));
++
++
++
++  //?????????????????&#223;
++
++  for(SimpleGraph::NodeSet::iterator i=g-&gt;mNodes.begin();i!=g-&gt;mNodes.end();i++)
++    //for(SimpleGraph::NodeSet::iterator i=testSet.begin();i!=testSet.end();i++)
++    {
++      std::map&lt;SimpleGraph::Node*,float&gt; weights;
++      std::set&lt;SimpleGraph::Node*&gt; modified;
++      modified.insert(*i);
++      while(modified.size())
++	{
++	  SimpleGraph::Node *n=*modified.begin();
++	  modified.erase(modified.begin());
++	  
++	  SimpleGraph::Node::NodeMap ns=n-&gt;getNextNodes();
++	  float old=weights[n];
++
++	  for(SimpleGraph::Node::NodeMap::iterator j=ns.begin();j!=ns.end();j++)
++	    {
++	      float now=weights[j-&gt;first];
++	      //	      cdebug(&quot;now:&quot;&lt;&lt;now&lt;&lt;&quot;  old:&quot;&lt;&lt;old&lt;&lt;&quot; plus:&quot;&lt;&lt;j-&gt;second);
++	      if(now==0 || (now&gt;j-&gt;second+old))
++		{
++		  modified.insert(j-&gt;first);
++		  weights[j-&gt;first]=j-&gt;second+old;
++		  //		  cdebug(&quot;saved:&quot;&lt;&lt;weights[j-&gt;first]);
++
++		  if(false)
++		  {
++		    int x=(int)j-&gt;first-&gt;p[0];
++		    int y=(int)j-&gt;first-&gt;p[1];
++		    //		    cdebug(&quot;w:&quot;&lt;&lt;g-&gt;width());
++
++		    x=(int)(x*32/g-&gt;width());
++		    y=(int)(y*32/g-&gt;width());
++		    int c=(int)weights[j-&gt;first]*4;
++		    int c2=(int)weights[j-&gt;first];
++		    AGColor mc(c,c2,c2,255);
++		    //		    cdebug(x&lt;&lt;&quot;;&quot;&lt;&lt;y&lt;&lt;&quot;:&quot;&lt;&lt;mc);
++
++		    ms.putPixel(x,y,mc);
++
++		  }
++
++
++
++
++		}
++	    }
++	}
++
++      //FIXME: store data !!
++
++      for(std::map&lt;SimpleGraph::Node*,float&gt;::iterator j=weights.begin();j!=weights.end();j++)
++	{
++	  h-&gt;store(std::make_pair((*i)-&gt;p,j-&gt;first-&gt;p),j-&gt;second);
++	}
++
++      h-&gt;store(std::make_pair((*i)-&gt;p,(*i)-&gt;p),0);
++
++      //      ms.save(&quot;path.png&quot;);
++      //      exit(1);
++
++
++      c++;
++      cdebug(c&lt;&lt;&quot; out of &quot;&lt;&lt;g-&gt;mNodes.size());
++    }
++
++  //  h-&gt;display();
++
++  return h;
++}
++
++///////////////////////////////////////////////////////////////////////
++// Path
++///////////////////////////////////////////////////////////////////////
++
++
++Path::Path()
++{
++  weight=0;
++}
++
++float Path::getWeight(Heuristic *h) const
++{
++  if(size()&gt;0)
++    return weight+h-&gt;distance(back()-&gt;p);
++  return -1;
++}
++
++void Path::push(SimpleGraph::Node *n,float w)
++{
++  push_back(n);
++  weight+=w;
++}
++
++void Path::paint(const AGRect2 &amp;r,AGPaintTarget &amp;t,float scale)
++{
++  AGVector2 old;
++  AGColor green(0,0xFF,0,0xFF);
++  AGColor red(0xFF,0,0,0xFF);
++  AGPainter painter(t);
++
++  for(iterator i=begin();i!=end();i++)
++    {
++      AGVector2 current((*i)-&gt;p[0]*r.width()/scale+r.x0(),
++			(*i)-&gt;p[1]*r.height()/scale+r.y0());
++      if(i!=begin())
++	{
++	  painter.drawLine(old,current,green);
++	}
++      painter.fillRect(AGRect2(current[0],current[1],3,3),red);
++      old=current;
++    }
++  painter.renderText(AGStringUtf8(weight),AGVector2(0,0),AGFont());
++  painter.renderText(AGStringUtf8(size()),AGVector2(0,50),AGFont());
++  
++
++}
++
++///////////////////////////////////////////////////////////////////////
++// Pathfinder
++///////////////////////////////////////////////////////////////////////
++
++
++Pathfinder::Pathfinder(SimpleGraph *pGraph,HeuristicFunction *pHeuristic,PathDebugging *d):
++  mGraph(pGraph),mHeuristic(pHeuristic),
++  mDebug(d)
++{
++}
++
++void Pathfinder::mark()
++{
++  markObject(mGraph);
++}
++
++struct Path;
++
++
++
++// Heuristic
++bool Heuristic::operator()(const Path &amp;a,const Path &amp;b)
++{
++  return a.getWeight(this)&lt;b.getWeight(this);
++}
++
++float Heuristic::distance(const AGVector2&amp;from)
++{
++  //  cdebug(&quot;from:&quot;&lt;&lt;from&lt;&lt;&quot; to:&quot;&lt;&lt;to);
++  if((to-AGVector2(90,90)).length()&lt;1)
++    throw int();
++  return (*p)(std::make_pair(from,to));
++}
++
++
++
++std::vector&lt;AGVector2&gt; Pathfinder::computePath(const AGVector2 &amp;pFrom, const AGVector2 &amp;pTo)
++{
++  STACKTRACE;
++
++  Uint32 t0=SDL_GetTicks();
++  
++  SimpleGraph::Node *from=mGraph-&gt;findNearest(pFrom);
++  SimpleGraph::Node *to=mGraph-&gt;findNearest(pTo);
++
++
++  cdebug(&quot;FROM:&quot;&lt;&lt;from-&gt;p);
++  cdebug(&quot;TO:&quot;&lt;&lt;to-&gt;p);
++
++  Path initial;
++  initial.push(from,0);
++
++  //  Heuristic heuristic(to-&gt;p);
++  std::set&lt;Path,Heuristic&gt; pathSet(Heuristic(to-&gt;p,mHeuristic));
++  std::vector&lt;AGVector2&gt; result;
++
++  pathSet.insert(initial);
++
++  size_t tries=0;
++
++  while(tries&lt;1000 &amp;&amp; pathSet.size()&gt;0)
++    {
++      Path path=*pathSet.begin();
++
++      if(mDebug)
++	mDebug-&gt;debugPath(path,path.getWeight(new Heuristic(to-&gt;p,mHeuristic)));
++
++      {
++	SimpleGraph::Node *oldi=0;
++	  for(Path::iterator i=path.begin();i!=path.end();i++)
++	    {
++	      /*
++	      std::cout&lt;&lt;(*i)-&gt;p&lt;&lt;&quot;:&quot;;
++	      if(oldi)
++		{
++		  for(SimpleGraph::Edges::iterator j=oldi-&gt;edges.begin();j!=oldi-&gt;edges.end();j++)
++		    {
++		      if((*j)-&gt;a==*i)
++			std::cout&lt;&lt;&quot;(&quot;&lt;&lt;(*j)-&gt;w0&lt;&lt;&quot;)&quot;;
++		      else if((*j)-&gt;b==*i)
++			std::cout&lt;&lt;&quot;(&quot;&lt;&lt;(*j)-&gt;w1&lt;&lt;&quot;)&quot;;
++		    }
++		}
++	      */
++	      oldi=*i;
++	    }
++	std::cout&lt;&lt;std::endl;
++      }
++
++      pathSet.erase(pathSet.begin());
++      SimpleGraph::Node *last=path.back();
++      if(last==to)
++	{
++	  Uint32 t1=SDL_GetTicks();
++	  std::cout&lt;&lt;&quot;TIME:&quot;&lt;&lt;t1-t0&lt;&lt;std::endl;
++	  cdebug(&quot;time:&quot;&lt;&lt;t1-t0);
++	  cdebug(&quot;len:&quot;&lt;&lt;path.size());
++	  cdebug(&quot;tries:&quot;&lt;&lt;tries);
++	  cdebug(&quot;PATHHHHHHHHHHHHHHHHHHHH:&quot;);
++	  cdebug(path.weight);
++	  for(Path::iterator i=path.begin();i!=path.end();i++)
++	    {
++	      cdebug((*i)-&gt;p);
++	      result.push_back((*i)-&gt;p);
++	    }
++
++	  return result; // ready
++	}
++      
++      
++      cdebug(&quot;heuristic:&quot;&lt;&lt;path.getWeight(new Heuristic(to-&gt;p,mHeuristic)));
++      cdebug(&quot;gone:&quot;&lt;&lt;path.weight);
++      cdebug(&quot;setsize:&quot;&lt;&lt;pathSet.size());
++      cdebug(&quot;rest:&quot;&lt;&lt;(last-&gt;p-to-&gt;p).length()&lt;&lt;&quot;  p:&quot;&lt;&lt;last-&gt;p);
++      cdebug(&quot;tries:&quot;&lt;&lt;tries);
++      
++
++      SimpleGraph::Node::NodeMap nextNodes=last-&gt;getNextNodes();
++
++      std::set&lt;SimpleGraph::Node*&gt; alreadyGone;
++      std::copy(path.begin(),path.end(),std::inserter(alreadyGone,alreadyGone.begin()));
++
++      for(SimpleGraph::Node::NodeMap::iterator i=nextNodes.begin();i!=nextNodes.end();i++)
++	{
++	  if(alreadyGone.find(i-&gt;first)==alreadyGone.end())
++	    {
++	      cdebug(&quot;possible:&quot;&lt;&lt;i-&gt;first&lt;&lt;&quot;   &quot;&lt;&lt;i-&gt;second);
++	      Path npath=path;
++	      npath.push(i-&gt;first,i-&gt;second);
++	      pathSet.insert(npath);
++	    }
++	}
++
++
++      tries++;
++    }
++
++
++  return result;
++
++}
++
++std::vector&lt;AGVector2&gt; Pathfinder::refinePath(const std::vector&lt;AGVector2&gt; &amp;p,MapPathWeighter *pWeighter)
++{
++  std::vector&lt;AGVector2&gt; result=p;
++  
++  if(result.size()&lt;3)
++    return result;
++
++  std::vector&lt;AGVector2&gt;::iterator i=result.begin()+1;
++
++  for(;i!=result.end()-1;)
++    {
++      // check if waypoint is discardable
++      AGVector2 a=*(i-1);
++      AGVector2 b=*i;
++      AGVector2 c=*(i+1);
++
++      float w0=pWeighter-&gt;weight(a,b);
++      float w1=pWeighter-&gt;weight(b,c);
++      float w2=pWeighter-&gt;weight(a,c);
++
++      cdebug(&quot;WEIGHTS:&quot;&lt;&lt;w0&lt;&lt;&quot;  &quot;&lt;&lt;w1&lt;&lt;&quot;  &quot;&lt;&lt;w2);
++
++      if(w0+w1&gt;w2)
++	i=result.erase(i);
++      else
++	i++;
++    }
++
++
++  return result;
++}
+
+Added: antargis/branches/rant/ext/game/path.h
+===================================================================
+--- antargis/branches/rant/ext/game/path.h	2007-06-23 16:54:17 UTC (rev 1107)
++++ antargis/branches/rant/ext/game/path.h	2007-06-23 16:55:08 UTC (rev 1108)
+@@ -0,0 +1,265 @@
++#ifndef PATH_H
++#define PATH_H
++
++// INCLUDE_SWIG - used to filter, which files are included in swig-interfacing
++
++#include &quot;height_map.h&quot;
++#include &quot;heuristic.h&quot;
++
++#include &lt;ag_surface.h&gt;
++
++/**
++   This file is WORK-IN-PROGRESS !!!!!!!!!!!!!!!!!!!!!!
++
++   The purpose is some path-finding-algorithm based upon &quot;A-star&quot;. (A*)
++   
++   Because path-finding is a somewhat hard topic, we should try some
++   hierarchical approach:
++   * build some graph out of the height-map - weight come from height and terrain-type (swamp and deep sand vs. plain grass)
++   * nodes that are near each other get eliminated (thrown together), if terrain connection is possible (and too much longer)
++   * several levels of this graph can be used, according to the distance that has to be gone
++   * for people that have boats, water can be crossed, so there has to be a different path-graph !
++
++*/
++
++class Heuristic;
++
++class PathWeighter:public AGRubyObject
++{
++ public:
++  virtual ~PathWeighter();
++  virtual float weight(float h0,float h1);
++};
++
++class MapPathWeighter:public PathWeighter
++{
++ public:
++  MapPathWeighter(HeightMap *pMap);
++  virtual float weight(const AGVector2 &amp;a,const AGVector2 &amp;b);
++  virtual bool accessible(const AGVector2 &amp;a);
++ private:
++
++  virtual float complexWeight(const AGVector2 &amp;a,const AGVector2 &amp;b);
++  virtual float weightHeight(float a,float b) const;
++
++  HeightMap *mMap;
++};
++
++
++struct AGVector2Sort
++{
++  public:
++  bool operator()(const AGVector2 &amp;a,const AGVector2 &amp;b)
++  {
++    return a[0]&lt;b[0] || (a[0]==b[0] &amp;&amp; a[1]&lt;b[1]);
++  }
++};
++
++
++class SimpleGraph:public AGRubyObject
++{
++ public:
++  struct Node;
++  struct Edge;
++
++  typedef std::list&lt;Edge*&gt; Edges;
++  typedef std::list&lt;Node*&gt; Nodes;
++
++  class NodePtrCompare
++  {
++  public:
++    bool operator()(const Node *a,const Node *b);
++  };
++    
++  class EdgePtrCompare
++  {
++  public:
++    bool operator()(const Edge *a,const Edge *b);
++  };
++
++  // only used for processing and not for storing !
++  struct HalfEdge
++  {
++    Node *a,*b;
++    float w;
++  };
++  struct Edge
++  {
++    Node *a,*b;
++    float w0,w1;
++
++    Edge(Node *pa,Node *pb,float p0,float p1);
++    ~Edge();
++
++    bool operator&lt;(const Edge &amp;e) const;
++    float maxWeight() const;
++
++    Node *getOther(Node *n);
++
++    /*
++    HalfEdge *getHalfEdgeFrom(Node *n);
++
++    HalfEdge *getHalfEdgeTo(Node *n);
++    */
++  };
++
++  struct Node
++  {
++    AGVector2 p;
++    Edges edges;
++    typedef std::map&lt;Node*,float,NodePtrCompare&gt; NodeMap;
++    
++    ~Node();
++
++    NodeMap getNextNodes();
++  };
++
++  struct EdgeSort
++  {
++    public:
++    bool operator()(const Edge*a,const Edge *b)
++    {
++      float w0=weight(a);
++      float w1=weight(b);
++      return w0&lt;w1 || (w0==w1 &amp;&amp; a&lt;b);
++    }
++    private:
++    float weight(const Edge *a)
++    {
++      return a-&gt;w0+a-&gt;w1;
++    }
++  };
++
++  SimpleGraph();
++  
++
++  Node *addNode(const AGVector2 &amp;p);
++  /**
++     @param w0 is weight of going from a to b
++     @param w1 is weight of goinf from b to a
++  */
++  Edge *addEdge(Node *a,Node *b,float w0,float w1);
++
++  void removeEdge(Edge *e);
++  void removeNode(Node *n);
++  void print();
++  void printInfo();
++
++  ~SimpleGraph();
++
++
++  void check();
++  
++
++  Node *findNearest(const AGVector2 &amp;p);
++  AGVector2 findNearestVector(const AGVector2 &amp;p);
++
++  float width() const;
++
++  size_t size() const;
++
++  void paint(const AGRect2&amp; r,AGPaintTarget &amp;t,Heuristic &amp;heuristic);
++  void paintNode(const AGRect2&amp; r,AGPaintTarget &amp;t,const AGVector2 &amp;p,const AGColor &amp;c);
++
++
++ protected:
++
++  Node *findNode(const AGVector2 &amp;p);
++
++  // FIXME: quadtree out of nodes !!!
++
++  typedef std::map&lt;AGVector2,Node*,AGVector2Sort&gt; NodeMap;
++  typedef std::set&lt;Node*,NodePtrCompare&gt; NodeSet;
++  typedef std::set&lt;Edge*,EdgeSort&gt; EdgeSet;
++  NodeMap mNodeMap;
++  NodeSet mNodes;
++  EdgeSet mEdges;
++  float mWidth;
++
++
++  friend HeuristicFunction *computeHeuristic(SimpleGraph *g);
++
++};
++
++SimpleGraph *makeGraph(HeightMap *pMap, MapPathWeighter *pWeighter,size_t res=1);
++HeuristicFunction *computeHeuristic(SimpleGraph *g);
++
++
++class DecimatedGraph:public SimpleGraph
++{
++ public:
++  DecimatedGraph()
++    {
++    }
++  DecimatedGraph(const SimpleGraph &amp;g):SimpleGraph(g)
++    {
++    }
++  void decimate(float amount,MapPathWeighter *pWeighter);
++ private:
++  void tryRemove(Edge *e,MapPathWeighter *pWeighter);
++  void collapseEdge(Edge *e,MapPathWeighter *pWeighter);
++
++  Edge makeEdge(Node *a,Node *b,MapPathWeighter *pWeighter);
++
++};
++
++struct Path;
++
++class Heuristic
++{
++  AGVector2 to;
++  HeuristicFunction *p;
++ public:
++  Heuristic(const AGVector2 &amp;pTo,HeuristicFunction *f):to(pTo),p(f)
++    {
++    }
++  bool operator()(const Path &amp;a,const Path &amp;b);
++  float distance(const AGVector2&amp;from);
++};
++
++struct Path:public std::list&lt;SimpleGraph::Node*&gt;
++{
++  float weight;
++  
++  Path();
++  
++  float getWeight(Heuristic *h) const;
++  
++  void push(SimpleGraph::Node *n,float w);
++  
++  void paint(const AGRect2 &amp;r,AGPaintTarget &amp;t,float scale);
++  
++};
++
++
++class PathDebugging
++{
++ public:
++  virtual ~PathDebugging()
++    {
++    }
++  virtual void debugPath(Path &amp;p,float heuristic)
++  {
++  }
++};
++  
++
++class Pathfinder:public AGRubyObject
++{
++ public:
++
++  Pathfinder(SimpleGraph *pGraph,HeuristicFunction *pHeuristic,PathDebugging *pDebugger=0);
++
++  virtual void mark();
++
++  std::vector&lt;AGVector2&gt; computePath(const AGVector2 &amp;from, const AGVector2 &amp;to);
++
++  std::vector&lt;AGVector2&gt; refinePath(const std::vector&lt;AGVector2&gt; &amp;p,MapPathWeighter *pWeighter);
++
++ private:
++  SimpleGraph *mGraph;
++  HeuristicFunction *mHeuristic;
++  PathDebugging *mDebug;
++};
++
++#endif
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000064.html">[Antargis-svn] r1107 - in antargis/branches/rant/ext: basic	external game gui math ruby sound video
+</A></li>
+	<LI>Next message: <A HREF="000066.html">[Antargis-svn] r1109 - in antargis/branches/rant: build	ext/3dengine ext/basic ext/game ext/math ruby ruby/entities
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#65">[ date ]</a>
+              <a href="thread.html#65">[ thread ]</a>
+              <a href="subject.html#65">[ subject ]</a>
+              <a href="author.html#65">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

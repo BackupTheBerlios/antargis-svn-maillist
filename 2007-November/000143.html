@@ -1,0 +1,191 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1186 - in antargis/trunk/ruby: ai spec
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1186%20-%20in%20antargis/trunk/ruby%3A%20ai%20spec&In-Reply-To=%3C200711061940.lA6JePrL027276%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000142.html">
+   <LINK REL="Next"  HREF="000144.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1186 - in antargis/trunk/ruby: ai spec</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1186%20-%20in%20antargis/trunk/ruby%3A%20ai%20spec&In-Reply-To=%3C200711061940.lA6JePrL027276%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1186 - in antargis/trunk/ruby: ai spec">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Tue Nov  6 20:40:25 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000142.html">[Antargis-svn] r1185 - in antargis/trunk: . build build/configs	data/levels/dev ext/3dengine ext/basic ext/game ruby	ruby/entities ruby/jobs
+</A></li>
+        <LI>Next message: <A HREF="000144.html">[Antargis-svn] r1187 - in antargis/trunk: . data/levels/dev	ext/basic ext/game ruby ruby/ai ruby/ai/spec ruby/entities ruby/jobs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#143">[ date ]</a>
+              <a href="thread.html#143">[ thread ]</a>
+              <a href="subject.html#143">[ subject ]</a>
+              <a href="author.html#143">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-11-06 20:40:22 +0100 (Tue, 06 Nov 2007)
+New Revision: 1186
+
+Added:
+   antargis/trunk/ruby/ai/sensors.rb
+   antargis/trunk/ruby/spec/geometry.rb
+Log:
+* added missing files
+
+
+Added: antargis/trunk/ruby/ai/sensors.rb
+===================================================================
+--- antargis/trunk/ruby/ai/sensors.rb	2007-11-06 19:39:46 UTC (rev 1185)
++++ antargis/trunk/ruby/ai/sensors.rb	2007-11-06 19:40:22 UTC (rev 1186)
+@@ -0,0 +1,78 @@
++module AI
++	class Sensor
++		attr_reader :player
++
++		def initialize(player)
++			@player=player
++		end
++
++		def logValue
++			Math.log(value)
++		end
++	end
++
++	class HeroFoodSensor&lt;Sensor
++		def value
++			heroFood=player.getHeroes.map{|h|h.resources.get(&quot;food&quot;)}
++
++			heroFood.inject(0){|a,b|a+b}
++		end
++	end
++
++	class StrengthSensor&lt;Sensor
++		def value
++			heroStrengths=player.getHeroes.map{|h|h.menCount}
++			heroStrengths.inject(0){|a,b|a+b}
++		end
++	end
++
++	class BuildingCountSensor&lt;Sensor
++		def value
++			player.getBuildings.length
++		end
++	end
++
++	class CompletenessOfProdChainSensor&lt;Sensor
++		MAX_DIST=20
++
++		def value
++			blocks=createBlocks(player.getBuildings.map{|b|[b]})
++			blocks.map{|block|
++				completenessOfChain(block)
++			}
++
++		end
++	private
++		def completenessOfChain(block)
++			
++		end
++		def createBlocks(blocks)
++			nblocks=blocks.inject([]){|blocklist,newBuilding|
++				added=false
++				blocklist.each{|group|
++					group.each{|currentBuilding|
++						if (currentBuilding.getPos2D-newBuilding.getPos2D).length&lt;MAX_DIST
++							blocklist=blocklist-[group]+[group+newBuilding]
++							added=true
++							break
++						end
++					}
++				}
++				blocklist+=[newBuilding] unless added
++			}
++			nblocks=createBlocks(nblocks) if nblocks.length!=blocks.length
++			nblocks
++		end
++
++	end
++
++	SENSORS=[
++		HeroFoodSensor,
++		StrengthSensor,
++		BuildingCountSensor,
++		CompletenessOfProdChainSensor
++	]	
++
++	
++
++end
+\ No newline at end of file
+
+Added: antargis/trunk/ruby/spec/geometry.rb
+===================================================================
+--- antargis/trunk/ruby/spec/geometry.rb	2007-11-06 19:39:46 UTC (rev 1185)
++++ antargis/trunk/ruby/spec/geometry.rb	2007-11-06 19:40:22 UTC (rev 1186)
+@@ -0,0 +1,27 @@
++require 'ruby/antargislib.rb'
++require 'pp'
++
++describe AGCircle2,&quot;a radius 2 circle around (10,10)&quot; do
++	before(:each) do
++		@circleMiddle=AGVector2.new(10,10)
++		@radius=2
++		@circle=AGCircle2.new(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">circleMiddle, at radius</A>)
++	end
++
++	it &quot;should hit an intersection line (9,0)-(9,20)&quot; do
++		line=AGLine2.new(AGVector2.new(9,0),AGVector2.new(9,20))
++		list=@circle.collide(line)
++		list.length.should == 2
++		list.each{|p|(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">p- at circleMiddle</A>).length.should == @radius}
++
++		# should lie on line
++		list.each{|p|p.x.should ==9}
++
++	end
++	it &quot;should not hit an line at (9,0)-(119,0)&quot; do
++		l2=AGLine2.new(AGVector2.new(9,0),AGVector2.new(119,0))
++		list=@circle.collide(l2)
++		list.length.should ==0
++
++	end
++end
+\ No newline at end of file
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000142.html">[Antargis-svn] r1185 - in antargis/trunk: . build build/configs	data/levels/dev ext/3dengine ext/basic ext/game ruby	ruby/entities ruby/jobs
+</A></li>
+	<LI>Next message: <A HREF="000144.html">[Antargis-svn] r1187 - in antargis/trunk: . data/levels/dev	ext/basic ext/game ruby ruby/ai ruby/ai/spec ruby/entities ruby/jobs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#143">[ date ]</a>
+              <a href="thread.html#143">[ thread ]</a>
+              <a href="subject.html#143">[ subject ]</a>
+              <a href="author.html#143">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

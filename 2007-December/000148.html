@@ -1,0 +1,2336 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1191 - in antargis/trunk: . build ext/3dengine	ext/basic ext/game ext/gui ext/math ext/sound ext/video ruby	ruby/gui ruby/jobs
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1191%20-%20in%20antargis/trunk%3A%20.%20build%20ext/3dengine%0A%09ext/basic%20ext/game%20ext/gui%20ext/math%20ext/sound%20ext/video%20ruby%0A%09ruby/gui%20ruby/jobs&In-Reply-To=%3C200712191744.lBJHi6Be023765%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000147.html">
+   <LINK REL="Next"  HREF="000149.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1191 - in antargis/trunk: . build ext/3dengine	ext/basic ext/game ext/gui ext/math ext/sound ext/video ruby	ruby/gui ruby/jobs</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1191%20-%20in%20antargis/trunk%3A%20.%20build%20ext/3dengine%0A%09ext/basic%20ext/game%20ext/gui%20ext/math%20ext/sound%20ext/video%20ruby%0A%09ruby/gui%20ruby/jobs&In-Reply-To=%3C200712191744.lBJHi6Be023765%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1191 - in antargis/trunk: . build ext/3dengine	ext/basic ext/game ext/gui ext/math ext/sound ext/video ruby	ruby/gui ruby/jobs">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Wed Dec 19 18:44:06 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000147.html">[Antargis-svn] r1190 - in antargis/trunk/build: . configs
+</A></li>
+        <LI>Next message: <A HREF="000149.html">[Antargis-svn] r1192 - in antargis/trunk: . ext/basic ruby
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#148">[ date ]</a>
+              <a href="thread.html#148">[ thread ]</a>
+              <a href="subject.html#148">[ subject ]</a>
+              <a href="author.html#148">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-12-19 18:44:00 +0100 (Wed, 19 Dec 2007)
+New Revision: 1191
+
+Added:
+   antargis/trunk/antargis.rb
+   antargis/trunk/build/bin/
+   antargis/trunk/ruby/run_game.rb
+Removed:
+   antargis/trunk/ruby/antargis.rb
+   antargis/trunk/run.rb
+Modified:
+   antargis/trunk/Makefile
+   antargis/trunk/TODO
+   antargis/trunk/antargis
+   antargis/trunk/build/create_interface.rb
+   antargis/trunk/build/interface_template.rb
+   antargis/trunk/ext/3dengine/headers.hh
+   antargis/trunk/ext/basic/ag_fs.cc
+   antargis/trunk/ext/basic/ag_fs.h
+   antargis/trunk/ext/basic/ag_main.cc
+   antargis/trunk/ext/basic/init.cc
+   antargis/trunk/ext/game/headers.hh
+   antargis/trunk/ext/gui/ag_application.cc
+   antargis/trunk/ext/gui/headers.hh
+   antargis/trunk/ext/math/headers.hh
+   antargis/trunk/ext/sound/ag_mixer.cc
+   antargis/trunk/ext/sound/headers.hh
+   antargis/trunk/ext/video/ag_png.cc
+   antargis/trunk/ext/video/ag_sdlscreen.cc
+   antargis/trunk/ext/video/ag_surface.cc
+   antargis/trunk/ext/video/ag_video.cc
+   antargis/trunk/ext/video/headers.hh
+   antargis/trunk/ruby/ant_models.rb
+   antargis/trunk/ruby/antargislib.rb
+   antargis/trunk/ruby/gui/ag_tools.rb
+   antargis/trunk/ruby/intro.rb
+   antargis/trunk/ruby/jobs/ant_hljob_states.rb
+   antargis/trunk/ruby/jobs/ant_new_hljobs.rb
+   antargis/trunk/ruby/mainmenu.rb
+Log:
+* many changes for better building/runing
+
+
+Modified: antargis/trunk/Makefile
+===================================================================
+--- antargis/trunk/Makefile	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/Makefile	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -1,2 +1,2 @@
+ all:
+-	rant
++	rake
+
+Modified: antargis/trunk/TODO
+===================================================================
+--- antargis/trunk/TODO	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/TODO	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -1,6 +1,7 @@
+-* check how many times AG_NewPointer is called !!!!
+-* check if it's any good to switch over to standard-swig ???
+ 
++* check how many times AG_NewPointer is called !!!! - not so often - could be replaced by traceobjects from swig
++** check if it's any good to switch over to standard-swig ??? seems so.
++
+ !!! AGTexture - not wrapped correctly in bliTri etc ???
+ 
+ 
+@@ -14,7 +15,6 @@
+ * moveto doesn't really work with &quot;near&quot; (hljob)
+ * heroes don't die in reasonable fashion - starving men too
+ * add seasons
+-* remove -O0 -g out of Rantfile !
+ * take food - near doesn't work - same for attack (in some cases?)
+ 
+ * Spreading should be done only for men who need it!
+
+Modified: antargis/trunk/antargis
+===================================================================
+--- antargis/trunk/antargis	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/antargis	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -1,4 +1,34 @@
+-#!/bin/sh
+-#echo $@
+-test -e ext/antargisgame.so || echo &quot;ERROR:Ruby extensions were not built yet! Please type this first:\n&gt; ruby build.rb\nor\n&gt; rant\nif the first one doesn't work.&quot;
+-ruby run.rb $@&gt;/tmp/ant-stdout.txt 2&gt;/tmp/ant-stderr.txt
++#!/usr/bin/env ruby
++#
++# This is a starter-program. It's run in a ruby-interpreter, because that's easiest.
++# Because we have to load DLLs which may not be in the standard-search-path, we'll
++# start another ruby-interpreter in a sub-process and before we do so, we set
++# the LD_LIBRARY_PATH environment variable, that will add the extension-directory to
++# the path
++#
++
++# the path, where this program lies (fully expanded)
++base=File.expand_path(File.split(__FILE__)[0])
++
++# for Debugging
++require 'pp'
++# for parsing the mkmf-CONFIG-global
++require File.join(base,'build','mkmf_support.rb')
++# get the actual mkmf-CONFIG
++require 'mkmf'
++
++# read-out where the ruby-interpreter is
++rubyExe=checkMkmf(&quot;$(bindir)/$(ruby_install_name)&quot;,CONFIG)
++
++# add the extension-path (for the non-extension dlls) to the ld-search-path
++path=File.join(base,&quot;ext&quot;)
++seperator=&quot;:&quot;
++separator=&quot;;&quot; if File.join(&quot;a&quot;,&quot;b&quot;)!=&quot;a/b&quot;
++old_path=ENV['LD_LIBRARY_PATH']||&quot;&quot;
++ENV['LD_LIBRARY_PATH']=(old_path.split(separator).map{|dir|File.expand_path(dir)}+[path]).uniq.join(separator)
++
++# run ruby with path as an extension dir
++call=rubyExe+&quot; -I#{path} &quot;+File.join(File.split(__FILE__)[0],'runAntargis.rb')
++
++pp call,base,path,ENV
++system call
+
+Copied: antargis/trunk/antargis.rb (from rev 1183, antargis/trunk/run.rb)
+
+Modified: antargis/trunk/build/create_interface.rb
+===================================================================
+--- antargis/trunk/build/create_interface.rb	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/build/create_interface.rb	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -29,6 +29,7 @@
+ require 'build/interface_template.rb'
+ require 'build/base_tools.rb'
+ require 'find.rb'
++require 'pp'
+ 
+ def vputs(*a)
+ 	puts *a if $verbose
+@@ -112,7 +113,6 @@
+ 	attr_reader :deriveList
+ 
+ 	def initialize(files,allfiles)
+-        #puts &quot;ParsedClasses:init()&quot;,files,&quot;--&quot;,allfiles,&quot;-----&quot;
+ 		@rubyClasses=[]
+ 		@files=files.collect{|f|f.gsub(/.*\/ext\//,&quot;ext/&quot;)}
+ 		loadAllDerivations(allfiles.collect{|f|f.gsub(/.*\/ext\//,&quot;ext/&quot;)})
+@@ -423,7 +423,7 @@
+ extern std::map&lt;std::string,std::list&lt;CastFunction&gt; &gt; agCastFunctions;
+ %}
+ EOT
+-
++pp myClasses
+ myClasses.each{|k|
+ file.puts &lt;&lt;EOT	
+ %{
+
+Modified: antargis/trunk/build/interface_template.rb
+===================================================================
+--- antargis/trunk/build/interface_template.rb	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/build/interface_template.rb	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -12,12 +12,15 @@
+ 	void AG_Init_lib#{moduleName}();
+ %}
+ %insert(&quot;init&quot;) %{
++/*
+ 	#{swigInput.collect{|i|&quot;rb_require(\&quot;antargis#{i.split(&quot;/&quot;)[-2]+&quot;.so&quot;}\&quot;);&quot;}.join(&quot;\n&quot;)}
++*/
+ 	AG_Init_lib#{moduleName}(); 
+ %}
+ 
++/*
+ #{swigInput.collect{|i|&quot;%import \&quot;#{i}\&quot;&quot;}.join(&quot;\n&quot;)}
+-
++*/
+ %{
+ #include &lt;string&gt;
+ #{addfiles.collect{|f|&quot;#include \&quot;#{f}\&quot;&quot;}.join(&quot;\n&quot;)}
+
+Modified: antargis/trunk/ext/3dengine/headers.hh
+===================================================================
+--- antargis/trunk/ext/3dengine/headers.hh	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ext/3dengine/headers.hh	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -14,6 +14,7 @@
+ #include &quot;ext/basic/ag_fs.h&quot;
+ #include &quot;ext/basic/ag_messageobject.h&quot;
+ #include &quot;ext/basic/ag_rubyobj.h&quot;
++#include &quot;ext/sound/ag_mixer.h&quot;
+ #include &quot;ext/math/ag_rand.h&quot;
+ #include &quot;ext/math/ag_algebra.h&quot;
+ #include &quot;ext/math/ant_frustum.h&quot;
+@@ -56,7 +57,6 @@
+ #include &quot;ext/gui/ag_window.h&quot;
+ #include &quot;ext/gui/ag_layout.h&quot;
+ #include &quot;ext/gui/ag_border.h&quot;
+-#include &quot;ext/sound/ag_mixer.h&quot;
+ #include &quot;ext/3dengine/mesh_data.h&quot;
+ #include &quot;ext/3dengine/scene_base.h&quot;
+ #include &quot;ext/3dengine/scenenode.h&quot;
+
+Modified: antargis/trunk/ext/basic/ag_fs.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_fs.cc	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ext/basic/ag_fs.cc	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -57,7 +57,23 @@
+   updateConfig();
+ }
+ 
++void addPathFront(const AGFilename &amp;pName)
++{
++  mFsPaths.push_front(pName);
++#ifdef USE_PHYSFS
++  TRACE;
++  PHYSFS_addToSearchPath(pName.c_str(),1);
++  char **p=PHYSFS_getSearchPath();
++  for(;*p;p++)
++    {
++      dbout(0,*p);
+ 
++    }
++#endif
++  updateConfig();
++}
++
++
+ void initFS(const char *argv0)
+ {
+ #ifdef USE_PHYSFS
+@@ -446,12 +462,16 @@
+ #endif
+ 
+   FILE *f=fopen(pName.c_str(),&quot;r&quot;);
++	bool found=false;
++	
+   if(f)
+     {
++			found=true;
+       fclose(f);
+-      return true;
+     }
+-  return false;
++	cdebug(&quot;file exists:&quot;&lt;&lt;pName&lt;&lt;&quot;:&quot;&lt;&lt;found);
++
++  return found;
+ #ifdef USE_PHYSFS
+   TRACE;
+   return PHYSFS_exists(pName.c_str());
+
+Modified: antargis/trunk/ext/basic/ag_fs.h
+===================================================================
+--- antargis/trunk/ext/basic/ag_fs.h	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ext/basic/ag_fs.h	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -43,6 +43,7 @@
+ AGEXPORT AGFilename getDocumentsDir();
+ 
+ AGEXPORT void addPath(const AGFilename &amp;pName);
++AGEXPORT void addPathFront(const AGFilename &amp;pName);
+ 
+ AGEXPORT AGData compress(const AGData &amp;pString);
+ AGEXPORT AGData uncompress(const AGData &amp;pString);
+
+Modified: antargis/trunk/ext/basic/ag_main.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_main.cc	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ext/basic/ag_main.cc	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -139,7 +139,7 @@
+ 
+       // IMPORTANT:
+       //   put it into a global variable - so that it won't get garbage collected
+-      rb_eval_string(&quot;include Antargisbasic;$agMain=getMain&quot;);
++      rb_eval_string(&quot;include Antargis;$agMain=getMain&quot;);
+     }
+ 
+ 
+
+Modified: antargis/trunk/ext/basic/init.cc
+===================================================================
+--- antargis/trunk/ext/basic/init.cc	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ext/basic/init.cc	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -15,7 +15,8 @@
+ 
+ AGEXPORT void AG_Init_libantargisbasic()
+ {
+-  //  TRACE;
++  TRACE;
++  SDL_Init(SDL_INIT_VIDEO);
+   if(!hasMain())
+     AGMain *main=new AGMain;
+ 
+
+Modified: antargis/trunk/ext/game/headers.hh
+===================================================================
+--- antargis/trunk/ext/game/headers.hh	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ext/game/headers.hh	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -14,6 +14,7 @@
+ #include &quot;ext/basic/ag_fs.h&quot;
+ #include &quot;ext/basic/ag_messageobject.h&quot;
+ #include &quot;ext/basic/ag_rubyobj.h&quot;
++#include &quot;ext/sound/ag_mixer.h&quot;
+ #include &quot;ext/math/ag_rand.h&quot;
+ #include &quot;ext/math/ag_algebra.h&quot;
+ #include &quot;ext/math/ant_frustum.h&quot;
+@@ -56,7 +57,6 @@
+ #include &quot;ext/gui/ag_window.h&quot;
+ #include &quot;ext/gui/ag_layout.h&quot;
+ #include &quot;ext/gui/ag_border.h&quot;
+-#include &quot;ext/sound/ag_mixer.h&quot;
+ #include &quot;ext/3dengine/anim_mesh_data.h&quot;
+ #include &quot;ext/3dengine/ant_camera.h&quot;
+ #include &quot;ext/3dengine/mesh.h&quot;
+
+Modified: antargis/trunk/ext/gui/ag_application.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_application.cc	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ext/gui/ag_application.cc	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -29,6 +29,7 @@
+ #include &quot;ag_profiler.h&quot;
+ #include &quot;ag_clip_painttarget.h&quot;
+ #include &quot;ag_video.h&quot;
++#include &quot;ag_vdebug.h&quot;
+ 
+ #include &lt;ruby.h&gt;
+ 
+@@ -49,6 +50,7 @@
+ 
+ AGApplication::AGApplication():mRunning(true),mIdleCalls(true),mainWidget(0),mTooltip(0),mOverlay(0)
+ {
++  assertGL;
+   SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,SDL_DEFAULT_REPEAT_INTERVAL);
+   if(videoInited())
+     {
+
+Modified: antargis/trunk/ext/gui/headers.hh
+===================================================================
+--- antargis/trunk/ext/gui/headers.hh	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ext/gui/headers.hh	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -14,6 +14,7 @@
+ #include &quot;ext/basic/ag_fs.h&quot;
+ #include &quot;ext/basic/ag_messageobject.h&quot;
+ #include &quot;ext/basic/ag_rubyobj.h&quot;
++#include &quot;ext/sound/ag_mixer.h&quot;
+ #include &quot;ext/math/ag_rand.h&quot;
+ #include &quot;ext/math/ag_algebra.h&quot;
+ #include &quot;ext/math/ant_frustum.h&quot;
+
+Modified: antargis/trunk/ext/math/headers.hh
+===================================================================
+--- antargis/trunk/ext/math/headers.hh	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ext/math/headers.hh	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -14,6 +14,7 @@
+ #include &quot;ext/basic/ag_fs.h&quot;
+ #include &quot;ext/basic/ag_messageobject.h&quot;
+ #include &quot;ext/basic/ag_rubyobj.h&quot;
++#include &quot;ext/sound/ag_mixer.h&quot;
+ #include &quot;ext/math/ag_rand.h&quot;
+ #include &quot;ext/math/ant_frustum.h&quot;
+ #include &quot;ext/math/ag_algebra.h&quot;
+
+Modified: antargis/trunk/ext/sound/ag_mixer.cc
+===================================================================
+--- antargis/trunk/ext/sound/ag_mixer.cc	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ext/sound/ag_mixer.cc	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -163,11 +163,14 @@
+     {
+       return false;
+     }
++
++	std::string filename=findFile(pFilename);
++
+   initSoundEngine();
+   // load the MP3 file &quot;music.mp3&quot; to play as music
+-  mMusic=Mix_LoadMUS(pFilename.c_str());
++  mMusic=Mix_LoadMUS(filename.c_str());
+   if(!mMusic) {
+-    printf(&quot;Mix_LoadMUS(\&quot;%s\&quot;): %s\n&quot;,pFilename.c_str(), Mix_GetError());
++    printf(&quot;Mix_LoadMUS(\&quot;%s\&quot;): %s\n&quot;,filename.c_str(), Mix_GetError());
+     //    assertGL;
+     return false;
+   }
+
+Modified: antargis/trunk/ext/sound/headers.hh
+===================================================================
+--- antargis/trunk/ext/sound/headers.hh	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ext/sound/headers.hh	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -14,48 +14,6 @@
+ #include &quot;ext/basic/ag_fs.h&quot;
+ #include &quot;ext/basic/ag_messageobject.h&quot;
+ #include &quot;ext/basic/ag_rubyobj.h&quot;
+-#include &quot;ext/math/ag_rand.h&quot;
+-#include &quot;ext/math/ag_algebra.h&quot;
+-#include &quot;ext/math/ant_frustum.h&quot;
+-#include &quot;ext/video/ag_rendercontext.h&quot;
+-#include &quot;ext/video/ag_texturecache.h&quot;
+-#include &quot;ext/video/ag_clip.h&quot;
+-#include &quot;ext/video/ag_fontengine.h&quot;
+-#include &quot;ext/video/ag_font.h&quot;
+-#include &quot;ext/video/ag_video.h&quot;
+-#include &quot;ext/video/ag_color.h&quot;
+-#include &quot;ext/video/ag_screen.h&quot;
+-#include &quot;ext/video/ag_painttarget.h&quot;
+-#include &quot;ext/video/ag_surface.h&quot;
+-#include &quot;ext/video/ag_texture.h&quot;
+-#include &quot;ext/video/ag_painter.h&quot;
+-#include &quot;ext/gui/ag_image.h&quot;
+-#include &quot;ext/gui/ag_listbox.h&quot;
+-#include &quot;ext/gui/ag_edit.h&quot;
+-#include &quot;ext/gui/ag_scroller.h&quot;
+-#include &quot;ext/gui/ag_local.h&quot;
+-#include &quot;ext/gui/ag_tooltip.h&quot;
+-#include &quot;ext/gui/ag_radio.h&quot;
+-#include &quot;ext/gui/ag_application.h&quot;
+-#include &quot;ext/gui/ag_colorbutton.h&quot;
+-#include &quot;ext/gui/ag_button.h&quot;
+-#include &quot;ext/gui/ag_radiogroup.h&quot;
+-#include &quot;ext/gui/ag_background.h&quot;
+-#include &quot;ext/gui/ag_menuitem.h&quot;
+-#include &quot;ext/gui/ag_screenwidget.h&quot;
+-#include &quot;ext/gui/ag_widget.h&quot;
+-#include &quot;ext/gui/ag_text.h&quot;
+-#include &quot;ext/gui/ag_checkbox.h&quot;
+-#include &quot;ext/gui/ag_table.h&quot;
+-#include &quot;ext/gui/ag_frame.h&quot;
+-#include &quot;ext/gui/ag_caption.h&quot;
+-#include &quot;ext/gui/ag_combo.h&quot;
+-#include &quot;ext/gui/ag_theme.h&quot;
+-#include &quot;ext/gui/ag_menu.h&quot;
+-#include &quot;ext/gui/ag_layoutfactory.h&quot;
+-#include &quot;ext/gui/ag_window.h&quot;
+-#include &quot;ext/gui/ag_layout.h&quot;
+-#include &quot;ext/gui/ag_border.h&quot;
+ #include &quot;ext/sound/ag_mixer.h&quot;
+ #ifdef SWIG
+ %include &quot;ext/sound/ag_mixer.h&quot;
+
+Modified: antargis/trunk/ext/video/ag_png.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_png.cc	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ext/video/ag_png.cc	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -33,6 +33,7 @@
+ #include &lt;iostream&gt;
+ #include &lt;fstream&gt;
+ #include &lt;assert.h&gt;
++#include &lt;ag_vdebug.h&gt;
+ 
+ using namespace std;
+ #include &lt;SDL_image.h&gt;
+@@ -217,5 +218,7 @@
+ 
+ SDL_Surface *fromPNG(std::string s)
+ {
+-  return IMG_LoadPNG_RW(SDL_RWFromMem(const_cast&lt;char*&gt;(s.c_str()),s.length()));
++  SDL_Surface *surface=IMG_LoadPNG_RW(SDL_RWFromMem(const_cast&lt;char*&gt;(s.c_str()),s.length()));
++  assertGL;
++  return surface;
+ }
+
+Modified: antargis/trunk/ext/video/ag_sdlscreen.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_sdlscreen.cc	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ext/video/ag_sdlscreen.cc	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -134,11 +134,11 @@
+ 
+ 
+ AGScreen *mAGGScreen=0;
+-
++/*
+ bool videoInited()
+ {
+   return mAGGScreen;
+-}
++}*/
+ 
+ AGScreen &amp; AGEXPORT getScreen()
+ {
+
+Modified: antargis/trunk/ext/video/ag_surface.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_surface.cc	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ext/video/ag_surface.cc	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -328,6 +328,8 @@
+ 
+ AGSurface AGSurface::load(const std::string &amp;pFilename)
+ {
++  cdebug(&quot;load:&quot;&lt;&lt;pFilename);
++	assertGL;
+   assert(&amp;getScreen());
+ 
+   assertGL;
+@@ -337,6 +339,8 @@
+   assertGL;
+   std::string file=loadFile(pFilename);
+   assertGL;
++  if(file.length()==0)
++    cdebug(&quot;File &quot;&lt;&lt;pFilename&lt;&lt;&quot; is empty!&quot;);
+ 
+   SDL_RWops* rw=SDL_RWFromMem(const_cast&lt;char*&gt;(file.c_str()),file.length());
+   assertGL;
+@@ -374,6 +378,7 @@
+   cdebug(&quot;FIRST:&quot;&lt;&lt;int(file[0])&lt;&lt;&quot;,&quot;&lt;&lt;int(file[1])&lt;&lt;&quot;,&quot;&lt;&lt;int(file[2]));
+ 
+   SDL_Surface *s=IMG_Load_RW(SDL_RWFromMem(const_cast&lt;char*&gt;(file.c_str()),file.length()),false);
++  assertGL;
+   if(s==0)
+   {
+ 	cdebug(&quot;Load file failed:&quot;&lt;&lt;pName);
+
+Modified: antargis/trunk/ext/video/ag_video.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_video.cc	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ext/video/ag_video.cc	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -1,6 +1,7 @@
+ #include &lt;ag_video.h&gt;
+ 
+ #include &lt;ag_debug.h&gt;
++#include &lt;ag_vdebug.h&gt;
+ #include &lt;ag_gltexture.h&gt;
+ #include &lt;ag_glscreen.h&gt;
+ #include &lt;ag_screen.h&gt;
+@@ -43,6 +44,7 @@
+ void AGVideoManager::initVideo(int w,int h,int d,bool fs,bool gl,int vw,int vh)
+ {
+   CTRACE;
++  cdebug(&quot;mScreen:&quot;&lt;&lt;mScreen);
+   if(mScreen)
+     {
+       getSurfaceManager()-&gt;clear();
+@@ -60,6 +62,7 @@
+   lastDepth=d;
+   fullScreen=fs;
+ 
++  cdebug(&quot;videoInfo:&quot;&lt;&lt;videoInfo);
+   if(!videoInfo)
+     {
+       videoInfo = SDL_GetVideoInfo();
+@@ -83,11 +86,12 @@
+     videoFlags|=SDL_FULLSCREEN;
+ 
+ 
+-
++  cdebug(&quot;SDL_Init...&quot;);
+   // set video mode
+-  SDL_Init(SDL_INIT_VIDEO);
++  //  SDL_Init(SDL_INIT_VIDEO);
++  cdebug(&quot;SDL_SetVideoMode...&quot;);
+   SDL_Surface *ms=SDL_SetVideoMode(w,h,videoInfo-&gt;vfmt-&gt;BitsPerPixel,videoFlags);
+-
++  cdebug(&quot;ms:&quot;&lt;&lt;ms);
+   if(!ms)
+     {
+       std::cerr&lt;&lt;&quot;Initing video mode failed!&quot;&lt;&lt;std::endl;
+@@ -100,6 +104,7 @@
+     }
+ 
+ 
++
+   if(mScreen)
+     {
+       delete mScreen;
+@@ -181,8 +186,12 @@
+ {
+   std::string file=loadFile(pFile);
+   
++	if(file.length()==0)
++		cdebug(&quot;file :&quot;&lt;&lt;pFile&lt;&lt;&quot; possibly not found!&quot;);
++
+   SDL_Surface *s=IMG_Load_RW(SDL_RWFromMem(const_cast&lt;char*&gt;(file.c_str()),file.length()),false);
+   SDL_WM_SetIcon(s,0);
++	assertGL;
+ }
+ 
+ void AGVideoManager::setCaption(const std::string &amp;pCaption)
+
+Modified: antargis/trunk/ext/video/headers.hh
+===================================================================
+--- antargis/trunk/ext/video/headers.hh	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ext/video/headers.hh	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -14,6 +14,7 @@
+ #include &quot;ext/basic/ag_fs.h&quot;
+ #include &quot;ext/basic/ag_messageobject.h&quot;
+ #include &quot;ext/basic/ag_rubyobj.h&quot;
++#include &quot;ext/sound/ag_mixer.h&quot;
+ #include &quot;ext/math/ag_rand.h&quot;
+ #include &quot;ext/math/ag_algebra.h&quot;
+ #include &quot;ext/math/ant_frustum.h&quot;
+
+Modified: antargis/trunk/ruby/ant_models.rb
+===================================================================
+--- antargis/trunk/ruby/ant_models.rb	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ruby/ant_models.rb	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -252,13 +252,9 @@
+ 				pngname=&quot;data/textures/models/&quot;+mesh+&quot;.png&quot;
+ 				name=mesh
+ 				angle||=getStaticModelRotation(name)
+-				if not fileExists(pngname)
+-					pngname=&quot;&quot;
+-				end
+ 
+ 				s=entity.getMap.getScene
+ 
+-				#s=getMap.getScene
+ 				data=getMeshData(ant2name,getStaticModelScaling(name),pngname)
+ 				v=AGVector4.new(0,0,0)
+ 				scenenode=Mesh.new(s,data,v,angle)
+@@ -277,8 +273,9 @@
+ end
+ 
+ module Libantargis
+-class Mesh
+-	def setAnimation(name)
++	# dummy function - so that for meshes and animmeshes you can call setAnimation(.)
++	class Mesh
++		def setAnimation(name)
++		end
+ 	end
+-end
+ end
+\ No newline at end of file
+
+Deleted: antargis/trunk/ruby/antargis.rb
+===================================================================
+--- antargis/trunk/ruby/antargis.rb	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ruby/antargis.rb	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -1,681 +0,0 @@
+-#!/usr/bin/env ruby
+-#--
+-# Copyright (c) 2005 by David Kamphausen. All rights reserved.
+-#
+-# game.rb
+-# by David Kamphausen (<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">david.kamphausen at web.de</A>)
+-#
+-# The &quot;Antargis&quot; project, including all files needed to compile it,
+-# is free software; you can redistribute it and/or use it and/or modify it
+-# under the terms of the GNU General Public License as published
+-# by the Free Software Foundation; either version 2 of the License,
+-# or (at your option) any later version.
+-#
+-# This program is distributed in the hope that it will be useful,
+-# but WITHOUT ANY WARRANTY; without even the implied warranty of
+-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+-#
+-# You should have received a copy of the GNU General Public
+-# License along with this program.
+-#++
+-#
+-# antargis.rb is the central file in antargis-level-playing.
+-# it contains the main-application class AntGameApp for in-game looping, etc.
+-# most of the GUI-events are processed here.
+-#
+-
+-
+-# add programdir to path
+-$programDir=Dir.pwd+&quot;/ruby&quot;
+-$:.push($programDir)
+-$:.push($programDir+&quot;/entities&quot;)
+-$:.push($programDir+&quot;/widgets&quot;)
+-
+-require 'antargislib.rb'
+-require 'dialogs.rb'
+-require 'entities.rb'
+-require 'map.rb'
+-require 'view.rb'
+-require 'game_result.rb'
+-require 'storyflow.rb'
+-require 'mpmap.rb'
+-
+-require 'pp'
+-
+-# get save path where savegames are stored
+-# NOTE: this is combined with getWriteDir from ag_fs.h !
+-def getSavePath
+-	&quot;savegames&quot;
+-end
+-
+-#
+-# AntGameApp is the central application-class in game. It controls:
+-# * event handling of all the user interaction
+-# * holds all the game-objects
+-# * calls the advance-function in each frame
+-# * it's derived from AntRubyView, which implements/manages the (3d-)displaying in-game
+-#
+-class AntGameApp &lt;AntRubyView
+-	attr_accessor :result
+-	attr_reader :hero
+-
+-	include AGHandler
+-
+-	# creating an AntGameApp-object needs the following parameters:
+-	# * *savegameText* - this is the actual level serialized in a string (the xml-text you see when you open an .antlvl-file)
+-	#   it contains the height- and terrain-map, too. This has the advantage, that everything about a level is stored in one
+-	#   text and can thus be transfered easily over internet 
+-	# * *w* and *h* are the width and height of the screen, which is currently needed to init the underlying GLApp-class from C++
+-	#   *FIXME:* this could be replaced by a call to getMain.getVideo.getWidth and such
+-	# * *loadscreen* is a LoadApp-object (or nil); if it's set that indicates that a loadscreen (a progress bar) is displayed
+-	# * *connection* is a network-connection to a BoA multiplayer-server for future networking-support. link:files/ruby/multiplayer/README.html
+-	#
+-	# this function does all the initializing of a level:
+-	# * from the super-classes: create a scene (for more go to the parent-class)
+-	# * display a load-screen (and set the progress)
+-	# * create a AntMpMap object
+-	# * create a displaying layout from data/gui/layout/ant_layout.xml
+-	# * initializes some event-handlers (glue code between level-displaying and the game-world object of type AntMpMap
+-	# * load the map fom *savegameText*
+-	# * setup of the hero-display-list at the top of the screen
+-	def initialize(savegameText,w,h,loadscreen=nil,connection=nil)
+-		super(w,h)
+-
+-		@speed=1
+-
+-		# the result of the level - won or lost or canceled
+-		@result=GameResult.new
+-		$app=self
+-		AntSound.setApplication(self)
+-	
+-		# display loading screen
+-		if loadscreen
+-			loadscreen.setValue(0.1)
+-			loadscreen.tick
+-		end
+-
+-		playerName=nil
+-
+-		# init network mode
+-		@connection=connection
+-		if connection
+-			# FIXME: check, if this is a server - then don't assign playerName
+-			playerName=connection.getName
+-		end
+-
+-		# init game-engine's map
+-		@map=AntMpMap.new(connection,self,getScene,32,32,playerName) # some small dummy size - gets overriden by loadMap anyway
+-		if loadscreen
+-			loadscreen.setValue(0.4)
+-			loadscreen.tick
+-		end
+-
+-		# load GUI layout
+-		@layout=AGLayout.new(nil)
+-		@layout.setApp(self)
+-		assert{@layout.getApp}
+-		@layout.loadXML(loadFile(&quot;data/gui/layout/ant_layout.xml&quot;))
+-	
+-
+-		# init pointers to different displays
+-		# statusBar (FPS display)
+-		@statusBar=@layout.getChild(&quot;statusBar&quot;)
+-		@inventory=@layout.getChild(&quot;inventory&quot;)
+-		@buttonpanel=@layout.getChild(&quot;antButtonPanel&quot;)
+-
+-		@miniMap=@layout.getChild(&quot;miniMap&quot;)
+-		@fps=0
+-
+-		setMainWidget(@layout)
+-		addHandler(@layout.getChild(&quot;quit&quot;),:sigClick,:eventQuit)
+-		addHandler(@layout.getChild(&quot;pause&quot;),:sigClick,:eventPause)
+-		addHandler(@layout.getChild(&quot;options&quot;),:sigClick,:eventOptions)
+-
+-		if loadscreen
+-			loadscreen.setValue(0.5)
+-			loadscreen.tick
+-		end
+-	
+-		if @miniMap
+-			# connect MiniMap with Map for displaying terrain and entities
+-			@miniMap.setMap(@map)
+-			# connect MiniMap with Scene for displaying frustrum
+-			@miniMap.setScene(getScene)
+-		end
+-
+-		if loadscreen
+-			loadscreen.setValue(0.8)
+-			loadscreen.tick()
+-		end
+-		
+-		if savegameText &amp;&amp; savegameText.length&gt;0
+-			# load a level
+-			@map.loadMapFromMemory(savegameText)
+-		end	
+-
+-		if loadscreen
+-			loadscreen.setValue(0.95)
+-			loadscreen.tick
+-		end
+-
+-		# inventory and buttonpanel signals
+-		addHandler(@inventory,:sigJobChanged,:eventInventoryJob)
+-		addHandler(@buttonpanel,:sigJobChanged,:eventHeroJob)
+-
+-		setupHeroDisplay(true)
+-
+-		# infobox is used for display a text &quot;Your hero 'xy' suffers&quot;
+-		@infobox=nil
+-
+-		# frame counting
+-		@frameCount=0
+-		@elapsTime=0
+-
+-		#setCursor(getTextureCache.get(&quot;blue_cursor.png&quot;))
+-	end
+-
+-	####################################
+-	# EVENT HANDLERS
+-	####################################
+-
+-	include AntMyEventHandler
+-
+-
+-	# this handler is for the buttonpanel on the top
+-	# the actions are direct ones, like rest,dimiss and so, which don't need an object to use (like fighting,taking,...)
+-	def eventHeroJob(e)
+-		case @buttonpanel.job
+-			when &quot;doDismiss&quot;
+-				# opens a query dialog &quot;do really want to do this?&quot;, that is given a block, that's executed on confirmation
+-				@layout.addChild(AntQueryDialog.new(@layout,nil) {@hero.newHLDismissJob})
+-			when &quot;doRest&quot;
+-				if @hero
+-					@hero.newHLRestJob(10)
+-				end
+-			when &quot;doBuild&quot;
+-				@job=&quot;doBuild&quot;
+-		end
+-		return true
+-	end
+-
+-	# react to inventory-based jobs - like taking, recruiting
+-
+-	def eventInventoryJob(e)
+-		if @target.nil? #some more overview as
+-			log &quot;NO TARGET SELECTED&quot;
+-		else
+-			case @inventory.job
+-				when &quot;doRecruit&quot;
+-					@hero.newHLRecruitJob(@target)
+-				when &quot;doTakeFood&quot;
+-					@hero.newHLTakeFoodJob(@target)
+-				when &quot;doTakeWeapons&quot;
+-					@hero.newHLTakeWeaponJob(@target)
+-				when &quot;doConstruct&quot;
+-					@hero.newHLConstructJob(@target)
+-				when &quot;doUpgrade&quot;
+-					@hero.upgradeMan(@target)
+-				when &quot;doContinue&quot;
+-					@hero.newHLBuildJob(@target,nil)
+-				when &quot;doSupport&quot;
+-					targetsTarget=nil
+-					if @target.getJob.is_a?(AntHeroFightJob)
+-						targetsTarget=@target.getJob.target
+-					end
+-					if targetsTarget
+-						@hero.newHLFightJob(targetsTarget)
+-					end
+-			end
+-		end
+-		return true
+-	end
+-
+-	def eventKeyDown(e)
+-
+-		# hero-selection by pressing F1 to F7
+-		hero={	SDLK_F1=&gt;0,
+-			SDLK_F2=&gt;1,
+-			SDLK_F3=&gt;2,
+-			SDLK_F4=&gt;3,
+-			SDLK_F5=&gt;4,
+-			SDLK_F6=&gt;5,
+-			SDLK_F7=&gt;6}[e.getKey]
+-		if hero
+-			h=getHeroByNum(hero) 
+-			if h
+-				if @hero==h
+-					focusHero(h)
+-				end
+-				selectHero(h)
+-				return super(e)
+-			end
+-		end
+-
+-		
+-		case e.getKey
+-			when SDLK_F9 # F9 toggles panel on the right
+-				if not panelVisible
+-					showPanel
+-				else
+-					hidePanel
+-				end
+-			when SDLK_F8
+-				@sceneEnabled=(not @sceneEnabled)
+-				getScene.setEnabled(@sceneEnabled)
+-			when SDLK_F1
+-				hero=1
+-			when SDLK_ESCAPE
+-				if @hero
+-					@hero.newHLRestJob(10)
+-				end
+-			when SDLK_PLUS
+-				@speed=[@speed+1,10].min
+-			when SDLK_MINUS
+-				@speed=[@speed-1,0.2].max
+-			
+-			when SDLK_p
+-				eventPause(nil)
+-		end
+-		return super(e)
+-	end
+-	
+-	def eventStoryTalkFinished
+-		showPanel
+-		getMap.trigger(nil,Trigger.new(&quot;storyFinished&quot;))
+-	end
+-
+-	def moveMap(time)
+-		granularity=0.2
+-		while time&gt;granularity
+-			getMap().move(granularity)
+-			time-=granularity
+-		end
+-		getMap().move(time)
+-	end
+-
+-	def eventFrame(time)
+-		super(time)
+-
+-		# FPS display
+-		if @frameCount&gt;14 then
+-			@fps=@frameCount / @elapsTime
+-			fps=&quot;&quot;
+-			if @fps&lt;10
+-				fps=sprintf(&quot;%3.2f&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at fps</A>)
+-			else
+-				fps=sprintf(&quot;%3.0f&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at fps</A>)
+-			end
+-			@statusBar.setText(_(&quot;FPS:{1}&quot;,fps.to_s))
+-			@frameCount=0
+-			@elapsTime=0
+-			startGC
+-		end
+-		@frameCount+=1
+-		@elapsTime+=time
+-
+-
+-# 		# move entities in game-engine
+-		#getMap().move(time*@speed)
+-		moveMap(time*@speed)
+-
+-		# advance animations
+-		getScene.advance(time)
+-		checkHeroEnergy
+-
+-		processMessages
+-
+-		# save some CPU-power, if available
+-		if @connection
+-			delay(20)
+-		end
+-
+-		if @fps&gt;25
+-			delay(5)
+-		end
+-		return true
+-	end
+-	
+-	def eventQuit(e)
+-		@layout.addChild(AntQuitDialog.new(@layout))
+-		return true
+-	end
+-	def eventPause(e)
+-		if not getMap().pause then
+-			@layout.addChild(AntPauseDialog.new(@layout))
+-		else
+-			getMap.pause=false
+-		end
+-		return true
+-	end
+-	def eventOptions(e)
+-		@layout.addChild(AntOptionsDialog.new(@layout))
+-		return true
+-	end
+-	def eventHeroButton(e)
+-		c=e.getCaller.getName
+-		num=c[4..4]
+-		name=@layout.getChild(&quot;HeroName#{num}&quot;).getText.to_s
+-		ent=getMap.getByName(name)
+-		selectHero(ent)
+-		if ent==@inspect
+-			focusHero(ent)
+-		end
+-		inspectEntity(ent)
+-		return true
+-
+-	end
+-
+-	def eventAggressionChanged(e)
+-		h=getSelectedHero
+-		if h
+-			h.setAggression(@buttonpanel.getAggression)
+-		end
+-		return true
+-	end
+-
+-	def eventEntitiesClicked(list,button)
+-		resetJob
+-		# find first entity that's nearest to the camera
+-		ent=nil
+-		list.each{|node|
+-			mesh=node.node
+-			if [Mesh,AnimMesh,Mesh2D].member?(mesh.class)
+-				ent=getMap.getEntity(mesh)
+-				break if ent
+-			end
+-		}
+-
+-		# if an entity was found - set new target
+-		if ent
+-			if ent.class==AntHero and ent.getPlayer==getMap.getPlayer
+-				#@hero=ent
+-				@target=ent
+-				inspectEntity(ent)
+-			else
+-				@target=ent
+-				inspectEntity(ent)
+-			end
+-		end
+-
+-		if button==1
+-			# left button == select
+-		elsif button==3
+-			# right button == fight or goto
+-			if ent==@target
+-				if @target.is_a?(AntBoss)
+-					if @target.getPlayer!=@hero.getPlayer
+-						@hero.newHLFightJob(@target)
+-						return
+-					end
+-				elsif @target.is_a?(AntAnimal)
+-					@hero.newHLFightAnimalJob(@target)
+-					return
+-				end
+-				# move near target
+-				@hero.newHLMoveJob(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">0, at target.getPos2D</A>,2)
+-			end
+-		end
+-	end
+-
+-	def eventMapClicked(pos,button)
+-		if @job and button==1 then
+-			case @job
+-				when &quot;doBuild&quot;
+-					buildHouse(pos.dim2)
+-					@job=nil
+-			end
+-			resetJob
+-			return
+-		end
+-		if @hero and button==3 then
+-			# assign hero a move job
+-			@hero.newHLMoveJob(0,pos,0)
+-		end
+-	end
+-
+-
+-	###############################
+-	# simple functions
+-	###############################
+-
+-	def getMap
+-		@map
+-	end
+-
+-	def processMessages
+-		if @connection
+-			while message=@connection.getMessage
+-				@map.processMessage(message)
+-			end
+-		end
+-	end
+-
+-	def buildHouse(pos)
+-		@layout.addChild(AntBuildDialog.new(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">layout,pos, at hero</A>))
+-	end
+-	
+-	def save
+-		if $campaign
+-			@layout.addChild(AntSaveCampaignDialog.new(@layout))
+-		else
+-			@layout.addChild(AntSaveDialog.new(@layout))
+-		end
+-	end
+-	def load
+-		@layout.addChild(AntLoadDialog.new(@layout))
+-	end
+-	def videoOptions
+-		@layout.addChild(AntVideoOptionsDialog.new(@layout))
+-	end
+-	def audioOptions
+-		@layout.addChild(AntAudioOptionsDialog.new(@layout))
+-	end
+-
+-	###############################################################
+-	# Setting up of Hero displays (images, texts and eventHandlers
+-	###############################################################
+-
+-	def setHeroImage(image,num)
+-		@layout.getChild(&quot;HeroImage#{num}&quot;).setTexture(image)
+-	end
+-	def setHeroName(name,num)
+-		@layout.getChild(&quot;HeroName#{num}&quot;).setText(_(name))
+-		c=@layout.getChild(&quot;HeroBar#{num}&quot;)
+-		raise 1 if c.nil?
+-		c.setVisible((name!=&quot;&quot;))
+-	end
+-	def setHeroEnergy(hero,num)
+-		@layout.getChild(&quot;HeroBar#{num}&quot;).setHero(hero)
+-	end
+-	def setHero(flag,num)
+-		name=&quot;hero#{num}&quot;
+-		c=@layout.getChild(name)
+-		c.setEnabled(flag)
+-		c.setVisible(flag)
+-	end
+-	def setupHeroDisplay(first=false)
+-		#super
+-		# setup Hero buttons
+-		hs=getMap.getPlayer.getHeroes
+-		for i in 0..5
+-			if hs.length&gt;i
+-				setHero(true,i)
+-				setHeroName(hs[i].getName,i)
+-				setHeroImage(hs[i].getImage,i)
+-				setHeroEnergy(hs[i],i)
+-			else
+-				setHero(false,i)
+-				setHeroImage(getTextureCache.get(&quot;data/gui/portraits/none.png&quot;),i)
+-				setHeroName(&quot;&quot;,i)
+-			end
+-		end
+-		# init Handlers of Buttons
+-		if first
+-			addHandler(@layout.getChild(&quot;antButtonPanel&quot;),:sigAggressionChanged,:eventAggressionChanged)
+-			for i in 0..2
+-				addHandler(@layout.getChild(&quot;hero#{i}&quot;),:sigClick,:eventHeroButton)
+-			end
+-			setupNames
+-			
+-			# center hero and select
+-	 		if hs.length&gt;0
+-	 			h=hs[0]
+-	 			selectHero(h)
+- 				focusHero(h)
+-				@layout.getChild(&quot;hero0&quot;).setChecked(true)
+- 			end
+-			
+-		end
+-		checkHeroEnergy
+-	end
+-
+-	# updates the energy displays of the heroes (if needed)
+-	def checkHeroEnergy
+-		name=nil
+-		# FIXME: support more than 1 hero !
+-		getMap.getPlayer.getHeroes.each{|h|
+-			if h.getEnergy&lt;0.3
+-				name=h.getName
+-			end
+-		}
+-		if @infobox.nil? and name
+-			@layout.addChild(@infobox=AntInfoBox.new(@layout,_(&quot;Your hero {1} suffers.&quot;,name)))
+-		elsif @infobox and name.nil?
+-			@infobox.close
+-			@infobox=nil
+-		end
+-	end
+-
+-	# sets a new result
+-	def setResult(r)
+-		@result=r
+-	end
+-	
+-	# returns boolean about the visibility of the panel
+-	def panelVisible
+-		@layout.getChild(&quot;SideBar&quot;).visible
+-	end
+-
+-	def showPanel
+-		sideBar=@layout.getChild(&quot;SideBar&quot;)
+-		sideBarRight=@layout.getChild(&quot;SideBarRight&quot;)
+-		sideBar.show
+-		@controls=true
+-		# reset Scene's width
+-		getScene.getCameraObject.setWidth((getScreen.getWidth-sideBarRight.width).to_i)
+-	end
+-	def hidePanel
+-		@layout.getChild(&quot;SideBar&quot;).hide
+-		@controls=false
+-		# reset Scene's width
+-		getScene.getCameraObject.setWidth(getScreen.getWidth)
+-	end
+-
+-
+-	def tellStory(flow)
+-		getMap.pause=true
+-		hidePanel
+-		if @story.nil?
+-			@story=AntStoryTalk.new(@layout)
+-		end
+-		@layout.addChild(@story)
+-		assert{@story.getApp}
+-		@story.show
+-		@story.setFlow(flow)
+-		addHandler(@story,:sigStoryFinished,:eventStoryTalkFinished)
+-	end
+-
+-	def inspectEntity(e)
+-		if @inspect
+-			#if @inspect.is_a?(AntBoss)
+-				@inspect.selected=false
+-			#end
+-		end
+-		@inspect=e
+-		if @inspect
+-			#if @inspect.is_a?(AntBoss)
+-				@inspect.selected=true
+-			#end
+-		end
+-		AntInventory.inspectEntity(e)
+-	end
+-
+-	def resetJob
+-		#@job=nil
+-		@layout.getChild(&quot;doBuild&quot;).setChecked(false)
+-	end
+-
+-	def getSelectedHero
+-		@hero
+-	end
+-
+-	def selectHero(h)
+-		@hero=h
+-		inspectEntity(h)
+-		@buttonpanel.setHero(h)
+-
+-		for i in 0..2
+-			if @layout.getChild(&quot;HeroName#{i}&quot;).getText.to_s==h.getName
+-				@layout.getChild(&quot;hero#{i}&quot;).setChecked(true)
+-			end
+-		end
+-
+-		# set hero's aggression
+-		@buttonpanel.setAggression(@hero.getAggression)
+-	end
+-
+-	def getHeroByNum(n)
+-		getMap.getOwnHeroes[n]
+-	end
+-
+-	# views an information window about the entity ent
+-	def viewInformation(ent)
+-		win=AntInspectWindow.new(@layout,ent)
+-		@layout.addChild(win)
+-	end
+-
+-end
+-
+-
+-# this function is only for starting a level directly (single map from the mainmenu or from cli)
+-# you can start BoA from the cli by giving a level-name directly
+-# For more information on that topic please refer to link:files/ruby/debugging/README.html
+-def startGame(file=&quot;savegames/savegame0.antlvl&quot;,clientConnection=nil)
+-	app=nil
+-	if clientConnection
+-		app=AntGameApp.new(file,getVideo.width,getVideo.height,nil,clientConnection)
+-	else
+-		app=AntGameApp.new(loadFile(file),getVideo.width,getVideo.height,nil,clientConnection)
+-	end
+-	#app.disableGC
+-	app.run
+-	result=app.result
+-	# result all globals
+-	app=nil
+-	$map=nil
+-	$app=nil
+-	$screen=nil
+-	# run garbage collector
+-	startGC
+-	return result
+-end
+-
+-
+-# code for starting a level directly from command-line like this:
+-# ./ruby/antargis.rb levels/birth1
+-# or
+-# ./ruby/antargis.rb savegames/savegame0
+-$useMenu||=false
+-if true
+-	savegame=&quot;&quot;
+-	ARGV.each{|arg|
+-		if arg=~/levels.*/ or arg=~/savegames.*/
+-			savegame=arg+&quot;.antlvl&quot;
+-		end
+-	}
+-	if savegame!=&quot;&quot;
+-		startGame(savegame)	
+-	end
+-end
+-
+-getConfig.set(&quot;ok&quot;,&quot;ok&quot;)
+
+Modified: antargis/trunk/ruby/antargislib.rb
+===================================================================
+--- antargis/trunk/ruby/antargislib.rb	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ruby/antargislib.rb	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -10,28 +10,18 @@
+ module MyAntargisLib
+ 	@@antargislibinited||=false
+ 
+-	if not @@antargislibinited
+-		# try suspending arts
++
++ 	if not @@antargislibinited
++		@@programDir=File.expand_path(File.split(__FILE__)[0])
++		$:.push(@@programDir)
++		#$:.push(File.join(@@programDir,&quot;entities&quot;))
++ 		# try suspending arts
+ 		if File.exists?(&quot;/usr/bin/artsshell&quot;)
+-			unless ENV[&quot;PATH&quot;]=~/^[A-Za-z]:\\/
++			unless ENV[&quot;PATH&quot;] =~ /^[A-Za-z]:\\.*/
+ 				File.popen(&quot;/usr/bin/artsshell suspend 2&gt;&amp;1&quot;).close
+ 			end
+ 		end
+-		
+-		@@programDir=Dir.pwd+&quot;/ruby&quot;
+-		# add programdir to path
+-		$:.push(@@programDir)
+-		$:.push(@@programDir+&quot;/entities&quot;)
+-
+-		@@extDir=Dir.pwd+&quot;/ext&quot;
+-		# add programdir to path
+-		$:.push(@@extDir)
+-		if ENV[&quot;PATH&quot;].split(&quot;;&quot;).length&gt;3 # FIXME: is windows ?
+-				ENV[&quot;PATH&quot;]+=&quot;;.\\ext&quot;
+-		else
+-				ENV[&quot;PATH&quot;]+=&quot;:./ext&quot;
+-		end
+-	end
++ 	end
+ end
+ 
+ if $demoMode.nil?
+@@ -41,11 +31,13 @@
+ 
+ module AntMyEventHandler
+ 	def getNewEvent
++		filename=File.join(getWriteDir,&quot;events.txt&quot;)
+ 		if $demoMode
+ 			if hardwareCursor
+ 				setCursor(getTextureCache.get(&quot;blue_cursor.png&quot;))
+ 			end
+-			@@eventDebugging||=File.open(&quot;events.txt&quot;,&quot;r&quot;)
++
++			@@eventDebugging||=File.open(filename,&quot;r&quot;)
+ 			@@nextLine||=@@eventDebugging.readline
+ 			puts &quot;NEXTLINE:#{@@nextLine}&quot;
+ 			if @@nextLine=~/T:.*/
+@@ -66,7 +58,7 @@
+ 				if eventOk(e)
+ 					s=toString(e)
+ 					if $enableLogging
+-						@@eventDebugging||=File.open(&quot;events.txt&quot;,&quot;w&quot;)
++						@@eventDebugging||=File.open(filename,&quot;w&quot;)
+ 						@@eventDebugging.puts s
+ 					end
+ 				end
+@@ -87,27 +79,36 @@
+ 
+ end
+ 
++require 'ext/antargis'
++# if File.exists?(&quot;ext/antargisgame.so&quot;)
++# 	require 'ext/antargisgame'
++# else
++# 	puts &quot;Please run 'rant' before starting this program!&quot;
++# 	require 'antargisgame'
++# end
+ 
+-if File.exists?(&quot;ext/antargisgame.so&quot;)
+-	require 'ext/antargisgame'
+-else
+-	puts &quot;Please run 'rant' before starting this program!&quot;
+-	require 'antargisgame'
+-end
++#require 'antargissound.so'
+ 
+-require 'antargissound.so'
+-
+-include Antargisgame
+-include Antargisbasic
+-include Antargismath
+-include Antargisvideo
+-include Antargisgui
+-include Antargis3dengine
+-include Antargissound
++include Antargis
++#game
++#include Antargisbasic
++#include Antargismath
++#include Antargisvideo
++#include Antargisgui
++#include Antargis3dengine
++#include Antargissound
+ 	
+ require 'ruby/gui/ag_tools.rb'
+ require 'ant_tools'
+ require 'ant_debug.rb'
++
++
++# add path
+<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">+ at basePath</A>=File.split(File.split(__FILE__)[0])[0]
++addPath(@basePath)
++addPath(File.join(@basePath,&quot;data&quot;))
++addPath(File.join(@basePath,&quot;data&quot;,&quot;fonts&quot;))
++
+ 		
+ module MyAntargislib
+ 	@@antargislibinited||=false
+@@ -213,7 +214,9 @@
+ 
+ 		@@noVideo||=nil	
+ 		if @@noVideo.nil?
++			puts &quot;initVideo...&quot;
+ 			getVideo.initVideo(xres,yres,32,@@fullscreen,@@opengl,1024,768)
++			puts &quot;initVideo ok&quot;
+ 		
+ 			getConfig.set(&quot;xRes&quot;,xres.to_s)
+ 			getConfig.set(&quot;yRes&quot;,yres.to_s)
+@@ -263,7 +266,8 @@
+ end
+ 
+ class Logger
+-	@@log=File.open(&quot;log.txt&quot;,&quot;w&quot;)
++	filename=File.join(getWriteDir,&quot;log.txt&quot;)
++	@@log=File.open(filename,&quot;w&quot;)
+ 	def self.log(*s)
+ 		@@log.print(&quot;[&quot;)
+ 		@@log.print(Time.new)
+
+Modified: antargis/trunk/ruby/gui/ag_tools.rb
+===================================================================
+--- antargis/trunk/ruby/gui/ag_tools.rb	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ruby/gui/ag_tools.rb	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -133,7 +133,7 @@
+ 	eval(&quot;@#{name}=AGSignal.new(self,'#{name}')\n&quot;)
+ end
+ 
+-module Antargisgui
++module Antargis
+ 	class AGApplication
+ 		include AGHandler
+ 	end
+@@ -162,7 +162,7 @@
+ # 	end
+ # end
+ 
+-module Antargisbasic
++module Antargis
+ 	class AGVector3
+ 		def x=(p)
+ 			setX(p)
+
+Modified: antargis/trunk/ruby/intro.rb
+===================================================================
+--- antargis/trunk/ruby/intro.rb	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ruby/intro.rb	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -34,7 +34,9 @@
+ class IntroApp&lt;AntApplication
+ 	include AGHandler
+ 	def initialize
++		puts &quot;introApp...&quot;
+ 		super
++		puts &quot;introApp!&quot;
+ 		
+ 		@pics=[&quot;data/gui/rough_lands.png&quot;,&quot;data/gui/strong_heroes.png&quot;,&quot;data/gui/logoGold.png&quot;,&quot;data/gui/your_mission.png&quot;,&quot;data/gui/unify_the_people.png&quot;,&quot;data/gui/castle_small.png&quot;]
+ 
+
+Modified: antargis/trunk/ruby/jobs/ant_hljob_states.rb
+===================================================================
+--- antargis/trunk/ruby/jobs/ant_hljob_states.rb	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ruby/jobs/ant_hljob_states.rb	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -771,22 +771,29 @@
+ # 
+ #
+ class HLJob_Recruit&lt;HLJob_BaseState
++	MAX_DIST=0.01
+ 	def enter
+ 		@countTargetMen=target.getMen.length
+ 		@countRecruiting=0
+ 		@countRecruited=0
+ 		@myPos=hero.getPos2D
++		hero.formation=AntFormationRest.new(hero)
+ 		initRecruiting
+ 	end
+ 
+ 	def ready
+-		((@countRecruited&gt;=howManyToRecruit) or nonToRecruitLeft) and (hero.getPos2D-hero.getFormation(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">hero, at myPos</A>)).length&lt;0.1
++		recruitedEnough=((@countRecruited&gt;=howManyToRecruit) or nonToRecruitLeft)
++		everyoneIsAtHisPlace=(hero.getMen).map{|man|(man.getPos2D-hero.getFormation(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">man, at myPos</A>)).length}.max&lt;MAX_DIST
++		heroIsAtHisPlace=(hero.getPos2D-hero.getFormation(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">hero, at myPos</A>)).length&lt;MAX_DIST
++		return (recruitedEnough and everyoneIsAtHisPlace)
+ 	end
+ 
+ 	def assign(man)
+-		if hero.getMen.length&gt;0
++		puts &quot;MAN:#{man}&quot;
++		if hasAtLeastOneFollower # has more than the hero himself
+ 			if man.is_a?(AntHero)
+-				man.newRestJob(10)
++				#man.newRestJob(10)
++				returnToStart(man)
+ 				return
+ 			end
+ 		end
+@@ -807,6 +814,10 @@
+ 
+ 	private
+ 
++	def hasAtLeastOneFollower
++		hero.getMen.length&gt;1
++	end
++
+ 	def howManyToRecruit
+ 		@countTargetMen*hero.getAggression/3
+ 	end
+@@ -826,9 +837,9 @@
+ 
+ 	def returnToStart(man)
+ 		pos=hero.getFormation(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">man, at myPos</A>)
+-		if (man.getPos2D-pos).length&lt;0.3
++		if (man.getPos2D-pos).length&lt;MAX_DIST
+ 			man.lookTo(@myPos)
+-			man.standStill
++			man.standStillShort # FIXME: really short ?
+ 			puts &quot;standStill #{man}&quot;
+ 		else
+ 			man.walkTo(pos)
+@@ -864,7 +875,7 @@
+ 		hero.getMen.each{|man|man.hlJobMode[:recruitTarget]=nil}
+ 		# exclude hero, if there are other men
+ 		menList=hero.getMen
+-		menList=menList-[hero] if menList.length&gt;1
++		menList=menList-[hero] if hasAtLeastOneFollower
+ 		menList.reverse.each{|man|
+ 			letRecruit(man)
+ 			break if @countRecruiting&gt;=howManyToRecruit
+
+Modified: antargis/trunk/ruby/jobs/ant_new_hljobs.rb
+===================================================================
+--- antargis/trunk/ruby/jobs/ant_new_hljobs.rb	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ruby/jobs/ant_new_hljobs.rb	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -271,7 +271,7 @@
+ 	end
+ 	# FIXME: move this to a config-file !
+ 	def image
+-		&quot;data/gui/move.png&quot;
++		&quot;data/gui/recruit.png&quot;
+ 	end
+ 	# FIXME: discard this
+ 	def makeMessage(boss)
+
+Modified: antargis/trunk/ruby/mainmenu.rb
+===================================================================
+--- antargis/trunk/ruby/mainmenu.rb	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/ruby/mainmenu.rb	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -21,7 +21,7 @@
+ require 'ruby/antargislib.rb'
+ $useMenu=true
+ 
+-require &quot;antargis.rb&quot;
++require &quot;run_game.rb&quot;
+ require 'campaign.rb'
+ require 'credits.rb'
+ 
+
+Copied: antargis/trunk/ruby/run_game.rb (from rev 1187, antargis/trunk/ruby/antargis.rb)
+===================================================================
+--- antargis/trunk/ruby/antargis.rb	2007-11-20 19:14:27 UTC (rev 1187)
++++ antargis/trunk/ruby/run_game.rb	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -0,0 +1,681 @@
++#!/usr/bin/env ruby
++#--
++# Copyright (c) 2005 by David Kamphausen. All rights reserved.
++#
++# game.rb
++# by David Kamphausen (<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">david.kamphausen at web.de</A>)
++#
++# The &quot;Antargis&quot; project, including all files needed to compile it,
++# is free software; you can redistribute it and/or use it and/or modify it
++# under the terms of the GNU General Public License as published
++# by the Free Software Foundation; either version 2 of the License,
++# or (at your option) any later version.
++#
++# This program is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
++#
++# You should have received a copy of the GNU General Public
++# License along with this program.
++#++
++#
++# antargis.rb is the central file in antargis-level-playing.
++# it contains the main-application class AntGameApp for in-game looping, etc.
++# most of the GUI-events are processed here.
++#
++
++
++# add programdir to path
++$programDir=File.split(__FILE__)[0]
++$:.push($programDir)
++$:.push(File.join($programDir,&quot;entities&quot;))
++$:.push(File.join($programDir,&quot;widgets&quot;))
++
++require 'antargislib.rb'
++require 'dialogs.rb'
++require 'entities.rb'
++require 'map.rb'
++require 'view.rb'
++require 'game_result.rb'
++require 'storyflow.rb'
++require 'mpmap.rb'
++
++require 'pp'
++
++# get save path where savegames are stored
++# NOTE: this is combined with getWriteDir from ag_fs.h !
++def getSavePath
++	&quot;savegames&quot;
++end
++
++#
++# AntGameApp is the central application-class in game. It controls:
++# * event handling of all the user interaction
++# * holds all the game-objects
++# * calls the advance-function in each frame
++# * it's derived from AntRubyView, which implements/manages the (3d-)displaying in-game
++#
++class AntGameApp &lt;AntRubyView
++	attr_accessor :result
++	attr_reader :hero
++
++	include AGHandler
++
++	# creating an AntGameApp-object needs the following parameters:
++	# * *savegameText* - this is the actual level serialized in a string (the xml-text you see when you open an .antlvl-file)
++	#   it contains the height- and terrain-map, too. This has the advantage, that everything about a level is stored in one
++	#   text and can thus be transfered easily over internet 
++	# * *w* and *h* are the width and height of the screen, which is currently needed to init the underlying GLApp-class from C++
++	#   *FIXME:* this could be replaced by a call to getMain.getVideo.getWidth and such
++	# * *loadscreen* is a LoadApp-object (or nil); if it's set that indicates that a loadscreen (a progress bar) is displayed
++	# * *connection* is a network-connection to a BoA multiplayer-server for future networking-support. link:files/ruby/multiplayer/README.html
++	#
++	# this function does all the initializing of a level:
++	# * from the super-classes: create a scene (for more go to the parent-class)
++	# * display a load-screen (and set the progress)
++	# * create a AntMpMap object
++	# * create a displaying layout from data/gui/layout/ant_layout.xml
++	# * initializes some event-handlers (glue code between level-displaying and the game-world object of type AntMpMap
++	# * load the map fom *savegameText*
++	# * setup of the hero-display-list at the top of the screen
++	def initialize(savegameText,w,h,loadscreen=nil,connection=nil)
++		super(w,h)
++
++		@speed=1
++
++		# the result of the level - won or lost or canceled
++		@result=GameResult.new
++		$app=self
++		AntSound.setApplication(self)
++	
++		# display loading screen
++		if loadscreen
++			loadscreen.setValue(0.1)
++			loadscreen.tick
++		end
++
++		playerName=nil
++
++		# init network mode
++		@connection=connection
++		if connection
++			# FIXME: check, if this is a server - then don't assign playerName
++			playerName=connection.getName
++		end
++
++		# init game-engine's map
++		@map=AntMpMap.new(connection,self,getScene,32,32,playerName) # some small dummy size - gets overriden by loadMap anyway
++		if loadscreen
++			loadscreen.setValue(0.4)
++			loadscreen.tick
++		end
++
++		# load GUI layout
++		@layout=AGLayout.new(nil)
++		@layout.setApp(self)
++		assert{@layout.getApp}
++		@layout.loadXML(loadFile(&quot;data/gui/layout/ant_layout.xml&quot;))
++	
++
++		# init pointers to different displays
++		# statusBar (FPS display)
++		@statusBar=@layout.getChild(&quot;statusBar&quot;)
++		@inventory=@layout.getChild(&quot;inventory&quot;)
++		@buttonpanel=@layout.getChild(&quot;antButtonPanel&quot;)
++
++		@miniMap=@layout.getChild(&quot;miniMap&quot;)
++		@fps=0
++
++		setMainWidget(@layout)
++		addHandler(@layout.getChild(&quot;quit&quot;),:sigClick,:eventQuit)
++		addHandler(@layout.getChild(&quot;pause&quot;),:sigClick,:eventPause)
++		addHandler(@layout.getChild(&quot;options&quot;),:sigClick,:eventOptions)
++
++		if loadscreen
++			loadscreen.setValue(0.5)
++			loadscreen.tick
++		end
++	
++		if @miniMap
++			# connect MiniMap with Map for displaying terrain and entities
++			@miniMap.setMap(@map)
++			# connect MiniMap with Scene for displaying frustrum
++			@miniMap.setScene(getScene)
++		end
++
++		if loadscreen
++			loadscreen.setValue(0.8)
++			loadscreen.tick()
++		end
++		
++		if savegameText &amp;&amp; savegameText.length&gt;0
++			# load a level
++			@map.loadMapFromMemory(savegameText)
++		end	
++
++		if loadscreen
++			loadscreen.setValue(0.95)
++			loadscreen.tick
++		end
++
++		# inventory and buttonpanel signals
++		addHandler(@inventory,:sigJobChanged,:eventInventoryJob)
++		addHandler(@buttonpanel,:sigJobChanged,:eventHeroJob)
++
++		setupHeroDisplay(true)
++
++		# infobox is used for display a text &quot;Your hero 'xy' suffers&quot;
++		@infobox=nil
++
++		# frame counting
++		@frameCount=0
++		@elapsTime=0
++
++		#setCursor(getTextureCache.get(&quot;blue_cursor.png&quot;))
++	end
++
++	####################################
++	# EVENT HANDLERS
++	####################################
++
++	include AntMyEventHandler
++
++
++	# this handler is for the buttonpanel on the top
++	# the actions are direct ones, like rest,dimiss and so, which don't need an object to use (like fighting,taking,...)
++	def eventHeroJob(e)
++		case @buttonpanel.job
++			when &quot;doDismiss&quot;
++				# opens a query dialog &quot;do really want to do this?&quot;, that is given a block, that's executed on confirmation
++				@layout.addChild(AntQueryDialog.new(@layout,nil) {@hero.newHLDismissJob})
++			when &quot;doRest&quot;
++				if @hero
++					@hero.newHLRestJob(10)
++				end
++			when &quot;doBuild&quot;
++				@job=&quot;doBuild&quot;
++		end
++		return true
++	end
++
++	# react to inventory-based jobs - like taking, recruiting
++
++	def eventInventoryJob(e)
++		if @target.nil? #some more overview as
++			log &quot;NO TARGET SELECTED&quot;
++		else
++			case @inventory.job
++				when &quot;doRecruit&quot;
++					@hero.newHLRecruitJob(@target)
++				when &quot;doTakeFood&quot;
++					@hero.newHLTakeFoodJob(@target)
++				when &quot;doTakeWeapons&quot;
++					@hero.newHLTakeWeaponJob(@target)
++				when &quot;doConstruct&quot;
++					@hero.newHLConstructJob(@target)
++				when &quot;doUpgrade&quot;
++					@hero.upgradeMan(@target)
++				when &quot;doContinue&quot;
++					@hero.newHLBuildJob(@target,nil)
++				when &quot;doSupport&quot;
++					targetsTarget=nil
++					if @target.getJob.is_a?(AntHeroFightJob)
++						targetsTarget=@target.getJob.target
++					end
++					if targetsTarget
++						@hero.newHLFightJob(targetsTarget)
++					end
++			end
++		end
++		return true
++	end
++
++	def eventKeyDown(e)
++
++		# hero-selection by pressing F1 to F7
++		hero={	SDLK_F1=&gt;0,
++			SDLK_F2=&gt;1,
++			SDLK_F3=&gt;2,
++			SDLK_F4=&gt;3,
++			SDLK_F5=&gt;4,
++			SDLK_F6=&gt;5,
++			SDLK_F7=&gt;6}[e.getKey]
++		if hero
++			h=getHeroByNum(hero) 
++			if h
++				if @hero==h
++					focusHero(h)
++				end
++				selectHero(h)
++				return super(e)
++			end
++		end
++
++		
++		case e.getKey
++			when SDLK_F9 # F9 toggles panel on the right
++				if not panelVisible
++					showPanel
++				else
++					hidePanel
++				end
++			when SDLK_F8
++				@sceneEnabled=(not @sceneEnabled)
++				getScene.setEnabled(@sceneEnabled)
++			when SDLK_F1
++				hero=1
++			when SDLK_ESCAPE
++				if @hero
++					@hero.newHLRestJob(10)
++				end
++			when SDLK_PLUS
++				@speed=[@speed+1,10].min
++			when SDLK_MINUS
++				@speed=[@speed-1,0.2].max
++			
++			when SDLK_p
++				eventPause(nil)
++		end
++		return super(e)
++	end
++	
++	def eventStoryTalkFinished
++		showPanel
++		getMap.trigger(nil,Trigger.new(&quot;storyFinished&quot;))
++	end
++
++	def moveMap(time)
++		granularity=0.2
++		while time&gt;granularity
++			getMap().move(granularity)
++			time-=granularity
++		end
++		getMap().move(time)
++	end
++
++	def eventFrame(time)
++		super(time)
++
++		# FPS display
++		if @frameCount&gt;14 then
++			@fps=@frameCount / @elapsTime
++			fps=&quot;&quot;
++			if @fps&lt;10
++				fps=sprintf(&quot;%3.2f&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at fps</A>)
++			else
++				fps=sprintf(&quot;%3.0f&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at fps</A>)
++			end
++			@statusBar.setText(_(&quot;FPS:{1}&quot;,fps.to_s))
++			@frameCount=0
++			@elapsTime=0
++			startGC
++		end
++		@frameCount+=1
++		@elapsTime+=time
++
++
++# 		# move entities in game-engine
++		#getMap().move(time*@speed)
++		moveMap(time*@speed)
++
++		# advance animations
++		getScene.advance(time)
++		checkHeroEnergy
++
++		processMessages
++
++		# save some CPU-power, if available
++		if @connection
++			delay(20)
++		end
++
++		if @fps&gt;25
++			delay(5)
++		end
++		return true
++	end
++	
++	def eventQuit(e)
++		@layout.addChild(AntQuitDialog.new(@layout))
++		return true
++	end
++	def eventPause(e)
++		if not getMap().pause then
++			@layout.addChild(AntPauseDialog.new(@layout))
++		else
++			getMap.pause=false
++		end
++		return true
++	end
++	def eventOptions(e)
++		@layout.addChild(AntOptionsDialog.new(@layout))
++		return true
++	end
++	def eventHeroButton(e)
++		c=e.getCaller.getName
++		num=c[4..4]
++		name=@layout.getChild(&quot;HeroName#{num}&quot;).getText.to_s
++		ent=getMap.getByName(name)
++		selectHero(ent)
++		if ent==@inspect
++			focusHero(ent)
++		end
++		inspectEntity(ent)
++		return true
++
++	end
++
++	def eventAggressionChanged(e)
++		h=getSelectedHero
++		if h
++			h.setAggression(@buttonpanel.getAggression)
++		end
++		return true
++	end
++
++	def eventEntitiesClicked(list,button)
++		resetJob
++		# find first entity that's nearest to the camera
++		ent=nil
++		list.each{|node|
++			mesh=node.node
++			if [Mesh,AnimMesh,Mesh2D].member?(mesh.class)
++				ent=getMap.getEntity(mesh)
++				break if ent
++			end
++		}
++
++		# if an entity was found - set new target
++		if ent
++			if ent.class==AntHero and ent.getPlayer==getMap.getPlayer
++				#@hero=ent
++				@target=ent
++				inspectEntity(ent)
++			else
++				@target=ent
++				inspectEntity(ent)
++			end
++		end
++
++		if button==1
++			# left button == select
++		elsif button==3
++			# right button == fight or goto
++			if ent==@target
++				if @target.is_a?(AntBoss)
++					if @target.getPlayer!=@hero.getPlayer
++						@hero.newHLFightJob(@target)
++						return
++					end
++				elsif @target.is_a?(AntAnimal)
++					@hero.newHLFightAnimalJob(@target)
++					return
++				end
++				# move near target
++				@hero.newHLMoveJob(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">0, at target.getPos2D</A>,2)
++			end
++		end
++	end
++
++	def eventMapClicked(pos,button)
++		if @job and button==1 then
++			case @job
++				when &quot;doBuild&quot;
++					buildHouse(pos.dim2)
++					@job=nil
++			end
++			resetJob
++			return
++		end
++		if @hero and button==3 then
++			# assign hero a move job
++			@hero.newHLMoveJob(0,pos,0)
++		end
++	end
++
++
++	###############################
++	# simple functions
++	###############################
++
++	def getMap
++		@map
++	end
++
++	def processMessages
++		if @connection
++			while message=@connection.getMessage
++				@map.processMessage(message)
++			end
++		end
++	end
++
++	def buildHouse(pos)
++		@layout.addChild(AntBuildDialog.new(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">layout,pos, at hero</A>))
++	end
++	
++	def save
++		if $campaign
++			@layout.addChild(AntSaveCampaignDialog.new(@layout))
++		else
++			@layout.addChild(AntSaveDialog.new(@layout))
++		end
++	end
++	def load
++		@layout.addChild(AntLoadDialog.new(@layout))
++	end
++	def videoOptions
++		@layout.addChild(AntVideoOptionsDialog.new(@layout))
++	end
++	def audioOptions
++		@layout.addChild(AntAudioOptionsDialog.new(@layout))
++	end
++
++	###############################################################
++	# Setting up of Hero displays (images, texts and eventHandlers
++	###############################################################
++
++	def setHeroImage(image,num)
++		@layout.getChild(&quot;HeroImage#{num}&quot;).setTexture(image)
++	end
++	def setHeroName(name,num)
++		@layout.getChild(&quot;HeroName#{num}&quot;).setText(_(name))
++		c=@layout.getChild(&quot;HeroBar#{num}&quot;)
++		raise 1 if c.nil?
++		c.setVisible((name!=&quot;&quot;))
++	end
++	def setHeroEnergy(hero,num)
++		@layout.getChild(&quot;HeroBar#{num}&quot;).setHero(hero)
++	end
++	def setHero(flag,num)
++		name=&quot;hero#{num}&quot;
++		c=@layout.getChild(name)
++		c.setEnabled(flag)
++		c.setVisible(flag)
++	end
++	def setupHeroDisplay(first=false)
++		#super
++		# setup Hero buttons
++		hs=getMap.getPlayer.getHeroes
++		for i in 0..5
++			if hs.length&gt;i
++				setHero(true,i)
++				setHeroName(hs[i].getName,i)
++				setHeroImage(hs[i].getImage,i)
++				setHeroEnergy(hs[i],i)
++			else
++				setHero(false,i)
++				setHeroImage(getTextureCache.get(&quot;data/gui/portraits/none.png&quot;),i)
++				setHeroName(&quot;&quot;,i)
++			end
++		end
++		# init Handlers of Buttons
++		if first
++			addHandler(@layout.getChild(&quot;antButtonPanel&quot;),:sigAggressionChanged,:eventAggressionChanged)
++			for i in 0..2
++				addHandler(@layout.getChild(&quot;hero#{i}&quot;),:sigClick,:eventHeroButton)
++			end
++			setupNames
++			
++			# center hero and select
++	 		if hs.length&gt;0
++	 			h=hs[0]
++	 			selectHero(h)
++ 				focusHero(h)
++				@layout.getChild(&quot;hero0&quot;).setChecked(true)
++ 			end
++			
++		end
++		checkHeroEnergy
++	end
++
++	# updates the energy displays of the heroes (if needed)
++	def checkHeroEnergy
++		name=nil
++		# FIXME: support more than 1 hero !
++		getMap.getPlayer.getHeroes.each{|h|
++			if h.getEnergy&lt;0.3
++				name=h.getName
++			end
++		}
++		if @infobox.nil? and name
++			@layout.addChild(@infobox=AntInfoBox.new(@layout,_(&quot;Your hero {1} suffers.&quot;,name)))
++		elsif @infobox and name.nil?
++			@infobox.close
++			@infobox=nil
++		end
++	end
++
++	# sets a new result
++	def setResult(r)
++		@result=r
++	end
++	
++	# returns boolean about the visibility of the panel
++	def panelVisible
++		@layout.getChild(&quot;SideBar&quot;).visible
++	end
++
++	def showPanel
++		sideBar=@layout.getChild(&quot;SideBar&quot;)
++		sideBarRight=@layout.getChild(&quot;SideBarRight&quot;)
++		sideBar.show
++		@controls=true
++		# reset Scene's width
++		getScene.getCameraObject.setWidth((getScreen.getWidth-sideBarRight.width).to_i)
++	end
++	def hidePanel
++		@layout.getChild(&quot;SideBar&quot;).hide
++		@controls=false
++		# reset Scene's width
++		getScene.getCameraObject.setWidth(getScreen.getWidth)
++	end
++
++
++	def tellStory(flow)
++		getMap.pause=true
++		hidePanel
++		if @story.nil?
++			@story=AntStoryTalk.new(@layout)
++		end
++		@layout.addChild(@story)
++		assert{@story.getApp}
++		@story.show
++		@story.setFlow(flow)
++		addHandler(@story,:sigStoryFinished,:eventStoryTalkFinished)
++	end
++
++	def inspectEntity(e)
++		if @inspect
++			#if @inspect.is_a?(AntBoss)
++				@inspect.selected=false
++			#end
++		end
++		@inspect=e
++		if @inspect
++			#if @inspect.is_a?(AntBoss)
++				@inspect.selected=true
++			#end
++		end
++		AntInventory.inspectEntity(e)
++	end
++
++	def resetJob
++		#@job=nil
++		@layout.getChild(&quot;doBuild&quot;).setChecked(false)
++	end
++
++	def getSelectedHero
++		@hero
++	end
++
++	def selectHero(h)
++		@hero=h
++		inspectEntity(h)
++		@buttonpanel.setHero(h)
++
++		for i in 0..2
++			if @layout.getChild(&quot;HeroName#{i}&quot;).getText.to_s==h.getName
++				@layout.getChild(&quot;hero#{i}&quot;).setChecked(true)
++			end
++		end
++
++		# set hero's aggression
++		@buttonpanel.setAggression(@hero.getAggression)
++	end
++
++	def getHeroByNum(n)
++		getMap.getOwnHeroes[n]
++	end
++
++	# views an information window about the entity ent
++	def viewInformation(ent)
++		win=AntInspectWindow.new(@layout,ent)
++		@layout.addChild(win)
++	end
++
++end
++
++
++# this function is only for starting a level directly (single map from the mainmenu or from cli)
++# you can start BoA from the cli by giving a level-name directly
++# For more information on that topic please refer to link:files/ruby/debugging/README.html
++def startGame(file=&quot;savegames/savegame0.antlvl&quot;,clientConnection=nil)
++	app=nil
++	if clientConnection
++		app=AntGameApp.new(file,getVideo.width,getVideo.height,nil,clientConnection)
++	else
++		app=AntGameApp.new(loadFile(file),getVideo.width,getVideo.height,nil,clientConnection)
++	end
++	#app.disableGC
++	app.run
++	result=app.result
++	# result all globals
++	app=nil
++	$map=nil
++	$app=nil
++	$screen=nil
++	# run garbage collector
++	startGC
++	return result
++end
++
++
++# code for starting a level directly from command-line like this:
++# ./ruby/run_game.rb levels/birth1
++# or
++# ./ruby/run_game.rb savegames/savegame0
++$useMenu||=false
++if true
++	savegame=&quot;&quot;
++	ARGV.each{|arg|
++		if arg=~/levels.*/ or arg=~/savegames.*/
++			savegame=arg+&quot;.antlvl&quot;
++		end
++	}
++	if savegame!=&quot;&quot;
++		startGame(savegame)	
++	end
++end
++
++getConfig.set(&quot;ok&quot;,&quot;ok&quot;)
+
+Deleted: antargis/trunk/run.rb
+===================================================================
+--- antargis/trunk/run.rb	2007-12-06 19:48:30 UTC (rev 1190)
++++ antargis/trunk/run.rb	2007-12-19 17:44:00 UTC (rev 1191)
+@@ -1,7 +0,0 @@
+-#!/usr/bin/env ruby
+-
+-# run intro - mainmenu will be called automatically
+-
+-require 'ruby/intro.rb'
+-
+-MyLocalizer.finalize
+\ No newline at end of file
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000147.html">[Antargis-svn] r1190 - in antargis/trunk/build: . configs
+</A></li>
+	<LI>Next message: <A HREF="000149.html">[Antargis-svn] r1192 - in antargis/trunk: . ext/basic ruby
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#148">[ date ]</a>
+              <a href="thread.html#148">[ thread ]</a>
+              <a href="subject.html#148">[ subject ]</a>
+              <a href="author.html#148">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,643 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1207 - in antargis/trunk: . build ext
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1207%20-%20in%20antargis/trunk%3A%20.%20build%20ext&In-Reply-To=%3C200712311647.lBVGlim3028336%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000163.html">
+   <LINK REL="Next"  HREF="000165.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1207 - in antargis/trunk: . build ext</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1207%20-%20in%20antargis/trunk%3A%20.%20build%20ext&In-Reply-To=%3C200712311647.lBVGlim3028336%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1207 - in antargis/trunk: . build ext">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Mon Dec 31 17:47:44 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000163.html">[Antargis-svn] r1206 - contrib/binary
+</A></li>
+        <LI>Next message: <A HREF="000165.html">[Antargis-svn] r1208 - antargis/trunk/build
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#164">[ date ]</a>
+              <a href="thread.html#164">[ thread ]</a>
+              <a href="subject.html#164">[ subject ]</a>
+              <a href="author.html#164">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-12-31 17:47:39 +0100 (Mon, 31 Dec 2007)
+New Revision: 1207
+
+Modified:
+   antargis/trunk/INSTALL
+   antargis/trunk/Rakefile
+   antargis/trunk/TODO
+   antargis/trunk/antargis.iss
+   antargis/trunk/build/create_interface.rb
+   antargis/trunk/ext/Rakefile
+Log:
+* some changes for cross-compilation
+
+
+
+Modified: antargis/trunk/INSTALL
+===================================================================
+--- antargis/trunk/INSTALL	2007-12-30 17:50:00 UTC (rev 1206)
++++ antargis/trunk/INSTALL	2007-12-31 16:47:39 UTC (rev 1207)
+@@ -1,7 +1,7 @@
+ == INSTALLATION of Battles of Antargis
+ Quick Start:
+ 
+-1) Install ruby, libsdl, libsdl-image, libsdl-ttf, libsdl-mixer, opengl. You need the developer-packages of all these libraries/programs! If you want to do serious developing you should install rant, too!
++1) Install ruby, rake (a ruby make tool), libsdl, libsdl-image, libsdl-ttf, libsdl-mixer, opengl. You need the developer-packages of all these libraries/programs! If you want to do serious developing you should install rant, too!
+ 
+ 2) Don't forget to install ruby1.8-dev (or ruby1.9-dev if you use ruby 1.9)
+ 
+@@ -9,19 +9,19 @@
+ 
+ 4) Run &quot;ruby configure&quot; or just &quot;./configure&quot; to configure the building. You may want to give additional options, which will be explained if you give the parameter &quot;-h&quot; - so run &quot;./configure -h&quot;
+ 
+-5) If you have installed rant in step 1: Run &quot;rant&quot; in this directory. Otherwise: Run &quot;ruby build.rb&quot; in the current directory
++5) If you have installed rant in step 1: Run &quot;rake&quot; in this directory.
+ 
+ 6) Run &quot;./antargis&quot; in this directory
+ 
+-Essentials: Ruby, (Rant)
+-This game is mostly written in Ruby (www.ruby-lang.org) and C++. It uses Rant (Rant - Flexible, Ruby based make) as build system.
++Essentials: Ruby, (Rake)
++This game is mostly written in Ruby (www.ruby-lang.org) and C++. It uses Rake (a Ruby based make) as build system.
+ 
+ Libraries: libSDL,libSDL_mixer libSDL_ttf, libSDL_image, opengl
+ 
+ == Links
+ Ruby          <A HREF="http://www.ruby-lang.org">http://www.ruby-lang.org</A>
+ 
+-Rant          <A HREF="http://rant.rubyforge.org/">http://rant.rubyforge.org/</A>
++Rake          <A HREF="http://rake.rubyforge.org/">http://rake.rubyforge.org/</A>
+ 
+ libSDL        <A HREF="http://www.libsdl.org">http://www.libsdl.org</A>
+ 
+
+Modified: antargis/trunk/Rakefile
+===================================================================
+--- antargis/trunk/Rakefile	2007-12-30 17:50:00 UTC (rev 1206)
++++ antargis/trunk/Rakefile	2007-12-31 16:47:39 UTC (rev 1207)
+@@ -16,11 +16,13 @@
+ 
+ DATA_FILES=Dir[&quot;data/**/*&quot;].select{|file|not (file=~/svn/ or file=~/xcf/ or file=~/\.svg/)}
+ RUBY_FILES=Dir[&quot;ruby/**/*.rb&quot;]+Dir[&quot;*.rb&quot;]+Dir[&quot;antargis&quot;]
+-C_FILES=Dir[&quot;ext/*/*.c&quot;]+Dir[&quot;ext/*/*.cc&quot;]+Dir[&quot;ext/*/*.h&quot;]
++SWIG_FILES=[&quot;ext/swig.cc&quot;,&quot;ext/swig.h&quot;]
++C_FILES=Dir[&quot;ext/*/*.c&quot;]+Dir[&quot;ext/*/*.cc&quot;]+Dir[&quot;ext/*/*.h&quot;]+SWIG_FILES
+ RAKE_FILES=Dir[&quot;Rakefile&quot;]+Dir[&quot;ext/**/Rakefile&quot;]+Dir[&quot;ext/extconf.rb&quot;]
+ BUILD_FILES=Dir[&quot;build/*.rb&quot;]+Dir[&quot;build/*/*.rb&quot;]+Dir[&quot;build/*.i&quot;]+Dir[&quot;ext/*/templates.i&quot;]
++SOURCE_FILES=BUILD_FILES+C_FILES+RAKE_FILES
+ BINARY_FILES=[&quot;ext/antargis.so&quot;]
+-PKG_FILES=DATA_FILES+RUBY_FILES+C_FILES+RAKE_FILES+BUILD_FILES
++PKG_FILES=DATA_FILES+RUBY_FILES
+ 
+ BOA_DESCRIPTION = &lt;&lt;EOF
+ Battles of Antargis is a medieval-like realtime strategy game. 
+@@ -30,15 +32,20 @@
+ EOF
+ 
+ def makeSpec(s)
+-	s.platform = Gem::Platform::LINUX_586
++	if $CONFIG['target_os']=='windows'
++		s.platform = Gem::Platform::WIN32
++		s.name = 'antargis-win32'
++	else
++		s.platform = Gem::Platform::LINUX_586
++		s.name = 'antargis-linux'
++	end
+ 	s.summary = &quot;A real-time strategy game.&quot;
+-	s.name = 'antargis-linux'
+ 	s.version = PKG_VERSION
+ 	s.requirements &lt;&lt; 'none'
+ 	#s.require_path = 'lib'
+ 	s.require_paths &lt;&lt; 'ext'
+ 	s.autorequire = 'rake'
+-	s.files = PKG_FILES-BINARY_FILES
++	s.files = PKG_FILES+BINARY_FILES
+ 	s.bindir=&quot;.&quot; #File.join(&quot;build&quot;,&quot;bin&quot;)
+ 	s.executables &lt;&lt; &quot;antargis&quot;
+ 	s.description = BOA_DESCRIPTION
+@@ -48,19 +55,33 @@
+ 	makeSpec(s)
+ 	s.name = 'antargis'
+ 	s.extensions &lt;&lt; 'ext/extconf.rb'
++	s.files=PKG_FILES+SOURCE_FILES
+ 	s.platform = Gem::Platform::RUBY
+ end
+ 
++# make Linux-gem
+ spec = Gem::Specification.new do |s|
++	makeSpec(s)
++end
++
++Rake::GemPackageTask.new(spec) do |pkg|
++	pkg.need_zip = true
++	pkg.need_tar = true
++end
++
++# make source-gem
++spec = Gem::Specification.new do |s|
+ 	makeSourceSpec(s)
+ end
+ 
+ Rake::GemPackageTask.new(spec) do |pkg|
+-#	pkg.need_zip = true
+-#	pkg.need_tar = true
++	pkg.need_zip = true
++	pkg.need_tar = true
+ end
+ 
++# make windows gem
+ 
++
+ # normal package
+ 
+ if false
+
+Modified: antargis/trunk/TODO
+===================================================================
+--- antargis/trunk/TODO	2007-12-30 17:50:00 UTC (rev 1206)
++++ antargis/trunk/TODO	2007-12-31 16:47:39 UTC (rev 1207)
+@@ -1,4 +1,7 @@
++* move build/*.rb files to build/unused_tools/* if they're not used
++* google for &quot;/tmp/cciSLVG5.s:932678: Warning: .stabs: description field '1c216' too big, try a different debug format&quot;
+ 
++
+ * check how many times AG_NewPointer is called !!!! - not so often - could be replaced by traceobjects from swig
+ ** check if it's any good to switch over to standard-swig ??? seems so.
+ 
+
+Modified: antargis/trunk/antargis.iss
+===================================================================
+--- antargis/trunk/antargis.iss	2007-12-30 17:50:00 UTC (rev 1206)
++++ antargis/trunk/antargis.iss	2007-12-31 16:47:39 UTC (rev 1207)
+@@ -5,21 +5,21 @@
+ 
+ [Setup]
+ AppName=Antargis
+-AppVerName=Antargis 0.2.1.1
++AppVerName=Antargis 0.2.1.5
+ DefaultDirName={pf}\Antargis
+ DefaultGroupName=Antargis
+ UninstallDisplayIcon={app}\Antargis.exe
+ Compression=lzma/fast
+ SolidCompression=yes
+ ;InfoAfterFile=c:\Antargis\readme.txt
+-OutputBaseFilename=Antargis-0.2.1.1-setup
++OutputBaseFilename=Antargis-0.2.1.5-setup
+ AppPublisher=Antargis-Team
+ AppPublisherURL=antargis.berlios.de
+-AppVersion=0.2.1.1
++AppVersion=0.2.1.5
+ 
+ 
+ [Files]
+-Source: &quot;c:\antargis\rant\packages\antargis-windows-0.2.1.1\*&quot;; DestDir: &quot;{app}&quot;; Flags:recursesubdirs
++Source: &quot;pkg\antargis-win32-0.2.1.5\*&quot;; DestDir: &quot;{app}&quot;; Flags:recursesubdirs
+ 
+ [Icons]
+ Name: &quot;{group}\Antargis&quot;; Filename: &quot;{app}\Antargis.lnk&quot; ; WorkingDir: &quot;{app}&quot;
+@@ -46,8 +46,8 @@
+         CreateShellLink(
+         ExpandConstant('{app}\Antargis.lnk'),
+         'Antargis 0.1',
+-        ExpandConstant('{app}\allinoneruby186.exe'),
+-        ExpandConstant('&quot;{app}\run.rb&quot;'),
++        ExpandConstant('{app}\allinoneruby.exe'),
++        ExpandConstant('&quot;{app}\antargis&quot;'),
+         ExpandConstant('{app}'),
+           '',
+           0,
+
+Modified: antargis/trunk/build/create_interface.rb
+===================================================================
+--- antargis/trunk/build/create_interface.rb	2007-12-30 17:50:00 UTC (rev 1206)
++++ antargis/trunk/build/create_interface.rb	2007-12-31 16:47:39 UTC (rev 1207)
+@@ -27,10 +27,16 @@
+ #
+ 
+ require 'build/interface_template.rb'
+-require 'build/base_tools.rb'
++#require 'build/base_tools.rb'
+ require 'find.rb'
+ require 'pp'
+ 
++#$verbose=true
++
++def getDirUnix(path)
++    path.split(&quot;/&quot;)[0..-2].join(&quot;/&quot;)
++end
++
+ def vputs(*a)
+ 	puts *a if $verbose
+ end
+@@ -40,6 +46,11 @@
+ 	puts *a
+ end
+ 
++def makeLibName(dir)
++    #puts &quot;makeLibName #{dir}&quot;
++	&quot;antargis&quot;+dir.split(&quot;/&quot;)[-1]
++end
++
+ class MyInput
+ 	attr_reader :swigInput, :outputDir
+ 	def initialize
+@@ -74,7 +85,7 @@
+ 	end
+ 
+ 	def interfaceName
+-		name=@outputDir+Dir.separator+&quot;interface.i&quot;
++		name=File.join(@outputDir,&quot;interface.i&quot;)
+ 		name
+ 	end
+ 
+@@ -82,10 +93,10 @@
+ 		moduleName=makeLibName(@outputDir)
+ 	end
+ 	def headersName
+-		@outputDir+Dir.separator+&quot;/headers.hh&quot;
++		File.join(@outputDir,&quot;headers.hh&quot;)
+ 	end
+ 	def markerName
+-		@outputDir+Dir.separator+&quot;marker.i&quot;
++		File.join(@outputDir,&quot;marker.i&quot;)
+ 	end
+ end
+ 
+
+Modified: antargis/trunk/ext/Rakefile
+===================================================================
+--- antargis/trunk/ext/Rakefile	2007-12-30 17:50:00 UTC (rev 1206)
++++ antargis/trunk/ext/Rakefile	2007-12-31 16:47:39 UTC (rev 1207)
+@@ -14,8 +14,9 @@
+ 
+ load 'antconfig.rb'
+ 
+-
+ PKG_VERSION=$CONFIG[&quot;version&quot;]
++MULTISWIG=false
++SWIG_ENABLED=($CONFIG['SWIG'] and $CONFIG['SWIG'].length&gt;0)
+ 
+ $SOURCEDIRS=[
+ 	&quot;ext/external&quot;,
+@@ -142,96 +143,99 @@
+ end
+ 
+ 
++if MULTISWIG
+ 
+-libdeps=[]
+-$SOURCEDIRS.each{|dir|
+-	base=dir.split(&quot;/&quot;)[1]
+-	lib=&quot;ext/libantargis#{base}.so&quot;
+-
+-	# FIXME: check for windows
+-	if isWindows
+-		libadd=libdeps.map{|l|&quot;-l#{l.sub(/^.*\/lib(.*)\.so$/,'\1')}&quot;}
+-	else	
+-		libadd=libdeps.dup #.map{|l|&quot;-l#{l.sub(/^.*\/(.*)\.so$/,'\1')}&quot;}
+-	end
+-
+-	libadd+=$CONFIG[&quot;LIBS&quot;].split(&quot; &quot;) if libdeps.length==0
+-	libadd+=[&quot;-Lext&quot;]
+-
+-	objs=(Dir[dir+&quot;/*.cc&quot;]+Dir[dir+&quot;/*.c&quot;]).select{|file|not file=~/swig/}.map{|file|file.sub(/\.cc$/,&quot;.oo&quot;).sub(/\.c$/,&quot;.o&quot;)}
+-
+-	desc &quot;Build dynamic library #{lib}&quot;
+-	task lib=&gt;libdeps+objs do |t|
+-		linkLib(lib,libadd+objs)
+-	end
+-	libdeps &lt;&lt; lib
+-}
+-
+-
+-
+-$SOURCEDIRS.each{|dir|
+-	base=dir.split(&quot;/&quot;)[1]
+-	lib=&quot;ext/antargis#{base}.so&quot;
+-
+-	objs=[dir+&quot;/swig.oo&quot;]
+-
+ 	libdeps=[]
+-	$SOURCEDIRS.each{|cdir|
+-		cbase=cdir.split(&quot;/&quot;)[1]
+-		libdeps &lt;&lt; &quot;ext/libantargis#{cbase}.so&quot;
+-		break if cdir==dir
++	$SOURCEDIRS.each{|dir|
++		base=dir.split(&quot;/&quot;)[1]
++		lib=&quot;ext/libantargis#{base}.so&quot;
++	
++		# FIXME: check for windows
++		if isWindows
++			libadd=libdeps.map{|l|&quot;-l#{l.sub(/^.*\/lib(.*)\.so$/,'\1')}&quot;}
++		else	
++			libadd=libdeps.dup #.map{|l|&quot;-l#{l.sub(/^.*\/(.*)\.so$/,'\1')}&quot;}
++		end
++	
++		libadd+=$CONFIG[&quot;LIBS&quot;].split(&quot; &quot;) if libdeps.length==0
++		libadd+=[&quot;-Lext&quot;]
++	
++		objs=(Dir[dir+&quot;/*.cc&quot;]+Dir[dir+&quot;/*.c&quot;]).select{|file|not file=~/swig/}.map{|file|file.sub(/\.cc$/,&quot;.oo&quot;).sub(/\.c$/,&quot;.o&quot;)}
++	
++		desc &quot;Build dynamic library #{lib}&quot;
++		task lib=&gt;libdeps+objs do |t|
++			linkLib(lib,libadd+objs)
++		end
++		libdeps &lt;&lt; lib
+ 	}
+-
+-	libadd=$CONFIG[&quot;LIBS&quot;].split(&quot; &quot;)+[&quot;-Lext&quot;]
+-
+ 	
+-	desc &quot;Build ruby-extension library #{lib}&quot;
+-	task lib=&gt;libdeps+objs do |t|
+-		lib=t
+-		mlibdeps=t.prerequisites
+-		mlibdeps=t.prerequisites.map{|l|l.sub(/^.*\/lib(.*)\.so$/,'-l\1')} if isWindows
+-		linkLib(lib,mlibdeps+libadd)
+-	end
+-	libdeps=libdeps+[lib]
+-}
++	
++	
++	$SOURCEDIRS.each{|dir|
++		base=dir.split(&quot;/&quot;)[1]
++		lib=&quot;ext/antargis#{base}.so&quot;
++	
++		objs=[dir+&quot;/swig.oo&quot;]
++	
++		libdeps=[]
++		$SOURCEDIRS.each{|cdir|
++			cbase=cdir.split(&quot;/&quot;)[1]
++			libdeps &lt;&lt; &quot;ext/libantargis#{cbase}.so&quot;
++			break if cdir==dir
++		}
++	
++		libadd=$CONFIG[&quot;LIBS&quot;].split(&quot; &quot;)+[&quot;-Lext&quot;]
++	
++		
++		desc &quot;Build ruby-extension library #{lib}&quot;
++		task lib=&gt;libdeps+objs do |t|
++			lib=t
++			mlibdeps=t.prerequisites
++			mlibdeps=t.prerequisites.map{|l|l.sub(/^.*\/lib(.*)\.so$/,'-l\1')} if isWindows
++			linkLib(lib,mlibdeps+libadd)
++		end
++		libdeps=libdeps+[lib]
++	}
+ 
+ 
+ 
+-
+-swigDeps=lambda{|t|
+-	dir=File.join(File.split(t)[0..-2])
+-
++	swigDeps=lambda{|t|
++		dir=File.join(File.split(t)[0..-2])
+ 	
+-	deps=getDepsFromCache(t,dir+&quot;/interface.i&quot;)
+-	return deps if deps.length&gt;0
+-
+-	# FIXME: del this ???
+-
+-	# FIXME: include correct dependencies
+-	deps=Dir[dir+&quot;/templates.i&quot;]+Dir[dir+&quot;/*.h&quot;]+[dir+&quot;/interface.i&quot;]
+-
+-	$SOURCEDIRS.each{|ct|
+-		if ct=~/#{dir}/
+-			break
+-		else
+-			deps &lt;&lt; ct+&quot;/interface.i&quot;  unless ct=~/external/
++		
++		deps=getDepsFromCache(t,dir+&quot;/interface.i&quot;)
++		return deps if deps.length&gt;0
++	
++		# FIXME: del this ???
++	
++		# FIXME: include correct dependencies
++		deps=Dir[dir+&quot;/templates.i&quot;]+Dir[dir+&quot;/*.h&quot;]+[dir+&quot;/interface.i&quot;]
++	
++		$SOURCEDIRS.each{|ct|
++			if ct=~/#{dir}/
++				break
++			else
++				deps &lt;&lt; ct+&quot;/interface.i&quot;  unless ct=~/external/
++			end
++		}
++	
++		pp &quot;DEPS2:&quot;,deps
++		deps
++	}
++	
++	$BOASOURCES.each{|dir|
++		swig=dir+&quot;/swig.cc&quot;
++		myDeps=swigDeps.call(swig)
++		#rule 'swig.cc'=&gt;swigDeps do |t|
++		task swig=&gt;myDeps do |t|
++			dir=File.join(File.split(t.name)[0..-2])
++			generateSwigDeps(dir)
++			generateSwig(dir)
+ 		end
+ 	}
+ 
+-	pp &quot;DEPS2:&quot;,deps
+-	deps
+-}
++end
+ 
+-$BOASOURCES.each{|dir|
+-	swig=dir+&quot;/swig.cc&quot;
+-	myDeps=swigDeps.call(swig)
+-	#rule 'swig.cc'=&gt;swigDeps do |t|
+-	task swig=&gt;myDeps do |t|
+-		dir=File.join(File.split(t.name)[0..-2])
+-		generateSwigDeps(dir)
+-		generateSwig(dir)
+-	end
+-}
+ 
+ 
+ 
+@@ -241,41 +245,12 @@
+ 
+ 
+ 
+-def importsForInterface(name)
+-	mdeps=[]
+-	$SOURCEDIRS.each{|t|
+-		if name=~/#{t}/
+-			break
+-		else
+-			mdeps &lt;&lt; t+&quot;/interface.i&quot; unless t=~/external/
+-		end
+-	}
+-	return mdeps.join(&quot;:&quot;)
+-end
+ 
+-interfaceSrc = lambda { |t|
+-	dir=File.join(File.split(t)[0..-2])
+-	Dir[dir+&quot;/*.h&quot;].select{|file|not file=~/swig/}
+-}
+ 
+-rule 'interface.i' =&gt; interfaceSrc do |t|
+-	output=t.name.sub(/\/interface.[a-z]*/,&quot;&quot;)
+-	input=importsForInterface(t.name)
+-	cmd=$CONFIG[&quot;RUBY&quot;]+&quot; build/create_interface.rb -d=#{output} -i=#{input}&quot;
+-	puts &quot;&quot;	
+-	sh cmd
+-end
+ 
+ 
+ 
+ 
+-
+-
+-
+-
+-
+-
+-
+ $BOA_LIBRARIES=$SOURCEDIRS.map{|dir|&quot;ext/libantargis&quot;+dir.split(&quot;/&quot;)[1]+&quot;.so&quot;}+$BOASOURCES.map{|dir|&quot;ext/antargis&quot;+dir.split(&quot;/&quot;)[1]+&quot;.so&quot;}
+ task :libraries=&gt;$BOA_LIBRARIES do
+ end
+@@ -288,25 +263,65 @@
+ task :library=&gt;&quot;ext/antargis.so&quot; do
+ end
+ 
+-mSwigDeps=$SOURCEDIRS[1..-1].map{|dir|dir+&quot;/interface.i&quot;}.sort
+-#pp mSwigDeps
+-#exit
+-task &quot;ext/swig.cc&quot;=&gt;mSwigDeps do
+-	output=&quot;ext/swig.cc&quot;
+-	input=$BOASOURCES.map{|dir|File.join(dir,&quot;interface.i&quot;)}
+-	File.delete(output) if File.exists?(output)
+-	file=File.open(&quot;ext/interface.i&quot;,&quot;w&quot;)
+-	file.puts '%module(directors=&quot;1&quot;) antargis'
+-	input.each{|filename|file.puts &quot;%include \&quot;#{filename}\&quot;&quot;}
+-	file.close
+-	cflags=$CONFIG[&quot;INCLUDEPATH&quot;]+&quot; &quot;+$CONFIG[&quot;DEFINES&quot;]+&quot; -DAGEXPORT&quot;
+-	cmd=$CONFIG[&quot;SWIG&quot;]+&quot; #{cflags} -v -Wall -ruby -c++ -o #{output} ext/interface.i&quot;
+-	puts &quot;&quot;
+-	sh cmd
+-	$?
++if SWIG_ENABLED
++
++	
++	def importsForInterface(name)
++		mdeps=[]
++		$SOURCEDIRS.each{|t|
++			if name=~/#{t}/
++				break
++			else
++				mdeps &lt;&lt; t+&quot;/interface.i&quot; unless t=~/external/
++			end
++		}
++		return mdeps.join(&quot;:&quot;)
++	end
++	
++	interfaceSrc = lambda { |t|
++		dir=File.join(File.split(t)[0..-2])
++		Dir[dir+&quot;/*.h&quot;].select{|file|not file=~/swig/}
++	}
++	
++	rule 'interface.i' =&gt; interfaceSrc do |t|
++		output=t.name.sub(/\/interface.[a-z]*/,&quot;&quot;)
++		input=importsForInterface(t.name)
++		cmd=$CONFIG[&quot;RUBY&quot;]+&quot; build/create_interface.rb -d=#{output} -i=#{input}&quot;
++		puts &quot;&quot;	
++		sh cmd
++	end
++		
++	
++	
++	mSwigDeps=$SOURCEDIRS[1..-1].map{|dir|dir+&quot;/interface.i&quot;}.sort
++	
++	# this can be used with a later version of rake - 0.7.1 makes problems with rules and more than one dependency
++	mSwigDepLambda=lambda{|t|
++		mSwigDeps
++	}
++	
++	task &quot;ext/swig.cc&quot;=&gt;mSwigDeps do
++	#rule /^ext\/swig\.cc$/=&gt;mSwigDepLambda do |t|
++		#pp t
++		output=&quot;ext/swig.cc&quot;
++		input=$BOASOURCES.map{|dir|File.join(dir,&quot;interface.i&quot;)}
++		#File.delete(output) if File.exists?(output)
++		file=File.open(&quot;ext/interface.i&quot;,&quot;w&quot;)
++		file.puts '%module(directors=&quot;1&quot;) antargis'
++		input.each{|filename|file.puts &quot;%include \&quot;#{filename}\&quot;&quot;}
++		file.close
++		cflags=$CONFIG[&quot;INCLUDEPATH&quot;]+&quot; &quot;+$CONFIG[&quot;DEFINES&quot;]+&quot; -DAGEXPORT&quot;
++		cmd=$CONFIG[&quot;SWIG&quot;]+&quot; #{cflags} -v -Wall -ruby -c++ -o #{output} ext/interface.i&quot;
++		puts &quot;&quot;
++		sh cmd
++		$?
++	end
++else
++	puts
++	puts &quot;BEWARE: If you make changes to header-files, the swig-interfacing won't be updated as long as swig is not installed!&quot;
++	puts
+ end
+ 
+-
+ desc &quot;Build all&quot;
+ task :default=&gt;[:library] do
+ end
+@@ -317,10 +332,14 @@
+ end
+ 
+ 
+-CLEAN &lt;&lt; Dir[&quot;**/*.o&quot;]+Dir[&quot;**/*.oo&quot;]+Dir[&quot;**/*.so&quot;]+Dir[&quot;ext/*/interface.i&quot;]+Dir[&quot;ext/*/swig.*&quot;]+Dir[&quot;.deps/*&quot;]+Dir[&quot;ext/*.so*&quot;]+Dir[&quot;ext/*.dll*&quot;]
++CLEAN &lt;&lt; Dir[&quot;**/*.o&quot;]+Dir[&quot;**/*.oo&quot;]+Dir[&quot;**/*.so&quot;]+Dir[&quot;.deps/*&quot;]+Dir[&quot;ext/*.so*&quot;]+Dir[&quot;ext/*.dll*&quot;]
+ 
++if SWIG_ENABLED
++	CLEAN &lt;&lt; Dir[&quot;ext/*/interface.i&quot;]+Dir[&quot;ext/*/swig.*&quot;]
++end
+ 
+ 
+ 
+ 
+ 
++
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000163.html">[Antargis-svn] r1206 - contrib/binary
+</A></li>
+	<LI>Next message: <A HREF="000165.html">[Antargis-svn] r1208 - antargis/trunk/build
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#164">[ date ]</a>
+              <a href="thread.html#164">[ thread ]</a>
+              <a href="subject.html#164">[ subject ]</a>
+              <a href="author.html#164">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

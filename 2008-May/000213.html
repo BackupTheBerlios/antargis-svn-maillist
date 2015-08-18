@@ -1,0 +1,2324 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1257 - in antargis/trunk: . data/gui/layout	ext/basic ext/game ext/gui rookey ruby ruby/entities	ruby/jobs ruby/spec
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2008-May/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1257%20-%20in%20antargis/trunk%3A%20.%20data/gui/layout%0A%09ext/basic%20ext/game%20ext/gui%20rookey%20ruby%20ruby/entities%0A%09ruby/jobs%20ruby/spec&In-Reply-To=%3C200805281806.m4SI6E41031125%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000212.html">
+   <LINK REL="Next"  HREF="000214.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1257 - in antargis/trunk: . data/gui/layout	ext/basic ext/game ext/gui rookey ruby ruby/entities	ruby/jobs ruby/spec</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1257%20-%20in%20antargis/trunk%3A%20.%20data/gui/layout%0A%09ext/basic%20ext/game%20ext/gui%20rookey%20ruby%20ruby/entities%0A%09ruby/jobs%20ruby/spec&In-Reply-To=%3C200805281806.m4SI6E41031125%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1257 - in antargis/trunk: . data/gui/layout	ext/basic ext/game ext/gui rookey ruby ruby/entities	ruby/jobs ruby/spec">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Wed May 28 20:06:14 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000212.html">[Antargis-svn] r1256 - in antargis/trunk: . ext/basic ext/game	rookey/cpp ruby ruby/jobs ruby/spec
+</A></li>
+        <LI>Next message: <A HREF="000214.html">[Antargis-svn] r1258 - in antargis/trunk: . ext/basic ext/game	ext/gui ruby/entities ruby/jobs ruby/spec
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#213">[ date ]</a>
+              <a href="thread.html#213">[ thread ]</a>
+              <a href="subject.html#213">[ subject ]</a>
+              <a href="author.html#213">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2008-05-28 20:06:10 +0200 (Wed, 28 May 2008)
+New Revision: 1257
+
+Added:
+   antargis/trunk/ruby/jobs/saving.rb
+Modified:
+   antargis/trunk/Rakefile
+   antargis/trunk/data/gui/layout/loaddialog.xml
+   antargis/trunk/ext/basic/ag_fs.cc
+   antargis/trunk/ext/basic/ag_fs.h
+   antargis/trunk/ext/game/entity.cc
+   antargis/trunk/ext/gui/ag_listbox.cc
+   antargis/trunk/ext/gui/ag_listbox.h
+   antargis/trunk/ext/gui/templates.i
+   antargis/trunk/rookey/tasks.rb
+   antargis/trunk/ruby/entities/ant_boss.rb
+   antargis/trunk/ruby/jobs/ant_hljob_states.rb
+   antargis/trunk/ruby/jobs/ant_new_hljobs.rb
+   antargis/trunk/ruby/map.rb
+   antargis/trunk/ruby/spec/spec_hljob_saving.rb
+   antargis/trunk/ruby/spec_helper.rb
+Log:
+Incomplete - task 21: Remove unnecessary dependencies 
+<A HREF="http://localhost:3000/issues/show/21">http://localhost:3000/issues/show/21</A>
+Incomplete - task 7: Saving doesn't work 
+<A HREF="http://localhost:3000/issues/show/7">http://localhost:3000/issues/show/7</A>
+Incomplete - task 22: Use the same ID for saving as for loading entities 
+<A HREF="http://localhost:3000/issues/show/22">http://localhost:3000/issues/show/22</A>
+
+Modified: antargis/trunk/Rakefile
+===================================================================
+--- antargis/trunk/Rakefile	2008-05-27 17:53:28 UTC (rev 1256)
++++ antargis/trunk/Rakefile	2008-05-28 18:06:10 UTC (rev 1257)
+@@ -1,11 +1,9 @@
+ require File.join(File.split(__FILE__)[0],'rookey','tasks.rb')
+-require 'spec/rake/spectask'
+ 
++$rspec=Rookey.checkedRequire('spec/rake/spectask')
++
+ # basic version
+ 
+-#inits=Dir[&quot;ext/*/init.cc&quot;].grep(/AG_Init_/).map{|f|&quot;AG_Init_libantargis&quot;+f.split(&quot;/&quot;)[1]}
+-#pp inits
+-#exit
+ inits=[
+   &quot;external&quot;,
+   &quot;basic&quot;,
+@@ -37,11 +35,12 @@
+   oldSystem(cmd)
+ end
+ 
+-
+-# rspec
+-Spec::Rake::SpecTask.new(:spec=&gt;:default) do |t|
+-  t.spec_files = FileList['ruby/**/spec_*.rb'].map{|f|File.expand_path(f)}
+-  t.warning = true
+-  t.rcov = true
+-  t.spec_opts=[&quot;--format html:&quot;+File.expand_path(&quot;spec_output.html&quot;)]
++if $rspec
++  # rspec
++  Spec::Rake::SpecTask.new(:spec=&gt;:default) do |t|
++    t.spec_files = FileList['ruby/**/spec_*.rb'].map{|f|File.expand_path(f)}
++    t.warning = true
++    t.rcov = true
++    t.spec_opts=[&quot;--format html:&quot;+File.expand_path(&quot;spec_output.html&quot;)]
++  end
+ end
+\ No newline at end of file
+
+Modified: antargis/trunk/data/gui/layout/loaddialog.xml
+===================================================================
+--- antargis/trunk/data/gui/layout/loaddialog.xml	2008-05-27 17:53:28 UTC (rev 1256)
++++ antargis/trunk/data/gui/layout/loaddialog.xml	2008-05-28 18:06:10 UTC (rev 1257)
+@@ -1,5 +1,5 @@
+ &lt;?xml version=&quot;1.0&quot;?&gt;
+-&lt;layout name=&quot;OptionsMenu&quot;&gt;
++&lt;layout name=&quot;LoadDialog&quot;&gt;
+ 	&lt;table cols=&quot;3&quot; rows=&quot;3&quot;&gt;&lt;!-- center window --&gt;
+ 		&lt;colsize col=&quot;1&quot; fixed=&quot;400&quot;/&gt;
+ 		&lt;rowsize row=&quot;1&quot; fixed=&quot;290&quot;/&gt;
+
+Modified: antargis/trunk/ext/basic/ag_fs.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_fs.cc	2008-05-27 17:53:28 UTC (rev 1256)
++++ antargis/trunk/ext/basic/ag_fs.cc	2008-05-28 18:06:10 UTC (rev 1257)
+@@ -606,3 +606,11 @@
+     return &quot;/&quot;;
+ #endif
+   }
++
++std::vector&lt;AGString&gt; getLoadPaths()
++  {
++    std::vector&lt;AGString&gt; a;
++    std::copy(gFilesystemPathes.begin(),gFilesystemPathes.end(),std::back_inserter(a));
++    
++    return a;
++  }
+
+Modified: antargis/trunk/ext/basic/ag_fs.h
+===================================================================
+--- antargis/trunk/ext/basic/ag_fs.h	2008-05-27 17:53:28 UTC (rev 1256)
++++ antargis/trunk/ext/basic/ag_fs.h	2008-05-28 18:06:10 UTC (rev 1257)
+@@ -35,6 +35,7 @@
+ AGEXPORT bool fileExists(const AGString &amp;pName);
+ 
+ AGEXPORT std::vector&lt;AGString&gt; getDirectory(const AGString &amp;pDir);
++AGEXPORT std::vector&lt;AGString&gt; getLoadPaths();
+ 
+ AGEXPORT AGString checkFileName(AGString s);
+ AGEXPORT AGString getWriteDir();
+
+Modified: antargis/trunk/ext/game/entity.cc
+===================================================================
+--- antargis/trunk/ext/game/entity.cc	2008-05-27 17:53:28 UTC (rev 1256)
++++ antargis/trunk/ext/game/entity.cc	2008-05-28 18:06:10 UTC (rev 1257)
+@@ -26,10 +26,10 @@
+ #include &quot;anim_mesh.h&quot;
+ 
+ AntEntity::AntEntity(AntMap *pMap):mMap(pMap),mPos(0,0,0)
+-      {
+-        assert(mMap);
+-        init();
+-      }
++  {
++    assert(mMap);
++    init();
++  }
+ 
+ void AntEntity::init()
+   {
+@@ -117,8 +117,6 @@
+   Node &amp;res=node.addChild(&quot;resource&quot;);
+   resource.saveXML(res);
+ 
+-
+-
+   if(mJob)
+     {
+       Node &amp;j=node.addChild(&quot;job&quot;);
+@@ -140,7 +138,12 @@
+     Node::const_iterator i=v.begin();
+     for(;i!=v.end();i++)
+       mPos.loadXML(**i);
+-    mID=node.get(&quot;entityID&quot;).toInt();
++    
++    AGString entID=node.get(&quot;entityID&quot;);
++    if(entID.length()&gt;0)
++      mID=entID.toInt();
++    else
++      mID=node.get(&quot;id&quot;).toInt();
+     getMap()-&gt;useID(mID);
+     if(node.get(&quot;morale&quot;)!=&quot;&quot;)
+       mMorale=node.get(&quot;morale&quot;).toFloat();
+
+Modified: antargis/trunk/ext/gui/ag_listbox.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_listbox.cc	2008-05-27 17:53:28 UTC (rev 1256)
++++ antargis/trunk/ext/gui/ag_listbox.cc	2008-05-28 18:06:10 UTC (rev 1257)
+@@ -266,3 +266,13 @@
+       }
+ 
+   }
++
++std::map&lt;AGString,AGStringUtf8&gt; AGListBox::getValues() const
++{
++  std::map&lt;AGString,AGStringUtf8&gt; m;
++  for(std::vector&lt;AGListBoxItem&gt;::const_iterator i=mItems.begin();i!=mItems.end();i++)
++    {
++      m.insert(std::make_pair(i-&gt;id,i-&gt;value));
++    }
++  return m;
++}
+
+Modified: antargis/trunk/ext/gui/ag_listbox.h
+===================================================================
+--- antargis/trunk/ext/gui/ag_listbox.h	2008-05-27 17:53:28 UTC (rev 1256)
++++ antargis/trunk/ext/gui/ag_listbox.h	2008-05-28 18:06:10 UTC (rev 1257)
+@@ -25,6 +25,7 @@
+ 
+ #include &lt;string&gt;
+ #include &lt;vector&gt;
++#include &lt;map&gt;
+ #include &quot;ag_widget.h&quot;
+ #include &quot;ag_background.h&quot;
+ 
+@@ -66,6 +67,8 @@
+   void clearList();
+ 
+   void updateScroller();
++  
++  std::map&lt;AGString,AGStringUtf8&gt; getValues() const;
+ 
+  private:
+ 
+
+Modified: antargis/trunk/ext/gui/templates.i
+===================================================================
+--- antargis/trunk/ext/gui/templates.i	2008-05-27 17:53:28 UTC (rev 1256)
++++ antargis/trunk/ext/gui/templates.i	2008-05-28 18:06:10 UTC (rev 1257)
+@@ -1,3 +1,4 @@
+ %include &lt;SDL_keysym.h&gt;
+ 
+-%template(AGWidgetList) std::list&lt;AGWidget*&gt;;
+\ No newline at end of file
++%template(AGWidgetList) std::list&lt;AGWidget*&gt;;
++%template(AGListBoxValues) std::map&lt;AGString,AGStringUtf8&gt;;
+\ No newline at end of file
+
+Modified: antargis/trunk/rookey/tasks.rb
+===================================================================
+--- antargis/trunk/rookey/tasks.rb	2008-05-27 17:53:28 UTC (rev 1256)
++++ antargis/trunk/rookey/tasks.rb	2008-05-28 18:06:10 UTC (rev 1257)
+@@ -164,4 +164,15 @@
+     
+     lib=Rookey::link_dll(name,targets+alllibs)
+   end
++  
++  def Rookey.checkedRequire(name)
++    begin
++    require name
++    rescue LoadError =&gt; load_error
++      puts &quot;Library #{name} not found!&quot;
++      return false
++    end
++    return true
++  end
++  
+ end
+\ No newline at end of file
+
+Modified: antargis/trunk/ruby/entities/ant_boss.rb
+===================================================================
+--- antargis/trunk/ruby/entities/ant_boss.rb	2008-05-27 17:53:28 UTC (rev 1256)
++++ antargis/trunk/ruby/entities/ant_boss.rb	2008-05-28 18:06:10 UTC (rev 1257)
+@@ -47,6 +47,9 @@
+ 				@createMen=node.get(&quot;men&quot;).to_i
+ 			end
+ 		end
++    @job=XMLLoader.loadXML(self,node)
++    
++    if false
+ 		node.getChildren(&quot;hljob&quot;).each{|n|
+ 			t=n.get(&quot;type&quot;)
+ 			case t
+@@ -69,6 +72,7 @@
+ 			end
+ 			@job.loadXML(n)
+ 		}
++    end
+ 		setAggression(getAggression) # update aggression of men
+ 	end
+ # for recruiting
+
+Modified: antargis/trunk/ruby/jobs/ant_hljob_states.rb
+===================================================================
+--- antargis/trunk/ruby/jobs/ant_hljob_states.rb	2008-05-27 17:53:28 UTC (rev 1256)
++++ antargis/trunk/ruby/jobs/ant_hljob_states.rb	2008-05-28 18:06:10 UTC (rev 1257)
+@@ -2,6 +2,7 @@
+ # 
+ #
+ require 'jobs/ant_state_machine.rb'
++require 'jobs/saving.rb'
+ 
+ class Module
+   def wrap(objectName,methodName,objectMethodName=nil)
+@@ -16,68 +17,6 @@
+ 
+ 
+ 
+-module XMLSaver
+-  def saveXML(node)
+-    XMLSaver.saveXML(self,node)
+-    if false
+-    instance_variables.each{|n|
+-      if n!=&quot;@machine&quot;
+-        v=instance_variable_get(n)
+-        
+-        m=node.addChild(&quot;member&quot;)
+-        m.set(&quot;name&quot;,n.to_s)
+-        m.set(&quot;type&quot;,v.class.to_s)
+-        unless XMLSaver.saveXML(v,m)
+-          puts &quot;unknown type #{n}:#{v}&quot;
+-        end
+-        p &quot;#{n}:#{v}&quot;
+-      end
+-    }
+-    pp instance_variables
+-    end
+-    #raise &quot;not implemented&quot;
+-  end
+-  
+-  def XMLSaver.saveXML(what,node)
+-    node.set(&quot;type&quot;,what.class.to_s)
+-    case what
+-      when Numeric,String,FalseClass,TrueClass,Symbol
+-        node.set(&quot;value&quot;,what.to_s)
+-      when AntEntity
+-        node.set(&quot;value&quot;,what.uid.to_s)
+-      when Hash
+-        what.each{|k,v|
+-          n=node.addChild(&quot;element&quot;)
+-          saveXML(k,n.addChild(&quot;key&quot;))
+-          saveXML(v,n.addChild(&quot;value&quot;))
+-        }
+-      when Array
+-        what.each{|v|
+-          n=node.addChild(&quot;element&quot;)
+-          #n.set(&quot;type&quot;,v.class.to_s)
+-          XMLSaver.saveXML(n,v)
+-        }
+-      when HLJob_BaseState, AntNewHLJob
+-        what.instance_variables.each{|n|
+-          if n!=&quot;@machine&quot;
+-            v=what.instance_variable_get(n)
+-            
+-            m=node.addChild(&quot;member&quot;)
+-            m.set(&quot;name&quot;,n.to_s)
+-            #m.set(&quot;type&quot;,v.class.to_s)
+-            unless XMLSaver.saveXML(v,m)
+-              puts &quot;unknown type #{n}:#{v}&quot;
+-            end
+-          end
+-        }        
+-      else
+-        pp &quot;UNKNOWN:&quot;,what.class.to_s
+-        return false
+-    end
+-    true
+-  end
+-  
+-end
+ 
+ module HLJob_Additions
+   attr_accessor :machine
+
+Modified: antargis/trunk/ruby/jobs/ant_new_hljobs.rb
+===================================================================
+--- antargis/trunk/ruby/jobs/ant_new_hljobs.rb	2008-05-27 17:53:28 UTC (rev 1256)
++++ antargis/trunk/ruby/jobs/ant_new_hljobs.rb	2008-05-28 18:06:10 UTC (rev 1257)
+@@ -14,16 +14,16 @@
+ #
+ 
+ def newHLJobs
+-	return true
++  return true
+ end
+ 
+ module HLJob
+-	def hero
+-		@hero
+-	end
+-	def allMen
+-		@hero.getMen
+-	end
++  def hero
++    @hero
++  end
++  def allMen
++    @hero.getMen
++  end
+ end
+ 
+ require 'jobs/ant_hljob_states.rb'
+@@ -31,329 +31,329 @@
+ 
+ 
+ class AntHeroRestJob&lt;AntNewHLJob
+-	state :formatSit=&gt;HLJob_FormatSit
+-	state :sitDown=&gt;HLJob_SitDown
+-	state :justSitOnce=&gt;HLJob_JustSitOnce
+-	state :spreadThings=&gt;HLJob_SpreadThings
+-	state :endState=&gt;HLJob_DummyState
++  state :formatSit=&gt;HLJob_FormatSit
++  state :sitDown=&gt;HLJob_SitDown
++  state :justSitOnce=&gt;HLJob_JustSitOnce
++  state :spreadThings=&gt;HLJob_SpreadThings
++  state :endState=&gt;HLJob_DummyState
+ 
+-	startState :formatSit
+-	endState :endState
++  startState :formatSit
++  endState :endState
+ 
+-	edge :formatSit, :sitDown
+-	edge :sitDown,:justSitOnce,:notRestFinished
+-	edge :sitDown,:endState,:restFinished
++  edge :formatSit, :sitDown
++  edge :sitDown,:justSitOnce,:notRestFinished
++  edge :sitDown,:endState,:restFinished
+ 
+-	edge :justSitOnce,:spreadThings,:checkSpread
+-	edge :justSitOnce,:justSitOnce,:notCheckSpread
+-	edge :spreadThings,:formatSit,:lastSpread
++  edge :justSitOnce,:spreadThings,:checkSpread
++  edge :justSitOnce,:justSitOnce,:notCheckSpread
++  edge :spreadThings,:formatSit,:lastSpread
+ 
+-	SPREAD_CHECK_TIME=10 # all 10 seconds spread things
++  SPREAD_CHECK_TIME=10 # all 10 seconds spread things
+ 
+-	def initialize(hero,time)
+-		super(hero)
+-		@restTime=time
+-		@startTime=getTime
+-	end
+-	def image
+-		&quot;data/gui/bed.png&quot;
+-	end
+-	# fixme: discard this
+-	def makeMessage(boss)
+-		RestMessage.new(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">boss, at time</A>)
+-	end
++  def initialize(hero,time)
++    super(hero)
++    @restTime=time
++    @startTime=getTime
++  end
++  def image
++    &quot;data/gui/bed.png&quot;
++  end
++  # fixme: discard this
++  def makeMessage(boss)
++    RestMessage.new(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">boss, at time</A>)
++  end
+ 
+-	def lastSpread
+-		@spreadTime=getTime
+-		true
+-	end
++  def lastSpread
++    @spreadTime=getTime
++    true
++  end
+ 
+-	def checkSpread
+-		curTime=getTime
+-		#puts &quot;SPREADTIME: #{@spreadTime}   getTime:#{curTime}&quot;
+-		return true if @spreadTime.nil?
+-		#puts &quot;#{<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">curTime- at spreadTime</A>}&gt;#{SPREAD_CHECK_TIME}&quot;
+-		return <A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">curTime- at spreadTime</A>&gt;SPREAD_CHECK_TIME
+-	end
++  def checkSpread
++    curTime=getTime
++    #puts &quot;SPREADTIME: #{@spreadTime}   getTime:#{curTime}&quot;
++    return true if @spreadTime.nil?
++    #puts &quot;#{<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">curTime- at spreadTime</A>}&gt;#{SPREAD_CHECK_TIME}&quot;
++    return <A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">curTime- at spreadTime</A>&gt;SPREAD_CHECK_TIME
++  end
+ 
+-	def notCheckSpread
+-		not checkSpread
+-	end
+-		
+-	def restFinished
+-		finished=(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">getTime- at startTime</A>)&gt;@restTime
+-		#log &quot;RESTJOB FINISHED: #{finished} ((#{getTime}-#{@startTime})&gt;#{@restTime})&quot;
+-		finished
+-	end
+-	def notRestFinished
+-		not restFinished
+-	end
++  def notCheckSpread
++    not checkSpread
++  end
++    
++  def restFinished
++    finished=(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">getTime- at startTime</A>)&gt;@restTime
++    #log &quot;RESTJOB FINISHED: #{finished} ((#{getTime}-#{@startTime})&gt;#{@restTime})&quot;
++    finished
++  end
++  def notRestFinished
++    not restFinished
++  end
+ end
+ 
+ 
+ 
+ class AntHeroMoveJob&lt;AntNewHLJob
+-	state :moveComplete=&gt;	HLJob_MoveComplete
+-	state :endState =&gt; HLJob_DummyState
++  state :moveComplete=&gt;  HLJob_MoveComplete
++  state :endState =&gt; HLJob_DummyState
+ 
+-	startState :moveComplete
+-	endState :endState
++  startState :moveComplete
++  endState :endState
+ 
+-	edge :moveComplete,:endState
++  edge :moveComplete,:endState
+ 
+-	attr_accessor :targetPos
+-	attr_accessor :formatDir
+-	attr_accessor :near
++  attr_accessor :targetPos
++  attr_accessor :formatDir
++  attr_accessor :near
+ 
+-	def initialize(hero,prio,pos,dist,doFormat=true)
+-		@targetPos=pos.dim2
+-		@near=0
+-		super(hero)
+-		if not doFormat
+-			state.moveDirectly			
+-		end
+-	end
+-	# FIXME: move this to a config-file !
+-	def image
+-		&quot;data/gui/move.png&quot;
+-	end
+-	# FIXME: discard this
+-	def makeMessage(boss)
+-		MoveMessage.new(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">boss,targetPos, at dist</A>)
+-	end
++  def initialize(hero,prio,pos,dist,doFormat=true)
++    @targetPos=pos.dim2
++    @near=0
++    super(hero)
++    if not doFormat
++      state.moveDirectly      
++    end
++  end
++  # FIXME: move this to a config-file !
++  def image
++    &quot;data/gui/move.png&quot;
++  end
++  # FIXME: discard this
++  def makeMessage(boss)
++    MoveMessage.new(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">boss,targetPos, at dist</A>)
++  end
+ 
+ end
+ 
+ 
+ 
+ class AntHeroTakeJob&lt;AntNewHLJob
+-	state :move =&gt;HLJob_MoveComplete
+-	state :fetchStart =&gt; HLJob_FetchStart
+-	state :getResource =&gt; HLJob_GetResource
+-	state :moveBack =&gt; HLJob_MoveComplete
+-	state :endState =&gt; HLJob_DummyState
++  state :move =&gt;HLJob_MoveComplete
++  state :fetchStart =&gt; HLJob_FetchStart
++  state :getResource =&gt; HLJob_GetResource
++  state :moveBack =&gt; HLJob_MoveComplete
++  state :endState =&gt; HLJob_DummyState
+ 
+-	startState :move
+-	endState :endState
++  startState :move
++  endState :endState
+ 
+-	edge :move,:fetchStart,:fetchStart
+-	edge :fetchStart,:getResource,:gettingResource
+-	edge :getResource, :moveBack
+-	edge :moveBack, :endState
++  edge :move,:fetchStart,:fetchStart
++  edge :fetchStart,:getResource,:gettingResource
++  edge :getResource, :moveBack
++  edge :moveBack, :endState
+ 
+-	attr_accessor :targetPos, :near, :target
++  attr_accessor :targetPos, :near, :target
+ 
+-	def initialize(phero,target,what=&quot;food&quot;)
++  def initialize(phero,target,what=&quot;food&quot;)
+ 
+-		@targetPos=target.getPos2D
+-		@target=target
+-		@near=4
+-		super(phero)
+-		@states[:move].near=4
+-		@states[:getResource].resources={&quot;food&quot;=&gt;[&quot;food&quot;],&quot;weapon&quot;=&gt;[&quot;sword&quot;,&quot;bow&quot;,&quot;boat&quot;,&quot;shield&quot;]}[what]
+-	end
++    @targetPos=target.getPos2D
++    @target=target
++    @near=4
++    super(phero)
++    @states[:move].near=4
++    @states[:getResource].resources={&quot;food&quot;=&gt;[&quot;food&quot;],&quot;weapon&quot;=&gt;[&quot;sword&quot;,&quot;bow&quot;,&quot;boat&quot;,&quot;shield&quot;]}[what]
++  end
+ 
+-	def image
+-		if @what==&quot;food&quot;
+-			&quot;data/gui/take_apple.png&quot;
+-		else
+-			&quot;data/gui/take_weapon.png&quot;
+-		end
+-	end
++  def image
++    if @what==&quot;food&quot;
++      &quot;data/gui/take_apple.png&quot;
++    else
++      &quot;data/gui/take_weapon.png&quot;
++    end
++  end
+ 
+-	def fetchStart
+-		@targetPos=hero.getPos2D
+-		@near=0
+-		true
+-	end
+-	def gettingResource
+-		true
+-	end
++  def fetchStart
++    @targetPos=hero.getPos2D
++    @near=0
++    true
++  end
++  def gettingResource
++    true
++  end
+ end
+ 
+ 
+ 
+ class AntHeroFightAnimalJob&lt;AntHeroTakeJob
+-	inheritMachine
++  inheritMachine
+ 
+-	def gettingResource
+-		# kill animal
+-		playSound
+-		killAnimal
+-		super
+-	end
+-	
+-	private
+-	def playSound
+-		# FIXME: play eat sound
+-	end
+-	def killAnimal
+-		@target.eventDie
+-		hero.resource.takeAll(target.resource)
+-	end
++  def gettingResource
++    # kill animal
++    playSound
++    killAnimal
++    super
++  end
++  
++  private
++  def playSound
++    # FIXME: play eat sound
++  end
++  def killAnimal
++    @target.eventDie
++    hero.resource.takeAll(target.resource)
++  end
+ end
+ 
+ 
+ class AntHeroFightJob&lt;AntNewHLJob
+-	state :move=&gt;HLJob_MoveComplete
+-	state :fight=&gt;HLJob_Fight
+-	state :endState=&gt;HLJob_DummyState
++  state :move=&gt;HLJob_MoveComplete
++  state :fight=&gt;HLJob_Fight
++  state :endState=&gt;HLJob_DummyState
+ 
+-	edge :move,:fight
+-	edge :fight,:endState
++  edge :move,:fight
++  edge :fight,:endState
+ 
+-	startState :move
+-	endState :endState
++  startState :move
++  endState :endState
+ 
+-	attr_accessor :targetPos,:near,:target
++  attr_accessor :targetPos,:near,:target
+ 
+-	def initialize(hero,target,defend=false)
+-		@targetPos=target.getPos2D
+-		@target=target
+-		@near=10
+-		#puts &quot;DEFEND #{defend}&quot;
+-		if defend
+-			trace
+-			super(hero,:fight)
+-			trace
+-		else
+-			trace
+-			super(hero)
+-			trace
+-		end
+-		assert{@state==:fight || defend==false}
++  def initialize(hero,target,defend=false)
++    @targetPos=target.getPos2D
++    @target=target
++    @near=10
++    #puts &quot;DEFEND #{defend}&quot;
++    if defend
++      trace
++      super(hero,:fight)
++      trace
++    else
++      trace
++      super(hero)
++      trace
++    end
++    assert{@state==:fight || defend==false}
+ 
+-		#puts &quot;STATE #{state}&quot;
+-	end
++    #puts &quot;STATE #{state}&quot;
++  end
+ 
+-	def image
+-		&quot;data/gui/sword.png&quot;
+-	end
++  def image
++    &quot;data/gui/sword.png&quot;
++  end
+ 
+-	def eventWon(opponent)
+-		log &quot;eventWon hero:#{hero} opp:(#{opponent})&quot;
+-	end
+-	def eventLost(opponent)
+-		log &quot;eventLog hero:#{hero} opp:(#{opponent})&quot;
+-		hero.setOwner(opponent)
+-	end
++  def eventWon(opponent)
++    log &quot;eventWon hero:#{hero} opp:(#{opponent})&quot;
++  end
++  def eventLost(opponent)
++    log &quot;eventLog hero:#{hero} opp:(#{opponent})&quot;
++    hero.setOwner(opponent)
++  end
+ 
+ 
+ end
+ 
+ 
+ class AntHeroRecruitJob&lt;AntNewHLJob
+-	state :moveComplete=&gt;	HLJob_MoveComplete
+-	state :recruit=&gt;HLJob_Recruit
+-	state :endState =&gt; HLJob_DummyState
++  state :moveComplete=&gt;  HLJob_MoveComplete
++  state :recruit=&gt;HLJob_Recruit
++  state :endState =&gt; HLJob_DummyState
+ 
+-	startState :moveComplete
+-	endState :endState
++  startState :moveComplete
++  endState :endState
+ 
+-	edge :moveComplete,:recruit
+-	edge :recruit,:endState
++  edge :moveComplete,:recruit
++  edge :recruit,:endState
+ 
+-	attr_accessor :targetPos
+-	attr_accessor :formatDir
+-	attr_accessor :target
+-	attr_accessor :near
++  attr_accessor :targetPos
++  attr_accessor :formatDir
++  attr_accessor :target
++  attr_accessor :near
+ 
+-	def initialize(hero,target)
+-		@targetPos=target.getPos2D
+-		@target=target
+-		@near=4
+-		super(hero)
+-		@states[:moveComplete].near=4
+-		
+-		if (hero.getPos2D-target.getPos2D).length&lt;4
+-			state.moveDirectly			
+-		end
+-	end
+-	# FIXME: move this to a config-file !
+-	def image
+-		&quot;data/gui/recruit.png&quot;
+-	end
+-	# FIXME: discard this
+-	def makeMessage(boss)
+-		MoveMessage.new(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">boss,targetPos, at dist</A>)
+-	end
++  def initialize(hero,target)
++    @targetPos=target.getPos2D
++    @target=target
++    @near=4
++    super(hero)
++    @states[:moveComplete].near=4
++    
++    if (hero.getPos2D-target.getPos2D).length&lt;4
++      state.moveDirectly      
++    end
++  end
++  # FIXME: move this to a config-file !
++  def image
++    &quot;data/gui/recruit.png&quot;
++  end
++  # FIXME: discard this
++  def makeMessage(boss)
++    MoveMessage.new(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">boss,targetPos, at dist</A>)
++  end
+ end
+ 
+ 
+ 
+ class AntHeroConstructJob&lt;AntNewHLJob
+-	state :moveComplete=&gt;	HLJob_MoveComplete
+-	state :spreadThings=&gt;HLJob_SpreadThings
+-	state :construct=&gt;HLJob_Construct
+-	state :endState =&gt; HLJob_DummyState
++  state :moveComplete=&gt;  HLJob_MoveComplete
++  state :spreadThings=&gt;HLJob_SpreadThings
++  state :construct=&gt;HLJob_Construct
++  state :endState =&gt; HLJob_DummyState
+ 
+-	startState :moveComplete
+-	endState :endState
++  startState :moveComplete
++  endState :endState
+ 
+-	edge :moveComplete,:spreadThings
+-	edge :spreadThings,:construct
+-	edge :construct,:endState
++  edge :moveComplete,:spreadThings
++  edge :spreadThings,:construct
++  edge :construct,:endState
+ 
+-	attr_accessor :targetPos
+-	attr_accessor :formatDir
+-	attr_accessor :target
++  attr_accessor :targetPos
++  attr_accessor :formatDir
++  attr_accessor :target
+ 
+-	def initialize(hero,target)
+-		@targetPos=target.getPos2D
+-		@target=target
+-		super(hero)
+-		@states[:moveComplete].near=4
+-		
+-		if (hero.getPos2D-target.getPos2D).length&lt;4
+-			state.moveDirectly			
+-		end
+-	end
+-	# FIXME: move this to a config-file !
+-	def image
+-		&quot;data/gui/construct.png&quot;
+-	end
+-	# FIXME: discard this
+-	def makeMessage(boss)
+-		MoveMessage.new(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">boss,targetPos, at dist</A>)
+-	end
++  def initialize(hero,target)
++    @targetPos=target.getPos2D
++    @target=target
++    super(hero)
++    @states[:moveComplete].near=4
++    
++    if (hero.getPos2D-target.getPos2D).length&lt;4
++      state.moveDirectly      
++    end
++  end
++  # FIXME: move this to a config-file !
++  def image
++    &quot;data/gui/construct.png&quot;
++  end
++  # FIXME: discard this
++  def makeMessage(boss)
++    MoveMessage.new(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">boss,targetPos, at dist</A>)
++  end
+ end
+ 
+ class AntHeroBuildJob&lt;AntNewHLJob
+-	state :moveComplete=&gt;	HLJob_MoveComplete
+-	state :spreadThings=&gt;HLJob_SpreadThings
+-	state :build=&gt;HLJob_Build
+-	state :endState =&gt; HLJob_DummyState
++  state :moveComplete=&gt;  HLJob_MoveComplete
++  state :spreadThings=&gt;HLJob_SpreadThings
++  state :build=&gt;HLJob_Build
++  state :endState =&gt; HLJob_DummyState
+ 
+-	startState :moveComplete
+-	endState :endState
++  startState :moveComplete
++  endState :endState
+ 
+-	edge :moveComplete,:spreadThings
+-	edge :spreadThings,:build
+-	edge :build,:endState
++  edge :moveComplete,:spreadThings
++  edge :spreadThings,:build
++  edge :build,:endState
+ 
+-	attr_accessor :targetPos
+-	attr_accessor :formatDir
+-	attr_accessor :target
++  attr_accessor :targetPos
++  attr_accessor :formatDir
++  attr_accessor :target
+   attr_accessor :near
+ 
+-	def initialize(hero,target)
+-		@targetPos=target.getPos2D
+-		@target=target
++  def initialize(hero,target)
++    @targetPos=target.getPos2D
++    @target=target
+         @near=4
+-		super(hero)
+-		
+-		if (hero.getPos2D-target.getPos2D).length&lt;4
+-			state.moveDirectly			
+-		end
+-	end
+-	# FIXME: move this to a config-file !
+-	def image
+-		&quot;data/gui/build.png&quot;
+-	end
+-	# FIXME: discard this
+-	def makeMessage(boss)
+-		MoveMessage.new(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">boss,targetPos, at dist</A>)
+-	end
++    super(hero)
++    
++    if (hero.getPos2D-target.getPos2D).length&lt;4
++      state.moveDirectly      
++    end
++  end
++  # FIXME: move this to a config-file !
++  def image
++    &quot;data/gui/build.png&quot;
++  end
++  # FIXME: discard this
++  def makeMessage(boss)
++    MoveMessage.new(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">boss,targetPos, at dist</A>)
++  end
+ end
+ 
+ 
+
+Added: antargis/trunk/ruby/jobs/saving.rb
+===================================================================
+--- antargis/trunk/ruby/jobs/saving.rb	2008-05-27 17:53:28 UTC (rev 1256)
++++ antargis/trunk/ruby/jobs/saving.rb	2008-05-28 18:06:10 UTC (rev 1257)
+@@ -0,0 +1,132 @@
++module XMLSaver
++  def saveXML(node)
++    XMLSaver.saveXML(self,node)
++    if false
++    instance_variables.each{|n|
++      if n!=&quot;@machine&quot;
++        v=instance_variable_get(n)
++        
++        m=node.addChild(&quot;member&quot;)
++        m.set(&quot;name&quot;,n.to_s)
++        m.set(&quot;type&quot;,v.class.to_s)
++        unless XMLSaver.saveXML(v,m)
++          puts &quot;unknown type #{n}:#{v}&quot;
++        end
++        p &quot;#{n}:#{v}&quot;
++      end
++    }
++    pp instance_variables
++    end
++    #raise &quot;not implemented&quot;
++  end
++  
++  def XMLSaver.saveXML(what,node)
++    node.set(&quot;type&quot;,what.class.to_s)
++    case what
++      when Numeric,String,FalseClass,TrueClass,Symbol
++        node.set(&quot;value&quot;,what.to_s)
++      when AntEntity
++        node.set(&quot;value&quot;,what.uid.to_s)
++      when Hash
++        what.keys.each{|k|
++          v=what[k]
++          n=node.addChild(&quot;element&quot;)
++          saveXML(k,n.addChild(&quot;key&quot;))
++          saveXML(v,n.addChild(&quot;value&quot;))
++        }
++      when Array
++        what.each{|v|
++          n=node.addChild(&quot;element&quot;)
++          #n.set(&quot;type&quot;,v.class.to_s)
++          XMLSaver.saveXML(n,v)
++        }
++      when HLJob_BaseState, AntNewHLJob
++        what.instance_variables.sort.each{|n|
++          if n!=&quot;@machine&quot;
++            v=what.instance_variable_get(n)
++            
++            m=node.addChild(&quot;member&quot;)
++            m.set(&quot;name&quot;,n.to_s)
++            #m.set(&quot;type&quot;,v.class.to_s)
++            unless XMLSaver.saveXML(v,m)
++              puts &quot;unknown type #{n}:#{v}&quot;
++            end
++          end
++        }        
++      else
++        pp &quot;UNKNOWN:&quot;,what.class.to_s
++        return false
++    end
++    true
++  end
++  
++end
++
++module XMLLoader
++  def XMLLoader.loadXML(entity,node,current=nil)
++    current||=entity
++    job=nil
++    case current
++      when AntEntity
++        node.getChildren(&quot;hljob&quot;).each{|n|
++          t=n.get(&quot;type&quot;)
++          case t
++            when &quot;AntHeroMoveJob&quot;
++              job=AntHeroMoveJob.new(entity,0,AGVector2.new(0,0),0)
++            when &quot;AntHeroRestJob&quot;
++              job=AntHeroRestJob.new(entity,10)
++            when &quot;AntHeroRecruitJob&quot;
++              target=n.getChildren.select{|c|c.get(&quot;name&quot;)==&quot;@target&quot;}[0]
++              if target
++                target=entity.getMap.getByUID(target.get(&quot;value&quot;))
++              
++                job=AntHeroRecruitJob.new(entity,target)
++              else
++                raise &quot;target missing in saved AntHeroRecruitJob&quot;
++              end
++            else
++              # FIXME!!!
++              raise &quot;unknown job: #{t}&quot;
++          end
++          XMLLoader.loadXML(entity,n,job)
++          #job.loadXML(n)
++        }
++      else
++        node.getChildren.each{|c|
++          if c.getName==&quot;member&quot;
++            name=c.get(&quot;name&quot;)
++            type=c.get(&quot;type&quot;)
++            value=c.get(&quot;value&quot;)
++            if value!=&quot;&quot;
++              value=case type
++                when &quot;Integer&quot;,&quot;Fixnum&quot;
++                  value.to_i
++                when &quot;Float&quot;
++                  value.to_f
++                when &quot;String&quot;
++                  value
++                when &quot;Symbol&quot;
++                  value.intern
++                when &quot;FalseClass&quot;
++                  false
++                when &quot;TrueClass&quot;
++                  true
++                when *getDescendantsOfClass(AntRubyEntity).map{|c|c.to_s}
++                  entity.getMap.getByUID(value.to_i)
++                else
++                  pp getDescendantsOfClass(AntRubyEntity).map{|c|c.to_s}
++                  raise &quot;Unknnown type #{type}&quot;
++              end
++              current.instance_variable_set(name,value)
++            else
++              case type
++                when Hash
++                when Array 
++              end
++            end
++          end
++        }
++    end
++    job
++  end
++end
+\ No newline at end of file
+
+Modified: antargis/trunk/ruby/map.rb
+===================================================================
+--- antargis/trunk/ruby/map.rb	2008-05-27 17:53:28 UTC (rev 1256)
++++ antargis/trunk/ruby/map.rb	2008-05-28 18:06:10 UTC (rev 1257)
+@@ -32,19 +32,19 @@
+ # These positions can be used for scripting. This way code and level-data is
+ # devided (MVC)
+ class TargetPos
+-	attr_reader :pos, :name
+-	def loadXML(n)
+-		@pos=AGVector2.new(n.get(&quot;x&quot;).to_f,n.get(&quot;y&quot;).to_f)
+-		@name=n.get(&quot;name&quot;)
+-	end
+-	def saveXML(n)
+-		n.set(&quot;x&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at pos.x.to_s</A>)
+-		n.set(&quot;y&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at pos.y.to_s</A>)
+-		n.set(&quot;name&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at name</A>)
+-	end
+-	def xmlName
+-		&quot;target&quot;
+-	end
++  attr_reader :pos, :name
++  def loadXML(n)
++    @pos=AGVector2.new(n.get(&quot;x&quot;).to_f,n.get(&quot;y&quot;).to_f)
++    @name=n.get(&quot;name&quot;)
++  end
++  def saveXML(n)
++    n.set(&quot;x&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at pos.x.to_s</A>)
++    n.set(&quot;y&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at pos.y.to_s</A>)
++    n.set(&quot;name&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at name</A>)
++  end
++  def xmlName
++    &quot;target&quot;
++  end
+ end
+ 
+ 
+@@ -55,455 +55,455 @@
+ # AntRubyEntity contains a pointer the current instance - this makes it possible that all entities can
+ # access the map through getMap - FIXME
+ class AntRubyMap&lt;AntMap
+-	attr_accessor :pause,:players
+-	attr_reader :path
++  attr_accessor :pause,:players
++  attr_reader :path
+ 
+-	def initialize(app,pScene,w,h,playerName=&quot;Rowen&quot;)
+-# 		assert{app.is_a?(AGApplication)}
+-# 		assert{pScene.is_a?(SceneBase)}
+-		assert{w.is_a?(Numeric)}
+-		assert{h.is_a?(Numeric)}
++  def initialize(app,pScene,w,h,playerName=&quot;Rowen&quot;)
++#     assert{app.is_a?(AGApplication)}
++#     assert{pScene.is_a?(SceneBase)}
++    assert{w.is_a?(Numeric)}
++    assert{h.is_a?(Numeric)}
+ 
+     # TODO: remove that ???
+-		#if pScene.nil?
+-		#	require 'ant_mock.rb'
+-		#end
++    #if pScene.nil?
++    #  require 'ant_mock.rb'
++    #end
+ 
+-		super(pScene,w,h)
+-		@pause=false # is game paused
+-		@app=app
++    super(pScene,w,h)
++    @pause=false # is game paused
++    @app=app
+     
+     @classMapCache=nil
+ 
+-		@@systemTime=0.0  # systemTime is needed for the playing of sounds - so they won't be played too often
+-		@curTime=0.0      # curTime holds the current &quot;date&quot; of the world; the age of entities is measures by this
++    @@systemTime=0.0  # systemTime is needed for the playing of sounds - so they won't be played too often
++    @curTime=0.0      # curTime holds the current &quot;date&quot; of the world; the age of entities is measures by this
+ 
+-		@playerName=playerName
+-		@players=[]
+-		@myPlayer=nil
++    @playerName=playerName
++    @players=[]
++    @myPlayer=nil
+ 
+-		@triggers=[]			# triggers are being touched by heroes and are checked in each frame
++    @triggers=[]      # triggers are being touched by heroes and are checked in each frame
+ 
+-		@heroes=[]				# all heroes in the world
++    @heroes=[]        # all heroes in the world
+ 
+-		@started=false		# started holds information about the map was already started. this is used for level-scripting
++    @started=false    # started holds information about the map was already started. this is used for level-scripting
+ 
+-		@targets={}
++    @targets={}
+ 
+-		@filename=&quot;dummy&quot;  # a dummy filename - used for level scripting
+-		@uidstart=0
+-	end
++    @filename=&quot;dummy&quot;  # a dummy filename - used for level scripting
++    @uidstart=0
++  end
+ 
+-	def disableScript
+-		@script=nil
+-	end
++  def disableScript
++    @script=nil
++  end
+ 
+-	def AntRubyMap.getSystemTime
+-		@@systemTime
+-	end
++  def AntRubyMap.getSystemTime
++    @@systemTime
++  end
+ 
+-	def getUniqueID
+-		@uidstart+=1
+-		@uidstart
+-	end
+-	def checkUID(i)
+-		@uidstart=[<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">i, at uidstart</A>].max
+-	end
+-	def getByUID(id)
+-		puts &quot;WARNING: THIS function is slow!&quot;
+-		ents=getAllEntities
+-		id=id.to_i
+-		ents.each{|e|
+-			r=e.get
+-			if r.uid==id
+-				return r
+-			end
+-		}
+-		puts id
+-		puts id.class
+-		raise &quot;UID not found #{id}&quot;
+-		nil
+-	end
++  def getUniqueID
++    @uidstart+=1
++    @uidstart
++  end
++  def checkUID(i)
++    @uidstart=[<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">i, at uidstart</A>].max
++  end
++  def getByUID(id)
++    puts &quot;WARNING: THIS function is slow!&quot;
++    ents=getAllEntities
++    id=id.to_i
++    ents.each{|e|
++      r=e.get
++      if r.uid==id
++        return r
++      end
++    }
++    puts id
++    puts id.class
++    raise &quot;UID not found #{id}&quot;
++    nil
++  end
+ 
+-	############################
+-	# event handlers
+-	############################
++  ############################
++  # event handlers
++  ############################
+ 
+-	# some delegators for level-scripting - this should eventually be done somehow else
+-	def eventHeroDied(ent)
+-		@heroes.delete(ent)
+-		if @script
+-			@script.eventHeroDied(AntLevelHero.new(ent))
+-		end
+-		@app and @app.setupHeroDisplay
+-	end
+-	def eventOwnerChanged(ent)
+-		if @script
+-			@script.eventOwnerChanged(AntLevelHero.new(ent))
+-		end
+-		@app and @app.setupHeroDisplay
+-	end
+-	def eventHLJobFinished(hero,job)
+-		if @script
+-			@script.eventHLJobFinished(AntLevelHero.new(hero),AntLevelJob.new(job))
+-		end
+-	end
+-	def eventHLDismissed(hero)
+-		if @script
+-			@script.eventDismissed(AntLevelHero.new(hero))
+-		end
+-	end
++  # some delegators for level-scripting - this should eventually be done somehow else
++  def eventHeroDied(ent)
++    @heroes.delete(ent)
++    if @script
++      @script.eventHeroDied(AntLevelHero.new(ent))
++    end
++    @app and @app.setupHeroDisplay
++  end
++  def eventOwnerChanged(ent)
++    if @script
++      @script.eventOwnerChanged(AntLevelHero.new(ent))
++    end
++    @app and @app.setupHeroDisplay
++  end
++  def eventHLJobFinished(hero,job)
++    if @script
++      @script.eventHLJobFinished(AntLevelHero.new(hero),AntLevelJob.new(job))
++    end
++  end
++  def eventHLDismissed(hero)
++    if @script
++      @script.eventDismissed(AntLevelHero.new(hero))
++    end
++  end
+ 
+-	################################
+-	# getting information
+-	################################
++  ################################
++  # getting information
++  ################################
+ 
+-	# get target-position which is stored unter &quot;name&quot; in the level-file
+-	def getTarget(name)
+-		@targets[name]
+-	end
+-	# get my player (the player-object of the player playing &quot;this&quot; client
+-	def getPlayer
+-		if @myPlayer.nil?
+-			raise &quot;no player defined in level!&quot;
+-		end
+-		@myPlayer
+-	end
+-	# get current world time
+-	def getTime
+-		@curTime
+-	end
+-	
+-	def getHousesOfVillage(name)
+-		getAllEntities.collect{|e|e.get}.select{|e|e.is_a?(AntHouse)}.select{|e|e.village==name}
+-	end
++  # get target-position which is stored unter &quot;name&quot; in the level-file
++  def getTarget(name)
++    @targets[name]
++  end
++  # get my player (the player-object of the player playing &quot;this&quot; client
++  def getPlayer
++    if @myPlayer.nil?
++      raise &quot;no player defined in level!&quot;
++    end
++    @myPlayer
++  end
++  # get current world time
++  def getTime
++    @curTime
++  end
++  
++  def getHousesOfVillage(name)
++    getAllEntities.collect{|e|e.get}.select{|e|e.is_a?(AntHouse)}.select{|e|e.village==name}
++  end
+ 
+-	def getVillages
+-		getBuildings.collect{|e|e.village}.sort.uniq
+-	end
++  def getVillages
++    getBuildings.collect{|e|e.village}.sort.uniq
++  end
+ 
+-	def getHeroes
+-		getByType(AntHero)
+-	end
+-	def getBuildings
+-		getByType(AntHouse)
+-	end
+-	def getByType(type)
+-		getAllEntities.select{|e|e.is_a?(type)}
+-	end
++  def getHeroes
++    getByType(AntHero)
++  end
++  def getBuildings
++    getByType(AntHouse)
++  end
++  def getByType(type)
++    getAllEntities.select{|e|e.is_a?(type)}
++  end
+ 
+-	# returns AGSurfaces of the given hero for portraits
+-	def getPortrait(hero)
+-		f=&quot;data/gui/portraits/#{hero}.png&quot;
+-		if fileExists(f)
+-			return AGSurface.load(f)
+-		else
+-			return AGSurface.load(&quot;data/gui/portraits/none.png&quot;)
+-		end
+-	end
++  # returns AGSurfaces of the given hero for portraits
++  def getPortrait(hero)
++    f=&quot;data/gui/portraits/#{hero}.png&quot;
++    if fileExists(f)
++      return AGSurface.load(f)
++    else
++      return AGSurface.load(&quot;data/gui/portraits/none.png&quot;)
++    end
++  end
+ 
+-	# take heroes from AntPlayer object
+-	def getOwnHeroes()
+-		getPlayer.getHeroes if getPlayer
+-	end
++  # take heroes from AntPlayer object
++  def getOwnHeroes()
++    getPlayer.getHeroes if getPlayer
++  end
+ 
+-	################################
+-	# loading &amp; saving
+-	################################
+-	
+-	def processXMLNode(node)
+-		nodeName=node.getName
+-		nodeName.gsub!(&quot;New&quot;,&quot;&quot;)  # remove New out of old antNew.. Names
++  ################################
++  # loading &amp; saving
++  ################################
++  
++  def processXMLNode(node)
++    nodeName=node.getName
++    nodeName.gsub!(&quot;New&quot;,&quot;&quot;)  # remove New out of old antNew.. Names
+ 
+-		return if nodeName.length&lt;1
++    return if nodeName.length&lt;1
+ 
+-		entTypeMap=xmlName2ClassMap
+-		if entTypeMap.keys.member?(nodeName)
+-			e=entTypeMap[nodeName].new(self)
+-			@loadedEntsNum+=1
+-			if e.is_a?(AntHero)
+-				@heroes.push(e)
+-			end
+-		end
+-		if e
+-			e.preloadXML(node)
+-			@loadedEntities&lt;&lt;[node,e]
+-		end
+-# 	end
++    entTypeMap=xmlName2ClassMap
++    if entTypeMap.keys.member?(nodeName)
++      e=entTypeMap[nodeName].new(self)
++      @loadedEntsNum+=1
++      if e.is_a?(AntHero)
++        @heroes.push(e)
++      end
++    end
++    if e
++      e.preloadXML(node)
++      @loadedEntities&lt;&lt;[node,e]
++    end
++#   end
+ # 
+-# 	def loadEntityFromXML(e,node)
+-		if node.getName==&quot;humanPlayer&quot; then
+-			player=AntHumanPlayer.new(self,&quot;&quot;)
+-			player.loadXML(node)
+-			@players.push(player)
+-			if not @myPlayer
+-				@myPlayer=player
+-			elsif player.getName==@playerName
+-				@myPlayer=player
+-			end
+-		end
+-		if node.getName==&quot;target&quot; then
+-			t=TargetPos.new
+-			t.loadXML(node)
+-			@targets[t.name]=t
+-		end
+-		
+-		# FIXME: deprecated - remove this list!
+-		playerTypes={&quot;computerPlayer&quot;=&gt;AntComputerPlayer, &quot;lazyPlayer&quot;=&gt;AntLazyPlayer, &quot;conqueringPlayer&quot;=&gt;AntConqueringPlayer,&quot;newAI&quot;=&gt;AntAttackAI}
++#   def loadEntityFromXML(e,node)
++    if node.getName==&quot;humanPlayer&quot; then
++      player=AntHumanPlayer.new(self,&quot;&quot;)
++      player.loadXML(node)
++      @players.push(player)
++      if not @myPlayer
++        @myPlayer=player
++      elsif player.getName==@playerName
++        @myPlayer=player
++      end
++    end
++    if node.getName==&quot;target&quot; then
++      t=TargetPos.new
++      t.loadXML(node)
++      @targets[t.name]=t
++    end
++    
++    # FIXME: deprecated - remove this list!
++    playerTypes={&quot;computerPlayer&quot;=&gt;AntComputerPlayer, &quot;lazyPlayer&quot;=&gt;AntLazyPlayer, &quot;conqueringPlayer&quot;=&gt;AntConqueringPlayer,&quot;newAI&quot;=&gt;AntAttackAI}
+ 
+-		playerTypes.update(getPlayerTypeMap)
++    playerTypes.update(getPlayerTypeMap)
+ 
+-		if playerTypes.keys.member?(node.getName) then
+-			type=playerTypes[node.getName]
+-			if type.ancestors.member?(AntPlayer)
+-				player=playerTypes[node.getName].new(self,&quot;&quot;)
+-			else
+-				player=AntAIPlayer.new(node.get(&quot;name&quot;),self)
+-				aiInterface=AIInterface.new(self,player)
+-				ai=type.new(aiInterface)
+-				player.ai=ai
+-			end
+-		
+-			player.loadXML(node)
+-			@players.push(player)
+-		end
+-		
+-		if node.getName==&quot;trigger&quot; then
+-			@triggers.push(Trigger.new(node))
+-		end
+-	end
+-	
+-	def loadXML(n)
+-		puts &quot;loadXML(n)&quot;
+-		@loadedEntsNum=1
+-		@loadedEntities=[]
+-		super(n)
+-		puts &quot;loadXML(n) -1 &quot;
+-		@loadedEntities.each{|pair|
+-			node,entity=pair
+-			insertEntity(entity)
+-		}
++    if playerTypes.keys.member?(node.getName) then
++      type=playerTypes[node.getName]
++      if type.ancestors.member?(AntPlayer)
++        player=playerTypes[node.getName].new(self,&quot;&quot;)
++      else
++        player=AntAIPlayer.new(node.get(&quot;name&quot;),self)
++        aiInterface=AIInterface.new(self,player)
++        ai=type.new(aiInterface)
++        player.ai=ai
++      end
++    
++      player.loadXML(node)
++      @players.push(player)
++    end
++    
++    if node.getName==&quot;trigger&quot; then
++      @triggers.push(Trigger.new(node))
++    end
++  end
++  
++  def loadXML(n)
++    puts &quot;loadXML(n)&quot;
++    @loadedEntsNum=1
++    @loadedEntities=[]
++    super(n)
++    puts &quot;loadXML(n) -1 &quot;
++    @loadedEntities.each{|pair|
++      node,entity=pair
++      insertEntity(entity)
++    }
+ 
+-		@loadedEntities.each{|pair|
+-			node,entity=pair
+-			entity.loadXML(node)
+-			entity.eventMapChanged
+-		}
+-		
+-		createPathfinder
++    @loadedEntities.each{|pair|
++      node,entity=pair
++      entity.loadXML(node)
++      entity.eventMapChanged
++    }
++    
++    createPathfinder
+ 
+-		@players.each{|p|p.move(0)}
+-		
+-		if n.get(&quot;scriptfile&quot;).length&gt;0 and n.get(&quot;scriptclass&quot;).length&gt;0
+-	
+-			# FIXME: add some safetly level here!!!
++    @players.each{|p|p.move(0)}
++    
++    if n.get(&quot;scriptfile&quot;).length&gt;0 and n.get(&quot;scriptclass&quot;).length&gt;0
++  
++      # FIXME: add some safetly level here!!!
+ 
+-			@scriptFile=n.get(&quot;scriptfile&quot;)
+-			@scriptClass=n.get(&quot;scriptclass&quot;)
+-			c=loadFile(n.get(&quot;scriptfile&quot;))
+-			@filename=@scriptFile.gsub(&quot;.rb&quot;,&quot;.antlvl&quot;)
+-			levelName=getLevelName
+-			c=&quot;module #{levelName}\n&quot;+c+&quot;\nend\n&quot;
+-			eval(c)
+-			cl=&quot;#{levelName}::&quot;+n.get(&quot;scriptclass&quot;)
+-			pClass=eval(cl)
+-			if pClass.ancestors.member?(AntLevelScript)
+-				interface=AntLevelInterface.new(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">self, at app</A>)
+-				@script=pClass.new(interface)
+-			end
+-	
+-		end
+-		if @script
+-			sd=n.getChildren(&quot;scriptdata&quot;)
+-			sd.each{|c|
+-				@script.loadXML(c)
+-			}
+-		end
+-		if n.get(&quot;curTime&quot;)!=&quot;&quot;
+-			@curTime=n.get(&quot;curTime&quot;).to_f
+-		end
++      @scriptFile=n.get(&quot;scriptfile&quot;)
++      @scriptClass=n.get(&quot;scriptclass&quot;)
++      c=loadFile(n.get(&quot;scriptfile&quot;))
++      @filename=@scriptFile.gsub(&quot;.rb&quot;,&quot;.antlvl&quot;)
++      levelName=getLevelName
++      c=&quot;module #{levelName}\n&quot;+c+&quot;\nend\n&quot;
++      eval(c)
++      cl=&quot;#{levelName}::&quot;+n.get(&quot;scriptclass&quot;)
++      pClass=eval(cl)
++      if pClass.ancestors.member?(AntLevelScript)
++        interface=AntLevelInterface.new(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">self, at app</A>)
++        @script=pClass.new(interface)
++      end
++  
++    end
++    if @script
++      sd=n.getChildren(&quot;scriptdata&quot;)
++      sd.each{|c|
++        @script.loadXML(c)
++      }
++    end
++    if n.get(&quot;curTime&quot;)!=&quot;&quot;
++      @curTime=n.get(&quot;curTime&quot;).to_f
++    end
+     return true
+-	end
++  end
+ 
+-	def loadMap(filename)
+-		@filename=filename
+-		super
+-	end
++  def loadMap(filename)
++    @filename=filename
++    super
++  end
+ 
+-	def saveXMLTRest(n)
+-		puts self
+-		pp n
+-		super(n)
+-		@players.each{|player|
+-			c=n.addChild(player.xmlName)
+-			player.saveXML(c)
+-		}
+-		@targets.each{|name,t|
+-			c=n.addChild(t.xmlName)
+-			t.saveXML(c)
+-		}
+-		@triggers.each{|t|
+-			c=n.addChild(t.xmlName)
+-			t.saveXML(c)
+-		}
+-		if @scriptClass
+-			n.set(&quot;scriptclass&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at scriptClass</A>)
+-		end
+-		if @scriptFile
+-			n.set(&quot;scriptfile&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at scriptFile</A>)
+-		end
+-		if @script
+-			c=n.addChild(&quot;scriptdata&quot;)
+-			@script.saveXML(c)
+-		end
+-	end
++  def saveXMLTRest(n)
++    puts self
++    pp n
++    super(n)
++    @players.each{|player|
++      c=n.addChild(player.xmlName)
++      player.saveXML(c)
++    }
++    @targets.each{|name,t|
++      c=n.addChild(t.xmlName)
++      t.saveXML(c)
++    }
++    @triggers.each{|t|
++      c=n.addChild(t.xmlName)
++      t.saveXML(c)
++    }
++    if @scriptClass
++      n.set(&quot;scriptclass&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at scriptClass</A>)
++    end
++    if @scriptFile
++      n.set(&quot;scriptfile&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at scriptFile</A>)
++    end
++    if @script
++      c=n.addChild(&quot;scriptdata&quot;)
++      @script.saveXML(c)
++    end
++  end
+ 
+-	######################################
+-	# modify the world
+-	######################################
+-	
+-	# make a new player at pre-defined spawn-positions
+-	# used positions shall not be used again, until player leaves
+-	# returns a pair of player and hero objects.
+-	def newPlayer(name)
+-		# FIXME:get a free spawn point
+-		#
+-		@targets.each_key{|key|
+-			if key=~/spawn/
+-			end
+-		}
+-		pos=AGVector2.new(20,20)
+-		player=AntHumanPlayer.new(name)
+-		@players.push(player)
+-		#new hero
+-		hero=AntHero.new
+-		hero.setName(name)
+-		hero.setPlayer(player)
+-		hero.setPos(pos)
+-		insertEntity(hero)
+-		return player,hero
+-	end
++  ######################################
++  # modify the world
++  ######################################
++  
++  # make a new player at pre-defined spawn-positions
++  # used positions shall not be used again, until player leaves
++  # returns a pair of player and hero objects.
++  def newPlayer(name)
++    # FIXME:get a free spawn point
++    #
++    @targets.each_key{|key|
++      if key=~/spawn/
++      end
++    }
++    pos=AGVector2.new(20,20)
++    player=AntHumanPlayer.new(name)
++    @players.push(player)
++    #new hero
++    hero=AntHero.new
++    hero.setName(name)
++    hero.setPlayer(player)
++    hero.setPos(pos)
++    insertEntity(hero)
++    return player,hero
++  end
+ 
+-	
+-	######################################
+-	# modify the world
+-	######################################
++  
++  ######################################
++  # modify the world
++  ######################################
+ 
+-	def getByName(name)
+-		if name.class!=String
+-			dputs name,name.class
+-		end
+-		super(name)
+-	end
+-	def endChange
+-		mapChanged
+-	end
++  def getByName(name)
++    if name.class!=String
++      dputs name,name.class
++    end
++    super(name)
++  end
++  def endChange
++    mapChanged
++  end
+ 
+-	# this function will be used for displaying lights and including &quot;fog of war&quot;
+-	def setLight(e)
+-	end
++  # this function will be used for displaying lights and including &quot;fog of war&quot;
++  def setLight(e)
++  end
+ 
+-	def move(time)
+-		if @pause
+-			return
+-		end
+-		#time*=@app.getSpeed # increase speed  # moved to app
+-		@curTime+=time
+-		@@systemTime+=time
+-		super(time)
+-		
+-		checkTriggers
+-		
+-		@players.each{|player|
+-			player.move(time)
+-		}
+-		
+-		AntSound.ambientSound(time)
+-		if not @started
+-			@started=true
+-			if @script
+-				@script.eventLevelStarted
+-			end
+-		end
+-	end
++  def move(time)
++    if @pause
++      return
++    end
++    #time*=@app.getSpeed # increase speed  # moved to app
++    @curTime+=time
++    @@systemTime+=time
++    super(time)
++    
++    checkTriggers
++    
++    @players.each{|player|
++      player.move(time)
++    }
++    
++    AntSound.ambientSound(time)
++    if not @started
++      @started=true
++      if @script
++        @script.eventLevelStarted
++      end
++    end
++  end
+ 
+-	def trigger(hero,t)
+-		done=false
+-		if @script
+-			if @script.eventTrigger(AntLevelHero.new(hero),t)
+-				done=true
+-			end
+-		end
+-		if not done
+-			@players.each{|p|p.trigger(hero,t)}
+-		end
+-	end
++  def trigger(hero,t)
++    done=false
++    if @script
++      if @script.eventTrigger(AntLevelHero.new(hero),t)
++        done=true
++      end
++    end
++    if not done
++      @players.each{|p|p.trigger(hero,t)}
++    end
++  end
+ 
+-	def mapChanged
+-		super
+-		@app.setupNames
+-	end
++  def mapChanged
++    super
++    @app.setupNames
++  end
+ 
+-	def getAllByType(type)
+-		getAllEntities.select{|e|
+-			e.is_a?(type)
+-		}
+-	end
++  def getAllByType(type)
++    getAllEntities.select{|e|
++      e.is_a?(type)
++    }
++  end
+   
+   def getApp
+     @app
+   end
+ 
+-private	
+-	def checkTriggers
+-		@heroes.each{|h|
+-			@triggers.each{|t|
+-				t.check(h)
+-			}
+-		}
+-	end
++private  
++  def checkTriggers
++    @heroes.each{|h|
++      @triggers.each{|t|
++        t.check(h)
++      }
++    }
++  end
+ 
+-	def getLevelName
+-		&quot;L_&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">+ at filename.gsub</A>(&quot;.rb&quot;,&quot;&quot;).gsub(&quot;.&quot;,&quot;_&quot;).gsub(&quot;/&quot;,&quot;_&quot;)
+-	end
++  def getLevelName
++    &quot;L_&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">+ at filename.gsub</A>(&quot;.rb&quot;,&quot;&quot;).gsub(&quot;.&quot;,&quot;_&quot;).gsub(&quot;/&quot;,&quot;_&quot;)
++  end
+ 
+ 
+-	def createPathfinder
+-		puts &quot;createPathfinder&quot;
+-		@path=CombinedPathFinder.new(self)
+-		@path.scene=getScene
+-		@path.displayPathfindingGraph(self,getScene)
+-		puts &quot;createPathfinder ready&quot;
+-	end
++  def createPathfinder
++    puts &quot;createPathfinder&quot;
++    @path=CombinedPathFinder.new(self)
++    @path.scene=getScene
++    @path.displayPathfindingGraph(self,getScene)
++    puts &quot;createPathfinder ready&quot;
++  end
+ 
+-	# returns a map of possible xmlNames to their classes like {&quot;antMan&quot;=&gt;AntMan}
+-	def xmlName2ClassMap
+-		return @classMapCache if @classMapCache
++  # returns a map of possible xmlNames to their classes like {&quot;antMan&quot;=&gt;AntMan}
++  def xmlName2ClassMap
++    return @classMapCache if @classMapCache
+ 
+-		# gather all entity types and map them to their xmlNames
+-		entTypes=getDescendantsOfClass(AntRubyEntity)
+-		entTypeMap={}
+-		entTypes.each{|t|
+-			entTypeMap[makeXmlName(t.to_s)]=t
+-		}
+-		@classMapCache=entTypeMap
+-	end
++    # gather all entity types and map them to their xmlNames
++    entTypes=getDescendantsOfClass(AntRubyEntity)
++    entTypeMap={}
++    entTypes.each{|t|
++      entTypeMap[makeXmlName(t.to_s)]=t
++    }
++    @classMapCache=entTypeMap
++  end
+ 
+-	def getPlayerTypeMap
+-		return @playerTypeMap if @playerTypeMap
++  def getPlayerTypeMap
++    return @playerTypeMap if @playerTypeMap
+ 
+ 
+-		types=getDescendantsOfClass(AntBasicAI)
+-		typeMap={}
+-		types.each{|t|
+-			typeMap[makeXmlName(t.to_s)]=t
+-		}
+-		@playerTypeMap = typeMap
+-	end
+-	def makeXmlName(str)
+-		xml=str.to_s
+-		xml[0..0].downcase+xml[1..-1]
+-	end
++    types=getDescendantsOfClass(AntBasicAI)
++    typeMap={}
++    types.each{|t|
++      typeMap[makeXmlName(t.to_s)]=t
++    }
++    @playerTypeMap = typeMap
++  end
++  def makeXmlName(str)
++    xml=str.to_s
++    xml[0..0].downcase+xml[1..-1]
++  end
+ 
+ end
+ 
+
+Modified: antargis/trunk/ruby/spec/spec_hljob_saving.rb
+===================================================================
+--- antargis/trunk/ruby/spec/spec_hljob_saving.rb	2008-05-27 17:53:28 UTC (rev 1256)
++++ antargis/trunk/ruby/spec/spec_hljob_saving.rb	2008-05-28 18:06:10 UTC (rev 1257)
+@@ -1,7 +1,10 @@
+ 
+ require 'ruby/spec/level_testing.rb'
+ 
+-describe &quot;Saving of&quot; do
++describe &quot;Saving and loading of&quot; do
++  SAVEGAME=&quot;testfile0&quot;
++  SAVEGAME2=&quot;testfile1&quot;
++  
+   include LevelTesting
+   describe &quot;RestJob&quot; do
+     before(:all) do
+@@ -11,12 +14,51 @@
+       advance
+     end
+     it &quot;should be possible to save normal resting&quot; do
+-      @app.save
+-      advance
+-      dialog=widget(&quot;SaveDialog&quot;)
+-      dialog.getChild(&quot;Filename&quot;).setText(AGStringUtf8.new(&quot;testfile0&quot;))
+-      click(dialog.getChild(&quot;ok&quot;).getScreenRect.getMiddle)
+-      advance
++      saveText=save(SAVEGAME)
++      puts saveText
++      load(SAVEGAME)
++      newText=save(SAVEGAME2)
++      puts newText
++      #newText.should == saveText
++      exit
++      #advance
+     end
+   end
++  
++  private
++  def checkRowenRest
++    #@app.getMap.getByName(&quot;Rowen&quot;).getJobName.should ==&quot;restJob&quot;
++  end
++  
++  # saves current game and returns savegame-text
++  def save(file)
++    checkRowenRest
++    @app.save
++    #advance
++    dialog=widget(&quot;SaveDialog&quot;)
++    dialog.getChild(&quot;Filename&quot;).setText(AGStringUtf8.new(file))
++    click(dialog.getChild(&quot;ok&quot;).getScreenRect.getMiddle)
++    getSaveText(file)
++    checkRowenRest
++  end
++  
++  def load(file)
++    checkRowenRest
++    #advance
++    lambda {
++	    @app.load
++	    dialog=widget(&quot;LoadDialog&quot;)
++	    files=dialog.getChild(&quot;Files&quot;)
++	    filename=files.getValues.keys.select{|f|f=~/#{file}/}[0]
++	    files.selectItem(filename)
++	    click(dialog.getChild(&quot;ok&quot;).getScreenRect.getMiddle)
++    }.should_not cross(AntNewHLJob,:check)
++    checkRowenRest
++  end
++  
++  def getSaveText(file)
++    file=&quot;savegames/&quot;+file+&quot;.antlvl&quot;
++    pp file
++    loadFile(file)
++  end
+ end
+\ No newline at end of file
+
+Modified: antargis/trunk/ruby/spec_helper.rb
+===================================================================
+--- antargis/trunk/ruby/spec_helper.rb	2008-05-27 17:53:28 UTC (rev 1256)
++++ antargis/trunk/ruby/spec_helper.rb	2008-05-28 18:06:10 UTC (rev 1257)
+@@ -6,105 +6,105 @@
+ #setDebugLevel(0)
+ 
+ #if Object.respond_to?(:define_cmethod)
+-	
+-	
+-	$MY_KERNEL=self
+-	def kernel
+-		$MY_KERNEL
+-	end
+-	class Cross
+-		@@called={}
+-		@@backtrace={}
+-		def initialize(target,function)
+-			@target=target
+-			@function=function
+-			@expected=&quot;#{target}.#{function}(.)&quot;
+-		end
+-		def matches?(proc)      
+-			@proc = proc
+-			callName=@expected
+-			@@called[callName]=0
+-			
+-			if @target.is_a?(Class) and @target.singleton_methods.member?(@function.to_s)
+-				mclass=@target
+-				
+-				function=@function
+-				oldFunction=@target.method(@function)
+-				mclass.define_cmethod(@function) do 
+-					Cross.symCall(callName)
+-				end
+-				
+-				@proc.call
+-				mclass.define_cmethod(@function,oldFunction)
+-				
+-				return @@called[callName]&gt;0
+-	
+-			end
+-			@callName=callName
+-			mclass=@target
+-			mclass=@target.class unless @target.is_a?(Class)
+-	
+-			oldFunction=mclass.instance_method(@function)
+-			mclass.send(:<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">define_method, at function</A>) do 
+-				Cross.symCall(callName) 
+-			end
+-			@proc.call
+-			mclass.send(:<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">define_method, at function</A>,oldFunction)
+-			@@called[callName]&gt;0
+-		end
+-		def failure_message
+-			&quot;expected #{@proc.inspect} to call #{@expected}&quot;
+-		end
+-		def negative_failure_message
+-			bt=&quot;&quot;
+-			bt=@@backtrace[@callName].join(&quot;\n&quot;) if @@backtrace[@callName] 
+-			&quot;expected #{@proc.inspect} not to call #{@expected} BT:#{bt}&quot;
+-		end
+-		def Cross.symCall(name)
+-			@@called[name]+=1
+-			@@backtrace[name]=caller
+-			nil
+-		end
+-	end
+-	
+-	def cross(target,function=nil)
+-			if function.nil? and target.is_a?(Symbol)
+-				function=target
+-				target=kernel
+-			end
+-	
+-		Cross.new(target,function)
+-	end
++  
++  
++  $MY_KERNEL=self
++  def kernel
++    $MY_KERNEL
++  end
++  class Cross
++    @@called={}
++    @@backtrace={}
++    def initialize(target,function)
++      @target=target
++      @function=function
++      @expected=&quot;#{target}.#{function}(.)&quot;
++    end
++    def matches?(proc)      
++      @proc = proc
++      callName=@expected
++      @@called[callName]=0
++      
++      if @target.is_a?(Class) and @target.singleton_methods.member?(@function.to_s)
++        mclass=@target
++        
++        function=@function
++        oldFunction=@target.method(@function)
++        mclass.define_cmethod(@function) do 
++          Cross.symCall(callName)
++        end
++        
++        @proc.call
++        mclass.define_cmethod(@function,oldFunction)
++        
++        return @@called[callName]&gt;0
++  
++      end
++      @callName=callName
++      mclass=@target
++      mclass=@target.class unless @target.is_a?(Class)
++  
++      oldFunction=mclass.instance_method(@function)
++      mclass.send(:<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">define_method, at function</A>) do 
++        Cross.symCall(callName) 
++      end
++      @proc.call
++      mclass.send(:<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">define_method, at function</A>,oldFunction)
++      @@called[callName]&gt;0
++    end
++    def failure_message
++      &quot;expected #{@proc.inspect} to call #{@expected}&quot;
++    end
++    def negative_failure_message
++      bt=&quot;&quot;
++      bt=@@backtrace[@callName].join(&quot;\n&quot;) if @@backtrace[@callName] 
++      &quot;expected #{@proc.inspect} not to call #{@expected} BT:#{bt}&quot;
++    end
++    def Cross.symCall(name)
++      @@called[name]+=1
++      @@backtrace[name]=caller
++      nil
++    end
++  end
++  
++  def cross(target,function=nil)
++      if function.nil? and target.is_a?(Symbol)
++        function=target
++        target=kernel
++      end
++  
++    Cross.new(target,function)
++  end
+ #end
+-	
+-	
++  
++  
+ class Observer
+-	attr_accessor :ok
+-	def initialize(object,methodName)
+-		@methodName=methodName
+-		@object=object
+-		@ok=false
+-	end
+-	def run
+-		method=@object.method(@methodName)
+-		this=self
+-		@object.class.send(:<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">define_method, at methodName</A>) {|*s|this.ok=true;puts &quot;MUH&quot;;method.call(*s)} 
+-		yield
+-		@object.class.send(:<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">define_method, at methodName</A>,method)
+-		@ok
+-	end
+-	def isNotCalled
+-	   @ok==false
+-	end
+-	def isCalled
+-	   @ok
+-	end
+-end	
++  attr_accessor :ok
++  def initialize(object,methodName)
++    @methodName=methodName
++    @object=object
++    @ok=false
++  end
++  def run
++    method=@object.method(@methodName)
++    this=self
++    @object.class.send(:<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">define_method, at methodName</A>) {|*s|this.ok=true;puts &quot;MUH&quot;;method.call(*s)} 
++    yield
++    @object.class.send(:<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">define_method, at methodName</A>,method)
++    @ok
++  end
++  def isNotCalled
++     @ok==false
++  end
++  def isCalled
++     @ok
++  end
++end  
+ 
+ def observe(object,method,&amp;block)
+-	observer=Observer.new(object,method)
+-	
+-	observer.run {block.call(observer)}
++  observer=Observer.new(object,method)
++  
++  observer.run {block.call(observer)}
+ end
+ 
+ class Object
+@@ -120,9 +120,9 @@
+ end
+ 
+ #class A
+-#	def b
+-#		puts &quot;B&quot;
+-#	end
++#  def b
++#    puts &quot;B&quot;
++#  end
+ #end
+ #
+ #a=A.new
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000212.html">[Antargis-svn] r1256 - in antargis/trunk: . ext/basic ext/game	rookey/cpp ruby ruby/jobs ruby/spec
+</A></li>
+	<LI>Next message: <A HREF="000214.html">[Antargis-svn] r1258 - in antargis/trunk: . ext/basic ext/game	ext/gui ruby/entities ruby/jobs ruby/spec
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#213">[ date ]</a>
+              <a href="thread.html#213">[ thread ]</a>
+              <a href="subject.html#213">[ subject ]</a>
+              <a href="author.html#213">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

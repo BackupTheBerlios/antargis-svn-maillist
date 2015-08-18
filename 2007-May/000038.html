@@ -1,0 +1,1506 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1080 - in antargis/branches/branch_2d: .	data/textures data/textures/2d ruby src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-May/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1080%20-%20in%20antargis/branches/branch_2d%3A%20.%0A%09data/textures%20data/textures/2d%20ruby%20src&In-Reply-To=%3C200705021818.l42IIHP1024715%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000039.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1080 - in antargis/branches/branch_2d: .	data/textures data/textures/2d ruby src</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1080%20-%20in%20antargis/branches/branch_2d%3A%20.%0A%09data/textures%20data/textures/2d%20ruby%20src&In-Reply-To=%3C200705021818.l42IIHP1024715%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1080 - in antargis/branches/branch_2d: .	data/textures data/textures/2d ruby src">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Wed May  2 20:18:17 CEST 2007</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000039.html">[Antargis-svn] r1081 - in antargis/branches/branch_2d: data/models	ruby/tests src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#38">[ date ]</a>
+              <a href="thread.html#38">[ thread ]</a>
+              <a href="subject.html#38">[ subject ]</a>
+              <a href="author.html#38">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-05-02 20:18:15 +0200 (Wed, 02 May 2007)
+New Revision: 1080
+
+Added:
+   antargis/branches/branch_2d/data/textures/2d/
+   antargis/branches/branch_2d/data/textures/2d/terrain/
+Modified:
+   antargis/branches/branch_2d/Rakefile
+   antargis/branches/branch_2d/ruby/ant_arrow.rb
+   antargis/branches/branch_2d/ruby/ant_bakery.rb
+   antargis/branches/branch_2d/ruby/ant_boat.rb
+   antargis/branches/branch_2d/ruby/ant_buildingsite.rb
+   antargis/branches/branch_2d/ruby/ant_decal.rb
+   antargis/branches/branch_2d/ruby/ant_deco.rb
+   antargis/branches/branch_2d/ruby/ant_druid.rb
+   antargis/branches/branch_2d/ruby/ant_dwelling.rb
+   antargis/branches/branch_2d/ruby/ant_farm.rb
+   antargis/branches/branch_2d/ruby/ant_field.rb
+   antargis/branches/branch_2d/ruby/ant_fir.rb
+   antargis/branches/branch_2d/ruby/ant_fire.rb
+   antargis/branches/branch_2d/ruby/ant_fish.rb
+   antargis/branches/branch_2d/ruby/ant_fishing_hut.rb
+   antargis/branches/branch_2d/ruby/ant_grass.rb
+   antargis/branches/branch_2d/ruby/ant_hero.rb
+   antargis/branches/branch_2d/ruby/ant_man.rb
+   antargis/branches/branch_2d/ruby/ant_mill.rb
+   antargis/branches/branch_2d/ruby/ant_mine.rb
+   antargis/branches/branch_2d/ruby/ant_models.rb
+   antargis/branches/branch_2d/ruby/ant_sack.rb
+   antargis/branches/branch_2d/ruby/ant_sheep.rb
+   antargis/branches/branch_2d/ruby/ant_stone.rb
+   antargis/branches/branch_2d/ruby/ant_tower.rb
+   antargis/branches/branch_2d/ruby/ant_townhall.rb
+   antargis/branches/branch_2d/ruby/ant_tree.rb
+   antargis/branches/branch_2d/ruby/ant_well.rb
+   antargis/branches/branch_2d/ruby/ant_wolf.rb
+   antargis/branches/branch_2d/ruby/ant_workshop.rb
+   antargis/branches/branch_2d/ruby/ents.rb
+   antargis/branches/branch_2d/src/antargisgui.h
+   antargis/branches/branch_2d/src/impostor.cc
+   antargis/branches/branch_2d/src/impostor.h
+   antargis/branches/branch_2d/src/nantmarker.hh
+Log:
+* setMesh(type,subtype) =&gt; setMesh(&lt;subtype&gt;)
+
+
+Modified: antargis/branches/branch_2d/Rakefile
+===================================================================
+--- antargis/branches/branch_2d/Rakefile	2007-04-29 19:26:46 UTC (rev 1079)
++++ antargis/branches/branch_2d/Rakefile	2007-05-02 18:18:15 UTC (rev 1080)
+@@ -33,7 +33,7 @@
+ 
+ 
+ interfaceHeadersSRC=[&quot;ant_frustum.h&quot;,&quot;ant_projection.h&quot;,&quot;ant_camera.h&quot;,
+-&quot;scenenode.h&quot;,&quot;anim_mesh.h&quot;,&quot;anim_mesh_data.h&quot;,&quot;ant_app.h&quot;,&quot;entity.h&quot;,&quot;entptr.h&quot;,&quot;glsl.h&quot;,&quot;height_map.h&quot;,&quot;map.h&quot;,&quot;mesh_data.h&quot;,&quot;mesh.h&quot;,&quot;mesh_optimizer.h&quot;,&quot;minimap.h&quot;,&quot;new_decal.h&quot;,&quot;ant_renderer.h&quot;,&quot;resource.h&quot;,&quot;scene_base.h&quot;,&quot;scene.h&quot;,&quot;smoke.h&quot;,&quot;terrain.h&quot;,&quot;vertex_array.h&quot;,&quot;water.h&quot;,&quot;path.h&quot;,&quot;impostor.h&quot;]
++&quot;scenenode.h&quot;,&quot;anim_mesh.h&quot;,&quot;anim_mesh_data.h&quot;,&quot;ant_app.h&quot;,&quot;entity.h&quot;,&quot;entptr.h&quot;,&quot;glsl.h&quot;,&quot;height_map.h&quot;,&quot;map.h&quot;,&quot;mesh_data.h&quot;,&quot;mesh.h&quot;,&quot;mesh_2d_data.h&quot;,&quot;mesh_2d.h&quot;,&quot;mesh_optimizer.h&quot;,&quot;minimap.h&quot;,&quot;new_decal.h&quot;,&quot;ant_renderer.h&quot;,&quot;resource.h&quot;,&quot;scene_base.h&quot;,&quot;scene.h&quot;,&quot;scene_2d.h&quot;,&quot;smoke.h&quot;,&quot;terrain.h&quot;,&quot;vertex_array.h&quot;,&quot;water.h&quot;,&quot;path.h&quot;,&quot;impostor.h&quot;]
+ interfaceHeadersGUI=[
+ &quot;ag_rubyobj.h&quot;,&quot;ag_messageobject.h&quot;,&quot;ag_serial.h&quot;,&quot;ag_aes.h&quot;,&quot;ag_singleton.h&quot;,
+  &quot;ag_geometry.h&quot;,&quot;ag_font.h&quot;,&quot;ag_color.h&quot;,&quot;ag_local.h&quot;,&quot;ag_config.h&quot;,&quot;ag_string.h&quot;,&quot;ag_string_utf8.h&quot;,
+
+Modified: antargis/branches/branch_2d/ruby/ant_arrow.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_arrow.rb	2007-04-29 19:26:46 UTC (rev 1079)
++++ antargis/branches/branch_2d/ruby/ant_arrow.rb	2007-05-02 18:18:15 UTC (rev 1080)
+@@ -26,8 +26,7 @@
+ 	def initialize
+ 		super(AGVector2.new(0,0))
+ 		@typeID=(getRand*2).to_i
+-		setMesh(createModel(:arrow))
+-# 		setMesh(Mesh.new(getMap.getScene,getMeshData(&quot;data/models/arrow.ant2&quot;,0.1,&quot;data/textures/models/arrow.png&quot;),AGVector4.new(0,0,0,0),getRand*360))
++		setMesh
+ 		setSpeed(10)
+ 	end
+ 	def eventNoJob
+
+Modified: antargis/branches/branch_2d/ruby/ant_bakery.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_bakery.rb	2007-04-29 19:26:46 UTC (rev 1079)
++++ antargis/branches/branch_2d/ruby/ant_bakery.rb	2007-05-02 18:18:15 UTC (rev 1080)
+@@ -13,10 +13,7 @@
+ 	end
+ 	
+ 	def setupMesh
+-		setMesh(createModel(:bakery))
+-		#		mesh=Mesh.new(getMap.getScene,getMeshData(&quot;data/models/ant_bakery.ant2&quot;,3.2,&quot;data/textures/models/ant_bakery.png&quot;),AGVector4.new(0,0,0),-30)
+-		#mesh=Mesh.new(getMap.getScene,getMeshData(&quot;data/models/townhall.ant2&quot;,3.2,&quot;data/textures/models/townhall.png&quot;),AGVector4.new(0,0,0),-30)
+-		#setMesh(mesh)
++		setMesh
+ 		p=AGVector3.new(0,1.6,2.2)
+ 		addMesh(@smokeMesh=Smoke.new(getMap.getScene,5),p)
+ 		checkSmoke
+
+Modified: antargis/branches/branch_2d/ruby/ant_boat.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_boat.rb	2007-04-29 19:26:46 UTC (rev 1079)
++++ antargis/branches/branch_2d/ruby/ant_boat.rb	2007-05-02 18:18:15 UTC (rev 1080)
+@@ -10,8 +10,6 @@
+ 	end
+ private
+ 	def setupMesh
+-# 		mesh=Mesh.new(getMap.getScene,getBoatMeshData,AGVector4.new(0,0,0),0)
+-# 		setMesh(mesh)
+-		setMesh(createModel(:boat))
++		setMesh
+ 	end
+ end
+\ No newline at end of file
+
+Modified: antargis/branches/branch_2d/ruby/ant_buildingsite.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_buildingsite.rb	2007-04-29 19:26:46 UTC (rev 1079)
++++ antargis/branches/branch_2d/ruby/ant_buildingsite.rb	2007-05-02 18:18:15 UTC (rev 1080)
+@@ -13,14 +13,14 @@
+ 	def incProgress(steps)
+ 		@steps=steps
+ 		o=@progress.to_i
+-		@progress+=(1.0/steps)*getMeshCount(:buildingsite) #(@@buildingSiteMeshes.length-1)
++		@progress+=(1.0/steps)*AntModels.getMeshCount(:buildingsite)
+ 		if o!=@progress.to_i
+ 			setupMesh
+ 		end
+ 		@doneSth=true
+ 	end
+ 	def ready
+-		@progress&gt;getMeshCount(:buildingsite) #@@buildingSiteMeshes.length-1
++		@progress&gt;AntModels.getMeshCount(:buildingsite) #@@buildingSiteMeshes.length-1
+ 	end
+ 
+ 	# removes building site if nothing was done in some time
+@@ -46,7 +46,7 @@
+ 
+ 	private
+ 	def setupMesh
+-		setMesh(createModel(:<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">buildingsite, at progress.to_i</A>))
++		setMesh(@progress.to_i)
+ 		
+ # 		mesh=Mesh.new(getMap.getScene,AntBuildingSite.getBuildingSiteMeshData(@progress),AGVector4.new(0,0,0),-10)
+ # 		setMesh(mesh)
+
+Modified: antargis/branches/branch_2d/ruby/ant_decal.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_decal.rb	2007-04-29 19:26:46 UTC (rev 1079)
++++ antargis/branches/branch_2d/ruby/ant_decal.rb	2007-05-02 18:18:15 UTC (rev 1080)
+@@ -23,8 +23,7 @@
+ 		super(AGVector2.new(0,0))
+ 		@typeID=(getRand()*2).to_i
+ 		setProvide(&quot;decal&quot;,true)
+-# 		setMesh(Mesh.new(getMap.getScene,getMeshData(&quot;data/models/floor.ant2&quot;,0.8,&quot;data/textures/gravel4.png&quot;,false),AGVector4.new(0,0,0,0),0))	
+-		setMesh(createModel(:floor_gravel))
++		setMesh(:floor_gravel)
+ 	end
+ 	def setTreeType(t)
+ 		@typeID=t
+
+Modified: antargis/branches/branch_2d/ruby/ant_deco.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_deco.rb	2007-04-29 19:26:46 UTC (rev 1079)
++++ antargis/branches/branch_2d/ruby/ant_deco.rb	2007-05-02 18:18:15 UTC (rev 1080)
+@@ -43,7 +43,7 @@
+ 			@decoType=a[r]
+ 		end
+ 		setProvide(&quot;deco&quot;,true)
+-		setMesh(createModel(:floor_deco))
++		setMesh(:floor_deco)
+ 		#setMesh(Mesh.new(getMap.getScene,getMeshData(&quot;data/models/floor.ant2&quot;,0.5,&quot;data/textures/splats/stones1a.png&quot;,false),AGVector4.new(0,0,0,0),0))
+ 	end
+ 	def setDecoType(t)
+@@ -66,7 +66,7 @@
+ 		@typeID=(getRand()*2).to_i
+ 		#setType(&quot;twig&quot;)
+ 		#setMesh(Mesh.new(getMap.getScene,getMeshData(&quot;data/models/twig.ant2&quot;,0.7),AGVector4.new(0,0,0,0),getRand*360))
+-		setMesh(mesh=createModel(:twig))
++		mesh=setMesh
+ 		mesh.setRotation(getRand*360)
+ 	end
+ end
+
+Modified: antargis/branches/branch_2d/ruby/ant_druid.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_druid.rb	2007-04-29 19:26:46 UTC (rev 1079)
++++ antargis/branches/branch_2d/ruby/ant_druid.rb	2007-05-02 18:18:15 UTC (rev 1080)
+@@ -23,10 +23,10 @@
+ 	def setupMesh
+ 		case @npcType
+ 			when &quot;smith&quot;
+-				setMesh(createModel(:smith))
++				setMesh(:smith)
+ 	 			#setMesh(Mesh.new(getMap.getScene,getMeshData(&quot;data/models/smith_lp.ant2&quot;,0.08,&quot;data/textures/models/smith_lp.png&quot;),AGVector4.new(0,0,0,0),0))
+ 			else
+-				setMesh(createModel(:druid))
++				setMesh(:druid)
+ 	 			#setMesh(Mesh.new(getMap.getScene,getMeshData(&quot;data/models/druid_lp.ant2&quot;,0.08,&quot;data/textures/models/druid_lp.png&quot;),AGVector4.new(0,0,0,0),0))
+ 		end
+ 	end
+
+Modified: antargis/branches/branch_2d/ruby/ant_dwelling.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_dwelling.rb	2007-04-29 19:26:46 UTC (rev 1079)
++++ antargis/branches/branch_2d/ruby/ant_dwelling.rb	2007-05-02 18:18:15 UTC (rev 1080)
+@@ -18,9 +18,7 @@
+ 
+ 	# setup the mesh
+ 	def setupMesh
+-		setMesh(createModel(:dwelling))
+-# 		mesh=Mesh.new(getMap.getScene,getMeshData(&quot;data/models/livinghouse.ant2&quot;,0.16,&quot;data/textures/models/livinghouse.png&quot;),AGVector4.new(0,0,0),-20)
+-# 		setMesh(mesh)
++		setMesh
+ 	end
+ 
+ protected
+
+Modified: antargis/branches/branch_2d/ruby/ant_farm.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_farm.rb	2007-04-29 19:26:46 UTC (rev 1079)
++++ antargis/branches/branch_2d/ruby/ant_farm.rb	2007-05-02 18:18:15 UTC (rev 1080)
+@@ -35,7 +35,7 @@
+ 	end
+ 	
+ 	def setupMesh
+-		setMesh(createModel(:farm))
++		setMesh
+ 	end
+ 
+ 	def neededStock
+
+Modified: antargis/branches/branch_2d/ruby/ant_field.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_field.rb	2007-04-29 19:26:46 UTC (rev 1079)
++++ antargis/branches/branch_2d/ruby/ant_field.rb	2007-05-02 18:18:15 UTC (rev 1080)
+@@ -5,7 +5,7 @@
+ 		setProvide(&quot;field&quot;,true)
+ 		@size=0
+ 		#init fieldMeshes-var
+-		@max=getMeshCount(:field)-1
++		@max=AntModels.getMeshCount(:field)-1
+ 		setupMesh
+ 		@growTime=20
+ 		@begin=true
+@@ -37,6 +37,6 @@
+ 	
+ 	private
+ 	def setupMesh
+-		setMesh(createModel(:<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">field, at size</A>))		
++		setMesh(@size)
+ 	end
+ end
+
+Modified: antargis/branches/branch_2d/ruby/ant_fir.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_fir.rb	2007-04-29 19:26:46 UTC (rev 1079)
++++ antargis/branches/branch_2d/ruby/ant_fir.rb	2007-05-02 18:18:15 UTC (rev 1080)
+@@ -67,7 +67,7 @@
+ # 		else
+ # 			data=getMeshData(&quot;data/models/fir2.ant2&quot;,0.45,&quot;data/textures/models/fir7.png&quot;)
+ 		end
+-		setMesh(createModel(:tree,typeId))
++		setMesh(typeId,:tree)
+ 		#data.setTransparent(true)
+ 		#data.setCulling(false) # patch for old trees
+ 
+
+Modified: antargis/branches/branch_2d/ruby/ant_fire.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_fire.rb	2007-04-29 19:26:46 UTC (rev 1079)
++++ antargis/branches/branch_2d/ruby/ant_fire.rb	2007-05-02 18:18:15 UTC (rev 1080)
+@@ -2,7 +2,7 @@
+ 	def initialize(p=AGVector2.new(0,0))
+ 		super
+ 		mp=AGVector3.new(0,0,0)
+-		setMesh(createModel(:fire,:on))
++		setMesh(:on)
+ # 		mesh=Mesh.new(getMap.getScene,getMeshData(&quot;data/models/fire.ant2&quot;,0.3,&quot;data/textures/models/fire.png&quot;),AGVector4.new(0,0,0),0)
+ # 		setMesh(mesh)
+ 		@smokeMesh=Smoke.new(getMap.getScene,4)
+@@ -15,7 +15,7 @@
+ 		@enabled=true
+ 	end
+ 	def disable
+-		setMesh(createModel(:fire,:off))
++		setMesh(:off)
+ 		#setMesh(Mesh.new(getMap.getScene,getMeshData(&quot;data/models/fire.ant2&quot;,0.3,&quot;data/textures/models/fire2.png&quot;),AGVector4.new(0,0,0),0))
+ 		getMap.getScene.addNode(@smokeMesh) # FIXME: dirty hack - solve this another way!!!
+ 		addMesh(@smokeMesh,AGVector3.new(0,0,0))
+
+Modified: antargis/branches/branch_2d/ruby/ant_fish.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_fish.rb	2007-04-29 19:26:46 UTC (rev 1079)
++++ antargis/branches/branch_2d/ruby/ant_fish.rb	2007-05-02 18:18:15 UTC (rev 1080)
+@@ -35,7 +35,7 @@
+ 
+ 		puts &quot;FISH:#{getPos3D}&quot;
+ 		
+-		setMesh(createModel(:fish))
++		setMesh
+ 		#mesh=Mesh.new(getMap.getScene,getFishMeshData,AGVector4.new(0,0,0),0)
+ 		#setMesh(mesh)
+ 
+
+Modified: antargis/branches/branch_2d/ruby/ant_fishing_hut.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_fishing_hut.rb	2007-04-29 19:26:46 UTC (rev 1079)
++++ antargis/branches/branch_2d/ruby/ant_fishing_hut.rb	2007-05-02 18:18:15 UTC (rev 1080)
+@@ -11,7 +11,7 @@
+ 	end
+ 	
+ 	def setupMesh
+-		setMesh(createModel(:fishing_hut))
++		setMesh
+ # 
+ # 
+ # 		data=getMeshData(&quot;data/models/fishing_hut.ant2&quot;,3.2,&quot;data/textures/models/fishing_hut.png&quot;)
+
+Modified: antargis/branches/branch_2d/ruby/ant_grass.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_grass.rb	2007-04-29 19:26:46 UTC (rev 1079)
++++ antargis/branches/branch_2d/ruby/ant_grass.rb	2007-05-02 18:18:15 UTC (rev 1080)
+@@ -222,3 +222,5 @@
+ 		setMesh(makeBushMesh(@size*3))
+ 	end
+ end
++
++
+
+Modified: antargis/branches/branch_2d/ruby/ant_hero.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_hero.rb	2007-04-29 19:26:46 UTC (rev 1079)
++++ antargis/branches/branch_2d/ruby/ant_hero.rb	2007-05-02 18:18:15 UTC (rev 1080)
+@@ -263,16 +263,12 @@
+ 		dir=getDirection
+ 		case name
+ 			when &quot;row&quot;
+-		 		setMesh(Mesh.new(getMap.getScene,getMeshData(&quot;data/models/hero_lp.ant2&quot;,0.08,&quot;data/textures/models/hero_lp.png&quot;),AGVector4.new(0,0,0,0),0))
+-				#setMesh(AnimMesh.new(getMap.getScene,getAnimMeshData(&quot;data/models/man_e_walk.anim&quot;)))
+-				#getFirstMesh.setAnimation(&quot;sit&quot;)
+-				mesh=Mesh.new(getMap.getScene,getBoatMeshData,AGVector4.new(0,0,0),0)
+-				addMesh(mesh,AGVector3.new(0,0,0))
+-
++				setMesh
++				addMesh(createModel(:boat),AGVector3.new(0,0,0))
+ 			when &quot;dead&quot;
+-		 		setMesh(Mesh.new(getMap.getScene,getMeshData(&quot;data/models/grave.ant2&quot;,0.2,&quot;data/textures/models/grave3.png&quot;),AGVector4.new(0,0,0,0),0))
++				setMesh(:grave_hero)
+ 			else
+-		 		setMesh(Mesh.new(getMap.getScene,getMeshData(&quot;data/models/hero_lp.ant2&quot;,0.08,&quot;data/textures/models/hero_lp.png&quot;),AGVector4.new(0,0,0,0),0))
++				setMesh
+ 		end
+ 		setDirection(dir)
+ 		setupRing
+
+Modified: antargis/branches/branch_2d/ruby/ant_man.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_man.rb	2007-04-29 19:26:46 UTC (rev 1079)
++++ antargis/branches/branch_2d/ruby/ant_man.rb	2007-05-02 18:18:15 UTC (rev 1080)
+@@ -238,50 +238,27 @@
+ 		@meshState=name
+ 		dir=getDirection
+ 		case name
+-			when &quot;wood&quot;
+-				setMesh(AnimMesh.new(getMap.getScene,getAnimMeshData(&quot;data/models/man_wood.anim&quot;)))
+-				setMesh(AnimMesh.new(getMap.getScene,getAnimMeshData(&quot;data/models/man_e_wood.anim&quot;)))
+-			when &quot;stone&quot;,&quot;flour&quot;,&quot;corn&quot;
+-				setMesh(AnimMesh.new(getMap.getScene,getAnimMeshData(&quot;data/models/man_stones.anim&quot;)))
+-				setMesh(AnimMesh.new(getMap.getScene,getAnimMeshData(&quot;data/models/man_e_stones.anim&quot;)))
+-			when &quot;walk&quot;,&quot;sitdown&quot;,&quot;sit&quot;
+-				setMesh(AnimMesh.new(getMap.getScene,getAnimMeshData(&quot;data/models/man_walk.anim&quot;)))
+-				setMesh(AnimMesh.new(getMap.getScene,getAnimMeshData(&quot;data/models/man_e_walk.anim&quot;)))
+-				getFirstMesh.setAnimation(name)
+ 			when &quot;fight&quot;
+ 				if @moving
+-					# FIXME: fill in man_e_dagger ...
+-					setMesh(AnimMesh.new(getMap.getScene,getAnimMeshData(&quot;data/models/man_e_walk.anim&quot;)))
++					setMesh(&quot;walk&quot;)
+ 					getFirstMesh.setAnimation(&quot;walk&quot;)
+ 				else
+-					case getWeapon
+-						when &quot;dagger&quot;
+-							setMesh(AnimMesh.new(getMap.getScene,getAnimMeshData(&quot;data/models/man_e_dagger.anim&quot;)))
+-						when &quot;shield&quot;
+-							setMesh(AnimMesh.new(getMap.getScene,getAnimMeshData(&quot;data/models/man_e_shield.anim&quot;)))
+-						when &quot;sword&quot;
+-							setMesh(AnimMesh.new(getMap.getScene,getAnimMeshData(&quot;data/models/man_e_sword.anim&quot;)))
+-						when &quot;bow&quot;
+-							setMesh(AnimMesh.new(getMap.getScene,getAnimMeshData(&quot;data/models/man_e_bow.anim&quot;)))
+-					end
+-					#end
++					#	raise 1
++					puts &quot;name:#{name}&quot;
++					assert{[&quot;dagger&quot;,&quot;shield&quot;,&quot;sword&quot;,&quot;bow&quot;].member?(getWeapon)}
++					setMesh(&quot;fight_&quot;+getWeapon)
+ 				end
+-			when &quot;axe&quot;
+-				setMesh(AnimMesh.new(getMap.getScene,getAnimMeshData(&quot;data/models/man_axe.anim&quot;)))
+-				#getSoundManager.playWave(&quot;data/sound/tree_chop.wav&quot;)
+-			when &quot;pick&quot;
+-				setMesh(AnimMesh.new(getMap.getScene,getAnimMeshData(&quot;data/models/man_pick.anim&quot;)))
+-			when &quot;stand&quot;
+-				setMesh(AnimMesh.new(getMap.getScene,getAnimMeshData(&quot;data/models/man_e_walk.anim&quot;)))
+-				getFirstMesh.setAnimation(&quot;stand&quot;)
+ 			when &quot;dead&quot;
+-				setMesh(AnimMesh.new(getMap.getScene,getAnimMeshData(&quot;data/models/man_walk.anim&quot;)))
+-		 		setMesh(Mesh.new(getMap.getScene,getMeshData(&quot;data/models/grave.ant2&quot;,0.2,&quot;data/textures/models/grave.png&quot;),AGVector4.new(0,0,0,0),0))
++				setMesh(:grave)
+ 			when &quot;row&quot;
+-				setMesh(AnimMesh.new(getMap.getScene,getAnimMeshData(&quot;data/models/man_e_walk.anim&quot;)))
+-				getFirstMesh.setAnimation(&quot;sit&quot;)
+-				mesh=Mesh.new(getMap.getScene,getBoatMeshData,AGVector4.new(0,0,0),0)
+-				addMesh(mesh,AGVector3.new(0,0,0))
++				mesh=setMesh(&quot;sit&quot;)
++				mesh.setAnimation(&quot;sit&quot;)
++				addMesh(createModel(:boat),AGVector3.new(0,0,0))
++			when &quot;stand&quot;,&quot;axe&quot;,&quot;pick&quot;,&quot;wood&quot;,&quot;stone&quot;,&quot;flour&quot;,&quot;corn&quot;,&quot;walk&quot;,&quot;sitdown&quot;,&quot;sit&quot;
++				setMesh(name)
++				if [&quot;stand&quot;,&quot;walk&quot;,&quot;sitdown&quot;,&quot;sit&quot;].member?(name)
++					getFirstMesh.setAnimation(name)
++				end
+ 		end
+ 		setDirection(dir)
+ 	end
+
+Modified: antargis/branches/branch_2d/ruby/ant_mill.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_mill.rb	2007-04-29 19:26:46 UTC (rev 1079)
++++ antargis/branches/branch_2d/ruby/ant_mill.rb	2007-05-02 18:18:15 UTC (rev 1080)
+@@ -10,7 +10,7 @@
+ 	end
+ 	
+ 	def setupMesh
+-		setMesh(createModel(:mill))
++		setMesh
+ #		mesh=Mesh.new(getMap.getScene,getMeshData(&quot;data/models/ant_mill.ant2&quot;,3.2,&quot;data/textures/models/ant_mill.png&quot;),AGVector4.new(0,0,0),-30)
+ #		setMesh(mesh)
+ 	end
+
+Modified: antargis/branches/branch_2d/ruby/ant_mine.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_mine.rb	2007-04-29 19:26:46 UTC (rev 1079)
++++ antargis/branches/branch_2d/ruby/ant_mine.rb	2007-05-02 18:18:15 UTC (rev 1080)
+@@ -38,7 +38,7 @@
+ 	
+ 	private
+ 	def setupMesh
+-		setMesh(createModel(:mine))
++		setMesh
+ 		#setMesh(Mesh.new(getMap.getScene,getMeshData(&quot;data/models/mine2.ant2&quot;,0.2,&quot;data/textures/models/mine.png&quot;),AGVector4.new(0,0,0),-40))
+ 	end
+ end
+
+Modified: antargis/branches/branch_2d/ruby/ant_models.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_models.rb	2007-04-29 19:26:46 UTC (rev 1079)
++++ antargis/branches/branch_2d/ruby/ant_models.rb	2007-05-02 18:18:15 UTC (rev 1080)
+@@ -1,233 +1,246 @@
+ 
+-$useImpostors=false
+-
+-def getStaticModelRotation(name)
+-	rot={
+-		&quot;tower&quot;=&gt;-30,
+-		&quot;ant_mill&quot;=&gt;-30,
+-		&quot;mine2&quot;=&gt;-40,
+-		&quot;workshop&quot;=&gt;-50,
+-		&quot;townhall_try2&quot;=&gt;-60,
+-		&quot;well&quot;=&gt;-30,
+-		&quot;ant_bakery&quot;=&gt;-30,
+-		&quot;ant_coach&quot;=&gt;-50,
+-		&quot;livinghouse&quot;=&gt;-20,
+-		&quot;farm&quot;=&gt;-30,
+-	}
+-
+-	if rot.member?(name)
+-		return rot[name]
++module AntModels
++	@@useImpostors=false
++	
++	def AntModels.getStaticModelRotation(name)
++		rot={
++			&quot;tower&quot;=&gt;-30,
++			&quot;ant_mill&quot;=&gt;-30,
++			&quot;mine2&quot;=&gt;-40,
++			&quot;workshop&quot;=&gt;-50,
++			&quot;townhall_try2&quot;=&gt;-60,
++			&quot;well&quot;=&gt;-30,
++			&quot;ant_bakery&quot;=&gt;-30,
++			&quot;ant_coach&quot;=&gt;-50,
++			&quot;livinghouse&quot;=&gt;-20,
++			&quot;farm&quot;=&gt;-30,
++		}
++	
++		if rot.member?(name)
++			return rot[name]
++		end
++		return 0
+ 	end
+-	return 0
+-end
+-
+-def getStaticModelScaling(name)
+-	scales={
+-		&quot;sack&quot;=&gt;0.3,
+-		&quot;stub&quot;=&gt;0.04,
+-		&quot;tower&quot;=&gt;3,
+-		&quot;ant_mill&quot;=&gt;3.2,
+-		&quot;mine2&quot;=&gt;0.2,
+-		&quot;workshop&quot;=&gt;0.18,
+-		&quot;townhall_try2&quot;=&gt;3.2,
+-		&quot;well&quot;=&gt;0.06,
+-		&quot;rip&quot;=&gt;0.3,
+-		&quot;fish&quot;=&gt;0.02,
+-		&quot;arrow&quot;=&gt;0.1,
+-		&quot;ant_bakery&quot;=&gt;3.0,
+-		&quot;boat_simple&quot;=&gt;0.12,
+-		&quot;twig&quot;=&gt;0.7,
+-		&quot;ant_coach&quot;=&gt;0.08,
+-		&quot;druid_lp&quot;=&gt;0.08,
+-		&quot;smith_lp&quot;=&gt;0.08,
+-		&quot;livinghouse&quot;=&gt;0.16,
+-		&quot;farm&quot;=&gt;0.2,
+-		&quot;fire&quot;=&gt;0.3,
+-		&quot;big_stone&quot;=&gt;0.7,
+-	}
+-
+-	if scales.member?(name)
+-		return scales[name]
++	
++	def AntModels.getStaticModelScaling(name)
++		scales={
++			&quot;sack&quot;=&gt;0.3,
++			&quot;stub&quot;=&gt;0.04,
++			&quot;tower&quot;=&gt;3,
++			&quot;ant_mill&quot;=&gt;3.2,
++			&quot;mine2&quot;=&gt;0.2,
++			&quot;workshop&quot;=&gt;0.18,
++			&quot;townhall_try2&quot;=&gt;3.2,
++			&quot;well&quot;=&gt;0.06,
++			&quot;rip&quot;=&gt;0.3,
++			&quot;fish&quot;=&gt;0.02,
++			&quot;arrow&quot;=&gt;0.1,
++			&quot;ant_bakery&quot;=&gt;3.0,
++			&quot;boat_simple&quot;=&gt;0.12,
++			&quot;twig&quot;=&gt;0.7,
++			&quot;ant_coach&quot;=&gt;0.08,
++			&quot;druid_lp&quot;=&gt;0.08,
++			&quot;smith_lp&quot;=&gt;0.08,
++			&quot;livinghouse&quot;=&gt;0.16,
++			&quot;farm&quot;=&gt;0.2,
++			&quot;fire&quot;=&gt;0.3,
++			&quot;big_stone&quot;=&gt;0.7,
++			&quot;grave&quot;=&gt;0.2,
++			&quot;hero_lp&quot;=&gt;0.08,
++		}
++	
++		if scales.member?(name)
++			return scales[name]
++		end
++		return 1
+ 	end
+-	return 1
+-end
+-
+-def getMeshMap
+-	animMeshes={
+-		:man=&gt;{
+-			[&quot;wood&quot;]=&gt;&quot;data/models/man_e_wood.anim&quot;,
+-			[&quot;stone&quot;,&quot;flour&quot;,&quot;corn&quot;]=&gt;&quot;data/models/man_e_stones.anim&quot;,
+-			[&quot;walk&quot;,&quot;sitdown&quot;,&quot;sit&quot;]=&gt;&quot;data/models/man_e_walk.anim&quot;,
+-			[&quot;fight_dagger&quot;]=&gt;&quot;data/models/man_e_dagger.anim&quot;,
+-			[&quot;fight_shield&quot;]=&gt;&quot;data/models/man_e_shield.anim&quot;,
+-			[&quot;fight_sword&quot;]=&gt;&quot;data/models/man_e_sword.anim&quot;,
+-			[&quot;fight_bow&quot;]=&gt;&quot;data/models/man_e_bow.anim&quot;
+-		},
+-		:sack=&gt;{
+-			[]=&gt;&quot;sack&quot;
+-		},
+-		:tree=&gt;{
+-			[&quot;stub&quot;]=&gt;&quot;stub&quot;,
+-			[0]=&gt;[&quot;data/models/fir2.ant2&quot;,0.45,&quot;data/textures/models/fir5.png&quot;,false],
+-			[1]=&gt;[&quot;data/models/fir2.ant2&quot;,0.45,&quot;data/textures/models/fir7.png&quot;,false],
+-			[2]=&gt;[&quot;data/models/tree5.ant2&quot;,0.45,&quot;data/textures/models/tree3.png&quot;,false],
+-			[3]=&gt;[&quot;data/models/tree5.ant2&quot;,0.45,&quot;data/textures/models/tree5.png&quot;,false],
+-			[4]=&gt;[&quot;data/models/tree5.ant2&quot;,0.45,&quot;data/textures/models/tree9.png&quot;,false],
+-			[5]=&gt;[&quot;data/models/tree6.ant2&quot;,0.45,&quot;data/textures/models/tree5.png&quot;,false],
+-			[6]=&gt;[&quot;data/models/tree5.ant2&quot;,0.45,&quot;data/textures/models/tree10.png&quot;,false],
+-			[7]=&gt;[&quot;data/models/tree_simple1.ant2&quot;,0.3,&quot;data/textures/models/tree_simple1.png&quot;],
+-			[8]=&gt;[&quot;data/models/tree_simple2.ant2&quot;,0.3,&quot;data/textures/models/tree_simple1.png&quot;],
+-			[9]=&gt;[&quot;data/models/tree_simple5.ant2&quot;,0.3,&quot;data/textures/models/tree_simple5.png&quot;]
+-		},
+-		:buildingsite=&gt;{
+-			[0]=&gt;[&quot;data/models/building_site0.ant2&quot;,1.7,&quot;data/textures/models/building_site0.png&quot;],
+-			[1]=&gt;[&quot;data/models/building_site0.ant2&quot;,1.7,&quot;data/textures/models/building_site1.png&quot;],
+-			[2]=&gt;[&quot;data/models/building_site2.ant2&quot;,1.7,&quot;data/textures/models/building_site1.png&quot;],
+-		},
+-		:field=&gt;{
+-			[0]=&gt;[&quot;data/models/crop_tiny.ant2&quot;,2.2,&quot;data/textures/models/crop_tiny.png&quot;],
+-			[1]=&gt;[&quot;data/models/crop_small.ant2&quot;,2.2,&quot;data/textures/models/crop_green.png&quot;],
+-			[2]=&gt;[&quot;data/models/crop_med.ant2&quot;,2.2,&quot;data/textures/models/crop_yellow.png&quot;],
+-			[3]=&gt;[&quot;data/models/crop_high.ant2&quot;,2.2,&quot;data/textures/models/crop_gold.png&quot;]
+-		},
+-		:tower=&gt;{
+-			[]=&gt;&quot;tower&quot;
+-		},
+-		:wolf=&gt;{
+-			[]=&gt;&quot;ant_wolf&quot;
+-		},
+-		:mill=&gt;{
+-			[]=&gt;&quot;ant_mill&quot;
+-		},
+-		:mine=&gt;{
+-			[]=&gt;&quot;mine2&quot;
+-		},
+-		:workshop=&gt;{
+-			[]=&gt;&quot;workshop&quot;
+-		},
+-		:townhall=&gt;{
+-			[]=&gt;&quot;townhall_try2&quot;
+-		},
+-		:well=&gt;{
+-			[]=&gt;&quot;well&quot;
+-		},
+-		:rip=&gt;{
+-			[]=&gt;&quot;rip&quot;
+-		},
+-		:fish=&gt;{
+-			[]=&gt;&quot;fish&quot;
+-		},
+-		:sheep=&gt;{
+-			[]=&gt;&quot;data/models/sheep.anim&quot;
+-		},
+-		:arrow=&gt;{
+-			[]=&gt;&quot;arrow&quot;
+-		},
+-		:bakery=&gt;{
+-			[]=&gt;&quot;ant_bakery&quot;
+-		},
+-		:boat=&gt;{
+-			[]=&gt;&quot;boat_simple&quot;
+-		},
+-		:floor_deco=&gt;{
+-			[]=&gt;[&quot;data/models/floor.ant2&quot;,0.5,&quot;data/textures/splats/stones1a.png&quot;],
+-		},
+-		:twig=&gt;{	
+-			[]=&gt;&quot;twig&quot;
+-		},
+-		:coach=&gt;{
+-			[]=&gt;&quot;ant_coach&quot;
+-		},
+-		:floor_gravel=&gt;
+-		{
+-			[]=&gt;[&quot;data/models/floor.ant2&quot;,0.8,&quot;data/textures/gravel4.png&quot;],
+-		},
+-		:druid=&gt;
+-		{
+-			[]=&gt;&quot;druid_lp&quot;
+-		},
+-		:smith=&gt;
+-		{
+-			[]=&gt;&quot;smith_lp&quot;
+-		},	
+-		:dwelling=&gt;
+-		{
+-			[]=&gt;&quot;livinghouse&quot;
+-		},
+-		:farm=&gt;
+-		{
+-			[]=&gt;&quot;farm&quot;
+-		},	
+-		:fire=&gt;
+-		{
+-			[:on]=&gt;[&quot;data/models/fire.ant2&quot;,0.3,&quot;data/textures/models/fire.png&quot;],
+-			[:off]=&gt;[&quot;data/models/fire.ant2&quot;,0.3,&quot;data/textures/models/fire2.png&quot;]
+-		},
+-		:fishing_hut=&gt;
+-		{
+-			[]=&gt;[&quot;data/models/fishing_hut.ant2&quot;,3.2,&quot;data/textures/models/fishing_hut.png&quot;,false]
+-		},
+-		:stone=&gt;
+-		{
+-			[]=&gt;&quot;big_stone&quot;
+-		},
+-	}
+-end
+-
+-def getMeshCount(entityType)
+-	getMeshMap[entityType].length
+-end
+-
+-def createModel(entityType,subType=nil,angle=nil)
+-	mesh=nil
+-
+-	animMeshes=getMeshMap
+-
+-	map=animMeshes[entityType]
+-
+-	map.each{|k,v|
+-		if k.member?(subType) or k.length==0
+-			mesh=v
+-		end
+-	}
+-	scenenode=nil
+-	if mesh
+-		if mesh.is_a?(Array)
+-			ant2name=mesh[0]
+-			scale=mesh[1]
+-			pngname=mesh[2]
+-			culling=true
+-			if mesh.length&gt;3
+-				culling=mesh[3]
++	
++	def AntModels.getMeshMap
++		animMeshes={
++			:man=&gt;{
++				[]=&gt;&quot;data/models/man_e_walk.anim&quot;,
++				[&quot;wood&quot;]=&gt;&quot;data/models/man_e_wood.anim&quot;,
++				[&quot;stone&quot;,&quot;flour&quot;,&quot;corn&quot;]=&gt;&quot;data/models/man_e_stones.anim&quot;,
++				[&quot;walk&quot;,&quot;sitdown&quot;,&quot;sit&quot;,&quot;stand&quot;]=&gt;&quot;data/models/man_e_walk.anim&quot;,
++				[&quot;fight_dagger&quot;]=&gt;&quot;data/models/man_e_dagger.anim&quot;,
++				[&quot;fight_shield&quot;]=&gt;&quot;data/models/man_e_shield.anim&quot;,
++				[&quot;fight_sword&quot;]=&gt;&quot;data/models/man_e_sword.anim&quot;,
++				[&quot;fight_bow&quot;]=&gt;&quot;data/models/man_e_bow.anim&quot;,
++				[&quot;pick&quot;]=&gt;&quot;data/models/man_pick.anim&quot;,
++				[&quot;axe&quot;]=&gt;&quot;data/models/man_axe.anim&quot;,
++				[:grave]=&gt;&quot;grave&quot;,
++			},
++			:hero=&gt;{
++				[]=&gt;&quot;hero_lp&quot;,
++				[:grave_hero]=&gt;[&quot;data/models/grave.ant2&quot;,0.2,&quot;data/textures/models/grave3.png&quot;],
++			},
++			:sack=&gt;{
++				[]=&gt;&quot;sack&quot;
++			},
++			:tree=&gt;{
++				[]=&gt;[&quot;data/models/fir2.ant2&quot;,0.45,&quot;data/textures/models/fir5.png&quot;,false],
++				[&quot;stub&quot;]=&gt;&quot;stub&quot;,
++				[0]=&gt;[&quot;data/models/fir2.ant2&quot;,0.45,&quot;data/textures/models/fir5.png&quot;,false],
++				[1]=&gt;[&quot;data/models/fir2.ant2&quot;,0.45,&quot;data/textures/models/fir7.png&quot;,false],
++				[2]=&gt;[&quot;data/models/tree5.ant2&quot;,0.45,&quot;data/textures/models/tree3.png&quot;,false],
++				[3]=&gt;[&quot;data/models/tree5.ant2&quot;,0.45,&quot;data/textures/models/tree5.png&quot;,false],
++				[4]=&gt;[&quot;data/models/tree5.ant2&quot;,0.45,&quot;data/textures/models/tree9.png&quot;,false],
++				[5]=&gt;[&quot;data/models/tree6.ant2&quot;,0.45,&quot;data/textures/models/tree5.png&quot;,false],
++				[6]=&gt;[&quot;data/models/tree5.ant2&quot;,0.45,&quot;data/textures/models/tree10.png&quot;,false],
++				[7]=&gt;[&quot;data/models/tree_simple1.ant2&quot;,0.3,&quot;data/textures/models/tree_simple1.png&quot;],
++				[8]=&gt;[&quot;data/models/tree_simple2.ant2&quot;,0.3,&quot;data/textures/models/tree_simple1.png&quot;],
++				[9]=&gt;[&quot;data/models/tree_simple5.ant2&quot;,0.3,&quot;data/textures/models/tree_simple5.png&quot;]
++			},
++			:buildingsite=&gt;{
++				[]=&gt;[&quot;data/models/building_site0.ant2&quot;,1.7,&quot;data/textures/models/building_site0.png&quot;],
++				[0]=&gt;[&quot;data/models/building_site0.ant2&quot;,1.7,&quot;data/textures/models/building_site0.png&quot;],
++				[1]=&gt;[&quot;data/models/building_site0.ant2&quot;,1.7,&quot;data/textures/models/building_site1.png&quot;],
++				[2]=&gt;[&quot;data/models/building_site2.ant2&quot;,1.7,&quot;data/textures/models/building_site1.png&quot;],
++			},
++			:field=&gt;{
++				[]=&gt;[&quot;data/models/crop_tiny.ant2&quot;,2.2,&quot;data/textures/models/crop_tiny.png&quot;],
++				[0]=&gt;[&quot;data/models/crop_tiny.ant2&quot;,2.2,&quot;data/textures/models/crop_tiny.png&quot;],
++				[1]=&gt;[&quot;data/models/crop_small.ant2&quot;,2.2,&quot;data/textures/models/crop_green.png&quot;],
++				[2]=&gt;[&quot;data/models/crop_med.ant2&quot;,2.2,&quot;data/textures/models/crop_yellow.png&quot;],
++				[3]=&gt;[&quot;data/models/crop_high.ant2&quot;,2.2,&quot;data/textures/models/crop_gold.png&quot;]
++			},
++			:tower=&gt;{
++				[]=&gt;&quot;tower&quot;
++			},
++			:wolf=&gt;{
++				[]=&gt;&quot;ant_wolf&quot;,
++				[:rip]=&gt;&quot;rip&quot;
++			},
++			:mill=&gt;{
++				[]=&gt;&quot;ant_mill&quot;
++			},
++			:mine=&gt;{
++				[]=&gt;&quot;mine2&quot;
++			},
++			:workshop=&gt;{
++				[]=&gt;&quot;workshop&quot;
++			},
++			:townhall=&gt;{
++				[]=&gt;&quot;townhall_try2&quot;
++			},
++			:well=&gt;{
++				[]=&gt;&quot;well&quot;
++			},
++			:fish=&gt;{
++				[]=&gt;&quot;fish&quot;
++			},
++			:sheep=&gt;{
++				[]=&gt;&quot;data/models/sheep.anim&quot;,
++				[:rip]=&gt;&quot;rip&quot;
++			},
++			:arrow=&gt;{
++				[]=&gt;&quot;arrow&quot;
++			},
++			:bakery=&gt;{
++				[]=&gt;&quot;ant_bakery&quot;
++			},
++			:boat=&gt;{
++				[]=&gt;&quot;boat_simple&quot;
++			},
++			:deco=&gt;{
++				[:floor_deco]=&gt;[&quot;data/models/floor.ant2&quot;,0.5,&quot;data/textures/splats/stones1a.png&quot;],
++			},
++			:twig=&gt;{	
++				[]=&gt;&quot;twig&quot;
++			},
++			:coach=&gt;{
++				[]=&gt;&quot;ant_coach&quot;
++			},
++			:decal=&gt;
++			{
++				[:floor_gravel]=&gt;[&quot;data/models/floor.ant2&quot;,0.8,&quot;data/textures/gravel4.png&quot;],
++			},
++			:npc=&gt;{
++				[:druid]=&gt;&quot;druid_lp&quot;,
++				[:smith]=&gt;&quot;smith_lp&quot;
++			},	
++			:dwelling=&gt;
++			{
++				[]=&gt;&quot;livinghouse&quot;
++			},
++			:farm=&gt;
++			{
++				[]=&gt;&quot;farm&quot;
++			},	
++			:fire=&gt;
++			{
++				[]=&gt;[&quot;data/models/fire.ant2&quot;,0.3,&quot;data/textures/models/fire.png&quot;],
++				[:on]=&gt;[&quot;data/models/fire.ant2&quot;,0.3,&quot;data/textures/models/fire.png&quot;],
++				[:off]=&gt;[&quot;data/models/fire.ant2&quot;,0.3,&quot;data/textures/models/fire2.png&quot;]
++			},
++			:fishinghut=&gt;
++			{
++				[]=&gt;[&quot;data/models/fishing_hut.ant2&quot;,3.2,&quot;data/textures/models/fishing_hut.png&quot;,false]
++			},
++			:stone=&gt;
++			{
++				[]=&gt;&quot;big_stone&quot;
++			},
++		}
++	end
++	
++	def AntModels.getMeshCount(entityType)
++		getMeshMap[entityType].length
++	end
++	
++	def AntModels.createModel(entityType,subType=nil,angle=nil)
++		mesh=nil
++	
++		animMeshes=getMeshMap
++	
++		puts &quot;#{entityType}(#{entityType.class})&quot;
++		assert{animMeshes.member?(entityType)}
++		map=animMeshes[entityType]
++	
++		map.each{|k,v|
++			if k.member?(subType) or k.length==0
++				mesh=v
+ 			end
+-			data=getMeshData(ant2name,scale,pngname)
+-			data.setCulling(culling)
+-			data.setTransparent(true)
+-			name=mesh
+-			angle||=getStaticModelRotation(name)
+-			scenenode=Mesh.new(getMap.getScene,data,AGVector4.new(0,0,0),angle)
+-					
+-		elsif mesh=~/anim$/
+-			scenenode=AnimMesh.new(getMap.getScene,getAnimMeshData(mesh))
+-		else
+-			ant2name=&quot;data/models/&quot;+mesh+&quot;.ant2&quot;
+-			pngname=&quot;data/textures/models/&quot;+mesh+&quot;.png&quot;
+-			name=mesh
+-			angle||=getStaticModelRotation(name)
+-			if not fileExists(pngname)
+-				pngname=&quot;&quot;
++		}
++		scenenode=nil
++		if mesh
++			if mesh.is_a?(Array)
++				ant2name=mesh[0]
++				scale=mesh[1]
++				pngname=mesh[2]
++				culling=true
++				if mesh.length&gt;3
++					culling=mesh[3]
++				end
++				data=getMeshData(ant2name,scale,pngname)
++				data.setCulling(culling)
++				data.setTransparent(true)
++				name=mesh
++				angle||=getStaticModelRotation(name)
++				scenenode=Mesh.new(getMap.getScene,data,AGVector4.new(0,0,0),angle)
++						
++			elsif mesh=~/anim$/
++				scenenode=AnimMesh.new(getMap.getScene,getAnimMeshData(mesh))
++			else
++				ant2name=&quot;data/models/&quot;+mesh+&quot;.ant2&quot;
++				pngname=&quot;data/textures/models/&quot;+mesh+&quot;.png&quot;
++				name=mesh
++				angle||=getStaticModelRotation(name)
++				if not fileExists(pngname)
++					pngname=&quot;&quot;
++				end
++	
++				scenenode=Mesh.new(getMap.getScene,getMeshData(ant2name,getStaticModelScaling(name),pngname),AGVector4.new(0,0,0),angle)
+ 			end
+-
+-			scenenode=Mesh.new(getMap.getScene,getMeshData(ant2name,getStaticModelScaling(name),pngname),AGVector4.new(0,0,0),angle)
+ 		end
+-	end
+-
+-	if $useImpostors
+-		# FIXME:replace by impostor
+-		if entityType!=:sack
+-			return createModel(:sack)
++	
++		if @@useImpostors
++			# FIXME:replace by impostor
++			if entityType!=:sack
++				return createModel(:sack)
++			end
+ 		end
++	
++		return scenenode
+ 	end
+-
+-	return scenenode
+-end
+\ No newline at end of file
++end
+
+Modified: antargis/branches/branch_2d/ruby/ant_sack.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_sack.rb	2007-04-29 19:26:46 UTC (rev 1079)
++++ antargis/branches/branch_2d/ruby/ant_sack.rb	2007-05-02 18:18:15 UTC (rev 1080)
+@@ -3,7 +3,7 @@
+ class AntSack&lt;AntAnimal
+ 	def initialize(p=AGVector2.new(0,0))
+ 		super
+-		setMesh(createModel(:sack))
++		setMesh
+ 		@enabled=true
+ 		@storeGood=[&quot;food&quot;,&quot;tool&quot;,&quot;corn&quot;,&quot;stone&quot;,&quot;wood&quot;]
+ 	end
+
+Modified: antargis/branches/branch_2d/ruby/ant_sheep.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_sheep.rb	2007-04-29 19:26:46 UTC (rev 1079)
++++ antargis/branches/branch_2d/ruby/ant_sheep.rb	2007-05-02 18:18:15 UTC (rev 1080)
+@@ -33,7 +33,7 @@
+ 		@lastBirth=0
+ 		@foodAdd=0
+ 		
+-		setMesh(createModel(:sheep))
++		setMesh
+ # 		data=getAnimMeshData(&quot;data/models/sheep.anim&quot;)
+ # 		setMesh(AnimMesh.new(getMap.getScene,data))
+ 
+@@ -109,7 +109,7 @@
+ 		&quot;Sheep&quot;
+ 	end
+ 	def eventDie
+-		setMesh(createModel(:rip))
++		setMesh(:rip)
+ 		#setMesh(Mesh.new(getMap.getScene,getMeshData(&quot;data/models/rip.ant2&quot;,0.3,&quot;data/textures/models/rip.png&quot;),AGVector4.new(0,0,0,0),0))
+ 		setProvide(&quot;sheep&quot;,false)
+ 		@dead=true
+
+Modified: antargis/branches/branch_2d/ruby/ant_stone.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_stone.rb	2007-04-29 19:26:46 UTC (rev 1079)
++++ antargis/branches/branch_2d/ruby/ant_stone.rb	2007-05-02 18:18:15 UTC (rev 1080)
+@@ -24,7 +24,7 @@
+ 		@typeID=(getRand*2).to_i
+ 		setProvide(&quot;stone&quot;,true)
+ 		#setMesh(Mesh.new(getMap.getScene,getMeshData(&quot;data/models/big_stone.ant2&quot;,0.7,&quot;data/textures/models/big_stone.png&quot;),AGVector4.new(0,0,0,0),getRand*360))
+-		setMesh(mesh=createModel(:stone))
++		mesh=setMesh
+ 		mesh.setRotation(getRand*360)
+ 		resource.set(&quot;stone&quot;,500)
+ 	end
+
+Modified: antargis/branches/branch_2d/ruby/ant_tower.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_tower.rb	2007-04-29 19:26:46 UTC (rev 1079)
++++ antargis/branches/branch_2d/ruby/ant_tower.rb	2007-05-02 18:18:15 UTC (rev 1080)
+@@ -9,7 +9,7 @@
+ 	end
+ 	
+ 	def setupMesh
+-		setMesh(createModel(:tower))
++		setMesh
+ 	end	
+ 	
+ 
+
+Modified: antargis/branches/branch_2d/ruby/ant_townhall.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_townhall.rb	2007-04-29 19:26:46 UTC (rev 1079)
++++ antargis/branches/branch_2d/ruby/ant_townhall.rb	2007-05-02 18:18:15 UTC (rev 1080)
+@@ -33,7 +33,7 @@
+ 	end
+ 	
+ 	def setupMesh
+-		setMesh(createModel(:townhall))
++		setMesh
+ 	end
+ 
+ 	def resourceChanged
+
+Modified: antargis/branches/branch_2d/ruby/ant_tree.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_tree.rb	2007-04-29 19:26:46 UTC (rev 1079)
++++ antargis/branches/branch_2d/ruby/ant_tree.rb	2007-05-02 18:18:15 UTC (rev 1080)
+@@ -66,7 +66,7 @@
+ 		super(AGVector2.new(0,0))
+ 		@typeID=typeID
+ 		#@typeID||=(getRand*getTreeTypes.length).to_i
+-		@typeID||=(getRand*(getMeshCount(:tree)-1)).to_i
++		@typeID||=(getRand*(AntModels.getMeshCount(:tree)-1)).to_i
+ 		setProvide(&quot;wood&quot;,true)
+ 		setProvide(&quot;fruit&quot;,true)
+ 		@angle=getRand*360
+@@ -113,7 +113,8 @@
+ 		if @typeID&gt;=0
+ 			typeId=@typeID%10
+ 		end
+-		setMesh(createModel(:<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">tree,typeId, at angle</A>))
++		mesh=setMesh(typeId)
++		mesh.setRotation(@angle)
+ 	end
+ 
+ 	# an old function for display apples - this is too costly
+
+Modified: antargis/branches/branch_2d/ruby/ant_well.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_well.rb	2007-04-29 19:26:46 UTC (rev 1079)
++++ antargis/branches/branch_2d/ruby/ant_well.rb	2007-05-02 18:18:15 UTC (rev 1080)
+@@ -14,7 +14,7 @@
+ 	end
+ 	
+ 	def setupMesh
+-		setMesh(createModel(:well))
++		setMesh
+ 	end
+ 
+ 
+
+Modified: antargis/branches/branch_2d/ruby/ant_wolf.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_wolf.rb	2007-04-29 19:26:46 UTC (rev 1079)
++++ antargis/branches/branch_2d/ruby/ant_wolf.rb	2007-05-02 18:18:15 UTC (rev 1080)
+@@ -42,7 +42,7 @@
+ 		@mypack=[]
+ 		@leader=nil
+ 		
+-		setMesh(createModel(:wolf))
++		setMesh
+ 
+ 		resource.set(&quot;food&quot;,1)
+ 		@job=:resting
+@@ -236,7 +236,7 @@
+ 		&quot;Wolf&quot;
+ 	end
+ 	def eventDie
+-		setMesh(createModel(:rip))
++		setMesh(:rip)
+ 		#setMesh(Mesh.new(getMap.getScene,getMeshData(&quot;data/models/rip.ant2&quot;,0.3,&quot;data/textures/models/rip.png&quot;),AGVector4.new(0,0,0,0),0))
+ 		@dead=true
+ 		
+
+Modified: antargis/branches/branch_2d/ruby/ant_workshop.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ant_workshop.rb	2007-04-29 19:26:46 UTC (rev 1079)
++++ antargis/branches/branch_2d/ruby/ant_workshop.rb	2007-05-02 18:18:15 UTC (rev 1080)
+@@ -41,7 +41,7 @@
+ 	end
+ 	# sets up the mesh and adds a smoke-particle engine, which is disabled at first
+ 	def setupMesh
+-		setMesh(createModel(:workshop))
++		setMesh
+ 		p=AGVector3.new(-1.3,-1.2,2.2)
+ 		addMesh(@smokeMesh=Smoke.new(getMap.getScene,5),p)
+ 		checkSmoke
+
+Modified: antargis/branches/branch_2d/ruby/ents.rb
+===================================================================
+--- antargis/branches/branch_2d/ruby/ents.rb	2007-04-29 19:26:46 UTC (rev 1079)
++++ antargis/branches/branch_2d/ruby/ents.rb	2007-05-02 18:18:15 UTC (rev 1080)
+@@ -219,6 +219,25 @@
+ # 	def _load(s)
+ # 		getMap.getByUID(s.unpack(&quot;n&quot;))
+ # 	end
++
++
++	def setMesh(subtype=&quot;&quot;,sym=nil)
++		if subtype.is_a?(SceneNode)
++			puts  &quot;THIS SHOULD NOT BE USED ANY LONGER: setMesh(realMesh) !!!!!!!!!!!!&quot;
++			super(subtype) # wrapper
++			return subtype
++		end
++		@map={:AntSack=&gt;:sack}
++		t=self.class.to_s
++		t=t.gsub(&quot;Ant&quot;,&quot;&quot;).downcase
++		t=t.to_sym
++		if sym
++			t=sym
++		end
++		
++		super(mesh=AntModels.createModel(t,subtype))
++		return mesh
++	end
+ end
+ 
+ # here comes a list of all the different entity-types BoA currently uses:
+
+Modified: antargis/branches/branch_2d/src/antargisgui.h
+===================================================================
+--- antargis/branches/branch_2d/src/antargisgui.h	2007-04-29 19:26:46 UTC (rev 1079)
++++ antargis/branches/branch_2d/src/antargisgui.h	2007-05-02 18:18:15 UTC (rev 1080)
+@@ -73,6 +73,8 @@
+ #include &quot;../src/map.h&quot;
+ #include &quot;../src/mesh_data.h&quot;
+ #include &quot;../src/mesh.h&quot;
++#include &quot;../src/mesh_2d_data.h&quot;
++#include &quot;../src/mesh_2d.h&quot;
+ #include &quot;../src/mesh_optimizer.h&quot;
+ #include &quot;../src/minimap.h&quot;
+ #include &quot;../src/new_decal.h&quot;
+@@ -80,6 +82,7 @@
+ #include &quot;../src/resource.h&quot;
+ #include &quot;../src/scene_base.h&quot;
+ #include &quot;../src/scene.h&quot;
++#include &quot;../src/scene_2d.h&quot;
+ #include &quot;../src/smoke.h&quot;
+ #include &quot;../src/terrain.h&quot;
+ #include &quot;../src/vertex_array.h&quot;
+@@ -161,6 +164,8 @@
+ %include &quot;../src/map.h&quot;
+ %include &quot;../src/mesh_data.h&quot;
+ %include &quot;../src/mesh.h&quot;
++%include &quot;../src/mesh_2d_data.h&quot;
++%include &quot;../src/mesh_2d.h&quot;
+ %include &quot;../src/mesh_optimizer.h&quot;
+ %include &quot;../src/minimap.h&quot;
+ %include &quot;../src/new_decal.h&quot;
+@@ -168,6 +173,7 @@
+ %include &quot;../src/resource.h&quot;
+ %include &quot;../src/scene_base.h&quot;
+ %include &quot;../src/scene.h&quot;
++%include &quot;../src/scene_2d.h&quot;
+ %include &quot;../src/smoke.h&quot;
+ %include &quot;../src/terrain.h&quot;
+ %include &quot;../src/vertex_array.h&quot;
+
+Modified: antargis/branches/branch_2d/src/impostor.cc
+===================================================================
+--- antargis/branches/branch_2d/src/impostor.cc	2007-04-29 19:26:46 UTC (rev 1079)
++++ antargis/branches/branch_2d/src/impostor.cc	2007-05-02 18:18:15 UTC (rev 1080)
+@@ -3,7 +3,7 @@
+ #include &lt;ag_screen.h&gt;
+ #include &lt;ag_rendercontext.h&gt;
+ 
+-AntImpostorData::AntImpostorData(SceneNode *pNode):mTexture(512,512)
++AntImpostorData::AntImpostorData(SceneNode *pNode,int width,int height):mTexture(width,height)
+ {
+   glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT); // clear screen and depth buffer
+ 
+@@ -42,8 +42,6 @@
+   */
+   int sw=getScreen().getWidth(),sh=getScreen().getHeight();
+   int w=mTexture.width(),h=mTexture.height();
+-  
+-  
+ 
+   glViewport(-sw/2+w/2,-sh/2+h/2,sw,sh);
+ 
+@@ -56,12 +54,13 @@
+   AGSurface s=getScreen().screenshot(false);
+   s.save(&quot;impostor.png&quot;);
+ 
+-
+   mTexture.endPaint();
+ 
+   AGSurface subs=s.getSubSurface(AGRect2(0,sh-h,w,h));
+   subs.save(&quot;impostor3.png&quot;);
+ 
++  mSurface=subs;
++
+   //  mTexture.save(&quot;impostor.png&quot;);
+ }
+ 
+@@ -70,6 +69,11 @@
+   return mTexture;
+ }
+ 
++AGSurface &amp;AntImpostorData::getSurface()
++{
++  return mSurface;
++}
++
+ void AntImpostorData::mark()
+ {
+   markObject(&amp;mTexture);
+
+Modified: antargis/branches/branch_2d/src/impostor.h
+===================================================================
+--- antargis/branches/branch_2d/src/impostor.h	2007-04-29 19:26:46 UTC (rev 1079)
++++ antargis/branches/branch_2d/src/impostor.h	2007-05-02 18:18:15 UTC (rev 1080)
+@@ -7,12 +7,14 @@
+ class AntImpostorData:public AGRubyObject
+ {
+   AGTexture mTexture;
++  AGSurface mSurface;
+   
+  public:
+   // create impostor from a scene-node - to make it as simple as possible
+-  AntImpostorData(SceneNode *pNode);
++  AntImpostorData(SceneNode *pNode,int width,int height);
+ 
+   AGTexture &amp;getTexture();
++  AGSurface &amp;getSurface();
+ 
+   void mark();
+ 
+
+Modified: antargis/branches/branch_2d/src/nantmarker.hh
+===================================================================
+--- antargis/branches/branch_2d/src/nantmarker.hh	2007-04-29 19:26:46 UTC (rev 1079)
++++ antargis/branches/branch_2d/src/nantmarker.hh	2007-05-02 18:18:15 UTC (rev 1080)
+@@ -88,6 +88,16 @@
+ 	result-&gt;mRubyObject=true;
+ }
+ %markfunc WaterPiece &quot;general_markfunc&quot;
++%exception Mesh2D::Mesh2D {
++	$action
++	result-&gt;mRUBY=self;
++#ifdef GCDEBUG
++     result-&gt;mObjName=typeid(*result).name();
++     printf(&quot;%lx   %s\n&quot;,self,typeid(*result).name());
++#endif
++	result-&gt;mRubyObject=true;
++}
++%markfunc Mesh2D &quot;general_markfunc&quot;
+ %exception AGText::AGText {
+ 	$action
+ 	result-&gt;mRUBY=self;
+@@ -108,6 +118,16 @@
+ 	result-&gt;mRubyObject=true;
+ }
+ %markfunc AGScreenWidget &quot;general_markfunc&quot;
++%exception Mesh2DData::Mesh2DData {
++	$action
++	result-&gt;mRUBY=self;
++#ifdef GCDEBUG
++     result-&gt;mObjName=typeid(*result).name();
++     printf(&quot;%lx   %s\n&quot;,self,typeid(*result).name());
++#endif
++	result-&gt;mRubyObject=true;
++}
++%markfunc Mesh2DData &quot;general_markfunc&quot;
+ %exception AGRubyObject::AGRubyObject {
+ 	$action
+ 	result-&gt;mRUBY=self;
+@@ -398,6 +418,16 @@
+ 	result-&gt;mRubyObject=true;
+ }
+ %markfunc AGMain &quot;general_markfunc&quot;
++%exception Scene2D::Scene2D {
++	$action
++	result-&gt;mRUBY=self;
++#ifdef GCDEBUG
++     result-&gt;mObjName=typeid(*result).name();
++     printf(&quot;%lx   %s\n&quot;,self,typeid(*result).name());
++#endif
++	result-&gt;mRubyObject=true;
++}
++%markfunc Scene2D &quot;general_markfunc&quot;
+ %exception SceneNode::SceneNode {
+ 	$action
+ 	result-&gt;mRUBY=self;
+@@ -860,6 +890,34 @@
+  }
+  else $input=Qnil;
+ }
++%typemap(out) Mesh2D*{
++ if($1)
++ {
++  if($1-&gt;mRubyObject)
++    $result=$1-&gt;mRUBY;
++  else
++   {
++     if(false);
++   else
++     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_Mesh2D,0);
++   }
++ }
++ else vresult=Qnil;
++}
++%typemap(directorin) Mesh2D*{
++ if($1)
++ {
++  if($1-&gt;mRubyObject)
++    $input=$1-&gt;mRUBY;
++  else
++   {
++     if(false);
++   else
++     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_Mesh2D,0);
++   }
++ }
++ else $input=Qnil;
++}
+ %typemap(out) AGText*{
+  if($1)
+  {
+@@ -1100,6 +1158,34 @@
+  }
+  else $input=Qnil;
+ }
++%typemap(out) Mesh2DData*{
++ if($1)
++ {
++  if($1-&gt;mRubyObject)
++    $result=$1-&gt;mRUBY;
++  else
++   {
++     if(false);
++   else
++     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_Mesh2DData,0);
++   }
++ }
++ else vresult=Qnil;
++}
++%typemap(directorin) Mesh2DData*{
++ if($1)
++ {
++  if($1-&gt;mRubyObject)
++    $input=$1-&gt;mRUBY;
++  else
++   {
++     if(false);
++   else
++     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_Mesh2DData,0);
++   }
++ }
++ else $input=Qnil;
++}
+ %typemap(out) AGFontEngine*{
+  if($1)
+  {
+@@ -1962,6 +2048,8 @@
+      if(false);
+ else if(dynamic_cast&lt;AnimMesh*&gt;(result))
+   vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AnimMesh,0);
++else if(dynamic_cast&lt;Mesh2D*&gt;(result))
++  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_Mesh2D,0);
+ else if(dynamic_cast&lt;WaterPiece*&gt;(result))
+   vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_WaterPiece,0);
+ else if(dynamic_cast&lt;AntImpostor*&gt;(result))
+@@ -1990,6 +2078,8 @@
+      if(false);
+ else if(dynamic_cast&lt;AnimMesh*&gt;($1))
+   $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AnimMesh,0);
++else if(dynamic_cast&lt;Mesh2D*&gt;($1))
++  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_Mesh2D,0);
+ else if(dynamic_cast&lt;WaterPiece*&gt;($1))
+   $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_WaterPiece,0);
+ else if(dynamic_cast&lt;AntImpostor*&gt;($1))
+@@ -2036,6 +2126,34 @@
+  }
+  else $input=Qnil;
+ }
++%typemap(out) Scene2D*{
++ if($1)
++ {
++  if($1-&gt;mRubyObject)
++    $result=$1-&gt;mRUBY;
++  else
++   {
++     if(false);
++   else
++     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_Scene2D,0);
++   }
++ }
++ else vresult=Qnil;
++}
++%typemap(directorin) Scene2D*{
++ if($1)
++ {
++  if($1-&gt;mRubyObject)
++    $input=$1-&gt;mRUBY;
++  else
++   {
++     if(false);
++   else
++     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_Scene2D,0);
++   }
++ }
++ else $input=Qnil;
++}
+ %typemap(out) AntImpostor*{
+  if($1)
+  {
+@@ -2130,6 +2248,8 @@
+      if(false);
+ else if(dynamic_cast&lt;Scene*&gt;(result))
+   vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_Scene,0);
++else if(dynamic_cast&lt;Scene2D*&gt;(result))
++  vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_Scene2D,0);
+    else
+      vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_SceneBase,0);
+    }
+@@ -2146,6 +2266,8 @@
+      if(false);
+ else if(dynamic_cast&lt;Scene*&gt;($1))
+   $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_Scene,0);
++else if(dynamic_cast&lt;Scene2D*&gt;($1))
++  $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_Scene2D,0);
+    else
+      $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_SceneBase,0);
+    }
+@@ -3309,6 +3431,16 @@
+  Data_Get_Struct($input,Mesh,b);
+  $result=*b;
+ }
++%typemap(directorout) Mesh2D {
++ Mesh2D *b;
++ Data_Get_Struct($input,Mesh2D,b);
++ $result=*b;
++}
++%typemap(directorout) Mesh2DData {
++ Mesh2DData *b;
++ Data_Get_Struct($input,Mesh2DData,b);
++ $result=*b;
++}
+ %typemap(directorout) MeshData {
+  MeshData *b;
+  Data_Get_Struct($input,MeshData,b);
+@@ -3374,6 +3506,11 @@
+  Data_Get_Struct($input,Scene,b);
+  $result=*b;
+ }
++%typemap(directorout) Scene2D {
++ Scene2D *b;
++ Data_Get_Struct($input,Scene2D,b);
++ $result=*b;
++}
+ %typemap(directorout) SceneBase {
+  SceneBase *b;
+  Data_Get_Struct($input,SceneBase,b);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000039.html">[Antargis-svn] r1081 - in antargis/branches/branch_2d: data/models	ruby/tests src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#38">[ date ]</a>
+              <a href="thread.html#38">[ thread ]</a>
+              <a href="subject.html#38">[ subject ]</a>
+              <a href="author.html#38">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,1688 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1270 - in antargis/trunk: data data/gui	data/gui/images/basic data/gui/layout/editor/campaign ext/gui	ext/video ruby/editor/campaign
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2008-July/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1270%20-%20in%20antargis/trunk%3A%20data%20data/gui%0A%09data/gui/images/basic%20data/gui/layout/editor/campaign%20ext/gui%0A%09ext/video%20ruby/editor/campaign&In-Reply-To=%3C200807021722.m62HMbRq003207%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000227.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1270 - in antargis/trunk: data data/gui	data/gui/images/basic data/gui/layout/editor/campaign ext/gui	ext/video ruby/editor/campaign</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1270%20-%20in%20antargis/trunk%3A%20data%20data/gui%0A%09data/gui/images/basic%20data/gui/layout/editor/campaign%20ext/gui%0A%09ext/video%20ruby/editor/campaign&In-Reply-To=%3C200807021722.m62HMbRq003207%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1270 - in antargis/trunk: data data/gui	data/gui/images/basic data/gui/layout/editor/campaign ext/gui	ext/video ruby/editor/campaign">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Wed Jul  2 19:22:37 CEST 2008</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000227.html">[Antargis-svn] r1271 - in antargis/trunk: data	data/gui/layout/editor/campaign ext/basic ext/gui ext/video	ruby ruby/editor/campaign
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#226">[ date ]</a>
+              <a href="thread.html#226">[ thread ]</a>
+              <a href="subject.html#226">[ subject ]</a>
+              <a href="author.html#226">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2008-07-02 19:22:33 +0200 (Wed, 02 Jul 2008)
+New Revision: 1270
+
+Added:
+   antargis/trunk/data/gui/folder.png
+   antargis/trunk/data/gui/images/basic/checkmark.png
+   antargis/trunk/data/gui/images/basic/cross.png
+   antargis/trunk/data/gui/layout/editor/campaign/load_dialog.xml
+   antargis/trunk/data/gui/layout/editor/campaign/save_dialog.xml
+   antargis/trunk/ruby/editor/campaign/dialogs.rb
+   antargis/trunk/ruby/editor/campaign/toolbar.rb
+Modified:
+   antargis/trunk/data/gui/layout/editor/campaign/main.xml
+   antargis/trunk/data/gui/layout/editor/campaign/story_editor.xml
+   antargis/trunk/data/theme.xml
+   antargis/trunk/ext/gui/ag_background.cc
+   antargis/trunk/ext/gui/ag_button.cc
+   antargis/trunk/ext/gui/ag_combo.cc
+   antargis/trunk/ext/gui/ag_combo.h
+   antargis/trunk/ext/gui/ag_edit.cc
+   antargis/trunk/ext/gui/ag_image.cc
+   antargis/trunk/ext/gui/ag_layout.cc
+   antargis/trunk/ext/gui/ag_layoutcreators.cc
+   antargis/trunk/ext/gui/ag_layoutfactory.cc
+   antargis/trunk/ext/gui/ag_layoutfactory.h
+   antargis/trunk/ext/gui/ag_table.cc
+   antargis/trunk/ext/gui/ag_table.h
+   antargis/trunk/ext/gui/ag_theme.cc
+   antargis/trunk/ext/gui/ag_theme.h
+   antargis/trunk/ext/gui/ag_widget.cc
+   antargis/trunk/ext/video/ag_painter.cc
+   antargis/trunk/ruby/editor/campaign/campaign_data.rb
+   antargis/trunk/ruby/editor/campaign/drag_grid.rb
+   antargis/trunk/ruby/editor/campaign/story_editor.rb
+Log:
+Incomplete - task 11: Campaign editor 
+<A HREF="http://localhost:3000/issues/show/11">http://localhost:3000/issues/show/11</A>
+
+Added: antargis/trunk/data/gui/folder.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/trunk/data/gui/folder.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/trunk/data/gui/images/basic/checkmark.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/trunk/data/gui/images/basic/checkmark.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/trunk/data/gui/images/basic/cross.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: antargis/trunk/data/gui/images/basic/cross.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: antargis/trunk/data/gui/layout/editor/campaign/load_dialog.xml
+===================================================================
+
+Modified: antargis/trunk/data/gui/layout/editor/campaign/main.xml
+===================================================================
+--- antargis/trunk/data/gui/layout/editor/campaign/main.xml	2008-06-27 15:10:20 UTC (rev 1269)
++++ antargis/trunk/data/gui/layout/editor/campaign/main.xml	2008-07-02 17:22:33 UTC (rev 1270)
+@@ -7,15 +7,20 @@
+   
+       &lt;cell col=&quot;0&quot; row=&quot;0&quot;&gt;
+         &lt;toolBar name=&quot;toolbar&quot;&gt;
+-          &lt;toolButton text=&quot;Save&quot; name=&quot;save&quot; caption=&quot;muh&quot; caption-image=&quot;gui/save.png&quot;/&gt;
+-          &lt;toolButton text=&quot;Load&quot; name=&quot;load&quot; caption=&quot;muh&quot; caption-image=&quot;gui/load.png&quot;/&gt;
++          &lt;toolButton text=&quot;New&quot; name=&quot;new&quot; caption=&quot;muh&quot; caption-image=&quot;gui/folder.png&quot;/&gt;
++          &lt;toolButton text=&quot;Save&quot; name=&quot;save&quot; caption=&quot;muh&quot; caption-image=&quot;gui/save.png&quot; visible=&quot;true&quot;/&gt;
++          &lt;toolButton text=&quot;Load&quot; name=&quot;load&quot; caption=&quot;muh&quot; caption-image=&quot;gui/load.png&quot; visible=&quot;true&quot;/&gt;
++          &lt;!--&lt;toolButton text=&quot;LoadOk&quot; name=&quot;loadok&quot; caption=&quot;muh&quot; caption-image=&quot;gui/images/basic/haken.png&quot; visible=&quot;true&quot;/&gt;--&gt;
++          &lt;toolEdit name=&quot;campaignName&quot; text=&quot;noname&quot; width=&quot;3&quot; maxwidth=&quot;5&quot;/&gt;
++          &lt;toolEdit name=&quot;campaignDescription&quot; text=&quot;none&quot; width=&quot;3&quot; maxwidth=&quot;6&quot; height=&quot;7&quot;/&gt;
++          &lt;!--&lt;toolCombo name=&quot;campaignFile&quot;/&gt;--&gt;
+         &lt;/toolBar&gt;
+       &lt;/cell&gt;
+   
+       &lt;cell col=&quot;0&quot; row=&quot;1&quot;&gt;
+         &lt;table cols=&quot;2&quot; rows=&quot;2&quot; name=&quot;bigTable&quot;&gt;
+           &lt;colsize col=&quot;0&quot; fixed=&quot;100&quot;/&gt;
+-          &lt;rowsize row=&quot;1&quot; fixed=&quot;50&quot;/&gt;
++          &lt;rowsize row=&quot;1&quot; fixed=&quot;0&quot;/&gt;
+     
+           &lt;cell col=&quot;0&quot; row=&quot;0&quot;&gt;
+             &lt;table cols=&quot;1&quot; rows=&quot;4&quot;&gt;
+@@ -23,7 +28,7 @@
+               &lt;rowsize row=&quot;1&quot; fixed=&quot;100&quot;/&gt;
+               &lt;rowsize row=&quot;2&quot; fixed=&quot;100&quot;/&gt;
+               &lt;cell col=&quot;0&quot; row=&quot;0&quot;&gt;
+-                &lt;dragSource name=&quot;levelSource&quot; class=&quot;DragBox&quot; text=&quot;Level&quot;/&gt;
++                &lt;dragSource name=&quot;levelSource&quot; class=&quot;DragBoxLevel&quot; text=&quot;Level&quot;/&gt;
+               &lt;/cell&gt;
+         
+               &lt;cell col=&quot;0&quot; row=&quot;1&quot;&gt;
+@@ -52,7 +57,7 @@
+                 &lt;edit name=&quot;textEdit&quot;/&gt;
+               &lt;/cell&gt;
+               &lt;cell col=&quot;1&quot; row=&quot;0&quot;&gt;
+-                &lt;button name=&quot;weiter&quot; caption-image=&quot;data/gui/options.png&quot;/&gt;
++                &lt;button name=&quot;edit&quot; caption-image=&quot;data/gui/options.png&quot;/&gt;
+               &lt;/cell&gt;
+             &lt;/table&gt;
+           &lt;/cell&gt;
+@@ -63,6 +68,6 @@
+     &lt;appearEffect name=&quot;showEdit&quot; table=&quot;bigTable&quot; row=&quot;1&quot; size=&quot;40&quot; duration=&quot;0.2&quot;/&gt;
+     &lt;hideEffect name=&quot;hideEdit&quot; table=&quot;bigTable&quot; row=&quot;1&quot; size=&quot;40&quot; duration=&quot;0.2&quot;/&gt;
+   &lt;/dragEnvironment&gt;
+-  &lt;storyEditor name=&quot;storyEditor&quot;/&gt;
++&lt;!--  &lt;storyEditor name=&quot;storyEditor&quot; visible=&quot;false&quot;/&gt;--&gt;
+ 
+ &lt;/layout&gt;
+\ No newline at end of file
+
+Added: antargis/trunk/data/gui/layout/editor/campaign/save_dialog.xml
+===================================================================
+--- antargis/trunk/data/gui/layout/editor/campaign/save_dialog.xml	2008-06-27 15:10:20 UTC (rev 1269)
++++ antargis/trunk/data/gui/layout/editor/campaign/save_dialog.xml	2008-07-02 17:22:33 UTC (rev 1270)
+@@ -0,0 +1,33 @@
++&lt;?xml version=&quot;1.0&quot;?&gt;
++&lt;layout&gt;
++  &lt;frame width=&quot;200&quot;&gt;
++    &lt;window theme=&quot;blue&quot; title=&quot;Save&quot;&gt;
++      &lt;table cols=&quot;2&quot; rows=&quot;3&quot;&gt;
++        &lt;rowsize row=&quot;0&quot; fixed=&quot;40&quot;/&gt;
++        &lt;rowsize row=&quot;2&quot; fixed=&quot;60&quot;/&gt;
++        &lt;colsize col=&quot;1&quot; relative=&quot;2&quot;/&gt;
++        
++        &lt;cell col=&quot;0&quot; row=&quot;0&quot; padding=&quot;10&quot;&gt;
++          &lt;text caption=&quot;Filename&quot;/&gt;
++        &lt;/cell&gt;
++        &lt;cell col=&quot;1&quot; row=&quot;0&quot; padding=&quot;10&quot;&gt;
++          &lt;edit name=&quot;filename&quot;/&gt;
++        &lt;/cell&gt;
++        &lt;cell col=&quot;0&quot; row=&quot;1&quot; padding=&quot;10&quot;&gt;
++          &lt;text caption=&quot;Existing&quot;/&gt;
++        &lt;/cell&gt;
++        &lt;cell col=&quot;1&quot; row=&quot;1&quot; padding=&quot;10&quot;&gt;
++          &lt;listBox name=&quot;listBox&quot;/&gt;
++        &lt;/cell&gt;
++        &lt;cell col=&quot;0&quot; row=&quot;2&quot; padding=&quot;10&quot;&gt;
++          &lt;button name=&quot;cancel&quot; caption-image=&quot;data/gui/images/basic/cross.png&quot;/&gt;
++        &lt;/cell&gt;
++        &lt;cell col=&quot;1&quot; row=&quot;2&quot; padding=&quot;10&quot;&gt;
++          &lt;button name=&quot;ok&quot; caption-image=&quot;data/gui/images/basic/checkmark.png&quot;/&gt;
++        &lt;/cell&gt;
++        
++      &lt;/table&gt;
++          
++    &lt;/window&gt;
++  &lt;/frame&gt;
++&lt;/layout&gt;
+\ No newline at end of file
+
+Modified: antargis/trunk/data/gui/layout/editor/campaign/story_editor.xml
+===================================================================
+--- antargis/trunk/data/gui/layout/editor/campaign/story_editor.xml	2008-06-27 15:10:20 UTC (rev 1269)
++++ antargis/trunk/data/gui/layout/editor/campaign/story_editor.xml	2008-07-02 17:22:33 UTC (rev 1270)
+@@ -23,14 +23,24 @@
+               &lt;/frame&gt;
+             &lt;/cell&gt;
+             &lt;cell col=&quot;0&quot; row=&quot;0&quot;&gt;
+-              &lt;frame width=&quot;10&quot; height=&quot;40&quot;&gt;
+-                &lt;button name=&quot;prev&quot; caption-image=&quot;data/gui/arrow_left.png&quot;/&gt;
+-              &lt;/frame&gt;
++              &lt;table cols=&quot;1&quot; rows=&quot;2&quot;&gt;
++                &lt;frame col=&quot;0&quot; row=&quot;0&quot; width=&quot;5&quot;&gt;
++                  &lt;button name=&quot;prev&quot; caption-image=&quot;data/gui/arrow_left.png&quot;/&gt;
++                &lt;/frame&gt;
++                &lt;frame col=&quot;0&quot; row=&quot;1&quot; width=&quot;5&quot;&gt;
++                  &lt;button name=&quot;cancel&quot; caption-image=&quot;data/gui/images/basic/cross.png&quot;/&gt;
++                &lt;/frame&gt;
++              &lt;/table&gt;
+             &lt;/cell&gt;
+             &lt;cell col=&quot;2&quot; row=&quot;0&quot;&gt;
+-              &lt;frame width=&quot;10&quot; height=&quot;40&quot;&gt;
+-                &lt;button name=&quot;next&quot; caption-image=&quot;data/gui/arrow_right.png&quot;/&gt;
+-              &lt;/frame&gt;
++              &lt;table cols=&quot;1&quot; rows=&quot;2&quot;&gt;
++                &lt;frame col=&quot;0&quot; row=&quot;0&quot; width=&quot;5&quot;&gt;
++                  &lt;button name=&quot;next&quot; caption-image=&quot;data/gui/arrow_right.png&quot;/&gt;
++                &lt;/frame&gt;
++                &lt;frame col=&quot;0&quot; row=&quot;1&quot; width=&quot;5&quot;&gt;
++                  &lt;button name=&quot;ok&quot; caption-image=&quot;data/gui/images/basic/checkmark.png&quot;/&gt;
++                &lt;/frame&gt;
++              &lt;/table&gt;
+             &lt;/cell&gt;
+             &lt;cell col=&quot;1&quot; row=&quot;1&quot;&gt;
+               &lt;text name=&quot;info&quot;/&gt;
+
+Modified: antargis/trunk/data/theme.xml
+===================================================================
+--- antargis/trunk/data/theme.xml	2008-06-27 15:10:20 UTC (rev 1269)
++++ antargis/trunk/data/theme.xml	2008-07-02 17:22:33 UTC (rev 1270)
+@@ -246,6 +246,30 @@
+       &lt;/background&gt;
+     &lt;/window&gt;
+   &lt;/black&gt;
++  &lt;blue&gt;
++    &lt;window&gt;
++      &lt;border&gt;
++        &lt;image name=&quot;image&quot; file=&quot;data/gui/buttontest3.png&quot;/&gt;
++      &lt;/border&gt;
++      &lt;title&gt;
++        &lt;font name=&quot;font&quot; file=&quot;FreeSans.ttf&quot; size=&quot;16&quot; color='#FFFFFF'/&gt;
++        &lt;background&gt;
++          &lt;value name=&quot;border&quot; value=&quot;0&quot;/&gt;
++          &lt;color name='gradientColor1' color='#54555b'/&gt;
++          &lt;color name='gradientColor2' color='#3c3d41'/&gt;
++          &lt;color name='gradientColor3' color='#3c3d41'/&gt;
++          &lt;color name='gradientColor4' color='#12141c'/&gt;
++        &lt;/background&gt;
++      &lt;/title&gt;
++      &lt;buttons&gt;
++        &lt;image name=&quot;close&quot; file=&quot;data/gui/close_button.png&quot;/&gt;
++      &lt;/buttons&gt;
++      &lt;background&gt;
++        &lt;value name=&quot;border&quot; value=&quot;0&quot;/&gt;
++        &lt;color name=&quot;color&quot; color='#000088'/&gt;
++      &lt;/background&gt;
++    &lt;/window&gt;
++  &lt;/bluek&gt;
+ 	
+ 	
+ 	&lt;yellowButton&gt;
+
+Modified: antargis/trunk/ext/gui/ag_background.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_background.cc	2008-06-27 15:10:20 UTC (rev 1269)
++++ antargis/trunk/ext/gui/ag_background.cc	2008-07-02 17:22:33 UTC (rev 1270)
+@@ -60,10 +60,10 @@
+ AGBackground::AGBackground(const AGString &amp;pThemeName):mTexture(0)
+   {
+     AGTheme *theme=getTheme();
+-loadFromTheme(theme-&gt;getTheme(&quot;&quot;),pThemeName);
++    loadFromTheme(theme-&gt;getTheme(&quot;&quot;),pThemeName);
+   }
+ 
+-AGBackground::AGBackground(const AGLocalTheme &amp;pTheme,const AGString &amp;pThemeName)
++AGBackground::AGBackground(const AGLocalTheme &amp;pTheme,const AGString &amp;pThemeName):mTexture(0)
+   {
+     loadFromTheme(pTheme,pThemeName);
+   }
+@@ -100,9 +100,15 @@
+ /// draws the background on painter in the given rectangle
+ void AGBackground::draw(const AGRect2 &amp;r,AGPainter &amp;p)
+   {
++    assert(&amp;p);
++    assert(&amp;r);
+     if(mTexture)
+       {
+-        p.tile(*mTexture,r.shrink(mBorder));
++        cdebug(&quot;painter:&quot;&lt;&lt;&amp;p);
++        cdebug(mTexture);
++        AGRect2 s=r.shrink(mBorder);
++        const AGTexture &amp;t=*mTexture;
++        p.tile(t,s);//*mTexture,r.shrink(mBorder));
+       }
+     else if(mColor)
+       p.drawGradient(r.shrink(mBorder),mColors[0],mColors[1],mColors[2],mColors[3]);
+
+Modified: antargis/trunk/ext/gui/ag_button.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_button.cc	2008-06-27 15:10:20 UTC (rev 1269)
++++ antargis/trunk/ext/gui/ag_button.cc	2008-07-02 17:22:33 UTC (rev 1270)
+@@ -63,6 +63,7 @@
+ 
+     if(opengl())
+       setCaching(true);
++      
+   }
+ 
+ void AGButton::setSurface(AGSurface pSurface,bool pChangeSize)
+@@ -141,6 +142,7 @@
+       p.drawBorder(mr,borderWidth,bc1,bc2);
+     else 
+       p.drawBorder(mr,borderWidth,bc2,bc1);
++      
+   }
+ 
+ 
+@@ -222,6 +224,7 @@
+     return AGWidget::eventMouseButtonUp(e);
+   }
+ 
++
+ void AGButton::setRect(const AGRect2 &amp;r)
+   {
+     AGWidget::setRect(r);
+@@ -245,7 +248,7 @@
+   {
+     std::list&lt;AGWidget*&gt;::iterator i=mChildren.begin();
+     for(;i!=mChildren.end();i++)
+-      (*i)-&gt;setRect(getRect().shrink(borderWidth));
++      (*i)-&gt;setRect(getRect().origin().shrink(borderWidth));
+   }
+ 
+ 
+
+Modified: antargis/trunk/ext/gui/ag_combo.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_combo.cc	2008-06-27 15:10:20 UTC (rev 1269)
++++ antargis/trunk/ext/gui/ag_combo.cc	2008-07-02 17:22:33 UTC (rev 1270)
+@@ -127,3 +127,31 @@
+     mID=&quot;&quot;;
+     update();
+   }
++
++
++
++void AGComboBox::setRect(const AGRect2 &amp;r)
++  {
++    AGWidget::setRect(r);
++    updateClientRects();
++  }
++
++void AGComboBox::setWidth(float w)
++  {
++    assert(w&gt;=0);
++    AGWidget::setWidth(w);
++    updateClientRects();
++  }
++
++void AGComboBox::setHeight(float h)
++  {
++    assert(h&gt;=0);
++    AGWidget::setHeight(h);
++    updateClientRects();
++  }
++
++void AGComboBox::updateClientRects()
++  {
++    mEdit-&gt;setRect(AGRect2(0,0,width()-height(),height()));
++    mButton-&gt;setRect(AGRect2(width()-height(),0,height(),height()));
++  }
+
+Modified: antargis/trunk/ext/gui/ag_combo.h
+===================================================================
+--- antargis/trunk/ext/gui/ag_combo.h	2008-06-27 15:10:20 UTC (rev 1269)
++++ antargis/trunk/ext/gui/ag_combo.h	2008-07-02 17:22:33 UTC (rev 1270)
+@@ -45,9 +45,14 @@
+   void setSelected(const AGString &amp;pID);
+ 
+   void clear();
++  
++  virtual void setWidth(float w);
++  virtual void setHeight(float w);
++  void setRect(const AGRect2 &amp;r);
+ 
+  private:
+   void update();
++  void updateClientRects();
+ 
+   AGEdit *mEdit;
+   AGButton *mButton;
+
+Modified: antargis/trunk/ext/gui/ag_edit.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_edit.cc	2008-06-27 15:10:20 UTC (rev 1269)
++++ antargis/trunk/ext/gui/ag_edit.cc	2008-07-02 17:22:33 UTC (rev 1270)
+@@ -538,6 +538,10 @@
+       }
+     else if(k==SDLK_ESCAPE)
+       {}
++    else if(k==SDLK_DOWN)
++      {}
++    else if(k==SDLK_UP)
++      {}
+     else if((unicode&amp;0xFFF8)!=0 || (k&gt;=SDLK_0 &amp;&amp; k&lt;=SDLK_9) || (k&gt;=SDLK_a &amp;&amp; k&lt;=SDLK_z))
+       {
+         ins=AGStringUtf8(unicode2Utf8(unicode));
+
+Modified: antargis/trunk/ext/gui/ag_image.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_image.cc	2008-06-27 15:10:20 UTC (rev 1269)
++++ antargis/trunk/ext/gui/ag_image.cc	2008-07-02 17:22:33 UTC (rev 1270)
+@@ -24,34 +24,19 @@
+ AGImage::AGImage(AGWidget *pParent,const AGRect2 &amp;r,AGSurface pSurface,bool pTile):
+   AGWidget(pParent,r),
+   mTexture(pSurface),mTile(pTile),mScale(false)
+-      {
+-        mCenter=true;
+-        //  CTRACE;
+-        /*  if(pRect!=pSurface.getRect() &amp;&amp; pRect.w()!=0 &amp;&amp; pRect.h()!=0)
+     {
+-      //      mSrcRect=pRect;
++      mCenter=true;
++    }
+ 
+-      setHeight(pRect.h());
+-      setWidth(pRect.w());
+-      }*/
+-      }
+ AGImage::AGImage(AGWidget *pParent,const AGRect2 &amp;r,AGTexture pTexture,bool pTile):
+   AGWidget(pParent,r),
+   mTexture(pTexture),mTile(pTile)
+-      {
+-        mCenter=true;
+-        //  CTRACE;
+-        /*  if(pRect!=pTexture.getRect() &amp;&amp; pRect.w()!=0 &amp;&amp; pRect.h()!=0)
+-    {
+-      mSrcRect=pRect;
++  {
++    mCenter=true;
++  }
+ 
+-      setHeight(pRect.h());
+-      setWidth(pRect.w());
+-      }*/
+-      }
+ 
+ 
+-
+ AGImage::~AGImage()
+   {
+   }
+@@ -64,7 +49,7 @@
+ 
+     if(mTile)
+       {
+-        p.tile(mTexture,getRect().origin());//,mSrcRect);
++        p.tile(mTexture,getRect().origin());
+       }
+     else if(center)
+       {
+@@ -72,12 +57,6 @@
+         AGRect2 mr=getRect().origin();
+         AGRect2 fr=mTexture.getRect();
+ 
+-        /*     if(mScale) // disables centering
+-          {
+-            fr=
+-          }
+-        else 
+-         */         
+         if(mCenter &amp;&amp; !mScale)
+           mr+=AGVector2((width()-mTexture.width())/2,(height()-mTexture.height())/2);
+ 
+
+Modified: antargis/trunk/ext/gui/ag_layout.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_layout.cc	2008-06-27 15:10:20 UTC (rev 1269)
++++ antargis/trunk/ext/gui/ag_layout.cc	2008-07-02 17:22:33 UTC (rev 1270)
+@@ -146,41 +146,43 @@
+ 
+     AGRect2 geom=getLayoutGeometry(pParent,pNode);
+ 
+-    AGWidget *w=0;
++    std::pair&lt;AGWidget*,AGWidget*&gt; result;
+ 
+     //  cdebug(&quot;n:&quot;&lt;&lt;n);
+ 
+-    w=getLayoutFactory()-&gt;create(pParent,geom,pNode);
++    result=getLayoutFactory()-&gt;create(pParent,geom,pNode);
++    AGWidget *outer=result.first;
++    AGWidget *inner=result.second;
+ 
+-    if(w!=0 &amp;&amp; pNode.get(&quot;name&quot;).length())
+-      w-&gt;setName(pNode.get(&quot;name&quot;));
++    if(outer!=0 &amp;&amp; pNode.get(&quot;name&quot;).length())
++      outer-&gt;setName(pNode.get(&quot;name&quot;));
+ 
+-    if(w!=0 &amp;&amp; pNode.get(&quot;visible&quot;)==&quot;false&quot;)
+-      w-&gt;hide();
++    if(outer!=0 &amp;&amp; pNode.get(&quot;visible&quot;)==&quot;false&quot;)
++      outer-&gt;hide();
+ 
+-    if(w!=0 &amp;&amp; pNode.get(&quot;tooltip&quot;).length())
+-      w-&gt;setTooltip(_(pNode.get(&quot;tooltip&quot;)));
++    if(outer!=0 &amp;&amp; pNode.get(&quot;tooltip&quot;).length())
++      outer-&gt;setTooltip(_(pNode.get(&quot;tooltip&quot;)));
+ 
+-    if(w!=0 &amp;&amp; pNode.get(&quot;tabindex&quot;).length())
++    if(outer!=0 &amp;&amp; pNode.get(&quot;tabindex&quot;).length())
+       {
+         AGLayout *l=getLayout(pParent);
+         if(l)
+           {
+-            l-&gt;addTabIndex(pNode.get(&quot;tabindex&quot;).toInt(),w);
++            l-&gt;addTabIndex(pNode.get(&quot;tabindex&quot;).toInt(),outer);
+           }
+         else
+           cdebug(&quot;ERROR in parseNode(.):tabindex given but not embedded in layout???&quot;);
+       }
+ 
+-    if(w!=0 &amp;&amp; pNode.get(&quot;cache&quot;)==&quot;true&quot;)
+-      w-&gt;setCaching(true);
++    if(outer!=0 &amp;&amp; pNode.get(&quot;cache&quot;)==&quot;true&quot;)
++      outer-&gt;setCaching(true);
+ 
+-    parseChildren(w,pNode);
++    parseChildren(inner,pNode);
+ 
+-    if(w)
+-      w-&gt;initHandlers();
++    if(outer)
++      outer-&gt;initHandlers();
+ 
+-    return w;
++    return outer;
+   }
+ 
+ AGRect2 getLayoutGeometry(AGWidget *pParent,const Node &amp;pNode)
+
+Modified: antargis/trunk/ext/gui/ag_layoutcreators.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_layoutcreators.cc	2008-06-27 15:10:20 UTC (rev 1269)
++++ antargis/trunk/ext/gui/ag_layoutcreators.cc	2008-07-02 17:22:33 UTC (rev 1270)
+@@ -112,19 +112,19 @@
+ 
+       for(int k=0;k&lt;w;k++)
+         {
+-          if(cols[k].first==0.0f) // not inited
++          if(cols[k].second)
++            t-&gt;addFixedColumn(cols[k].first);
++          else if(cols[k].first==0.0f) // not inited
+             t-&gt;addColumn(1.0f);
+-          else if(cols[k].second)
+-            t-&gt;addFixedColumn(cols[k].first);
+           else
+             t-&gt;addColumn(cols[k].first);
+         }
+       for(int k=0;k&lt;h;k++)
+         {
+-          if(rows[k].first==0.0f) // not inited
++          if(rows[k].second)
++            t-&gt;addFixedRow(rows[k].first);
++          else if(rows[k].first==0.0f) // not inited
+             t-&gt;addRow(1.0f);
+-          else if(rows[k].second)
+-            t-&gt;addFixedRow(rows[k].first);
+           else
+             t-&gt;addRow(rows[k].first);
+         }
+@@ -397,7 +397,17 @@
+ 
+   virtual void create(AGWidget *pParent,const AGRect2 &amp;pRect,const Node &amp;pNode)
+     {
+-      setResult(new AGCell(pParent,pRect));
++      AGCell *cell=new AGCell(pParent,pRect);
++      if(pNode.get(&quot;padding&quot;)!=&quot;&quot;)
++        {
++          int padx=pNode.get(&quot;padding&quot;).toInt();
++          int pady=pNode.get(&quot;padding&quot;).toInt();
++          AGFrame *frame=new AGFrame(cell,cell-&gt;getRect().origin(),padx,pady);
++          cell-&gt;addChild(frame);
++          setClient(frame);
++        }
++      
++      setResult(cell);
+     }
+ };
+ IMPLEMENT_COMPONENT_FACTORY(Cell);
+
+Modified: antargis/trunk/ext/gui/ag_layoutfactory.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_layoutfactory.cc	2008-06-27 15:10:20 UTC (rev 1269)
++++ antargis/trunk/ext/gui/ag_layoutfactory.cc	2008-07-02 17:22:33 UTC (rev 1270)
+@@ -22,7 +22,7 @@
+ #include &quot;ag_debug.h&quot;
+ #include &quot;ag_kill.h&quot;
+ 
+-AGLayoutCreator::AGLayoutCreator():mWidget(0)
++AGLayoutCreator::AGLayoutCreator():mWidget(0),mClient(0)
+ {
+ }
+ 
+@@ -36,14 +36,27 @@
+     if(mWidget)
+       getLayoutFactory()-&gt;getCurrentLayout()-&gt;addChildRef(mWidget);
+   }
++
++void AGLayoutCreator::setClient(AGWidget *pWidget)
++  {
++    mClient=pWidget;
++    if(pWidget)
++      getLayoutFactory()-&gt;getCurrentLayout()-&gt;addChildRef(pWidget);
++  }
++
+ AGWidget *AGLayoutCreator::getResult()
+   {
+     return mWidget;
+   }
++AGWidget *AGLayoutCreator::getClient()
++  {
++    return mClient;
++  }
+ 
+ void AGLayoutCreator::clearResult()
+   {
+     mWidget=0;
++    mClient=0;
+   }
+ 
+ void AGLayoutCreator::mark()
+@@ -76,25 +89,32 @@
+   }
+ 
+ 
+-AGWidget *AGLayoutFactory::create(AGWidget *pParent,const AGRect2 &amp;pRect,const Node &amp;pNode)
++/**
++ *  \returns a pair of 2 widgets. The first one is the outer widget, which shoudl be inserted. The second one is the widget,
++ * in which all children should be inserted.
++*/
++std::pair&lt;AGWidget *,AGWidget*&gt; AGLayoutFactory::create(AGWidget *pParent,const AGRect2 &amp;pRect,const Node &amp;pNode)
+   {
+     AGLayoutCreator *creator=mCreators[pNode.getName()];
+ 
+     if(creator)
+       {
+-        AGWidget *w;
++        AGWidget *outer,*inner;
+         creator-&gt;create(pParent,pRect,pNode);
+-        w=creator-&gt;getResult();
++        outer=creator-&gt;getResult();
++        inner=creator-&gt;getClient();
+         creator-&gt;clearResult();
++        if(inner==0)
++          inner=outer;
+ 
+-        return w;
++        return std::make_pair(outer,inner);
+       }
+     std::string name;
+     if(name!=&quot;&quot; &amp;&amp; name!=&quot;colsize&quot; &amp;&amp; name!=&quot;rowsize&quot;)
+       {
+         cdebug(&quot;no creation at:&quot;&lt;&lt;name);
+       }
+-    return 0;
++    return std::make_pair((AGWidget*)0,(AGWidget*)0);
+   }
+ 
+ void AGLayoutFactory::pushLayout(AGLayout *pLayout)
+
+Modified: antargis/trunk/ext/gui/ag_layoutfactory.h
+===================================================================
+--- antargis/trunk/ext/gui/ag_layoutfactory.h	2008-06-27 15:10:20 UTC (rev 1269)
++++ antargis/trunk/ext/gui/ag_layoutfactory.h	2008-07-02 17:22:33 UTC (rev 1270)
+@@ -36,14 +36,16 @@
+   //  virtual ~AGLayoutCreator();
+   virtual void create(AGWidget *pParent,const AGRect2 &amp;pRect,const Node &amp;pNode);
+   void setResult(AGWidget *pWidget);
++  void setClient(AGWidget *pWidget);
+   AGWidget *getResult();
++  AGWidget *getClient();
+ 
+   void clearResult();
+ 
+   void mark();
+  private:
+    
+-  AGWidget *mWidget;
++  AGWidget *mWidget,*mClient;
+   
+ 
+ };
+@@ -59,7 +61,7 @@
+   void addCreator(const AGString &amp;pName,AGLayoutCreator *creator);
+   void removeCreator(const AGString &amp;pName,AGLayoutCreator *creator);
+ 
+-  AGWidget *create(AGWidget *pParent,const AGRect2 &amp;pRect,const Node &amp;pNode);
++  std::pair&lt;AGWidget*,AGWidget*&gt; create(AGWidget *pParent,const AGRect2 &amp;pRect,const Node &amp;pNode);
+   
+   friend AGLayoutFactory *getLayoutFactory();
+   
+
+Modified: antargis/trunk/ext/gui/ag_table.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_table.cc	2008-06-27 15:10:20 UTC (rev 1269)
++++ antargis/trunk/ext/gui/ag_table.cc	2008-07-02 17:22:33 UTC (rev 1270)
+@@ -332,7 +332,18 @@
+   return cols.size();
+ }
+ 
++float AGTable::getColumn(size_t c) const
++{
++  assert(c&lt;cols.size());
++  return cols[c].first;
++}
++float AGTable::getRow(size_t c) const
++{
++  assert(c&lt;rows.size());
++  return rows[c].first;
++}
+ 
++
+ void AGTable::modifyColumn(size_t index,float w)
+   {
+     if(cols.size()&gt;index)
+
+Modified: antargis/trunk/ext/gui/ag_table.h
+===================================================================
+--- antargis/trunk/ext/gui/ag_table.h	2008-06-27 15:10:20 UTC (rev 1269)
++++ antargis/trunk/ext/gui/ag_table.h	2008-07-02 17:22:33 UTC (rev 1270)
+@@ -49,6 +49,9 @@
+   
+   void modifyColumn(size_t index,float w);
+   void modifyRow(size_t index,float w);
++  
++  float getColumn(size_t c) const;
++  float getRow(size_t c) const;
+ 
+   void addChild(int x,int y,AGWidget *pWidget);
+   AGRect2 getClientRect(int x,int y) const;
+
+Modified: antargis/trunk/ext/gui/ag_theme.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_theme.cc	2008-06-27 15:10:20 UTC (rev 1269)
++++ antargis/trunk/ext/gui/ag_theme.cc	2008-07-02 17:22:33 UTC (rev 1270)
+@@ -192,14 +192,14 @@
+ 
+ AGFont AGLocalTheme::getFont(const AGString &amp;pName) const
+   {
+-    AGString t=mTheme+&quot;.&quot;+pName;
++    AGString t=getName(pName);
+     if(getTheme()-&gt;hasFont(t))
+       return getTheme()-&gt;getFont(t);
+     return getTheme()-&gt;getFont(pName);
+   }
+ AGColor AGLocalTheme::getColor(const AGString &amp;pName) const
+   {
+-    AGString t=mTheme+&quot;.&quot;+pName;
++    AGString t=getName(pName);
+     if(getTheme()-&gt;hasColor(t))
+       return getTheme()-&gt;getColor(t);
+     return getTheme()-&gt;getColor(pName);
+@@ -207,7 +207,7 @@
+ 
+ int AGLocalTheme::getInt(const AGString &amp;pName) const
+   {
+-    AGString t=mTheme+&quot;.&quot;+pName;
++    AGString t=getName(pName);
+     if(getTheme()-&gt;hasInt(t))
+       return getTheme()-&gt;getInt(t);
+     return getTheme()-&gt;getInt(pName);
+@@ -215,7 +215,7 @@
+ 
+ AGSurface AGLocalTheme::getSurface(const AGString &amp;pName) const
+ {
+-  AGString t=mTheme+&quot;.&quot;+pName;
++  AGString t=getName(pName);
+   if(getTheme()-&gt;hasSurface(t))
+     return getTheme()-&gt;getSurface(t);
+   return getTheme()-&gt;getSurface(pName);
+@@ -223,7 +223,7 @@
+ 
+ std::string AGLocalTheme::getSurfaceName(const AGString &amp;pName) const
+ {
+-  AGString t=mTheme+&quot;.&quot;+pName;
++  AGString t=getName(pName);
+   if(getTheme()-&gt;hasSurfaceName(t))
+     return getTheme()-&gt;getSurfaceName(t);
+   return getTheme()-&gt;getSurfaceName(pName);
+@@ -231,25 +231,32 @@
+ 
+ bool AGLocalTheme::hasFont(const AGString &amp;pName) const
+ {
+-  return getTheme()-&gt;hasFont(mTheme+&quot;.&quot;+pName);
++  return getTheme()-&gt;hasFont(getName(pName));
+ }
+ bool AGLocalTheme::hasColor(const AGString &amp;pName) const
+ {
+-  return getTheme()-&gt;hasColor(mTheme+&quot;.&quot;+pName);  
++  return getTheme()-&gt;hasColor(getName(pName));  
+ }
+ bool AGLocalTheme::hasInt(const AGString &amp;pName) const
+ {
+-  return getTheme()-&gt;hasInt(mTheme+&quot;.&quot;+pName);
++  return getTheme()-&gt;hasInt(getName(pName));
+ }
+ bool AGLocalTheme::hasSurface(const AGString &amp;pName) const
+ {
+-  return getTheme()-&gt;hasSurface(mTheme+&quot;.&quot;+pName);
++  return getTheme()-&gt;hasSurface(getName(pName));
+ }
+ bool AGLocalTheme::hasSurfaceName(const AGString &amp;pName) const
+ {
+-  return getTheme()-&gt;hasSurfaceName(mTheme+&quot;.&quot;+pName);
++  return getTheme()-&gt;hasSurfaceName(getName(pName));
+ }
+ 
++AGString AGLocalTheme::getName(const AGString &amp;pName) const
++{
++  if(mTheme.length()&gt;0)
++    return mTheme+&quot;.&quot;+pName;
++  else
++    return pName;
++}
+ 
+ 
+ 
+
+Modified: antargis/trunk/ext/gui/ag_theme.h
+===================================================================
+--- antargis/trunk/ext/gui/ag_theme.h	2008-06-27 15:10:20 UTC (rev 1269)
++++ antargis/trunk/ext/gui/ag_theme.h	2008-07-02 17:22:33 UTC (rev 1270)
+@@ -47,6 +47,9 @@
+     bool hasSurfaceName(const AGString &amp;pName) const;
+     
+   private:
++    
++    AGString getName(const AGString &amp;pName) const;
++    
+     AGString mTheme;
+   };
+ 
+
+Modified: antargis/trunk/ext/gui/ag_widget.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_widget.cc	2008-06-27 15:10:20 UTC (rev 1269)
++++ antargis/trunk/ext/gui/ag_widget.cc	2008-07-02 17:22:33 UTC (rev 1270)
+@@ -192,15 +192,7 @@
+   }
+ 
+ void AGWidget::drawChild(AGPainter &amp;p,AGWidget *pWidget)
+-  {/*
+-    if(mUseClientRect)
+-      {
+-        p.pushMatrix();
+-        p.transform(mClientProj.getMatrix());
+-        pWidget-&gt;drawAll(p);
+-        p.popMatrix();
+-      }
+-    else*/
++  {
+     pWidget-&gt;drawAll(p);
+   }
+ 
+@@ -385,23 +377,21 @@
+ 
+     if(e-&gt;isSDLEvent())
+       {
+-        //        cdebug(e-&gt;getRelMousePosition()&lt;&lt;&quot;::&quot;&lt;&lt;getRect());
+         if(getRect().contains(e-&gt;getRelMousePosition()))
+           {
+             if(was)
+               {
+-                //                cdebug(&quot;click&quot;);
+                 e-&gt;setName(&quot;sigClick&quot;);
+                 AGApplication *app=getApp();
+                 assert(app);
+                 if(app)
+                   {
+                     AGWidget *overlay=getApp()-&gt;getOverlay();
+-                    //if(overlay)
++
+                     if(!isParent(overlay))
+                       app-&gt;setOverlay(0);
+                   }
+-                if(!isParent(getApp()-&gt;getOverlay())) //FIXME: crashes here
++                if(!isParent(getApp()-&gt;getOverlay()))
+                   getApp()-&gt;setOverlay(0);
+ 
+                 if(canFocus())
+@@ -510,11 +500,17 @@
+ 
+ void AGWidget::setRect(const AGRect2 &amp;pRect)
+   {
++    //queryRedraw();
++
++    if(mCache)
++      setCaching(true);
++    
+     regChange();
+     mRect=pRect;
+     regChange();
+     if(mParent)
+       mParent-&gt;redraw();
++    
+   }
+ 
+ float AGWidget::minWidth() const
+@@ -563,6 +559,8 @@
+ 
+ void AGWidget::setWidth(float w)
+   {
++    if(mCache)
++      setCaching(true);
+     regChange();
+     mRect.setWidth(w);
+     regChange();
+@@ -570,6 +568,8 @@
+   }
+ void AGWidget::setHeight(float h)
+   {
++    if(mCache)
++      setCaching(true);
+     regChange();
+     mRect.setHeight(h);
+     regChange();
+@@ -728,10 +728,14 @@
+ 
+ bool AGWidget::eventLostFocus()
+   {
++    CTRACE;
+     if(mFocus)
+       mFocus-&gt;eventLostFocus();
+     mHasFocus=false;
+     mFocus=0;
++    
++    if(mChildren.size()&gt;0)
++      (*mChildren.begin())-&gt;eventLostFocus();
+ 
+     return false;
+   }
+@@ -743,14 +747,12 @@
+       mParent-&gt;gainCompleteFocus(this);
+     if(pWidget)
+       {
+-        //      dbout(5000,mChildren.size());
+         std::list&lt;AGWidget*&gt;::iterator i=std::find(mChildren.begin(),mChildren.end(),pWidget);
+         if(i!=mChildren.end())
+           {
+             mChildren.erase(i);
+             mChildren.push_front(pWidget);
+           }
+-        //      dbout(5000,mChildren.size());
+       }
+ #endif
+   }
+@@ -760,7 +762,6 @@
+ #ifdef FOCUS_BY_SORT
+     if(pWidget)
+       {
+-        //      dbout(5000,mChildren.size());
+         std::list&lt;AGWidget*&gt;::iterator i=std::find(mChildren.begin(),mChildren.end(),pWidget);
+         if(i!=mChildren.end())
+           {
+@@ -773,7 +774,6 @@
+             pWidget-&gt;eventGotFocus();
+ 
+           }
+-        //      dbout(5000,mChildren.size());
+       }
+     else if(mParent)
+       {
+@@ -1055,6 +1055,8 @@
+       {
+         mCache=new AGTexture((int)width(),(int)height());
+ 
++        cdebug(width()&lt;&lt;&quot;::&quot;&lt;&lt;height());
++        
+         mCacheTouched=true;
+       }
+   }
+
+Modified: antargis/trunk/ext/video/ag_painter.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_painter.cc	2008-06-27 15:10:20 UTC (rev 1269)
++++ antargis/trunk/ext/video/ag_painter.cc	2008-07-02 17:22:33 UTC (rev 1270)
+@@ -39,30 +39,30 @@
+ 
+ 
+ AGPaintProjection::AGPaintProjection(const AGRect2 &amp;pClip):clip(pClip)
+-  {
+-    a.set(0,0,1);
+-    a.set(0,1,0);
+-    a.set(0,2,0);
+-    a.set(1,0,0);
+-    a.set(1,1,1);
+-    a.set(1,2,0);
+-    a.set(2,0,0);
+-    a.set(2,1,0);
+-    a.set(2,2,0);
+-  }
++    {
++      a.set(0,0,1);
++      a.set(0,1,0);
++      a.set(0,2,0);
++      a.set(1,0,0);
++      a.set(1,1,1);
++      a.set(1,2,0);
++      a.set(2,0,0);
++      a.set(2,1,0);
++      a.set(2,2,0);
++    }
+ 
+ AGPaintProjection::AGPaintProjection(const AGClipping &amp;pClip):advancedClipping(pClip)
+-  {
+-    a.set(0,0,1);
+-    a.set(0,1,0);
+-    a.set(0,2,0);
+-    a.set(1,0,0);
+-    a.set(1,1,1);
+-    a.set(1,2,0);
+-    a.set(2,0,0);
+-    a.set(2,1,0);
+-    a.set(2,2,0);
+-  }
++    {
++      a.set(0,0,1);
++      a.set(0,1,0);
++      a.set(0,2,0);
++      a.set(1,0,0);
++      a.set(1,1,1);
++      a.set(1,2,0);
++      a.set(2,0,0);
++      a.set(2,1,0);
++      a.set(2,2,0);
++    }
+ 
+ 
+ AGVector2 AGPaintProjection::project(const AGVector2 &amp;p) const
+@@ -218,23 +218,27 @@
+ /////////////////////////////////////////////////////////////////////////////////
+ 
+ AGPainter::AGPainter():mCurrent(getScreen().getRect()),mTarget(&amp;getScreen())
+-  {
+-    mTarget-&gt;beginPaint();
+-  }
++    {
++      CTRACE;
++      mTarget-&gt;beginPaint();
++    }
+ 
+ AGPainter::AGPainter(const AGPainter &amp;p):ps(p.ps),mCurrent(p.mCurrent),mTarget(p.mTarget)
+-  {
+-    mTarget-&gt;beginPaint();
+-  }
++    {
++      CTRACE;
++      mTarget-&gt;beginPaint();
++    }
+ 
+ AGPainter::AGPainter(AGPaintTarget &amp;pTarget):mCurrent(pTarget.getRect()),mTarget(&amp;pTarget)
+-  {
+-    mTarget-&gt;beginPaint();
+-  }
++    {
++      CTRACE;
++      mTarget-&gt;beginPaint();
++    }
+ 
+ 
+ AGPainter::~AGPainter()
+   {
++    CTRACE;
+     if(mTarget.valid())
+       {
+         mTarget-&gt;unclip();
+@@ -320,7 +324,9 @@
+   }
+ void AGPainter::tile(const AGTexture &amp;pSource,const AGRect2 &amp;pDest)
+   {
+-    tile(pSource,pDest,pSource.getRect());
++    AGRect2 sourceRect=pSource.getRect();
++
++    tile(pSource,pDest,sourceRect);
+   }
+ void AGPainter::tile(const AGTexture &amp;pSource,const AGRect2 &amp;pDest,const AGRect2 &amp;pSrc)
+   {
+
+Modified: antargis/trunk/ruby/editor/campaign/campaign_data.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/campaign_data.rb	2008-06-27 15:10:20 UTC (rev 1269)
++++ antargis/trunk/ruby/editor/campaign/campaign_data.rb	2008-07-02 17:22:33 UTC (rev 1270)
+@@ -1,6 +1,120 @@
+-module CampaignEditor
+-  class Data
+-    def initialize
+-    end
++class Story
++  
++end
++
++StoryScreen=Struct.new(:imageFilename,:text)
++
++class Story
++  attr_reader :screens
++  attr_accessor :x, :y
++  def initialize
++    @screens=[]
+   end
+-end
+\ No newline at end of file
++end
++
++Level=Struct.new(:filename,:x,:y)
++Edge=Struct.new(:from,:to,:name)
++
++class Campaign
++  def self.getAllFilenames
++    dir=&quot;data/campaigns&quot;
++    getDirectory(dir).uniq.select{|f|f=~/\.xml/}    
++  end
++  
++  def self.getAll
++    getAllFilenames.map{|file|self.new(dir+&quot;/&quot;+file)}
++  end
++  
++  def initialize(filename)
++    c=loadFile(filename)
++    d=Document.new(filename)
++    hasEdges=(d.root.getChildren(&quot;edges&quot;).length&gt;0)
++    @nodes={}
++    @edges=[]
++    @startNode=nil
++    @vars={}
++    
++    varNames.each{|n|@vars[n]=d.root.get(n)}
++    
++    d.root.getChildren.each{|child|
++      #pp child.getName
++      node=nil
++      case child.getName
++        when &quot;cutscene&quot;
++          story=Story.new
++          child.getChildren(&quot;screen&quot;).each{|screenNode|
++            imageNode=screenNode.getChildren(&quot;image&quot;)[0]
++            textNode=screenNode.getChildren(&quot;text&quot;)[0]
++            image=nil
++            text=&quot;&quot;
++            image=imageNode.get(&quot;filename&quot;) if imageNode
++            text=textNode.get(&quot;text&quot;) if textNode
++            story.screens &lt;&lt; StoryScreen.new(image,text)
++          }
++          node=story
++        when &quot;level&quot;
++          node=Level.new(child.get(&quot;file&quot;))    
++      end
++      if node
++        if child.get(&quot;x&quot;).to_i.to_s==child.get(&quot;x&quot;) and child.get(&quot;y&quot;).to_i.to_s==child.get(&quot;y&quot;) 
++          node.x=child.get(&quot;x&quot;).to_i
++          node.y=child.get(&quot;y&quot;).to_i
++        else
++          node.x=@nodes.length
++          node.y=0
++        end
++      #raise &quot;FIXME: read position&quot;
++      
++	      nodename=child.get(&quot;name&quot;)
++	      
++	      nodename=&quot;node#{@nodes.length}&quot; if nodename==&quot;&quot;
++	      @nodes[nodename]=node
++        unless hasEdges
++          @edges&lt;&lt;Edge.new(&quot;node#{@nodes.length-2}&quot;,nodename,&quot;&quot;) if @nodes.length&gt;1
++        end
++      end
++    }
++    puts dump
++  end
++  
++  
++  def dump
++    doc=Document.new
++    root=doc.root
++    root.setName(&quot;campaign&quot;)
++    varNames.each{|n|root.set(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">n, at vars</A>[n])}
++    @nodes.each{|name,node|
++      l=nil
++      case node
++        when Story
++          l=root.addChild(&quot;cutscene&quot;)
++          l.set(&quot;name&quot;,name)
++          node.screens.each{|screen|
++            screenNode=l.addChild(&quot;screen&quot;)
++            if screen.text
++              screenNode.addChild(&quot;text&quot;).set(&quot;text&quot;,screen.text)
++            end
++            if screen.imageFilename
++              screenNode.addChild(&quot;image&quot;).set(&quot;filename&quot;,screen.text)
++            end
++          }
++        when Level
++          l=root.addChild(&quot;level&quot;)
++          l.set(&quot;name&quot;,name)
++          l.set(&quot;file&quot;,node.filename)
++      end
++      l.set(&quot;x&quot;,node.x.to_s)
++      l.set(&quot;y&quot;,node.y.to_s)
++    }
++    @edges.each{|edge|
++      l=root.addChild(&quot;edge&quot;)
++      l.set(&quot;from&quot;,edge.from)
++      l.set(&quot;to&quot;,edge.to)
++      l.set(&quot;name&quot;,edge.name)
++    }
++    doc.toString
++  end
++  def varNames
++    [&quot;image&quot;,&quot;name&quot;,&quot;order&quot;,&quot;description&quot;]
++  end
++end
+
+Added: antargis/trunk/ruby/editor/campaign/dialogs.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/dialogs.rb	2008-06-27 15:10:20 UTC (rev 1269)
++++ antargis/trunk/ruby/editor/campaign/dialogs.rb	2008-07-02 17:22:33 UTC (rev 1270)
+@@ -0,0 +1,50 @@
++
++module CampaignEditor
++  class Dialog&lt;AGLayout
++    #include AGHandler
++    def initialize(p)
++      super
++    end
++    def loadXML(f)
++      super
++      addHandler(getChild(&quot;cancel&quot;),:sigClick,:eventCancel)
++      addHandler(getChild(&quot;ok&quot;),:sigClick,:eventOk)
++    end
++    def eventCancel
++      close
++    end
++    def eventOk
++      close
++    end
++  end
++  
++  class SaveDialog&lt;Dialog
++    def initialize(p)
++      super
++      p.addChild(self)
++      loadXML(loadFile(&quot;data/gui/layout/editor/campaign/save_dialog.xml&quot;))
++      getChild(&quot;ok&quot;).setEnabled(false)
++      addHandler(getChild(&quot;filename&quot;),:sigModified,:eventFilenameChanged)
++      
++      listbox=getChild(&quot;listBox&quot;)
++      Campaign.getAllFilenames.each{|f|
++        listbox.insertItem(f,AGStringUtf8.new(f))
++      }
++      
++      addHandler(listbox,:sigSelect,:eventSelected)
++    end
++    def eventOk
++      super
++    end
++    def eventFilenameChanged
++      getChild(&quot;ok&quot;).setEnabled(getChild(&quot;filename&quot;).getText.to_s.length&gt;0)
++    end
++    def eventSelected
++      getChild(&quot;filename&quot;).setText(AGStringUtf8.new(getChild(&quot;listBox&quot;).getSelectedValue))
++      eventFilenameChanged
++    end
++	end
++	
++	class LoadDialog&lt;Dialog
++	end
++end
+\ No newline at end of file
+
+Modified: antargis/trunk/ruby/editor/campaign/drag_grid.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/drag_grid.rb	2008-06-27 15:10:20 UTC (rev 1269)
++++ antargis/trunk/ruby/editor/campaign/drag_grid.rb	2008-07-02 17:22:33 UTC (rev 1270)
+@@ -1,6 +1,11 @@
+ require 'ruby/antargislib.rb'
+ require 'pp'
+ 
++require File.join(File.split(__FILE__)[0],&quot;dialogs.rb&quot;)
++require File.join(File.split(__FILE__)[0],&quot;toolbar.rb&quot;)
++
++#setDebugLevel(0)
++
+ # TODO:
+ # * put all draggable-objects within context of DragEnvironemt
+ 
+@@ -28,11 +33,11 @@
+       ]
+   end
+   def getArrowTriangles(from,to,width)
+-    puts &quot;gettin tris&quot;
++    #puts &quot;gettin tris&quot;
+     ps=createArrowPolies(from,to,width)
+     ts=[ps[0][0..2],ps[0][1..3],ps[1]]
+     r=ts.map{|t|AGTriangle2.new(t[0],t[1],t[2])}
+-    puts &quot;gettin tris!&quot;
++    #puts &quot;gettin tris!&quot;
+     r
+   end
+ end
+@@ -171,13 +176,17 @@
+     @name=node[&quot;name&quot;]
+     @target=node[&quot;table&quot;]
+     @row=node[&quot;row&quot;].to_i
+-    @size=50
++    #@size=50
++    @size=nil
+     
+   end
+   def step(amount)
+-    table=getApp.getMainWidget.getChild(@target)
++    @size||=table.getRow(@row)
+     table.modifyRow(@row,(1-amount)*@size)
+   end
++  def table
++    getApp.getMainWidget.getChild(@target)
++  end
+ end
+ 
+ class AGHoverWidget&lt;AGWidget
+@@ -375,6 +384,9 @@
+   end
+ end
+ 
++class DragBoxLevel&lt;DragBox
++end
++
+ class DragBoxStory&lt;DragBox
+   def initialize(p,r,text)
+     super
+@@ -493,70 +505,8 @@
+ end
+ 
+ 
+-class AGWidgetWithConfig&lt;AGWidget
+-  def initialize(p,r,ops)
+-    @options=ops
+-    super(p,r)
+-  end
+-  def getColor(name,default)
+-    v=@options[name]
+-    c=AGColor.new(v) if v=~/#[0-9A-Fa-f]{6}/
+-    c||=AGColor.new(default)
+-    c
+-  end
+-end
+ 
+-class ToolBar&lt;AGWidgetWithConfig
+-  attr_reader :borderWidth
+-  def initialize(p,r,ops)
+-    super
+-    @ul=getColor(&quot;ul&quot;,&quot;#CCCCCC&quot;)
+-    @ur=getColor(&quot;ur&quot;,&quot;#CCCCCC&quot;)
+-    @ll=getColor(&quot;ll&quot;,&quot;#999999&quot;)
+-    @lr=getColor(&quot;lr&quot;,&quot;#999999&quot;)
+-    @borderWidth=ops[&quot;borderWidth&quot;].to_i
+-    @count=0
+-  end
+-  def draw(p)
+-    p.drawGradient(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">getRect.origin, at ul</A><A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at ur</A><A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at ll</A><A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at lr</A>)
+-  end
+-  def getNextChildRect
+-    cCount=getChildren.length
+-    #cCount=@count
+-    #@count+=1
+-    #p getChildRects,cCount
+-    #exit
+-    getChildRects[cCount].shrink(3)
+-  end
+-  
+-  def getChildRects
+-    rectSize=[width,height].min
+-    rects=[]
+-    0.upto(width/rectSize-1){|x|
+-      0.upto(height/rectSize-1){|y|
+-        rects&lt;&lt;AGRect.new(x*rectSize,y*rectSize,rectSize,rectSize)
+-      }
+-    }
+-    rects
+-  end
+-end
+ 
+-class ToolButton&lt;AGButton
+-  def initialize(p,r,ops)
+-    puts &quot;MUH1&quot;
+-    puts self.object_id
+-    text=AGStringUtf8.new(&quot;HUP&quot;)
+-    super(p,r,text)
+-    setCaching(false)
+-    puts &quot;MUH2&quot;
+-    setRect(p.getNextChildRect)
+-    setCaption(text)
+-    setSurface(AGSurface::load(ops[&quot;caption-image&quot;])) if ops[&quot;caption-image&quot;]
+-    setName(ops[&quot;name&quot;])
+-  end
+-end
+-
+-
+ class DragGrid&lt;AGWidgetWithConfig
+   attr_reader :cells, :cellWidth, :selected
+   
+@@ -684,7 +634,7 @@
+ end
+ 
+ 
+-[DragGrid,DragSource,DragTrash,DragEnvironment,ToolBar,ToolButton,AppearEffect,HideEffect].each{|c|standardLayoutCreator(c)}
++[DragGrid,DragSource,DragTrash,DragEnvironment,ToolBar,ToolButton,ToolEdit,ToolCombo,AppearEffect,HideEffect].each{|c|standardLayoutCreator(c)}
+ 
+ require File.join(File.split(__FILE__)[0],'story_editor.rb')
+ 
+@@ -714,6 +664,9 @@
+   }
+ end
+ 
++require File.join(File.split(__FILE__)[0],&quot;campaign_data.rb&quot;)
++
++
+ class CampaignEditorApp&lt;AGApplication
+   def initialize()
+     super
+@@ -725,11 +678,14 @@
+     setMainWidget(layout)
+     layout.setApp(self)
+     if layout.getChild(&quot;bigTable&quot;)
+-      layout.getChild(&quot;bigTable&quot;).modifyRow(1,10)
+       env=layout.getChild(&quot;dragEnvironment&quot;)
+       @grid=layout.getChild(&quot;dragGrid&quot;)
+       addHandler(env,:sigClick,:eventDeselect)
+     end
++    
++    addHandler(layout.getChild(&quot;edit&quot;),:sigClick,:eventEdit)
++    
++    initSavingLoading
+   end
+   def eventDeselect
+     @grid.select(nil) if @grid
+@@ -741,5 +697,39 @@
+   def getEffect(name)
+     @layout.getChild(name)
+   end
++  def eventEdit
++    widget=nil
++    case @grid.selected
++      when DragBoxStory
++        widget=StoryEditor.new(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">layout, at layout.getRect</A>,{})
++      when DragBoxLevel
++        # FIXME
++    end
++    
++    @layout.addChild(widget) if widget
++    true
++  end
++  
++  def initSavingLoading
++    addHandler(@layout.getChild(&quot;load&quot;),:sigClick,:eventLoad)    
++    addHandler(@layout.getChild(&quot;save&quot;),:sigClick,:eventSave)    
++ #   pp Campaign.getAll
++ #   exit
++  end
++  
++  def eventLoad
++    
++    true
++  end
++  def eventSave
++    d=CampaignEditor::SaveDialog.new(@layout)
++    #d.loadXML(loadFile(&quot;data/gui/layout/editor/campaign/save_dialog.xml&quot;))
++    #@layout.addChild(d)
++    #l=AGLayout.new(@layout)
++    #l.loadXML(loadFile())
++    #@layout.addChild(l)
++    true
++  end
++  
+ end
+ 
+
+Modified: antargis/trunk/ruby/editor/campaign/story_editor.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/story_editor.rb	2008-06-27 15:10:20 UTC (rev 1269)
++++ antargis/trunk/ruby/editor/campaign/story_editor.rb	2008-07-02 17:22:33 UTC (rev 1270)
+@@ -1,7 +1,6 @@
+ require File.join(File.split(__FILE__)[0],'image_list.rb')
+ require File.join(File.split(__FILE__)[0],'image_list_2d.rb')
+ 
+-StoryScreen=Struct.new(:imageFilename,:text)
+ 
+ class StoryEditor&lt;AGWidget
+   def initialize(p,r,options)
+@@ -17,6 +16,8 @@
+     @next=getChild(&quot;next&quot;)
+     @prev=getChild(&quot;prev&quot;)
+     @edit=getChild(&quot;edit&quot;)
++    @ok=getChild(&quot;ok&quot;)
++    @cancel=getChild(&quot;cancel&quot;)
+     
+     @prev.setEnabled(false)
+     @story=[makeNewScreen]
+@@ -24,9 +25,21 @@
+     addHandler(@next,:sigClick,:eventNext)
+     addHandler(@prev,:sigClick,:eventPrev)
+     addHandler(@edit,:sigModified,:eventText)
++    
++    addHandler(@cancel,:sigClick,:eventCancel)
++    addHandler(@ok,:sigClick,:eventOk)
+     @cursor=0
+   end
+   
++  def eventCancel
++    close
++    true
++  end
++  def eventOk
++    close
++    true
++  end
++  
+   def eventText(e)
+     @story[@cursor].text=@edit.getText
+     true
+
+Added: antargis/trunk/ruby/editor/campaign/toolbar.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/toolbar.rb	2008-06-27 15:10:20 UTC (rev 1269)
++++ antargis/trunk/ruby/editor/campaign/toolbar.rb	2008-07-02 17:22:33 UTC (rev 1270)
+@@ -0,0 +1,117 @@
++class AGWidgetWithConfig&lt;AGWidget
++  def initialize(p,r,ops)
++    @options=ops
++    super(p,r)
++  end
++  def getColor(name,default)
++    v=@options[name]
++    c=AGColor.new(v) if v=~/#[0-9A-Fa-f]{6}/
++    c||=AGColor.new(default)
++    c
++  end
++end
++
++class ToolBar&lt;AGWidgetWithConfig
++  attr_reader :borderWidth
++  def initialize(p,r,ops)
++    super
++    @ul=getColor(&quot;ul&quot;,&quot;#CCCCCC&quot;)
++    @ur=getColor(&quot;ur&quot;,&quot;#CCCCCC&quot;)
++    @ll=getColor(&quot;ll&quot;,&quot;#999999&quot;)
++    @lr=getColor(&quot;lr&quot;,&quot;#999999&quot;)
++    @borderWidth=ops[&quot;borderWidth&quot;].to_i
++    @count=0
++    
++    @children=[]
++  end
++  def draw(p)
++    p.drawGradient(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">getRect.origin, at ul</A><A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at ur</A><A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at ll</A><A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at lr</A>)
++  end
++  
++  def arrangeChildren
++    count=0
++    @children.each{|child|
++      many=1
++      many=child.boxWidth if child.respond_to?(:boxWidth)
++      pp count,many
++      r=getChildRect(count,many)
++      p r
++      child.setRect(r)
++      count+=many
++      child.queryRedraw
++    }
++  end
++  def addChild(c)
++    super
++    @children&lt;&lt;c
++    arrangeChildren
++  end
++  
++  private
++  def getChildRect(pos,many)
++    rects=getChildRects
++    r=rects[pos]
++    pos+=1
++    many-=1
++    while many&gt;0
++      r=AGRect2.new(r.getV0,rects[pos].getV1)
++      pos+=1
++      many-=1
++    end
++    r.shrink(3)
++  end
++
++  def getChildRects
++    rectSize=[width,height].min
++    rects=[]
++    0.upto(width/rectSize-1){|x|
++      0.upto(height/rectSize-1){|y|
++        rects&lt;&lt;AGRect.new(x*rectSize,y*rectSize,rectSize,rectSize)
++      }
++    }
++    rects
++  end
++end
++
++class ToolButton&lt;AGButton
++  def initialize(p,r,ops)
++    text=AGStringUtf8.new(&quot;HUP&quot;)
++    super(p,r,text)
++    setCaching(false)
++    setCaption(text)
++    setSurface(AGSurface::load(ops[&quot;caption-image&quot;])) if ops[&quot;caption-image&quot;]
++    setName(ops[&quot;name&quot;])
++  end
++end
++
++class ToolEdit&lt;AGEdit
++  attr_reader :boxWidth
++  def initialize(p,r,ops)
++    super(p,r)
++    setMulti(false)
++    setVAlign(EDIT_VCENTER)
++    setText(AGStringUtf8.new(ops[&quot;text&quot;]))
++    setMutable(ops[&quot;mutable&quot;]!=&quot;false&quot;)
++    
++    @boxWidth=3
++  end
++  def eventGotFocus
++    self.boxWidth=5
++  end
++  def eventLostFocus
++    self.boxWidth=3
++  end
++  def boxWidth=(w)
++    @boxWidth=w
++    getAncestor(ToolBar).arrangeChildren
++  end
++end
++
++class ToolCombo&lt;AGComboBox
++  def initialize(p,r,ops)
++    super(p,r)
++  end
++  def boxWidth
++    3
++  end
++end
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000227.html">[Antargis-svn] r1271 - in antargis/trunk: data	data/gui/layout/editor/campaign ext/basic ext/gui ext/video	ruby ruby/editor/campaign
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#226">[ date ]</a>
+              <a href="thread.html#226">[ thread ]</a>
+              <a href="subject.html#226">[ subject ]</a>
+              <a href="author.html#226">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

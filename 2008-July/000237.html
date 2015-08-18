@@ -1,0 +1,152 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1281 - in antargis/trunk: ext/3dengine ext/basic	ext/gui ext/video rookey/maintainenance
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2008-July/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1281%20-%20in%20antargis/trunk%3A%20ext/3dengine%20ext/basic%0A%09ext/gui%20ext/video%20rookey/maintainenance&In-Reply-To=%3C200807201500.m6KF0UR3020814%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000236.html">
+   <LINK REL="Next"  HREF="000238.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1281 - in antargis/trunk: ext/3dengine ext/basic	ext/gui ext/video rookey/maintainenance</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1281%20-%20in%20antargis/trunk%3A%20ext/3dengine%20ext/basic%0A%09ext/gui%20ext/video%20rookey/maintainenance&In-Reply-To=%3C200807201500.m6KF0UR3020814%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1281 - in antargis/trunk: ext/3dengine ext/basic	ext/gui ext/video rookey/maintainenance">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sun Jul 20 17:00:30 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000236.html">[Antargis-svn] r1280 - in antargis/trunk/rookey: . configs	maintainenance
+</A></li>
+        <LI>Next message: <A HREF="000238.html">[Antargis-svn] r1282 - in antargis/trunk: ext/game ext/gui	rookey/configs rookey/cpp rookey/externals
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#237">[ date ]</a>
+              <a href="thread.html#237">[ thread ]</a>
+              <a href="subject.html#237">[ subject ]</a>
+              <a href="author.html#237">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2008-07-20 17:00:23 +0200 (Sun, 20 Jul 2008)
+New Revision: 1281
+
+Modified:
+   antargis/trunk/ext/3dengine/vertex_array.cc
+   antargis/trunk/ext/basic/ag_geometry.cc
+   antargis/trunk/ext/gui/ag_widget.cc
+   antargis/trunk/ext/video/ag_png.cc
+   antargis/trunk/rookey/maintainenance/
+Log:
+* fixes for valgrind-errors
+
+Modified: antargis/trunk/ext/3dengine/vertex_array.cc
+===================================================================
+--- antargis/trunk/ext/3dengine/vertex_array.cc	2008-07-19 15:53:40 UTC (rev 1280)
++++ antargis/trunk/ext/3dengine/vertex_array.cc	2008-07-20 15:00:23 UTC (rev 1281)
+@@ -34,6 +34,7 @@
+ VertexArray::VertexArray(bool pDynamic):mDynamic(pDynamic),bbox(AGVector3(),AGVector3())
+ {
+   bColor=true;
++  GLeeInit();
+   mBuffers=GLEE_ARB_vertex_buffer_object &amp;&amp; useVBO();
+   mArrays=GLEE_EXT_vertex_array &amp;&amp; useVertexArrays();
+ 
+
+Modified: antargis/trunk/ext/basic/ag_geometry.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_geometry.cc	2008-07-19 15:53:40 UTC (rev 1280)
++++ antargis/trunk/ext/basic/ag_geometry.cc	2008-07-20 15:00:23 UTC (rev 1281)
+@@ -253,6 +253,7 @@
+ AGString AGVector2::toString() const
+ {
+   std::ostringstream os;
++  os.str(&quot;&quot;);
+   os&lt;&lt;&quot;(&quot;&lt;&lt;v[0]&lt;&lt;&quot;,&quot;&lt;&lt;v[1]&lt;&lt;&quot;)&quot;;
+   return AGString(os.str());
+ }
+
+Modified: antargis/trunk/ext/gui/ag_widget.cc
+===================================================================
+--- antargis/trunk/ext/gui/ag_widget.cc	2008-07-19 15:53:40 UTC (rev 1280)
++++ antargis/trunk/ext/gui/ag_widget.cc	2008-07-20 15:00:23 UTC (rev 1281)
+@@ -612,19 +612,21 @@
+ 
+ void AGWidget::setWidth(float w)
+   {
+-    if(mCache &amp;&amp; width()!=w)
+-      setCaching(true);
++    bool changed=(width()!=w);
+     regChange();
+     mRect.setWidth(w);
++    if(mCache &amp;&amp; changed)
++      setCaching(true);
+     regChange();
+     queryRedraw();
+   }
+ void AGWidget::setHeight(float h)
+   {
+-    if(mCache &amp;&amp; height()!=h)
+-      setCaching(true);
++    bool changed=(height()!=h);
+     regChange();
+     mRect.setHeight(h);
++    if(mCache &amp;&amp; changed)
++      setCaching(true);
+     regChange();
+     queryRedraw();
+   }
+
+Modified: antargis/trunk/ext/video/ag_png.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_png.cc	2008-07-19 15:53:40 UTC (rev 1280)
++++ antargis/trunk/ext/video/ag_png.cc	2008-07-20 15:00:23 UTC (rev 1281)
+@@ -212,7 +212,7 @@
+ 
+     std::string ns(mem,nsize+1);
+ 
+-    delete mem;
++    delete[]  mem;
+     return ns;
+   }
+ 
+
+
+Property changes on: antargis/trunk/rookey/maintainenance
+___________________________________________________________________
+Name: svn:ignore
+   + antargis-*
+
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000236.html">[Antargis-svn] r1280 - in antargis/trunk/rookey: . configs	maintainenance
+</A></li>
+	<LI>Next message: <A HREF="000238.html">[Antargis-svn] r1282 - in antargis/trunk: ext/game ext/gui	rookey/configs rookey/cpp rookey/externals
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#237">[ date ]</a>
+              <a href="thread.html#237">[ thread ]</a>
+              <a href="subject.html#237">[ subject ]</a>
+              <a href="author.html#237">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,266 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1181 - in antargis/branches/rant: ext/3dengine	ext/game ruby/jobs
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-October/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1181%20-%20in%20antargis/branches/rant%3A%20ext/3dengine%0A%09ext/game%20ruby/jobs&In-Reply-To=%3C200710251338.l9PDcCim001610%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000137.html">
+   <LINK REL="Next"  HREF="000139.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1181 - in antargis/branches/rant: ext/3dengine	ext/game ruby/jobs</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1181%20-%20in%20antargis/branches/rant%3A%20ext/3dengine%0A%09ext/game%20ruby/jobs&In-Reply-To=%3C200710251338.l9PDcCim001610%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1181 - in antargis/branches/rant: ext/3dengine	ext/game ruby/jobs">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Thu Oct 25 15:38:12 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000137.html">[Antargis-svn] r1180 - in antargis/branches/rant: . data/gui/layout	ruby
+</A></li>
+        <LI>Next message: <A HREF="000139.html">[Antargis-svn] r1182 - in antargis: . tags
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#138">[ date ]</a>
+              <a href="thread.html#138">[ thread ]</a>
+              <a href="subject.html#138">[ subject ]</a>
+              <a href="author.html#138">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-10-25 15:38:12 +0200 (Thu, 25 Oct 2007)
+New Revision: 1181
+
+Modified:
+   antargis/branches/rant/ext/3dengine/ant_particle.cc
+   antargis/branches/rant/ext/3dengine/ant_particle.h
+   antargis/branches/rant/ext/3dengine/scene.cc
+   antargis/branches/rant/ext/game/entity.cc
+   antargis/branches/rant/ext/game/entity.h
+   antargis/branches/rant/ruby/jobs/ant_hljob_states.rb
+Log:
+* improved high-level-job for building
+
+
+Modified: antargis/branches/rant/ext/3dengine/ant_particle.cc
+===================================================================
+--- antargis/branches/rant/ext/3dengine/ant_particle.cc	2007-10-25 09:19:39 UTC (rev 1180)
++++ antargis/branches/rant/ext/3dengine/ant_particle.cc	2007-10-25 13:38:12 UTC (rev 1181)
+@@ -45,6 +45,14 @@
+   enabled=true;
+ }
+ 
++AntParticle::~AntParticle()
++{
++  for(std::list&lt;Piece*&gt;::iterator i=mPieces.begin();i!=mPieces.end();i++)
++    delete *i;
++  mPieces.clear();
++
++}
++
+ void AntParticle::setFire(bool f)
+ {
+   fire=f;
+
+Modified: antargis/branches/rant/ext/3dengine/ant_particle.h
+===================================================================
+--- antargis/branches/rant/ext/3dengine/ant_particle.h	2007-10-25 09:19:39 UTC (rev 1180)
++++ antargis/branches/rant/ext/3dengine/ant_particle.h	2007-10-25 13:38:12 UTC (rev 1181)
+@@ -37,6 +37,9 @@
+  public:
+   /// make some smoke (or fire) in Scene pScene with output frequency f
+   AntParticle(Scene *pScene,float f);
++  
++  virtual ~AntParticle();
++
+   /// if f is true this object will display a fire - otherwise it's smoke
+   /// default is smoke
+   void setFire(bool f);
+
+Modified: antargis/branches/rant/ext/3dengine/scene.cc
+===================================================================
+--- antargis/branches/rant/ext/3dengine/scene.cc	2007-10-25 09:19:39 UTC (rev 1180)
++++ antargis/branches/rant/ext/3dengine/scene.cc	2007-10-25 13:38:12 UTC (rev 1181)
+@@ -30,11 +30,11 @@
+   white=AGVector4(1,1,1,1);
+   black=AGVector4(0,0,0,1);
+   
++  GLeeInit();
++
+   cdebug(&quot;SHADOW:&quot;&lt;&lt;(int)GLEE_ARB_shadow);
+   cdebug(&quot;SHADOW_AMB:&quot;&lt;&lt;(int)GLEE_ARB_shadow_ambient);
+   
+-  GLeeInit();
+-  
+   if(getRenderer()-&gt;canShadow())
+     mShadow=1;
+   else
+
+Modified: antargis/branches/rant/ext/game/entity.cc
+===================================================================
+--- antargis/branches/rant/ext/game/entity.cc	2007-10-25 09:19:39 UTC (rev 1180)
++++ antargis/branches/rant/ext/game/entity.cc	2007-10-25 13:38:12 UTC (rev 1181)
+@@ -102,6 +102,7 @@
+     saveDelete(*i);
+   mMeshes.clear();
+   delete mJob;
++  removeOldJobs();
+ }
+ 
+ void AntEntity::resourceChanged()
+@@ -302,16 +303,21 @@
+ {
+ }
+ 
++void AntEntity::removeOldJobs()
++{
++  std::list&lt;Job*&gt;::iterator i=mJobFinished.begin();
++  for(;i!=mJobFinished.end();i++)
++    delete *i;
++  mJobFinished.clear();
++}
+ 
++
+ /** do anything in given time frame */
+ void AntEntity::move(float pTime)
+ {
+   if(mJobFinished.size() || mEnergy==0.0)
+     {
+-      std::list&lt;Job*&gt;::iterator i=mJobFinished.begin();
+-      for(;i!=mJobFinished.end();i++)
+-	delete *i;
+-      mJobFinished.clear();
++      removeOldJobs();
+     }
+   else if(mEnergy&gt;0.0)
+     {
+
+Modified: antargis/branches/rant/ext/game/entity.h
+===================================================================
+--- antargis/branches/rant/ext/game/entity.h	2007-10-25 09:19:39 UTC (rev 1180)
++++ antargis/branches/rant/ext/game/entity.h	2007-10-25 13:38:12 UTC (rev 1181)
+@@ -282,6 +282,8 @@
+     void starve(float pTime);
+ 
+     void loadJob(const Node &amp;pNode);
++
++    void removeOldJobs();
+   };
+ 
+ typedef AntEntity *PAntEntity;
+
+Modified: antargis/branches/rant/ruby/jobs/ant_hljob_states.rb
+===================================================================
+--- antargis/branches/rant/ruby/jobs/ant_hljob_states.rb	2007-10-25 09:19:39 UTC (rev 1180)
++++ antargis/branches/rant/ruby/jobs/ant_hljob_states.rb	2007-10-25 13:38:12 UTC (rev 1181)
+@@ -914,11 +914,13 @@
+ 	def sitDown(man)
+ 		man.sitDown
+ 		man.hlJobMode[:task]=:rest
++		man.lookTo(hero.getPos2D)
+ 	end
+ 	def rest(man)
+ 		man.sitStill
+ 		man.hlJobMode[:task]=nil
+ 		man.hlJobMode[:done]=0
++		man.lookTo(hero.getPos2D)
+ 	end
+ end
+ 
+@@ -1123,8 +1125,6 @@
+ 
+ 	def endFlatten(man)
+ 		p=man.hlJobMode[:flattening]
+-		puts man
+-		pp man.hlJobMode
+ 		assert{not p.nil?}
+ 		v=getMap.get(p[0],p[1])*(1-p[2])<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">+ at flatheight</A>*p[2]
+ 		getMap.set(p[0],p[1],v)
+@@ -1163,11 +1163,13 @@
+ 	# :section: Producing
+ 
+ 	def goBuilding(man)
++		puts &quot;goBuilding #{man}&quot;
+ 		man.walkTo(target)
+ 		man.hlJobMode[:task]=:build
+ 	end
+ 
+ 	def build(man)
++		puts &quot;build #{man}&quot;
+ 		man.hlJobMode[:task]=:endBuild
+ 		man.newRestJob(3,true)
+ 		man.setMeshState(&quot;pick&quot;)
+@@ -1179,11 +1181,18 @@
+ 	end
+ 
+ 	def whatToDo(man)
++		res=whatToDo2(man)
++		print &quot;whatToDo:&quot;
++		pp res
++		res
++	end
++
++	def whatToDo2(man)
+ 		man.hlJobMode[:done]||=0
+ 		return :goResting if man.hlJobMode[:done]&gt;=man.getAggression
+ 		return :goFlatten if somethingToFlattenLeft
++		return :goBuilding if enoughResourceLeft and not target.ready
+ 		return :goHarvesting if whatToHarvestList.length&gt;0
+-		return :goBuilding if not target.ready
+ 	end
+ 
+ 	# what the stock of all resources should be
+@@ -1206,6 +1215,20 @@
+ 		getMap.getNext(target,res,1)
+ 	end
+ 
++	def enoughResourceLeft
++		alreadyBuilding=hero.getMen.select{|man|man.hlJobMode[:task]==:build}.length+1
++		puts &quot;alreadyBuilding:#{alreadyBuilding}&quot;
++		#return true if alreadyBuilding==0
++		neededResources=target.building.buildResources
++		ok=true
++		neededResources.each{|k,v|
++
++			ok=false if target.resource.get(k)&lt;v*alreadyBuilding
++		}
++		puts &quot;ok: #{ok}&quot;
++		ok
++	end
++
+ 	def error(text)
+ 		raise ConstructException.new(text)
+ 	end
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000137.html">[Antargis-svn] r1180 - in antargis/branches/rant: . data/gui/layout	ruby
+</A></li>
+	<LI>Next message: <A HREF="000139.html">[Antargis-svn] r1182 - in antargis: . tags
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#138">[ date ]</a>
+              <a href="thread.html#138">[ thread ]</a>
+              <a href="subject.html#138">[ subject ]</a>
+              <a href="author.html#138">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

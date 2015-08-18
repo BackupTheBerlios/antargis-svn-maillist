@@ -1,0 +1,464 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1123 - in antargis/branches/rant: . build	build/configs
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-June/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1123%20-%20in%20antargis/branches/rant%3A%20.%20build%0A%09build/configs&In-Reply-To=%3C200706302040.l5UKeRSZ028808%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000079.html">
+   <LINK REL="Next"  HREF="000081.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1123 - in antargis/branches/rant: . build	build/configs</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1123%20-%20in%20antargis/branches/rant%3A%20.%20build%0A%09build/configs&In-Reply-To=%3C200706302040.l5UKeRSZ028808%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1123 - in antargis/branches/rant: . build	build/configs">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Sat Jun 30 22:40:27 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000079.html">[Antargis-svn] r1122 - in antargis/branches/rant: . build
+</A></li>
+        <LI>Next message: <A HREF="000081.html">[Antargis-svn] r1124 - in antargis/branches/rant/build: . configs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#80">[ date ]</a>
+              <a href="thread.html#80">[ thread ]</a>
+              <a href="subject.html#80">[ subject ]</a>
+              <a href="author.html#80">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-06-30 22:40:27 +0200 (Sat, 30 Jun 2007)
+New Revision: 1123
+
+Added:
+   antargis/branches/rant/build/configs/
+   antargis/branches/rant/build/configs/unix.rb
+   antargis/branches/rant/build/configure.rb
+   antargis/branches/rant/configure
+Modified:
+   antargis/branches/rant/Rantfile
+   antargis/branches/rant/build/base_tools.rb
+Log:
+* addded new files
+
+
+Modified: antargis/branches/rant/Rantfile
+===================================================================
+--- antargis/branches/rant/Rantfile	2007-06-30 18:51:38 UTC (rev 1122)
++++ antargis/branches/rant/Rantfile	2007-06-30 20:40:27 UTC (rev 1123)
+@@ -45,9 +45,9 @@
+ 
+ # configure cflags out of config.rb
+ cflags=&quot;&quot;
+-cflags+=&quot; -DGCDEBUG&quot; if $antConfig[&quot;gcdebug&quot;]   # enable debuggin of garbage-collection
+-cflags+=&quot; -g -O0&quot;    if $antConfig[&quot;debug&quot;]     # disable optimizations for better debugging
+-cflags+=&quot; -O2&quot;       unless $antConfig[&quot;debug&quot;] # enable optimizations
++cflags+=&quot; -DGCDEBUG&quot; if $config[&quot;gcdebug&quot;]   # enable debuggin of garbage-collection
++cflags+=&quot; -g -O0&quot;    if $config[&quot;debug&quot;]     # disable optimizations for better debugging
++cflags+=&quot; -O2&quot;       unless $config[&quot;debug&quot;] # enable optimizations
+ 	
+ 
+ var :CFLAGS =&gt; var[:INCLUDESTR]+cflags          # store cflags in &quot;var&quot; for later read-out while compiling
+@@ -94,7 +94,7 @@
+ 	}
+ 	task target =&gt; tsources do |t|
+ 		# build command
+-		cmd=makeCommand($antConfig[&quot;LINKSHARED&quot;],sys.expand_path(t.name), (t.prerequisites.collect{|f|sys.expand_path(f)}+extlibs).join(&quot; &quot;))
++		cmd=makeCommand(&quot;LINK_SHARED&quot;,sys.expand_path(t.name), (t.prerequisites.collect{|f|sys.expand_path(f)}+extlibs).join(&quot; &quot;))
+ 		sys cmd
+ 	end
+ }
+@@ -118,7 +118,7 @@
+ 		end
+ 	}
+ 	task target =&gt; tsources do |t|
+-		cmd=makeCommand($antConfig[&quot;LINKSHARED&quot;],sys.expand_path(t.name), t.prerequisites.collect{|f|sys.expand_path(f)}.join(&quot; &quot;))
++		cmd=makeCommand(&quot;LINK_SHARED&quot;,sys.expand_path(t.name), t.prerequisites.collect{|f|sys.expand_path(f)}.join(&quot; &quot;))
+ 		sys cmd
+ 	end
+ }
+@@ -129,7 +129,7 @@
+ # build c
+ #
+ gen Rule, '.o' =&gt; '.c' do |t|
+-	cmd=makeCommand($antConfig[&quot;CC&quot;],sys.expand_path(t.name),&quot;#{var :CFLAGS} #{sys.expand_path(t.source)}&quot;)
++	cmd=makeCommand(&quot;CC_CALL&quot;,sys.expand_path(t.name),&quot;#{var :CFLAGS} #{sys.expand_path(t.source)}&quot;)
+ 	sys cmd
+ end
+ ###########################################
+@@ -138,7 +138,7 @@
+ # build c++
+ #
+ gen Rule, '.oo' =&gt; '.cc' do |t|
+-	cmd=makeCommand($antConfig[&quot;CXX&quot;],sys.expand_path(t.name),&quot;#{var :CFLAGS} #{sys.expand_path(t.source)}&quot;)
++	cmd=makeCommand(&quot;CXX_CALL&quot;,sys.expand_path(t.name),&quot;#{var :CFLAGS} #{sys.expand_path(t.source)}&quot;)
+ 	sys cmd
+ end
+ #
+@@ -155,7 +155,7 @@
+ }
+ 
+ gen Rule, /^.*swig.(cc|h)$/ =&gt; swigSrc do |t|
+-	cmd=makeCommand($antConfig[&quot;SWIG&quot;],sys.expand_path(t.name),&quot;-DAGEXPORT -Ibuild -I#{sys.expand_path(getDir(t.name))} #{var :INCLUDESTR} #{sys.expand_path(t.source)}&quot;)
++	cmd=makeCommand(&quot;SWIG_CALL&quot;,sys.expand_path(t.name),&quot;-DAGEXPORT -Ibuild -I#{sys.expand_path(getDir(t.name))} #{var :INCLUDESTR} #{sys.expand_path(t.source)}&quot;)
+ 	sys cmd
+ end
+ #
+@@ -182,7 +182,7 @@
+ 	list
+ }
+ gen Rule, /^.*interface.i$/ =&gt; interfaceSrc do |t|
+-	cmd=makeCommand($antConfig[&quot;CREATEINTERFACE&quot;],getDir(sys.expand_path(t.name)),importsForInterface(t.name))
++	cmd=makeCommand(&quot;CREATEINTERFACE&quot;,getDir(sys.expand_path(t.name)),importsForInterface(t.name))
+ 	sys cmd
+ end
+ #
+
+Modified: antargis/branches/rant/build/base_tools.rb
+===================================================================
+--- antargis/branches/rant/build/base_tools.rb	2007-06-30 18:51:38 UTC (rev 1122)
++++ antargis/branches/rant/build/base_tools.rb	2007-06-30 20:40:27 UTC (rev 1123)
+@@ -16,14 +16,32 @@
+ 	&quot;antargis&quot;+dir.split(Dir.separator)[-1]
+ end
+ 
+-# the getConfig function reads out compiler-information out of the mkmf-configuration variables - these are defined in a recursive manner
+-def getConfig(s)
+-  r=CONFIG[s]
++# build a command out of templates in config.rb
++def makeCommand(cmd,output,input)
++	#cmd.sub(&quot;&#167;OUTPUT&#167;&quot;,output).sub(&quot;&#167;INPUT&#167;&quot;,input)
++	extendCommand($config,cmd,{&quot;OUTPUT&quot;=&gt;output,&quot;INPUT&quot;=&gt;input})
++end
++
++
++def extendCommandLine(config,s)
++  r=config[s]
+   return r if r.nil?
+-  r.gsub(/\$\(([^\)]*)\)/) {|a|getConfig(a[2..-2])} # replace recursive values within this form: $(...)
++  r.gsub(/\$\(([^\)]*)\)/) {|a|
++		n=a[2..-2] # filter &quot;$(xy..z)&quot; to &quot;xy..z&quot;
++		raise &quot;Endless recursion in #{n}!&quot; if n==s
++		extendCommandLine(config,n)  # replace recursive values within this form: $(...)
++	}
+ end
+ 
+-# build a command out of templates in config.rb
+-def makeCommand(cmd,output,input)
+-	cmd.sub(&quot;&#167;OUTPUT&#167;&quot;,output).sub(&quot;&#167;INPUT&#167;&quot;,input)
++def extendCommand(config,name,map={})
++	c=config.clone
++	map.each{|k,v|
++		c[k]=v
++	}
++	extendCommandLine(c,name)
++end
++
++# the getConfig function reads out compiler-information out of the mkmf-configuration variables - these are defined in a recursive manner
++def getConfig(s)
++	extendCommand(CONFIG,s)
+ end
+\ No newline at end of file
+
+Added: antargis/branches/rant/build/configs/unix.rb
+===================================================================
+--- antargis/branches/rant/build/configs/unix.rb	2007-06-30 18:51:38 UTC (rev 1122)
++++ antargis/branches/rant/build/configs/unix.rb	2007-06-30 20:40:27 UTC (rev 1123)
+@@ -0,0 +1,17 @@
++$config={
++	&quot;CXX&quot;=&gt;&quot;$(g++)&quot;,
++	&quot;CC&quot;=&gt;&quot;$(gcc)&quot;,
++	&quot;SWIG&quot;=&gt;&quot;$(swig)&quot;,
++	&quot;RUBY&quot;=&gt;&quot;$(ruby)&quot;,
++	&quot;CCACHE&quot;=&gt;&quot;$(ccache)&quot;,
++
++	&quot;LINK&quot;=&gt;&quot;$(CXX)&quot;,
++
++	&quot;COMPILE_PARAMS&quot;=&gt;&quot; -c -o $(OUTPUT) $(INPUT)&quot;,
++	&quot;CC_CALL&quot;=&gt;&quot;$(CCACHE) $(CC) $(COMPILE_PARAMS)&quot;,
++	&quot;CXX_CALL&quot;=&gt;&quot;$(CCACHE) $(CXX) $(COMPILE_PARAMS)&quot;,
++	&quot;LINK_SHARED&quot;=&gt;&quot;$(LINK) -shared -o $(OUTPUT) $(INPUT)&quot;,
++	&quot;SWIG_CALL&quot;=&gt;&quot;$(SWIG) -v -Wall -ruby -c++ -o $(OUTPUT) $(INPUT)&quot;,
++	&quot;SWIGDEPS&quot;=&gt;&quot;$(SWIG) -ruby -c++ -M $(INPUT)&quot;,
++	&quot;CREATEINTERFACE&quot;=&gt;&quot;$(RUBY) build/create_interface.rb -d=$(OUTPUT) -i=$(INPUT)&quot;
++}
+
+Added: antargis/branches/rant/build/configure.rb
+===================================================================
+--- antargis/branches/rant/build/configure.rb	2007-06-30 18:51:38 UTC (rev 1122)
++++ antargis/branches/rant/build/configure.rb	2007-06-30 20:40:27 UTC (rev 1123)
+@@ -0,0 +1,177 @@
++module CFG
++	@@options=[]
++	@@config={}
++	@@checks=[]
++
++	def CFG.addOption(name,short,help,param=nil,&amp;proc)
++		@@options.push({:name=&gt;name,:short=&gt;short,:help=&gt;help,:proc=&gt;proc,:param=&gt;param})
++	end
++	def CFG.options
++		@@options
++	end
++	def CFG.addCheck(name,&amp;proc)
++		@@checks &lt;&lt; {:name=&gt;name,:proc=&gt;proc}
++	end
++
++	def CFG.call(name)
++		@@options.each{|op|
++			if op[:name]==name || op[:short]==name
++				op[:proc].call
++			end
++		}
++	end
++	def CFG.parseArgs
++		ARGV.each{|arg|
++			found=false
++			# parse single arguments like &quot;-d&quot; or &quot;-dgh&quot; (like tar -xfz)
++			if arg=~/^-[a-z]+$/
++				found=true
++				# check if all characters represent a correct option
++				arg[1..-1].scan(/./){|byte|
++					found=false if @@options.select{|op|op[:short]==byte}.length==0
++				}
++				if found
++					# all were ok, so call each these options
++					arg[1..-1].scan(/./){|byte|
++						@@options.each{|op|op[:proc].call if op[:short]==byte}
++					}
++				end
++			end
++			if not found
++				# option could not yet be processed, so do a second try
++				@@options.each{|op|
++					name=op[:name]
++					ename=name.gsub(&quot;+&quot;,&quot;\\\\+&quot;)
++					#puts &quot;ENAME:#{ename}&quot;
++					# parse &quot;simple&quot; options without parameters
++					if arg=~/^--#{ename}$/ or arg=~/^-#{op[:short]}$/
++						found=true
++						op[:proc].call
++					# parse options with parameter, given like this : &quot;-d=&lt;somedir&gt;&quot; or &quot;--dir=bladir&quot;
++					elsif arg=~/^--#{ename}=.+/ or arg=~/^-#{op[:short]}=.+$/
++						found=true
++						op[:proc].call(arg.gsub(/^[^=]+=/,&quot;&quot;))
++					end
++				}
++			end
++			puts &quot;ERROR: argument '#{arg}' could not be processed!&quot; if not found
++		}
++	end
++
++	def CFG.run
++		parseArgs
++		ok=runChecks
++		saveConfig if ok
++	end
++
++	def CFG.runChecks
++		puts 
++		failed=[]
++		@@checks.each{|c|
++			text=&quot;checking &quot;+c[:name]+&quot; ...&quot;
++			print text
++			ok=c[:proc].call
++			#ok=(not ok.nil?)
++			print &quot; &quot;*(40-text.length)
++			puts ({true=&gt;&quot;ok&quot;,false=&gt;&quot;failed&quot;}[ok])
++			failed &lt;&lt; c[:name] unless ok
++		}
++		if failed.length&gt;0
++			puts 
++			puts &quot;ERROR:&quot;
++			puts &quot;The following tests failed:&quot;
++			failed.each{|f|puts f}
++		end
++
++		failed.length==0
++	end
++
++	def CFG.saveConfig
++		configName=&quot;config.rb&quot;
++		f=File.open(configName,&quot;w&quot;)
++		f.puts &lt;&lt;EOT
++$config={
++#{@@config.collect{|k,v|&quot;  '&quot;+k+&quot;'=&gt;&quot;+toS(v)}.join(&quot;,\n&quot;)}
++}
++EOT
++		f.close
++		puts File.open(configName).read
++	
++	end
++
++	def CFG.toS(v)
++		case v
++			when String
++				&quot;'&quot;+v.to_s+&quot;'&quot;
++			else
++				v.to_s
++		end
++	end
++
++	def CFG.set(n,v)
++		@@config[n]=v
++	end
++	def CFG.get(n)
++		@@config[n]
++	end
++
++	def CFG.checkProgram(program)
++		addOption(&quot;path-&quot;+program,&quot;&quot;,
++			&quot;set path to program '#{program}' like this:\n --path-#{program}=/usr/local/bin/#{program}&quot;,&quot;path&quot;) do |d|
++				set(program,d)
++			end
++
++		addCheck (&quot;program &quot;+program) do ||
++			path=get(program)
++			path||=findProgram(program)
++			r=testProgram(path)
++			set (program,path) if r
++			r
++		end
++	end
++
++	def CFG.findProgram(program)
++		`whereis #{program}`.gsub(/[^:]*: */,&quot;&quot;).split(&quot; &quot;)[0]
++	end
++
++	def CFG.testProgram(path)
++		#puts path,File.exists?(path),&quot;--&quot;
++			File.exists?(path)
++	end
++
++	def CFG.includeConfig
++		avail=[&quot;unix&quot;]
++		addOption(&quot;base-config&quot;,&quot;&quot;,
++			&quot;set base-config like &quot;+avail.join(&quot;, &quot;),&quot;config&quot;) do |v|
++			set(&quot;base-config&quot;,v)
++		end
++		addCheck (&quot;base-config&quot;) do ||
++			c=get(&quot;base-config&quot;)
++			c=nil unless avail.member?(c)
++			c||=&quot;unix&quot;
++			require &quot;build/configs/&quot;+c+&quot;.rb&quot;
++			$config.each{|k,v|@@config[k]||=v}
++			true
++		end
++	end
++
++
++	addOption(&quot;help&quot;,&quot;h&quot;,
++		&quot;display help text&quot;) do
++			CFG.options.each{|op|
++				text=&quot;&quot;
++				text &lt;&lt; &quot;--#{op[:name]}&quot;
++				text &lt;&lt; &quot;=&lt;#{op[:param]}&gt;&quot; if op[:param]
++				text &lt;&lt; &quot;, -#{op[:short]}&quot; if op[:short]!=&quot;&quot;
++				text &lt;&lt; &quot;=&lt;#{op[:param]}&gt;&quot; if op[:short]!=&quot;&quot; and op[:param]
++				text+=&quot; &quot;*(40-text.length)
++				l=text.length
++				helpa=op[:help].split(&quot;\n&quot;)
++				text+=helpa[0]
++				helpa[1..-1].each{|h|
++					text &lt;&lt; &quot;\n&quot;+&quot; &quot;*l+h
++				}
++				puts text
++			}
++	end
++end
+
+Added: antargis/branches/rant/configure
+===================================================================
+--- antargis/branches/rant/configure	2007-06-30 18:51:38 UTC (rev 1122)
++++ antargis/branches/rant/configure	2007-06-30 20:40:27 UTC (rev 1123)
+@@ -0,0 +1,51 @@
++#!/usr/bin/env ruby
++
++require 'build/configure.rb'
++
++puts &lt;&lt;EOT
++Battle of Antargis - Configuration
++-------------------------------------------------------------------------------
++EOT
++
++CFG.addOption(&quot;enable-debug&quot;,&quot;d&quot;,
++	&quot;enable debugging&quot;) do  ||
++		CFG.set(&quot;debug&quot;,true)
++	end
++
++CFG.addOption(&quot;enable-gc-debug&quot;,&quot;g&quot;,
++	&quot;enable debugging of garbage collector&quot;) do  ||
++		CFG.set(&quot;gcdebug&quot;,true)
++	end
++
++CFG.addOption(&quot;prefix&quot;,&quot;&quot;,
++	&quot;set prefix directory&quot;,&quot;dir&quot;) do |d|
++		CFG.set(&quot;prefix&quot;,d)
++	end
++
++CFG.addOption(&quot;profile&quot;,&quot;p&quot;,
++	&quot;enable profiling of C++-code&quot;) do ||
++		CFG.set(&quot;profile&quot;,true)
++	end
++
++CFG.addOption(&quot;drmuser&quot;,&quot;&quot;,
++	&quot;set user for DRM&quot;,&quot;user&quot;) do |v|
++		CFG.set(&quot;drmuser&quot;,v)
++	end
++
++CFG.addOption(&quot;drmpw&quot;,&quot;&quot;,
++	&quot;set password for DRM&quot;,&quot;password&quot;) do |v|
++		CFG.set(&quot;drmpass&quot;,v)
++	end
++
++CFG.checkProgram(&quot;ccache&quot;)
++CFG.checkProgram(&quot;gcc&quot;)
++CFG.checkProgram(&quot;g++&quot;)
++CFG.checkProgram(&quot;swig&quot;)
++CFG.checkProgram(&quot;ruby&quot;)
++
++CFG.includeConfig
++
++
++CFG.run
++
++puts 
+
+
+Property changes on: antargis/branches/rant/configure
+___________________________________________________________________
+Name: svn:executable
+   + *
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000079.html">[Antargis-svn] r1122 - in antargis/branches/rant: . build
+</A></li>
+	<LI>Next message: <A HREF="000081.html">[Antargis-svn] r1124 - in antargis/branches/rant/build: . configs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#80">[ date ]</a>
+              <a href="thread.html#80">[ thread ]</a>
+              <a href="subject.html#80">[ subject ]</a>
+              <a href="author.html#80">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

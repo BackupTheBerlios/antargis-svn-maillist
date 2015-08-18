@@ -1,0 +1,508 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1188 - in antargis/trunk/ruby: ai entities
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1188%20-%20in%20antargis/trunk/ruby%3A%20ai%20entities&In-Reply-To=%3C200711201915.lAKJFCHb010569%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000144.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1188 - in antargis/trunk/ruby: ai entities</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1188%20-%20in%20antargis/trunk/ruby%3A%20ai%20entities&In-Reply-To=%3C200711201915.lAKJFCHb010569%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1188 - in antargis/trunk/ruby: ai entities">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Tue Nov 20 20:15:12 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000144.html">[Antargis-svn] r1187 - in antargis/trunk: . data/levels/dev	ext/basic ext/game ruby ruby/ai ruby/ai/spec ruby/entities ruby/jobs
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#145">[ date ]</a>
+              <a href="thread.html#145">[ thread ]</a>
+              <a href="subject.html#145">[ subject ]</a>
+              <a href="author.html#145">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-11-20 20:15:12 +0100 (Tue, 20 Nov 2007)
+New Revision: 1188
+
+Added:
+   antargis/trunk/ruby/ai/approach.txt
+   antargis/trunk/ruby/ai/hero_actions.rb
+   antargis/trunk/ruby/ai/hero_sensors.rb
+   antargis/trunk/ruby/ai/heuristic.rb
+   antargis/trunk/ruby/ai/rules.rb
+   antargis/trunk/ruby/entities/ant_grave.rb
+Log:
+* missing files...
+
+
+Added: antargis/trunk/ruby/ai/approach.txt
+===================================================================
+--- antargis/trunk/ruby/ai/approach.txt	2007-11-20 19:14:27 UTC (rev 1187)
++++ antargis/trunk/ruby/ai/approach.txt	2007-11-20 19:15:12 UTC (rev 1188)
+@@ -0,0 +1,10 @@
++Approaches:
++* Script-based
++* heuristic-based (without prediction)
++* min-max-tree (with prediction)
++** needs estimation of current state
++** current state must be editable/saveable
++** copy real-world to est-world
++*** heroes incl. position/health/man-count/resource
++*** trees/resources
++*** buildings with resources/man-count
+\ No newline at end of file
+
+Added: antargis/trunk/ruby/ai/hero_actions.rb
+===================================================================
+--- antargis/trunk/ruby/ai/hero_actions.rb	2007-11-20 19:14:27 UTC (rev 1187)
++++ antargis/trunk/ruby/ai/hero_actions.rb	2007-11-20 19:15:12 UTC (rev 1188)
+@@ -0,0 +1,53 @@
++module AI
++	module HeroAction
++		class Base
++			attr_reader :interface
++			def initialize(interface)
++				@interface=interface
++			end
++		end
++
++		class GetFood&lt;Base
++			def start(hero,target)
++				puts target,target.class
++				#raise 1
++				hero.takeFood(target)
++			end
++		end
++
++		class AttackHero&lt;Base
++			def start(hero,target)
++				assert{hero!=target}
++				hero.attack(target)
++			end
++		end
++
++		class Rest&lt;Base
++			def start(hero)
++				hero.rest(20)
++			end
++		end
++
++		class Recruit&lt;Base
++			def start(hero,target)
++				assert{hero!=target}
++				hero.recruit(target)
++			end
++		end
++
++		class ConstructEquipment&lt;Base
++			def start(hero,target)
++				assert{hero!=target}
++				hero.recruit(target)
++			end
++		end
++
++		class GetEquipment&lt;Base	
++			def start(hero,target)
++				assert{hero!=target}
++				hero.takeWeapon(target)
++			end
++		end
++
++	end
++end
+\ No newline at end of file
+
+Added: antargis/trunk/ruby/ai/hero_sensors.rb
+===================================================================
+--- antargis/trunk/ruby/ai/hero_sensors.rb	2007-11-20 19:14:27 UTC (rev 1187)
++++ antargis/trunk/ruby/ai/hero_sensors.rb	2007-11-20 19:15:12 UTC (rev 1188)
+@@ -0,0 +1,159 @@
++require 'ruby/ai/value_map.rb'
++
++module AI
++	module HeroSensor
++		NEEDED_EQUIPMENT={&quot;sword&quot;=&gt;2,
++			&quot;shield&quot;=&gt;2,
++			&quot;bow&quot;=&gt;1,
++			&quot;boat&quot;=&gt;1
++		}
++
++		class Base
++			attr_reader :interface
++			def initialize(interface)
++				@interface=interface
++			end
++
++			def value(hero)
++				0
++			end
++		end
++
++		class FoodOk&lt;Base
++			def value(hero)
++				puts &quot;FOODLOW:#{hero.resources[&quot;food&quot;]}&quot;
++				mapValue01(hero.resources[&quot;food&quot;]||0,1,5)
++			end
++		end
++
++		class FoodLow&lt;Base
++			def value(hero)
++				puts &quot;FOODLOW:#{hero.resources[&quot;food&quot;]}&quot;
++				1-mapValue01(hero.resources[&quot;food&quot;]||0,1,5)
++			end
++		end
++
++		class FoodNear&lt;Base
++			# BEWARE: Do not use this variable after several calls of value!
++			attr_reader :target
++			def value(hero)
++				@target=hero.findNearResource(&quot;food&quot;)
++				return 0 unless @target
++				distance=(@target.getPos-hero.getPos).length
++				puts &quot;FOODNEAR: dist:#{distance}&quot;
++				mapValue01(40-distance,0,40)
++			end
++		end
++
++		# FIXME: is building reachable ??
++		class EquipmentNear&lt;Base
++			attr_reader :target
++			def value(hero)
++				assert{hero.menCount&gt;0}
++				puts &quot;--EquipmentNear--&quot;
++				needed=NEEDED_EQUIPMENT.map{|res|[res[0],[0,hero.menCount-(hero.resources[res[0]]||0)].max]}
++				howMuchIsMissing=needed.inject(0){|result,nextPair|result+nextPair[1]}
++
++				houses=interface.myPlayer.getBuildings
++				return if houses.length==0
++				houseValues=houses.map{|house|[house,getResourceValue(needed,house)]}
++				selHouse=houseValues.min{|a,b|a[1]&lt;=&gt;b[1]}
++
++				puts selHouse,howMuchIsMissing
++				puts &quot;--&quot;
++				return 0 if selHouse[1]&gt;=howMuchIsMissing
++
++				@target=selHouse[0]
++				
++
++				puts needed
++				puts howMuchIsMissing
++				puts hero.menCount
++				value=howMuchIsMissing.to_f / (hero.menCount*NEEDED_EQUIPMENT.length)
++				puts value
++				puts &quot;--EquipmentNear--&quot;
++				value
++			end
++
++			# return what's missing from that house
++			def getResourceValue(needed,house)
++				puts &quot;HOUSE:#{house.getName} #{house}&quot;
++				result=needed.inject(0){|result,nextPair|
++					res,value=nextPair
++					found=house.resources[res]||0
++					puts &quot;#{res} #{res.class} #{value} #{found}&quot;
++					result+=[value-found,0].max
++				}
++					#raise 1
++				result
++			end
++		end
++
++
++		class Strength&lt;Base
++			def value(hero)
++				strength=hero.menCount
++				puts &quot;STRENGTH #{strength}&quot;
++				val=mapValueLinear(strength,0,40) # not 0, so value is never 0
++				puts &quot;val #{val}&quot;
++				val
++			end
++		end
++
++		class WeakEnemy&lt;Strength # !!
++			attr_reader :enemy
++			def value(hero)
++				# search weakest enemy - FIXME: ensure that it's reachable
++				@enemy=interface.enemyPlayers.map{|p|p.getHeroes+p.getBuildings}.flatten.min{|a,b|a.menCount&lt;=&gt;b.menCount}
++	
++				return 0 if @enemy.nil?
++				quot=super(hero) / (super(@enemy)*1.2) # expect enemy to be stronger by 20%
++				log=Math.log(quot)
++				val=mapValue01(log,-1,2)
++				puts &quot;weak: quot:#{quot} log:#{log} val:#{val}&quot;
++				val
++			end
++		end
++
++		class StrongBuilding&lt;Strength
++			attr_reader :target
++			def value(hero)
++				# search strongest building - FIXME: ensure that it's reachable
++				targetArray=[interface.myPlayer].map{|p|p.getHeroes+p.getBuildings}.flatten.select{|h|h!=hero}
++				@target=targetArray.max{|a,b|a.menCount&lt;=&gt;b.menCount}
++				return 0 if @target.nil?
++				strength=@target.menCount/(hero.menCount+0.001)
++				return mapValueLinear(strength,0,3)
++			end
++		end
++
++		class Tired&lt;Base
++			def value(hero)
++				1-[hero.getMorale,hero.getEnergy**2].min
++			end
++		end
++		class Hungry&lt;Base
++			def value(hero)
++				1-[hero.getFood**2].min
++			end
++		end
++
++		class BadEquipment&lt;Base
++			SCALE=NEEDED_EQUIPMENT.values.inject(0){|a,b|a+b}.to_f
++			def value(hero)
++				hero.resources.map{|r,v|(NEEDED_EQUIPMENT[r]||0)*(v&gt;0?1:0)}.inject(0){|a,b|a+b}/SCALE
++			end
++		end
++
++		class WorkshopNear&lt;Base
++			attr_reader :target
++			def value(hero)
++				targetArray=interface.myPlayer.getBuildings.select{|b|b.isBuildingType(&quot;AntWorkshop&quot;)}
++				@target=targetArray.max{|a,b|(a.getPos2D-hero.getPos2D).length&lt;=&gt;(b.getPos2D-hero.getPos2D).length}
++				return 0 unless @target
++				1-mapValueLinear((@target.getPos2D-hero.getPos2D).length,0,30)
++			end
++		end
++
++	end
++end
+\ No newline at end of file
+
+Added: antargis/trunk/ruby/ai/heuristic.rb
+===================================================================
+--- antargis/trunk/ruby/ai/heuristic.rb	2007-11-20 19:14:27 UTC (rev 1187)
++++ antargis/trunk/ruby/ai/heuristic.rb	2007-11-20 19:15:12 UTC (rev 1188)
+@@ -0,0 +1,24 @@
++
++# DELETE THIS ONE!
++
++
++module AI
++	class Heuristic
++		def initialize
++			classes=[
++				[AI::Rule::AttackHero,1],
++				[AI::Rule::GetFood,1]
++			]
++			@rules=classes.map{|pair|[pair[0].new,scale]}
++		end
++
++
++		def process(hero)
++			bestRule=@rules.max{|pair|
++				rule,scale=pair
++				rule.value(hero)*scale
++			}
++			bestRule.start(hero)
++		end
++	end
++end
+\ No newline at end of file
+
+Added: antargis/trunk/ruby/ai/rules.rb
+===================================================================
+--- antargis/trunk/ruby/ai/rules.rb	2007-11-20 19:14:27 UTC (rev 1187)
++++ antargis/trunk/ruby/ai/rules.rb	2007-11-20 19:15:12 UTC (rev 1188)
+@@ -0,0 +1,121 @@
++require 'ruby/ai/hero_sensors.rb'
++require 'ruby/ai/hero_actions.rb'
++
++module AI
++	module Rule
++		class Base
++			attr_reader :interface
++			def initialize(interface)
++				@interface=interface
++			end
++			def start(hero)
++			end
++			def value(hero)
++			end
++		end
++
++		class GetWeapon&lt;Base
++			def initialize(interface)
++				super
++				@eqNear=HeroSensor::EquipmentNear.new(interface)
++				@getEq=HeroAction::GetEquipment.new(interface)
++			end
++			def value(hero)
++				eqNear=@eqNear.value(hero)
++			end
++			def start(hero)
++				puts &quot;START WEAPONS&quot;
++				@getEq.start(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">hero, at eqNear.target</A>)
++			end
++		end
++
++	
++		class GetFood&lt;Base
++			def initialize(interface)
++				super
++				@foodLow=HeroSensor::FoodLow.new(interface)
++				@foodNear=HeroSensor::FoodNear.new(interface)
++				@getFood=HeroAction::GetFood.new(interface)
++			end
++			def value(hero)
++				foodLow=@foodLow.value(hero)
++				foodNear=@foodNear.value(hero)
++				puts &quot;FOODLOW:#{foodLow} FOODNEAR:#{foodNear}&quot;
++				foodLow*foodNear
++			end
++			def start(hero)
++				puts &quot;START GETFOOD&quot;
++				@getFood.start(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">hero, at foodNear.target</A>) #.getSource(hero))
++			end
++		end
++	
++		class AttackHero&lt;Base
++			def initialize(interface)
++				super
++				@strength=HeroSensor::Strength.new(interface)
++				@weakEnemy=HeroSensor::WeakEnemy.new(interface)
++				@attackHero=HeroAction::AttackHero.new(interface)
++			end
++			def value(hero)
++				# FIXME: include sensor for multiple heroes at same place
++				@weakEnemy.value(hero)*@strength.value(hero)
++			end
++			def start(hero)
++				puts &quot;START ATTACK&quot;
++				@attackHero.start(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">hero, at weakEnemy.enemy</A>)
++			end
++		end
++
++		class RecruitFromBuilding&lt;Base
++			def initialize(interface)
++				@weakEnemy=HeroSensor::WeakEnemy.new(interface)
++				@strongBuilding=HeroSensor::StrongBuilding.new(interface)
++				@recruit=HeroAction::Recruit.new(interface)
++			end
++			def value(hero)
++				# FIXME: include sensor for multiple heroes at same place
++				# FIXME: switch to strong_building AND not_insecure (attackable)
++				#Math.sqrt((<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">1- at weakEnemy.value</A>(hero))*@strongBuilding.value(hero))
++				@strongBuilding.value(hero)
++			end
++			def start(hero)
++				puts &quot;TRY RECRUIT&quot;
++				@recruit.start(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">hero, at strongBuilding.target</A>)
++			end
++		end
++
++		class Rest&lt;Base
++			def initialize(interface)
++				super
++				@foodok=HeroSensor::FoodOk.new(interface)
++				@tired=HeroSensor::Tired.new(interface)
++				@hungry=HeroSensor::Hungry.new(interface)
++				@rest=HeroAction::Rest.new(interface)
++			end
++			def value(hero)
++				[@hungry.value(hero)<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at tired.value</A>(hero),0.2].max
++				#0.2
++				#@foodok.value(hero)
++			end
++			def start(hero)
++				@rest.start(hero)
++			end
++		end
++
++		class Construct&lt;Base
++			def initialize(interface)
++				super
++				@badEquipment=HeroSensor::BadEquipment.new(interface)
++				@workshopNear=HeroSensor::WorkshopNear.new(interface)
++				@construct=HeroAction::ConstructEquipment.new(interface)
++			end
++			def value(hero)
++				Math.sqrt(@badEquipment.value(hero)*@workshopNear.value(hero))
++			end
++			def start(hero)
++				@construct.start(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">hero, at workshopNear.target</A>)
++			end
++		end
++
++	end
++end
+\ No newline at end of file
+
+Added: antargis/trunk/ruby/entities/ant_grave.rb
+===================================================================
+--- antargis/trunk/ruby/entities/ant_grave.rb	2007-11-20 19:14:27 UTC (rev 1187)
++++ antargis/trunk/ruby/entities/ant_grave.rb	2007-11-20 19:15:12 UTC (rev 1188)
+@@ -0,0 +1,25 @@
++class AntGrave&lt;AntRubyEntity
++	TYPES=[:normal,:hero]
++
++	def initialize(map)
++		super
++		@type=:normal
++		setMesh(@type)
++		@waited=false
++	end
++	def type=(type)
++		if TYPES.member?(type)
++			@type=type
++			setMesh(@type)
++		end
++	end
++	def eventNoJob
++		if @waited
++			getMap.removeEntity(self)
++			return
++		else
++			newRestJob(40)
++			@waited=true
++		end
++	end
++end
+\ No newline at end of file
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000144.html">[Antargis-svn] r1187 - in antargis/trunk: . data/levels/dev	ext/basic ext/game ruby ruby/ai ruby/ai/spec ruby/entities ruby/jobs
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#145">[ date ]</a>
+              <a href="thread.html#145">[ thread ]</a>
+              <a href="subject.html#145">[ subject ]</a>
+              <a href="author.html#145">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

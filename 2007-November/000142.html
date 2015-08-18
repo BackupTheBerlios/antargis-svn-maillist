@@ -1,0 +1,1102 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Antargis-svn] r1185 - in antargis/trunk: . build build/configs	data/levels/dev ext/3dengine ext/basic ext/game ruby	ruby/entities ruby/jobs
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/antargis-svn/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1185%20-%20in%20antargis/trunk%3A%20.%20build%20build/configs%0A%09data/levels/dev%20ext/3dengine%20ext/basic%20ext/game%20ruby%0A%09ruby/entities%20ruby/jobs&In-Reply-To=%3C200711061939.lA6JdpXH027181%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000143.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Antargis-svn] r1185 - in antargis/trunk: . build build/configs	data/levels/dev ext/3dengine ext/basic ext/game ruby	ruby/entities ruby/jobs</H1>
+    <B>davidkamphausen at BerliOS</B> 
+    <A HREF="mailto:antargis-svn%40lists.berlios.de?Subject=Re%3A%20%5BAntargis-svn%5D%20r1185%20-%20in%20antargis/trunk%3A%20.%20build%20build/configs%0A%09data/levels/dev%20ext/3dengine%20ext/basic%20ext/game%20ruby%0A%09ruby/entities%20ruby/jobs&In-Reply-To=%3C200711061939.lA6JdpXH027181%40sheep.berlios.de%3E"
+       TITLE="[Antargis-svn] r1185 - in antargis/trunk: . build build/configs	data/levels/dev ext/3dengine ext/basic ext/game ruby	ruby/entities ruby/jobs">davidkamphausen at mail.berlios.de
+       </A><BR>
+    <I>Tue Nov  6 20:39:51 CET 2007</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000143.html">[Antargis-svn] r1186 - in antargis/trunk/ruby: ai spec
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#142">[ date ]</a>
+              <a href="thread.html#142">[ thread ]</a>
+              <a href="subject.html#142">[ subject ]</a>
+              <a href="author.html#142">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: davidkamphausen
+Date: 2007-11-06 20:39:46 +0100 (Tue, 06 Nov 2007)
+New Revision: 1185
+
+Added:
+   antargis/trunk/ruby/ai/
+   antargis/trunk/ruby/entities/ant_animal.rb
+Modified:
+   antargis/trunk/INSTALL
+   antargis/trunk/TODO
+   antargis/trunk/build/configs/unix.rb
+   antargis/trunk/build/std_list.i
+   antargis/trunk/data/levels/dev/level1.antlvl
+   antargis/trunk/data/levels/dev/level1.rb
+   antargis/trunk/data/levels/dev/testai.antlvl
+   antargis/trunk/ext/3dengine/boa_3d_wireframe.cc
+   antargis/trunk/ext/basic/ag_geometry.cc
+   antargis/trunk/ext/basic/ag_geometry.h
+   antargis/trunk/ext/basic/templates.i
+   antargis/trunk/ext/game/jobs.cc
+   antargis/trunk/ext/game/jobs.h
+   antargis/trunk/ext/game/map.cc
+   antargis/trunk/ext/game/path.cc
+   antargis/trunk/ruby/ant_ai.rb
+   antargis/trunk/ruby/ant_ai_interface.rb
+   antargis/trunk/ruby/ant_ai_player.rb
+   antargis/trunk/ruby/ant_ai_rules.rb
+   antargis/trunk/ruby/ant_path.rb
+   antargis/trunk/ruby/ant_trigger.rb
+   antargis/trunk/ruby/entities/ant_fish.rb
+   antargis/trunk/ruby/entities/ant_manbase.rb
+   antargis/trunk/ruby/entities/ant_sheep.rb
+   antargis/trunk/ruby/entities/ant_tower.rb
+   antargis/trunk/ruby/jobs/ant_hljob_states.rb
+   antargis/trunk/ruby/jobs/ant_new_hljobs.rb
+   antargis/trunk/ruby/map.rb
+Log:
+* many fixes
+* some changes
+
+
+Modified: antargis/trunk/INSTALL
+===================================================================
+--- antargis/trunk/INSTALL	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/INSTALL	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -7,10 +7,12 @@
+ 
+ 3) After this step no root-privileges are needed.
+ 
+-4) If you have installed rant in step 1: Run &quot;rant&quot; in this directory. Otherwise: Run &quot;ruby build.rb&quot; in the current directory
++4) Run &quot;ruby configure&quot; or just &quot;./configure&quot; to configure the building. You may want to give additional options, which will be explained if you give the parameter &quot;-h&quot; - so run &quot;./configure -h&quot;
+ 
+-5) Run &quot;./antargis&quot; in this directory
++5) If you have installed rant in step 1: Run &quot;rant&quot; in this directory. Otherwise: Run &quot;ruby build.rb&quot; in the current directory
+ 
++6) Run &quot;./antargis&quot; in this directory
++
+ Essentials: Ruby, (Rant)
+ This game is mostly written in Ruby (www.ruby-lang.org) and C++. It uses Rant (Rant - Flexible, Ruby based make) as build system.
+ 
+
+Modified: antargis/trunk/TODO
+===================================================================
+--- antargis/trunk/TODO	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/TODO	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -1,3 +1,6 @@
++
++* Spreading should be done only for men who need it!
++
+ * why is the story-telling dialog taking so much time ??
+ * why is the story-telling dialog eating up clicks ?
+ * improve settings-dialog!
+
+Modified: antargis/trunk/build/configs/unix.rb
+===================================================================
+--- antargis/trunk/build/configs/unix.rb	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/build/configs/unix.rb	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -19,13 +19,13 @@
+ 	&quot;INCLUDES&quot;=&gt;&quot;&quot;,
+   &quot;LIBGL&quot;=&gt;&quot;-lGL -lGLU&quot;,
+   # call the compiler using the standard unix-style mechanism &lt;CC&gt; -c -o &lt;outputname&gt; &lt;input0&gt; [&lt;input1&gt; ...]
+-	&quot;COMPILE_PARAMS&quot;=&gt;&quot; -Wp,-MD,$(DEP) -c -o $(OUTPUT) $(INPUT)&quot;,
++	&quot;COMPILE_PARAMS&quot;=&gt;&quot; -dH -Wp,-MD,$(DEP) -c -o $(OUTPUT) $(INPUT)&quot;,
+ 	# an ansi-c compiler call with parameters (using ccache if available)
+ 	&quot;CC_CALL&quot;=&gt;&quot;$(CCACHE) $(CC) $(COMPILE_PARAMS)&quot;,
+ 	# a c++ compiler call with parameters (using ccache if available)
+ 	&quot;CXX_CALL&quot;=&gt;&quot;$(CCACHE) $(CXX) $(COMPILE_PARAMS)&quot;,
+ 	# build a shared library (.so or .dll)
+-	&quot;LINK_SHARED&quot;=&gt;&quot;$(CCACHE) $(LINK) -shared -o $(OUTPUT) -Lext $(INPUT)&quot;,
++	&quot;LINK_SHARED&quot;=&gt;&quot;$(CCACHE) $(LINK) -dH -shared -o $(OUTPUT) -Lext $(INPUT)&quot;,
+ 	# build a program (.exe)
+ 	&quot;LINK_EXE&quot;=&gt;&quot;$(LINK) -o $(OUTPUT) -Lext $(INPUT)&quot;,
+ 
+
+Modified: antargis/trunk/build/std_list.i
+===================================================================
+--- antargis/trunk/build/std_list.i	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/build/std_list.i	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -79,12 +79,15 @@
+         }
+         %typemap(out) list&lt;T&gt; {
+             $result = rb_ary_new2($1.size());
+-	    size_t j=0;
+-	    for($1_type::iterator i=$1.begin();i!=$1.end();i++,j++)
+-	    {
++            size_t j=0;
++            for($1_type::iterator i=$1.begin();i!=$1.end();i++,j++)
++            {
+                 T* x = new T(*i);
+-		rb_ary_store($result,j,AG_NewPointerObj((void*)x,$descriptor(T*),1));
++                assert(x);
++                // no AG_NewPointerObj needed, because object is definitely created above and thus has no mRubyObject defined
++                rb_ary_store($result,j,SWIG_NewPointerObj((void*)x,$descriptor(T*),1));
+             }
++            assert(j==$1.size());
+         }
+         %typecheck(SWIG_TYPECHECK_LIST) list&lt;T&gt; {
+             /* native sequence? */
+@@ -212,8 +215,9 @@
+             $result = rb_ary_new2($1.size());
+             size_t j=0;
+              for($1_type::iterator i=$1.begin();i!=$1.end();i++,j++) {
+-		rb_ary_store($result,j,AG_NewPointerObj(*i,$descriptor(T*),1));
+-            }
++               rb_ary_store($result,j,AG_NewPointerObj(*i,$descriptor(T*),1));
++             }
++            assert(j==$1.size());
+         }
+         %typecheck(SWIG_TYPECHECK_LIST) list&lt;T*&gt; {
+             /* native sequence? */
+
+Modified: antargis/trunk/data/levels/dev/level1.antlvl
+===================================================================
+--- antargis/trunk/data/levels/dev/level1.antlvl	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/data/levels/dev/level1.antlvl	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -178,13 +178,5 @@
+ 	&lt;!--&lt;conqueringPlayer name=&quot;Bantor&quot;&gt;
+ 		&lt;hero name=&quot;Bantor&quot;/&gt;
+ 	&lt;/conqueringPlayer&gt;--&gt;
+-	&lt;!--
+ 	&lt;trigger name=&quot;attack&quot; x=&quot;15&quot; y=&quot;0&quot;  radius=&quot;2&quot; player=&quot;Bantor&quot;/&gt;
+-	&lt;story&gt;
+-		&lt;start&gt;
+-			&lt;window&gt;
+-				&lt;text&gt;You awaken.&lt;/text&gt;
+-			&lt;/window&gt;
+-		&lt;/start&gt;
+-	&lt;/story&gt;--&gt;
+ &lt;/antargisLevel&gt;
+
+Modified: antargis/trunk/data/levels/dev/level1.rb
+===================================================================
+--- antargis/trunk/data/levels/dev/level1.rb	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/data/levels/dev/level1.rb	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -1,8 +1,6 @@
+-class Level1&lt;Level
+-	def initialize
++class Level1&lt;AntLevelScript
++	def eventLevelStarted
+ 		puts &quot;Level inited&quot;
+-		#tellStory(&quot;title&quot;,&quot;Level started&quot;)
+-		#exit
+ 	end
+ 	def eventTrigger(hero,t)
+ 		puts &quot;TRIGGER&quot;
+
+Modified: antargis/trunk/data/levels/dev/testai.antlvl
+===================================================================
+--- antargis/trunk/data/levels/dev/testai.antlvl	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/data/levels/dev/testai.antlvl	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -75024,6 +75024,7 @@
+   &lt;antHero aggression=&quot;1&quot; appearance=&quot;hero&quot; birthday=&quot;-2350.80895017123&quot; energy=&quot;1&quot; exp=&quot;0&quot; food=&quot;1&quot; healSpeed=&quot;0.07&quot; id=&quot;0&quot; learnAmount=&quot;0.05&quot; men=&quot;5&quot; mode=&quot;&quot; morale=&quot;1&quot; name=&quot;Stoner&quot; onGround=&quot;true&quot; onWater=&quot;false&quot;&gt;
+     &lt;position x=&quot;48.6047&quot; y=&quot;75.8722&quot; z=&quot;1.77092&quot;/&gt;
+     &lt;!--&lt;resource boat=&quot;10&quot;/&gt;--&gt;
++    &lt;resource food=&quot;40&quot;/&gt;
+   &lt;/antHero&gt;
+   &lt;antTree aggression=&quot;1&quot; birthday=&quot;0.0&quot; energy=&quot;1&quot; exp=&quot;0&quot; food=&quot;1&quot; healSpeed=&quot;0.07&quot; id=&quot;0&quot; learnAmount=&quot;0.05&quot; mode=&quot;&quot; morale=&quot;1&quot; name=&quot;&quot; onGround=&quot;true&quot; onWater=&quot;false&quot; typeID=&quot;2&quot;&gt;
+     &lt;position x=&quot;177.967&quot; y=&quot;180.255&quot; z=&quot;1&quot;/&gt;
+
+Modified: antargis/trunk/ext/3dengine/boa_3d_wireframe.cc
+===================================================================
+--- antargis/trunk/ext/3dengine/boa_3d_wireframe.cc	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ext/3dengine/boa_3d_wireframe.cc	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -54,6 +54,12 @@
+   line.b=b;
+   mLines.push_back(line);
+   mChanged=true;
++
++  AGBox3 bb=bbox();
++
++  bb.include(a);
++  bb.include(b);
++  setBBox(bb);
+ }
+ 
+ bool Boa3dWireframe::transparent()
+
+Modified: antargis/trunk/ext/basic/ag_geometry.cc
+===================================================================
+--- antargis/trunk/ext/basic/ag_geometry.cc	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ext/basic/ag_geometry.cc	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -1049,15 +1049,42 @@
+ // AGCircle2
+ /////////////////////////////////////////////////////////////////////////////
+ 
+-AGCircle2::AGCircle2(const AGVector3 &amp;v,float rad):p(v),radius(rad)
++AGCircle2::AGCircle2(const AGVector2 &amp;v,float rad):p(v),radius(rad)
+ {
+ }
+ 
+-bool AGCircle2::inCircle(const AGVector3 &amp;v) const
++std::list&lt;AGVector2&gt; AGCircle2::collide(const AGLine2 &amp;pLine) const
+ {
++  std::list&lt;AGVector2&gt; l;
++
++  AGVector2 normal=pLine.normal();
++  AGVector2 mp(p.dim2());
++
++  float dist=(mp-pLine[0])*normal;
++
++  if(radius&gt;fabs(dist))
++    {
++      AGVector2 dir=pLine.direction().normalized();
++      // ground-point
++      float alpha=dir*(mp-pLine[0]);
++      AGVector2 g=pLine[0]+dir*alpha;
++
++      float dist=(g-mp).length();
++      assert(radius&gt;dist);
++      float rest=sqrt(radius*radius-dist*dist);
++      l.push_back(g+dir*rest);
++      l.push_back(g+dir*(-rest));
++    }
++
++  return l;
++}
++
++
++bool AGCircle2::inCircle(const AGVector2 &amp;v) const
++{
+   return (v-p).length2()&lt;radius*radius;
+ }
+-bool AGCircle2::outCircle(const AGVector3 &amp;v) const
++bool AGCircle2::outCircle(const AGVector2 &amp;v) const
+ {
+   return (v-p).length2()&gt;radius*radius;
+ }
+@@ -1071,7 +1098,7 @@
+   return outCircle(t.get(0)) &amp;&amp; outCircle(t.get(1)) &amp;&amp; outCircle(t.get(2));
+ }
+ 
+-AGVector3 AGCircle2::getPos() const
++AGVector2 AGCircle2::getPos() const
+ {
+   return p;
+ }
+
+Modified: antargis/trunk/ext/basic/ag_geometry.h
+===================================================================
+--- antargis/trunk/ext/basic/ag_geometry.h	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ext/basic/ag_geometry.h	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -376,19 +376,20 @@
+ 
+ class AGEXPORT AGCircle2
+ {
+-  AGVector3 p;
++  AGVector2 p;
+   float radius;
+  public:
+-  AGCircle2(const AGVector3 &amp;v,float rad);
++  AGCircle2(const AGVector2 &amp;v,float rad);
+ 
+   bool inCircle(const AGTriangle2 &amp;t) const;
+   bool outCircle(const AGTriangle2 &amp;t) const;
+-  bool inCircle(const AGVector3 &amp;v) const;
+-  bool outCircle(const AGVector3 &amp;v) const;
++  bool inCircle(const AGVector2 &amp;v) const;
++  bool outCircle(const AGVector2 &amp;v) const;
+ 
+-  AGVector3 getPos() const;
++  AGVector2 getPos() const;
+   float getRadius() const;
+ 
++  std::list&lt;AGVector2&gt; collide(const AGLine2 &amp;pLine) const;
+ };
+ 
+ class AGVector4;
+
+Modified: antargis/trunk/ext/basic/templates.i
+===================================================================
+--- antargis/trunk/ext/basic/templates.i	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ext/basic/templates.i	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -9,5 +9,6 @@
+ %template(StringVector) std::vector&lt;std::string&gt;;
+ %template(AGStringVector) std::vector&lt;AGString&gt;;
+ %template(AGFilenameVector) std::vector&lt;AGFilename&gt;;
++%template(AGVector2List) std::list&lt;AGVector2&gt;;
+ 
+ 
+
+Modified: antargis/trunk/ext/game/jobs.cc
+===================================================================
+--- antargis/trunk/ext/game/jobs.cc	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ext/game/jobs.cc	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -94,7 +94,7 @@
+   //  runSpeed=100;
+ }
+ 
+-MoveJob::MoveJob(int p,const AGVector2 &amp;pTarget,float pNear,bool pRun):Job(p),mTarget(pTarget),mTargetEntity(0),mNear(pNear),mRun(pRun)
++MoveJob::MoveJob(int p,const AGVector2 &amp;pTarget,float pNear,bool pRun):Job(p),mTarget(pTarget),mNearTarget(pTarget),mTargetEntity(0),mNear(pNear),mRun(pRun)
+ {
+   m3d=false;
+   // speed=70; // pixels per second
+@@ -108,7 +108,6 @@
+   //  runSpeed=100;
+ }
+ 
+-
+ MoveJob::~MoveJob()
+ {
+ }
+@@ -194,8 +193,10 @@
+     {
+       AGVector2 diff=e-&gt;getPos2D()-mTarget;
+       float norm=diff.length();
++
++      float nearDist=(e-&gt;getPos2D()-mNearTarget).length();
+       
+-      if(norm-mNear&gt;ptime*aspeed)
++      if(norm-mNear&gt;ptime*aspeed &amp;&amp; nearDist-mNear&gt;ptime*aspeed)
+ 	{
+ 	  diff=diff.normalized();
+ 	  e-&gt;setDirection(-diff.getAngle().angle*180.0/M_PI);
+
+Modified: antargis/trunk/ext/game/jobs.h
+===================================================================
+--- antargis/trunk/ext/game/jobs.h	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ext/game/jobs.h	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -72,6 +72,7 @@
+ {
+   AGVector2 mTarget;
+   AGVector3 mTarget3;
++  AGVector2 mNearTarget;
+   AntEntity *mTargetEntity;
+   float mNear;
+   bool mRun;
+@@ -82,6 +83,7 @@
+   MoveJob(int p,AntEntity *pTarget,float pnear=0,bool pRun=false);
+   MoveJob(int p,const AGVector2 &amp;pTarget,float pnear=0,bool pRun=false);
+   MoveJob(int p,const AGVector3 &amp;pTarget,float pnear=0,bool pRun=false);
++
+   virtual ~MoveJob();
+   void move(AntEntity *e,float ptime);
+   AGVector2 getDirection(const AntEntity *e) const;
+
+Modified: antargis/trunk/ext/game/map.cc
+===================================================================
+--- antargis/trunk/ext/game/map.cc	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ext/game/map.cc	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -299,7 +299,7 @@
+ 	        norm=(*mHeuristicFunction)(std::make_pair((*i)-&gt;getPos2D(),p));
+ 	      else
+ 		norm=((*i)-&gt;getPos2D()-p).length2();
+-	      cdebug(&quot;norm:&quot;&lt;&lt;norm&lt;&lt;&quot; i:&quot;&lt;&lt;*i&lt;&lt;&quot; name:&quot;&lt;&lt;(*i)-&gt;getName());
++//	      cdebug(&quot;norm:&quot;&lt;&lt;norm&lt;&lt;&quot; i:&quot;&lt;&lt;*i&lt;&lt;&quot; name:&quot;&lt;&lt;(*i)-&gt;getName());
+ 	      //              float norm=p2.length2();
+               ents.insert(std::make_pair(norm,*i));
+             }
+
+Modified: antargis/trunk/ext/game/path.cc
+===================================================================
+--- antargis/trunk/ext/game/path.cc	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ext/game/path.cc	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -219,6 +219,8 @@
+ 
+ bool MapPathWeighter::accessible(const AGVector2 &amp;a)
+ {
++  float thres=0;
++
+   // FIXME: maybe make some terrain impassable
+ 
+   if(isWaterPassable())
+@@ -233,7 +235,12 @@
+ 	py=std::max(0.0f,std::min(py,mMap-&gt;getH()-1.0f));
+ 	hmin=std::min(hmin,mMap-&gt;getHeight(px,py));
+       }
+-  return hmin&gt;0;
++  if(hmin&lt;=thres)
++    {
++      cdebug(&quot;not accessible:&quot;&lt;&lt;a&lt;&lt;&quot;:&quot;&lt;&lt;hmin);
++    }
++
++  return hmin&gt;thres;
+ }
+ 
+ 
+@@ -572,6 +579,9 @@
+ 
+   m=std::max((unsigned int)m,2U);
+ 
++  assert(mNodes.size()&gt;0);
++  assert(mEdges.size()&gt;0);
++
+   while(mNodes.size()&gt;m)
+     {
+       Edge *e=*mEdges.begin();
+@@ -676,18 +686,18 @@
+ }
+ 
+ 
+-std::list&lt;std::pair&lt;size_t,size_t&gt; &gt; getPossibleNeighbors(size_t w,size_t h,const std::pair&lt;size_t,size_t&gt; &amp;curPos)
++std::list&lt;std::pair&lt;size_t,size_t&gt; &gt; getPossibleNeighbors(size_t w,size_t h,const std::pair&lt;size_t,size_t&gt; &amp;curPos,size_t res)
+ {
+   std::list&lt;std::pair&lt;size_t,size_t&gt; &gt; result;
+   int x,y,dx,dy;
+-  int r=5;
++  int r=2;
+   for(x=-r+1;x&lt;r;x++)
+     for(y=0;y&lt;r;y++)
+       if(x&gt;0 || y&gt;0)
+ 	//	if(x!=y) // FIXME
+ 	  {
+-	    dx=x+curPos.first;
+-	    dy=y+curPos.second;
++	    dx=x*res+curPos.first;
++	    dy=y*res+curPos.second;
+ 
+ 	    if(dx&lt;w-1 &amp;&amp; dy&lt;h-1 &amp;&amp; dx&gt;=0 &amp;&amp; dy&gt;=0)
+ 	      result.push_back(std::make_pair(dx,dy));
+@@ -745,7 +755,7 @@
+ 	  }
+ #else
+ 	std::pair&lt;size_t,size_t&gt; p(x,y);
+-	std::list&lt;std::pair&lt;size_t,size_t&gt; &gt; l=getPossibleNeighbors(w,h,std::make_pair(x,y));
++	std::list&lt;std::pair&lt;size_t,size_t&gt; &gt; l=getPossibleNeighbors(w,h,std::make_pair(x,y),res);
+ 	SimpleGraph::Node *a=nodes[p];
+ 	for(std::list&lt;std::pair&lt;size_t,size_t&gt; &gt;::iterator i=l.begin();i!=l.end();i++)
+ 	  {
+@@ -1172,7 +1182,7 @@
+ 
+       cdebug(&quot;WEIGHTS:&quot;&lt;&lt;w0&lt;&lt;&quot;  &quot;&lt;&lt;w1&lt;&lt;&quot;  &quot;&lt;&lt;w2);
+ 
+-      if(w0+w1&gt;w2)
++      if(w0+w1&gt;w2 &amp;&amp; w2&lt;16)
+ 	i=result.erase(i);
+       else
+ 	i++;
+
+Modified: antargis/trunk/ruby/ant_ai.rb
+===================================================================
+--- antargis/trunk/ruby/ant_ai.rb	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ruby/ant_ai.rb	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -52,7 +52,7 @@
+ 	def eventTriggerHit(hero,triggerName)
+ 	end
+ 	# in each frame this function is called with the time that's passed. Don't use this function if you
+-	# don't need to, because this hits performance!
++	# don't need to, because this hits performance rather badly!
+ 	def eventFrame(time)
+ 	end
+ end
+
+Modified: antargis/trunk/ruby/ant_ai_interface.rb
+===================================================================
+--- antargis/trunk/ruby/ant_ai_interface.rb	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ruby/ant_ai_interface.rb	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -109,6 +109,9 @@
+ 	def getPos
+ 		@ent.getPos2D
+ 	end
++	def getMap
++		@map
++	end
+ 	private
+ 	def getRef(t)
+ 		@map.getByUID(t.uid)
+
+Modified: antargis/trunk/ruby/ant_ai_player.rb
+===================================================================
+--- antargis/trunk/ruby/ant_ai_player.rb	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ruby/ant_ai_player.rb	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -7,6 +7,11 @@
+ 		@map=map
+ 		#@name=@ai.interface.myPlayer.getName
+ 	end
++
++	def getMap
++		@map
++	end
++
+ 	def saveXML(n)
+ 		n.set(&quot;name&quot;,name)
+ 		@heroes.each{|hero|
+
+Modified: antargis/trunk/ruby/ant_ai_rules.rb
+===================================================================
+--- antargis/trunk/ruby/ant_ai_rules.rb	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ruby/ant_ai_rules.rb	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -85,7 +85,7 @@
+ # rest for a second
+ class AIRestAction&lt;AIAction
+ 	def execute(hero)
+-		hero.rest(1)
++		hero.rest(10)
+ 	end
+ end
+ 
+
+Modified: antargis/trunk/ruby/ant_path.rb
+===================================================================
+--- antargis/trunk/ruby/ant_path.rb	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ruby/ant_path.rb	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -15,6 +15,7 @@
+ # * Pathfinder
+ #
+ class CombinedPathFinder
++	attr_accessor :scene
+ 
+ 	# the current available modes, in which pathes will be computed. You can add some more here
+   # but you'll have to modify the functions getPathWeighter, getMode, displayPathfindingGraph
+@@ -46,15 +47,20 @@
+ 	end
+ 
+ 	def computePath(p0,p1,entity)
+-		@path[getMode(entity)].computePath(p0,p1)
++		path=@path[getMode(entity)].computePath(p0,p1)
++		#displayPath(path)
++		path
+ 	end
+ 	def refinePath(waypoints,entity)
+ 		mode=getMode(entity)
+-		@path[mode].refinePath(waypoints,getPathWeighter(@map,mode))
++		path=@path[mode].refinePath(waypoints,getPathWeighter(@map,mode))
++		#displayPath(path,AGVector4.new(1,0,0,1))
++		path
+ 	end
+ 
+ 
+ 	def displayPathfindingGraph(map,scene)
++		return
+ 		colors={:normal=&gt;AGVector4.new(1,0,0,1),:overWater=&gt;AGVector4.new(1,1,0,1)}
+ 		width=2
+ 		MODES.each{|mode|
+@@ -63,8 +69,8 @@
+ 				edge=@graph[mode].getEdgePosition(i)
+ 				a=edge[0]
+ 				b=edge[1]
+-				a=AGVector3.new(a.x,a.y,map.getHeight(a.x,a.y)+0.05)
+-				b=AGVector3.new(b.x,b.y,map.getHeight(b.x,b.y)+0.05)
++				a=AGVector3.new(a.x,a.y,map.getHeight(a.x,a.y)+0.15)
++				b=AGVector3.new(b.x,b.y,map.getHeight(b.x,b.y)+0.15)
+ 				wireframe.addLine(a,b)
+ 			}
+ 			scene.addNode(wireframe)
+@@ -72,6 +78,24 @@
+ 		}
+ 	end
+ 
++	def displayPath(path,color=AGVector4.new(1,1,0,1))
++		if path.length&gt;2
++			width=5
++			node=Boa3dWireframe.new(@scene,color,width)
++			on=nil
++			path.each{|n|
++				if on
++					a=AGVector3.new(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">n.x,n.y, at map.getHeight</A>(n.x,n.y)+0.15)
++					b=AGVector3.new(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">on.x,on.y, at map.getHeight</A>(on.x,on.y)+0.15)
++					node.addLine(a,b)
++					pp a,b
++				end
++				on=n
++			}
++			@scene.addNode(node)
++		end
++	end
++
+ private
+ 	# get path-finding mode for the given +entity+
+ 	def getMode(entity)
+@@ -117,14 +141,20 @@
+ 		weighter=getPathWeighter(map,mode)
+ 
+ 		# set initial distance of waypoints	
+-		minDist=2
++		minDist=4
+ 
+ 		begin
+ 			# make a path-finding graph
+ 			sgraph=makeGraph(map,weighter,minDist)
+ 			minDist*=2
++			puts &quot;---&quot;
++			pp minDist
++			pp sgraph.size,sgraph.edges
+ 		end while(sgraph.size&gt;2000) # use a smaller resolution, if there are too many nodes in graph
+ 
++		assert {sgraph.size&gt;0}
++		assert {sgraph.edges&gt;0}
++
+ 		# copy to a decimating graph
+ 		graph=DecimatedGraph.new(sgraph)
+ 
+
+Modified: antargis/trunk/ruby/ant_trigger.rb
+===================================================================
+--- antargis/trunk/ruby/ant_trigger.rb	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ruby/ant_trigger.rb	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -6,7 +6,7 @@
+ 			@pos.loadXML(node)
+ 			@radius=node.get(&quot;radius&quot;).to_f
+ 			@name=node.get(&quot;name&quot;)
+-			@circle=AGCircle2.new(AGVector3.new(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">pos.x, at pos.y</A>,1)<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at radius</A>)
++			@circle=AGCircle2.new(AGVector2.new(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">pos.x, at pos.y</A>)<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at radius</A>)
+ 			@triggerTime=AntRubyMap.getSystemTime
+ 			@player=node.get(&quot;player&quot;)
+ 			@text=node.get(&quot;text&quot;)
+@@ -25,7 +25,7 @@
+ 	def check(hero)
+ 		if <A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">AntRubyMap.getSystemTime- at triggerTime</A>&gt;1 # wait at least a second for repeating trigger
+ 			p2=hero.getPos2D
+-			p3=AGVector3.new(p2.x,p2.y,1)
++			p3=AGVector2.new(p2.x,p2.y)
+ 			#dputs name,&quot; &quot;<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">,p3, at pos</A><A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at radius</A><A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">, at circle.inCircle</A>(p3), (<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">p2- at pos</A>).length
+ 			if @circle.inCircle(p3)
+ 				getMap.trigger(hero,self)
+
+Added: antargis/trunk/ruby/entities/ant_animal.rb
+===================================================================
+--- antargis/trunk/ruby/entities/ant_animal.rb	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ruby/entities/ant_animal.rb	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -0,0 +1,35 @@
++# some very simple base-class for animals. contains really nothing.
++class AntAnimal&lt;AntRubyEntity
++	def initialize(map)
++		super
++	end
++	def AntAnimal.xmlName
++		&quot;&quot;
++	end
++protected
++	# give Birth every 40th call
++	# returns true, if birth given
++	# at most 50 entities of a special type will be created
++	def giveBirth
++		@lastBirth||=getRand*40
++
++		@lastBirth+=1
++		# BIRTHRATE is here:
++		if @lastBirth&gt;40 then
++			fishList=getMap.getAllByType(self.class)
++			return if fishList.length&gt;50
++			# make child
++			#puts &quot;A FISH IS BORN&quot;
++			fish=self.class.new(getMap)
++			fish.setPos(getPos2D)
++			getMap.insertEntity(fish)
++			getMap.endChange
++			newRestJob(2)
++			@lastBirth=-getRand()*10
++			puts &quot;GIVE BIRTH&quot;
++			return true
++		end
++		false
++	end
++end
++
+
+Modified: antargis/trunk/ruby/entities/ant_fish.rb
+===================================================================
+--- antargis/trunk/ruby/entities/ant_fish.rb	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ruby/entities/ant_fish.rb	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -27,7 +27,6 @@
+ 		super
+ 		setProvide(&quot;fish&quot;,true)
+ 		setSpeed 0.6
+-		@lastBirth=0
+ 		@foodAdd=0
+ 
+ 		setOnGround(false)
+@@ -59,7 +58,11 @@
+ 			return
+ 		end
+ 
+-		giveBirth
++		if (not giveBirth)
++			setPos(AGVector3.new(getPos2D,-0.3))
++			newMoveJob(0,getTargetPos,0)
++			setMeshState(&quot;go&quot;)
++		end
+ 
+ 		@foodAdd+=1
+ 		#puts &quot;FOOOOOD #{@foodAdd}&quot;
+@@ -68,7 +71,6 @@
+ 			@foodAdd=0
+ 		end
+ 
+-		@lastBirth+=1
+ 	end
+ 	
+ 	def getTargetPos
+@@ -93,23 +95,4 @@
+ 		&quot;Fish&quot;
+ 	end
+ private
+-	def giveBirth
+-		# BIRTHRATE is here:
+-		if @lastBirth&gt;40 then
+-			fishList=getMap.getAllByType(self.class)
+-			return if fishList.length&gt;50
+-			# make child
+-			#puts &quot;A FISH IS BORN&quot;
+-			fish=AntFish.new(getMap)
+-			fish.setPos(getPos2D)
+-			getMap.insertEntity(fish)
+-			getMap.endChange
+-			newRestJob(2)
+-			@lastBirth=-getRand()*10
+-		else
+-			setPos(AGVector3.new(getPos2D,-0.3))
+-			newMoveJob(0,getTargetPos,0)
+-			setMeshState(&quot;go&quot;)
+-		end
+-	end
+ end
+
+Modified: antargis/trunk/ruby/entities/ant_manbase.rb
+===================================================================
+--- antargis/trunk/ruby/entities/ant_manbase.rb	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ruby/entities/ant_manbase.rb	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -115,7 +115,13 @@
+ 	end
+ 	def eventNoJob
+ 		if @meshState==&quot;dead&quot;
+-			getMap.removeEntity(self)
++			if @mdead
++				getMap.removeEntity(self)
++			else
++				newRestJob(20)
++				@mdead=true
++				return
++			end
+ 		end
+ 		super
+ 	end
+
+Modified: antargis/trunk/ruby/entities/ant_sheep.rb
+===================================================================
+--- antargis/trunk/ruby/entities/ant_sheep.rb	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ruby/entities/ant_sheep.rb	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -18,27 +18,16 @@
+ # License along with this program.
+ #
+ 
+-# some very simple base-class for animals. contains really nothing.
+-class AntAnimal&lt;AntRubyEntity
+-	def initialize(map)
+-		super
+-	end
+-	def AntAnimal.xmlName
+-		&quot;&quot;
+-	end
+-end
++require 'ant_animal.rb'
+ 
+ class AntSheep&lt;AntAnimal
+ 	def initialize(map)
+ 		super
+ 		setProvide(&quot;sheep&quot;,true)
+ 		setSpeed 0.4
+-		@lastBirth=0
+ 		@foodAdd=0
+ 		
+ 		setMesh
+-# 		data=getAnimMeshData(&quot;data/models/sheep.anim&quot;)
+-# 		setMesh(AnimMesh.new(getMap.getScene,data))
+ 
+ 		resource.set(&quot;food&quot;,1)
+ 	end
+@@ -58,23 +47,25 @@
+ 			return
+ 		end
+ 
+-		# BIRTHRATE is here:
+-		if @lastBirth&gt;40 then
+-			# make child
+-			puts &quot;A SHEEP IS BORN&quot;
+-			sheep=AntSheep.new
+-			sheep.setPos(getPos2D)
+-			getMap.insertEntity(sheep)
+-			#getMap.endChange
+-			newRestJob(2)
+-			@lastBirth=-getRand*10
+-		elsif getRand&lt;0.5 then
+-			newMoveJob(0,getTargetPos,0)
+-			setMeshState(&quot;go&quot;)
+-		else
+-			newRestJob(3)
+-			setMeshState(&quot;eat&quot;)
+-			playSound(&quot;sheep&quot;)
++		if (not giveBirth)
++# 		# BIRTHRATE is here:
++# 		if @lastBirth&gt;40 then
++# 			# make child
++# 			puts &quot;A SHEEP IS BORN&quot;
++# 			sheep=AntSheep.new
++# 			sheep.setPos(getPos2D)
++# 			getMap.insertEntity(sheep)
++# 			#getMap.endChange
++# 			newRestJob(2)
++# 			@lastBirth=-getRand*10
++			if getRand&lt;0.5 then
++				newMoveJob(0,getTargetPos,0)
++				setMeshState(&quot;go&quot;)
++			else
++				newRestJob(3)
++				setMeshState(&quot;eat&quot;)
++				playSound(&quot;sheep&quot;)
++			end
+ 		end
+ 
+ 		@foodAdd+=1
+@@ -85,8 +76,6 @@
+ 			#puts &quot;RESOURCE: #{resource.get(&quot;food&quot;)}&quot;
+ 			@foodAdd=0
+ 		end
+-
+-		@lastBirth+=1
+ 	end
+ 	
+ 	def getTargetPos
+
+Modified: antargis/trunk/ruby/entities/ant_tower.rb
+===================================================================
+--- antargis/trunk/ruby/entities/ant_tower.rb	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ruby/entities/ant_tower.rb	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -42,7 +42,7 @@
+ 	end
+ 	
+ 	def addFlag(owner)
+-		@flag=AntFlag.new
++		@flag=AntFlag.new(getMap)
+ 		setPos(getPos2D) # reset flag position
+ 		getMap.insertEntity(@flag)
+ 	end
+
+Modified: antargis/trunk/ruby/jobs/ant_hljob_states.rb
+===================================================================
+--- antargis/trunk/ruby/jobs/ant_hljob_states.rb	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ruby/jobs/ant_hljob_states.rb	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -64,11 +64,11 @@
+ 
+ 	def ready
+ 		if <A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">getTime- at formatStart</A>&gt;FORMAT_MAX_TIME
+-			puts &quot;MUST BE READY&quot;
++			#log &quot;MUST BE READY&quot;
+ 			return true
+ 		end
+ 		allMen.each{|man|
+-			puts &quot;formatting:#{man}:#{man.hlJobMode[:formatting]}&quot;
++			#log &quot;formatting:#{man}:#{man.hlJobMode[:formatting]}&quot;
+ 			if man.hlJobMode[:formatting]
+ 				return false
+ 			end
+@@ -170,6 +170,7 @@
+ 	edge :moveToNextPoint, :endState, :noMoreWaypoints
+ 
+ 	def enter
++		@near=0
+ 		puts &quot;#{self}:enter&quot;
+ 		if @waypoints.nil?
+ 			initWaypoints
+@@ -180,14 +181,20 @@
+ 		puts state
+ 		if @waypoints.length&gt;0
+ 			self.targetPos=@waypoints.shift
+-			puts &quot;targetPos:#{targetPos}&quot;
++
++			if @waypoints.length==0
++				self.targetPos=checkPosNear(self.targetPos)
++				@states[:moveToNextPoint].near=@near 
++			end
++			
+ 			return true
+ 		end
+ 		false
+ 	end
+ 
+ 	def near=(n)
+-		@states[:moveToNextPoint].near=n
++		@near=n
++		#@states[:moveToNextPoint].near=n
+ 	end
+ 
+ 	def noMoreWaypoints
+@@ -213,6 +220,7 @@
+ 	private
+ 
+ 	def initWaypoints
++		@finalPos=targetPos
+ 		if getMap.path
+ 			@waypoints=[hero.getPos2D]+getMap.path.computePath(hero.getPos2D,targetPos,hero)+[targetPos]
+ 			# remove waypoints in between - if they're not necessary - origin must be given, too
+@@ -221,14 +229,27 @@
+ 			assert{@waypoints.length&gt;=2}
+ 			@waypoints.shift
+ 			
+-			@waypoints+=[targetPos]
++			#@waypoints+=[targetPos]
+ 
+ 		else
+ 			@waypoints=[targetPos]
+ 		end
+ 		@completeTargetPos=targetPos
+ 		self.targetPos=@waypoints.shift
++		self.targetPos=checkPosNear(self.targetPos)
+ 	end
++
++	def checkPosNear(to)
++		from=hero.getPos2D
++		line=AGLine2.new(from,to)
++		circle=AGCircle2.new(@<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">finalPos, at near</A>)
++		list=circle.collide(line)
++		if list.length&gt;0
++			to=list.min{|a,b|(a-from).length&lt;=&gt;(b-from).length}
++		end
++
++		to
++	end
+ end
+ 
+ class HLJob_SitDown&lt;HLJob_BaseState
+@@ -545,9 +566,17 @@
+ 			puts &quot;parties: #{type}:#{jobs}&quot;
+ 			menGroup[type]=jobs.collect{|job|job.undefeatedMen}.flatten.uniq
+ 			menGroup[type].each{|man|man.delJob}
+-			leave=true if @inited and menGroup[type].length==0 # a fightjob is leaving
++			if menGroup[type].length==0
++				if @inited
++					leave=true # a fightjob is leaving
++				else
++					# party is still defeated, but job is not yet finished ?
++					leave=true 
++				end
++			end
+ 		}
+ 		return if leave
++		assert{@parties.length&gt;0}
+ 	
+ 		# check that each group has more than 0 members
+ 		assert{menGroup.select{|k,v|v.length==0}.length==0}
+@@ -715,11 +744,16 @@
+ 		trace
+ 
+ 		undefeatedMen.each{|man|
+-			assert{not man.hlJobMode[:fightTarget].nil?}
+-			man.newFightJob(0,man.hlJobMode[:fightTarget])
+-			# FIXME: check if morale is high enough
+-			man.hlJobMode.delete(:defeated)
+-			man.hlJobMode[:fighting]=true
++			if man.hlJobMode[:fightTarget]
++				assert{not man.hlJobMode[:fightTarget].nil?}
++				man.newFightJob(0,man.hlJobMode[:fightTarget])
++				# FIXME: check if morale is high enough
++				man.hlJobMode.delete(:defeated)
++				man.hlJobMode[:fighting]=true
++			else
++				# this the case, when an already defeated party is attacked
++				puts &quot;POSSIBLE ERROR: #{man} has no opponent ?&quot;
++			end
+ 		}
+ 	end
+ end
+
+Modified: antargis/trunk/ruby/jobs/ant_new_hljobs.rb
+===================================================================
+--- antargis/trunk/ruby/jobs/ant_new_hljobs.rb	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ruby/jobs/ant_new_hljobs.rb	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -35,10 +35,15 @@
+ 	state :sitDown=&gt;HLJob_SitDown
+ 	state :justSitOnce=&gt;HLJob_JustSitOnce
+ 	state :spreadThings=&gt;HLJob_SpreadThings
++	state :endState=&gt;HLJob_DummyState
+ 
+ 	startState :formatSit
++	endState :endState
++
+ 	edge :formatSit, :sitDown
+-	edge :sitDown,:justSitOnce
++	edge :sitDown,:justSitOnce,:notRestFinished
++	edge :sitDown,:endState,:restFinished
++
+ 	edge :justSitOnce,:spreadThings,:checkSpread
+ 	edge :justSitOnce,:justSitOnce,:notCheckSpread
+ 	edge :spreadThings,:formatSit,:lastSpread
+@@ -47,6 +52,8 @@
+ 
+ 	def initialize(hero,time)
+ 		super(hero)
++		@restTime=time
++		@startTime=getTime
+ 	end
+ 	def image
+ 		&quot;data/gui/bed.png&quot;
+@@ -73,6 +80,14 @@
+ 		not checkSpread
+ 	end
+ 		
++	def restFinished
++		finished=(<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">getTime- at startTime</A>)&gt;@restTime
++		#log &quot;RESTJOB FINISHED: #{finished} ((#{getTime}-#{@startTime})&gt;#{@restTime})&quot;
++		finished
++	end
++	def notRestFinished
++		not restFinished
++	end
+ end
+ 
+ 
+
+Modified: antargis/trunk/ruby/map.rb
+===================================================================
+--- antargis/trunk/ruby/map.rb	2007-10-27 19:20:17 UTC (rev 1184)
++++ antargis/trunk/ruby/map.rb	2007-11-06 19:39:46 UTC (rev 1185)
+@@ -116,7 +116,8 @@
+ 		@uidstart=[<A HREF="https://lists.berlios.de/mailman/listinfo/antargis-svn">i, at uidstart</A>].max
+ 	end
+ 	def getByUID(id)
+-		ents=getAllEntitiesV
++		puts &quot;WARNING: THIS function is slow!&quot;
++		ents=getAllEntities
+ 		id=id.to_i
+ 		ents.each{|e|
+ 			r=e.get
+@@ -496,7 +497,8 @@
+ 
+ 	def createPathfinder
+ 		@path=CombinedPathFinder.new(self)
+-		#@path.displayPathfindingGraph(self,getScene)
++		@path.scene=getScene
++		@path.displayPathfindingGraph(self,getScene)
+ 	end
+ 
+ 	def createPathfinderOLD
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000143.html">[Antargis-svn] r1186 - in antargis/trunk/ruby: ai spec
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#142">[ date ]</a>
+              <a href="thread.html#142">[ thread ]</a>
+              <a href="subject.html#142">[ subject ]</a>
+              <a href="author.html#142">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/antargis-svn">More information about the Antargis-svn
+mailing list</a><br>
+</body></html>

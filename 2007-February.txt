@@ -1,0 +1,2617 @@
+From davidkamphausen at mail.berlios.de  Sun Feb  4 16:10:17 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Sun, 4 Feb 2007 16:10:17 +0100
+Subject: [Antargis-svn] r1048 - antargis/trunk/data/shaders
+Message-ID: <200702041510.l14FAHEH009244@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-02-04 16:10:17 +0100 (Sun, 04 Feb 2007)
+New Revision: 1048
+
+Modified:
+   antargis/trunk/data/shaders/anim.vert
+Log:
+* animation was disabled
+
+
+Modified: antargis/trunk/data/shaders/anim.vert
+===================================================================
+--- antargis/trunk/data/shaders/anim.vert	2007-01-19 18:47:35 UTC (rev 1047)
++++ antargis/trunk/data/shaders/anim.vert	2007-02-04 15:10:17 UTC (rev 1048)
+@@ -10,8 +10,8 @@
+ 
+ 	int i=int(bones); // convert to int
+ 	mat4 m=matrices[i];
+-	//gl_Position = gl_ModelViewProjectionMatrix *m*v;
+-	gl_Position = gl_ModelViewProjectionMatrix *v;
++	gl_Position = gl_ModelViewProjectionMatrix *m*v;
++	//gl_Position = gl_ModelViewProjectionMatrix *v;
+ 
+ 	normal = normalize(gl_NormalMatrix * gl_Normal);
+ 	
+
+
+
+From davidkamphausen at mail.berlios.de  Sun Feb 11 16:16:21 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Sun, 11 Feb 2007 16:16:21 +0100
+Subject: [Antargis-svn] r1049 - in antargis/trunk: . gui/src src
+Message-ID: <200702111516.l1BFGLrq024984@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-02-11 16:16:20 +0100 (Sun, 11 Feb 2007)
+New Revision: 1049
+
+Added:
+   antargis/trunk/gui/src/ag_glscreen.cc
+   antargis/trunk/gui/src/ag_glscreen.h
+Removed:
+   antargis/trunk/gui/src/ag_glsurface.cc
+   antargis/trunk/gui/src/ag_glsurface.h
+Modified:
+   antargis/trunk/Rakefile
+   antargis/trunk/gui/src/ag_application.cc
+   antargis/trunk/gui/src/ag_button.cc
+   antargis/trunk/gui/src/ag_edit.cc
+   antargis/trunk/gui/src/ag_main.cc
+   antargis/trunk/gui/src/ag_painter.cc
+   antargis/trunk/gui/src/ag_surface.cc
+   antargis/trunk/gui/src/ag_surfacemanager.cc
+   antargis/trunk/gui/src/ag_texture.cc
+   antargis/trunk/src/antargisgui.h
+Log:
+* Dateien umbenannt
+
+
+Modified: antargis/trunk/Rakefile
+===================================================================
+--- antargis/trunk/Rakefile	2007-02-04 15:10:17 UTC (rev 1048)
++++ antargis/trunk/Rakefile	2007-02-11 15:16:20 UTC (rev 1049)
+@@ -38,7 +38,7 @@
+ "ag_rubyobj.h","ag_messageobject.h","ag_serial.h","ag_aes.h","ag_singleton.h",
+  "ag_geometry.h","ag_font.h","ag_color.h","ag_local.h","ag_config.h","ag_string.h","ag_string_utf8.h",
+  "ag_widget.h","ag_colorbutton.h","ag_glwidget.h","ag_xml.h","ag_layout.h","ag_dialog.h","ag_mutex.h",
+- "ag_application.h","ag_background.h","ag_border.h","ag_button.h","ag_text.h","ag_caption.h","ag_checkbox.h","ag_combo.h","ag_edit.h","ag_fontengine.h","ag_fs.h","ag_painttarget.h","ag_surface.h","ag_texture.h","ag_surfacemanager.h","ag_image.h","ag_layoutfactory.h","ag_listbox.h","ag_list.h","ag_main.h","ag_menu.h","ag_menuitem.h","ag_mixer.h","ag_mutex.h","ag_painter.h","ag_png.h","ag_radio.h","ag_screen.h","ag_glsurface.h","ag_table.h","ag_texturecache.h","ag_theme.h","ag_tools.h","ag_window.h","ag_xml.h","ag_screenwidget.h","ag_scroller.h","ag_plugin.h","ag_destructor.h"]
++ "ag_application.h","ag_background.h","ag_border.h","ag_button.h","ag_text.h","ag_caption.h","ag_checkbox.h","ag_combo.h","ag_edit.h","ag_fontengine.h","ag_fs.h","ag_painttarget.h","ag_surface.h","ag_texture.h","ag_surfacemanager.h","ag_image.h","ag_layoutfactory.h","ag_listbox.h","ag_list.h","ag_main.h","ag_menu.h","ag_menuitem.h","ag_mixer.h","ag_mutex.h","ag_painter.h","ag_png.h","ag_radio.h","ag_screen.h","ag_glscreen.h","ag_table.h","ag_texturecache.h","ag_theme.h","ag_tools.h","ag_window.h","ag_xml.h","ag_screenwidget.h","ag_scroller.h","ag_plugin.h","ag_destructor.h"]
+ 
+ interfaceHeadersSRC.collect!{|s|"src/"+s}
+ interfaceHeadersGUI.collect!{|s|"gui/src/"+s}
+
+Modified: antargis/trunk/gui/src/ag_application.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_application.cc	2007-02-04 15:10:17 UTC (rev 1048)
++++ antargis/trunk/gui/src/ag_application.cc	2007-02-11 15:16:20 UTC (rev 1049)
+@@ -21,7 +21,7 @@
+ #include "ag_application.h"
+ #include "ag_main.h"
+ #include "ag_screen.h"
+-#include "ag_glsurface.h"
++#include "ag_glscreen.h"
+ #include "ag_main.h"
+ #include "ag_debug.h"
+ #include "ag_mixer.h"
+
+Modified: antargis/trunk/gui/src/ag_button.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_button.cc	2007-02-04 15:10:17 UTC (rev 1048)
++++ antargis/trunk/gui/src/ag_button.cc	2007-02-11 15:16:20 UTC (rev 1049)
+@@ -25,7 +25,7 @@
+ #include "ag_debug.h"
+ #include "ag_image.h"
+ #include "ag_border.h"
+-#include "ag_glsurface.h"
++#include "ag_glscreen.h"
+ 
+ using namespace std;
+ 
+
+Modified: antargis/trunk/gui/src/ag_edit.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_edit.cc	2007-02-04 15:10:17 UTC (rev 1048)
++++ antargis/trunk/gui/src/ag_edit.cc	2007-02-11 15:16:20 UTC (rev 1049)
+@@ -24,7 +24,7 @@
+ #include "ag_debug.h"
+ #include "ag_menu.h"
+ #include "ag_sgeexport.h"
+-#include "ag_glsurface.h"
++#include "ag_glscreen.h"
+ #include "ag_tools.h"
+ 
+ 
+
+Copied: antargis/trunk/gui/src/ag_glscreen.cc (from rev 1048, antargis/trunk/gui/src/ag_glsurface.cc)
+===================================================================
+--- antargis/trunk/gui/src/ag_glsurface.cc	2007-02-04 15:10:17 UTC (rev 1048)
++++ antargis/trunk/gui/src/ag_glscreen.cc	2007-02-11 15:16:20 UTC (rev 1049)
+@@ -0,0 +1,365 @@
++/*
++ * Copyright (c) 2005 by David Kamphausen. All rights reserved.
++ *
++ * ag_glsurface.cc
++ * by David Kamphausen (david.kamphausen at web.de)
++ *
++ * The "Antargis" project, including all files needed to compile it,
++ * is free software; you can redistribute it and/or use it and/or modify it
++ * under the terms of the GNU General Public License as published
++ * by the Free Software Foundation; either version 2 of the License,
++ * or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
++ *
++ * You should have received a copy of the GNU General Public
++ * License along with this program.
++ */
++#include "GLee.h"
++
++#include <SDL_opengl.h>
++#include "ag_glscreen.h"
++#include "ag_color.h"
++#include "ag_debug.h"
++#include "ag_fontengine.h"
++#include "ag_surfacemanager.h"
++#include <GL/gl.h>
++#include <GL/glext.h>
++#include <GL/glu.h>
++#include <assert.h>
++#include <set>
++#include <map>
++#include <vector>
++#include "ag_sgeexport.h"
++#include "SDL_image.h"
++
++#include <ag_rendercontext.h>
++#include <SDL.h>
++
++#include <ag_fs.h>
++
++#include <ag_geometry.h>
++#include <ag_texture.h>
++#include <ag_profiler.h>
++#include <ag_glpainter.h>
++
++std::set<SDL_Surface *> glTestSurfaces;
++
++#define SIMPLE
++
++
++void initDraw()
++{
++  glEnable( GL_BLEND );
++  glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
++
++  glDisable(GL_DEPTH_TEST); // enable depth test
++  glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT); // clear screen and depth buffer
++  glLoadIdentity();
++  glDepthMask(false);
++  //  glTranslatef(0.375, 0.375, 0.0);
++  glEnable(GL_CULL_FACE);
++  glCullFace(GL_BACK);
++}
++
++void initGUIView(int w,int h)
++{
++  glMatrixMode( GL_PROJECTION );
++  glLoadIdentity( );
++
++  GLfloat ratio;
++
++  ratio = ( float )w / ( float )h;
++
++  gluOrtho2D(0,w,0,h);
++
++  glMatrixMode( GL_MODELVIEW );
++  glLoadIdentity( );
++
++}
++
++void myFlip()
++{
++  SDL_GL_SwapBuffers();
++}
++
++AGGLScreen::AGGLScreen(int W,int H,int VW,int VH):
++  w(VW),h(VH),
++  rw(W),rh(H)
++{
++  if(w<rw)
++    w=rw;
++  if(h<rh)
++    h=rh;
++
++  mLineWidth=2;
++
++  cdebug("w:"<<w<<" h:"<<h);
++
++  // init GL
++  glEnable(GL_TEXTURE_2D);
++  glShadeModel(GL_SMOOTH);
++  glClearColor(0.0f,0.0f,0.0f,0.0f); // clear bgcolor
++  glClearDepth(1.0f);      // clear depth buffer
++  glEnable(GL_DEPTH_TEST); // enable depth test
++  glDepthFunc(GL_LEQUAL); // set type depth test
++  glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); // GL_NICEST // best perspective correction
++  glEnable(GL_BLEND);
++
++  glViewport( 0, 0, rw, rh );
++  glMatrixMode( GL_PROJECTION );
++  glLoadIdentity( );
++
++  GLfloat ratio;
++
++  ratio = ( float )w / ( float )h;
++
++  //  gluPerspective( 45.0f, ratio, 1.0f, 100.0f );
++
++  gluOrtho2D(0,w,0,h);
++
++  glMatrixMode( GL_MODELVIEW );
++  glLoadIdentity( );
++}
++
++
++
++
++AGGLScreen::~AGGLScreen()
++{ 
++}
++
++AGSurface AGGLScreen::screenshot()
++{
++  AGSurface s(getWidth(),getHeight());
++
++  SDL_Surface *surface=s.surface()->surface;
++
++  unsigned char *buffer=new unsigned char[getWidth()*getHeight()*4];
++  glReadBuffer(GL_FRONT);
++
++  cdebug(s.surface());
++  cdebug(s.surface()->surface);
++
++  glPixelStorei(GL_PACK_ALIGNMENT, 2);
++  assertGL;
++  glPixelStorei(GL_PACK_ROW_LENGTH, getWidth());
++  //                surface->pitch / surface->format->BytesPerPixel);
++  assertGL;
++
++
++  {
++    TRACE;
++    glReadPixels(0,0,getWidth(),getHeight(),GL_RGBA,GL_UNSIGNED_BYTE,buffer);//s.surface()->surface);
++    glReadBuffer(GL_BACK);
++  }
++
++  {
++    // copy
++    TRACE;
++    int h=getHeight()-1;
++    for(int x=0;x<getWidth();x++)
++      for(int y=0;y<getHeight();y++)
++	{
++	  unsigned char*p=buffer+((x+(h-y)*getWidth())*4);
++	  AGColor c(p[0],p[1],p[2],p[3]);
++	  s.putPixel(x,y,c);
++	}
++  }
++  
++
++  delete [] buffer;
++  return s;
++}
++
++
++void AGGLScreen::begin()
++{
++  glViewport( 0, 0, rw, rh );
++  glDisable(GL_LIGHTING);
++  glEnable(GL_TEXTURE_2D);
++  glShadeModel(GL_SMOOTH);
++
++  glEnable(GL_DEPTH_TEST); // enable depth test
++  glDepthFunc(GL_LEQUAL); // set type depth test
++  glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); // GL_NICEST // best perspective correction
++  glEnable(GL_BLEND);
++
++  glViewport( 0, 0, rw, rh );
++  glMatrixMode( GL_PROJECTION );
++  glLoadIdentity( );
++
++  GLfloat ratio;
++
++  ratio = ( float )w / ( float )h;
++
++  gluOrtho2D(0,w,0,h);
++
++  glMatrixMode( GL_MODELVIEW );
++  glLoadIdentity( );
++
++  glEnable( GL_BLEND );
++  glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
++
++  glDisable(GL_DEPTH_TEST); // enable depth test
++
++  glDepthMask(false);
++}
++
++void AGGLScreen::flip()
++{
++  myFlip();
++  getSurfaceManager()->cleanup(); // FIXME: maybe delete it - or do cleanup in 2 stages
++  initDraw();
++
++  initGUIView(w,h);
++}
++
++size_t next2pow(size_t i)
++{
++  size_t j=1;
++  while(j<i)
++    j<<=1;
++
++  return j;
++}
++
++
++bool AGGLScreen::inScreen(const AGRect2 &r) const
++{
++  return AGRect2(0,0,w,h).contains(r);
++}
++
++void AGGLScreen::blit(const AGTexture &pSource,const AGRect2 &pRect,const AGRect2 &pSrc)
++{
++  blit(pSource,pRect,pSrc,AGColor(0xFF,0xFF,0xFF,0xFF));
++}
++
++void AGGLScreen::blit(const AGTexture &pSource,const AGRect2 &pRect,const AGRect2 &pSrc,const AGColor &pColor)
++{
++  AGGLPainter::blit(pSource,pRect,pSrc,pColor);
++}
++
++
++void AGGLScreen::blit(const AGTexture &pSource,const std::vector<std::pair<AGRect2,AGRect2> > &pSrcDestRects,const AGColor &pColor)
++{
++  AGGLPainter::blit(pSource,pSrcDestRects,pColor);
++}
++
++
++void AGGLScreen::tile(const AGTexture &pSource,const AGRect2 &pTarget,const AGColor &pColor)
++{
++  AGGLPainter::tile(pSource,pTarget,pColor);
++}
++
++
++void AGGLScreen::fillRect(const AGRect2 &pRect,const AGColor &c)
++{
++  AGGLPainter::fillRect(pRect,c);
++}
++
++void AGGLScreen::fillRects(const std::vector<std::pair<AGRect2,AGVector4> > &pRects)
++{
++  AGGLPainter::fillRects(pRects);
++}
++
++
++AGRect2 AGGLScreen::getRect() const
++{
++  return AGRect2(0,0,w,h);
++}
++
++void glColor(const AGColor &c)
++{
++  glColor4f(c.r/255.0,c.g/255.0,c.b/255.0,c.a/255.0);
++}
++
++void AGGLScreen::drawGradientAlpha(const AGRect2& pRect, const AGColor& ul, const AGColor& ur, const AGColor& dl, const AGColor& dr)
++{
++  AGGLPainter::drawGradientAlpha(pRect,ul,ur,dl,dr);
++}
++
++void AGGLScreen::drawBorder(const AGRect2& rect,int W, const AGColor& c1, const AGColor& c2)
++{
++  AGGLPainter::drawBorder(rect,W,c1,c2);
++}
++
++void AGGLScreen::putPixel(int x,int y,const AGColor &pc)
++{
++  AGGLPainter::putPixel(x,y,pc);
++}
++
++void AGGLScreen::drawGradient(const AGRect2& rect, const AGColor& ul, const AGColor& ur, const AGColor& dl, const AGColor& dr)
++{
++  drawGradientAlpha(rect,ul,ur,dl,dr);
++}
++
++void AGGLScreen::drawLine(const AGVector2 &p0,const AGVector2 &p1,const AGColor &c)
++{
++  AGGLPainter::drawLine(p0,p1,c,mLineWidth);
++}
++
++void AGGLScreen::blitTri(const AGTexture &pSource,const AGTriangle2 &pSrc,const AGTriangle2 &pDest)
++{
++  AGGLPainter::blitTri(pSource,pSrc,pDest);
++}
++
++size_t AGGLScreen::getWidth() const
++{
++  return w;
++}
++size_t AGGLScreen::getHeight() const
++{
++  return h;
++}
++void AGGLScreen::clip(const AGRect2 &r)
++{
++  return;
++#warning "insert clipping facility for opengl"
++
++  AGRect2 x=AGRect2(0,0,w,h);
++  AGRect2 m=x.intersect(r);
++
++  glScissor((GLint)(m.x0()),
++	    (GLint)(h-1-m.y1()),
++	    (GLint)(m.width()),
++	    (GLint)(m.height()));
++  assertGL;
++  glEnable(GL_SCISSOR_TEST);
++  assertGL;
++}
++void AGGLScreen::unclip()
++{
++  glDisable(GL_SCISSOR_TEST);
++  assertGL;
++}
++
++
++void AGGLScreen::beginPaint()
++{
++  //  CTRACE;
++  glMatrixMode(GL_MODELVIEW);
++  glLoadIdentity();
++  glTranslatef(0,getHeight()+1,0);
++  glScalef(1,-1,1);
++}
++
++void AGGLScreen::endPaint()
++{
++  glMatrixMode(GL_MODELVIEW);
++  glLoadIdentity();
++}
++
++void AGGLScreen::setLineWidth(float w)
++{
++  mLineWidth=w;
++}
++
++
++
++bool opengl()
++{
++  return dynamic_cast<AGGLScreen*>(&getScreen());
++}
+
+Copied: antargis/trunk/gui/src/ag_glscreen.h (from rev 1048, antargis/trunk/gui/src/ag_glsurface.h)
+
+Deleted: antargis/trunk/gui/src/ag_glsurface.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_glsurface.cc	2007-02-04 15:10:17 UTC (rev 1048)
++++ antargis/trunk/gui/src/ag_glsurface.cc	2007-02-11 15:16:20 UTC (rev 1049)
+@@ -1,365 +0,0 @@
+-/*
+- * Copyright (c) 2005 by David Kamphausen. All rights reserved.
+- *
+- * ag_glsurface.cc
+- * by David Kamphausen (david.kamphausen at web.de)
+- *
+- * The "Antargis" project, including all files needed to compile it,
+- * is free software; you can redistribute it and/or use it and/or modify it
+- * under the terms of the GNU General Public License as published
+- * by the Free Software Foundation; either version 2 of the License,
+- * or (at your option) any later version.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+- *
+- * You should have received a copy of the GNU General Public
+- * License along with this program.
+- */
+-#include "GLee.h"
+-
+-#include <SDL_opengl.h>
+-#include "ag_glsurface.h"
+-#include "ag_color.h"
+-#include "ag_debug.h"
+-#include "ag_fontengine.h"
+-#include "ag_surfacemanager.h"
+-#include <GL/gl.h>
+-#include <GL/glext.h>
+-#include <GL/glu.h>
+-#include <assert.h>
+-#include <set>
+-#include <map>
+-#include <vector>
+-#include "ag_sgeexport.h"
+-#include "SDL_image.h"
+-
+-#include <ag_rendercontext.h>
+-#include <SDL.h>
+-
+-#include <ag_fs.h>
+-
+-#include <ag_geometry.h>
+-#include <ag_texture.h>
+-#include <ag_profiler.h>
+-#include <ag_glpainter.h>
+-
+-std::set<SDL_Surface *> glTestSurfaces;
+-
+-#define SIMPLE
+-
+-
+-void initDraw()
+-{
+-  glEnable( GL_BLEND );
+-  glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+-
+-  glDisable(GL_DEPTH_TEST); // enable depth test
+-  glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT); // clear screen and depth buffer
+-  glLoadIdentity();
+-  glDepthMask(false);
+-  //  glTranslatef(0.375, 0.375, 0.0);
+-  glEnable(GL_CULL_FACE);
+-  glCullFace(GL_BACK);
+-}
+-
+-void initGUIView(int w,int h)
+-{
+-  glMatrixMode( GL_PROJECTION );
+-  glLoadIdentity( );
+-
+-  GLfloat ratio;
+-
+-  ratio = ( float )w / ( float )h;
+-
+-  gluOrtho2D(0,w,0,h);
+-
+-  glMatrixMode( GL_MODELVIEW );
+-  glLoadIdentity( );
+-
+-}
+-
+-void myFlip()
+-{
+-  SDL_GL_SwapBuffers();
+-}
+-
+-AGGLScreen::AGGLScreen(int W,int H,int VW,int VH):
+-  w(VW),h(VH),
+-  rw(W),rh(H)
+-{
+-  if(w<rw)
+-    w=rw;
+-  if(h<rh)
+-    h=rh;
+-
+-  mLineWidth=2;
+-
+-  cdebug("w:"<<w<<" h:"<<h);
+-
+-  // init GL
+-  glEnable(GL_TEXTURE_2D);
+-  glShadeModel(GL_SMOOTH);
+-  glClearColor(0.0f,0.0f,0.0f,0.0f); // clear bgcolor
+-  glClearDepth(1.0f);      // clear depth buffer
+-  glEnable(GL_DEPTH_TEST); // enable depth test
+-  glDepthFunc(GL_LEQUAL); // set type depth test
+-  glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); // GL_NICEST // best perspective correction
+-  glEnable(GL_BLEND);
+-
+-  glViewport( 0, 0, rw, rh );
+-  glMatrixMode( GL_PROJECTION );
+-  glLoadIdentity( );
+-
+-  GLfloat ratio;
+-
+-  ratio = ( float )w / ( float )h;
+-
+-  //  gluPerspective( 45.0f, ratio, 1.0f, 100.0f );
+-
+-  gluOrtho2D(0,w,0,h);
+-
+-  glMatrixMode( GL_MODELVIEW );
+-  glLoadIdentity( );
+-}
+-
+-
+-
+-
+-AGGLScreen::~AGGLScreen()
+-{ 
+-}
+-
+-AGSurface AGGLScreen::screenshot()
+-{
+-  AGSurface s(getWidth(),getHeight());
+-
+-  SDL_Surface *surface=s.surface()->surface;
+-
+-  unsigned char *buffer=new unsigned char[getWidth()*getHeight()*4];
+-  glReadBuffer(GL_FRONT);
+-
+-  cdebug(s.surface());
+-  cdebug(s.surface()->surface);
+-
+-  glPixelStorei(GL_PACK_ALIGNMENT, 2);
+-  assertGL;
+-  glPixelStorei(GL_PACK_ROW_LENGTH, getWidth());
+-  //                surface->pitch / surface->format->BytesPerPixel);
+-  assertGL;
+-
+-
+-  {
+-    TRACE;
+-    glReadPixels(0,0,getWidth(),getHeight(),GL_RGBA,GL_UNSIGNED_BYTE,buffer);//s.surface()->surface);
+-    glReadBuffer(GL_BACK);
+-  }
+-
+-  {
+-    // copy
+-    TRACE;
+-    int h=getHeight()-1;
+-    for(int x=0;x<getWidth();x++)
+-      for(int y=0;y<getHeight();y++)
+-	{
+-	  unsigned char*p=buffer+((x+(h-y)*getWidth())*4);
+-	  AGColor c(p[0],p[1],p[2],p[3]);
+-	  s.putPixel(x,y,c);
+-	}
+-  }
+-  
+-
+-  delete [] buffer;
+-  return s;
+-}
+-
+-
+-void AGGLScreen::begin()
+-{
+-  glViewport( 0, 0, rw, rh );
+-  glDisable(GL_LIGHTING);
+-  glEnable(GL_TEXTURE_2D);
+-  glShadeModel(GL_SMOOTH);
+-
+-  glEnable(GL_DEPTH_TEST); // enable depth test
+-  glDepthFunc(GL_LEQUAL); // set type depth test
+-  glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); // GL_NICEST // best perspective correction
+-  glEnable(GL_BLEND);
+-
+-  glViewport( 0, 0, rw, rh );
+-  glMatrixMode( GL_PROJECTION );
+-  glLoadIdentity( );
+-
+-  GLfloat ratio;
+-
+-  ratio = ( float )w / ( float )h;
+-
+-  gluOrtho2D(0,w,0,h);
+-
+-  glMatrixMode( GL_MODELVIEW );
+-  glLoadIdentity( );
+-
+-  glEnable( GL_BLEND );
+-  glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+-
+-  glDisable(GL_DEPTH_TEST); // enable depth test
+-
+-  glDepthMask(false);
+-}
+-
+-void AGGLScreen::flip()
+-{
+-  myFlip();
+-  getSurfaceManager()->cleanup(); // FIXME: maybe delete it - or do cleanup in 2 stages
+-  initDraw();
+-
+-  initGUIView(w,h);
+-}
+-
+-size_t next2pow(size_t i)
+-{
+-  size_t j=1;
+-  while(j<i)
+-    j<<=1;
+-
+-  return j;
+-}
+-
+-
+-bool AGGLScreen::inScreen(const AGRect2 &r) const
+-{
+-  return AGRect2(0,0,w,h).contains(r);
+-}
+-
+-void AGGLScreen::blit(const AGTexture &pSource,const AGRect2 &pRect,const AGRect2 &pSrc)
+-{
+-  blit(pSource,pRect,pSrc,AGColor(0xFF,0xFF,0xFF,0xFF));
+-}
+-
+-void AGGLScreen::blit(const AGTexture &pSource,const AGRect2 &pRect,const AGRect2 &pSrc,const AGColor &pColor)
+-{
+-  AGGLPainter::blit(pSource,pRect,pSrc,pColor);
+-}
+-
+-
+-void AGGLScreen::blit(const AGTexture &pSource,const std::vector<std::pair<AGRect2,AGRect2> > &pSrcDestRects,const AGColor &pColor)
+-{
+-  AGGLPainter::blit(pSource,pSrcDestRects,pColor);
+-}
+-
+-
+-void AGGLScreen::tile(const AGTexture &pSource,const AGRect2 &pTarget,const AGColor &pColor)
+-{
+-  AGGLPainter::tile(pSource,pTarget,pColor);
+-}
+-
+-
+-void AGGLScreen::fillRect(const AGRect2 &pRect,const AGColor &c)
+-{
+-  AGGLPainter::fillRect(pRect,c);
+-}
+-
+-void AGGLScreen::fillRects(const std::vector<std::pair<AGRect2,AGVector4> > &pRects)
+-{
+-  AGGLPainter::fillRects(pRects);
+-}
+-
+-
+-AGRect2 AGGLScreen::getRect() const
+-{
+-  return AGRect2(0,0,w,h);
+-}
+-
+-void glColor(const AGColor &c)
+-{
+-  glColor4f(c.r/255.0,c.g/255.0,c.b/255.0,c.a/255.0);
+-}
+-
+-void AGGLScreen::drawGradientAlpha(const AGRect2& pRect, const AGColor& ul, const AGColor& ur, const AGColor& dl, const AGColor& dr)
+-{
+-  AGGLPainter::drawGradientAlpha(pRect,ul,ur,dl,dr);
+-}
+-
+-void AGGLScreen::drawBorder(const AGRect2& rect,int W, const AGColor& c1, const AGColor& c2)
+-{
+-  AGGLPainter::drawBorder(rect,W,c1,c2);
+-}
+-
+-void AGGLScreen::putPixel(int x,int y,const AGColor &pc)
+-{
+-  AGGLPainter::putPixel(x,y,pc);
+-}
+-
+-void AGGLScreen::drawGradient(const AGRect2& rect, const AGColor& ul, const AGColor& ur, const AGColor& dl, const AGColor& dr)
+-{
+-  drawGradientAlpha(rect,ul,ur,dl,dr);
+-}
+-
+-void AGGLScreen::drawLine(const AGVector2 &p0,const AGVector2 &p1,const AGColor &c)
+-{
+-  AGGLPainter::drawLine(p0,p1,c,mLineWidth);
+-}
+-
+-void AGGLScreen::blitTri(const AGTexture &pSource,const AGTriangle2 &pSrc,const AGTriangle2 &pDest)
+-{
+-  AGGLPainter::blitTri(pSource,pSrc,pDest);
+-}
+-
+-size_t AGGLScreen::getWidth() const
+-{
+-  return w;
+-}
+-size_t AGGLScreen::getHeight() const
+-{
+-  return h;
+-}
+-void AGGLScreen::clip(const AGRect2 &r)
+-{
+-  return;
+-#warning "insert clipping facility for opengl"
+-
+-  AGRect2 x=AGRect2(0,0,w,h);
+-  AGRect2 m=x.intersect(r);
+-
+-  glScissor((GLint)(m.x0()),
+-	    (GLint)(h-1-m.y1()),
+-	    (GLint)(m.width()),
+-	    (GLint)(m.height()));
+-  assertGL;
+-  glEnable(GL_SCISSOR_TEST);
+-  assertGL;
+-}
+-void AGGLScreen::unclip()
+-{
+-  glDisable(GL_SCISSOR_TEST);
+-  assertGL;
+-}
+-
+-
+-void AGGLScreen::beginPaint()
+-{
+-  //  CTRACE;
+-  glMatrixMode(GL_MODELVIEW);
+-  glLoadIdentity();
+-  glTranslatef(0,getHeight()+1,0);
+-  glScalef(1,-1,1);
+-}
+-
+-void AGGLScreen::endPaint()
+-{
+-  glMatrixMode(GL_MODELVIEW);
+-  glLoadIdentity();
+-}
+-
+-void AGGLScreen::setLineWidth(float w)
+-{
+-  mLineWidth=w;
+-}
+-
+-
+-
+-bool opengl()
+-{
+-  return dynamic_cast<AGGLScreen*>(&getScreen());
+-}
+
+Deleted: antargis/trunk/gui/src/ag_glsurface.h
+===================================================================
+--- antargis/trunk/gui/src/ag_glsurface.h	2007-02-04 15:10:17 UTC (rev 1048)
++++ antargis/trunk/gui/src/ag_glsurface.h	2007-02-11 15:16:20 UTC (rev 1049)
+@@ -1,100 +0,0 @@
+-/*
+- * Copyright (c) 2005 by David Kamphausen. All rights reserved.
+- *
+- * ag_glsurface.h
+- * by David Kamphausen (david.kamphausen at web.de)
+- *
+- * The "Antargis" project, including all files needed to compile it,
+- * is free software; you can redistribute it and/or use it and/or modify it
+- * under the terms of the GNU General Public License as published
+- * by the Free Software Foundation; either version 2 of the License,
+- * or (at your option) any later version.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+- *
+- * You should have received a copy of the GNU General Public
+- * License along with this program.
+- */
+-
+-#ifndef __GUI_GLSURFACE_H
+-#define __GUI_GLSURFACE_H
+-
+-#include <string>
+-#include <map>
+-#include <list>
+-#include <SDL.h>
+-#include "ag_geometry.h"
+-#include "ag_screen.h"
+-#include <GL/gl.h>
+-
+-#define NEW_TEXTURES
+-
+-class AGColor;
+-
+-typedef GLuint TextureID;
+-
+-class AGGLScreen:public AGScreen
+-{
+- public:
+-  AGGLScreen(int W,int H,int VW=-1,int VH=-1);
+-
+-  virtual ~AGGLScreen();
+-
+-  virtual void blitTri(const AGTexture &pSource,const AGTriangle2 &pSrc,const AGTriangle2 &pDest);
+-
+-  virtual void blit(const AGTexture &pSource,const AGRect2 &pDest,const AGRect2 &pSrc);
+-  virtual void blit(const AGTexture &pSource,const AGRect2 &pDest,const AGRect2 &pSrc,const AGColor &pColor);
+-
+-
+-  virtual void blit(const AGTexture &pSource,const std::vector<std::pair<AGRect2,AGRect2> > &pSrcDestRects,const AGColor &pColor);
+-
+-  virtual void tile(const AGTexture &pSource,const AGRect2 &pTarget,const AGColor &pColor);
+-
+-
+-  virtual void fillRect(const AGRect2 &pRect,const AGColor &c);
+-  virtual void fillRects(const std::vector<std::pair<AGRect2,AGVector4> > &pRects);
+-  virtual void drawLine(const AGVector2 &p0,const AGVector2 &p1,const AGColor &c);
+-
+-  virtual AGRect2 getRect() const;
+-
+-  virtual void drawGradient(const AGRect2& rect, const AGColor& ul, const AGColor& ur, const AGColor& dl, const AGColor& dr);
+-
+-  virtual void drawGradientAlpha(const AGRect2& rect, const AGColor& ul, const AGColor& ur, const AGColor& dl, const AGColor& dr);
+-  virtual void drawBorder(const AGRect2& rect,int W, const AGColor& c1, const AGColor& c2);
+-  virtual void putPixel(int x,int y,const AGColor &c);
+-
+-  virtual void begin(); // call before start drawing
+-
+-  AGSurface screenshot();
+-
+-  void flip();
+-  bool inScreen(const AGRect2 &r) const;
+-
+-  virtual size_t getWidth() const;
+-  virtual size_t getHeight() const;
+-
+-  void clip(const AGRect2 &r);
+-  void unclip();
+-
+-  void beginPaint();
+-  void endPaint();
+-
+-  void setLineWidth(float w);
+-
+- private:
+-  AGRect2 getRect(SDL_Surface *s);
+-  void checkUnusedTextures();
+-
+-  int w,h;
+-  int rw,rh;
+-
+-  float mLineWidth;
+-
+-  friend class AGTexture;
+-};
+-
+-bool opengl();
+-
+-#endif
+
+Modified: antargis/trunk/gui/src/ag_main.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_main.cc	2007-02-04 15:10:17 UTC (rev 1048)
++++ antargis/trunk/gui/src/ag_main.cc	2007-02-11 15:16:20 UTC (rev 1049)
+@@ -27,7 +27,7 @@
+ #include "ag_surface.h"
+ #include "ag_texture.h"
+ #include "ag_sdlsurface.h"
+-#include "ag_glsurface.h"
++#include "ag_glscreen.h"
+ #include "ag_fs.h"
+ #include "ag_layout.h"
+ #include "ag_debug.h"
+
+Modified: antargis/trunk/gui/src/ag_painter.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_painter.cc	2007-02-04 15:10:17 UTC (rev 1048)
++++ antargis/trunk/gui/src/ag_painter.cc	2007-02-11 15:16:20 UTC (rev 1049)
+@@ -21,7 +21,7 @@
+ #include <ag_debug.h>
+ #include <ag_draw.h>
+ #include <ag_fontengine.h>
+-#include <ag_glsurface.h>
++#include <ag_glscreen.h>
+ #include <ag_painter.h>
+ #include <ag_profiler.h>
+ #include <ag_sdlsurface.h>
+
+Modified: antargis/trunk/gui/src/ag_surface.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_surface.cc	2007-02-04 15:10:17 UTC (rev 1048)
++++ antargis/trunk/gui/src/ag_surface.cc	2007-02-11 15:16:20 UTC (rev 1049)
+@@ -29,7 +29,7 @@
+ #include "ag_sgeexport.h"
+ #include "ag_kill.h"
+ #include "ag_png.h"
+-#include "ag_glsurface.h"
++#include "ag_glscreen.h"
+ #include "ag_surfacemanager.h"
+ 
+ #include "SDL_image.h"
+
+Modified: antargis/trunk/gui/src/ag_surfacemanager.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_surfacemanager.cc	2007-02-04 15:10:17 UTC (rev 1048)
++++ antargis/trunk/gui/src/ag_surfacemanager.cc	2007-02-11 15:16:20 UTC (rev 1049)
+@@ -25,7 +25,7 @@
+ #include "ag_kill.h"
+ #include "ag_debug.h"
+ #include "ag_config.h"
+-#include "ag_glsurface.h"
++#include "ag_glscreen.h"
+ #include "ag_profiler.h"
+ 
+ #include <map>
+
+Modified: antargis/trunk/gui/src/ag_texture.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_texture.cc	2007-02-04 15:10:17 UTC (rev 1048)
++++ antargis/trunk/gui/src/ag_texture.cc	2007-02-11 15:16:20 UTC (rev 1049)
+@@ -19,7 +19,7 @@
+  */
+ 
+ #include "ag_texture.h"
+-#include "ag_glsurface.h"
++#include "ag_glscreen.h"
+ #include "ag_debug.h"
+ #include "ag_rendercontext.h"
+ #include "ag_sgeexport.h"
+
+Modified: antargis/trunk/src/antargisgui.h
+===================================================================
+--- antargis/trunk/src/antargisgui.h	2007-02-04 15:10:17 UTC (rev 1048)
++++ antargis/trunk/src/antargisgui.h	2007-02-11 15:16:20 UTC (rev 1049)
+@@ -47,7 +47,7 @@
+ #include "../gui/src/ag_png.h"
+ #include "../gui/src/ag_radio.h"
+ #include "../gui/src/ag_screen.h"
+-#include "../gui/src/ag_glsurface.h"
++#include "../gui/src/ag_glscreen.h"
+ #include "../gui/src/ag_table.h"
+ #include "../gui/src/ag_texturecache.h"
+ #include "../gui/src/ag_theme.h"
+@@ -132,7 +132,7 @@
+ %include "../gui/src/ag_png.h"
+ %include "../gui/src/ag_radio.h"
+ %include "../gui/src/ag_screen.h"
+-%include "../gui/src/ag_glsurface.h"
++%include "../gui/src/ag_glscreen.h"
+ %include "../gui/src/ag_table.h"
+ %include "../gui/src/ag_texturecache.h"
+ %include "../gui/src/ag_theme.h"
+
+
+
+From davidkamphausen at mail.berlios.de  Mon Feb 19 10:48:07 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Mon, 19 Feb 2007 10:48:07 +0100
+Subject: [Antargis-svn] r1050 - in antargis/trunk: gui/src ruby
+Message-ID: <200702190948.l1J9m7ss010047@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-02-19 10:48:05 +0100 (Mon, 19 Feb 2007)
+New Revision: 1050
+
+Modified:
+   antargis/trunk/gui/src/ag_glsl.cc
+   antargis/trunk/gui/src/ag_painter.cc
+   antargis/trunk/gui/src/ag_painter.h
+   antargis/trunk/gui/src/ag_rubyobj.cc
+   antargis/trunk/gui/src/ag_rubyobj.h
+   antargis/trunk/ruby/ant_boss.rb
+   antargis/trunk/ruby/ant_hero.rb
+   antargis/trunk/ruby/ant_hljobs.rb
+   antargis/trunk/ruby/ant_house.rb
+   antargis/trunk/ruby/antargislib.rb
+Log:
+* villages fight as a whole
+
+
+Modified: antargis/trunk/gui/src/ag_glsl.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_glsl.cc	2007-02-11 15:16:20 UTC (rev 1049)
++++ antargis/trunk/gui/src/ag_glsl.cc	2007-02-19 09:48:05 UTC (rev 1050)
+@@ -79,7 +79,7 @@
+       glShaderSourceARB(vertexShader, 1, x,NULL);
+       glCompileShaderARB(vertexShader);
+       printInfoLog(vertexShader);
+-      
++      assertGL;
+     }
+ }
+ 
+@@ -88,6 +88,7 @@
+   CTRACE;
+   if(glslOk() && !hasQuit())
+     glDeleteObjectARB(vertexShader);
++  assertGL;
+ }
+ 
+ AGFragProgram::AGFragProgram(const std::string &pFile)
+@@ -104,7 +105,8 @@
+       glCompileShaderARB(fragShader);
+       printInfoLog(fragShader);
+       mValid=true;
+-      
++      assertGL;
++	
+     }
+ }
+ 
+@@ -118,6 +120,8 @@
+   CTRACE;
+   if(glslOk() && !hasQuit())
+     glDeleteObjectARB(fragShader);
++  assertGL;
++
+ }
+ 
+ 
+@@ -147,6 +151,8 @@
+   on=false;
+   matrixBuf=new float[16*100];
+   name=pVertexFile+":"+pFragFile;
++  assertGL;
++
+ }
+ 
+ AGShaderProgram::~AGShaderProgram()
+@@ -159,6 +165,8 @@
+   cdebug("name:"<<name);
+   delete [] matrixBuf;
+   cdebug("name:"<<name);
++  assertGL;
++
+ }
+ 
+ 
+@@ -168,6 +176,8 @@
+     {
+       glUseProgramObjectARB(p);
+       on=true;
++      assertGL;
++
+     }
+ }
+ void AGShaderProgram::disable()
+@@ -176,6 +186,7 @@
+     {
+       glUseProgramObjectARB(0);
+       on=false;
++      assertGL;
+     }
+ }
+ 
+@@ -186,6 +197,7 @@
+       enable();
+       doUpdate(time);
+       disable();
++      assertGL;
+     }
+ }
+ 
+@@ -196,22 +208,27 @@
+ void AGShaderProgram::sendUniform(const std::string &pName,int i)
+ {
+   glUniform1iARB(getLoc(pName),i);
++  assertGL;
+ }
+ void AGShaderProgram::sendUniform(const std::string &pName,float f)
+ {
+   glUniform1fARB(getLoc(pName),f);
++  assertGL;
+ }
+ void AGShaderProgram::sendUniform(const std::string &pName,const AGVector3 &m)
+ {
+   glUniform3fARB(getLoc(pName),m[0],m[1],m[2]);
++  assertGL;
+ }
+ void AGShaderProgram::sendUniform(const std::string &pName,const AGVector4 &m)
+ {
+   glUniform4fARB(getLoc(pName),m[0],m[1],m[2],m[3]);
++  assertGL;
+ }
+ void AGShaderProgram::sendUniform(const std::string &pName,const AGMatrix4 &m)
+ {
+   glUniformMatrix4fvARB(getLoc(pName),1,false,m);
++  assertGL;
+ }
+ void AGShaderProgram::sendUniform(const std::string &pName,const std::vector<AGMatrix4> &m)
+ {
+@@ -239,6 +256,7 @@
+   
+   GLint k=glGetUniformLocationARB(p,pName.c_str());
+   locations.insert(std::make_pair(pName,k));
++  assertGL;
+   return k;
+ }
+ 
+@@ -260,6 +278,7 @@
+     }
+   assertGL;
+   attrs.insert(std::make_pair(pName,k));
++  assertGL;
+   return k;
+ }
+ 
+
+Modified: antargis/trunk/gui/src/ag_painter.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_painter.cc	2007-02-11 15:16:20 UTC (rev 1049)
++++ antargis/trunk/gui/src/ag_painter.cc	2007-02-19 09:48:05 UTC (rev 1050)
+@@ -592,3 +592,9 @@
+ {
+   return mTarget;
+ }
++
++void AGPainter::mark()
++{
++  if(mTarget)
++    markObject(mTarget);
++}
+
+Modified: antargis/trunk/gui/src/ag_painter.h
+===================================================================
+--- antargis/trunk/gui/src/ag_painter.h	2007-02-11 15:16:20 UTC (rev 1049)
++++ antargis/trunk/gui/src/ag_painter.h	2007-02-19 09:48:05 UTC (rev 1050)
+@@ -63,7 +63,7 @@
+ #define AGEXPORT
+ #endif
+ 
+-class AGEXPORT AGPainter
++class AGEXPORT AGPainter:public AGRubyObject
+ {
+  public:
+   AGPainter();
+@@ -117,6 +117,8 @@
+ 
+   AGPaintTarget *getTarget();
+ 
++  virtual void mark();
++
+  private:
+   std::list<AGProjection> ps;
+ 
+
+Modified: antargis/trunk/gui/src/ag_rubyobj.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_rubyobj.cc	2007-02-11 15:16:20 UTC (rev 1049)
++++ antargis/trunk/gui/src/ag_rubyobj.cc	2007-02-19 09:48:05 UTC (rev 1050)
+@@ -25,6 +25,10 @@
+ }
+ AGRubyObject::~AGRubyObject()
+ {
++  for(std::set<AGBaseObject*>::iterator i=mReferences.begin();i!=mReferences.end();i++)
++    (*i)->baseClear();
++
++
+   //  cdebug("DEL:"<<mRUBY);
+ #ifdef GCDEBUG
+   printf("DEL:%lx  %s\n",mRUBY,mObjName.c_str());
+@@ -62,6 +66,18 @@
+   CTRACE;
+ }
+ 
++void AGRubyObject::addRef(AGBaseObject *o)
++{
++  mReferences.insert(o);
++}
++
++void AGRubyObject::deleteRef(AGBaseObject *o)
++{
++  mReferences.erase(o);
++}
++
++
++
+ /// this is the marking function, that gets called by ruby
+ /// it handles all the AGRubyObjects
+ void general_markfunc(void *ptr)
+@@ -116,3 +132,28 @@
+     }
+   return false;
+ }
++
++
++
++
++
++
++
++
++AGBaseObject::AGBaseObject(AGRubyObject *p)
++  :mp(p)
++{
++  if(p)
++    p->addRef(this);
++}
++
++AGBaseObject::~AGBaseObject()
++{
++  if(mp)
++    mp->deleteRef(this);
++}
++
++void AGBaseObject::baseClear()
++{
++  mp=0;
++}
+
+Modified: antargis/trunk/gui/src/ag_rubyobj.h
+===================================================================
+--- antargis/trunk/gui/src/ag_rubyobj.h	2007-02-11 15:16:20 UTC (rev 1049)
++++ antargis/trunk/gui/src/ag_rubyobj.h	2007-02-19 09:48:05 UTC (rev 1050)
+@@ -32,8 +32,36 @@
+ */
+ 
+ #include <string>
++#include <set>
+ #include <ag_base.h>
+ 
++class AGRubyObject;
++
++class AGEXPORT AGBaseObject
++{
++ protected:
++  AGRubyObject *mp;
++ public:
++  AGBaseObject(AGRubyObject *p);
++
++  virtual ~AGBaseObject();
++  virtual void baseClear();
++};
++
++template<class T>
++class gc_ptr:public AGBaseObject
++{
++ public:
++  gc_ptr(T*t):AGBaseObject(t)
++    {
++    }
++
++  T*operator->()
++    {
++      return (T*)mp;
++    }
++};
++
+ class AGEXPORT AGRubyObject
+ {
+  public:
+@@ -66,6 +94,11 @@
+ #endif
+   friend void general_markfunc(void *ptr);
+   friend bool saveDelete(AGRubyObject *o);
++
++  void addRef(AGBaseObject *o);
++  void deleteRef(AGBaseObject *o);
++ private:
++  std::set<AGBaseObject*> mReferences;
+ };
+ 
+ void general_markfunc(void *ptr);
+
+Modified: antargis/trunk/ruby/ant_boss.rb
+===================================================================
+--- antargis/trunk/ruby/ant_boss.rb	2007-02-11 15:16:20 UTC (rev 1049)
++++ antargis/trunk/ruby/ant_boss.rb	2007-02-19 09:48:05 UTC (rev 1050)
+@@ -110,11 +110,12 @@
+ 		if @job
+ 			if @job.is_a?(AntHeroFightJob)
+ 				puts "I'm alread fighting!"
+-				return # already fighting
++				return false # already fighting
+ 			end
+ 		end
+ 		@job=AntHeroFightJob.new(self,target,true) # FIXME: change this, so that fighting is stopped as soon as other stops
+ 		assignJob2All
++		return true
+ 	end
+ 	def newHLRestJob(time)
+ 		@job=AntHeroRestJob.new(self,time)
+@@ -156,9 +157,15 @@
+ 		@player
+ 	end
+ 	
+-	def eventGotHLFight(hero)
+-		newHLDefendJob(hero)
+-		return
++# 	def eventGotHLFight(hero)
++# 		newHLDefendJob(hero)
++# 		return
++# 	end
++
++	def eventAttacked(by)
++		ret=newHLDefendJob(by)
++		AntInventory.update(self)
++		ret
+ 	end
+ 	
+ 	def eventManDefeated(man)
+
+Modified: antargis/trunk/ruby/ant_hero.rb
+===================================================================
+--- antargis/trunk/ruby/ant_hero.rb	2007-02-11 15:16:20 UTC (rev 1049)
++++ antargis/trunk/ruby/ant_hero.rb	2007-02-19 09:48:05 UTC (rev 1050)
+@@ -229,7 +229,7 @@
+ 
+ 	def eventAttacked(by)
+ 		puts "eventAttacked #{by}"
+-		newHLDefendJob(by)
++		super
+ 	end
+ 	
+ 	def assignJob2All
+
+Modified: antargis/trunk/ruby/ant_hljobs.rb
+===================================================================
+--- antargis/trunk/ruby/ant_hljobs.rb	2007-02-11 15:16:20 UTC (rev 1049)
++++ antargis/trunk/ruby/ant_hljobs.rb	2007-02-19 09:48:05 UTC (rev 1050)
+@@ -359,7 +359,11 @@
+ 			raise "already fighting"
+ 		end
+ 		@state="fighting"
+-		@target.eventGotHLFight(@hero)
++
++		# REALLY FIXME: these 2 calls do the same ?????
++
++
++		#@target.eventGotHLFight(@hero)
+ 		@target.eventAttacked(@hero)
+ 		initSitpositions
+ 
+
+Modified: antargis/trunk/ruby/ant_house.rb
+===================================================================
+--- antargis/trunk/ruby/ant_house.rb	2007-02-11 15:16:20 UTC (rev 1049)
++++ antargis/trunk/ruby/ant_house.rb	2007-02-19 09:48:05 UTC (rev 1050)
+@@ -38,6 +38,7 @@
+ 
+ # AntVillage is only some small interface for reproducing "village" type of behaviour
+ class AntVillage
++	attr_reader :houses
+ 	def initialize(name,map)
+ 		@houses=map.getAllHousesOfVillage(name)		
+ 	end
+@@ -104,8 +105,18 @@
+ 	end
+ 	
+ 	def eventAttacked(by)
+-		newHLDefendJob(by)
+-		AntInventory.update(self)
++		return unless super
++		# FIXME: defend as village
++		if @village and @village.length
++			v=AntVillage.new(@village,getMap)
++			if v
++				v.houses.each{|h|
++					if h!=self
++						h.eventAttacked(by)
++					end
++				}
++			end
++		end
+ 	end
+ 	
+ 	def moveHome(man)
+
+Modified: antargis/trunk/ruby/antargislib.rb
+===================================================================
+--- antargis/trunk/ruby/antargislib.rb	2007-02-11 15:16:20 UTC (rev 1049)
++++ antargis/trunk/ruby/antargislib.rb	2007-02-19 09:48:05 UTC (rev 1050)
+@@ -123,6 +123,7 @@
+ 		@@noVideo||=nil	
+ 		if @@noVideo.nil?
+ 			#if xres!=1024 || yres!=768 || $fullscreen
++			dputs @@fullscreen
+ 			@@main.initVideo(xres,yres,32,@@fullscreen,true,1024,768)
+ 			#end
+ 		
+
+
+
+From davidkamphausen at mail.berlios.de  Mon Feb 19 18:04:41 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Mon, 19 Feb 2007 18:04:41 +0100
+Subject: [Antargis-svn] r1051 - in antargis/trunk: gui/src src
+Message-ID: <200702191704.l1JH4fq5026578@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-02-19 18:04:39 +0100 (Mon, 19 Feb 2007)
+New Revision: 1051
+
+Modified:
+   antargis/trunk/gui/src/ag_painter.cc
+   antargis/trunk/gui/src/ag_painter.h
+   antargis/trunk/gui/src/ag_rubyobj.h
+   antargis/trunk/src/nantmarker.hh
+Log:
+* register painter in surface 
+
+
+Modified: antargis/trunk/gui/src/ag_painter.cc
+===================================================================
+--- antargis/trunk/gui/src/ag_painter.cc	2007-02-19 09:48:05 UTC (rev 1050)
++++ antargis/trunk/gui/src/ag_painter.cc	2007-02-19 17:04:39 UTC (rev 1051)
+@@ -213,8 +213,11 @@
+ 
+ AGPainter::~AGPainter()
+ {
+-  mTarget->unclip();
+-  mTarget->endPaint();
++  if(mTarget.valid())
++    {
++      mTarget->unclip();
++      mTarget->endPaint();
++    }
+ }
+ 
+ void AGPainter::putPixel(const AGVector2 &p,const AGColor &c)
+@@ -301,7 +304,7 @@
+ {
+   STACKTRACE;
+   float x,y;
+-  if(!dynamic_cast<AGGLScreen*>(mTarget))
++  if(!dynamic_cast<AGGLScreen*>(mTarget.getPtr()))
+     {
+       #warning "remove this and implement in agtexture*"
+       for(y=pDest.y0();y<pDest.y1();y+=pSrc.h())
+@@ -386,7 +389,7 @@
+ void AGPainter::drawGradient(const AGRect2 &pr,const AGColor &pc0,const AGColor &pc1,const AGColor &pc2,const AGColor &pc3)
+ {
+   STACKTRACE;
+-  AGGLScreen *glScreen=dynamic_cast<AGGLScreen*>(mTarget);
++  AGGLScreen *glScreen=dynamic_cast<AGGLScreen*>(mTarget.getPtr());
+   
+   AGRect2 src(0,0,1,1);
+ 
+@@ -406,13 +409,13 @@
+ 	{
+ 	  glScreen->drawGradient(r,c0,c1,c2,c3);
+ 	}
+-      else if(opengl() && dynamic_cast<AGTexture*>(mTarget))
++      else if(opengl() && dynamic_cast<AGTexture*>(mTarget.getPtr()))
+ 	{
+-	  dynamic_cast<AGTexture*>(mTarget)->drawGradient(r,c0,c1,c2,c3);
++	  dynamic_cast<AGTexture*>(mTarget.getPtr())->drawGradient(r,c0,c1,c2,c3);
+ 	}
+       else
+ 	{
+-	  AGSDLScreen *sdlScreen=dynamic_cast<AGSDLScreen*>(mTarget);
++	  AGSDLScreen *sdlScreen=dynamic_cast<AGSDLScreen*>(mTarget.getPtr());
+ 	    
+ 	  if(sdlScreen)
+ 	    {
+@@ -442,7 +445,7 @@
+ void AGPainter::drawBorder(const AGRect2& pRect,int width, const AGColor& c1, const AGColor& c2)
+ {
+   STACKTRACE;
+-  AGGLScreen *glScreen=dynamic_cast<AGGLScreen*>(mTarget);
++  AGGLScreen *glScreen=dynamic_cast<AGGLScreen*>(mTarget.getPtr());
+   if(glScreen)
+     {
+       #warning "add clipping in gl"
+@@ -590,11 +593,6 @@
+ 
+ AGPaintTarget *AGPainter::getTarget()
+ {
+-  return mTarget;
++  return mTarget.getPtr();
+ }
+ 
+-void AGPainter::mark()
+-{
+-  if(mTarget)
+-    markObject(mTarget);
+-}
+
+Modified: antargis/trunk/gui/src/ag_painter.h
+===================================================================
+--- antargis/trunk/gui/src/ag_painter.h	2007-02-19 09:48:05 UTC (rev 1050)
++++ antargis/trunk/gui/src/ag_painter.h	2007-02-19 17:04:39 UTC (rev 1051)
+@@ -63,7 +63,7 @@
+ #define AGEXPORT
+ #endif
+ 
+-class AGEXPORT AGPainter:public AGRubyObject
++class AGEXPORT AGPainter
+ {
+  public:
+   AGPainter();
+@@ -117,14 +117,12 @@
+ 
+   AGPaintTarget *getTarget();
+ 
+-  virtual void mark();
+-
+  private:
+   std::list<AGProjection> ps;
+ 
+   AGProjection mCurrent;
+ 
+-  AGPaintTarget *mTarget;
++  gc_ptr<AGPaintTarget> mTarget;
+ };
+ 
+ #endif
+
+Modified: antargis/trunk/gui/src/ag_rubyobj.h
+===================================================================
+--- antargis/trunk/gui/src/ag_rubyobj.h	2007-02-19 09:48:05 UTC (rev 1050)
++++ antargis/trunk/gui/src/ag_rubyobj.h	2007-02-19 17:04:39 UTC (rev 1051)
+@@ -34,6 +34,7 @@
+ #include <string>
+ #include <set>
+ #include <ag_base.h>
++#include <stdexcept>
+ 
+ class AGRubyObject;
+ 
+@@ -44,8 +45,13 @@
+  public:
+   AGBaseObject(AGRubyObject *p);
+ 
+-  virtual ~AGBaseObject();
+-  virtual void baseClear();
++  ~AGBaseObject();
++  void baseClear();
++
++  bool valid()
++  {
++    return mp;
++  }
+ };
+ 
+ template<class T>
+@@ -60,6 +66,12 @@
+     {
+       return (T*)mp;
+     }
++  T* getPtr()
++    {
++      if(!mp)
++	throw std::runtime_error("mp not defined!");
++      return (T*)mp;
++    }
+ };
+ 
+ class AGEXPORT AGRubyObject
+
+Modified: antargis/trunk/src/nantmarker.hh
+===================================================================
+--- antargis/trunk/src/nantmarker.hh	2007-02-19 09:48:05 UTC (rev 1050)
++++ antargis/trunk/src/nantmarker.hh	2007-02-19 17:04:39 UTC (rev 1051)
+@@ -58,7 +58,7 @@
+ 	result->mRubyObject=true;
+ }
+ %markfunc AGScroller "general_markfunc"
+-%exception AnimMesh::AnimMesh {
++%exception Scene::Scene {
+ 	$action
+ 	result->mRUBY=self;
+ #ifdef GCDEBUG
+@@ -67,8 +67,8 @@
+ #endif
+ 	result->mRubyObject=true;
+ }
+-%markfunc AnimMesh "general_markfunc"
+-%exception Scene::Scene {
++%markfunc Scene "general_markfunc"
++%exception AnimMesh::AnimMesh {
+ 	$action
+ 	result->mRUBY=self;
+ #ifdef GCDEBUG
+@@ -77,7 +77,7 @@
+ #endif
+ 	result->mRubyObject=true;
+ }
+-%markfunc Scene "general_markfunc"
++%markfunc AnimMesh "general_markfunc"
+ %exception WaterPiece::WaterPiece {
+ 	$action
+ 	result->mRUBY=self;
+@@ -1992,7 +1992,7 @@
+  }
+  else $input=Qnil;
+ }
+-%typemap(out) AGGLWidget*{
++%typemap(out) DecimatedGraph*{
+  if($1)
+  {
+   if($1->mRubyObject)
+@@ -2001,12 +2001,12 @@
+    {
+      if(false);
+    else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGGLWidget,0);
++     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_DecimatedGraph,0);
+    }
+  }
+  else vresult=Qnil;
+ }
+-%typemap(directorin) AGGLWidget*{
++%typemap(directorin) DecimatedGraph*{
+  if($1)
+  {
+   if($1->mRubyObject)
+@@ -2015,12 +2015,12 @@
+    {
+      if(false);
+    else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGGLWidget,0);
++     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_DecimatedGraph,0);
+    }
+  }
+  else $input=Qnil;
+ }
+-%typemap(out) DecimatedGraph*{
++%typemap(out) AGGLWidget*{
+  if($1)
+  {
+   if($1->mRubyObject)
+@@ -2029,12 +2029,12 @@
+    {
+      if(false);
+    else
+-     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_DecimatedGraph,0);
++     vresult = SWIG_NewPointerObj((void *) result, SWIGTYPE_p_AGGLWidget,0);
+    }
+  }
+  else vresult=Qnil;
+ }
+-%typemap(directorin) DecimatedGraph*{
++%typemap(directorin) AGGLWidget*{
+  if($1)
+  {
+   if($1->mRubyObject)
+@@ -2043,7 +2043,7 @@
+    {
+      if(false);
+    else
+-     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_DecimatedGraph,0);
++     $input = SWIG_NewPointerObj((void *)$1, SWIGTYPE_p_AGGLWidget,0);
+    }
+  }
+  else $input=Qnil;
+@@ -2574,6 +2574,11 @@
+  Data_Get_Struct($input,AGBackground,b);
+  $result=*b;
+ }
++%typemap(directorout) AGBaseObject {
++ AGBaseObject *b;
++ Data_Get_Struct($input,AGBaseObject,b);
++ $result=*b;
++}
+ %typemap(directorout) AGBorder {
+  AGBorder *b;
+  Data_Get_Struct($input,AGBorder,b);
+@@ -3234,6 +3239,11 @@
+  Data_Get_Struct($input,WaterPiece,b);
+  $result=*b;
+ }
++%typemap(directorout) gc_ptr {
++ gc_ptr *b;
++ Data_Get_Struct($input,gc_ptr,b);
++ $result=*b;
++}
+ %typemap(directorout) Uint8 {
+  $result=NUM2INT($input);
+ }
+
+
+
+From davidkamphausen at mail.berlios.de  Tue Feb 20 21:09:29 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Tue, 20 Feb 2007 21:09:29 +0100
+Subject: [Antargis-svn] r1052 - antargis/trunk/ruby
+Message-ID: <200702202009.l1KK9TLd029844@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-02-20 21:09:29 +0100 (Tue, 20 Feb 2007)
+New Revision: 1052
+
+Added:
+   antargis/trunk/ruby/map_generator2.rb
+Log:
+* started new map-generator
+
+
+Added: antargis/trunk/ruby/map_generator2.rb
+===================================================================
+--- antargis/trunk/ruby/map_generator2.rb	2007-02-19 17:04:39 UTC (rev 1051)
++++ antargis/trunk/ruby/map_generator2.rb	2007-02-20 20:09:29 UTC (rev 1052)
+@@ -0,0 +1,149 @@
++#!/usr/bin/env ruby
++
++require 'ruby/antargislib.rb'
++
++class MyBaseMap
++	attr_reader :w,:h
++	def initialize(pw,ph)
++		@w=pw
++		@h=ph
++		@a=[]
++		(1.. at w).each{|x|
++			(1.. at h).each{|y|
++				set(x,y,:undefined)
++			}
++		}
++	end
++	def set(x,y,v)
++		@a[x+ at w*y]=v
++	end
++	def get(x,y)
++		return :undefined unless x>0 and x<=@w and y>0 and y<=@h
++		@a[x+ at w*y]
++	end
++	def to_surface
++		i=AGSurface.new(w,h)
++		
++		begin
++			p=AGPainter.new(i)
++			(1.. at w).each{|x|
++				(1.. at h).each{|y|
++					t=get(x,y)
++					c=toColor(t)
++					p.putPixel(AGVector2.new(x-1,y-1),c)
++				}
++			}
++		end
++		i
++	end
++	def toColor(t)
++		case t
++			when :undefined
++				return AGColor.new(0xFF,0x70,0)
++			when :water
++				return AGColor.new(0,0,0x70)
++			when :green
++				return AGColor.new(0,0xFF,0)
++			when :wood
++				return AGColor.new(0,0x7F,0)
++			when :rock
++				return AGColor.new(0x7f,0x7F,0x7f)
++		end
++		return AGColor.new(0,0,0)
++	end
++end
++
++class MyMap<MyBaseMap
++	def initialize(w,h)
++		super
++		initRandom
++	end
++
++
++	def putAtRandPos(v)
++		x=rand*@w.to_i+1
++		y=rand*@h.to_i+1
++		set(x,y,v)
++	end
++
++	def someX(amount,what)
++		(1..amount).each{|v|
++			putAtRandPos(what)
++		}
++	end
++
++	def blurAt(x,y)
++		cv=get(x,y)
++		return nil unless cv==:undefined
++		what={}
++		(-1..1).each{|dx|
++			(-1..1).each{|dy|
++				t=get(x+dx,y+dy)
++				what[t]||=0
++				what[t]+=1
++			}
++		}
++		what[:undefined]=0
++		ps=[]
++		what.each{|k,v|
++			ps.push([k,v])
++		}
++		ps=ps.shuffle.sort{|a,b|b[1]<=>a[1]}
++		#puts ps[0][0]
++		ps[0][0]
++	end
++
++
++	def initRandom
++		@cs=[]
++		(1.. at h).each{|y|
++			(1.. at w).each{|x|
++				@cs<<[x,y]
++			}
++		}
++		
++		@cs=@cs.shuffle
++	end
++
++	def blur
++		modified=false
++		@cs.each{|p|
++			x,y=p
++			v=blurAt(x,y)
++			if v.nil?
++				#modified=true
++			elsif v!=:undefined
++				set(x,y,v)
++				modified=true
++			end
++		}
++		modified
++	end
++
++	def blurAll
++		modified=true
++		tries=0
++		while modified and tries<1000
++			modified=blur
++			tries+=1
++		end
++	end
++	
++end
++	
++
++
++w=h=256
++
++myMap=MyMap.new(w,h)
++myMap.someX(10,:water)
++myMap.someX(10,:green)
++myMap.someX(10,:wood)
++myMap.someX(10,:rock)
++myMap.blurAll
++app=AGApplication.new
++i=myMap.to_surface
++image=AGImage.new(nil,AGRect2.new(0,0,w,h),i,false)
++app.setMainWidget(image)
++
++app.run
+\ No newline at end of file
+
+
+
+From davidkamphausen at mail.berlios.de  Fri Feb 23 20:50:05 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Fri, 23 Feb 2007 20:50:05 +0100
+Subject: [Antargis-svn] r1053 - antargis/trunk/ruby
+Message-ID: <200702231950.l1NJo5PZ017780@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-02-23 20:50:05 +0100 (Fri, 23 Feb 2007)
+New Revision: 1053
+
+Modified:
+   antargis/trunk/ruby/map_generator2.rb
+Log:
+* improved map-generator
+
+
+Modified: antargis/trunk/ruby/map_generator2.rb
+===================================================================
+--- antargis/trunk/ruby/map_generator2.rb	2007-02-20 20:09:29 UTC (rev 1052)
++++ antargis/trunk/ruby/map_generator2.rb	2007-02-23 19:50:05 UTC (rev 1053)
+@@ -2,6 +2,19 @@
+ 
+ require 'ruby/antargislib.rb'
+ 
++class Array
++	def cross(p)
++		n=[]
++		self.each{|x|
++			p.each{|y|
++				n<<=[x,y]
++			}
++		}
++		n
++	end
++end
++
++
+ class MyBaseMap
+ 	attr_reader :w,:h
+ 	def initialize(pw,ph)
+@@ -28,14 +41,18 @@
+ 			p=AGPainter.new(i)
+ 			(1.. at w).each{|x|
+ 				(1.. at h).each{|y|
+-					t=get(x,y)
+-					c=toColor(t)
++					c=getColor(x,y)
+ 					p.putPixel(AGVector2.new(x-1,y-1),c)
+ 				}
+ 			}
+ 		end
+ 		i
+ 	end
++	def getColor(x,y)
++		t=get(x,y)
++		c=toColor(t)
++	end
++
+ 	def toColor(t)
+ 		case t
+ 			when :undefined
+@@ -128,22 +145,372 @@
+ 			tries+=1
+ 		end
+ 	end
++end
++
++class MyHeightMap<MyMap
++	def initialize(pw,ph)
++		super
++		@hs=[]
++		@hschange=[]
++		@dist=[]
++		@ndist=[]
++		(1.. at w).each{|x|
++			(1.. at h).each{|y|
++				setHeight(x,y,0)
++			}
++		}
++		applyHeightChanges
++	end
++	def setHeight(x,y,v)
++		@hschange[x+ at w*y]=v
++	end
++	def applyHeightChanges
++		@hs=@hschange.clone
++	end
++	def getHeight(x,y)
++		return 0 unless x>0 and x<=@w and y>0 and y<=@h
++		@hs[x+ at w*y]
++	end
++
++
++	def computeHeights(type)
++		puts "computing height #{type}"
++		(1.. at w).each{|x|
++			(1.. at h).each{|y|
++				addRandomHeight(x,y,type)
++			}
++		}
++		applyHeightChanges
++	end
++
++	def blurHeights(w)
++		a=[1,2,1]
++		case w
++			when 5
++				a=[1,6,15,20,15,6,1]
++			when 4
++				a=[1,5,10,10,5,1]
++			when 3
++				a=[1,4,6,4,1]
++			when 2
++				a=[1,3,3,1]
++		end
++		n=crossProductVecVec(a,a)
++		arr=toIndexMap(n)
++
++		f=arr.inject(0){|a,b|a+b[2]}
+ 	
++		(1.. at w).each{|x|
++			(1.. at h).each{|y|
++				v=0
++				arr.each{|p|
++					v+=getHeight(x+p[0],y+p[1])*p[2]
++				}
++				v/=f
++					
++				setHeight(x,y,v)
++			}
++		}
++		applyHeightChanges
++	end
++
++	def addRandomHeight(x,y,type)
++		v=get(x,y)
++		r=range(v,type)
++		h=r[0]+(r[1]-r[0])*rand
++		setHeight(x,y,getHeight(x,y)+h)
++	end
++
++	def getShadow(x,y)
++		a=[[-1,0,-1],
++				[0,-1,-1],
++				[1,0,1],
++				[0,1,1]]
++		v=0
++		a.each{|t|
++			v+=getHeight(x+t[0],y+t[1])*t[2]
++		}
++		v=[-0.5,v,0.5].sort[1]
++		#puts v
++		0.5+v
++	end
++
++	def getColor(x,y)
++		#AGColor.new(0xFF,0xFF,0xFF)*getShadow(x,y)
++		super*getShadow(x,y)
++	end
++
++
++	def range(v,type)
++		case type
++			when :rough
++				case v
++					when :undefined
++						return [0,0]
++					when :green
++						return [0.3,0.6]
++					when :water
++						return [0,0.1]
++					when :wood
++						return [0.3,0.8]
++					when :rock
++						return [0.4,1.5]
++				end
++			else
++				case v
++					when :undefined
++						return [0,0]
++					when :green
++						return [0,0.2]
++					when :water
++						return [0,0.1]
++					when :wood
++						return [0,0.1]
++					when :rock
++						return [0,0.4]
++					else
++						return [0,0]
++				end
++		end
++	end
++
++	def rockIncreaseAbove(level,types,inc)
++		#a=[1,6,15,20,15,6,1]
++		a=[1,5,10,10,5,1]
++		n=crossProductVecVec(a,a)
++		arr=toIndexMap(n)
++
++		f=arr.inject(0){|a,b|a+b[2]}
++
++		increased=0
++		checked=0
++		#a=[-1,0,1]
++		#a=a.cross(a)
++		(1.. at w).each{|x|
++			(1.. at h).each{|y|
++				if types.member?(get(x,y))
++					checked+=1
++					v=0
++					arr.each{|p|
++						cx=x+p[0]
++						cy=y+p[1]
++						#if types.member?(get(cx,cy))
++							v+=getHeight(cx,cy)*p[2]
++						#end						
++					}
++					v/=f
++					#puts "#{v} #{v*f} #{f} #{level}"
++					if v>level
++						setHeight(x,y,getHeight(x,y)+inc)
++						increased+=1
++					end
++				end
++			}
++		}
++		puts "INCREASED:#{increased} CHECKED:#{checked} on level #{level}"
++		applyHeightChanges
++	end
++
++	def erode(terrainTypes,amount=0.3)
++		eroded=0
++		(1.. at w).each{|x|
++			(1.. at h).each{|y|
++				if terrainTypes.member?(get(x,y))
++					vs=[]
++					(-1..1).each{|dy|
++						(-1..1).each{|dx|	
++							vs.push(getHeight(x+dx,y+dy))
++						}
++					}
++					ch=getHeight(x,y)
++					if ch<vs.sort[4]
++						setHeight(x,y,ch-amount)
++						eroded+=1
++					end
++				end
++			}
++		}		
++		puts "ERODED: #{eroded}"
++		applyHeightChanges
++	end
++
++	def rockIncrease
++		h=0.6
++		while h<3
++			#rockIncreaseAbove(h,[:rock,:wood],0.3)
++			rockIncreaseAbove(h,[:rock],0.15)
++			h+=0.3
++		end
++		#}
++	end
++
++	def getDistance(x,y)
++		return 0 unless x>0 and x<=@w and y>0 and y<=@h
++		d=@dist[x+ at w*y]
++		if d
++			return d
++		end
++		return 0
++	end
++
++	def applyDistChanges
++		@dist=@ndist.clone
++	end
++
++	def setDistance(x,y,d)
++		@ndist[x+ at w*y]=d
++	end
++
++	def computeDistances(myTerrain)
++		ar=[[-1,0],[1,0],[0,1],[0,-1]]
++		found=0
++		nfound=0
++		# initial run
++		(1.. at w).each{|x|
++			(1.. at h).each{|y|
++				if get(x,y)==myTerrain
++					test=0
++					ar.each{|p|
++						dx=x+p[0]
++						dy=y+p[1]
++						if get(dx,dy)!=myTerrain
++							setDistance(x,y,1+rand)
++							found+=1
++							test+=1
++							break
++						end
++					}
++					if test==0
++						nfound+=1
++					end
++				end
++			}
++		}
++
++		applyDistChanges
++		# fill in random valleys
++		(1..20).each{|i|
++			ok=true
++			while ok
++				x=(rand*@w).to_i+1
++				y=(rand*@h).to_i+1
++				if get(x,y)==myTerrain and getDistance(x,y)==0
++					setDistance(x,y,1+rand)
++					found+=1
++					ok=false
++				end
++			end
++		}
++
++
++
++		applyDistChanges
++		puts "FOUND #{found} NFOUND #{nfound}"
++		
++		modified=true
++		try=0
++		while modified
++			modified=false
++			try+=1
++			puts "TRY #{try}"
++			if try>20
++				break
++			end
++
++			# do loop and increase distances where distance==0
++			(1.. at w).each{|x|
++				(1.. at h).each{|y|
++					if get(x,y)==myTerrain and getDistance(x,y)==0
++						#puts "hu"
++						ar.each{|p|
++							dx=x+p[0]
++							dy=y+p[1]
++							r=rand+1
++							cd=getDistance(dx,dy)
++							if cd>0 and (cd+r<getDistance(x,y) or getDistance(x,y)==0)
++								found+=1
++								setDistance(x,y,cd+r)
++								setHeight(x,y,getHeight(x,y)+(cd+r)*0.1)
++								modified=true
++							end
++						}			
++					end
++				}
++			}
++			puts "FOUND #{found}"
++			applyDistChanges
++		end
++		applyHeightChanges
++	end
++
++private
++def crossProductVecVec(a,b)
++	n=[]
++	a.each{|x|
++		l=[]
++		b.each{|y|
++			l.push(x*y)
++		}
++		n.push(l)
++	}
++	n
+ end
++
++def toIndexMap(a)
++	n=[]
++	y=0
++	h=a.length
++	w=a[0].length
++	dy=h/2
++	dx=w/2
++	a.each{|r|
++		x=0
++		r.each{|v|
++			n.push([x-dx,y-dy,v])
++			x+=1
++		}
++		y+=1
++	}
++	n
++end
++
++
++end
++
+ 	
+ 
++w=h=128
+ 
+-w=h=256
+-
+-myMap=MyMap.new(w,h)
++#myMap=MyMap.new(w,h)
++myMap=MyHeightMap.new(w,h)
+ myMap.someX(10,:water)
+ myMap.someX(10,:green)
+ myMap.someX(10,:wood)
+ myMap.someX(10,:rock)
+ myMap.blurAll
++myMap.to_surface.save("mapgen0.png")
++myMap.computeHeights(:rough)
++myMap.blurHeights(5)
++if false
++	myMap.computeHeights(:medium)
++	myMap.blurHeights(2)
++	myMap.computeHeights(:fine)
++	myMap.blurHeights(1)
++	myMap.to_surface.save("mapgen1.png")
++	myMap.rockIncrease
++	myMap.to_surface.save("mapgen2.png")
++	myMap.blurHeights(1)
++	myMap.erode([:rock])
++	myMap.erode([:rock])
++else
++	myMap.computeDistances(:rock)
++end
++myMap.to_surface.save("mapgen3.png")
+ app=AGApplication.new
+ i=myMap.to_surface
++i.save("mapgen9.png")
+ image=AGImage.new(nil,AGRect2.new(0,0,w,h),i,false)
+ app.setMainWidget(image)
+ 
+-app.run
+\ No newline at end of file
++app.run
++
+
+
+
+From davidkamphausen at mail.berlios.de  Sun Feb 25 19:29:35 2007
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Sun, 25 Feb 2007 19:29:35 +0100
+Subject: [Antargis-svn] r1054 - antargis/trunk/ruby
+Message-ID: <200702251829.l1PITZ94030013@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2007-02-25 19:29:35 +0100 (Sun, 25 Feb 2007)
+New Revision: 1054
+
+Modified:
+   antargis/trunk/ruby/map_generator2.rb
+Log:
+* map-generator improved
+
+
+Modified: antargis/trunk/ruby/map_generator2.rb
+===================================================================
+--- antargis/trunk/ruby/map_generator2.rb	2007-02-23 19:50:05 UTC (rev 1053)
++++ antargis/trunk/ruby/map_generator2.rb	2007-02-25 18:29:35 UTC (rev 1054)
+@@ -184,17 +184,18 @@
+ 	end
+ 
+ 	def blurHeights(w)
+-		a=[1,2,1]
+-		case w
+-			when 5
+-				a=[1,6,15,20,15,6,1]
+-			when 4
+-				a=[1,5,10,10,5,1]
+-			when 3
+-				a=[1,4,6,4,1]
+-			when 2
+-				a=[1,3,3,1]
+-		end
++		a=filterMatrix(w)
++# 		a=[1,2,1]
++# 		case w
++# 			when 5
++# 				a=[1,6,15,20,15,6,1]
++# 			when 4
++# 				a=[1,5,10,10,5,1]
++# 			when 3
++# 				a=[1,4,6,4,1]
++# 			when 2
++# 				a=[1,3,3,1]
++# 		end
+ 		n=crossProductVecVec(a,a)
+ 		arr=toIndexMap(n)
+ 
+@@ -243,6 +244,19 @@
+ 
+ 	def range(v,type)
+ 		case type
++			when :veryrough
++				case v
++					when :undefined
++						return [0,0]
++					when :green
++						return [0.3,6]
++					when :water
++						return [0,1]
++					when :wood
++						return [0.3,8]
++					when :rock
++						return [0.4,15]
++				end
+ 			when :rough
+ 				case v
+ 					when :undefined
+@@ -362,7 +376,13 @@
+ 	end
+ 
+ 	def computeDistances(myTerrain)
+-		ar=[[-1,0],[1,0],[0,1],[0,-1]]
++		ar=[]
++		(-1..1).each{|x|
++			(-1..1).each{|y|
++				ar.push([x,y,Math::sqrt(x*x+y*y)])
++			}
++		}
++
+ 		found=0
+ 		nfound=0
+ 		# initial run
+@@ -374,7 +394,7 @@
+ 						dx=x+p[0]
+ 						dy=y+p[1]
+ 						if get(dx,dy)!=myTerrain
+-							setDistance(x,y,1+rand)
++							setDistance(x,y,p[2]+rand)
+ 							found+=1
+ 							test+=1
+ 							break
+@@ -421,11 +441,10 @@
+ 			(1.. at w).each{|x|
+ 				(1.. at h).each{|y|
+ 					if get(x,y)==myTerrain and getDistance(x,y)==0
+-						#puts "hu"
+ 						ar.each{|p|
+ 							dx=x+p[0]
+ 							dy=y+p[1]
+-							r=rand+1
++							r=rand+p[2]
+ 							cd=getDistance(dx,dy)
+ 							if cd>0 and (cd+r<getDistance(x,y) or getDistance(x,y)==0)
+ 								found+=1
+@@ -444,35 +463,54 @@
+ 	end
+ 
+ private
+-def crossProductVecVec(a,b)
+-	n=[]
+-	a.each{|x|
+-		l=[]
+-		b.each{|y|
+-			l.push(x*y)
++	def computeNextFilter(a)
++		n=[]
++		l=0
++		a.each{|c|
++			n.push(l+c)
++			l=c
+ 		}
+ 		n.push(l)
+-	}
+-	n
+-end
+-
+-def toIndexMap(a)
+-	n=[]
+-	y=0
+-	h=a.length
+-	w=a[0].length
+-	dy=h/2
+-	dx=w/2
+-	a.each{|r|
+-		x=0
+-		r.each{|v|
+-			n.push([x-dx,y-dy,v])
+-			x+=1
++		n
++	end
++	def filterMatrix(n)
++		m=[1,1]
++		while n>1
++			m=computeNextFilter(m)
++			n-=1
++		end
++		m
++	end
++	
++	def crossProductVecVec(a,b)
++		n=[]
++		a.each{|x|
++			l=[]
++			b.each{|y|
++				l.push(x*y)
++			}
++			n.push(l)
+ 		}
+-		y+=1
+-	}
+-	n
+-end
++		n
++	end
++	
++	def toIndexMap(a)
++		n=[]
++		y=0
++		h=a.length
++		w=a[0].length
++		dy=h/2
++		dx=w/2
++		a.each{|r|
++			x=0
++			r.each{|v|
++				n.push([x-dx,y-dy,v])
++				x+=1
++			}
++			y+=1
++		}
++		n
++	end
+ 
+ 
+ end
+@@ -489,9 +527,9 @@
+ myMap.someX(10,:rock)
+ myMap.blurAll
+ myMap.to_surface.save("mapgen0.png")
+-myMap.computeHeights(:rough)
+-myMap.blurHeights(5)
+ if false
++	myMap.computeHeights(:rough)
++	myMap.blurHeights(5)
+ 	myMap.computeHeights(:medium)
+ 	myMap.blurHeights(2)
+ 	myMap.computeHeights(:fine)
+@@ -503,7 +541,13 @@
+ 	myMap.erode([:rock])
+ 	myMap.erode([:rock])
+ else
++	myMap.computeHeights(:veryrough)
++	myMap.blurHeights(20)
++	myMap.computeHeights(:rough)
++	myMap.blurHeights(5)
+ 	myMap.computeDistances(:rock)
++	myMap.computeHeights(:fine)
++	myMap.blurHeights(1)
+ end
+ myMap.to_surface.save("mapgen3.png")
+ app=AGApplication.new
+
+
+

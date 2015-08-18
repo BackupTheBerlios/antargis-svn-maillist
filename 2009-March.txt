@@ -1,0 +1,4132 @@
+From davidkamphausen at mail.berlios.de  Tue Mar  3 20:33:17 2009
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Tue, 3 Mar 2009 20:33:17 +0100
+Subject: [Antargis-svn] r1295 - in antargis/trunk: . dev/3dengine_v2
+	ext/3dengine ext/basic ext/math ext/video rookey rookey/lib
+	rookey/lib/rookey rookey/lib/rookey/cpp rookey/lib/rookey/cpp/spec
+Message-ID: <200903031933.n23JXHbB029934@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2009-03-03 20:33:15 +0100 (Tue, 03 Mar 2009)
+New Revision: 1295
+
+Added:
+   antargis/trunk/rookey/lib/rookey/cpp/rk_time.cc
+   antargis/trunk/rookey/lib/rookey/cpp/rk_time.h
+Modified:
+   antargis/trunk/Rakefile
+   antargis/trunk/dev/3dengine_v2/ant_gl_rotation.cc
+   antargis/trunk/dev/3dengine_v2/ant_quaternion.cc
+   antargis/trunk/ext/3dengine/anim_mesh.cc
+   antargis/trunk/ext/3dengine/ant_camera.cc
+   antargis/trunk/ext/3dengine/mesh.cc
+   antargis/trunk/ext/3dengine/scene.cc
+   antargis/trunk/ext/basic/ag_geometry.h
+   antargis/trunk/ext/math/ant_frustum.cc
+   antargis/trunk/ext/math/ant_frustum.h
+   antargis/trunk/ext/video/ag_color.h
+   antargis/trunk/ext/video/ag_fbo.cc
+   antargis/trunk/ext/video/ag_painter.cc
+   antargis/trunk/ext/video/ag_sdlpainter.cc
+   antargis/trunk/ext/video/ag_sdlscreen.cc
+   antargis/trunk/ext/video/ag_surface.cc
+   antargis/trunk/rookey/Rakefile
+   antargis/trunk/rookey/lib/rookey.rb
+   antargis/trunk/rookey/lib/rookey/config_generator.rb
+   antargis/trunk/rookey/lib/rookey/cpp/rk_debug.h
+   antargis/trunk/rookey/lib/rookey/cpp/rk_logging.cc
+   antargis/trunk/rookey/lib/rookey/cpp/rk_logging.h
+   antargis/trunk/rookey/lib/rookey/cpp/rk_rubyobj.cc
+   antargis/trunk/rookey/lib/rookey/cpp/rk_singleton.cc
+   antargis/trunk/rookey/lib/rookey/cpp/rk_singleton.h
+   antargis/trunk/rookey/lib/rookey/cpp/rk_string.cc
+   antargis/trunk/rookey/lib/rookey/cpp/rk_string.h
+   antargis/trunk/rookey/lib/rookey/cpp/spec/Rakefile
+   antargis/trunk/rookey/lib/rookey/cpp/spec/logging_spec.cc
+   antargis/trunk/rookey/lib/rookey/tasks.rb
+Log:
+Logging implemented
+
+Modified: antargis/trunk/Rakefile
+===================================================================
+--- antargis/trunk/Rakefile	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/Rakefile	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -18,11 +18,9 @@
+   "game"
+       ].map{|f|"AG_Init_libantargis"+f}
+ lib=Rookey::ruby_ext("antargis",Dir["ext/*/*.cc"]+Dir["ext/*/*.c"]+Dir["ext/*/*.h"]+Dir["ext/*/templates.i"],inits)
+-
+ ts=Rookey::compile(Dir["main/starter.cc"])
+ main=Rookey::link_exe("antargis",ts)
+ 
+-
+ task :default=>[lib,main] do
+   puts "Done."
+ end
+@@ -95,3 +93,5 @@
+    a=a.select{|f|not (f=~/_test/ or f=~/spec/)}
+    rd.rdoc_files.include(a)
+ end
++
++
+
+Modified: antargis/trunk/dev/3dengine_v2/ant_gl_rotation.cc
+===================================================================
+--- antargis/trunk/dev/3dengine_v2/ant_gl_rotation.cc	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/dev/3dengine_v2/ant_gl_rotation.cc	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -1,7 +1,7 @@
+ #include "ant_gl_rotation.h"
+ #include "ant_gl.h"
+ #include "ag_debug.h"
+-#include <math.h>
++#include <cmath>
+ 
+ AntGLRotation::AntGLRotation(const AntQuaternion &pRotation)
+   {
+
+Modified: antargis/trunk/dev/3dengine_v2/ant_quaternion.cc
+===================================================================
+--- antargis/trunk/dev/3dengine_v2/ant_quaternion.cc	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/dev/3dengine_v2/ant_quaternion.cc	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -1,6 +1,6 @@
+ #include "ant_quaternion.h"
+ 
+-#include <math.h>
++#include <cmath>
+ 
+ // no rotation
+ AntQuaternion::AntQuaternion()
+
+Modified: antargis/trunk/ext/3dengine/anim_mesh.cc
+===================================================================
+--- antargis/trunk/ext/3dengine/anim_mesh.cc	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/ext/3dengine/anim_mesh.cc	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -10,7 +10,7 @@
+ #include "ag_profiler.h"
+ #include "entity.h"
+ 
+-#include <math.h>
++#include <cmath>
+ 
+ bool useShaderAnimation(); // imported from anim_mesh_data.cc
+ 
+
+Modified: antargis/trunk/ext/3dengine/ant_camera.cc
+===================================================================
+--- antargis/trunk/ext/3dengine/ant_camera.cc	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/ext/3dengine/ant_camera.cc	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -21,7 +21,7 @@
+ #include "ant_camera.h"
+ #include "ant_renderer.h"
+ #include <SDL_opengl.h>
+-#include <math.h>
++#include <cmath>
+ 
+ #include "rk_debug.h"
+ 
+
+Modified: antargis/trunk/ext/3dengine/mesh.cc
+===================================================================
+--- antargis/trunk/ext/3dengine/mesh.cc	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/ext/3dengine/mesh.cc	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -2,7 +2,7 @@
+ 
+ #include <map>
+ #include <vector>
+-#include <math.h>
++#include <cmath>
+ #include <ag_vdebug.h>
+ #include <ag_texturecache.h>
+ #include <ag_profiler.h>
+
+Modified: antargis/trunk/ext/3dengine/scene.cc
+===================================================================
+--- antargis/trunk/ext/3dengine/scene.cc	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/ext/3dengine/scene.cc	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -9,7 +9,7 @@
+ #include <ag_rendercontext.h>
+ #include <algorithm>
+ 
+-#include <math.h>
++#include <cmath>
+ 
+ #include "quadtree.h"
+ #include "ag_profiler.h"
+
+Modified: antargis/trunk/ext/basic/ag_geometry.h
+===================================================================
+--- antargis/trunk/ext/basic/ag_geometry.h	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/ext/basic/ag_geometry.h	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -55,103 +55,103 @@
+ /** \brief Simple structure holding an angle in degrees
+  */
+ struct AGEXPORT AGAngle {
+-    float angle;
++  float angle;
+ 
+-    /// @param an angle in degrees
+-    explicit AGAngle(float a);
++  /// @param an angle in degrees
++  explicit AGAngle(float a);
+ };
+ 
+ class GeometryException {
+ public:
+ 
+-    GeometryException(const std::string &p) : s(p) {
+-    }
++  GeometryException(const std::string &p) : s(p) {
++  }
+ #ifdef SWIG
+-    %rename(to_s) what() const;
++  %rename(to_s) what() const;
+ #endif
+ 
+-    std::string what() const {
+-        return s;
+-    }
++  std::string what() const {
++    return s;
++  }
+ 
+ private:
+-    std::string s;
++  std::string s;
+ };
+ 
+ class AGEXPORT AGVector2 {
+ public:
+-    float v[2];
++  float v[2];
+ 
+-    AGVector2(const AGString &s);
+-    AGVector2(float pX, float pY);
+-    AGVector2(const AGAngle &a);
+-    AGVector2(const AGVector2 &a);
+-    AGVector2();
++  AGVector2(const AGString &s);
++  AGVector2(float pX, float pY);
++  AGVector2(const AGAngle &a);
++  AGVector2(const AGVector2 &a);
++  AGVector2();
+ 
+-    void setX(float pX);
+-    void setY(float pY);
++  void setX(float pX);
++  void setY(float pY);
+ 
+-    AGVector2 dim2() const;
++  AGVector2 dim2() const;
+ 
+ 
+ #ifdef SWIG
+-    %rename(x) getX() const;
+-    %rename(y) getY() const;
++  %rename(x) getX() const;
++  %rename(y) getY() const;
+ #endif
+-    float getX() const;
+-    float getY() const;
++  float getX() const;
++  float getY() const;
+ 
+-    AGAngle getAngle() const;
++  AGAngle getAngle() const;
+ 
+ 
+-    bool operator<(const AGVector2 &p) const;
++  bool operator<(const AGVector2 &p) const;
+ 
+-    AGVector2 operator-() const;
+-    AGVector2 operator-(const AGVector2 &p) const;
+-    AGVector2 operator+(const AGVector2 &p) const;
++  AGVector2 operator-() const;
++  AGVector2 operator-(const AGVector2 &p) const;
++  AGVector2 operator+(const AGVector2 &p) const;
+ #ifndef SWIG
+-    AGVector2 & operator+=(const AGVector2 &p);
+-    AGVector2 & operator-=(const AGVector2 &p);
++  AGVector2 & operator+=(const AGVector2 &p);
++  AGVector2 & operator-=(const AGVector2 &p);
+ #endif
+-    
+-    float operator*(const AGVector2 &p) const;
+-    AGVector2 & operator*=(float f);
+-    AGVector2 & operator/=(float f);
+-    AGVector2 operator*(float f) const;
+-    AGVector2 operator/(float f) const;
+ 
+-    bool operator==(const AGVector2 &a) const;
+-    bool operator!=(const AGVector2 &a) const;
++  float operator*(const AGVector2 &p) const;
++  AGVector2 & operator*=(float f);
++  AGVector2 & operator/=(float f);
++  AGVector2 operator*(float f) const;
++  AGVector2 operator/(float f) const;
+ 
+-    float length() const;
+-    float length2() const;
++  bool operator==(const AGVector2 &a) const;
++  bool operator!=(const AGVector2 &a) const;
+ 
+-    AGVector2 normalized() const;
+-    void normalize();
++  float length() const;
++  float length2() const;
+ 
+-    AGVector2 normal() const;
++  AGVector2 normalized() const;
++  void normalize();
+ 
++  AGVector2 normal() const;
++
+ #ifdef SWIG
+-    %rename(__getitem__) operator[](int index) const;
++  %rename(__getitem__) operator[](int index) const;
+ #endif
+-    float operator[](int index) const;
++  float operator[](int index) const;
+ #ifndef SWIG
+-    float &operator[](int index);
++  float &operator[](int index);
+ #endif
+ 
+-    bool nonZero() const;
++  bool nonZero() const;
+ 
+-    void saveXML(Node &node) const;
+-    void loadXML(const Node &node);
++  void saveXML(Node &node) const;
++  void loadXML(const Node &node);
+ 
+ #ifdef SWIG
+-    %rename(to_s) toString() const;
++  %rename(to_s) toString() const;
+ #endif
+-    AGString toString() const;
++  AGString toString() const;
+ 
+ #ifndef SWIG
+-    (operator float*) ();
+-    (operator const float*) () const;
++  (operator float*) ();
++  (operator const float*) () const;
+ #endif
+ };
+ 
+@@ -159,199 +159,203 @@
+ 
+ class AGEXPORT AGVector3 {
+ public:
+-    float v[3];
++  float v[3];
+ 
+-    AGVector3(const AGVector2 &p, float h = 1.0f);
+-    AGVector3(float pX, float pY, float pZ = 0.0f);
+-    AGVector3(const AGAngle &a);
+-    AGVector3(const AGVector3 &a);
+-    AGVector3();
++  AGVector3(const AGVector2 &p, float h = 1.0f);
++  AGVector3(float pX, float pY, float pZ = 0.0f);
++  AGVector3(const AGAngle &a);
++  AGVector3(const AGVector3 &a);
++  AGVector3();
+ 
+-    void setX(float pX);
+-    void setY(float pY);
+-    void setZ(float pZ);
++  void setX(float pX);
++  void setY(float pY);
++  void setZ(float pZ);
+ 
+ 
+ #ifdef SWIG
+-    %rename(x) getX() const;
+-    %rename(y) getY() const;
+-    %rename(z) getZ() const;
++  %rename(x) getX() const;
++  %rename(y) getY() const;
++  %rename(z) getZ() const;
+ #endif
+-    float getX() const;
+-    float getY() const;
+-    float getZ() const;
++  float getX() const;
++  float getY() const;
++  float getZ() const;
+ 
+-    AGAngle getAngle() const;
++  AGAngle getAngle() const;
+ 
+-    AGVector3 operator-() const;
++  AGVector3 operator-() const;
+ 
+-    AGVector3 operator-(const AGVector3 &p) const;
+-    AGVector3 operator+(const AGVector3 &p) const;
++  AGVector3 operator-(const AGVector3 &p) const;
++  AGVector3 operator+(const AGVector3 &p) const;
+ #ifdef SWIG
+-    %rename(add) operator+=(const AGVector3 &p);
+-    %rename(sub) operator-=(const AGVector3 &p);
++  %rename(add) operator+=(const AGVector3 &p);
++  %rename(sub) operator-=(const AGVector3 &p);
+ #endif
+-    AGVector3 & operator+=(const AGVector3 &p);
+-    AGVector3 & operator-=(const AGVector3 &p);
++  AGVector3 & operator+=(const AGVector3 &p);
++  AGVector3 & operator-=(const AGVector3 &p);
+ 
+-    float operator*(const AGVector3 &p) const;
+-    AGVector3 & operator*=(float f);
+-    AGVector3 & operator/=(float f);
+-    AGVector3 operator*(float f) const;
+-    AGVector3 operator/(float f) const;
+-    AGVector3 operator%(const AGVector3 &a) const;
++  float operator*(const AGVector3 &p) const;
++  AGVector3 & operator*=(float f);
++  AGVector3 & operator/=(float f);
++  AGVector3 operator*(float f) const;
++  AGVector3 operator/(float f) const;
++  AGVector3 operator%(const AGVector3 &a) const;
+ 
+-    bool operator==(const AGVector3 &a) const;
+-    bool operator!=(const AGVector3 &a) const;
++  bool operator==(const AGVector3 &a) const;
++  bool operator!=(const AGVector3 &a) const;
+ 
+-    float length() const;
+-    float length2() const;
++  float length() const;
++  float length2() const;
+ 
+-    AGVector3 normalized() const;
+-    void normalize();
++  AGVector3 normalized() const;
++  void normalize();
+ 
+-    AGVector3 normal() const;
++  AGVector3 normal() const;
+ 
+ #ifdef SWIG
+-    %rename(__getitem__) operator[](int index) const;
++  %rename(__getitem__) operator[](int index) const;
+ #endif
+-    float operator[](int index) const;
++  float operator[](int index) const;
+ #ifndef SWIG
+-    float &operator[](int index);
++  float &operator[](int index);
+ #endif
+ 
+-    bool nonZero() const;
++  bool nonZero() const;
+ 
+-    void saveXML(Node &node) const;
+-    void loadXML(const Node &node);
++  void saveXML(Node &node) const;
++  void loadXML(const Node &node);
+ 
+-    AGVector2 dim2() const;
++  AGVector2 dim2() const;
+ 
+ #ifdef SWIG
+-    %rename(to_s) toString() const;
++  %rename(to_s) toString() const;
+ #endif
+-    AGString toString() const;
++  AGString toString() const;
+ 
+ #ifndef SWIG
+-    (operator float*) ();
++  (operator float*) ();
+ #endif
+ };
+ 
+ class AGEXPORT AGMatrix3 {
+-    float a[3][3];
++  float a[3][3];
+ public:
+ 
+ #ifndef SWIG
+-    struct Row {
+-        AGMatrix3 *matrix;
+-        int y;
+ 
+-        float &operator[](size_t x) {
+-            return matrix->get(x, y);
+-        }
++  struct Row {
++    AGMatrix3 *matrix;
++    int y;
+ 
+-        float operator[](size_t x) const {
+-            return matrix->get(x, y);
+-        }
+-    };
++    float &operator[](size_t x) {
++      return matrix->get(x, y);
++    }
++
++    float operator[](size_t x) const {
++      return matrix->get(x, y);
++    }
++  };
+ #endif
+-    AGMatrix3();
+-    AGMatrix3(const AGAngle &a); // rotate
+-    AGMatrix3(const AGVector3 &a); // transpose
+-    AGMatrix3(float x, float y); // scale
+-    AGMatrix3(const AGMatrix3 &m);
+-    void set(size_t x, size_t y, float f);
+-    float get(size_t x, size_t y) const;
+-    float &get(size_t x, size_t y);
++  AGMatrix3();
++  AGMatrix3(const AGAngle &a); // rotate
++  AGMatrix3(const AGVector3 &a); // transpose
++  AGMatrix3(float x, float y); // scale
++  AGMatrix3(const AGMatrix3 &m);
++  void set(size_t x, size_t y, float f);
++  float get(size_t x, size_t y) const;
++  float &get(size_t x, size_t y);
+ 
+-    AGMatrix3 operator*(const AGMatrix3 &m) const;
+-    AGMatrix3 & operator*=(const AGMatrix3 &m);
++  AGMatrix3 operator*(const AGMatrix3 &m) const;
++  AGMatrix3 & operator*=(const AGMatrix3 &m);
+ 
+-    AGVector3 operator*(const AGVector3 &v) const;
+-    //  AGVector2 operator*(const AGVector2 &v) const;
++  AGVector3 operator*(const AGVector3 &v) const;
++  //  AGVector2 operator*(const AGVector2 &v) const;
+ 
+-    AGMatrix3 operator-() const;
++  AGMatrix3 operator-() const;
+ 
+-    AGMatrix3 inverted() const throw (GeometryException);
+-    AGMatrix3 transposed() const;
++  AGMatrix3 inverted() const throw (GeometryException);
++  AGMatrix3 transposed() const;
+ 
+ 
+-    Row operator[](size_t y);
+-    const Row operator[](size_t y) const;
++#ifndef SWIG
++  Row operator[](size_t y);
++  const Row operator[](size_t y) const;
+ 
+-    void swapRows(size_t a, size_t b);
+-    void swapCols(size_t a, size_t b);
++#endif
+ 
+-    bool operator==(const AGMatrix3&p) const;
++  void swapRows(size_t a, size_t b);
++  void swapCols(size_t a, size_t b);
+ 
++  bool operator==(const AGMatrix3&p) const;
+ 
++
+ #ifdef SWIG
+-    %rename(to_s) toString() const;
++  %rename(to_s) toString() const;
+ #endif
+-    AGString toString() const;
++  AGString toString() const;
+ };
+ 
+ class AGEXPORT AGLine2 {
+-    AGVector2 v0, v1;
++  AGVector2 v0, v1;
+ public:
+-    AGLine2();
+-    AGLine2(const AGVector2 &pv0, const AGVector2 &pv1);
++  AGLine2();
++  AGLine2(const AGVector2 &pv0, const AGVector2 &pv1);
+ 
+-    AGVector2 getV0() const;
+-    AGVector2 getV1() const;
++  AGVector2 getV0() const;
++  AGVector2 getV1() const;
+ 
+-    bool has(const AGVector2 &v) const;
++  bool has(const AGVector2 &v) const;
+ 
+-    bool collide(const AGLine2 &l) const;
+-    AGVector2 collisionPoint(const AGLine2 &l) const;
+-    AGVector2 collisionPointNI(const AGLine2 &l) const; // no inclusion test
+-    bool includes(const AGVector2 &v) const;
++  bool collide(const AGLine2 &l) const;
++  AGVector2 collisionPoint(const AGLine2 &l) const;
++  AGVector2 collisionPointNI(const AGLine2 &l) const; // no inclusion test
++  bool includes(const AGVector2 &v) const;
+ 
+-    AGRect2 getBBox() const;
++  AGRect2 getBBox() const;
+ 
+-    AGVector2 normal() const;
+-    AGVector2 direction() const;
++  AGVector2 normal() const;
++  AGVector2 direction() const;
+ 
+-    float distance(const AGVector2 &v) const;
++  float distance(const AGVector2 &v) const;
+ 
+-    AGVector2 & operator[](size_t i);
+-    AGVector2 operator[](size_t i) const;
++  AGVector2 & operator[](size_t i);
++  AGVector2 operator[](size_t i) const;
+ 
+ #ifdef SWIG
+-    %rename(to_s) toString() const;
++  %rename(to_s) toString() const;
+ #endif
+-    AGString toString() const;
++  AGString toString() const;
+ };
+ 
+ class AGEXPORT AGLine3 {
+-    AGVector3 v0, v1;
++  AGVector3 v0, v1;
+ public:
+-    AGLine3();
+-    AGLine3(const AGVector3 &pv0, const AGVector3 &pv1);
++  AGLine3();
++  AGLine3(const AGVector3 &pv0, const AGVector3 &pv1);
+ 
+-    AGVector3 getV0() const;
+-    AGVector3 getV1() const;
++  AGVector3 getV0() const;
++  AGVector3 getV1() const;
+ 
+-    bool has(const AGVector3 &v) const;
+-    /*
+-  bool collide(const AGLine3 &l) const;
+-  AGVector3 collisionPoint(const AGLine3 &l) const;
+-  AGVector3 collisionPointNI(const AGLine3 &l) const; // no inclusion test
+-  bool includes(const AGVector3 &v) const;
+-     */
+-    //  AGBox3 getBBox() const;
++  bool has(const AGVector3 &v) const;
++  /*
++bool collide(const AGLine3 &l) const;
++AGVector3 collisionPoint(const AGLine3 &l) const;
++AGVector3 collisionPointNI(const AGLine3 &l) const; // no inclusion test
++bool includes(const AGVector3 &v) const;
++   */
++  //  AGBox3 getBBox() const;
+ 
+-    //  AGVector3 normal() const;
+-    AGVector3 direction() const;
++  //  AGVector3 normal() const;
++  AGVector3 direction() const;
+ 
+-    float distance(const AGVector3 &p) const;
++  float distance(const AGVector3 &p) const;
+ 
+-    //  float distance(const AGVector3 &v) const;
++  //  float distance(const AGVector3 &v) const;
+ 
+ #ifdef SWIG
+-    %rename(to_s) toString() const;
++  %rename(to_s) toString() const;
+ #endif
+-    AGString toString() const;
++  AGString toString() const;
+ };
+ 
+ class AGEXPORT AGCollisionData {
+@@ -360,374 +364,374 @@
+ class AGRect2;
+ 
+ class AGEXPORT AGTriangle2 {
+-    AGVector2 p[3];
++  AGVector2 p[3];
+ public:
+-    AGTriangle2();
+-    AGTriangle2(const AGVector2 &v0, const AGVector2 &v1, const AGVector2 &v2);
++  AGTriangle2();
++  AGTriangle2(const AGVector2 &v0, const AGVector2 &v1, const AGVector2 &v2);
+ 
+-    AGVector2 operator[](int index) const;
++  AGVector2 operator[](int index) const;
+ 
+-    AGVector2 get(int index) const;
++  AGVector2 get(int index) const;
+ 
+-    bool collide(const AGTriangle2 &t) const;
++  bool collide(const AGTriangle2 &t) const;
+ 
+-    // FIXME: sweep-based test
+-    //  AGCollisionData collide(const AGTriangle &t,const AGVector &v0,const AGVector &v1) const;
++  // FIXME: sweep-based test
++  //  AGCollisionData collide(const AGTriangle &t,const AGVector &v0,const AGVector &v1) const;
+ 
+-    std::vector<AGVector2> getNormals() const;
++  std::vector<AGVector2> getNormals() const;
+ 
+-    void apply(const AGMatrix3 &m);
+-    AGTriangle2 applied(const AGMatrix3 &m) const;
++  void apply(const AGMatrix3 &m);
++  AGTriangle2 applied(const AGMatrix3 &m) const;
+ 
+-    // estimate touching point (or middle of touching area)
+-    AGVector2 touchPoint(const AGTriangle2 &t) const;
+-    AGVector2 touchVector(const AGTriangle2 &t) const;
++  // estimate touching point (or middle of touching area)
++  AGVector2 touchPoint(const AGTriangle2 &t) const;
++  AGVector2 touchVector(const AGTriangle2 &t) const;
+ 
+-    std::vector<AGVector2> collisionPoints(const AGLine2 &l) const;
++  std::vector<AGVector2> collisionPoints(const AGLine2 &l) const;
+ 
+-    bool contains(const AGVector2 &p) const;
++  bool contains(const AGVector2 &p) const;
+ 
+-    AGRect2 getBBox() const;
++  AGRect2 getBBox() const;
+ 
+-    AGLine2 nearestLine(const AGVector2 &v) const;
++  AGLine2 nearestLine(const AGVector2 &v) const;
+ 
+-    std::vector<AGLine2> getLines() const;
++  std::vector<AGLine2> getLines() const;
+ 
+-    void flip();
++  void flip();
+ #ifdef SWIG
+-    %rename(to_s) toString() const;
++  %rename(to_s) toString() const;
+ #endif
+-    AGString toString() const;
++  AGString toString() const;
+ };
+ 
+ class AGEXPORT AGCircle2 {
+-    AGVector2 p;
+-    float radius;
++  AGVector2 p;
++  float radius;
+ public:
+-    AGCircle2(const AGVector2 &v, float rad);
++  AGCircle2(const AGVector2 &v, float rad);
+ 
+-    bool inCircle(const AGTriangle2 &t) const;
+-    bool outCircle(const AGTriangle2 &t) const;
+-    bool inCircle(const AGVector2 &v) const;
+-    bool outCircle(const AGVector2 &v) const;
++  bool inCircle(const AGTriangle2 &t) const;
++  bool outCircle(const AGTriangle2 &t) const;
++  bool inCircle(const AGVector2 &v) const;
++  bool outCircle(const AGVector2 &v) const;
+ 
+-    AGVector2 getPos() const;
+-    float getRadius() const;
++  AGVector2 getPos() const;
++  float getRadius() const;
+ 
+-    std::list<AGVector2> collide(const AGLine2 &pLine) const;
++  std::list<AGVector2> collide(const AGLine2 &pLine) const;
+ };
+ 
+ class AGVector4;
+ 
+ class AGEXPORT AGTriangle3 {
+-    AGVector3 p[3];
++  AGVector3 p[3];
+ public:
+-    AGTriangle3(const AGVector3 &v0, const AGVector3 &v1, const AGVector3 &v2);
++  AGTriangle3(const AGVector3 &v0, const AGVector3 &v1, const AGVector3 &v2);
+ 
+-    // (x,y,z,0) for no collision
+-    // (x,y,z,1) for collision in point (x,y,z)
+-    AGVector4 collide(const AGLine3 &pLine) const;
++  // (x,y,z,0) for no collision
++  // (x,y,z,1) for collision in point (x,y,z)
++  AGVector4 collide(const AGLine3 &pLine) const;
+ #ifdef SWIG
+-    %rename(to_s) toString() const;
++  %rename(to_s) toString() const;
+ #endif
+ 
+-    AGString toString() const;
++  AGString toString() const;
+ 
+-    AGVector3 operator[](int index) const;
++  AGVector3 operator[](int index) const;
+ 
+-    void flip();
++  void flip();
+ };
+ 
+ class AGEXPORT AGRect2 {
+-    AGVector2 v0, v1;
++  AGVector2 v0, v1;
+ public:
+-    AGRect2();
+-    AGRect2(const AGVector2 &pv0, const AGVector2 &pv1);
+-    AGRect2(float x, float y, float w, float h);
+-    AGRect2(const AGString &ps);
+-    AGRect2(const SDL_Rect &r);
++  AGRect2();
++  AGRect2(const AGVector2 &pv0, const AGVector2 &pv1);
++  AGRect2(float x, float y, float w, float h);
++  AGRect2(const AGString &ps);
++  AGRect2(const SDL_Rect &r);
+ 
+-    bool collide(const AGRect2 &r) const;
++  bool collide(const AGRect2 &r) const;
+ 
+-    void include(const AGVector2 &v);
++  void include(const AGVector2 &v);
+ 
+-    AGRect2 operator+(const AGVector2 &v) const;
+-    AGRect2 operator-(const AGVector2 &v) const;
+-    AGRect2 & operator+=(const AGVector2 &v);
+-    AGRect2 & operator-=(const AGVector2 &v);
++  AGRect2 operator+(const AGVector2 &v) const;
++  AGRect2 operator-(const AGVector2 &v) const;
++  AGRect2 & operator+=(const AGVector2 &v);
++  AGRect2 & operator-=(const AGVector2 &v);
+ 
+-    AGRect2 & operator+=(const AGRect2 &r);
++  AGRect2 & operator+=(const AGRect2 &r);
+ 
+-    bool contains(const AGVector2 &v) const;
+-    bool contains(const AGRect2 &v) const;
++  bool contains(const AGVector2 &v) const;
++  bool contains(const AGRect2 &v) const;
+ 
+-    std::list<AGRect2> split() const;
++  std::list<AGRect2> split() const;
+ 
+-    AGVector2 operator[](size_t i) const;
+-    AGVector2 & operator[](size_t i);
++  AGVector2 operator[](size_t i) const;
++  AGVector2 & operator[](size_t i);
+ 
+-    AGVector2 getV0() const;
+-    AGVector2 getV1() const;
+-    AGVector2 getV01() const;
+-    AGVector2 getV10() const;
++  AGVector2 getV0() const;
++  AGVector2 getV1() const;
++  AGVector2 getV01() const;
++  AGVector2 getV10() const;
+ 
+-    AGVector2 getMiddle() const;
++  AGVector2 getMiddle() const;
+ 
+-    AGRect2 shrink(float f) const;
+-    AGRect2 shrink(float w, float h) const;
+-    AGRect2 shrinkToTopLeft(float w, float h) const;
+-    AGRect2 grow(float f) const;
++  AGRect2 shrink(float f) const;
++  AGRect2 shrink(float w, float h) const;
++  AGRect2 shrinkToTopLeft(float w, float h) const;
++  AGRect2 grow(float f) const;
+ 
+-    void setX(float p);
+-    void setY(float p);
++  void setX(float p);
++  void setY(float p);
+ 
+-    void setLeft(float p); // attention - modifies right, too
+-    void setTop(float p); // attention - modifies bottom, too
++  void setLeft(float p); // attention - modifies right, too
++  void setTop(float p); // attention - modifies bottom, too
+ 
+-    void setRight(float p);
+-    void setBottom(float p);
++  void setRight(float p);
++  void setBottom(float p);
+ 
+-    float setWidth(float w);
+-    float setHeight(float w);
++  float setWidth(float w);
++  float setHeight(float w);
+ 
+-    float x() const;
+-    float y() const;
+-    float w() const;
+-    float h() const;
++  float x() const;
++  float y() const;
++  float w() const;
++  float h() const;
+ 
+-    float width() const;
+-    float height() const;
++  float width() const;
++  float height() const;
+ 
+-    float x0() const;
+-    float y0() const;
+-    float x1() const;
+-    float y1() const;
++  float x0() const;
++  float y0() const;
++  float x1() const;
++  float y1() const;
+ 
+-    AGVector2 clip(const AGVector2 &v) const;
++  AGVector2 clip(const AGVector2 &v) const;
+ 
+-    AGRect2 origin() const;
++  AGRect2 origin() const;
+ 
+-    AGRect2 intersect(const AGRect2 &r) const;
++  AGRect2 intersect(const AGRect2 &r) const;
+ 
+-    //result=this-r
+-    std::vector<AGRect2> difference(const AGRect2 &r) const;
+-    std::vector<AGRect2> tile(size_t x, size_t y) const;
++  //result=this-r
++  std::vector<AGRect2> difference(const AGRect2 &r) const;
++  std::vector<AGRect2> tile(size_t x, size_t y) const;
+ 
+-    SDL_Rect sdl() const;
++  SDL_Rect sdl() const;
+ 
+-    bool operator==(const AGRect2 &r) const;
++  bool operator==(const AGRect2 &r) const;
+ #ifndef SWIG
+-    bool operator!=(const AGRect2 &r) const;
++  bool operator!=(const AGRect2 &r) const;
+ #endif
+ 
+-    void check() const;
++  void check() const;
+ 
+-    AGRect2 alignGrid() const; // align to integer grid
++  AGRect2 alignGrid() const; // align to integer grid
+ 
+-    float content() const;
++  float content() const;
+ 
+ #ifdef SWIG
+-    %rename(to_s) toString() const;
++  %rename(to_s) toString() const;
+ #endif
+-    AGString toString() const;
++  AGString toString() const;
+ };
+ 
+ class AGEXPORT AGVector4 {
+ public:
+-    float v[4];
++  float v[4];
+ 
+-    AGVector4(float pX, float pY, float pZ, float pW = 1.0f);
+-    AGVector4(const AGVector4 &a);
+-    AGVector4(const AGVector3 &a, float h);
+-    AGVector4();
++  AGVector4(float pX, float pY, float pZ, float pW = 1.0f);
++  AGVector4(const AGVector4 &a);
++  AGVector4(const AGVector3 &a, float h);
++  AGVector4();
+ 
+-    void setX(float pX);
+-    void setY(float pY);
+-    void setZ(float pZ);
+-    void setW(float pW);
++  void setX(float pX);
++  void setY(float pY);
++  void setZ(float pZ);
++  void setW(float pW);
+ 
+ 
+ #ifdef SWIG
+-    %rename(x) getX() const;
+-    %rename(y) getY() const;
+-    %rename(z) getZ() const;
+-    %rename(w) getW() const;
++  %rename(x) getX() const;
++  %rename(y) getY() const;
++  %rename(z) getZ() const;
++  %rename(w) getW() const;
+ #endif
+-    float getX() const;
+-    float getY() const;
+-    float getZ() const;
+-    float getW() const;
++  float getX() const;
++  float getY() const;
++  float getZ() const;
++  float getW() const;
+ 
+-    AGVector4 operator-(const AGVector4 &p) const;
+-    AGVector4 operator+(const AGVector4 &p) const;
++  AGVector4 operator-(const AGVector4 &p) const;
++  AGVector4 operator+(const AGVector4 &p) const;
+ #ifdef SWIG
+-    %rename(add) operator+=(const AGVector4 &p);
+-    %rename(sub) operator-=(const AGVector4 &p);
++  %rename(add) operator+=(const AGVector4 &p);
++  %rename(sub) operator-=(const AGVector4 &p);
+ #endif
+-    AGVector4 & operator+=(const AGVector4 &p);
+-    AGVector4 & operator-=(const AGVector4 &p);
++  AGVector4 & operator+=(const AGVector4 &p);
++  AGVector4 & operator-=(const AGVector4 &p);
+ 
+-    float operator*(const AGVector4 &p) const;
+-    AGVector4 & operator*=(float f);
+-    AGVector4 & operator/=(float f);
+-    AGVector4 operator*(float f) const;
+-    AGVector4 operator/(float f) const;
+-    AGVector4 operator-() const;
++  float operator*(const AGVector4 &p) const;
++  AGVector4 & operator*=(float f);
++  AGVector4 & operator/=(float f);
++  AGVector4 operator*(float f) const;
++  AGVector4 operator/(float f) const;
++  AGVector4 operator-() const;
+ 
+-    bool operator==(const AGVector4 &a) const;
+-    bool operator!=(const AGVector4 &a) const;
++  bool operator==(const AGVector4 &a) const;
++  bool operator!=(const AGVector4 &a) const;
+ 
+-    float length() const;
+-    // length^2
+-    float length2() const;
++  float length() const;
++  // length^2
++  float length2() const;
+ 
+-    // length 3-dim vector
+-    float length3() const;
++  // length 3-dim vector
++  float length3() const;
+ 
+ 
+-    AGVector4 normalized() const;
+-    void normalize();
++  AGVector4 normalized() const;
++  void normalize();
+ 
+-    // 3-dimensional
+-    AGVector4 normalized3() const;
+-    void normalize3();
++  // 3-dimensional
++  AGVector4 normalized3() const;
++  void normalize3();
+ 
+ 
+-    float operator[](int index) const;
+-    float &operator[](int index);
++  float operator[](int index) const;
++  float &operator[](int index);
+ 
+-    bool nonZero() const;
++  bool nonZero() const;
+ 
+-    // vector-cross-product
+-    // ignores 4th coordinate
+-    AGVector4 operator%(const AGVector4 &a) const;
++  // vector-cross-product
++  // ignores 4th coordinate
++  AGVector4 operator%(const AGVector4 &a) const;
+ 
+-    AGVector4 cross(const AGVector4 &a) const {
+-        return operator%(a);
+-    }
++  AGVector4 cross(const AGVector4 &a) const {
++    return operator%(a);
++  }
+ 
+ 
+-    AGVector3 dim3() const;
+-    AGVector2 dim2() const;
++  AGVector3 dim3() const;
++  AGVector2 dim2() const;
+ 
+ #ifdef SWIG
+-    %rename(to_s) toString() const;
++  %rename(to_s) toString() const;
+ #endif
+-    AGString toString() const;
++  AGString toString() const;
+ 
+ #ifndef SWIG
+-    (operator float*) ();
+-    (operator const float*) () const;
++  (operator float*) ();
++  (operator const float*) () const;
+ #endif
+ };
+ 
+ class AGEXPORT AGMatrix4 {
+-    float a[16];
++  float a[16];
+ public:
+ 
+-    struct MRow {
+-        AGMatrix4 *matrix;
+-        int y;
++  struct MRow {
++    AGMatrix4 *matrix;
++    int y;
+ 
+-        float &operator[](size_t x) {
+-            return matrix->get(x, y);
+-        }
++    float &operator[](size_t x) {
++      return matrix->get(x, y);
++    }
+ 
+-        float operator[](size_t x) const {
+-            return matrix->get(x, y);
+-        }
+-    };
++    float operator[](size_t x) const {
++      return matrix->get(x, y);
++    }
++  };
+ 
+-    AGMatrix4();
+-    AGMatrix4(float v[16]);
+-    AGMatrix4(float angle, const AGVector3 &d);
+-    AGMatrix4(const AGVector4 &a);
+-    void set(size_t x, size_t y, float f);
+-    float get(size_t x, size_t y) const;
+-    float &get(size_t x, size_t y);
++  AGMatrix4();
++  AGMatrix4(float v[16]);
++  AGMatrix4(float angle, const AGVector3 &d);
++  AGMatrix4(const AGVector4 &a);
++  void set(size_t x, size_t y, float f);
++  float get(size_t x, size_t y) const;
++  float &get(size_t x, size_t y);
+ 
+-    AGMatrix4 operator*(const AGMatrix4 &m) const;
+-    AGMatrix4 & operator*=(const AGMatrix4 &m);
+-    AGMatrix4 & operator+=(const AGMatrix4 &m);
++  AGMatrix4 operator*(const AGMatrix4 &m) const;
++  AGMatrix4 & operator*=(const AGMatrix4 &m);
++  AGMatrix4 & operator+=(const AGMatrix4 &m);
+ 
+-    AGMatrix3 get3x3(size_t x, size_t y) const;
++  AGMatrix3 get3x3(size_t x, size_t y) const;
+ 
+-    AGVector4 operator*(const AGVector4 &v) const;
++  AGVector4 operator*(const AGVector4 &v) const;
+ 
+-    float operator()(size_t x, size_t y) const;
+-    float &operator()(size_t x, size_t y);
++  float operator()(size_t x, size_t y) const;
++  float &operator()(size_t x, size_t y);
+ 
+-    AGMatrix4 inverted() const;
+-    AGMatrix4 transposed() const;
++  AGMatrix4 inverted() const;
++  AGMatrix4 transposed() const;
+ 
+-    MRow operator[](size_t y);
+-    //  const Row operator[](size_t y) const;
++  MRow operator[](size_t y);
++  //  const Row operator[](size_t y) const;
+ 
+-    void swapRows(size_t a, size_t b);
+-    void swapCols(size_t a, size_t b);
++  void swapRows(size_t a, size_t b);
++  void swapCols(size_t a, size_t b);
+ 
+ #ifdef SWIG
+-    %rename(to_s) toString() const;
++  %rename(to_s) toString() const;
+ #endif
+-    AGString toString() const;
++  AGString toString() const;
+ 
+ #ifndef SWIG
+-    (operator float*) ();
+-    (operator const float*) () const;
+-    //  (operator const double*)() const;
++  (operator float*) ();
++  (operator const float*) () const;
++  //  (operator const double*)() const;
+ #endif
+ 
+-    AGVector4 getRow(size_t i) const;
++  AGVector4 getRow(size_t i) const;
+ };
+ 
+ // axis-aligned
+ 
+ class AGEXPORT AGRect3 {
+-    AGVector3 base, dir;
++  AGVector3 base, dir;
+ public:
+-    AGRect3(const AGVector3 &pBase, const AGVector3 &pDir);
++  AGRect3(const AGVector3 &pBase, const AGVector3 &pDir);
+ 
+-    bool collides(const AGLine3&pLine) const;
++  bool collides(const AGLine3&pLine) const;
+ 
+-    AGString toString() const;
++  AGString toString() const;
+ };
+ 
+ // axis-aligned
+ 
+ class AGEXPORT AGBox3 {
+ public:
+-    AGVector3 base, dir;
++  AGVector3 base, dir;
+ 
+-    AGBox3();
+-    AGBox3(const AGVector3 &pBase, const AGVector3 &pDir);
++  AGBox3();
++  AGBox3(const AGVector3 &pBase, const AGVector3 &pDir);
+ 
+-    void include(const AGVector3&p);
+-    bool includes(const AGBox3 &b);
+-    bool collides(const AGVector3&p) const;
++  void include(const AGVector3&p);
++  bool includes(const AGBox3 &b);
++  bool collides(const AGVector3&p) const;
+ 
+-    bool collides(const AGLine3&p) const;
+-    bool collides(const AGBox3 &b) const;
++  bool collides(const AGLine3&p) const;
++  bool collides(const AGBox3 &b) const;
+ 
+-    bool contains(const AGTriangle3 &t) const;
++  bool contains(const AGTriangle3 &t) const;
+ 
+-    std::vector<AGRect3> getSides() const;
++  std::vector<AGRect3> getSides() const;
+ 
+-    AGString toString() const;
++  AGString toString() const;
+ 
+-    std::vector<AGBox3> split() const;
++  std::vector<AGBox3> split() const;
+ 
+-    bool collides(const AGMatrix4 &frustum) const;
++  bool collides(const AGMatrix4 &frustum) const;
+ 
+-    std::vector<AGVector3> getVertices() const;
+-    void calcVertices(std::vector<AGVector3> &vs) const;
++  std::vector<AGVector3> getVertices() const;
++  void calcVertices(std::vector<AGVector3> &vs) const;
+ 
+-    AGBox3 operator+(const AGVector3 &v) const;
+-    AGBox3 operator-(const AGVector3 &v) const;
++  AGBox3 operator+(const AGVector3 &v) const;
++  AGBox3 operator-(const AGVector3 &v) const;
+ 
+-    bool valid() const;
++  bool valid() const;
+ 
+ private:
+-    bool mValid;
++  bool mValid;
+ };
+ 
+ #ifndef SWIG
+
+Modified: antargis/trunk/ext/math/ant_frustum.cc
+===================================================================
+--- antargis/trunk/ext/math/ant_frustum.cc	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/ext/math/ant_frustum.cc	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -26,86 +26,89 @@
+ // AntPlane
+ /////////////////////////////////////////////////////////////////////
+ 
+-AntPlane::AntPlane(const AGVector3 &dir,float offset):
+-  mDir(dir),
+-  mOffset(offset)
+-  {
+-  }
++AntPlane::AntPlane(const AGVector3 &dir, float offset) :
++mDir(dir),
++mOffset(offset) {
++}
+ 
+-AntPlane makePlane(const AGVector3 &p0,const AGVector3 &p1,const AGVector3 &p2)
+-  {
+-    AGVector3 up=p1-p0;
+-    AGVector3 right=p2-p0;
+-    up/=up.length();
+-    right/=right.length();
++AntPlane makePlane(const AGVector3 &p0, const AGVector3 &p1, const AGVector3 &p2) {
++  AGVector3 up = p1 - p0;
++  AGVector3 right = p2 - p0;
++  up /= up.length();
++  right /= right.length();
+ #warning "maybe this must be swapped!"
+-    AGVector3 dir=up%right;
++  AGVector3 dir = up % right;
+ 
+-    return AntPlane(dir,dir*p0);
+-  }
++  return AntPlane(dir, dir * p0);
++}
+ 
++AGString AntPlane::toString() const {
++  std::ostringstream os;
++  os << "(" << mDir << "," << mOffset << ")";
++  return os.str();
++}
+ 
+ /////////////////////////////////////////////////////////////////////
+ // AntFrustum
+ /////////////////////////////////////////////////////////////////////
+-AntFrustum::AntFrustum()
+-  {
+-    throw std::runtime_error("Possible error in AntFrustum::AntFrustum(): this function shouldn't be called!");
+-  }
+ 
+-AntFrustum::AntFrustum(const std::vector<AntPlane> &pPlanes):
+-  mPlanes(pPlanes)
+-  {
+-    assert(mPlanes.size()==6);
++AntFrustum::AntFrustum() {
++  throw std::runtime_error("Possible error in AntFrustum::AntFrustum(): this function shouldn't be called!");
++}
+ 
+-    //  cdebug(*this);
+-  }
++AntFrustum::AntFrustum(const std::vector<AntPlane> &pPlanes) :
++mPlanes(pPlanes) {
++  assert(mPlanes.size() == 6);
+ 
+-bool AntFrustum::inside(const AGVector3 &v) const
+-{
+-  for(std::vector<AntPlane>::const_iterator i=mPlanes.begin();i!=mPlanes.end();++i)
+-    if(!i->inside(v))
++  //  cdebug(*this);
++}
++
++bool AntFrustum::inside(const AGVector3 &v) const {
++  for (std::vector<AntPlane>::const_iterator i = mPlanes.begin(); i != mPlanes.end(); ++i)
++    if (!i->inside(v))
+       return false;
+   return true;
+ }
+ 
+-bool AntFrustum::collides(const AGBox3 &b) const
+-{
++bool AntFrustum::collides(const AGBox3 &b) const {
+   static std::vector<AGVector3> vs(8);
+-    {
+-      b.calcVertices(vs);
+-    }
+-    static bool outside;
+-    static std::vector<AntPlane>::const_iterator i;
+-    static std::vector<AGVector3>::iterator j;
++  {
++    b.calcVertices(vs);
++  }
++  static bool outside;
++  static std::vector<AntPlane>::const_iterator i;
++  static std::vector<AGVector3>::iterator j;
+ 
+ 
+-    for(i=mPlanes.begin();i!=mPlanes.end();++i)
+-      {
+-        outside=true;
+-        for(j=vs.begin();j!=vs.end();++j)
+-          {
+-            if(i->inside(*j))
+-              {
+-                outside=false;
+-                break;
+-              }
+-          }
+-        if(outside)
+-          return false;
++  for (i = mPlanes.begin(); i != mPlanes.end(); ++i) {
++    outside = true;
++    for (j = vs.begin(); j != vs.end(); ++j) {
++      if (i->inside(*j)) {
++        outside = false;
++        break;
+       }
+-    return true;
++    }
++    if (outside)
++      return false;
++  }
++  return true;
+ }
+ 
++AGString AntFrustum::toString() const {
++  std::ostringstream os;
++  for (std::vector<AntPlane>::const_iterator i = mPlanes.begin(); i != mPlanes.end(); ++i)
++    os << *i << ";";
++  return os.str();
+ 
+-std::ostream &operator<<(std::ostream &o,const AntPlane &p)
+-  {
+-    o<<"("<<p.mDir<<","<<p.mOffset<<")";
+-    return o;
+-  }
+-std::ostream &operator<<(std::ostream &o,const AntFrustum &p)
+-  {
+-    for(std::vector<AntPlane>::const_iterator i=p.mPlanes.begin();i!=p.mPlanes.end();++i)
+-      o<<*i<<";";
+-    return o;
+-  }
++
++}
++
++std::ostream & operator<<(std::ostream &o, const AntPlane &p) {
++  o << p.toString();
++  return o;
++}
++
++std::ostream & operator<<(std::ostream &o, const AntFrustum &p) {
++  o<<p;
++  return o;
++}
+
+Modified: antargis/trunk/ext/math/ant_frustum.h
+===================================================================
+--- antargis/trunk/ext/math/ant_frustum.h	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/ext/math/ant_frustum.h	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -32,7 +32,7 @@
+ 
+   bool inside(const AGVector3 &v) const;
+ 
+-  friend std::ostream &operator<<(std::ostream &o,const AntPlane &p);
++  AGString toString() const;
+  private:
+   AGVector3 mDir;
+   float mOffset;
+@@ -50,7 +50,7 @@
+   bool inside(const AGVector3 &v) const;
+   bool collides(const AGBox3 &v) const;
+ 
+-  friend std::ostream &operator<<(std::ostream &o,const AntFrustum &p);
++  AGString toString() const;
+  private:
+   std::vector<AntPlane> mPlanes;
+ };
+
+Modified: antargis/trunk/ext/video/ag_color.h
+===================================================================
+--- antargis/trunk/ext/video/ag_color.h	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/ext/video/ag_color.h	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -71,11 +71,13 @@
+   Uint8 a;
+ };
+ 
++#ifndef SWIG
+ bool operator<(const AGColor &c1,const AGColor &c2);
+ bool operator==(const AGColor &c1,const AGColor &c2);
+ bool operator!=(const AGColor &c1,const AGColor &c2);
+ 
+ std::ostream &operator<<(std::ostream &o,const AGColor &c);
++#endif
+ 
+ inline int toInt(Uint8 u)
+ {
+
+Modified: antargis/trunk/ext/video/ag_fbo.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_fbo.cc	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/ext/video/ag_fbo.cc	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -29,137 +29,133 @@
+ 
+ #define USE_FBO
+ 
+-AGFBO::AGFBO(AGGLTexture *pTexture, bool withDepth):
+-  mTexture(pTexture),
+-  mWithDepth(withDepth)
+-  {
+-    mTextureID=mTexture->id();
+-    w=mTexture->width();
+-    h=mTexture->height();
+-    fb=depth_rb=0;
++AGFBO::AGFBO(AGGLTexture *pTexture, bool withDepth) :
++mTexture(pTexture),
++mWithDepth(withDepth) {
++  mTextureID = mTexture->id();
++  w = mTexture->width();
++  h = mTexture->height();
++  fb = depth_rb = 0;
+ 
+-    std::cerr<<"WARNING: FBOs can make problems on some cards and drivers. Disable them in ~/.Antargis/config.xml !"<<std::endl;
++  std::cerr << "WARNING: FBOs can make problems on some cards and drivers. Disable them in ~/.Antargis/config.xml !" << std::endl;
+ 
+-    init();
+-  }
++  init();
++}
+ 
+ 
+ // init for depth-only writing
+-AGFBO::AGFBO(GLuint pTexture, size_t pW,size_t pH):
+-  mTexture(0),mTextureID(pTexture),
+-  mWithDepth(false)
+-  {
+-    fb=depth_rb=0;
+-    w=pW;
+-    h=pH;
+-    std::cerr<<"WARNING: FBOs can make problems on some cards and drivers. Disable them in ~/.Antargis/config.xml !"<<std::endl;
+ 
++AGFBO::AGFBO(GLuint pTexture, size_t pW, size_t pH) :
++mTexture(0), mTextureID(pTexture),
++mWithDepth(false) {
++  fb = depth_rb = 0;
++  w = pW;
++  h = pH;
++  std::cerr << "WARNING: FBOs can make problems on some cards and drivers. Disable them in ~/.Antargis/config.xml !" << std::endl;
+ 
++
+ #ifdef USE_FBO
+ 
+-    glGenFramebuffersEXT(1, &fb);
+-    if(mWithDepth)
+-      glGenFramebuffersEXT(1, &depth_rb);  // FIXME: this should read glGenRenderbuffersEXT
++  glGenFramebuffersEXT(1, &fb);
++  if (mWithDepth)
++    glGenFramebuffersEXT(1, &depth_rb); // FIXME: this should read glGenRenderbuffersEXT
+ 
+-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fb);
++  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fb);
+ 
+ 
+-    glBindTexture(GL_TEXTURE_2D,mTextureID);
++  glBindTexture(GL_TEXTURE_2D, mTextureID);
+ 
+-    assertGL;
+-    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, mTextureID, 0);
+-    assertGL;
++  assertGL;
++  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, mTextureID, 0);
++  assertGL;
+ 
+-      {
+-        // add a renderbuffer as color attachment 
++  {
++    // add a renderbuffer as color attachment
+ 
+-        glGenRenderbuffersEXT(1,&depth_rb);
++    glGenRenderbuffersEXT(1, &depth_rb);
+ 
+-        glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depth_rb);
+-        glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_RGBA, w,h);
+-        glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_RENDERBUFFER_EXT, depth_rb);
++    glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depth_rb);
++    glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_RGBA, w, h);
++    glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_RENDERBUFFER_EXT, depth_rb);
+ 
+ 
+-      }
++  }
+ 
+-      glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
++  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+ 
+ #endif
+-  }
++}
+ 
+-
+-void AGFBO::init()
+-  {
++void AGFBO::init() {
+ #ifdef USE_FBO
+-    glGenFramebuffersEXT(1, &fb);
+-    if(mWithDepth)
+-      glGenFramebuffersEXT(1, &depth_rb);
++  glGenFramebuffersEXT(1, &fb);
++  if (mWithDepth)
++    glGenFramebuffersEXT(1, &depth_rb);
+ 
+-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fb);
++  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fb);
+ 
+ 
+-    glBindTexture(GL_TEXTURE_2D,mTextureID);
++  glBindTexture(GL_TEXTURE_2D, mTextureID);
+ 
+-    assertGL;
+-    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, mTextureID, 0);
+-    assertGL;
++  assertGL;
++  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, mTextureID, 0);
++  assertGL;
+ 
+-    if(mWithDepth)
+-      {
+-        throw std::runtime_error("AGFBO:not supported yet!");
+-        // initialize depth renderbuffer
+-        glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depth_rb);
+-        glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT16, w,h);//pTexture->width(), pTexture->height());
+-        glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, depth_rb);
+-      }
+-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+-    assertGL;
+-#endif
++  if (mWithDepth) {
++    throw std::runtime_error("AGFBO:not supported yet!");
++    // initialize depth renderbuffer
++    glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depth_rb);
++    glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT16, w, h); //pTexture->width(), pTexture->height());
++    glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, depth_rb);
+   }
++  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
++  assertGL;
++#endif
++}
+ 
+-AGFBO::~AGFBO()
+-  {
++AGFBO::~AGFBO() {
+ #ifdef USE_FBO
+-    CTRACE;
+-    if(fb)
+-      glDeleteFramebuffersEXT(1,&fb);
+-    if(depth_rb)
+-      glDeleteRenderbuffersEXT(1,&depth_rb);
++  CTRACE;
++  if (fb)
++    glDeleteFramebuffersEXT(1, &fb);
++  if (depth_rb)
++    glDeleteRenderbuffersEXT(1, &depth_rb);
+ #endif
+-  }
++}
+ 
+-
+-void AGFBO::beginDraw()
+-  {
++void AGFBO::beginDraw() {
+ #ifdef USE_FBO
+-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fb);
+-    assertGL;
++  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fb);
++  assertGL;
+ 
+ #endif
+-  }
++}
+ 
+-void AGFBO::endDraw()
+-  {
++void AGFBO::endDraw() {
+ #ifdef USE_FBO
+-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+-    assertGL;
++  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
++  assertGL;
+ 
+ #endif
+-  }
++}
+ 
+ 
+ 
+ 
+ #warning "add global var for this!"
+-bool canFBO()
+-  {
++
++bool canFBO() {
++  static int meCanFBO = -1;
++  if (meCanFBO < 0) {
+ #ifndef USE_FBO
+-    return false; // FIXME: FBO painting does not work yet
++    meCanFBO = 0; // FIXME: FBO painting does not work yet
+ #else
+ 
+-    if(getConfig()->get("useFBO","false","<!--enable Frame-Buffer-Objects - can make problems on some drivers. options:true,false -->")=="true")
+-      return GLEE_EXT_framebuffer_object;
++    if (getConfig()->get("useFBO", "false", "<!--enable Frame-Buffer-Objects - can make problems on some drivers. options:true,false -->") == "true")
++      meCanFBO = GLEE_EXT_framebuffer_object ? 1 : 0;
+     else
+-      return false;
++      meCanFBO = 0;
+ #endif
+   }
++  return meCanFBO > 0;
++}
+
+Modified: antargis/trunk/ext/video/ag_painter.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_painter.cc	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/ext/video/ag_painter.cc	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -26,7 +26,7 @@
+ #include <ag_profiler.h>
+ #include <ag_sdlsurface.h>
+ #include <ag_texture.h>
+-#include <math.h>
++#include <cmath>
+ #include <ag_geometry.h>
+ #include "ag_video.h"
+ 
+
+Modified: antargis/trunk/ext/video/ag_sdlpainter.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_sdlpainter.cc	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/ext/video/ag_sdlpainter.cc	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -1,5 +1,5 @@
+ #include "ag_sdlpainter.h"
+-#include <math.h>
++#include <cmath>
+ #include "ag_sgeexport.h"
+ 
+ namespace AGSDLPainter
+
+Modified: antargis/trunk/ext/video/ag_sdlscreen.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_sdlscreen.cc	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/ext/video/ag_sdlscreen.cc	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -27,7 +27,7 @@
+ 
+ #include "SDL_image.h"
+ #include "ag_sgeexport.h"
+-#include <math.h>
++#include <cmath>
+ 
+ #include "ag_sdlpainter.h"
+ 
+
+Modified: antargis/trunk/ext/video/ag_surface.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_surface.cc	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/ext/video/ag_surface.cc	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -36,7 +36,7 @@
+ #include <SDL_image.h>
+ 
+ #include <sstream>
+-#include <math.h>
++#include <cmath>
+ 
+ #include <ag_fs.h>
+ 
+
+Modified: antargis/trunk/rookey/Rakefile
+===================================================================
+--- antargis/trunk/rookey/Rakefile	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/rookey/Rakefile	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -50,9 +50,12 @@
+ PKG_FILES=dir(".") do
+   files "README","Rakefile"
+   dirs("spec","lib","maintenance","examples") do
+-    files("**/*")
+  end 
++    files("**/*")
++  end 
+   dir("externals") do
+-    files("ext_config.rb","tools.rb")
+  end
+end
++    files("ext_config.rb","tools.rb")
++  end
++end
+ 
+ Rake::RDocTask.new do |rd|
+ 	 rd.main = "README"
+@@ -108,4 +111,8 @@
+ CLEAN << Dir["docs/ruby"]
+ CLEAN << Dir["pkg"]
+ 
+-task :default=>:spec
+\ No newline at end of file
++task :default=>:spec
++
++
++
++
+
+Modified: antargis/trunk/rookey/lib/rookey/config_generator.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/config_generator.rb	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/rookey/lib/rookey/config_generator.rb	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -127,9 +127,8 @@
+   end
+ 
+   CLEAN << File.join(Compiler::rookeyWorkingDir,"rookey.log")
+-  CLEAN += ["test.c","test.o","test","test.exe"].map{|f|File.join(Compiler.rookeyWorkingDir,"test",f)}
+-  pp CLEAN
+-
++  CLEAN << ["test.c","test.o","test","test.exe"].map{|f|File.join(Compiler.rookeyWorkingDir,"test",f)}
++  CLEAN << File.join(Compiler.rookeyWorkingDir,"test")
+  
+   def Rookey.getDescendantsOfClass(p)
+     c=[]
+
+Modified: antargis/trunk/rookey/lib/rookey/cpp/rk_debug.h
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_debug.h	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_debug.h	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -31,6 +31,7 @@
+ #include "rk_exception.h"
+ #include "rk_tools.h"
+ #include "rk_base.h"
++#include "rk_logging.h"
+ 
+ 
+ AGEXPORT void setQuiet();
+@@ -47,23 +48,19 @@
+ 
+ #else
+ 
+-std::ostream & AGEXPORT getDebug();
+-
+ #define debug(c) mydebug(::toString(__FILE__),::toString(__LINE__),c)
+ 
+ template<class T>
+ inline void mydebug(std::string f,std::string l,const T&t)
+ {
+-  getDebug()<<"File "<<f<<" Line "<<l<<" : "<<t<<std::endl;
++  logger::debug<<"File "<<f<<" Line "<<l<<" : "<<t<<logger::endl;
+ }
+ 
+-using std::endl;
++#define debugout(x) logger::debug<<x
+ 
+-#define debugout(x) getDebug()<<x
++#define cdebug(x) debugout("("<<__FILE__<<":"<<__LINE__<<":"<<__PRETTY_FUNCTION__<<"):"<<x<<logger::endl)
++#define ccdebug(x) debugout("("<<__FILE__<<":"<<__LINE__<<":"<<__PRETTY_FUNCTION__<<":"<<((void*)this)<<"):"<<x<<logger::endl)
+ 
+-#define cdebug(x) debugout("("<<__FILE__<<":"<<__LINE__<<":"<<__PRETTY_FUNCTION__<<"):"<<x<<endl)
+-#define ccdebug(x) debugout("("<<__FILE__<<":"<<__LINE__<<":"<<__PRETTY_FUNCTION__<<":"<<((void*)this)<<"):"<<x<<endl)
+-
+ AGEXPORT size_t getDebugIndex();
+ AGEXPORT size_t getDebugLevel();
+ AGEXPORT void setDebugLevel(size_t t);
+
+Modified: antargis/trunk/rookey/lib/rookey/cpp/rk_logging.cc
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_logging.cc	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_logging.cc	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -1,45 +1,169 @@
+ 
+ #include "rk_logging.h"
++#include "rk_time.h"
+ 
+ #include <sstream>
+ #include <iostream>
+ 
+ 
++std::string operator*(const std::string &s,size_t i)
++{
++  std::ostringstream os;
++
++  for(size_t k=0;k<i;k++)
++    os<<s;
++
++  return os.str();
++}
++
++
+ template
+ class RKSingleton<RKLogging>;
+ 
+-RKLogging::RKLogging() : output("rk_log.txt",std::ios_base::app) {
++RKLogging::RKLogging() : output("rk_log.txt", std::ios_base::app) {
++  mLastLevel = "init";
++
++  std::string eq("=");
++  logLine(eq * 60, "intrn");
++  logLine("Starting Logging", "intrn");
++  logLine(eq * 60, "intrn");
+ }
+ 
+ RKLogging::~RKLogging() {
+-    output.flush();
+-    output.close();
++  flush();
++  logLine(std::string("=")*60, "intrn");
++  logLine("Stopping Logging", "intrn");
++  logLine(std::string("=")*60, "intrn");
++  output.flush();
++  output.close();
+ }
+ 
+-void RKLogging::log(const std::string &s) {
+-    output << s;
++void RKLogging::log(const std::string &s, const std::string &pLevel) {
++
++  // FIXME: do not start a new line each time !!
++
++  if(mLastLevel!=pLevel)
++    startLine(pLevel);
++
++  size_t last = 0, i;
++  std::string sub;
++  for (i = s.find("\n"); i < s.length(); i = s.find("\n", i + 1)) {
++    sub = s.substr(last, i - last);
++    last = i;
++    if (last > 0)
++      logLine(sub, pLevel);
++    else
++      logDirect(sub);
++  }
++  sub = s.substr(last, i - last);
++  if (last > 0)
++    logLine(sub, pLevel);
++  else
++    logDirect(sub);
++  mLastLevel=pLevel;
++}
++
++void RKLogging::startLine(const std::string &pLevel) {
++  RKTime mtime;
++  output << "[" << mtime.toString() << "] [" << pLevel << "] ";
++}
++
++void RKLogging::flush() {
++  if (mLastLevel.length() > 0) {
++    output << std::endl;
+     output.flush();
++    mLastLevel = "";
++  }
+ }
+ 
+-void RKLogging::clear()
+-{
+-    output.close();
+-    output.open("rk_log.txt");
++void RKLogging::logLine(const std::string &s, const std::string &pLevel) {
++  flush();
++  startLine(pLevel);
++  output << s;
++  output << std::endl;
++  output.flush();
++  mLastLevel = "";
+ }
+ 
++void RKLogging::logDirect(const std::string &s) {
++  output << s;
++  output.flush();
++  mLastLevel = "internal";
++}
+ 
+-std::string RKLogging::getLog()  {
+-    output.flush();
++void RKLogging::clear() {
++  output.close();
++  output.open("rk_log.txt");
++}
+ 
+-    std::ifstream ifs("rk_log.txt");
+-    std::ostringstream os;
+-    std::string buf;
++std::string RKLogging::getLog() {
++  output.flush();
+ 
+-    while (!ifs.eof()) {
+-        ifs>>buf;
+-        os << buf;
++  std::ifstream ifs("rk_log.txt");
++  std::ostringstream os;
++  std::string buf;
++
++  while (!ifs.eof()) {
++    ifs >> buf;
++    os << buf;
++  }
++  return os.str();
++}
++
++namespace logger {
++
++  Channel out(Channel::OUT);
++  Channel debug(Channel::DEBUG);
++  Channel warn(Channel::WARN);
++  Channel err(Channel::ERR);
++
++  Special endl(Special::ENDL);
++
++  Special::Special(const Type &pType) : mType(pType) {
++
++  }
++
++  Special::Type Special::getType() const {
++    return mType;
++  }
++
++  Channel::Channel(const Type &pType) : mType(pType) {
++
++  }
++
++  Channel::~Channel() {
++    flush();
++
++  }
++
++  void Channel::flush() {
++    RKLogging *instance=RKLogging::getInstance();
++    if(instance)
++      instance->flush();
++
++  }
++
++  Channel::Type Channel::getType() const {
++    return mType;
++  }
++
++  Channel &Channel::operator<<(const Special &s) {
++    if (s.getType() == Special::ENDL)
++      flush();
++  }
++
++  Channel &Channel::operator<<(const std::string &s) {
++    RKLogging::getInstance()->log(s, getType(mType));
++  }
++
++  std::string Channel::getType(const Type &pType) {
++    switch (pType) {
++      case OUT:return "out  ";
++      case ERR:return "error";
++      case DEBUG:return "debug";
++      case WARN:return "warn ";
++      default: return "CRITICAL";
+     }
+-    std::cout<<"OS:"<<os.str()<<std::endl;
+-    return os.str();
++  }
++}
+ 
+-}
+
+Modified: antargis/trunk/rookey/lib/rookey/cpp/rk_logging.h
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_logging.h	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_logging.h	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -8,28 +8,98 @@
+ #ifndef _RK_LOGGING_H
+ #define	_RK_LOGGING_H
+ 
++// INCLUDE_SWIG - used to filter, which files are included in swig-interfacing
++
++#include "rk_base.h"
+ #include "rk_singleton.h"
+ 
+ #include <fstream>
++#include <sstream>
+ 
+-class RKLogging:public RKSingleton<RKLogging>
+-{
++class RKLogging : public RKSingleton<RKLogging> {
+ public:
+-    virtual ~RKLogging();
++  virtual ~RKLogging();
+ 
+-    void log(const std::string &s);
++  void logDirect(const std::string &s);
+ 
+-    std::string getLog();
+-    void clear();
++  void logLine(const std::string &s, const std::string &pLevel);
++
++  void log(const std::string &s, const std::string &pLevel);
++
++  void finishLine();
++
++  std::string getLog();
++  void clear();
++  void flush();
+ protected:
+-    RKLogging();
++  RKLogging();
+ 
+ private:
+-    std::ofstream output;
+-    friend class RKSingleton<RKLogging>;
+ 
++  void startLine(const std::string &pLevel);
++
++  std::ofstream output;
++  friend class RKSingleton<RKLogging>;
++  std::string mLastLevel;
++
+ };
+ 
++namespace logger {
+ 
++  class Special {
++  public:
++
++    enum Type {
++      ENDL
++    };
++    Special(const Type &pType);
++
++    Type getType() const;
++  private:
++    Type mType;
++  };
++
++  class Channel {
++  public:
++
++    enum Type {
++      OUT, ERR, DEBUG, WARN
++    };
++
++    Channel(const Type &pType);
++    ~Channel();
++
++    Channel & operator<<(const std::string &s);
++
++    Type getType() const;
++
++    Channel & operator<<(const Special &pSpecial);
++
++    template<class T>
++    Channel & operator<<(const T&t) {
++      std::ostringstream os;
++      os << t;
++      (*this) << os.str();
++      return *this;
++    };
++
++    void flush();
++
++    static std::string getType(const Type &pType);
++  private:
++    Type mType;
++  };
++
++
++  extern AGEXPORT Channel out;
++  extern AGEXPORT Channel debug;
++  extern AGEXPORT Channel warn;
++  extern AGEXPORT Channel err;
++
++  extern AGEXPORT Special endl;
++}
++#define Log(str) RKLogging::log()
++
++
+ #endif	/* _RK_LOGGING_H */
+ 
+
+Modified: antargis/trunk/rookey/lib/rookey/cpp/rk_rubyobj.cc
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_rubyobj.cc	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_rubyobj.cc	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -5,6 +5,7 @@
+ #include <set>
+ #include <map>
+ #include <iostream>
++#include "rk_logging.h"
+ 
+ 
+ #ifdef __WIN32__
+@@ -56,9 +57,9 @@
+ 
+   mRemovedRubyObjects.erase(this);
+   if (oSize != mRemovedRubyObjects.size())
+-    std::cerr << "Collision - removed rubyobject's address is overwritten!" << std::endl;
++    logger::debug<< "Collision - removed rubyobject's address is overwritten!" << logger::endl;
+ 
+-  std::cerr << "current ruby#:" << mRubyObjects.size() << " removed:" << mRemovedRubyObjects.size() << std::endl;
++  logger::debug << "current ruby#:" << mRubyObjects.size() << " removed:" << mRemovedRubyObjects.size() << logger::endl;
+ }
+ 
+ AGRubyObject::~AGRubyObject() throw () {
+@@ -120,14 +121,14 @@
+ 
+ void general_markfunc(void *ptr) {
+   if (!ptr) {
+-    std::cerr << ("WARNING: a ptr==0 was given in general_markfunc!") << std::endl;
++    logger::err << ("WARNING: a ptr==0 was given in general_markfunc!") << logger::endl;
+     return; // ignore this !
+   }
+   assert(ptr);
+   // the given object must be a AGRubyObject and it must be valid (it's in mRubyObjects)
+   AGRubyObject *o = static_cast<AGRubyObject*> (ptr);
+   if (mRubyObjects.find(o) == mRubyObjects.end())
+-    std::cerr << "OLD RUBYOBJ:" << (mRemovedRubyObjects.find(o) != mRemovedRubyObjects.end()) << ":" << o << std::endl;
++    logger::err << "OLD RUBYOBJ:" << (mRemovedRubyObjects.find(o) != mRemovedRubyObjects.end()) << ":" << o << logger::endl;
+   assert(mRubyObjects.find(o) != mRubyObjects.end());
+ 
+ #ifdef GCDEBUG
+@@ -142,7 +143,7 @@
+   AGRubyObject *ro = (AGRubyObject*) o;
+ 
+   if (!mRubyObjectsExistant) {
+-    std::cerr << "Could not check, because rubyObjects was discarded" << std::endl;
++    logger::err << "Could not check, because rubyObjects was discarded" << logger::endl;
+     return RUBY_OBJECT_UNKNOWN;
+   }
+ 
+
+Modified: antargis/trunk/rookey/lib/rookey/cpp/rk_singleton.cc
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_singleton.cc	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_singleton.cc	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -9,24 +9,61 @@
+ #include <set>
+ #include <typeinfo>
+ 
+-std::map<std::string,RKSingletonBase*> RKSingletonBase::mSingletons;
++std::map<std::string, RKSingletonBase*> RKSingletonBase::mSingletons;
+ 
+-RKSingletonBase::RKSingletonBase()
++static bool firstUse = true;
++static bool everythingDestroyed=false;
++
++void removeEverything();
++
++RKSingletonBase::RKSingletonBase() {
++  if (firstUse) {
++    firstUse = false;
++    atexit(&removeEverything);
++  }
++}
++
++
++bool RKSingletonBase::allDestroyed()
+ {
+-    std::string name(typeid(this).name());
+-    mSingletons.insert(std::make_pair(name,this));
++  return everythingDestroyed;
+ }
+ 
+-RKSingletonBase* RKSingletonBase::getInstance(const std::string &pName)
++void RKSingletonBase::destroyAll()
+ {
+-    std::map<std::string,RKSingletonBase*>::iterator i=mSingletons.find(pName);
+-    if(i==mSingletons.end())
+-        return NULL;
+-    return i->second;
++  std::cout<<"destroyAll"<<std::endl;
++  everythingDestroyed=true;
++  for(std::map<std::string, RKSingletonBase*>::iterator i = mSingletons.begin();i!=mSingletons.end();i++)
++    delete i->second;
++}
+ 
++void RKSingletonBase::registerClass() {
++  if(everythingDestroyed)
++    return;
++  std::string name(typeid (*this).name());
++  mSingletons.insert(std::make_pair(name, this));
+ }
+ 
++RKSingletonBase* RKSingletonBase::getInstance(const std::string &pName) {
++  if(everythingDestroyed)
++    return 0;
+ 
++  std::map<std::string, RKSingletonBase*>::iterator i = mSingletons.find(pName);
++
++  if (i == mSingletons.end()) {
++    return NULL;
++  }
++  return i->second;
++
++}
++
++void removeEverything() {
++  std::cout << "RMOVE ALL" << std::endl;
++  RKSingletonBase::destroyAll();
++}
++
++
++
+ /*
+ template<class Base>
+ RKSingleton<Base>::RKSingleton() {
+@@ -44,4 +81,4 @@
+         b=new Base();
+     return b;
+ }
+-*/
+\ No newline at end of file
++ */
+\ No newline at end of file
+
+Modified: antargis/trunk/rookey/lib/rookey/cpp/rk_singleton.h
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_singleton.h	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_singleton.h	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -11,45 +11,57 @@
+ #include <string>
+ #include <map>
+ #include <typeinfo>
++#include <iostream>
+ 
+ template<class Base>
+ class RKSingleton;
+ 
+-class RKSingletonBase
+-{
++class RKSingletonBase {
+ public:
+ protected:
+-    RKSingletonBase();
+-    virtual ~RKSingletonBase()
+-    {}
++  RKSingletonBase();
+ 
+-    static std::map<std::string,RKSingletonBase*> mSingletons;
++  virtual ~RKSingletonBase() {
++  }
+ 
++  static std::map<std::string, RKSingletonBase*> mSingletons;
++
++  static bool allDestroyed();
++
+ private:
+-    static RKSingletonBase* getInstance(const std::string &pName);
++  static RKSingletonBase* getInstance(const std::string &pName);
++  void registerClass();
++  static void destroyAll();
+ 
+-    template<class Base>
+-    friend class RKSingleton;
++  template<class Base>
++  friend class RKSingleton;
++  friend void removeEverything();
++
+ };
+ 
+ template<class Base>
+-class RKSingleton:public RKSingletonBase {
++class RKSingleton : public RKSingletonBase {
+ public:
+-    virtual ~RKSingleton()
+-    {}
+ 
+-    static Base *getInstance()
+-    {
+-        std::string name=typeid(Base).name();
+-        Base *b=dynamic_cast<Base*>(RKSingletonBase::getInstance(name));
+-        if(b==0)
+-            b=new Base();
+-        return b;
++  virtual ~RKSingleton() {
++  }
++
++  static Base *getInstance() {
++    if(allDestroyed())
++      return 0;
++    std::string name = typeid (Base).name();
++    Base *b = dynamic_cast<Base*> (RKSingletonBase::getInstance(name));
++    if (b == 0) {
++      b = new Base();
++      b->registerClass();
+     }
++    return b;
++  }
+ protected:
+-    RKSingleton()
+-            {}
+ 
++  RKSingleton() {
++  }
++
+ };
+ 
+ #endif	/* _RKSINGLETON_H */
+
+Modified: antargis/trunk/rookey/lib/rookey/cpp/rk_string.cc
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_string.cc	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_string.cc	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -218,7 +218,16 @@
+   return false;
+ }
+ 
++AGString AGString::operator*(size_t p) const
++{
++  std::ostringstream os;
++  for(size_t i=0;i<p;i++)
++    os<<(*this);
++  return AGString(os.str());
++}
+ 
++
++
+ bool AGString::matches(const std::string &regex) const
+ {
+   return rubyMatchRegex(*this,regex);
+
+Modified: antargis/trunk/rookey/lib/rookey/cpp/rk_string.h
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_string.h	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_string.h	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -1,6 +1,6 @@
+ #ifndef AG_STRING
+ #define AG_STRING
+-
++
+ #include <rk_base.h>
+ #include <string>
+ #include <vector>
+@@ -46,6 +46,8 @@
+   AGString operator+(const char *s) const;
+   AGString operator+(const std::string &s) const;
+ 
++  AGString operator*(size_t p) const;
++
+   int toInt() const;
+   long toLong() const;
+   float toFloat() const;
+
+Added: antargis/trunk/rookey/lib/rookey/cpp/rk_time.cc
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_time.cc	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_time.cc	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -0,0 +1,31 @@
++#include "rk_base.h"
++#include "rk_time.h"
++
++RKTime::RKTime() {
++  time_t *cTime=new time_t;
++
++  mTime=(void*)cTime;
++
++  time(cTime);
++}
++
++RKTime::~RKTime()
++        {
++  time_t *cTime=(time_t*)mTime;
++  delete cTime;
++  
++}
++
++
++std::string RKTime::toString() {
++  time_t *cTime=(time_t*)mTime;
++  struct tm * timeinfo;
++  char buffer [80];
++
++  timeinfo = localtime ( cTime );
++
++//  strftime (buffer,80,"Now it's %I:%M%p.",timeinfo);
++  strftime (buffer,80,"%Y-%m-%d %H:%M:%S",timeinfo);
++  return std::string(buffer);
++}
++
+
+Added: antargis/trunk/rookey/lib/rookey/cpp/rk_time.h
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_time.h	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_time.h	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -0,0 +1,16 @@
++#ifndef RK_TIME_H
++#define RK_TIME_H
++
++#include <string>
++
++class RKTime
++{
++public:
++  RKTime();
++  ~RKTime();
++  std::string toString();
++private:
++  void *mTime;
++};
++
++#endif
+
+Modified: antargis/trunk/rookey/lib/rookey/cpp/spec/Rakefile
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/spec/Rakefile	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/rookey/lib/rookey/cpp/spec/Rakefile	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -1,8 +1,8 @@
+-require 'rookey.rb'
++require File.expand_path('../../../../rookey.rb',__FILE__)
+ 
+ tests=Dir["*_spec.cc"]
+ 
+-baseFiles=["../rk_singleton.cc","../rk_logging.cc"]
++baseFiles=["../rk_singleton.cc","../rk_logging.cc","../rk_time.cc","../rk_logging.cc"]
+ 
+ test_exes=tests.map{|test|
+   name=test.sub(/_spec.cc/,"")
+@@ -11,6 +11,14 @@
+   Rookey::link_exe(name, objs)
+ }
+ 
++
++files=[]
++basicLib=Rookey::ruby_ext("basiclib",files)
++
++task :libTest=>basicLib do
++  ruby "./libtest.rb"
++end
++
+ task :runTests=>test_exes do
+   test_exes.each{|exe|
+     sh "./"+exe
+@@ -19,7 +27,6 @@
+ 
+ CLEAN << "rk_log.txt"
+ 
++task :default=>[:libTest,:runTests] do
+ 
+-task :default=>:runTests do
+-
+ end
+\ No newline at end of file
+
+Modified: antargis/trunk/rookey/lib/rookey/cpp/spec/logging_spec.cc
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/spec/logging_spec.cc	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/rookey/lib/rookey/cpp/spec/logging_spec.cc	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -1,9 +1,24 @@
+ #include "rk_logging.h"
+ 
++void testClear() {
++  RKLogging::getInstance()->clear();
++  RKLogging::getInstance()->logDirect("muh");
++
++  assert(RKLogging::getInstance()->getLog() == "muh");
++
++}
++
++void testEasyLog()
++{
++  logger::err<<"myMUH"<<logger::endl;
++
++  
++}
++
+ int main(int argc, char *argv[]) {
+-    RKLogging::getInstance()->clear();
+-    RKLogging::getInstance()->log("muh");
++  testClear();
+ 
+-    assert(RKLogging::getInstance()->getLog() == "muh");
+-    return 0;
++  testEasyLog();
++
++  return 0;
+ }
+\ No newline at end of file
+
+Modified: antargis/trunk/rookey/lib/rookey/tasks.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/tasks.rb	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/rookey/lib/rookey/tasks.rb	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -52,7 +52,7 @@
+ 	    interfaceBuilder=SwigInterfaceBuilder.new(file,target,classes,files,source.select{|f|f=~/i$/},inits,templates)
+ 	    interfaceBuilder.create(parser)
+     end
+-    CLEAN << file
++    ::CLEAN << file
+     [file]
+   end
+   
+@@ -76,7 +76,7 @@
+ 	  rule output=>Swig.getDeps(interface) do |t|
+ 	    swigCompiler.swig(t,interface)
+ 	  end
+-	  CLEAN << output << output.gsub(/\.cc?/,".h")
++	  ::CLEAN << output << output.gsub(/\.cc?/,".h")
+ 	  getRookeyCPPSources+[output] #getAGRubyObjectSource
+ 	end
+ 
+@@ -111,7 +111,7 @@
+ 	    end
+ 	  }
+ 	  targets=files.map{|file|compiler.makeObject(file)}
+-	  CLEAN << targets << compiler.getBuildDir << Compiler.getDepsDir
++	  ::CLEAN << [targets, compiler.getBuildDir, Compiler.getDepsDir].flatten
+ 	  targets
+ 	end
+ 	
+@@ -129,7 +129,7 @@
+     task target=>files do |t|
+       linker.linkDLL(t)
+     end
+-    CLEAN << target
++    ::CLEAN << target
+     
+     target
+ 	end
+@@ -139,7 +139,7 @@
+   def Rookey.link_exe(name,files,config=nil)
+     files.flatten!
+     if files.select{|file|file=~/swig_.*/}.length>0
+-      ["rk_rubyobj.cc","rk_string.cc","rk_rtools.cc"].each{|f|
++      ["rk_rubyobj.cc","rk_string.cc","rk_rtools.cc","rk_logging.cc"].each{|f|
+         files << compile(File.join(File.split(__FILE__)[0],"cpp",f),config)
+       }
+       files << compile(File.join(File.split(__FILE__)[0],"cpp","swig_dummy.cc"),config) if files.select{|f|f=~/swig/}.length==0
+@@ -155,7 +155,7 @@
+     task target=>files do |t|
+       linker.linkEXE(t.name,t.prerequisites)
+     end
+-    CLEAN << target
++    ::CLEAN << target
+     
+     target    
+   end 
+@@ -165,7 +165,9 @@
+   # * name is the name of the resulting extension
+   # * files are the .h, .c and .cc (or .cpp) source-files 
+   def Rookey.ruby_ext(name,files,inits=[],fallbackInterface=nil)
+-    headerFiles=files.select{|f|f=~/h$/}
++    headerFiles=files.select{|f|f=~/h$/}+[File.expand_path("../cpp/rk_logging.h",__FILE__)]
++
++    
+     libs=files.select{|f|f=~/so$/ or f=~/bundle/}
+ 
+     cppFiles=files.select{|f|f=~/c$/}
+
+Modified: antargis/trunk/rookey/lib/rookey.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey.rb	2009-02-27 04:59:53 UTC (rev 1294)
++++ antargis/trunk/rookey/lib/rookey.rb	2009-03-03 19:33:15 UTC (rev 1295)
+@@ -3,7 +3,6 @@
+ require File.join(File.split(File.expand_path(__FILE__))[0],'rookey','tools.rb')
+ require './rookey/tasks.rb'
+ 
+-
+ task :allclean=>:clean do
+   ALLCLEAN.each{|f|
+     begin
+
+
+
+From davidkamphausen at mail.berlios.de  Tue Mar  3 20:33:45 2009
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Tue, 3 Mar 2009 20:33:45 +0100
+Subject: [Antargis-svn] r1296 - antargis/trunk/rookey/lib/rookey/cpp/spec
+Message-ID: <200903031933.n23JXjjx029992@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2009-03-03 20:33:45 +0100 (Tue, 03 Mar 2009)
+New Revision: 1296
+
+Added:
+   antargis/trunk/rookey/lib/rookey/cpp/spec/libtest.rb
+Log:
+Logging implemented - missing file
+
+Added: antargis/trunk/rookey/lib/rookey/cpp/spec/libtest.rb
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/spec/libtest.rb	2009-03-03 19:33:15 UTC (rev 1295)
++++ antargis/trunk/rookey/lib/rookey/cpp/spec/libtest.rb	2009-03-03 19:33:45 UTC (rev 1296)
+@@ -0,0 +1,5 @@
++require 'basiclib'
++
++Basiclib::err<<"MUH"
++
++#err<<"MUH"<<endl
+\ No newline at end of file
+
+
+
+From davidkamphausen at mail.berlios.de  Tue Mar  3 20:55:17 2009
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Tue, 3 Mar 2009 20:55:17 +0100
+Subject: [Antargis-svn] r1297 - antargis/trunk/rookey/lib/rookey/cpp
+Message-ID: <200903031955.n23JtHYs031605@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2009-03-03 20:55:17 +0100 (Tue, 03 Mar 2009)
+New Revision: 1297
+
+Modified:
+   antargis/trunk/rookey/lib/rookey/cpp/rk_logging.cc
+Log:
+fix loggin
+
+Modified: antargis/trunk/rookey/lib/rookey/cpp/rk_logging.cc
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_logging.cc	2009-03-03 19:33:45 UTC (rev 1296)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_logging.cc	2009-03-03 19:55:17 UTC (rev 1297)
+@@ -150,10 +150,14 @@
+   Channel &Channel::operator<<(const Special &s) {
+     if (s.getType() == Special::ENDL)
+       flush();
++    return *this;
+   }
+ 
+   Channel &Channel::operator<<(const std::string &s) {
+-    RKLogging::getInstance()->log(s, getType(mType));
++    RKLogging *clogger=RKLogging::getInstance();
++    if(clogger)
++      clogger->log(s, getType(mType));
++    return *this;
+   }
+ 
+   std::string Channel::getType(const Type &pType) {
+
+
+
+From davidkamphausen at mail.berlios.de  Wed Mar  4 17:46:15 2009
+From: davidkamphausen at mail.berlios.de (davidkamphausen at BerliOS)
+Date: Wed, 4 Mar 2009 17:46:15 +0100
+Subject: [Antargis-svn] r1298 - in antargis/trunk: ext/video
+	rookey/lib/rookey/cpp ruby ruby/editor/campaign ruby/gui ruby/tools
+Message-ID: <200903041646.n24GkF7L006524@sheep.berlios.de>
+
+Author: davidkamphausen
+Date: 2009-03-04 17:46:14 +0100 (Wed, 04 Mar 2009)
+New Revision: 1298
+
+Added:
+   antargis/trunk/ruby/tools/logging.rb
+Modified:
+   antargis/trunk/ext/video/ag_painter.cc
+   antargis/trunk/ext/video/ag_painter.h
+   antargis/trunk/rookey/lib/rookey/cpp/rk_logging.cc
+   antargis/trunk/rookey/lib/rookey/cpp/rk_logging.h
+   antargis/trunk/ruby/ant_tools.rb
+   antargis/trunk/ruby/antargislib.rb
+   antargis/trunk/ruby/editor/campaign/app.rb
+   antargis/trunk/ruby/editor/campaign/drag_grid.rb
+   antargis/trunk/ruby/editor/campaign/effect.rb
+   antargis/trunk/ruby/editor/campaign/image_list.rb
+   antargis/trunk/ruby/editor/campaign/image_list_2d.rb
+   antargis/trunk/ruby/editor/campaign/ruby_layouts.rb
+   antargis/trunk/ruby/editor/campaign/spec_campaign_editor.rb
+   antargis/trunk/ruby/editor/campaign/toolbar.rb
+   antargis/trunk/ruby/gui/testing.rb
+   antargis/trunk/ruby/spec_helper.rb
+Log:
+logging improved and fixed hidden button in campaign editor
+
+Modified: antargis/trunk/ext/video/ag_painter.cc
+===================================================================
+--- antargis/trunk/ext/video/ag_painter.cc	2009-03-03 19:55:17 UTC (rev 1297)
++++ antargis/trunk/ext/video/ag_painter.cc	2009-03-04 16:46:14 UTC (rev 1298)
+@@ -38,176 +38,153 @@
+ // AGProjection
+ /////////////////////////////////////////////////////////////////////////////////
+ 
++AGPaintProjection::AGPaintProjection(const AGRect2 &pClip) : clip(pClip) {
++  a.set(0, 0, 1);
++  a.set(0, 1, 0);
++  a.set(0, 2, 0);
++  a.set(1, 0, 0);
++  a.set(1, 1, 1);
++  a.set(1, 2, 0);
++  a.set(2, 0, 0);
++  a.set(2, 1, 0);
++  a.set(2, 2, 0);
++}
+ 
+-AGPaintProjection::AGPaintProjection(const AGRect2 &pClip):clip(pClip)
+-    {
+-      a.set(0,0,1);
+-      a.set(0,1,0);
+-      a.set(0,2,0);
+-      a.set(1,0,0);
+-      a.set(1,1,1);
+-      a.set(1,2,0);
+-      a.set(2,0,0);
+-      a.set(2,1,0);
+-      a.set(2,2,0);
+-    }
++AGPaintProjection::AGPaintProjection(const AGClipping &pClip) : advancedClipping(pClip) {
++  a.set(0, 0, 1);
++  a.set(0, 1, 0);
++  a.set(0, 2, 0);
++  a.set(1, 0, 0);
++  a.set(1, 1, 1);
++  a.set(1, 2, 0);
++  a.set(2, 0, 0);
++  a.set(2, 1, 0);
++  a.set(2, 2, 0);
++}
+ 
+-AGPaintProjection::AGPaintProjection(const AGClipping &pClip):advancedClipping(pClip)
+-    {
+-      a.set(0,0,1);
+-      a.set(0,1,0);
+-      a.set(0,2,0);
+-      a.set(1,0,0);
+-      a.set(1,1,1);
+-      a.set(1,2,0);
+-      a.set(2,0,0);
+-      a.set(2,1,0);
+-      a.set(2,2,0);
+-    }
++AGVector2 AGPaintProjection::project(const AGVector2 &p) const {
++  AGVector2 r = (a * AGVector3(p[0], p[1], 1)).dim2();
+ 
+-
+-AGVector2 AGPaintProjection::project(const AGVector2 &p) const
+-{
+-  AGVector2 r=(a*AGVector3(p[0],p[1],1)).dim2();
+-
+   return r;
+ }
+-bool AGPaintProjection::pointOk(const AGVector2 &p) const
+-{
++
++bool AGPaintProjection::pointOk(const AGVector2 &p) const {
+   return clip.contains(p);
+ }
+ 
+-AGRect2 AGPaintProjection::project(const AGRect2 &p) const
+-{
+-  AGRect2 r((a*AGVector3(p[0],1)).dim2(),
+-      (a*AGVector3(p[1],1)).dim2());
++AGRect2 AGPaintProjection::project(const AGRect2 &p) const {
++  AGRect2 r((a * AGVector3(p[0], 1)).dim2(),
++          (a * AGVector3(p[1], 1)).dim2());
+   return r;
+ }
+-AGRect2 AGPaintProjection::clipRect(AGRect2 target) const
+-{
++
++AGRect2 AGPaintProjection::clipRect(AGRect2 target) const {
+   return clip.intersect(target);
+ }
+ 
++std::pair<AGRect2, AGRect2> AGPaintProjection::clipRect(AGRect2 target, AGRect2 src) const {
++  AGRect2 i = clip.intersect(target);
++  if (i.width() <= 0 || i.height() <= 0)
++    return std::make_pair(AGRect2(0, 0, 0, 0), AGRect2(0, 0, 0, 0));
+ 
+-std::pair<AGRect2,AGRect2> AGPaintProjection::clipRect(AGRect2 target,AGRect2 src) const
+-{
+-  AGRect2 i=clip.intersect(target);
+-  if(i.width()<=0 || i.height()<=0)
+-    return std::make_pair(AGRect2(0,0,0,0),AGRect2(0,0,0,0));
++  assert(target.x0() < clip.x1());
+ 
+-  assert(target.x0()<clip.x1());
+ 
+-
+   // clip left
+-  if(target.x0()<clip.x0())
+-    {
+-      float a=(clip.x0()-target.x0())/target.w();
+-      float nw=target.x1()-clip.x0();
+-      target.setLeft(clip.x0());
+-      target.setWidth(nw);
+-      nw=src.w()*(1.0f-a);
+-      src.setLeft(src.x0()+src.w()*a);
+-      src.setWidth(nw);
+-    }
++  if (target.x0() < clip.x0()) {
++    float a = (clip.x0() - target.x0()) / target.w();
++    float nw = target.x1() - clip.x0();
++    target.setLeft(clip.x0());
++    target.setWidth(nw);
++    nw = src.w()*(1.0f - a);
++    src.setLeft(src.x0() + src.w() * a);
++    src.setWidth(nw);
++  }
+ 
+   // clip top
+-  if(target.y0()<clip.y0())
+-    {
+-      float a=(clip.y0()-target.y0())/target.h();
+-      float nh=target.y1()-clip.y0();
+-      target.setTop(clip.y0());
+-      target.setHeight(nh);
+-      nh=src.h()*(1.0f-a);
+-      src.setTop(src.y0()+src.h()*a);
+-      src.setHeight(nh);
+-    }
++  if (target.y0() < clip.y0()) {
++    float a = (clip.y0() - target.y0()) / target.h();
++    float nh = target.y1() - clip.y0();
++    target.setTop(clip.y0());
++    target.setHeight(nh);
++    nh = src.h()*(1.0f - a);
++    src.setTop(src.y0() + src.h() * a);
++    src.setHeight(nh);
++  }
+ 
+   // clip right
+-  if(target.x1()>clip.x1())
+-    {
+-      float a=(target.x1()-clip.x1())/target.w();
+-      target.setRight(clip.x1());
+-      src.setRight(src.x1()-src.w()*a);
+-    }
++  if (target.x1() > clip.x1()) {
++    float a = (target.x1() - clip.x1()) / target.w();
++    target.setRight(clip.x1());
++    src.setRight(src.x1() - src.w() * a);
++  }
+ 
+   // clip bottom
+-  if(target.y1()>clip.y1())
+-    {
+-      float a=(target.y1()-clip.y1())/target.h();
+-      target.setBottom(clip.y1());
+-      src.setBottom(src.y1()-src.h()*a);
+-    }
++  if (target.y1() > clip.y1()) {
++    float a = (target.y1() - clip.y1()) / target.h();
++    target.setBottom(clip.y1());
++    src.setBottom(src.y1() - src.h() * a);
++  }
+ 
+-  return std::make_pair(target,src);
++  return std::make_pair(target, src);
+ }
+ 
+-void AGPaintProjection::translate(const AGVector2 &v)
+-  {
+-    a.get(2,0)+=v[0];
+-    a.get(2,1)+=v[1];
+-  }
++void AGPaintProjection::translate(const AGVector2 &v) {
++  a.get(2, 0) += v[0];
++  a.get(2, 1) += v[1];
++}
+ 
+-void AGPaintProjection::transform(const AGMatrix3 &pMatrix)
+-  {
+-    a*=pMatrix;
+-  }
++void AGPaintProjection::transform(const AGMatrix3 &pMatrix) {
++  a *= pMatrix;
++}
+ 
+-void AGPaintProjection::setClip(const AGRect2&p)
+-  {
+-    clip=clip.intersect(p);
+-  }
++void AGPaintProjection::setClip(const AGRect2&p) {
++  clip = clip.intersect(p);
++}
+ 
++AGRect2 AGPaintProjection::getRect() const {
++  AGRect2 r = clip;
+ 
+-AGRect2 AGPaintProjection::getRect() const
+-{
+-  AGRect2 r=clip;
+-
+-  r-=AGVector2(a.get(2,0),a.get(2,1));
++  r -= AGVector2(a.get(2, 0), a.get(2, 1));
+   return r;
+ }
+ 
+-AGLine2 AGPaintProjection::clipLine(AGLine2 l) const
+-{
++AGLine2 AGPaintProjection::clipLine(AGLine2 l) const {
+   AGLine2 d;
+ 
+-  AGRect2 r=clip;
++  AGRect2 r = clip;
+ 
+-  if((l[0][0]<r.x0() && l[1][0]<r.x0()) ||
+-      (l[0][0]>r.x1() && l[1][0]>r.x1()) ||
+-      (l[0][1]<r.y0() && l[1][1]<r.y0()) ||
+-      (l[0][1]>r.y1() && l[1][1]>r.y1()))
++  if ((l[0][0] < r.x0() && l[1][0] < r.x0()) ||
++          (l[0][0] > r.x1() && l[1][0] > r.x1()) ||
++          (l[0][1] < r.y0() && l[1][1] < r.y0()) ||
++          (l[0][1] > r.y1() && l[1][1] > r.y1()))
+     return d; // hidden
+ 
+   float a;
+   // clip
+-  for(size_t i=0;i<1;i++)
+-    {
+-      if(l[i][0]<r.x0())
+-        {
+-          a=(r.x0()-l[i][0])/(l[1-i][0]-l[i][0]);
+-          l[i][0]=r.x0();
+-          l[i][1]=l[i][1]+(l[1-i][1]-l[i][1])*a;
+-        }
+-      if(l[i][1]<r.y0())
+-        {
+-          a=(r.y0()-l[i][1])/(l[1-i][1]-l[i][1]);
+-          l[i][1]=r.y0();
+-          l[i][0]=l[i][0]+(l[1-i][0]-l[i][0])*a;
+-        }
+-      if(l[i][0]>r.x1())
+-        {
+-          a=(l[i][0]-r.x1())/(l[i][0]-l[1-i][0]);
+-          l[i][0]=r.x1();
+-          l[i][1]=l[i][1]+(l[1-i][1]-l[i][1])*a;
+-        }
+-      if(l[i][1]>r.y1())
+-        {
+-          a=(l[i][1]-r.y1())/(l[i][1]-l[1-i][1]);
+-          l[i][1]=r.y1();
+-          l[i][0]=l[i][0]+(l[1-i][0]-l[i][0])*a;
+-        }
+-
++  for (size_t i = 0; i < 1; i++) {
++    if (l[i][0] < r.x0()) {
++      a = (r.x0() - l[i][0]) / (l[1 - i][0] - l[i][0]);
++      l[i][0] = r.x0();
++      l[i][1] = l[i][1]+(l[1 - i][1] - l[i][1]) * a;
+     }
++    if (l[i][1] < r.y0()) {
++      a = (r.y0() - l[i][1]) / (l[1 - i][1] - l[i][1]);
++      l[i][1] = r.y0();
++      l[i][0] = l[i][0]+(l[1 - i][0] - l[i][0]) * a;
++    }
++    if (l[i][0] > r.x1()) {
++      a = (l[i][0] - r.x1()) / (l[i][0] - l[1 - i][0]);
++      l[i][0] = r.x1();
++      l[i][1] = l[i][1]+(l[1 - i][1] - l[i][1]) * a;
++    }
++    if (l[i][1] > r.y1()) {
++      a = (l[i][1] - r.y1()) / (l[i][1] - l[1 - i][1]);
++      l[i][1] = r.y1();
++      l[i][0] = l[i][0]+(l[1 - i][0] - l[i][0]) * a;
++    }
++
++  }
+   return l;
+ 
+ }
+@@ -218,425 +195,373 @@
+ // AGPainter
+ /////////////////////////////////////////////////////////////////////////////////
+ 
+-AGPainter::AGPainter():mCurrent(getScreen().getRect()),mTarget(&getScreen())
+-    {
+-      CTRACE;
+-      mTarget->beginPaint();
+-    }
++AGPainter::AGPainter() : mCurrent(getScreen().getRect()), mTarget(&getScreen()) {
++  CTRACE;
++  mTarget->beginPaint();
++}
+ 
+-AGPainter::AGPainter(const AGPainter &p):ps(p.ps),mCurrent(p.mCurrent),mTarget(p.mTarget)
+-    {
+-      CTRACE;
+-      mTarget->beginPaint();
+-    }
++AGPainter::AGPainter(const AGPainter &p) : ps(p.ps), mCurrent(p.mCurrent), mTarget(p.mTarget) {
++  CTRACE;
++  mTarget->beginPaint();
++}
+ 
+-AGPainter::AGPainter(AGPaintTarget &pTarget):mCurrent(pTarget.getRect()),mTarget(&pTarget)
+-    {
+-      CTRACE;
+-      mTarget->beginPaint();
+-    }
++AGPainter::AGPainter(AGPaintTarget &pTarget) : mCurrent(pTarget.getRect()), mTarget(&pTarget) {
++  CTRACE;
++  mTarget->beginPaint();
++}
+ 
+-
+-AGPainter::~AGPainter() throw()
+-  {
+-    CTRACE;
+-    if(mTarget.valid())
+-      {
+-        mTarget->unclip();
+-        mTarget->endPaint();
+-      }
++AGPainter::~AGPainter() throw () {
++  CTRACE;
++  if (mTarget.valid()) {
++    mTarget->unclip();
++    mTarget->endPaint();
+   }
++}
+ 
+-void AGPainter::putPixel(const AGVector2 &p,const AGColor &c)
+-  {
+-    AGVector2 n=project(p);
+-    if(pointOk(n))
+-      {
+-        mTarget->putPixel((int)n[0],(int)n[1],c);
+-      }
++void AGPainter::putPixel(const AGVector2 &p, const AGColor &c) {
++  AGVector2 n = project(p);
++  if (pointOk(n)) {
++    mTarget->putPixel((int) n[0], (int) n[1], c);
+   }
++}
+ 
+-void AGPainter::blit(const AGTexture &pSource,const AGRect2 &pDest)
+-  {
+-    AGRect2 s=pSource.getRect();
+-    // ASSUME: we don't want to scale
+-    blit(pSource,AGRect2(pDest.x(),pDest.y(),s.w(),s.h()),s);
+-  }
++void AGPainter::blit(const AGTexture &pSource, const AGRect2 &pDest) {
++  AGRect2 s = pSource.getRect();
++  // ASSUME: we don't want to scale
++  blit(pSource, AGRect2(pDest.x(), pDest.y(), s.w(), s.h()), s);
++}
+ 
+-AGVector2 AGPainter::project(const AGVector2 &p) const
+-{
++AGVector2 AGPainter::project(const AGVector2 &p) const {
+   return mCurrent.project(p);
+ }
+-bool AGPainter::pointOk(const AGVector2 &p) const
+-{
++
++bool AGPainter::pointOk(const AGVector2 &p) const {
+   return mCurrent.pointOk(p);
+ }
+ 
++void AGPainter::blit(const AGTexture &pSource, const AGRect2 &pDest, const AGRect2 &pSrc) {
++  STACKTRACE;
++  AGRect2 d;
++  d = mCurrent.project(pDest);
+ 
+-void AGPainter::blit(const AGTexture &pSource,const AGRect2 &pDest,const AGRect2 &pSrc)
+-  {
+-    STACKTRACE;
+-    AGRect2 d;
+-    d=mCurrent.project(pDest);
+-
+ #ifdef OLDCLIP
+ 
+-    std::pair<AGRect2,AGRect2> p=mCurrent.clipRect(d,pSrc);
++  std::pair<AGRect2, AGRect2> p = mCurrent.clipRect(d, pSrc);
+ 
+-    //  cdebug(p.first<<"   "<<p.second);
+-    if(p.first.w()>0 && p.first.h()>0 && p.second.w()>0 && p.second.h()>0)
+-      mTarget->blit(pSource,p.first,p.second);
++  //  cdebug(p.first<<"   "<<p.second);
++  if (p.first.w() > 0 && p.first.h() > 0 && p.second.w() > 0 && p.second.h() > 0)
++    mTarget->blit(pSource, p.first, p.second);
+ 
+ 
+ #else
+ #warning "add clipping!"
+ 
+-    mTarget->blit(pSource,d,pSrc);//pSource.getRect());
++  mTarget->blit(pSource, d, pSrc); //pSource.getRect());
+ #endif
+-  }
++}
+ 
+-void AGPainter::blit(const AGTexture &pSource,const AGRect2 &pDest,const AGColor &pColor)
+-  {
+-    AGRect2 s=pSource.getRect();
+-    // ASSUME: we don't want to scale
+-    blit(pSource,AGRect2(pDest.x(),pDest.y(),s.w(),s.h()),s,pColor);
+-  }
++void AGPainter::blit(const AGTexture &pSource, const AGRect2 &pDest, const AGColor &pColor) {
++  AGRect2 s = pSource.getRect();
++  // ASSUME: we don't want to scale
++  blit(pSource, AGRect2(pDest.x(), pDest.y(), s.w(), s.h()), s, pColor);
++}
+ 
+-void AGPainter::blit(const AGTexture &pSource,const AGRect2 &pDest,const AGRect2 &pSrc,const AGColor &pColor)
+-  {
+-    STACKTRACE;
++void AGPainter::blit(const AGTexture &pSource, const AGRect2 &pDest, const AGRect2 &pSrc, const AGColor &pColor) {
++  STACKTRACE;
+ #ifdef SPEED_TEST
+-    mTarget->blit(pSource,pDest,pSrc,pColor);
+-    return;
++  mTarget->blit(pSource, pDest, pSrc, pColor);
++  return;
+ #endif
+ 
+-    AGRect2 d;
+-    d=mCurrent.project(pDest);
+-    std::pair<AGRect2,AGRect2> p=mCurrent.clipRect(d,pSrc);
++  AGRect2 d;
++  d = mCurrent.project(pDest);
++  std::pair<AGRect2, AGRect2> p = mCurrent.clipRect(d, pSrc);
+ 
+-    if(p.first.w()>0 && p.first.h()>0 && p.second.w()>0 && p.second.h()>0)
+-      mTarget->blit(pSource,p.first,p.second,pColor);
+-  }
++  if (p.first.w() > 0 && p.first.h() > 0 && p.second.w() > 0 && p.second.h() > 0)
++    mTarget->blit(pSource, p.first, p.second, pColor);
++}
+ 
++void AGPainter::tile(const AGTexture &pSource) {
++  tile(pSource, mTarget->getRect());
++}
+ 
+-void AGPainter::tile(const AGTexture &pSource)
+-  {
+-    tile(pSource,mTarget->getRect());
+-  }
+-void AGPainter::tile(const AGTexture &pSource,const AGRect2 &pDest)
+-  {
+-    AGRect2 sourceRect=pSource.getRect();
++void AGPainter::tile(const AGTexture &pSource, const AGRect2 &pDest) {
++  AGRect2 sourceRect = pSource.getRect();
+ 
+-    tile(pSource,pDest,sourceRect);
+-  }
+-void AGPainter::tile(const AGTexture &pSource,const AGRect2 &pDest,const AGRect2 &pSrc)
+-  {
+-    STACKTRACE;
+-    float x,y;
+-    if(!dynamic_cast<AGGLScreen*>(mTarget.getPtr()))
+-      {
++  tile(pSource, pDest, sourceRect);
++}
++
++void AGPainter::tile(const AGTexture &pSource, const AGRect2 &pDest, const AGRect2 &pSrc) {
++  STACKTRACE;
++  float x, y;
++  if (!dynamic_cast<AGGLScreen*> (mTarget.getPtr())) {
+ #warning "remove this and implement in agtexture*"
+-        for(y=pDest.y0();y<pDest.y1();y+=pSrc.h())
+-          for(x=pDest.x0();x<pDest.x1();x+=pSrc.w())
+-            {
+-              float w=std::min(pSrc.w(),pDest.x1()-x);
+-              float h=std::min(pSrc.h(),pDest.y1()-y);
+-              blit(pSource,AGRect2(x,y,w,h),AGRect2(pSrc.x0(),pSrc.y0(),w,h));
+-            }
++    for (y = pDest.y0(); y < pDest.y1(); y += pSrc.h())
++      for (x = pDest.x0(); x < pDest.x1(); x += pSrc.w()) {
++        float w = std::min(pSrc.w(), pDest.x1() - x);
++        float h = std::min(pSrc.h(), pDest.y1() - y);
++        blit(pSource, AGRect2(x, y, w, h), AGRect2(pSrc.x0(), pSrc.y0(), w, h));
+       }
+-    else
+-      {
+-        mTarget->tile(pSource,mCurrent.project(pDest),AGColor(0xff,0xff,0xff,0xff));
+-      }
++  } else {
++    mTarget->tile(pSource, mCurrent.project(pDest), AGColor(0xff, 0xff, 0xff, 0xff));
++  }
+ 
+ 
+-  }
++}
+ 
+ 
+ // AGSurface-painting
+-void AGPainter::blit(const AGSurface &pSource,const AGRect2 &pDest)
+-  {
+-    AGRect2 s=pSource.getRect();
+-    // ASSUME: we don't want to scale
+-    blit(pSource,AGRect2(pDest.x(),pDest.y(),s.w(),s.h()),s);
+-  }
+-void AGPainter::blit(const AGSurface &pSource,const AGRect2 &pDest,const AGRect2 &pSrc)
+-  {
+-    STACKTRACE;
+-    AGRect2 d;
+-    d=mCurrent.project(pDest);
+-    std::pair<AGRect2,AGRect2> p=mCurrent.clipRect(d,pSrc);
+ 
+-    if(p.first.w()>0 && p.first.h()>0 && p.second.w()>0 && p.second.h()>0)
+-      mTarget->blit(pSource,p.first,p.second);
+-  }
+-void AGPainter::tile(const AGSurface &pSource)
+-  {
+-    tile(pSource,mTarget->getRect());
+-  }
+-void AGPainter::tile(const AGSurface &pSource,const AGRect2 &pDest)
+-  {
+-    tile(pSource,pDest,pSource.getRect());
++void AGPainter::blit(const AGSurface &pSource, const AGRect2 &pDest) {
++  AGRect2 s = pSource.getRect();
++  // ASSUME: we don't want to scale
++  blit(pSource, AGRect2(pDest.x(), pDest.y(), s.w(), s.h()), s);
++}
+ 
+-  }
+-void AGPainter::tile(const AGSurface &pSource,const AGRect2 &pDest,const AGRect2 &pSrc)
+-  {
+-    STACKTRACE;
+-    float x,y;
++void AGPainter::blit(const AGSurface &pSource, const AGRect2 &pDest, const AGRect2 &pSrc) {
++  STACKTRACE;
++  AGRect2 d;
++  d = mCurrent.project(pDest);
++  std::pair<AGRect2, AGRect2> p = mCurrent.clipRect(d, pSrc);
+ 
+-    std::vector<std::pair<AGRect2,AGRect2> > rects;
+-    for(y=pDest.y0();y<pDest.y1();y+=pSrc.h())
+-      for(x=pDest.x0();x<pDest.x1();x+=pSrc.w())
+-        {
+-          float w=std::min(pSrc.w(),pDest.x1()-x);
+-          float h=std::min(pSrc.h(),pDest.y1()-y);
++  if (p.first.w() > 0 && p.first.h() > 0 && p.second.w() > 0 && p.second.h() > 0)
++    mTarget->blit(pSource, p.first, p.second);
++}
+ 
+-          rects.push_back(std::make_pair(AGRect2(pSrc.x0(),pSrc.y0(),w,h),AGRect2(x,y,w,h)));
+-        }
+-    mTarget->blit(pSource,rects,AGColor(0xff,0xff,0xff,0xff));
+-  }
++void AGPainter::tile(const AGSurface &pSource) {
++  tile(pSource, mTarget->getRect());
++}
+ 
+-AGColor calcColor(AGVector2 p,const AGColor &pc0,const AGColor &pc1,const AGColor &pc2,const AGColor &pc3)
+-  {
+-    return (pc0*(1-p[0]) + pc1*p[0])*(1-p[1]) + (pc2*(1-p[0]) + pc3*p[0])*p[1];
+-  }
++void AGPainter::tile(const AGSurface &pSource, const AGRect2 &pDest) {
++  tile(pSource, pDest, pSource.getRect());
+ 
+-void AGPainter::drawGradient(const AGRect2 &pr,const AGColor &pc0,const AGColor &pc1,const AGColor &pc2,const AGColor &pc3)
+-  {
+-    STACKTRACE;
+-    AGGLScreen *glScreen=dynamic_cast<AGGLScreen*>(mTarget.getPtr());
++}
+ 
+-    AGRect2 src(0,0,1,1);
++void AGPainter::tile(const AGSurface &pSource, const AGRect2 &pDest, const AGRect2 &pSrc) {
++  STACKTRACE;
++  float x, y;
+ 
+-    AGRect2 d=mCurrent.project(pr);
+-    std::pair<AGRect2,AGRect2> p=mCurrent.clipRect(d,src);
++  std::vector<std::pair<AGRect2, AGRect2> > rects;
++  for (y = pDest.y0(); y < pDest.y1(); y += pSrc.h())
++    for (x = pDest.x0(); x < pDest.x1(); x += pSrc.w()) {
++      float w = std::min(pSrc.w(), pDest.x1() - x);
++      float h = std::min(pSrc.h(), pDest.y1() - y);
+ 
+-    AGColor c0=calcColor(p.second.getV0(),pc0,pc1,pc2,pc3);
+-    AGColor c1=calcColor(p.second.getV10(),pc0,pc1,pc2,pc3);
+-    AGColor c2=calcColor(p.second.getV01(),pc0,pc1,pc2,pc3);
+-    AGColor c3=calcColor(p.second.getV1(),pc0,pc1,pc2,pc3);
++      rects.push_back(std::make_pair(AGRect2(pSrc.x0(), pSrc.y0(), w, h), AGRect2(x, y, w, h)));
++    }
++  mTarget->blit(pSource, rects, AGColor(0xff, 0xff, 0xff, 0xff));
++}
+ 
+-    AGRect2 r=p.first;
++AGColor calcColor(AGVector2 p, const AGColor &pc0, const AGColor &pc1, const AGColor &pc2, const AGColor &pc3) {
++  return (pc0 * (1 - p[0]) + pc1 * p[0])*(1 - p[1]) + (pc2 * (1 - p[0]) + pc3 * p[0]) * p[1];
++}
+ 
+-    if(p.first.w()>0 && p.first.h()>0 && p.second.w()>0 && p.second.h()>0)
+-      {
+-        mTarget->drawGradient(r,c0,c1,c2,c3);
+-      }
+-  }
+-void AGPainter::renderText(const AGStringUtf8 &pText,const AGVector2 &p,const AGFont &f)
+-  {
+-    STACKTRACE;
+-    AGTexture *t=getFontEngine()->renderText(0,0,pText,f);
+-    if(t)
+-      blit(*t,AGRect2(p[0],p[1],t->getSurfaceWidth(),t->getSurfaceHeight()));
++void AGPainter::drawGradient(const AGRect2 &pr, const AGColor &pc0, const AGColor &pc1, const AGColor &pc2, const AGColor &pc3) {
++  STACKTRACE;
++  AGGLScreen *glScreen = dynamic_cast<AGGLScreen*> (mTarget.getPtr());
+ 
+-  }
+-void AGPainter::drawBorder(const AGRect2& pRect,int width, const AGColor& c1, const AGColor& c2)
+-  {
+-    STACKTRACE;
+-    // GL-screen has its own implementation
+-    AGGLScreen *glScreen=dynamic_cast<AGGLScreen*>(mTarget.getPtr());
+-    if(glScreen)
+-      {
+-        glScreen->clip(mCurrent.clip);
+-        glScreen->drawBorder(mCurrent.project(pRect),width,c1,c2);
+-        glScreen->unclip();
+-        return;
+-      }
+-    AGRect2 d=pRect;
++  AGRect2 src(0, 0, 1, 1);
+ 
+-    for(int t=0;t<width;t++)
+-      {
+-        drawLine(d.getV0(),d.getV01(),c1);
+-        drawLine(d.getV0(),d.getV10(),c1);
++  AGRect2 d = mCurrent.project(pr);
++  std::pair<AGRect2, AGRect2> p = mCurrent.clipRect(d, src);
+ 
+-        drawLine(d.getV01(),d.getV1(),c2);
+-        drawLine(d.getV10(),d.getV1(),c2);
+-        d=d.shrink(1);
+-      }
++  AGColor c0 = calcColor(p.second.getV0(), pc0, pc1, pc2, pc3);
++  AGColor c1 = calcColor(p.second.getV10(), pc0, pc1, pc2, pc3);
++  AGColor c2 = calcColor(p.second.getV01(), pc0, pc1, pc2, pc3);
++  AGColor c3 = calcColor(p.second.getV1(), pc0, pc1, pc2, pc3);
++
++  AGRect2 r = p.first;
++
++  if (p.first.w() > 0 && p.first.h() > 0 && p.second.w() > 0 && p.second.h() > 0) {
++    mTarget->drawGradient(r, c0, c1, c2, c3);
+   }
++}
+ 
+-void AGPainter::drawRect(const AGRect2& rect,const AGColor& c)
+-  {
+-    drawLine(rect.getV0(),rect.getV01(),c);
+-    drawLine(rect.getV0(),rect.getV10(),c);
++void AGPainter::renderText(const AGStringUtf8 &pText, const AGVector2 &p, const AGFont &f) {
++  STACKTRACE;
++  AGTexture *t = getFontEngine()->renderText(0, 0, pText, f);
++  if (t)
++    blit(*t, AGRect2(p[0], p[1], t->getSurfaceWidth(), t->getSurfaceHeight()));
+ 
+-    drawLine(rect.getV01(),rect.getV1(),c);
+-    drawLine(rect.getV10(),rect.getV1(),c);
++}
++
++void AGPainter::drawBorder(const AGRect2& pRect, int width, const AGColor& c1, const AGColor& c2) {
++  STACKTRACE;
++  // GL-screen has its own implementation
++  AGGLScreen *glScreen = dynamic_cast<AGGLScreen*> (mTarget.getPtr());
++  if (glScreen) {
++    glScreen->clip(mCurrent.clip);
++    glScreen->drawBorder(mCurrent.project(pRect), width, c1, c2);
++    glScreen->unclip();
++    return;
+   }
++  AGRect2 d = pRect;
+ 
++  for (int t = 0; t < width; t++) {
++    drawLine(d.getV0(), d.getV01(), c1);
++    drawLine(d.getV0(), d.getV10(), c1);
+ 
+-void AGPainter::fillRect(const AGRect2 &pDest,const AGColor &c)
+-  {
+-    STACKTRACE;
+-    AGRect2 d,pSrc;
+-    d=mCurrent.project(pDest);
+-    // FIXME: remove clipRect !!
+-    AGRect2 p=mCurrent.clipRect(d);
+-    if(p.w()>0 && p.h()>0)
+-      {
+-        //      cdebug(p);
+-        mTarget->fillRect(p,c);
+-      }
++    drawLine(d.getV01(), d.getV1(), c2);
++    drawLine(d.getV10(), d.getV1(), c2);
++    d = d.shrink(1);
+   }
++}
+ 
++void AGPainter::drawRect(const AGRect2& rect, const AGColor& c) {
++  drawLine(rect.getV0(), rect.getV01(), c);
++  drawLine(rect.getV0(), rect.getV10(), c);
+ 
+-void AGPainter::fillPoly(const std::vector<AGVector2> &pPoly,const AGColor &c)
+-  {
+-    //FIXME: add clipping for none-GL (?) - for performance ?
++  drawLine(rect.getV01(), rect.getV1(), c);
++  drawLine(rect.getV10(), rect.getV1(), c);
++}
+ 
+-    std::vector<AGVector2> projected;
+-    for(std::vector<AGVector2>::const_iterator i=pPoly.begin();i!=pPoly.end();i++)
+-      projected.push_back(mCurrent.project(*i));
++AGPaintProjection AGPainter::getCurrentProjection() const {
++  return mCurrent;
++}
+ 
+-    mTarget->fillPoly(projected,c);
++void AGPainter::fillRect(const AGRect2 &pDest, const AGColor &c) {
++  STACKTRACE;
++  AGRect2 d, pSrc;
++  d = mCurrent.project(pDest);
++  // FIXME: remove clipRect !!
++  AGRect2 p = mCurrent.clipRect(d);
++  if (p.w() > 0 && p.h() > 0) {
++    //      cdebug(p);
++    mTarget->fillRect(p, c);
+   }
++}
+ 
+-void AGPainter::drawPoly(const std::vector<AGVector2> &pPoly,const AGColor &c)
+-  {
+-    //FIXME: add clipping for none-GL (?) - for performance ?
++void AGPainter::fillPoly(const std::vector<AGVector2> &pPoly, const AGColor &c) {
++  //FIXME: add clipping for none-GL (?) - for performance ?
+ 
+-    std::vector<AGVector2> projected;
+-    for(std::vector<AGVector2>::const_iterator i=pPoly.begin();i!=pPoly.end();i++)
+-      projected.push_back(mCurrent.project(*i));
++  std::vector<AGVector2> projected;
++  for (std::vector<AGVector2>::const_iterator i = pPoly.begin(); i != pPoly.end(); i++)
++    projected.push_back(mCurrent.project(*i));
+ 
+-    mTarget->drawPoly(projected,c);
+-  }
++  mTarget->fillPoly(projected, c);
++}
+ 
++void AGPainter::drawPoly(const std::vector<AGVector2> &pPoly, const AGColor &c) {
++  //FIXME: add clipping for none-GL (?) - for performance ?
+ 
+-void AGPainter::fillRects(const std::vector<std::pair<AGRect2,AGVector4> > &pRects)
+-  {
+-    STACKTRACE;
+-    std::vector<std::pair<AGRect2,AGVector4> > rs;
++  std::vector<AGVector2> projected;
++  for (std::vector<AGVector2>::const_iterator i = pPoly.begin(); i != pPoly.end(); i++)
++    projected.push_back(mCurrent.project(*i));
+ 
+-    for(std::vector<std::pair<AGRect2,AGVector4> >::const_iterator i=pRects.begin();i!=pRects.end();++i)
+-      {
+-        AGRect2 d=mCurrent.project(i->first);
+-        if(!opengl())
+-          d=mCurrent.clipRect(d);
+-        if(d.w()>0 && d.h()>0)
+-          rs.push_back(std::make_pair(d,i->second));
+-      }
++  mTarget->drawPoly(projected, c);
++}
+ 
+-    if(rs.size())
+-      mTarget->fillRects(rs);
+-  }
++void AGPainter::fillRects(const std::vector<std::pair<AGRect2, AGVector4> > &pRects) {
++  STACKTRACE;
++  std::vector<std::pair<AGRect2, AGVector4> > rs;
+ 
+-
+-void AGPainter::drawPoint(const AGVector2 &p,const AGColor &c,float size)
+-  {
+-    STACKTRACE;
+-    AGVector2 d=mCurrent.project(p);
+-    if(mCurrent.pointOk(p))
+-      {
+-        mTarget->putPixel((int)d[0],(int)d[1],c);
+-      }
++  for (std::vector<std::pair<AGRect2, AGVector4> >::const_iterator i = pRects.begin(); i != pRects.end(); ++i) {
++    AGRect2 d = mCurrent.project(i->first);
++    if (!opengl())
++      d = mCurrent.clipRect(d);
++    if (d.w() > 0 && d.h() > 0)
++      rs.push_back(std::make_pair(d, i->second));
+   }
+ 
++  if (rs.size())
++    mTarget->fillRects(rs);
++}
+ 
+-AGColor AGPainter::getPixel(int x,int y)
+-  {
+-    AGVector2 p=mCurrent.project(AGVector2(x,y));
+-    if(!mCurrent.pointOk(p))
+-      throw std::string("pixel out of clipping!");
+-    return mTarget->getPixel((int)p[0],(int)p[1]);
++void AGPainter::drawPoint(const AGVector2 &p, const AGColor &c, float size) {
++  STACKTRACE;
++  AGVector2 d = mCurrent.project(p);
++  if (mCurrent.pointOk(p)) {
++    mTarget->putPixel((int) d[0], (int) d[1], c);
+   }
++}
+ 
+-void AGPainter::drawLine(const AGVector2 &p0,const AGVector2 &p1,const AGColor &c)
+-  {
++AGColor AGPainter::getPixel(int x, int y) {
++  AGVector2 p = mCurrent.project(AGVector2(x, y));
++  if (!mCurrent.pointOk(p))
++    throw std::string("pixel out of clipping!");
++  return mTarget->getPixel((int) p[0], (int) p[1]);
++}
++
++void AGPainter::drawLine(const AGVector2 &p0, const AGVector2 &p1, const AGColor &c) {
+ #warning "Add line clipping"
+-    AGVector2 m0=mCurrent.project(p0);
+-    AGVector2 m1=mCurrent.project(p1);
+-    mTarget->drawLine(m0,m1,c);
+-  }
++  AGVector2 m0 = mCurrent.project(p0);
++  AGVector2 m1 = mCurrent.project(p1);
++  mTarget->drawLine(m0, m1, c);
++}
+ 
+-void AGPainter::blitTri(const AGTexture &pSource,const AGTriangle2 &pSrc,const AGTriangle2 &pDest)
+-  {
+-    mTarget->blitTri(pSource,pSrc,pDest);
+-  }
++void AGPainter::blitTri(const AGTexture &pSource, const AGTriangle2 &pSrc, const AGTriangle2 &pDest) {
++  mTarget->blitTri(pSource, pSrc, pDest);
++}
+ 
+-void AGPainter::drawCircle(const AGVector2 &p,float rad,const AGColor &color)
+-  {
+-    // clipping done in putPixel
++void AGPainter::drawCircle(const AGVector2 &p, float rad, const AGColor &color) {
++  // clipping done in putPixel
+ 
+-    int x,y;
+-    float r2=rad*rad;
+-    for(x=((int)(p[0]-rad-1));x<=p[0]+rad+1;x++)
+-      for(y=((int)(p[1]-rad-1));y<=p[1]+rad+1;y++)
+-        {
+-          float dx=x-p[0];
+-          float dy=y-p[1];
+-          float d2=dx*dx+dy*dy;
++  int x, y;
++  float r2 = rad*rad;
++  for (x = ((int) (p[0] - rad - 1)); x <= p[0] + rad + 1; x++)
++    for (y = ((int) (p[1] - rad - 1)); y <= p[1] + rad + 1; y++) {
++      float dx = x - p[0];
++      float dy = y - p[1];
++      float d2 = dx * dx + dy*dy;
+ 
+-          if(d2<r2)
+-            {
+-              AGVector2 c(x,y);
+-              putPixel(c,color);
+-            }
+-        }
+-  }
++      if (d2 < r2) {
++        AGVector2 c(x, y);
++        putPixel(c, color);
++      }
++    }
++}
+ 
+-void AGPainter::setLineWidth(float w)
+-  {
+-    mTarget->setLineWidth(w);
+-  }
++void AGPainter::setLineWidth(float w) {
++  mTarget->setLineWidth(w);
++}
+ 
+-void AGPainter::pushMatrix()
+-  {
+-    ps.push_back(mCurrent);
+-  }
+-void AGPainter::popMatrix()
+-  {
+-    mCurrent=ps.back();
+-    ps.pop_back();
+-    mTarget->clip(mCurrent.clip);
+-  }
+-void AGPainter::translate(const AGVector2 &v)
+-  {
+-    mCurrent.translate(v);
+-  }
+-void AGPainter::scale(const AGVector2 &v)
+-  {
+-    throw std::string("not implemented!");
+-  }
+-void AGPainter::clip(const AGRect2 &r)
+-  {
+-    AGRect2 p=mCurrent.project(r);
+-    mCurrent.setClip(p);
+-    mTarget->clip(mCurrent.clip);
+-  }
++void AGPainter::pushMatrix() {
++  ps.push_back(mCurrent);
++}
+ 
+-void AGPainter::transform(const AGMatrix3 &m)
+-  {
+-    mCurrent.transform(m);
+-  }
++void AGPainter::popMatrix() {
++  mCurrent = ps.back();
++  ps.pop_back();
++  mTarget->clip(mCurrent.clip);
++}
+ 
+-void AGPainter::transform(const AGRect2 &r)
+-  {
+-    translate(r[0]);
+-    clip(r.origin());
+-  }
++void AGPainter::translate(const AGVector2 &v) {
++  mCurrent.translate(v);
++}
+ 
+-AGRect2 AGPainter::getRect() const
+-{
+-  return mCurrent.getRect();
++void AGPainter::scale(const AGVector2 &v) {
++  throw std::string("not implemented!");
+ }
+ 
+-void AGPainter::clip(const AGClipping &clip)
+-  {
+-    CTRACE;
+-    throw std::runtime_error("NOT IMPLEMENTED !");
+-  }
++void AGPainter::clip(const AGRect2 &r) {
++  AGRect2 p = mCurrent.project(r);
++  mCurrent.setClip(p);
++  mTarget->clip(mCurrent.clip);
++}
+ 
++void AGPainter::transform(const AGMatrix3 &m) {
++  mCurrent.transform(m);
++}
+ 
+-AGPaintTarget *AGPainter::getTarget()
+-  {
+-    return mTarget.getPtr();
+-  }
++void AGPainter::transform(const AGRect2 &r) {
++  translate(r[0]);
++  clip(r.origin());
++}
+ 
++AGRect2 AGPainter::getRect() const {
++  return mCurrent.getRect();
++}
+ 
+-void AGPainter::debugOutput()
+-  {
+-    cdebug(mCurrent.a);
+-    cdebug(mCurrent.clip);
+-  }
++void AGPainter::clip(const AGClipping &clip) {
++  CTRACE;
++  throw std::runtime_error("NOT IMPLEMENTED !");
++}
++
++AGPaintTarget *AGPainter::getTarget() {
++  return mTarget.getPtr();
++}
++
++void AGPainter::debugOutput() {
++  cdebug(mCurrent.a);
++  cdebug(mCurrent.clip);
++}
+
+Modified: antargis/trunk/ext/video/ag_painter.h
+===================================================================
+--- antargis/trunk/ext/video/ag_painter.h	2009-03-03 19:55:17 UTC (rev 1297)
++++ antargis/trunk/ext/video/ag_painter.h	2009-03-04 16:46:14 UTC (rev 1298)
+@@ -135,6 +135,8 @@
+ 
+   void debugOutput();
+ 
++  AGPaintProjection getCurrentProjection() const;
++
+  private:
+   std::list<AGPaintProjection> ps;
+ 
+
+Modified: antargis/trunk/rookey/lib/rookey/cpp/rk_logging.cc
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_logging.cc	2009-03-03 19:55:17 UTC (rev 1297)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_logging.cc	2009-03-04 16:46:14 UTC (rev 1298)
+@@ -41,6 +41,8 @@
+ void RKLogging::log(const std::string &s, const std::string &pLevel) {
+ 
+   // FIXME: do not start a new line each time !!
++  if(allDestroyed())
++    return;
+ 
+   if(mLastLevel!=pLevel)
+     startLine(pLevel);
+@@ -112,10 +114,12 @@
+ 
+ namespace logger {
+ 
+-  Channel out(Channel::OUT);
+-  Channel debug(Channel::DEBUG);
+-  Channel warn(Channel::WARN);
+-  Channel err(Channel::ERR);
++  Channel out(Channel::T_OUT);
++  Channel debug(Channel::T_DEBUG);
++  Channel warn(Channel::T_WARN);
++  Channel err(Channel::T_ERR);
++  Channel trace(Channel::T_TRACE);
++  Channel info(Channel::T_INFO);
+ 
+   Special endl(Special::ENDL);
+ 
+@@ -162,10 +166,12 @@
+ 
+   std::string Channel::getType(const Type &pType) {
+     switch (pType) {
+-      case OUT:return "out  ";
+-      case ERR:return "error";
+-      case DEBUG:return "debug";
+-      case WARN:return "warn ";
++      case T_OUT:return "out  ";
++      case T_ERR:return "error";
++      case T_DEBUG:return "debug";
++      case T_WARN:return "warn ";
++      case T_TRACE:return "trace";
++      case T_INFO:return "info ";
+       default: return "CRITICAL";
+     }
+   }
+
+Modified: antargis/trunk/rookey/lib/rookey/cpp/rk_logging.h
+===================================================================
+--- antargis/trunk/rookey/lib/rookey/cpp/rk_logging.h	2009-03-03 19:55:17 UTC (rev 1297)
++++ antargis/trunk/rookey/lib/rookey/cpp/rk_logging.h	2009-03-04 16:46:14 UTC (rev 1298)
+@@ -63,7 +63,7 @@
+   public:
+ 
+     enum Type {
+-      OUT, ERR, DEBUG, WARN
++      T_OUT, T_ERR, T_DEBUG, T_WARN, T_TRACE, T_INFO
+     };
+ 
+     Channel(const Type &pType);
+@@ -95,6 +95,8 @@
+   extern AGEXPORT Channel debug;
+   extern AGEXPORT Channel warn;
+   extern AGEXPORT Channel err;
++  extern AGEXPORT Channel trace;
++  extern AGEXPORT Channel info;
+ 
+   extern AGEXPORT Special endl;
+ }
+
+Modified: antargis/trunk/ruby/ant_tools.rb
+===================================================================
+--- antargis/trunk/ruby/ant_tools.rb	2009-03-03 19:55:17 UTC (rev 1297)
++++ antargis/trunk/ruby/ant_tools.rb	2009-03-04 16:46:14 UTC (rev 1298)
+@@ -1,4 +1,5 @@
+ require "ruby/ant_sound.rb"
++require 'ruby/tools/logging.rb'
+ 
+ def getMeshData(file,zoom,texture="",shadow=true)
+   id=file+":"+texture
+@@ -51,9 +52,9 @@
+   end
+ end
+ 
+-def trace
+-  puts "TRACE #{caller[0]}"
+-end
++#def trace
++#  puts "TRACE #{caller[0]}"
++#end
+ 
+ class AntargisException<Exception
+   attr_accessor :text
+
+Modified: antargis/trunk/ruby/antargislib.rb
+===================================================================
+--- antargis/trunk/ruby/antargislib.rb	2009-03-03 19:55:17 UTC (rev 1297)
++++ antargis/trunk/ruby/antargislib.rb	2009-03-04 16:46:14 UTC (rev 1298)
+@@ -299,21 +299,10 @@
+   end
+ end
+ 
+-class Logger
+-  filename=File.join(getWriteDir,"log.txt")
+-  @@log=File.open(filename,"w")
+-  def self.log(*s)
+-    @@log.print("[")
+-    @@log.print(Time.new)
+-    @@log.print("] ")
+-    @@log.puts(*s)
+-  end
+-end
+ 
+-def log(*s)
+-  Logger.log(*s)
+-end
++require 'ruby/tools/logging.rb'
+ 
++
+ class AntApplication<AGApplication
+   include AntMyEventHandler
+ 
+
+Modified: antargis/trunk/ruby/editor/campaign/app.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/app.rb	2009-03-03 19:55:17 UTC (rev 1297)
++++ antargis/trunk/ruby/editor/campaign/app.rb	2009-03-04 16:46:14 UTC (rev 1298)
+@@ -117,8 +117,6 @@
+     }
+     
+     campaign.edges.each{|edge|
+-      pp edge.from,edge.to
+-      puts boxes[edge.from].getRect,boxes[edge.to].getRect
+       line=DragLine.new(@grid, at grid.getRect,boxes[edge.from])
+       line.endObject=boxes[edge.to]
+       @grid.addChild(line)
+
+Modified: antargis/trunk/ruby/editor/campaign/drag_grid.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/drag_grid.rb	2009-03-03 19:55:17 UTC (rev 1297)
++++ antargis/trunk/ruby/editor/campaign/drag_grid.rb	2009-03-04 16:46:14 UTC (rev 1298)
+@@ -109,7 +109,6 @@
+       getChildren.map{|child|[child]+child.getAllDescendants}.flatten
+     end
+     def moveToContext(to)
+-      pp "moveToContext"
+       o=getScreenRect
+       p=getParent
+       p.removeChild(self)
+@@ -119,6 +118,17 @@
+     def getChildByType(type)
+       getAllDescendants.select{|c|c.is_a?(type)}[0]
+     end
++
++    def getWidgetTree
++      [self,getChildren.map{|c|c.getWidgetTree}]
++    end
++    def focused?
++      if getParent
++        getParent.hasFocus(self)
++      else
++        true
++      end
++    end
+   end
+ end
+ 
+@@ -237,7 +247,8 @@
+         startLine(e)
+         r=true
+       end
+-      dragGrid.select(self) if dragGrid
++      
++      #dragGrid.select(self) if dragGrid
+     end
+     r
+   end
+@@ -276,7 +287,8 @@
+     else
+       hide
+     end
+-    
++      dragGrid=getDragGrid
++    dragGrid.select(self) if dragGrid
+     @dragging=false
+     true
+   end
+@@ -289,7 +301,6 @@
+     @lastCell=cell
+     
+     moveToContext(getDragGrid)
+-    pp cell
+     setRect(cell.rect.shrink(5))
+   end
+   def centerObject
+@@ -516,7 +527,6 @@
+       edit=getRoot.getAllDescendants.select{|w|w.getName==@edit}[0]
+       unless edit.nil?
+         @edit=edit
+-        pp @edit
+         addHandler(@edit,:sigModified,:textModified)
+       end
+     end
+
+Modified: antargis/trunk/ruby/editor/campaign/effect.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/effect.rb	2009-03-03 19:55:17 UTC (rev 1297)
++++ antargis/trunk/ruby/editor/campaign/effect.rb	2009-03-04 16:46:14 UTC (rev 1298)
+@@ -19,7 +19,6 @@
+     if @running
+       @time+=t
+       @running=false if @time>=@duration
+-      pp @running
+       @time=@duration if @time>@duration 
+       step(@time/@duration)
+     end
+@@ -28,7 +27,7 @@
+     @running=false
+   end
+   def step(per)
+-    pp per
++    pp "PER",per
+     exit
+   end
+   private
+@@ -50,7 +49,6 @@
+     
+   end
+   def step(amount)
+-    pp "AMOUNT:",amount
+     table=getApp.getMainWidget.getChild(@target)
+     table.modifyRow(@row,amount*@size)
+   end
+@@ -66,7 +64,6 @@
+     @size=nil
+   end
+   def step(amount)
+-    pp "AMOUNT HIDE:",amount
+     @size||=table.getRow(@row)
+     table.modifyRow(@row,(1-amount)*@size)
+   end
+
+Modified: antargis/trunk/ruby/editor/campaign/image_list.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/image_list.rb	2009-03-03 19:55:17 UTC (rev 1297)
++++ antargis/trunk/ruby/editor/campaign/image_list.rb	2009-03-04 16:46:14 UTC (rev 1298)
+@@ -3,7 +3,6 @@
+     super(p,r)
+     dir="data/gui/campaign"
+     files=getDirectory(dir).select{|f|f=~/\.png$/}.uniq
+-    pp files
+     #exit
+     @images=files.map{|file|[file,AGTexture.new(AGSurface::load(File.join(dir,file)))]}
+     assert{@images.length>0}
+@@ -12,14 +11,8 @@
+     @pos=0
+   end
+   
+-  def eventMouseButtonDown(e)
+-    pp e.getButton
+-    super
+-  end
+-  
+   def eventMouseMotion(e)
+     @pos=1-e.getMousePosition.x/width
+-    pp @pos
+     super
+   end
+   
+@@ -32,7 +25,6 @@
+       r=rs[i]+getScreenRect.getV0
+       f=t.getRect
+       pos=i.to_f/(rs.length)*0.5+ at pos-1
+-      #pp pos
+       trisFrom=makeTriangles(f,AGTriangle2)
+       #trisTo=makeTriangles(r,AGTriangle3)
+       trisTo=makeTriangle(getScreenRect,pos,f)
+@@ -62,7 +54,6 @@
+     
+     d1=[0,[y1,-height*(pos)*f].min].max
+     d0=[0,[y0,height*(pos)*f].min].max
+-    pp d0,d1
+     
+     y1-=d1
+     y0-=d0
+
+Modified: antargis/trunk/ruby/editor/campaign/image_list_2d.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/image_list_2d.rb	2009-03-03 19:55:17 UTC (rev 1297)
++++ antargis/trunk/ruby/editor/campaign/image_list_2d.rb	2009-03-04 16:46:14 UTC (rev 1298)
+@@ -6,7 +6,6 @@
+     createSignal :sigSelected
+     dir="data/gui/campaign"
+     files=getDirectory(dir).select{|f|f=~/\.png$/}.uniq
+-    pp files
+     #exit
+     @images=files.map{|file|[file,AGTexture.new(AGSurface::load(File.join(dir,file)))]}*3
+     assert{@images.length>0}
+
+Modified: antargis/trunk/ruby/editor/campaign/ruby_layouts.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/ruby_layouts.rb	2009-03-03 19:55:17 UTC (rev 1297)
++++ antargis/trunk/ruby/editor/campaign/ruby_layouts.rb	2009-03-04 16:46:14 UTC (rev 1298)
+@@ -5,7 +5,6 @@
+   end
+   def create(p,r,node)
+     options=node.getAttributes
+-    pp @c
+     setResult @c.new(p,r,options)
+   end
+ end
+
+Modified: antargis/trunk/ruby/editor/campaign/spec_campaign_editor.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/spec_campaign_editor.rb	2009-03-03 19:55:17 UTC (rev 1297)
++++ antargis/trunk/ruby/editor/campaign/spec_campaign_editor.rb	2009-03-04 16:46:14 UTC (rev 1298)
+@@ -1,6 +1,6 @@
+ require File.join(File.split(__FILE__)[0],"..","..","spec_helper.rb")
+-require File.join(File.split(__FILE__)[0],"..","..","gui","testing.rb")
+-require File.join(File.split(__FILE__)[0],"app.rb")
++require File.expand_path("../../../gui/testing.rb",__FILE__)
++require File.expand_path("../app.rb",__FILE__)
+ 
+ describe "Campaign editor" do
+   include GuiTest
+@@ -14,6 +14,19 @@
+     level.should be_a_kind_of(DragBoxLevel)
+     level.getParent.should_not be_nil
+   end
++
++  it "should be possible to move nodes and they should be visible at all times" do
++    level=grid.getChildren[0]
++    sr=level.getScreenRect
++    dr=sr+AGVector2.new(100,0)
++
++    drag(sr.getMiddle,dr.getMiddle,10) {|event|
++      level.should be_visible
++      level.should be_focused if event==:mouseMotion
++    }
++    drag(dr.getMiddle,sr.getMiddle,10)
++  end
++
+   #if false
+   it "should be possible to move the grid" do
+     level=grid.getChildren[0]
+@@ -51,6 +64,7 @@
+       observe(@app.getEffect("showEdit"),:run) {
+         observe(grid.widget,:select) {
+           mouseDown(pos)
++          mouseUp(pos)
+         }.should be_called
+       }.should be_called
+     }.should_not be_called
+@@ -90,6 +104,7 @@
+     block.call(:mouseUp) if block
+     #@app.step while true
+   end
++
+   
+   def getSourceMiddle(name)
+     getWidget(name).getScreenRect.getMiddle
+
+Modified: antargis/trunk/ruby/editor/campaign/toolbar.rb
+===================================================================
+--- antargis/trunk/ruby/editor/campaign/toolbar.rb	2009-03-03 19:55:17 UTC (rev 1297)
++++ antargis/trunk/ruby/editor/campaign/toolbar.rb	2009-03-04 16:46:14 UTC (rev 1298)
+@@ -33,9 +33,7 @@
+     @children.each{|child|
+       many=1
+       many=child.boxWidth if child.respond_to?(:boxWidth)
+-      pp count,many
+       r=getChildRect(count,many)
+-      p r
+       child.setRect(r)
+       count+=many
+       child.queryRedraw
+
+Modified: antargis/trunk/ruby/gui/testing.rb
+===================================================================
+--- antargis/trunk/ruby/gui/testing.rb	2009-03-03 19:55:17 UTC (rev 1297)
++++ antargis/trunk/ruby/gui/testing.rb	2009-03-04 16:46:14 UTC (rev 1298)
+@@ -3,11 +3,11 @@
+   attr_reader :quitCounter
+   def step
+     run
+-    puts "step end"
++    trace "step end"
+   end
+   def eventFrame(t)
+     super(0.05)
+-    puts "FRAME - try Quit..."
++    trace "FRAME - try Quit..."
+     tryQuit
+     delay(20)
+     true
+
+Modified: antargis/trunk/ruby/spec_helper.rb
+===================================================================
+--- antargis/trunk/ruby/spec_helper.rb	2009-03-03 19:55:17 UTC (rev 1297)
++++ antargis/trunk/ruby/spec_helper.rb	2009-03-04 16:46:14 UTC (rev 1298)
+@@ -99,7 +99,6 @@
+       if self==object
+         #this.ok=true
+         this.count+=1
+-        puts "MUH"
+       end
+       method.call(*s)
+     } 
+
+Added: antargis/trunk/ruby/tools/logging.rb
+===================================================================
+--- antargis/trunk/ruby/tools/logging.rb	2009-03-03 19:55:17 UTC (rev 1297)
++++ antargis/trunk/ruby/tools/logging.rb	2009-03-04 16:46:14 UTC (rev 1298)
+@@ -0,0 +1,24 @@
++def logTo(outputChannel,*ar)
++  outputChannel << "[" << caller[1].to_s << "] "
++  ar.each{|a|
++    Antargis::out<<a.to_s
++
++    }
++  outputChannel<<Antargis::endl
++end
++
++def log(*ar)
++  logTo(Antargis::out,*ar)
++end
++
++def err(*ar)
++  logTo(Antargis::err,*ar)
++end
++
++def trace(*ar)
++  logTo(Antargis::trace,*ar)
++end
++
++def logpp(*ar)
++  logTo(Antargis::out,ar.inspect)
++end
+\ No newline at end of file
+
+
+
